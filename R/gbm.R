@@ -19,10 +19,13 @@ gbm <- function(formula = formula(data),
                 train.fraction = 1.0,
                 cv.folds=0,
                 keep.data = TRUE,
-                verbose = TRUE,
-                class.stratify.cv)
+                verbose = 'CV',
+                class.stratify.cv=NULL)
 {
    theCall <- match.call()
+
+   lVerbose <- if (!is.logical(verbose)) { FALSE }
+               else { verbose }
 
    mf <- match.call(expand.dots = FALSE)
    m <- match(c("formula", "data", "weights", "offset"), names(mf), 0)
@@ -34,22 +37,10 @@ gbm <- function(formula = formula(data),
    mf <- eval(mf, parent.frame())
    Terms <- attr(mf, "terms")
 
-   y <- model.response( mf )
-   # If distribution is not given, try to guess it
-   if ( missing( distribution ) ){
-      if ( length( unique( y ) ) == 2 ){ distribution <- "bernoulli" }
-      else if ( class( y ) == "Surv" ){ distribution <- "coxph" }
-      else if ( is.factor( y ) ){ distribution <- "multinomial" }
-      else{
-         distribution <- "gaussian"
-      }
-      cat( paste( "Distribution not specified, assuming", distribution, "...\n" ) )
-   }
+   y <- model.response(mf)
 
-   #   if ( length( distribution ) == 1 && distribution != "multinomial" ){
-   #      y <- model.response(mf, "numeric")
-   #   }
-   #   else { y <- model.response( mf ) }
+   if (missing(distribution)){ distribution <- guessDist(y) }
+   else if (is.character(distribution)){ distribution <- list(name=distribution) }
 
    w <- model.weights(mf)
    offset <- model.offset(mf)
@@ -61,34 +52,21 @@ gbm <- function(formula = formula(data),
 
    # get the character name of the response variable
    response.name <- as.character(formula[[2]])
-   if(is.character(distribution)) distribution <- list(name=distribution)
 
-   if ( missing( class.stratify.cv ) ){
-      if ( distribution$name == "multinomial" ){ class.stratify.cv <- TRUE }
-      else class.stratify.cv <- FALSE
-   }
-   else {
-      if ( !is.element( distribution$name, c( "bernoulli", "multinomial" ) ) ){
-         warning("You can only use class.stratify.cv when distribution is bernoulli or multinomial. Ignored.")
-         class.stratify.cv <- FALSE
-      }
-   }
+   class.stratify.cv <- getStratify(class.stratify.cv, distribution)
 
    # groups (for pairwise distribution only)
    group      <- NULL
    num.groups <- 0
 
    # determine number of training instances
-   if(distribution$name=="coxph")
-   {
+   if(distribution$name=="coxph") {
       nTrain <- floor(train.fraction*nrow(y))
    }
-   else if (distribution$name != "pairwise")
-   {
+   else if (distribution$name != "pairwise") {
       nTrain <- floor(train.fraction*length(y))
    }
-   else
-   {
+   else {
       # distribution$name == "pairwise":
       # Sampling is by group, so we need to calculate them here
       distribution.group <- distribution[["group"]]
@@ -142,37 +120,17 @@ gbm <- function(formula = formula(data),
    } # close if(distribution$name=="coxph") ...
 
    cv.error <- NULL
-   if(cv.folds>1)
-   {
+   if(cv.folds>1) {
       i.train <- 1:nTrain
 
-      if ( distribution$name %in% c( "bernoulli", "multinomial" ) & class.stratify.cv )
-      {
-         nc <- table(y[i.train]) # Number in each class
-         uc <- names(nc)
-         if ( min( nc ) < cv.folds ){
-            stop( paste("The smallest class has only", min(nc), "objects in the training set. Can't do", cv.folds, "fold cross-validation."))
-         }
-         cv.group <- vector( length = length( i.train ) )
-         for ( i in 1:length( uc ) ){
-            cv.group[ y[i.train] == uc[i] ] <- sample( rep( 1:cv.folds , length = nc[i] ) )
-         }
-      }
-      else if (distribution$name == "pairwise")
-      {
-         # Split into CV folds at group boundaries
-         s <- sample(rep(1:cv.folds, length=nlevels(group)))
-         cv.group <- s[as.integer(group[i.train])]
-      }
-      else
-      {
-         cv.group <- sample(rep(1:cv.folds, length=length(i.train)))
-      }
+      cv.group <- getCVgroup(distribution, class.stratify.cv, y, i.train, cv.folds, group)
 
+      ##############################################################################
+      ################################ Main CV loop ################################
+      ################################              ################################
       cv.error <- rep(0, n.trees)
-      for(i.cv in 1:cv.folds)
-      {
-         if(verbose) cat("CV:",i.cv,"\n")
+      for(i.cv in 1:cv.folds){
+         if(lVerbose | verbose == 'CV') { cat("CV:",i.cv,"\n") }
 
          i <- order(cv.group==i.cv)
 
@@ -189,7 +147,7 @@ gbm <- function(formula = formula(data),
                             bag.fraction = bag.fraction,
                             nTrain = length(which(cv.group!=i.cv)),
                             keep.data = FALSE,
-                            verbose = verbose,
+                            verbose = lVerbose,
                             var.names = var.names,
                             response.name = response.name,
                             group = group[i.train][i])
@@ -210,7 +168,7 @@ gbm <- function(formula = formula(data),
                       bag.fraction = bag.fraction,
                       nTrain = nTrain,
                       keep.data = keep.data,
-                      verbose = verbose,
+                      verbose = lVerbose,
                       var.names = var.names,
                       response.name = response.name,
                       group = group)

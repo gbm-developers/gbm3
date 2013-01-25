@@ -18,8 +18,8 @@ gbm(formula = formula(data),
     train.fraction = 1.0,
     cv.folds=0,
     keep.data = TRUE,
-    verbose = TRUE,
-    class.stratify.cv)
+    verbose = "CV",
+    class.stratify.cv=NULL)
 
 gbm.fit(x,y,
         offset = NULL,
