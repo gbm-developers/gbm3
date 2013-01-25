@@ -1,0 +1,13 @@
+# Export all names that don't start with "."
+exportPattern("^[^\\.]")
+
+useDynLib(gbm)
+
+importFrom(survival, Surv)
+
+# ns from splines is used in one of the examples
+importFrom(splines, ns, splineDesign)
+
+# xyplot is used, which means several functions internal
+# to lattice will also be used. Import the lot.
+import(lattice)

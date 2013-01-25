@@ -1,0 +1,7 @@
+inst/doc/gbm.tex
+inst/doc/srcltx.sty
+inst/doc/shrinkage-v-iterations.eps
+inst/doc/shrinkage-v-iterations.pdf
+inst/doc/oobperf2.eps
+inst/doc/oobperf2.pdf
+inst/doc/shrinkageplot.R
