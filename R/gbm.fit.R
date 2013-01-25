@@ -14,31 +14,30 @@ gbm.fit <- function(x,y,
                     keep.data = TRUE,
                     verbose = TRUE,
                     var.names = NULL,
-                    response.name = NULL,
+                    response.name = "y",
                     group = NULL)
 {
 
-   if(is.character(distribution))
-   {
-      distribution <- list(name=distribution)
-   }
+   if(is.character(distribution)) { distribution <- list(name=distribution) }
 
    cRows <- nrow(x)
    cCols <- ncol(x)
 
+   if(nrow(x) != ifelse(class(y)=="Surv", nrow(y), length(y))) {
+      stop("The number of rows in x does not equal the length of y.")
+   }
+
    # the preferred way to specify the number of training instances is via parameter 'nTrain'.
    # parameter 'train.fraction' is only maintained for backward compatibility.
 
-   if(!is.null(nTrain) && !is.null(train.fraction))
-   {
+   if(!is.null(nTrain) && !is.null(train.fraction)) {
       stop("Parameters 'nTrain' and 'train.fraction' cannot both be specified")
    }
-   else if(!is.null(train.fraction))
-   {
+   else if(!is.null(train.fraction)) {
       warning("Parameter 'train.fraction' of gbm.fit is deprecated, please specify 'nTrain' instead")
       nTrain <- floor(train.fraction*cRows)
-   } else if(is.null(nTrain))
-   {
+   }
+   else if(is.null(nTrain)) {
      # both undefined, use all training data
      nTrain <- cRows
    }
@@ -47,72 +46,19 @@ gbm.fit <- function(x,y,
       train.fraction <- nTrain / cRows
    }
 
-
-   if(is.null(var.names))
-   {
-      if(is.matrix(x))
-      {
-         var.names <- colnames(x)
-      }
-      else if(is.data.frame(x))
-      {
-         var.names <- names(x)
-      }
-      else
-      {
-         var.names <- paste("X",1:cCols,sep="")
-      }
-   }
-   j <- apply(x, 2, function(z) any(is.nan(z)))
-   if(any(j))
-   {
-      stop("Use NA for missing values. NaN found in predictor variables:",
-           paste(var.names[j],collapse=","))
+   if(is.null(var.names)) {
+       var.names <- getVarNames(x)
    }
 
-   if(is.null(response.name))
-   {
-      response.name <- "y"
-   }
+#   if(is.null(response.name)) { response.name <- "y" }
 
    # check dataset size
-   if(nTrain * bag.fraction <= 2*n.minobsinnode+1)
-   {
+   if(nTrain * bag.fraction <= 2*n.minobsinnode+1) {
       stop("The dataset size is too small or subsampling rate is too large: nTrain*bag.fraction <= n.minobsinnode")
    }
 
-   if(nrow(x) != ifelse(class(y)=="Surv", nrow(y), length(y)))
-   {
-      stop("The number of rows in x does not equal the length of y.")
-   }
-
-   if(interaction.depth < 1)
-   {
-      stop("interaction.depth must be at least 1.")
-   }
-   if(interaction.depth>49)
-   {
-      stop("interaction.depth must be less than 50. You should also ask yourself why you want such large interaction terms. A value between 1 and 5 should be sufficient for most applications.")
-   }
-
-   if(length(w)==0) w <- rep(1, cRows)
-   else if(any(w < 0)) stop("negative weights not allowed")
-
-   if(any(is.na(y))) stop("Missing values are not allowed in the response, ",
-                          response.name)
-
-   if (distribution$name != "pairwise")
-   {
+   if (distribution$name != "pairwise") {
       w <- w*length(w)/sum(w) # normalize to N
-   }
-
-   if(is.null(offset) || (offset==0))
-   {
-      offset <- NA
-   }
-   else if(length(offset) != length(y))
-   {
-      stop("The length of offset does not equal the length of y.")
    }
 
    Misc <- NA
@@ -158,12 +104,7 @@ gbm.fit <- function(x,y,
 
    nClass <- 1
 
-   if(is.character(distribution))
-   {
-      distribution <- list(name=distribution)
-   }
-   if(!("name" %in% names(distribution)))
-   {
+   if(!("name" %in% names(distribution))) {
       stop("The distribution is missing a 'name' component, for example list(name=\"gaussian\")")
    }
    supported.distributions <-

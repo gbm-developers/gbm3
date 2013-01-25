@@ -119,6 +119,14 @@ gbm <- function(formula = formula(data),
       Misc             <- group
    } # close if(distribution$name=="coxph") ...
 
+
+   # Do sanity checks - most of these have been pulled out of the body of gbm.fit
+   # in version 2.0-8 downwards.
+   ch <- checkMissing(x, y)
+   interaction.depth <- checkID(interaction.depth)
+   w <- checkWeights(w, length(y))
+   offset <- checkOffset(offset, y)
+
    cv.error <- NULL
    if(cv.folds>1) {
       i.train <- 1:nTrain

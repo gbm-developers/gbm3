@@ -21,7 +21,7 @@ gbm(formula = formula(data),
     verbose = "CV",
     class.stratify.cv=NULL)
 
-gbm.fit(x,y,
+gbm.fit(x, y,
         offset = NULL,
         misc = NULL,
         distribution = "bernoulli",
@@ -37,7 +37,7 @@ gbm.fit(x,y,
         keep.data = TRUE,
         verbose = TRUE,
         var.names = NULL,
-        response.name = NULL,
+        response.name = "y",
         group = NULL)
 
 gbm.more(object,
