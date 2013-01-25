@@ -20,7 +20,8 @@ gbm <- function(formula = formula(data),
                 cv.folds=0,
                 keep.data = TRUE,
                 verbose = 'CV',
-                class.stratify.cv=NULL)
+                class.stratify.cv=NULL,
+                ncore = 1)
 {
    theCall <- match.call()
 
@@ -132,12 +133,62 @@ gbm <- function(formula = formula(data),
       i.train <- 1:nTrain
 
       cv.group <- getCVgroup(distribution, class.stratify.cv, y, i.train, cv.folds, group)
+      cv.error <- rep(0, n.trees)
+
+      # Set up parallel processing
+      if (!is.element('parallel', search())){
+          cat("Attaching 'parallel' package\n")
+          library(parallel)
+      }
+      clus <- makeCluster(ncore)
 
       ##############################################################################
       ################################ Main CV loop ################################
       ################################              ################################
-      cv.error <- rep(0, n.trees)
-      for(i.cv in 1:cv.folds){
+      cvfun <- function(cl, cv, i.train, x, y, offset, distribution, w, var.monotone, n.trees,
+                        interaction.depth, n.minobsinnode, shrinkage, bag.fraction,
+                        cv.group, verbose, var.names, response.name, group){
+
+          cat("CV:", cv, "\n")
+
+          i <- order(cv.group == cv)
+          x <- x[i.train,,drop=TRUE][i,,drop=FALSE]
+          y <- y[i.train][i]
+          offset <- offset[i.train][i]
+          nTrain <- length(which(cv.group != cv))
+          group <- group[i.train][i]
+
+          res <- gbm.fit(x, y,
+                         offset=offset, distribution=distribution,
+                         w=w, var.monotone=var.monotone, n.trees=n.trees,
+                         interaction.depth=interaction.depth,
+                         n.minobsinnode=n.minobsinnode,
+                         shrinkage=shrinkage,
+                         bag.fraction=bag.fraction,
+                         nTrain=nTrain, keep.data=FALSE,
+                         verbose=verbose, response.name=response.name,
+                         group=group)
+           res$valid.error*sum(cv.group == cv)
+      }
+#      cv.res <- lapply(1:cv.folds, cvfun,
+#                 i.train, x, y, offset, distribution, w, var.monotone, n.trees,
+#                          interaction.depth, n.minobsinnode, shrinkage, bag.fraction,
+#                          cv.group, lVerbose, var.names, response.name, group)
+
+      cv.res <- parLapply(clus, 1:cv.folds, cvfun,
+                          i.train, x, y, offset, distribution, w, var.monotone, n.trees,
+                          interaction.depth, n.minobsinnode, shrinkage, bag.fraction,
+                          cv.group, lVerbose, var.names, response.name, group)
+
+      stopCluster(clus)
+
+      # cv.res should be a list containing the CV error - vectors each of the same length
+      cv.res <- do.call("cbind", cv.res)
+      cv.error <- rowMeans(cv.res)
+
+
+if (FALSE){
+          for(i.cv in 1:cv.folds){
          if(lVerbose | verbose == 'CV') { cat("CV:",i.cv,"\n") }
 
          i <- order(cv.group==i.cv)
@@ -160,9 +211,12 @@ gbm <- function(formula = formula(data),
                             response.name = response.name,
                             group = group[i.train][i])
          cv.error <- cv.error + gbm.obj$valid.error*sum(cv.group==i.cv)
-      }
+      } # Close for(i.cv
       cv.error <- cv.error/length(i.train)
-   }
+
+}# Close if (FALSE
+
+   } # Close if(cv.folds > 1
 
    gbm.obj <- gbm.fit(x,y,
                       offset = offset,
