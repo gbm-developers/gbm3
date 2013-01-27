@@ -21,8 +21,8 @@ gbm <- function(formula = formula(data),
                 keep.data = TRUE,
                 verbose = 'CV',
                 class.stratify.cv=NULL,
-                ncore = 1)
-{
+                ncore){
+
    theCall <- match.call()
 
    lVerbose <- if (!is.logical(verbose)) { FALSE }
@@ -61,11 +61,8 @@ gbm <- function(formula = formula(data),
    num.groups <- 0
 
    # determine number of training instances
-   if(distribution$name=="coxph") {
-      nTrain <- floor(train.fraction*nrow(y))
-   }
-   else if (distribution$name != "pairwise") {
-      nTrain <- floor(train.fraction*length(y))
+   if (distribution$name != "pairwise"){
+      nTrain <- floor(train.fraction * nrow(x))
    }
    else {
       # distribution$name == "pairwise":
@@ -140,24 +137,26 @@ gbm <- function(formula = formula(data),
           cat("Attaching 'parallel' package\n")
           library(parallel)
       }
+      if (missing(ncore)){ ncore <- detectCores() }
       clus <- makeCluster(ncore)
 
       ##############################################################################
       ################################ Main CV loop ################################
       ################################              ################################
-      cvfun <- function(cl, cv, i.train, x, y, offset, distribution, w, var.monotone, n.trees,
+      cvfun <- function(cl, X, i.train, x, y, offset, distribution, w, var.monotone, n.trees,
                         interaction.depth, n.minobsinnode, shrinkage, bag.fraction,
                         cv.group, verbose, var.names, response.name, group){
 
-          cat("CV:", cv, "\n")
+          cat("CV:", X, "\n")
 
-          i <- order(cv.group == cv)
-          x <- x[i.train,,drop=TRUE][i,,drop=FALSE]
-          y <- y[i.train][i]
-          offset <- offset[i.train][i]
-          nTrain <- length(which(cv.group != cv))
-          group <- group[i.train][i]
+          i <- order(cv.group == X)
+#          x <- x[i.train,,drop=TRUE][i,,drop=FALSE]
+#          y <- y[i.train][i]
+#          offset <- offset[i.train][i]
+#          nTrain <- length(which(cv.group != X))
+#          group <- group[i.train][i]
 
+if(FALSE){
           res <- gbm.fit(x, y,
                          offset=offset, distribution=distribution,
                          w=w, var.monotone=var.monotone, n.trees=n.trees,
@@ -168,14 +167,16 @@ gbm <- function(formula = formula(data),
                          nTrain=nTrain, keep.data=FALSE,
                          verbose=verbose, response.name=response.name,
                          group=group)
-           res$valid.error*sum(cv.group == cv)
+           res$valid.error*sum(cv.group == X)
+} # Close if (FALSE
+           X
       }
 #      cv.res <- lapply(1:cv.folds, cvfun,
 #                 i.train, x, y, offset, distribution, w, var.monotone, n.trees,
 #                          interaction.depth, n.minobsinnode, shrinkage, bag.fraction,
 #                          cv.group, lVerbose, var.names, response.name, group)
 
-      cv.res <- parLapply(clus, 1:cv.folds, cvfun,
+      cv.res <- parLapply(cl=clus, X=1:ncore, cvfun,
                           i.train, x, y, offset, distribution, w, var.monotone, n.trees,
                           interaction.depth, n.minobsinnode, shrinkage, bag.fraction,
                           cv.group, lVerbose, var.names, response.name, group)
@@ -185,36 +186,6 @@ gbm <- function(formula = formula(data),
       # cv.res should be a list containing the CV error - vectors each of the same length
       cv.res <- do.call("cbind", cv.res)
       cv.error <- rowMeans(cv.res)
-
-
-if (FALSE){
-          for(i.cv in 1:cv.folds){
-         if(lVerbose | verbose == 'CV') { cat("CV:",i.cv,"\n") }
-
-         i <- order(cv.group==i.cv)
-
-         gbm.obj <- gbm.fit(x[i.train,,drop=FALSE][i,,drop=FALSE],
-                            y[i.train][i],
-                            offset = offset[i.train][i],
-                            distribution = distribution,
-                            w = if(is.null(w)) logical(0) else w[i.train][i],
-                            var.monotone = var.monotone,
-                            n.trees = n.trees,
-                            interaction.depth = interaction.depth,
-                            n.minobsinnode = n.minobsinnode,
-                            shrinkage = shrinkage,
-                            bag.fraction = bag.fraction,
-                            nTrain = length(which(cv.group!=i.cv)),
-                            keep.data = FALSE,
-                            verbose = lVerbose,
-                            var.names = var.names,
-                            response.name = response.name,
-                            group = group[i.train][i])
-         cv.error <- cv.error + gbm.obj$valid.error*sum(cv.group==i.cv)
-      } # Close for(i.cv
-      cv.error <- cv.error/length(i.train)
-
-}# Close if (FALSE
 
    } # Close if(cv.folds > 1
 
