@@ -215,7 +215,8 @@ gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
     n.minobsinnode = 10,         # minimum total weight needed in each node
     cv.folds = 3,                # do 3-fold cross-validation
     keep.data=TRUE,              # keep a copy of the dataset with the object
-    verbose=FALSE)               # don't print out progress
+    verbose=FALSE,               # don't print out progress
+    n.cores=1)                   # use only a single core (detecting #cores is error-prone, so avoided here)
 
 # check performance using an out-of-bag estimator
 # OOB underestimates the optimal number of iterations

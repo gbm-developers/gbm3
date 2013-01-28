@@ -6,25 +6,25 @@ cat("Running ranking (LambdaMart) example.\n")
 # Note: no claim to represent 'real world' data!
 
 generate.data <- function(N) {
-  
+
   # create query groups, with an average size of 25 items each
   num.queries <- floor(N/25)
   query <- sample(1:num.queries, N, replace=TRUE)
-  
-  # X1 is a variable determined by query group only 
+
+  # X1 is a variable determined by query group only
   query.level <- runif(num.queries)
   X1 <- query.level[query]
-  
+
   # X2 varies with each item
   X2 <- runif(N)
-  
+
   # X3 is uncorrelated with target
   X3 <- runif(N)
 
   # The target
   Y <- X1 + X2
-  
-  # Add some random noise to X2 that is correlated with 
+
+  # Add some random noise to X2 that is correlated with
   # queries, but uncorrelated with items
 
   X2 <- X2 + scale(runif(num.queries))[query]
@@ -33,7 +33,7 @@ generate.data <- function(N) {
   SNR <- 5 # signal-to-noise ratio
   sigma <- sqrt(var(Y)/SNR)
   Y <- Y + runif(N, 0, sigma)
-  
+
   data.frame(Y, query=query, X1, X2, X3)
 }
 
@@ -57,9 +57,10 @@ gbm.gaussian <- gbm(Y~X1+X2+X3,      # formula
             bag.fraction = 0.5,      # subsampling fraction
             train.fraction = 1,      # fraction of data for training
             n.minobsinnode = 10,     # minimum number of obs for split
-            keep.data=TRUE,          # store copy of input data in model 
+            keep.data=TRUE,          # store copy of input data in model
             cv.folds=5,              # number of cross validation folds
-            verbose = FALSE)         # don't print progress
+            verbose = FALSE,         # don't print progress
+            n.cores = 1)             # use a single core (to prevent possible problems caused by wronly detecting cores)
 
 # estimate number of trees
 best.iter.gaussian <- gbm.perf(gbm.gaussian, method="cv")
@@ -69,7 +70,7 @@ cat('Fitting a model with pairwise loss function (ranking metric: normalized dis
 
 gbm.ndcg <- gbm(Y~X1+X2+X3,          # formula
                 data=data.train,     # dataset
-                distribution=list(   # loss function: 
+                distribution=list(   # loss function:
                   name='pairwise',   # pairwise
                   metric="ndcg",     # ranking metric: normalized discounted cumulative gain
                   group='query'),    # column indicating query groups
@@ -79,10 +80,10 @@ gbm.ndcg <- gbm(Y~X1+X2+X3,          # formula
                 bag.fraction = 0.5,  # subsampling fraction
                 train.fraction = 1,  # fraction of data for training
                 n.minobsinnode = 10, # minimum number of obs for split
-                keep.data=TRUE,      # store copy of input data in model 
+                keep.data=TRUE,      # store copy of input data in model
                 cv.folds=5,          # number of cross validation folds
-                verbose = FALSE)     # dont' print progress
-                
+                verbose = FALSE,     # don't print progress
+                n.cores = 1)         # use a single core
 # estimate number of trees
 best.iter.ndcg <- gbm.perf(gbm.ndcg, method='cv')
 title('Training of pairwise model with ndcg metric')
@@ -91,7 +92,7 @@ cat('Fit a model with pairwise loss function (ranking metric: fraction of concor
 
 gbm.conc <- gbm(Y~X1+X2+X3,          # formula
                 data=data.train,     # dataset
-                distribution=list(   # loss function: 
+                distribution=list(   # loss function:
                   name='pairwise',   # pairwise
                   metric="conc",     # ranking metric: concordant pairs
                   group='query'),    # column indicating query groups
@@ -101,10 +102,11 @@ gbm.conc <- gbm(Y~X1+X2+X3,          # formula
                 bag.fraction = 0.5,  # subsampling fraction
                 train.fraction = 1,  # fraction of data for training
                 n.minobsinnode = 10, # minimum number of obs for split
-                keep.data=TRUE,      # store copy of input data in model 
+                keep.data=TRUE,      # store copy of input data in model
                 cv.folds=5,          # number of cross validation folds
-                verbose = FALSE)     # don't print progress
-                
+                verbose = FALSE,     # don't print progress
+                n.cores = 1)         # use a single core
+
 # estimate number of trees
 best.iter.conc <- gbm.perf(gbm.conc, method='cv')
 title('Training of pairwise model with conc metric')
@@ -131,14 +133,14 @@ predictions <- data.frame(random=runif(N),
 
 cat("Computing loss metrics\n")
 
-result.table <- data.frame(measure=c('random', 'X2 only', 'gaussian', 'pairwise (ndcg)', 'pairwise (conc)'), 
-                           squared.loss=sapply(1:length(predictions), FUN=function(i) { 
+result.table <- data.frame(measure=c('random', 'X2 only', 'gaussian', 'pairwise (ndcg)', 'pairwise (conc)'),
+                           squared.loss=sapply(1:length(predictions), FUN=function(i) {
                              gbm.loss(y=data.test$Y, predictions[[i]], w=rep(1,N), offset=NA, dist=list(name="gaussian"), baseline=0) }),
-                           ndcg5.loss=sapply(1:length(predictions), FUN=function(i) { 
-                             gbm.loss(y=data.test$Y, predictions[[i]], w=rep(1,N), offset=NA, dist=list(name='pairwise', metric="ndcg"), 
+                           ndcg5.loss=sapply(1:length(predictions), FUN=function(i) {
+                             gbm.loss(y=data.test$Y, predictions[[i]], w=rep(1,N), offset=NA, dist=list(name='pairwise', metric="ndcg"),
                                       baseline=0, group=data.test$query, max.rank=5) }),
-                           concordant.pairs.loss=sapply(1:length(predictions), FUN=function(i) { 
-                             gbm.loss(y=data.test$Y, predictions[[i]], w=rep(1,N), offset=NA, dist=list(name='pairwise', metric="conc"), 
+                           concordant.pairs.loss=sapply(1:length(predictions), FUN=function(i) {
+                             gbm.loss(y=data.test$Y, predictions[[i]], w=rep(1,N), offset=NA, dist=list(name='pairwise', metric="conc"),
                                       baseline=0, group=data.test$query, max.rank=0) }),
                             row.names=NULL)
 
