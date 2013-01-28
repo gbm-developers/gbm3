@@ -19,7 +19,8 @@ gbm(formula = formula(data),
     cv.folds=0,
     keep.data = TRUE,
     verbose = "CV",
-    class.stratify.cv=NULL)
+    class.stratify.cv=NULL,
+    n.cores = NULL)
 
 gbm.fit(x, y,
         offset = NULL,
@@ -127,6 +128,12 @@ For details and background on the algorithm, see e.g. Burges (2010).
 \item{var.names}{For \code{gbm.fit}: A vector of strings of length equal to the number of columns of \code{x} containing the names of the predictor variables.}
 \item{response.name}{For \code{gbm.fit}: A character string label for the response variable.}
 \item{group}{\code{group} used when \code{distribution = 'pairwise'.}}
+\item{n.cores}{The number of CPU cores to use. The cross-validation loop
+  will attempt to send different CV folds off to different cores. If
+  \code{n.cores} is not specified by the user, it is guessed using the
+  \code{detectCores} function in the \code{parallel} package. Note that
+  the documentation for \code{detectCores} makes clear that it is not
+  failsave and could return a spurious number of available cores.}
 }
 
 \details{See the \href{../doc/gbm.pdf}{gbm vignette} for technical details.

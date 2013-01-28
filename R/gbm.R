@@ -133,21 +133,26 @@ gbm <- function(formula = formula(data),
       cv.error <- rep(0, n.trees)
 
       # Set up parallel processing
-      clus <- gbmCluster(n.cores)
+      clus <- gbmCluster(n.cores, cv.folds)
 
       ##############################################################################
       ################################ Main CV loop ################################
       ################################              ################################
 
-#     cv.res <- lapply(1:cv.folds, gbmDoFold,
-#                         i.train, x, y, offset, distribution, w, var.monotone, n.trees,
-#                         interaction.depth, n.minobsinnode, shrinkage, bag.fraction,
-#                         cv.group, lVerbose, var.names, response.name, group)
+      doFolds <- 1:min(clus$n.cores, cv.folds)
+      foldsDone <- 0
+      cv.res <- list()
 
-      cv.res <- parLapply(cl=clus$cluster, X=1:clus$n.cores, gbmDoFold,
-                          i.train, x, y, offset, distribution, w, var.monotone, n.trees,
-                          interaction.depth, n.minobsinnode, shrinkage, bag.fraction,
-                          cv.group, lVerbose, var.names, response.name, group)
+      while(foldsDone < cv.folds){
+          cv.res <- c(cv.res,
+                      parLapply(cl=clus$cluster, X=doFolds, gbmDoFold,
+                                i.train, x, y, offset, distribution, w, var.monotone, n.trees,
+                                interaction.depth, n.minobsinnode, shrinkage, bag.fraction,
+                                cv.group, lVerbose, var.names, response.name, group)
+                      )
+          foldsDone = foldsDone + length(doFolds)
+          doFolds <- 1:min(clus$n.cores, cv.folds - max(doFolds)) + max(doFolds)
+      } # Close while
 
       stopCluster(clus$cluster)
 

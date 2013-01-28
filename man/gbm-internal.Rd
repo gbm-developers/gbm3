@@ -7,6 +7,8 @@
 \alias{checkWeights}
 \alias{checkOffset}
 \alias{getVarNames}
+\alias{gbmCluster}
+\alias{gbmDoFold}
 \title{gbm internal functions}
 \description{Helper functions for preprocessing data prior to
              building the model}
@@ -19,23 +21,30 @@ checkWeights(w, n)
 checkID(id)
 checkOffset(o, y)
 getVarNames(x)
+gbmCluster(n, ncv)
+gbmDoFold(X, i.train, x, y, offset, distribution, w, var.monotone, n.trees,
+         interaction.depth, n.minobsinnode, shrinkage, bag.fraction,
+         cv.group, verbose, var.names, response.name, group)
 }
 \arguments{
   \item{y}{The response variable}
-  \item{distribution}{The distribution, either specified by the user or
-    implied}
+  \item{d, distribution}{The distribution, either specified by the user or
+        implied}
   \item{class.stratify.cv}{Whether or not to stratify, if provided by
-    the user}
+        the user}
   \item{i.train}{Computed internally by \code{gbm}}
   \item{group}{The group, if using \code{distibution='pairwise'}}
-  \item{d}{The distribution}
   \item{strat}{Whether or not to stratify}
   \item{cv.folds}{The number of cross-validation folds}
   \item{x}{The design matrix}
-  \item{id}{The interaction depth}
+  \item{id, interaction.depth}{The interaction depth}
   \item{w}{The weights}
-  \item{n}{The length of the response variable}
-  \item{o}{The offset}
+  \item{o, offset}{The offset}
+  \item{n, ncv}{The length of the response variable, or the number of
+                cores and the number of cross-validations folds.}
+  \item{X, var.monotone, n.trees, n.minobsinnode, shrinkage, bag.fraction,
+        verbose, var.names, response.name, cv.group}{Arguments passed
+        through to gbm.fit}
 } % Close \arguments
 \details{
   These are functions used internally by \code{gbm} and not intended for

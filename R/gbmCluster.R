@@ -1,11 +1,10 @@
-gbmCluster <- function(n){
-    if (!is.element('package:parallel', search())){
-        cat("Attaching 'parallel' package. ")
-        library(parallel)
-    }
+gbmCluster <- function(n, ncv){
+    # If number of cores (n) not given, try to work it out from the number
+    # that appear to be available and the number of CV folds.
     if (is.null(n)){
-        n <- detectCores()
-        cat("Detected", n, "cores.\n")
+        n.cores <- detectCores()
+        n <- min(n.cores - 1, ncv)
+        cat("Detected", n.cores, "cores; will attempt to use", n, "\n")
     }
     list(cluster=makeCluster(n), n.cores=n)
 }
