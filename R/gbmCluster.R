@@ -3,7 +3,8 @@ gbmCluster <- function(n, ncv){
     # that appear to be available and the number of CV folds.
     if (is.null(n)){
         n.cores <- detectCores()
-        n <- min(n.cores - 1, ncv)
+        if (n.cores > 1){ n <- min(n.cores - 1, ncv) }
+        else { n <- n.cores}
         cat("Detected", n.cores, "cores; will attempt to use", n, "\n")
     }
     list(cluster=makeCluster(n), n.cores=n)
