@@ -29,7 +29,7 @@ checkWeights <- function(w, n){
 
 checkOffset <- function(o, y){
    # Check offset
-   if(is.null(o) || (o==0)) { o <- NA  }
+   if(is.null(o) | all(o==0)) { o <- NA  }
    else if(length(o) != length(y))   {
       stop("The length of offset does not equal the length of y.")
    }

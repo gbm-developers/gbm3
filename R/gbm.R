@@ -6,7 +6,35 @@
    packageStartupMessage(paste("Loaded gbm",vers))
 }
 
-gbm <- function(formula = formula(data),
+gbm <- function(...){
+   UseMethod('gbm', ...)
+}
+
+gbm.formula <- function(formula, distribution="bernoulli", data, ...){
+
+  mf <- match.call(expand.dots = FALSE)
+   m <- match(c("formula", "data", "weights", "offset"), names(mf), 0)
+   mf <- mf[c(1, m)]
+   mf$drop.unused.levels <- TRUE
+   mf$na.action <- na.pass
+   mf[[1]] <- as.name("model.frame")
+   m <- mf
+   mf <- eval(mf, parent.frame())
+   Terms <- attr(mf, "terms")
+
+   y <- model.response(mf)
+
+   w <- model.weights(mf)
+   offset <- model.offset(mf)
+
+   var.names <- attributes(Terms)$term.labels
+   x <- model.frame(terms(reformulate(var.names)),
+                    data,
+                    na.action=na.pass)
+   UseMethod('gbm', y)
+}
+
+gbm.default <- function(x, y, #formula = formula(data),
                 distribution = "bernoulli",
                 data = list(),
                 weights,
@@ -25,34 +53,15 @@ gbm <- function(formula = formula(data),
 
    theCall <- match.call()
 
-   lVerbose <- if (!is.logical(verbose)) { FALSE }
-               else { verbose }
-
-   mf <- match.call(expand.dots = FALSE)
-   m <- match(c("formula", "data", "weights", "offset"), names(mf), 0)
-   mf <- mf[c(1, m)]
-   mf$drop.unused.levels <- TRUE
-   mf$na.action <- na.pass
-   mf[[1]] <- as.name("model.frame")
-   m <- mf
-   mf <- eval(mf, parent.frame())
-   Terms <- attr(mf, "terms")
-
-   y <- model.response(mf)
 
    if (missing(distribution)){ distribution <- guessDist(y) }
    else if (is.character(distribution)){ distribution <- list(name=distribution) }
 
-   w <- model.weights(mf)
-   offset <- model.offset(mf)
-
-   var.names <- attributes(Terms)$term.labels
-   x <- model.frame(terms(reformulate(var.names)),
-                    data,
-                    na.action=na.pass)
-
    # get the character name of the response variable
    response.name <- as.character(formula[[2]])
+
+   lVerbose <- if (!is.logical(verbose)) { FALSE }
+               else { verbose }
 
    class.stratify.cv <- getStratify(class.stratify.cv, distribution)
 
@@ -144,6 +153,7 @@ gbm <- function(formula = formula(data),
       cv.res <- list()
 
       while(foldsDone < cv.folds){
+          if (verbose == "CV"){ cat("CV: ", doFolds, "\n") }
           cv.res <- c(cv.res,
                       parLapply(cl=clus$cluster, X=doFolds, gbmDoFold,
                                 i.train, x, y, offset, distribution, w, var.monotone, n.trees,
