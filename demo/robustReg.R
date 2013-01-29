@@ -23,7 +23,7 @@ tmod100 <- gbm( y ~ ., data=d, distribution=list( name="tdist", df=100 ),
               n.tree=2000, shrinkage = .01, cv.folds=5,
                verbose = FALSE, n.cores=1)
 
-par(mfrow=c( 2, 3 ) )
+par(mfrow=c( 2, 2 ) )
 gbest <- gbm.perf( gmod , method="cv" )
 t4best <- gbm.perf( tmod4 , method="cv" )
 t6best <- gbm.perf( tmod6 , method="cv" )
@@ -38,7 +38,7 @@ rt4 <- qscale( resid( tmod4 , n.trees=t4best) )
 rt6 <- qscale( resid( tmod6 , n.trees=t6best) )
 rt100 <- qscale( resid( tmod100 , n.trees=t100best ) )
 
-ylimits <- range( rg , rb8 , rb95 , rt4, rt6, rt100 )
+ylimits <- range(rg, rt4, rt6, rt100)
 
 plot( rg, main="Gaussian", ylim=ylimits ); abline( h=0 )
 plot( rt4, main="t(4)", ylim=ylimits ); abline( h=0 )

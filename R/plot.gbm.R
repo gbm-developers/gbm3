@@ -61,6 +61,11 @@ plot.gbm <- function(x,
    X <- expand.grid(grid.levels)
    names(X) <- paste("X",1:length(i.var),sep="")
 
+   # Next if block for compatibility with objects created with 1.6
+   if (is.null(x$num.classes)){
+       x$num.classes <- 1
+   }
+
    # evaluate at each data point
    y <- .Call("gbm_plot",
               X = as.double(data.matrix(X)),

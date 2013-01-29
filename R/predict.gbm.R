@@ -58,6 +58,11 @@ predict.gbm <- function(object,newdata,n.trees,
    }
    i.ntree.order <- order(n.trees)
 
+   # Next if block for compatibility with objects created with version 1.6.
+   if (is.null(object$num.classes)){
+       object$num.classes <- 1
+   }
+
    predF <- .Call("gbm_pred",
                   X=as.double(x),
                   cRows=as.integer(cRows),

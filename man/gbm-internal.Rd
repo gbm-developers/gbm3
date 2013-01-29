@@ -21,10 +21,10 @@ checkWeights(w, n)
 checkID(id)
 checkOffset(o, y)
 getVarNames(x)
-gbmCluster(n, ncv)
+gbmCluster(n, ncv, verbose)
 gbmDoFold(X, i.train, x, y, offset, distribution, w, var.monotone, n.trees,
          interaction.depth, n.minobsinnode, shrinkage, bag.fraction,
-         cv.group, verbose, var.names, response.name, group)
+         cv.group, var.names, response.name, group)
 }
 \arguments{
   \item{y}{The response variable}
@@ -41,9 +41,10 @@ gbmDoFold(X, i.train, x, y, offset, distribution, w, var.monotone, n.trees,
   \item{w}{The weights}
   \item{o, offset}{The offset}
   \item{n, ncv}{The length of the response variable, or the number of
-                cores and the number of cross-validations folds.}
+    cores and the number of cross-validations folds.}
+  \item{verbose}{Whether or not to print output to screen}
   \item{X, var.monotone, n.trees, n.minobsinnode, shrinkage, bag.fraction,
-        verbose, var.names, response.name, cv.group}{Arguments passed
+        var.names, response.name, cv.group}{Arguments passed
         through to gbm.fit}
 } % Close \arguments
 \details{
