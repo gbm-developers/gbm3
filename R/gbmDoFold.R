@@ -4,7 +4,7 @@ gbmDoFold <-
 function(X,
          i.train, x, y, offset, distribution, w, var.monotone, n.trees,
          interaction.depth, n.minobsinnode, shrinkage, bag.fraction,
-         cv.group, verbose, var.names, response.name, group){
+         cv.group, var.names, response.name, group){
     library(gbm, quietly=TRUE)
     cat("CV:", X, "\n")
 
@@ -23,7 +23,7 @@ function(X,
                    shrinkage=shrinkage,
                    bag.fraction=bag.fraction,
                    nTrain=nTrain, keep.data=FALSE,
-                   verbose=verbose, response.name=response.name,
+                   verbose=FALSE, response.name=response.name,
                    group=group)
     res$valid.error*sum(cv.group == X)
 }

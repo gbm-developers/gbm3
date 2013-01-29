@@ -139,7 +139,7 @@ gbm <- function(formula = formula(data),
       cv.error <- rep(0, n.trees)
 
       # Set up parallel processing
-      clus <- gbmCluster(n.cores, cv.folds)
+      clus <- gbmCluster(n.cores, cv.folds, lVerbose)
 
       ##############################################################################
       ################################ Main CV loop ################################
@@ -150,12 +150,12 @@ gbm <- function(formula = formula(data),
       cv.res <- list()
 
       while(foldsDone < cv.folds){
-          if (verbose == "CV"){ cat("CV: ", doFolds, "\n") }
+          if (verbose == "CV" | lVerbose){ cat("Cross validating: ", doFolds, "\n") }
           cv.res <- c(cv.res,
                       parLapply(cl=clus$cluster, X=doFolds, gbmDoFold,
                                 i.train, x, y, offset, distribution, w, var.monotone, n.trees,
                                 interaction.depth, n.minobsinnode, shrinkage, bag.fraction,
-                                cv.group, lVerbose, var.names, response.name, group)
+                                cv.group, var.names, response.name, group)
                       )
           foldsDone = foldsDone + length(doFolds)
           doFolds <- 1:min(clus$n.cores, cv.folds - max(doFolds)) + max(doFolds)
