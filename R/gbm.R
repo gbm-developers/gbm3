@@ -6,35 +6,7 @@
    packageStartupMessage(paste("Loaded gbm",vers))
 }
 
-gbm <- function(...){
-   UseMethod('gbm', ...)
-}
-
-gbm.formula <- function(formula, distribution="bernoulli", data, ...){
-
-  mf <- match.call(expand.dots = FALSE)
-   m <- match(c("formula", "data", "weights", "offset"), names(mf), 0)
-   mf <- mf[c(1, m)]
-   mf$drop.unused.levels <- TRUE
-   mf$na.action <- na.pass
-   mf[[1]] <- as.name("model.frame")
-   m <- mf
-   mf <- eval(mf, parent.frame())
-   Terms <- attr(mf, "terms")
-
-   y <- model.response(mf)
-
-   w <- model.weights(mf)
-   offset <- model.offset(mf)
-
-   var.names <- attributes(Terms)$term.labels
-   x <- model.frame(terms(reformulate(var.names)),
-                    data,
-                    na.action=na.pass)
-   UseMethod('gbm', y)
-}
-
-gbm.default <- function(x, y, #formula = formula(data),
+gbm <- function(formula = formula(data),
                 distribution = "bernoulli",
                 data = list(),
                 weights,
@@ -50,9 +22,34 @@ gbm.default <- function(x, y, #formula = formula(data),
                 verbose = 'CV',
                 class.stratify.cv=NULL,
                 n.cores=NULL){
-
    theCall <- match.call()
 
+
+   lVerbose <- if (!is.logical(verbose)) { FALSE }
+               else { verbose }
+
+   mf <- match.call(expand.dots = FALSE)
+   m <- match(c("formula", "data", "weights", "offset"), names(mf), 0)
+   mf <- mf[c(1, m)]
+   mf$drop.unused.levels <- TRUE
+   mf$na.action <- na.pass
+   mf[[1]] <- as.name("model.frame")
+   m <- mf
+   mf <- eval(mf, parent.frame())
+   Terms <- attr(mf, "terms")
+
+   y <- model.response(mf)
+
+   if (missing(distribution)){ distribution <- guessDist(y) }
+   else if (is.character(distribution)){ distribution <- list(name=distribution) }
+
+   w <- model.weights(mf)
+   offset <- model.offset(mf)
+
+   var.names <- attributes(Terms)$term.labels
+   x <- model.frame(terms(reformulate(var.names)),
+                    data,
+                    na.action=na.pass)
 
    if (missing(distribution)){ distribution <- guessDist(y) }
    else if (is.character(distribution)){ distribution <- list(name=distribution) }
