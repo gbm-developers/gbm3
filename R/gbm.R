@@ -165,7 +165,7 @@ gbm <- function(formula = formula(data),
 
       # cv.res should be a list containing the CV error - vectors each of the same length
       cv.res <- do.call("cbind", cv.res)
-      cv.error <- rowMeans(cv.res)
+      cv.error <- rowSums(cv.res)/nTrain
 
    } # Close if(cv.folds > 1
 
