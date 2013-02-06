@@ -104,10 +104,9 @@ predict.gbm <- function(object,newdata,n.trees,
       if(object$distribution$name=="multinomial")
       {
          pexp <- exp(predF)
-         psum  <- apply(pexp,  1, sum)
-
-# XXX NEXT LINE FAULTY XXX 
-         predF <- apply(pexp, 2, function(x, wh) x / psum)
+         psum  <- apply(pexp,  c(1, 3), function(x) { x / sum(x) })
+         # Transpose each 2d array
+         predF <- aperm(psum, c(2, 1, 3))
       }
 
       if((length(n.trees)==1) && (object$distribution$name!="multinomial"))
@@ -115,13 +114,6 @@ predict.gbm <- function(object,newdata,n.trees,
          predF <- as.vector(predF)
       }
    }
-
-#   if(length(n.trees)>1)
-#   {
-#      predF <- matrix(predF,ncol=length(n.trees),byrow=FALSE)
-#      colnames(predF) <- n.trees
-#      predF[,i.ntree.order] <- predF
-#   }
 
    if(!is.null(attr(object$Terms,"offset")))
    {
