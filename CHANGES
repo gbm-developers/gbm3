@@ -1,4 +1,4 @@
-Changes in version 2.0-9.1
+Changes in version 2.0-9.4
 
 Major changes:
 - The cross-validation loop is now parallelized. The functions attempt
@@ -6,6 +6,7 @@ Major changes:
   how many through new argument n.cores.
 
 Minor changes:
+- Added type='response' for predict when distribution='adaboost'.
 - Fixed a bug that caused offset not to be used if the first element
   of offset was 0.
 - Updated predict.gbm and plot.gbm to cope with objects created using
@@ -14,6 +15,8 @@ Minor changes:
   the user know which block of CV folds it is running. If verbose=TRUE
   is specified, the final run of the model also prints its progress
   to screen as in earlier versions.
+- Fixed bug that caused predict to return wrong result when
+  distribution == 'multinomial' and length(n.trees) > 1.
 
 
 Changes in version 2.0

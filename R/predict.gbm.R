@@ -101,6 +101,9 @@ predict.gbm <- function(object,newdata,n.trees,
       {
          predF <- exp(predF)
       }
+      else if (object$distribution$name == "adaboost"){
+         predF <- 1 / (1 + exp(-2*predF))
+      }
       if(object$distribution$name=="multinomial")
       {
          pexp <- exp(predF)
