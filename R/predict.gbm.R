@@ -39,14 +39,15 @@ predict.gbm <- function(object,newdata,n.trees,
    {
       if(is.factor(x[,i]))
       {
-         j <- match(levels(x[,i]), object$var.levels[[i]])
-         if(any(is.na(j)))
-         {
-            stop(paste("New levels for variable ",
-                       object$var.names[i],": ",
-                       levels(x[,i])[is.na(j)],sep=""))
-         }
-         x[,i] <- as.numeric(x[,i])-1
+        if (length(levels(x[,i])) > length(object$var.levels[[i]])) {
+          new.compare <- levels(x[,i])[1:length(object$var.levels[[i]])]
+        } else {
+          new.compare <- levels(x[,i])
+        }
+        if (!identical(object$var.levels[[i]], new.compare)) {
+          x[,i] <- factor(x[,i], union(object$var.levels[[i]], levels(x[,i])))
+        }
+        x[,i] <- as.numeric(x[,i])-1
       }
    }
 
