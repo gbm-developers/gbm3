@@ -12,7 +12,9 @@ relative.influence <- function(object,
          n.trees <- gbm.perf( object, method="cv", plot.it = FALSE )
       }
       else{
-         best <- length( object$train.error )
+         # If dist=multinomial, object$n.trees = n.trees * num.classes
+         # so use the following instead.
+         n.trees <- length( object$train.error )
       }
       cat( paste( "n.trees not given. Using", n.trees, "trees.\n" ) )
    }
