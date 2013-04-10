@@ -2,7 +2,7 @@
 
 print.gbm <- function(x, ... )
 {
-   print( x$call )
+   if (!is.null(x$call)){ print(x$call) }
    dist.name <- x$distribution$name
    if (dist.name == "pairwise")
    {

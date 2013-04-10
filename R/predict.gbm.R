@@ -4,13 +4,13 @@ predict.gbm <- function(object,newdata,n.trees,
                         ...)
 {
    if ( missing( newdata ) ){
-      newdata <- reconstructGBMdata( object )
+      newdata <- reconstructGBMdata(object)
    }
-   if ( missing( n.trees ) ) {
+   if ( missing(n.trees) ) {
       if ( object$train.fraction < 1 ){
          n.trees <- gbm.perf( object, method="test", plot.it = FALSE )
       }
-      else if ( !is.null( object$cv.error ) ){
+      else if (!is.null(object$cv.error)){
          n.trees <- gbm.perf( object, method="cv", plot.it = FALSE )
       }
       else{ best <- length( object$train.error ) }

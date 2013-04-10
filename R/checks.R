@@ -23,8 +23,9 @@ checkID <- function(id){
 
 checkWeights <- function(w, n){
    # Logical checks on weights
-   if(length(w)==0) w <- rep(1, n)
+   if(length(w)==0) { w <- rep(1, n) }
    else if(any(w < 0)) stop("negative weights not allowed")
+   w
 }
 
 checkOffset <- function(o, y){

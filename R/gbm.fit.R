@@ -61,6 +61,12 @@ gbm.fit <- function(x,y,
       w <- w*length(w)/sum(w) # normalize to N
    }
 
+   # Do sanity checks
+   ch <- checkMissing(x, y)
+   interaction.depth <- checkID(interaction.depth)
+   w <- checkWeights(w, length(y))
+   offset <- checkOffset(offset, y)
+
    Misc <- NA
 
    # setup variable types
