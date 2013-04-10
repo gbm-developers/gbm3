@@ -26,7 +26,7 @@ basehaz.gbm <- function(t,delta,f.x,
    if(smooth && cumulative)
    {
       lambda.smooth <- supsmu(t.unique,cumsum(alpha))
-   } else # (!smooth && cumulative)
+   } else # (!smooth && cumulative) - THE DEFAULT
    {
       lambda.smooth <- list(x=t.unique,y=cumsum(alpha))
    }

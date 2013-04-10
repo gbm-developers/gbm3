@@ -17,7 +17,10 @@ Minor changes:
   to screen as in earlier versions.
 - Fixed bug that caused predict to return wrong result when
   distribution == 'multinomial' and length(n.trees) > 1.
-
+- Fixed bug that caused n.trees to be wrong in relative.influence
+  if no CV or validation set was used.
+- Relative influence was computed wrongly when distribution="multinomial". Fixed.
+- 
 
 Changes in version 2.0
 

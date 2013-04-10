@@ -220,9 +220,9 @@ plot.gbm <- function(x,
             X$temp <- NULL
          }
          else {
-            levelplot(y~X1*X2,data=X,
+            print(levelplot(y~X1*X2,data=X,
                       xlab=x$var.names[i.var[1]],
-                      ylab=x$var.names[i.var[2]],...)
+                      ylab=x$var.names[i.var[2]],...))
          }
       }
       else if(f.factor[1] && !f.factor[2])
@@ -242,12 +242,12 @@ plot.gbm <- function(x,
             X$temp <- NULL
          }
          else {
-            xyplot(y~X2|X1,data=X,
+            print(xyplot(y~X2|X1,data=X,
                    xlab=x$var.names[i.var[2]],
                    ylab=paste("f(",x$var.names[i.var[1]],",",x$var.names[i.var[2]],")",sep=""),
                    type="l",
                    panel = panel.xyplot,
-                   ...)
+                   ...))
          }
       }
       else if(!f.factor[1] && f.factor[2])
@@ -267,12 +267,12 @@ plot.gbm <- function(x,
             X$temp <- NULL
          }
          else {
-            xyplot(y~X1|X2,data=X,
+            print(xyplot(y~X1|X2,data=X,
                    xlab=x$var.names[i.var[1]],
                    ylab=paste("f(",x$var.names[i.var[1]],",",x$var.names[i.var[2]],")",sep=""),
                    type="l",
                    panel = panel.xyplot,
-                   ...)
+                   ...))
          }
       }
       else
@@ -290,10 +290,10 @@ plot.gbm <- function(x,
             X$temp <- NULL
          }
          else {
-            stripplot(X1~y|X2,data=X,
+            print(stripplot(X1~y|X2,data=X,
                       xlab=x$var.names[i.var[2]],
                       ylab=paste("f(",x$var.names[i.var[1]],",",x$var.names[i.var[2]],")",sep=""),
-                      ...)
+                      ...))
          }
       }
    }
@@ -320,9 +320,9 @@ plot.gbm <- function(x,
             X.new$temp <- NULL
          }
          else {
-            levelplot(y~X1*X2|X3,data=X.new,
+            print(levelplot(y~X1*X2|X3,data=X.new,
                       xlab=x$var.names[i.var[i[1]]],
-                      ylab=x$var.names[i.var[i[2]]],...)
+                      ylab=x$var.names[i.var[i[2]]],...))
          }
       }
       # 1 factor, 2 continuous
@@ -340,9 +340,9 @@ plot.gbm <- function(x,
             X.new$temp <- NULL
          }
          else {
-            levelplot(y~X1*X2|X3,data=X.new,
+            print(levelplot(y~X1*X2|X3,data=X.new,
                       xlab=x$var.names[i.var[i[1]]],
-                      ylab=x$var.names[i.var[i[2]]],...)
+                      ylab=x$var.names[i.var[i[2]]],...))
          }
       }
       # 2 factors, 1 continuous
@@ -363,12 +363,12 @@ plot.gbm <- function(x,
             X.new$temp <- NULL
          }
          else {
-            xyplot(y~X1|X2*X3,data=X.new,
+            print(xyplot(y~X1|X2*X3,data=X.new,
                    type="l",
                    xlab=x$var.names[i.var[i[1]]],
                    ylab=paste("f(",paste(x$var.names[i.var[1:3]],collapse=","),")",sep=""),
                    panel = panel.xyplot,
-                   ...)
+                   ...))
          }
       }
       # 3 factors, 0 continuous
@@ -387,10 +387,10 @@ plot.gbm <- function(x,
             X.new$temp <- NULL
          }
          else {
-            stripplot(X1~y|X2*X3,data=X.new,
+            print(stripplot(X1~y|X2*X3,data=X.new,
                       xlab=x$var.names[i.var[i[1]]],
                       ylab=paste("f(",paste(x$var.names[i.var[1:3]],collapse=","),")",sep=""),
-                      ...)
+                      ...))
          }
       }
    }
