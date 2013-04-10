@@ -286,6 +286,11 @@ GBMRESULT CGBM::iterate
             // regular instance based training
             for(i=0; i<cTrain; i++)
             {
+                if (cBagged >= cTotalInBag)
+                {
+                    break;
+                }
+
                 if(unif_rand()*(cTrain-i) < cTotalInBag-cBagged)
                 {
                     afInBag[i] = true;
@@ -294,10 +299,6 @@ GBMRESULT CGBM::iterate
                 else
                 {
                     afInBag[i] = false;
-                }
-                if (cBagged >= cTotalInBag)
-                {
-                    break;
                 }
             }
             // the remainder is not in the bag
