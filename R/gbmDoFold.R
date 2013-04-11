@@ -27,5 +27,5 @@ function(X,
                    nTrain=nTrain, keep.data=FALSE,
                    verbose=FALSE, response.name=response.name,
                    group=group)
-    res#$valid.error*sum(cv.group == X)
+    res
 }

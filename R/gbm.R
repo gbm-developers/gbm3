@@ -173,11 +173,19 @@ gbm <- function(formula = formula(data),
       # Get CV predictions
       p <- lapply(1:cv.folds, function(i, m, cv, data, n.trees){
                                 m <- m[[i]]
-#                                browser()
                                 d <- data[cv == i, names(data) != m$response.name]
                                 predict(m, newdata=d, n.trees=n.trees)
                               },
                   m=cv.res, cv=cv.group, data=data, n.trees=best.iter.cv)
+      p <- unlist(p)
+      if (distribution$name == "multinomial"){
+          nClass <- length(attr(factor(y), "levels"))
+          p <- matrix(p, ncol=nClass)
+          p[order(cv.group),] <- p
+      }
+      else {
+          p[order(cv.group)] <- p
+      }
 
    } # Close if(cv.folds > 1
 
@@ -204,7 +212,7 @@ gbm <- function(formula = formula(data),
    gbm.obj$cv.folds <- cv.folds
    gbm.obj$call <- theCall
    gbm.obj$m <- m
-   if (cv.folds > 0){ gbm.obj$fitted <- p }
+   if (cv.folds > 0){ gbm.obj$cv.fitted <- p }
 
    if (distribution$name == "pairwise")
    {
