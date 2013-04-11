@@ -123,9 +123,6 @@ gbm <- function(formula = formula(data),
       Misc             <- group
    } # close if(distribution$name=="coxph") ...
 
-
-
-
    cv.error <- NULL
    if(cv.folds>1) {
       i.train <- 1:nTrain
@@ -135,7 +132,6 @@ gbm <- function(formula = formula(data),
 
       # Set up parallel processing
       clus <- gbmCluster(n.cores, cv.folds, lVerbose)
-      clusterSetRNGStream(clus)
 
       ##############################################################################
       ################################ Main CV loop ################################
@@ -147,11 +143,12 @@ gbm <- function(formula = formula(data),
 
       while(foldsDone < cv.folds){
           if (verbose == "CV" | lVerbose){ cat("Cross validating: ", doFolds, "\n") }
+          s <- ceiling(runif(1, 0, 10^8)) # Pass seed into clusters for reproducibility
           cv.res <- c(cv.res,
                       parLapply(cl=clus$cluster, X=doFolds, gbmDoFold,
                                 i.train, x, y, offset, distribution, w, var.monotone, n.trees,
                                 interaction.depth, n.minobsinnode, shrinkage, bag.fraction,
-                                cv.group, var.names, response.name, group)
+                                cv.group, var.names, response.name, group, s)
                       )
           foldsDone = foldsDone + length(doFolds)
           doFolds <- 1:min(clus$n.cores, cv.folds - max(doFolds)) + max(doFolds)

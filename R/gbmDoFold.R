@@ -4,9 +4,11 @@ gbmDoFold <-
 function(X,
          i.train, x, y, offset, distribution, w, var.monotone, n.trees,
          interaction.depth, n.minobsinnode, shrinkage, bag.fraction,
-         cv.group, var.names, response.name, group){
+         cv.group, var.names, response.name, group, s){
     library(gbm, quietly=TRUE)
     cat("CV:", X, "\n")
+
+    set.seed(s)
 
     i <- order(cv.group == X)
     x <- x[i.train,,drop=TRUE][i,,drop=FALSE]
