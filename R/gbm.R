@@ -135,6 +135,7 @@ gbm <- function(formula = formula(data),
 
       # Set up parallel processing
       clus <- gbmCluster(n.cores, cv.folds, lVerbose)
+      clusterSetRNGStream(clus)
 
       ##############################################################################
       ################################ Main CV loop ################################
