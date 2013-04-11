@@ -158,9 +158,27 @@ gbm <- function(formula = formula(data),
 
       stopCluster(clus$cluster)
 
-      # cv.res should be a list containing the CV error - vectors each of the same length
-      cv.res <- do.call("cbind", cv.res)
-      cv.error <- rowSums(cv.res)/nTrain
+      # cv.res should be a list containing all cv.folds fitted models
+
+      # Get cross-validation error
+      err <- lapply(1:cv.folds, function(i, m, cv){
+                                  m <- m[[i]]
+                                  m$valid.error * sum(cv == i)
+                                },
+                    cv = cv.group, m = cv.res)
+      err <- do.call("cbind", err)
+      cv.error <- rowSums(err) / nTrain
+
+      # Get best CV iteration
+      best.iter.cv <- which.min(cv.error)
+
+      # Get CV predictions
+#      p <- lapply(1:cv.folds, function(i, m, cv, data, n.trees){
+#                                m <- m[[i]]
+#                                d <- data[cv == i,]
+#                                predict(m, newdata=d, n.trees=n.trees)
+#                              },
+#                  m=cv.res, cv=cv.group, data=data, n.trees=best.iter.cv)
 
    } # Close if(cv.folds > 1
 
@@ -187,6 +205,7 @@ gbm <- function(formula = formula(data),
    gbm.obj$cv.folds <- cv.folds
    gbm.obj$call <- theCall
    gbm.obj$m <- m
+#   if (cv.folds > 0){ gbm.obj$fitted <- p }
 
    if (distribution$name == "pairwise")
    {
