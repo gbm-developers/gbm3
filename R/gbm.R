@@ -122,68 +122,14 @@ gbm <- function(formula = formula(data),
 
    cv.error <- NULL
    if(cv.folds>1) {
-      i.train <- 1:nTrain
-
-      cv.group <- getCVgroup(distribution, class.stratify.cv, y, i.train, cv.folds, group)
-      cv.error <- rep(0, n.trees)
-
-      # Set up parallel processing
-      clus <- gbmCluster(n.cores, cv.folds, lVerbose)
-
-      ##############################################################################
-      ################################ Main CV loop ################################
-      ################################              ################################
-
-      doFolds <- 1:min(clus$n.cores, cv.folds)
-      foldsDone <- 0
-      cv.res <- list()
-
-      while(foldsDone < cv.folds){
-          if (verbose == "CV" | lVerbose){ cat("Cross validating: ", doFolds, "\n") }
-          s <- ceiling(runif(1, 0, 10^8)) # Pass seed into clusters for reproducibility
-          cv.res <- c(cv.res,
-                      parLapply(cl=clus$cluster, X=doFolds, gbmDoFold,
-                                i.train, x, y, offset, distribution, w, var.monotone, n.trees,
-                                interaction.depth, n.minobsinnode, shrinkage, bag.fraction,
-                                cv.group, var.names, response.name, group, s)
-                      )
-          foldsDone = foldsDone + length(doFolds)
-          doFolds <- 1:min(clus$n.cores, cv.folds - max(doFolds)) + max(doFolds)
-      } # Close while
-
-      stopCluster(clus$cluster)
-
-      # cv.res should be a list containing all cv.folds fitted models
-
-      # Get cross-validation error
-      err <- lapply(1:cv.folds, function(i, m, cv){
-                                  m <- m[[i]]
-                                  m$valid.error * sum(cv == i)
-                                },
-                    cv = cv.group, m = cv.res)
-      err <- do.call("cbind", err)
-      cv.error <- rowSums(err) / nTrain
-
-      # Get best CV iteration
-      best.iter.cv <- which.min(cv.error)
-
-      # Get CV predictions
-      p <- lapply(1:cv.folds, function(i, m, cv, data, n.trees){
-                                m <- m[[i]]
-                                d <- data[cv == i, names(data) != m$response.name]
-                                predict(m, newdata=d, n.trees=n.trees)
-                              },
-                  m=cv.res, cv=cv.group, data=data, n.trees=best.iter.cv)
-      p <- unlist(p)
-      if (distribution$name == "multinomial"){
-          nClass <- length(attr(factor(y), "levels"))
-          p <- matrix(p, ncol=nClass)
-          p[order(cv.group),] <- p
-      }
-      else {
-          p[order(cv.group)] <- p
-      }
-
+     cv.results <- gbmCrossVal(cv.folds, nTrain, n.cores,
+                               class.stratify.cv, data,
+                               x, y, offset, distribution, w, var.monotone,
+                               n.trees, interaction.depth, n.minobsinnode,
+                               shrinkage, bag.fraction,
+                               var.names, response.name, group)
+     cv.error <- cv.results$error
+     p <- cv.results$predictions
    } # Close if(cv.folds > 1
 
    gbm.obj <- gbm.fit(x,y,

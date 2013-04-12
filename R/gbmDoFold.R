@@ -8,7 +8,7 @@ function(X,
     library(gbm, quietly=TRUE)
     cat("CV:", X, "\n")
 
-    set.seed(s)
+    set.seed(s[[X]])
 
     i <- order(cv.group == X)
     x <- x[i.train,,drop=TRUE][i,,drop=FALSE]
