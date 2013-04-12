@@ -51,9 +51,6 @@ gbm <- function(formula = formula(data),
                     data,
                     na.action=na.pass)
 
-   if (missing(distribution)){ distribution <- guessDist(y) }
-   else if (is.character(distribution)){ distribution <- list(name=distribution) }
-
    # get the character name of the response variable
    response.name <- as.character(formula[[2]])
 
