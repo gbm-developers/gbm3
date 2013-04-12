@@ -32,6 +32,10 @@ categorical split then the splitting value will refer to a component of
 equal to the number of levels in the categorical split variable. -1 indicates
 left, +1 indicates right, and 0 indicates that the level was not present in the
 training data}
+\code{cv.fitted}{If cross-validation was performed, the cross-validation
+  predicted values on the scale of the linear predictor. That is, the
+  fitted values from the ith CV-fold, for the model having been trained on
+  the data in all other folds.
 }
 \author{Greg Ridgeway \email{gregridgeway@gmail.com}}
 \seealso{

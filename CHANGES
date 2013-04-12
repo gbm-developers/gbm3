@@ -1,4 +1,4 @@
-Changes in version 2.0-9.4
+Changes in version 2.0-9.8
 
 Major changes:
 - The cross-validation loop is now parallelized. The functions attempt
@@ -20,7 +20,7 @@ Minor changes:
 - Fixed bug that caused n.trees to be wrong in relative.influence
   if no CV or validation set was used.
 - Relative influence was computed wrongly when distribution="multinomial". Fixed.
-- 
+- Cross-validation predictions now included in the output object.
 
 Changes in version 2.0
 
