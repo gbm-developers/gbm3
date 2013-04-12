@@ -21,6 +21,7 @@ Minor changes:
   if no CV or validation set was used.
 - Relative influence was computed wrongly when distribution="multinomial". Fixed.
 - Cross-validation predictions now included in the output object.
+- Fixed bug in relative.influence that caused labels to be wrong when sort.=TRUE.
 
 Changes in version 2.0
 
