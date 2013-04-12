@@ -36,13 +36,14 @@ relative.influence <- function(object,
    i <- as.numeric(names(rel.inf.compact))+1
    rel.inf[i] <- rel.inf.compact
 
+   names(rel.inf) <- object$var.names
+
    if (scale.){
-      rel.inf <- rel.inf / max( rel.inf )
+      rel.inf <- rel.inf / max(rel.inf)
    }
-   if ( sort. ){
-      rel.inf <- rev(sort( rel.inf) )
+   if (sort.){
+      rel.inf <- rev(sort(rel.inf))
    }
 
-   names( rel.inf ) <- object$var.names
    return(rel.inf=rel.inf)
 }
