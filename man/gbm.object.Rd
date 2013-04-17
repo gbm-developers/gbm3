@@ -35,7 +35,7 @@ training data}
 \code{cv.fitted}{If cross-validation was performed, the cross-validation
   predicted values on the scale of the linear predictor. That is, the
   fitted values from the ith CV-fold, for the model having been trained on
-  the data in all other folds.
+  the data in all other folds.}
 }
 \author{Greg Ridgeway \email{gregridgeway@gmail.com}}
 \seealso{

@@ -284,7 +284,7 @@ GBMRESULT CGBM::iterate
         if (!IsPairwise())
         {
             // regular instance based training
-            for(i=0; i<cTrain && (cBagged < cTotalInBag); i++)
+            for(i=0; i<cTrain; i++) /* && (cBagged < cTotalInBag); i++) */
             {
                 if(unif_rand()*(cTrain-i) < cTotalInBag-cBagged)
                 {
@@ -295,6 +295,9 @@ GBMRESULT CGBM::iterate
                 {
                     afInBag[i] = false;
                 }
+/*                if (cBagged >= cTotalInBag){
+                    break; 		
+                } */
             }
             // the remainder is not in the bag
             for( ; i<cTrain; i++)
