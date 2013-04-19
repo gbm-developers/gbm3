@@ -57,7 +57,7 @@ interact.gbm <- function(x, data, i.var = 1, n.trees = x$n.trees){
                          var.type = as.integer(x$var.type),
                          PACKAGE = "gbm")
       # center the values
-browser()
+#browser()
       FF[[j]]$f <- with(FF[[j]], f - weighted.mean(f,n))
       # precompute the sign of these terms to appear in H
       FF[[j]]$sign <- ifelse(length(a[[j]]) %% 2 == length(i.var) %% 2, 1, -1)
