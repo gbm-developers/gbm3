@@ -28,6 +28,12 @@ with mean 0 and variance 1 and the model is of the form
 \deqn{y=\beta_0+\beta_1x_1+\beta_2x_2+\beta_3x_3}
 then
 \deqn{H=\frac{\beta_3}{\sqrt{\beta_1^2+\beta_2^2+\beta_3^2}}}
+
+Note that if the main effects are weak, the estimated H will be unstable. For
+example, if (in the case of a two-way interaction) neither main effect is in
+the selected model (relative influence is zero), the result will be 0/0. Also,
+with weak main effects, rounding errors can result in values of H > 1 which are
+not possible.
 }
 \value{
 Returns the value of \eqn{H}.
