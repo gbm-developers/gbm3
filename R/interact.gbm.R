@@ -2,6 +2,10 @@
 interact.gbm <- function(x, data, i.var = 1, n.trees = x$n.trees){
    ###############################################################
    # Do sanity checks on the call
+    if (x$interaction.depth < length(i.var)){
+       stop("interaction.depth too low in model call")
+   }
+   
    if (all(is.character(i.var))){
       i <- match(i.var, x$var.names)
       if (any(is.na(i))) {
