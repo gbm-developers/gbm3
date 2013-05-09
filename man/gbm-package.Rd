@@ -12,8 +12,8 @@ Huberized hinge loss.}
 \details{
 \tabular{ll}{
 Package: \tab gbm\cr
-Version: \tab 2.0-9.8\cr
-Date: \tab 2013-04-12\cr
+Version: \tab 2.0-9.9\cr
+Date: \tab 2013-05-09\cr
 Depends: \tab R (>= 2.9.0), survival, lattice, mgcv\cr
 License: \tab GPL (version 2 or newer)\cr
 URL: \tab http://code.google.com/p/gradientboostedmodels/\cr
