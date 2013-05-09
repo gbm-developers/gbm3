@@ -51,7 +51,7 @@ predict.gbm <- function(object,newdata,n.trees,
       }
    }
 
-   x <- as.vector(unlist(x))
+   x <- as.vector(unlist(x, use.names=FALSE))
    if(missing(n.trees) || any(n.trees > object$n.trees))
    {
       n.trees[n.trees>object$n.trees] <- object$n.trees
