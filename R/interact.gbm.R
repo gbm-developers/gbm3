@@ -60,32 +60,44 @@ interact.gbm <- function(x, data, i.var = 1, n.trees = x$n.trees){
                          c.splits = x$c.splits,
                          var.type = as.integer(x$var.type),
                          PACKAGE = "gbm")
+      # FF[[jj]]$Z is the data, f is the predictions, n is the number of levels for factors
+
+      # Need to restructure f to deal with multinomial case
+      FF[[j]]$f <- matrix(FF[[j]]$f, ncol=x$num.classes, byrow=FALSE)
+
       # center the values
-#browser()
-      FF[[j]]$f <- with(FF[[j]], f - weighted.mean(f,n))
+      FF[[j]]$f <- apply(FF[[j]]$f, 2, function(x, w){
+                                          x - weighted.mean(x, w, na.rm=TRUE)
+                                       }, w=FF[[j]]$n)
+ 
       # precompute the sign of these terms to appear in H
       FF[[j]]$sign <- ifelse(length(a[[j]]) %% 2 == length(i.var) %% 2, 1, -1)
    }
 
    H <- FF[[length(a)]]$f
-   for(j in 1:(length(a)-1))
-   {
-      i <- match(apply(FF[[length(a)]]$Z[,a[[j]],drop=FALSE],1,paste,collapse="\r"),
-                 apply(FF[[j]]$Z,1,paste,collapse="\r"))
-      H <- H + with(FF[[j]], sign*f[i])
+
+   for(j in 1:(length(a)-1)){
+      i1 <- apply(FF[[length(a)]]$Z[,a[[j]], drop=FALSE], 1, paste, collapse="\r")
+      i2 <- apply(FF[[j]]$Z,1,paste,collapse="\r")
+      i <- match(i1, i2)
+
+      H <- H + with(FF[[j]], sign*f[i,])
    }
-   if (is.null(dim(H)))
-   {
-      H <- weighted.mean(H^2, FF[[length(a)]]$n)/
-              weighted.mean((FF[[length(a)]]$f)^2,FF[[length(a)]]$n)
-   }
-   else { # distribution == "multinomial"
-      H <- apply(H^2, 2, weighted.mean, w = FF[[length(a)]]$n, na.rm = TRUE)/
-              apply((FF[[length(a)]]$f)^2, 2, weighted.mean,
-                 w = FF[[length(a)]]$n, na.rm = TRUE)
-   }
+
+   # Compute H
+   w <- matrix(FF[[length(a)]]$n, ncol=1)
+   f <- matrix(FF[[length(a)]]$f^2, ncol=x$num.classes, byrow=FALSE)
+
+   top <- apply(H^2, 2, weighted.mean, w = w, na.rm = TRUE)
+   btm <- apply(f, 2, weighted.mean, w = w, na.rm = TRUE)
+   H <- top / btm
+
    if (x$distribution$name=="multinomial"){
       names(H) <- x$classes
    }
+   
+   # If H > 1, rounding and tiny main effects have messed things up
+   H[H > 1] <- NaN
+
    return(sqrt(H))
 }
