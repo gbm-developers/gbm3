@@ -1,11 +1,9 @@
-Changes in version 2.0-9.8
+Changes in version 2.1
 
-Major changes:
 - The cross-validation loop is now parallelized. The functions attempt
   to guess a sensible number of cores to use, or the user can specify
   how many through new argument n.cores.
-
-Minor changes:
+- A fair amount of code refactoring.
 - Added type='response' for predict when distribution='adaboost'.
 - Fixed a bug that caused offset not to be used if the first element
   of offset was 0.
@@ -23,6 +21,7 @@ Minor changes:
 - Cross-validation predictions now included in the output object.
 - Fixed bug in relative.influence that caused labels to be wrong when sort.=TRUE.
 - Modified interact.gbm to do additional sanity check, updated help file
+- Fixed bug in interact.gbm so that it now works for distribution="multinomial"
 - Modified predict.gbm to improve performance on large datasets
 
 Changes in version 2.0
