@@ -14,5 +14,5 @@ Description: This package implements extensions
   Cox proportional hazards partial likelihood, AdaBoost
   exponential loss, Huberized hinge loss,
   and Learning to Rank measures (LambdaMart).
-License: GPL (>= 2)
+License: GPL (>= 2) | file LICENSE
 URL: http://code.google.com/p/gradientboostedmodels/
