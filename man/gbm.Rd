@@ -173,7 +173,8 @@ t-distribution, and multinomial code developed by Harry Southworth and Daniel Ed
 
 Pairwise code developed by Stefan Schroedl \email{schroedl@a9.com}}
 
-\seealso{ \code{\link{gbm.object}}, \code{\link{gbm.perf}}, \code{\link{plot.gbm}}, \code{\link{predict.gbm}}, \code{\link{summary.gbm}}, \code{\link{pretty.gbm.tree}}. }
+\seealso{ \code{\link{gbm.object}}, \code{\link{gbm.perf}}, \code{\link{plot.gbm}},
+          \code{\link{predict.gbm}}, \code{\link{summary.gbm}}, \code{\link{pretty.gbm.tree}}. }
 
 \examples{ # A least squares regression example # create some data
 
@@ -216,7 +217,8 @@ gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
     cv.folds = 3,                # do 3-fold cross-validation
     keep.data=TRUE,              # keep a copy of the dataset with the object
     verbose=FALSE,               # don't print out progress
-    n.cores=1)                   # use only a single core (detecting #cores is error-prone, so avoided here)
+    n.cores=1)                   # use only a single core (detecting #cores is
+                                 # error-prone, so avoided here)
 
 # check performance using an out-of-bag estimator
 # OOB underestimates the optimal number of iterations
