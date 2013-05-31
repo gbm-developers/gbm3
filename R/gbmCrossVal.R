@@ -93,16 +93,26 @@ gbmCrossValModelBuild <- function(cv.folds, cv.group, n.cores, i.train,
                                   group) {
   ## set up the cluster and add a finalizer
   cluster <- gbmCluster(n.cores)
-  on.exit(stopCluster(cluster))
+  on.exit(if (!is.null(cluster)){ stopCluster(cluster) })
 
   ## get ourselves some random seeds
   seeds <- as.integer(runif(cv.folds, -(2^31 - 1), 2^31))
 
   ## now do the cross-validation model builds
-  parLapply(cl=cluster, X=1:cv.folds,
+  if (!is.null(n.cores) & n.cores > 1){
+    parallel::parLapply(cl=cluster, X=1:cv.folds,
             gbmDoFold, i.train, x, y, offset, distribution,
             w, var.monotone, n.trees,
             interaction.depth, n.minobsinnode, shrinkage,
             bag.fraction,
             cv.group, var.names, response.name, group, seeds)
+  }
+  else {
+    lapply(X=1:cv.folds,
+            gbmDoFold, i.train, x, y, offset, distribution,
+            w, var.monotone, n.trees,
+            interaction.depth, n.minobsinnode, shrinkage,
+            bag.fraction,
+            cv.group, var.names, response.name, group, seeds) 
+  }
 }

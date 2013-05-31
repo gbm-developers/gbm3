@@ -1,3 +1,11 @@
+Changes in version 2.1-x
+
+- Fixed bug that caused gbm to fail with cv.folds=1
+- Stopped gbm from launching multiple processes when n.cores=1
+- Explicitly call parallel::parLapply to avoid failure when Snow is
+  attached.
+
+
 Changes in version 2.1
 
 - The cross-validation loop is now parallelized. The functions attempt

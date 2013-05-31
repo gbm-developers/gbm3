@@ -4,5 +4,6 @@ gbmCluster <- function(n){
     if (is.null(n)){
       n <- detectCores()
     }
-    makeCluster(n)
+    if (n == 1){ NULL }
+    else { makeCluster(n) }
 }
