@@ -155,7 +155,7 @@ gbm <- function(formula = formula(data),
    gbm.obj$cv.folds <- cv.folds
    gbm.obj$call <- theCall
    gbm.obj$m <- m
-   if (cv.folds > 0){ gbm.obj$cv.fitted <- p }
+   if (cv.folds > 1){ gbm.obj$cv.fitted <- p }
 
    if (distribution$name == "pairwise")
    {
