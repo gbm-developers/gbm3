@@ -42,30 +42,29 @@ print.gbm <- function(x, ... ){
        n.class <- x$num.classes
 
        yn <- as.numeric(d[, x$response.name])
-       
-       p <- predict(x, n.trees=best , type = "response", newdata=d)
-       p <- apply(p, 1, function(x , labels ){ labels[x == max(x)] }, labels = colnames(p))
+
+       p <- apply(x$cv.fitted, 1, function(x , labels){ labels[x == max(x)] }, labels = x$classes)
        p <- as.numeric(as.factor(p))
        r <- yn
 
-       conf.mat <- matrix(table(c(r + n.class * p, (n.class + (1:(n.class^2))))), 
+       conf.mat <- matrix(table(c(r + n.class * p, (n.class + (1:(n.class^2))))),
                           nrow = n.class)
        conf.mat <- conf.mat - 1
        pred.acc <- round(100 * sum(diag(conf.mat)) / sum(conf.mat),2)
        conf.mat <- cbind(conf.mat, round(100*diag(conf.mat)/rowSums(conf.mat),2))
        dimnames(conf.mat) <- list(x$classes, c(x$classes, "Pred. Acc."))
 
-       cat("\nConfusion matrix:\n")
+       cat("\nCross-validation confusion matrix:\n")
        print(conf.mat)
 
-       cat("\nPrediction Accuracy = ", pred.acc, "%\n", sep = "") 
+       cat("\nCross-validation prediction Accuracy = ", pred.acc, "%\n", sep = "") 
    }
    else if (x$distribution$name %in% c("bernoulli", "adaboost", "huberized")){
 
-       p <- predict( x , newdata=d, n.tree=best , type = "response")
-       p <- ifelse( p < .5, 0, 1 )
+       p <- 1 / (1 + exp(-x$cv.fitted))
+       p <- ifelse(p < .5, 0, 1)
 
-       conf.mat <- matrix( table( c( d[,x$response.name] + 2 * p , 0:3 )), ncol=2 )
+       conf.mat <- matrix(table(c(d[, x$response.name] + 2 * p , 0:3)), ncol=2)
        conf.mat <- conf.mat - 1
 
        pred.acc <- round(100 * sum(diag(conf.mat)) / sum(conf.mat),2)
@@ -73,23 +72,29 @@ print.gbm <- function(x, ... ){
        conf.mat <- cbind(conf.mat,  round(100*diag(conf.mat)/rowSums(conf.mat),2))
        dimnames(conf.mat) <- list(c("0","1"), c("0", "1", "Pred. Acc."))
 
-       cat("\nConfusion matrix:\n")
+       cat("\nCross-validation confusion matrix:\n")
        print(conf.mat)
 
-       cat("\nPrediction Accuracy = ", pred.acc, "%\n", sep = "")
+       cat("\nCross-validation prediction Accuracy = ", pred.acc, "%\n", sep = "")
    }
-   else if ( x$distribution$name %in% c( "gaussian", "laplace", "poisson", "quantile", "bisquare", "tdist" ) ){
-       r <- d[, 1] - predict( x, type="response", newdata=d, n.tree=best )
-       if ( x$distribution$name == "poisson" ){
-           cat( "Summary of response residuals:\n" )
+   else if (x$distribution$name %in% c("gaussian", "laplace", "quantile", "tdist")){
+       r <- d[, 1] - x$cv.fitted
+
+       cat("\nSummary of cross-validation residuals:\n" )
+       print(quantile(r))
+       cat("\n")
+       
+       # Do pseudo R^2
+       if (x$distribution$name == "gaussian"){
+           yadj <- d[, 1] - mean(d[, 1])
+           R2 <- 1 - sum(r^2)/sum(yadj^2)
+           cat("Cross-validation pseudo R-squared: ", signif(R2, 3), "\n")
        }
-       else {
-           cat( "Summary of residuals:\n" )
+       else { # Rousseeuw & Leroy, page 44
+           R2 <- 1 - (median(abs(r)) / mad(d[, 1]))^2
+           cat("Cross-validation robust pseudo R-squared: ", signif(R2, 3), "\n")
        }
-       print( quantile( r ) )
-       cat( "\n" )
    }
-   
 
    #############################################################################
    

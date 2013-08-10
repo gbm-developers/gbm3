@@ -30,22 +30,25 @@
   If multinomial, bernoulli or adaboost was used,
   the confusion matrix and prediction accuracy are printed (objects
   being allocated to the class with highest probability for multinomial
-  and bernoulli). These classifications are performed on the entire
-  training
-  data using the model with the 'best' number of trees as described
-  above, or the maximum number of trees if the 'best' cannot be
-  computed.
+  and bernoulli). These classifications are performed using the cross-validation
+  fitted values.
 
   If the 'distribution' was specified as gaussian, laplace, quantile
   or t-distribution, a summary of the residuals is displayed.
-  The residuals are for the training data with the model at the 'best'
-  number of trees, as
-  described above, or the maximum number of trees if the 'best' cannot
-  be computed.
+  The residuals are the cross-validation residuals. Also, a pseudo R-squared
+  value is displayed. For Gaussian response, this is 1 - sum(r*r) / sum(z*z)
+  where z = y - mean(y). For the other distributions, this is
+  1 - (median(abs(r)) / mad(y))^2, following the suggestion of Rousseeuw and
+  Leroy (equation 3.11). Note that this definition of a robust R-squared is
+  contentious.
 }
 
 
 \author{ Harry Southworth, Daniel Edwards }
+
+\references{
+P. J. Rousseeuw and A. M. Leroy, Robust Regresion and Outlier Detection, Wiley, 1987 (2003).
+}
 
 \seealso{ \code{\link{gbm}} }
 \examples{
