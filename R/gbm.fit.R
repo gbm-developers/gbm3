@@ -80,16 +80,16 @@ gbm.fit <- function(x,y,
       }
       if(is.ordered(x[,i]))
       {
-         var.levels[[i]] <- levels(x[,i])
-         x[,i] <- as.numeric(x[,i])-1
+         var.levels[[i]] <- levels(factor(x[,i]))
+         x[,i] <- as.numeric(factor(x[,i]))-1
          var.type[i] <- 0
       }
       else if(is.factor(x[,i]))
       {
          if(length(levels(x[,i]))>1024)
             stop("gbm does not currently handle categorical variables with more than 1024 levels. Variable ",i,": ",var.names[i]," has ",length(levels(x[,i]))," levels.")
-         var.levels[[i]] <- levels(x[,i])
-         x[,i] <- as.numeric(x[,i])-1
+         var.levels[[i]] <- levels(factor(x[,i]))
+         x[,i] <- as.numeric(factor(x[,i]))-1
          var.type[i] <- max(x[,i],na.rm=TRUE)+1
       }
       else if(is.numeric(x[,i]))
