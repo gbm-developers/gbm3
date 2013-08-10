@@ -1,6 +1,5 @@
 \name{print.gbm}
 \alias{print.gbm}
-\alias{show.gbm}
 
 \title{ Print model summary }
 \description{
