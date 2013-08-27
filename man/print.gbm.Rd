@@ -7,7 +7,6 @@
 }
 \usage{
 \method{print}{gbm}(x, ...)
-\method{show}{gbm}(x, ...)
 }
 \arguments{
   \item{x}{ an object of class \code{gbm}. }
