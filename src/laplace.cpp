@@ -94,6 +94,7 @@ GBMRESULT CLaplace::InitF
     dInitF = mpLocM->Median(nLength, adArr, adWeight);
 
 Cleanup:
+    delete[] adArr;
     return hr;
 Error:
     goto Cleanup;
