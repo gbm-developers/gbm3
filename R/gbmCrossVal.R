@@ -67,7 +67,7 @@ gbmCrossValPredictions <- function(cv.models, cv.folds, cv.group,
     flag <- cv.group == ind
     model <- cv.models[[ind]]
     ## the %in% here is to handle coxph
-    my.data  <- data[flag, !(data.names %in% model$response.name)]
+    my.data  <- data[flag, model$var.names]
     predictions <- predict(model, newdata=my.data, n.trees=best.iter.cv)
     predictions <- matrix(predictions, ncol=num.cols)
     result[flag,] <- predictions
