@@ -23,7 +23,7 @@ gbm.fit <- function(x,y,
    cRows <- nrow(x)
    cCols <- ncol(x)
 
-   if(nrow(x) != ifelse(class(y)=="Surv", nrow(y), length(y))) {
+   if(nrow(x) != ifelse("Surv" %in% class(junk), nrow(y), length(y))) {
       stop("The number of rows in x does not equal the length of y.")
    }
 
