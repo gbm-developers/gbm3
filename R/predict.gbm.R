@@ -16,6 +16,9 @@ predict.gbm <- function(object,newdata,n.trees,
       else{ best <- length( object$train.error ) }
       cat( paste( "Using", n.trees, "trees...\n" ) )
    }
+   else if (length(n.trees) == 0){
+      stop("n.trees cannot be NULL or a vector of zero length")
+   }
 
    if(!is.element(type, c("link","response" )))
    {
