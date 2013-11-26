@@ -1,8 +1,5 @@
-gbm
-===
-
-Gradient boosted models
---------------------------------
+gbm: gradient boosted models
+----------------------------
 
 Originally written by Greg Ridgeway, added to by various authors, currently
 maintained by Harry Southworth.
