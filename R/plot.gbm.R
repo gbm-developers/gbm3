@@ -2,6 +2,7 @@ plot.gbm <- function(x,
                      i.var=1,
                      n.trees=x$n.trees,
                      continuous.resolution=100,
+                     grid.levels=NULL,
                      return.grid=FALSE,
                      type="link",
                      ...)
@@ -40,21 +41,41 @@ plot.gbm <- function(x,
    }
 
    # generate grid to evaluate gbm model
-   grid.levels <- vector("list",length(i.var))
-   for(i in 1:length(i.var))
-   {
-      # continuous
-      if(is.numeric(x$var.levels[[i.var[i]]]))
+   if (is.null(grid.levels)) {
+      grid.levels <- vector("list",length(i.var))
+      for(i in 1:length(i.var))
       {
-         grid.levels[[i]] <- seq(min(x$var.levels[[i.var[i]]]),
-                                 max(x$var.levels[[i.var[i]]]),
-                                 length=continuous.resolution)
+        # continuous
+        if(is.numeric(x$var.levels[[i.var[i]]]))
+        {
+           grid.levels[[i]] <- seq(min(x$var.levels[[i.var[i]]]),
+                                   max(x$var.levels[[i.var[i]]]),
+                                   length=continuous.resolution)
+        }
+        # categorical or ordered
+        else
+        {
+           grid.levels[[i]] <- as.numeric(factor(x$var.levels[[i.var[i]]],
+                                                 levels=x$var.levels[[i.var[i]]]))-1
+        }
       }
-      # categorical or ordered
-      else
-      {
-         grid.levels[[i]] <- as.numeric(factor(x$var.levels[[i.var[i]]],
-                                               levels=x$var.levels[[i.var[i]]]))-1
+   }
+   else
+   {
+      # allow grid.levels to not be a list when there is only one predictor
+      if (length(i.var) == 1 & !is.list(grid.levels)) {
+         grid.levels <- list(grid.levels)
+      }
+      # check compatibility in length, at least
+      if (length(grid.levels) != length(i.var)) {
+         stop("Need grid.levels for all variables in i.var")
+      }
+      # convert levels for categorical predictors into numbers
+      for(i in 1:length(i.var)) {
+         if(!is.numeric(x$var.levels[[i.var[i]]]))
+         {
+            grid.levels[[i]] <- as.numeric(grid.levels[[i]]) - 1
+         }
       }
    }
 

@@ -9,6 +9,7 @@ Plots the marginal effect of the selected variables by "integrating" out the oth
      i.var = 1,
      n.trees = x$n.trees,
      continuous.resolution = 100,
+     grid.levels = NULL,
      return.grid = FALSE,
      type = "link",
      ...)
@@ -24,6 +25,14 @@ Plots the marginal effect of the selected variables by "integrating" out the oth
   \code{n.trees} trees will be used}
   \item{continuous.resolution}{ The number of equally space points at which to
   evaluate continuous predictors }
+  \item{grid.levels}{ A list containing the points at which to evaluate each
+  predictor in \code{i.var} (in the same order as \code{i.var}). For continuous
+  predictors this is usually a regular sequence of values within the range of the
+  variable. For categorical predictors, the points are the levels of the factor. When
+  \code{length(i.var)} is one, the values can be provided directly, outside a list.\n
+  This is NULL by default and generated automatically from the data, using
+  \code{continuous.resolution} for continuous predictors. Forcing the values can be
+  useful to evaluate two models on the same exact range }
   \item{return.grid}{ if \code{TRUE} then \code{plot.gbm} produces no graphics and only returns
   the grid of evaluation points and their average predictions. This is useful for
   customizing the graphics for special variable types or for dimensions greater
