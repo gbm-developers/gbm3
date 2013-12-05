@@ -99,7 +99,7 @@ gbmCrossValModelBuild <- function(cv.folds, cv.group, n.cores, i.train,
   seeds <- as.integer(runif(cv.folds, -(2^31 - 1), 2^31))
 
   ## now do the cross-validation model builds
-  if (!is.null(n.cores) && n.cores > 1){
+  if ( ! is.null(cluster) ){
     parallel::parLapply(cl=cluster, X=1:cv.folds,
             gbmDoFold, i.train, x, y, offset, distribution,
             w, var.monotone, n.trees,
