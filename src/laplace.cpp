@@ -191,6 +191,8 @@ GBMRESULT CLaplace::FitBestConstant
         }
     }
 
+    delete[] adW2;
+
     return hr;
 }
 
