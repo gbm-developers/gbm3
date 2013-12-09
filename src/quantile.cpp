@@ -2,10 +2,6 @@
 
 #include "quantile.h"
 
-CQuantile::CQuantile(double dAlpha)
-{
-    this->dAlpha = dAlpha;
-}
 
 CQuantile::~CQuantile()
 {

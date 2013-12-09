@@ -25,7 +25,7 @@ class CQuantile: public CDistribution
 
 public:
 
-    CQuantile(double dAlpha);
+ CQuantile(double dAlpha) : dAlpha(dAlpha) {};
 
     virtual ~CQuantile();
 
