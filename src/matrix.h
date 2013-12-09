@@ -8,6 +8,9 @@
 #ifndef __mjdmatrix_h
 #define __mjdmatrix_h
 #include <iostream>
+
+#include <vector>
+
 // generic object (class) definition of matrix:
 template <class D> class matrix{
   // NOTE: maxsize determines available memory storage, but
@@ -15,38 +18,35 @@ template <class D> class matrix{
   // at a particular time.
     int maxsize;  // max number of rows (same as max number of columns)
     int actualsize;  // actual size (rows, or columns) of the stored matrix
-    D* data;      // where the data contents of the matrix are stored
-    void allocateD()   
+    std::vector<D> data;      // where the data contents of the matrix are stored
+    void allocateD()
     {
-        delete[] data;
-        data = new D [maxsize*maxsize];
+      data.resize(maxsize * maxsize);
     };
+
 public:
-    matrix() 
-    {
-        maxsize = 5; 
-        actualsize = 5;
-        data = 0;
-        allocateD();
-    };                  // private ctor's
 
-    matrix(int newmaxsize) {matrix(newmaxsize,newmaxsize);};
-    matrix(int newmaxsize, int newactualsize)  
-    { // the only public ctor
-        if (newmaxsize <= 0) newmaxsize = 5;
-        maxsize = newmaxsize; 
-        if ((newactualsize <= newmaxsize)&&(newactualsize>0))
-            actualsize = newactualsize;
-        else 
-            actualsize = newmaxsize;
-        // since allocateD() will first call delete[] on data:
-        data = 0;
-        allocateD();
+ matrix() : maxsize(5), actualsize(5), data() {
+      allocateD();
     };
 
-    ~matrix() 
-    { 
-        delete[] data; 
+ matrix(int newmaxsize) : data() {
+      maxsize = (newmaxsize < 5) ? 5 : newmaxsize;
+      actualsize = maxsize;
+      allocateD();
+    };
+
+ matrix(int newmaxsize, int newactualsize) : data() {
+      if (newmaxsize <= 0) newmaxsize = 5;
+      maxsize = newmaxsize;
+      if ((newactualsize <= newmaxsize) && (newactualsize>0)) {
+	actualsize = newactualsize;
+      }
+      else {
+	actualsize = newmaxsize;
+      }
+
+      allocateD();
     };
 
     void dumpMatrixValues()
