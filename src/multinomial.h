@@ -22,7 +22,8 @@ class CMultinomial : public CDistribution
 
 public:
 
-    CMultinomial(int cNumClasses, int cRows);
+ CMultinomial(int cNumClasses, int cRows) : mcNumClasses(cNumClasses),
+    mcRows(cRows), madProb(new double[cNumClasses * cRows]) {};
 
     virtual ~CMultinomial();
     GBMRESULT UpdateParams(double *adF,

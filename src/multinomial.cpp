@@ -2,20 +2,10 @@
 
 #include "multinomial.h"
 
-CMultinomial::CMultinomial(int cNumClasses, int cRows)
-{
-   mcNumClasses = cNumClasses;
-   mcRows = cRows;
-
-   madProb = new double[cNumClasses * cRows];
-}
 
 CMultinomial::~CMultinomial()
 {
-   if(madProb != NULL)
-   {
-      delete [] madProb;
-   }
+   delete[] madProb;
 }
 
 
