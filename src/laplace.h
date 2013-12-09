@@ -26,7 +26,7 @@ class CLaplace : public CDistribution
 
 public:
 
-    CLaplace();
+ CLaplace()  : mpLocM("Other", 0, 0) {};
 
     virtual ~CLaplace();
 
@@ -91,7 +91,7 @@ public:
 private:
     vector<double> vecd;
     vector<double>::iterator itMedian;
-    CLocationM *mpLocM;
+    CLocationM mpLocM;
 };
 
 #endif // LAPLACGBM_H

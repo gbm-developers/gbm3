@@ -2,17 +2,9 @@
 
 #include "laplace.h"
 
-CLaplace::CLaplace()
-{
-   mpLocM = NULL;
-}
 
 CLaplace::~CLaplace()
 {
-   if(mpLocM != NULL)
-   {
-      delete mpLocM;
-   }
 }
 
 
@@ -69,29 +61,14 @@ GBMRESULT CLaplace::InitF
 
     double *adArr = NULL;
 
-    // Create a new LocationM object (for weighted medians)
-    double *pTemp = NULL;
-    mpLocM = new CLocationM("Other", 0, pTemp);
-    if(mpLocM == NULL)
-    {
-        hr = GBM_OUTOFMEMORY;
-        goto Error;
-    }
-    
     adArr = new double[cLength];
-    if(adArr == NULL)
-    {
-        hr = GBM_OUTOFMEMORY;
-        goto Error;
-    }
-
     for (ii = 0; ii < cLength; ii++)
     {
         dOffset = (adOffset==NULL) ? 0.0 : adOffset[ii];
         adArr[ii] = adY[ii] - dOffset;
     }
 
-    dInitF = mpLocM->Median(nLength, adArr, adWeight);
+    dInitF = mpLocM.Median(nLength, adArr, adWeight);
 
 Cleanup:
     delete[] adArr;
@@ -186,7 +163,7 @@ GBMRESULT CLaplace::FitBestConstant
             
             }
 
-         vecpTermNodes[iNode]->dPrediction = mpLocM->Median(iVecd, adArr, adW2);
+	    vecpTermNodes[iNode]->dPrediction = mpLocM.Median(iVecd, adArr, adW2);
 
         }
     }
