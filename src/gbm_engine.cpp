@@ -4,10 +4,7 @@
 
 CGBM::CGBM()
 {
-    adFadj = NULL;
-    adZ = NULL;
     afInBag = NULL;
-    aiNodeAssign = NULL;
     aNodeSearch = NULL;
 
     cDepth = 0;
@@ -28,42 +25,10 @@ CGBM::CGBM()
 
 CGBM::~CGBM()
 {
-    if(adFadj != NULL)
-    {
-        delete [] adFadj;
-        adFadj = NULL;
-    }
-    if(adZ != NULL)
-    {
-        delete [] adZ;
-        adZ = NULL;
-    }
-    if(afInBag != NULL)
-    {
-        delete [] afInBag;
-        afInBag = NULL;
-    }
-    if(aiNodeAssign != NULL)
-    {
-        delete [] aiNodeAssign;
-        aiNodeAssign = NULL;
-    }
-    if(aNodeSearch != NULL)
-    {
-        delete [] aNodeSearch;
-        aNodeSearch = NULL;
-    }
-    if(ptreeTemp != NULL)
-    {
-        delete ptreeTemp;
-        ptreeTemp = NULL;
-    }
-    // must delete the node factory last!!! at least after deleting trees
-    if(pNodeFactory != NULL)
-    {
-        delete pNodeFactory;
-        pNodeFactory = NULL;
-    }
+    delete[] afInBag;
+    delete[] aNodeSearch;
+    delete ptreeTemp;
+    delete pNodeFactory;
 }
 
 
@@ -113,24 +78,8 @@ GBMRESULT CGBM::Initialize
 
     cValid = pData->cRows - cTrain;
     cTotalInBag = (unsigned long)(dBagFraction*cTrain);
-    adZ = new double[(pData->cRows) * cNumClasses];
-
-    if(adZ == NULL)
-    {
-        hr = GBM_OUTOFMEMORY;
-        goto Error;
-    }
-    adFadj = new double[(pData->cRows) * cNumClasses];
-    if(adFadj == NULL)
-    {
-        hr = GBM_OUTOFMEMORY;
-        goto Error;
-    }
-
-    for (i=0; i<(pData->cRows)*cNumClasses; i++)
-    {
-        adFadj[i] = 0.0;
-    }
+    adZ.assign((pData->cRows) * cNumClasses, 0);
+    adFadj.assign((pData->cRows) * cNumClasses, 0);
 
     pNodeFactory = new CNodeFactory();
     if(pNodeFactory == NULL)
@@ -153,12 +102,7 @@ GBMRESULT CGBM::Initialize
         goto Error;
     }
     // aiNodeAssign tracks to which node each training obs belongs
-    aiNodeAssign = new ULONG[cTrain];
-    if(aiNodeAssign==NULL)
-    {
-        hr = GBM_OUTOFMEMORY;
-        goto Error;
-    }
+    aiNodeAssign.resize(cTrain);
     // NodeSearch objects help decide which nodes to split
     aNodeSearch = new CNodeSearch[2*cDepth+1];
     if(aNodeSearch==NULL)
@@ -364,7 +308,7 @@ GBMRESULT CGBM::iterate
                                        pData->adMisc,
                                        pData->adOffset,
                                        adF,
-                                       adZ,
+                                       &adZ[0],
                                        pData->adWeight,
                                        afInBag,
                                        cTrain,
@@ -412,15 +356,15 @@ GBMRESULT CGBM::iterate
                                 pData->adMisc,
                                 pData->adOffset,
                                 pData->adWeight,
-                                adF,
-                                adZ,
+                                &adF[0],
+                                &adZ[0],
                                 aiNodeAssign,
                                 cTrain,
                                 vecpTermNodes,
                                 (2*cNodes+1)/3, // number of terminal nodes
                                 cMinObsInNode,
                                 afInBag,
-                                adFadj,
+                                &adFadj[0],
                                 cIdxOff);
 
     if(GBM_FAILED(hr))
@@ -444,8 +388,8 @@ GBMRESULT CGBM::iterate
                                               pData->adMisc,
                                               pData->adOffset,
                                               pData->adWeight,
-                                              adF,
-                                              adFadj,
+                                              &adF[0],
+                                              &adFadj[0],
                                               afInBag,
                                               dLambda,
                                               cTrain);

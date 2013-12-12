@@ -1,23 +1,10 @@
 //  GBM by Greg Ridgeway  Copyright (C) 2003
 
+#include <vector>
+
 #include "tdist.h"
 
-CTDist::CTDist(double adNu)
-{
-    mdNu = adNu;
 
-	double *adParams = new double[1];
-	adParams[0] = adNu;
-
-	mpLocM = new CLocationM("tdist", 1, adParams);
-
-	delete[] adParams;
-}
-
-CTDist::~CTDist()
-{
-	delete mpLocM;
-}
 
 
 GBMRESULT CTDist::ComputeWorkingResponse
@@ -73,7 +60,7 @@ GBMRESULT CTDist::InitF
 
 	// Get objects to pass into the LocM function
 	int iN = int(cLength);
-	double *adArr = new double[iN];
+	std::vector<double> adArr(cLength);
 
 	for (ii = 0; ii < iN; ii++)
 	{
@@ -81,9 +68,8 @@ GBMRESULT CTDist::InitF
 		adArr[ii] = adY[ii] - dOffset;
 	}
 
-	dInitF = mpLocM->LocationM(iN, adArr, adWeight);
+	dInitF = mpLocM.LocationM(iN, &adArr[0], adWeight);
 
-    delete[] adArr;
 
     return GBM_OK;
 }
@@ -135,7 +121,7 @@ GBMRESULT CTDist::FitBestConstant
     double *adW,
     double *adF,
     double *adZ,
-    unsigned long *aiNodeAssign,
+    const std::vector<unsigned long>& aiNodeAssign,
     unsigned long nTrain,
     VEC_P_NODETERMINAL vecpTermNodes,
     unsigned long cTermNodes,
@@ -147,47 +133,31 @@ GBMRESULT CTDist::FitBestConstant
 {
    	// Local variables
     GBMRESULT hr = GBM_OK;
-	unsigned long iNode = 0;
+    unsigned long iNode = 0;
     unsigned long iObs = 0;
-    double dOffset;
+    
 
+    std::vector<double> adArr, adWeight;
 	// Call LocM for the array of values on each node
     for(iNode=0; iNode<cTermNodes; iNode++)
     {
-        if(vecpTermNodes[iNode]->cN >= cMinObsInNode)
+      if(vecpTermNodes[iNode]->cN >= cMinObsInNode)
         {
-			// Get the number of nodes here
-			int iNumNodes = 0;
-			for (iObs = 0; iObs < nTrain; iObs++)
-			{
-				if(afInBag[iObs] && (aiNodeAssign[iObs] == iNode))
+	  adArr.clear();
+	  adWeight.clear();
+
+	  for (iObs = 0; iObs < nTrain; iObs++)
+	    {
+	      if(afInBag[iObs] && (aiNodeAssign[iObs] == iNode))
                 {
-                    iNumNodes++;
+		  const double dOffset = (adOffset==NULL) ? 0.0 : adOffset[iObs];
+		  adArr.push_back(adY[iObs] - dOffset - adF[iObs]);
+		  adWeight.push_back(adW[iObs]);
                 }
-			}
+	    }
 
-			// Create the arrays to centre
-			double *adArr = new double[iNumNodes];
-			double *adWeight = new double[iNumNodes];
-
-			int iIdx = 0;
-			for(iObs=0; iObs<nTrain; iObs++)
-            {
-                if(afInBag[iObs] && (aiNodeAssign[iObs] == iNode))
-                {
-                    dOffset = (adOffset==NULL) ? 0.0 : adOffset[iObs];
-                    adArr[iIdx] = adY[iObs] - dOffset - adF[iObs];
-					adWeight[iIdx] = adW[iObs];
-
-					iIdx++;
-                }
-            }
-
-           	vecpTermNodes[iNode]->dPrediction = mpLocM->LocationM(iNumNodes, adArr, 
-				                                                 adWeight); 
-
-			delete[] adArr;
-			delete[] adWeight;
+	  vecpTermNodes[iNode]->dPrediction = mpLocM.LocationM(adArr.size(), &adArr[0], 
+							       &adWeight[0]); 
 
         }
     }
@@ -209,20 +179,17 @@ double CTDist::BagImprovement
 )
 {
     double dReturnValue = 0.0;
-    double dF = 0.0;
-    double dW = 0.0;
     unsigned long i = 0;
-	double dU = 0.0;
-    double dV = 0.0;
+    double dU = 0.0;
+    double dW = 0.0;
 
     for(i=0; i<nTrain; i++)
     {
         if(!afInBag[i])
         {
-            dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
-            
-			dU = (adY[i] - dF);
-			dV = (adY[i] - dF - dStepSize * adFadj[i]) ;
+            const double dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
+	    const double dU = (adY[i] - dF);
+	    const double dV = (adY[i] - dF - dStepSize * adFadj[i]) ;
 
             dReturnValue += adWeight[i] * (log(mdNu + (dU * dU)) - log(mdNu + (dV * dV)));
             dW += adWeight[i];

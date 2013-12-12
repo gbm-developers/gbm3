@@ -15,37 +15,6 @@
 
 using namespace std;
 
-/////////////////////////////////////////////////
-// Constructor
-//
-// Creates a new instance of this class
-/////////////////////////////////////////////////
-CLocationM::CLocationM(const char *sType, int iN, double *adParams)
-{
-    int ii;
-
-	msType = sType;
-	mdEps = 1e-8;
-
-	madParams = new double[iN];
-	for (ii = 0; ii < iN; ii++)
-	{
-		madParams[ii] = adParams[ii];
-	}
-}
-
-/////////////////////////////////////////////////
-// Destructor
-//
-// Frees any memory from variables in this class
-/////////////////////////////////////////////////
-CLocationM::~CLocationM()
-{
-	if (madParams != NULL)
-	{
-	    delete[] madParams;
-	}
-}
 
 /////////////////////////////////////////////////
 // Median
@@ -147,14 +116,14 @@ double CLocationM::PsiFun(double dX)
 	double dPsiVal = 0.0;
 
 	// Switch on the type of function
-	if(strncmp(msType,"tdist",2) == 0)
+	if(msType == "tdist")
 	{
 		dPsiVal = dX / (madParams[0] + (dX * dX));
 	}
 	else
 	{
 		// TODO: Handle the error
-		Rprintf("Error: Function type %s not found\n", msType);
+	  Rprintf("Error: Function type %s not found\n", msType.c_str());
 	}
 
 	return dPsiVal;
@@ -182,13 +151,13 @@ double CLocationM::LocationM(int iN, double *adX, double *adW)
 	double dBeta0 = Median(iN, adX, adW);
 
 	// Get the initial estimate of scale
-	double *adDiff = new double[iN];
+	std::vector<double> adDiff(iN);
 	for (ii = 0; ii < iN; ii++)
 	{
 		adDiff[ii] = fabs(adX[ii] - dBeta0);
 	}
 
-	double dScale0 = 1.4826 * Median(iN, adDiff, adW);
+	double dScale0 = 1.4826 * Median(iN, &adDiff[0], adW);
 	dScale0 = fmax(dScale0, mdEps);
 
 	// Loop over until the error is low enough
@@ -232,8 +201,6 @@ double CLocationM::LocationM(int iN, double *adX, double *adW)
 
 	}
 
-    // Cleanup memory
-	delete[] adDiff;
 
 	return dBeta0;
 }

@@ -141,7 +141,7 @@ GBMRESULT CAdaBoost::FitBestConstant
     double *adW,
     double *adF,
     double *adZ,
-    unsigned long *aiNodeAssign,
+    const std::vector<unsigned long>& aiNodeAssign,
     unsigned long nTrain,
     VEC_P_NODETERMINAL vecpTermNodes,
     unsigned long cTermNodes,
