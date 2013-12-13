@@ -5,6 +5,7 @@
 //
 //------------------------------------------------------------------------------
 
+#include <algorithm>
 #include<vector>
 #include "gbm.h"
 
@@ -261,12 +262,9 @@ GBMRESULT gbm_transfer_catsplits_to_R
     int *aiSplitCodes
 )
 {
-    unsigned long i=0;
-
-    for(i=0; i<vecSplitCodes[iCatSplit].size(); i++)
-    {
-        aiSplitCodes[i] = vecSplitCodes[iCatSplit][i];
-    }
+    std::copy(vecSplitCodes[iCatSplit].begin(),
+	      vecSplitCodes[iCatSplit].end(),
+	      aiSplitCodes);
 
     return GBM_OK;
 }

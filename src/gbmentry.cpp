@@ -83,11 +83,6 @@ SEXP gbm
 
     // set up the dataset
     pData = new CDataset();
-    if(pData==NULL)
-    {
-        hr = GBM_OUTOFMEMORY;
-        goto Error;
-    }
 
     // initialize R's random number generator
     GetRNGstate();
@@ -122,11 +117,6 @@ SEXP gbm
        
     // allocate the GBM
     pGBM = new CGBM();
-    if(pGBM==NULL)
-    {
-        hr = GBM_OUTOFMEMORY;
-        goto Error;
-    }
 
     // initialize the GBM
     hr = pGBM->Initialize(pData,
@@ -319,21 +309,9 @@ Cleanup:
     Rprintf("destructing\n");
     #endif
 
-    if(pGBM != NULL)
-    {
-        delete pGBM;
-        pGBM = NULL;
-    }
-    if(pDist != NULL)
-    {
-        delete pDist;
-        pDist = NULL;
-    }
-    if(pData != NULL)
-    {
-        delete pData;
-        pData = NULL;
-    }
+    delete pGBM;
+    delete pDist;
+    delete pData;
 
     return rAns;
 Error:
