@@ -1,5 +1,7 @@
 //  GBM by Greg Ridgeway  Copyright (C) 2003
 //#define NOISY_DEBUG
+#include <algorithm>
+
 #include "gbm_engine.h"
 
 CGBM::CGBM()
@@ -149,12 +151,8 @@ GBMRESULT CGBM::GetVarRelativeInfluence
 )
 {
     GBMRESULT hr = GBM_OK;
-    int iVar=0;
 
-    for(iVar=0; iVar<pData->cCols; iVar++)
-    {
-        adRelInf[iVar] = 0.0;
-    }
+    std::fill(adRelInf, adRelInf + pData->cCols, 0);
 
     return hr;
 }
@@ -225,11 +223,7 @@ GBMRESULT CGBM::iterate
                     break; 		
                 } */
             }
-            // the remainder is not in the bag
-            for( ; i<cTrain; i++)
-            {
-                afInBag[i] = false;
-            }
+	    std::fill(afInBag + i, afInBag + cTrain, false);
         }
         else
         {
@@ -275,10 +269,7 @@ GBMRESULT CGBM::iterate
                 }
             }
             // the remainder is not in the bag
-            for( ; i<cTrain; i++)
-            {
-                afInBag[i] = false;
-            }
+	    std::fill(afInBag + i, afInBag + cTrain, false);
         }
     }
 

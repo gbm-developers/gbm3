@@ -4,11 +4,10 @@
 //  File:       node_search.cpp
 //
 //------------------------------------------------------------------------------
-
+#include <cassert>
 #include "node_search.h"
 
 CNodeSearch::CNodeSearch()
-    :k_cMaxClasses(1024)
 {
     iBestSplitVar = 0;
     dBestSplitValue = 0.0;
@@ -19,12 +18,12 @@ CNodeSearch::CNodeSearch()
     dBestMissingSumZ = 0.0;
     dCurrentMissingSumZ = 0.0;
 
-    adGroupSumZ = NULL;
-    adGroupW = NULL;
-    acGroupN = NULL;
-    adGroupMean = NULL;
-    aiCurrentCategory = NULL;
-    aiBestCategory = NULL;
+    adGroupSumZ.resize(1024);
+    adGroupW.resize(1024);
+    acGroupN.resize(1024);
+    adGroupMean.resize(1024);
+    aiCurrentCategory.resize(1024);
+    aiBestCategory.resize(1024);
 
     iRank = UINT_MAX;
 }
@@ -32,36 +31,6 @@ CNodeSearch::CNodeSearch()
 
 CNodeSearch::~CNodeSearch()
 {
-    if(adGroupSumZ != NULL)
-    {
-        delete [] adGroupSumZ;
-        adGroupSumZ = NULL;
-    }
-    if(adGroupW != NULL)
-    {
-        delete [] adGroupW;
-        adGroupW = NULL;
-    }
-    if(acGroupN != NULL)
-    {
-        delete [] acGroupN;
-        acGroupN = NULL;
-    }
-    if(adGroupMean != NULL)
-    {
-        delete [] adGroupMean;
-        adGroupMean = NULL;
-    }
-    if(aiCurrentCategory != NULL)
-    {
-        delete [] aiCurrentCategory;
-        aiCurrentCategory = NULL;
-    }
-    if(aiBestCategory != NULL)
-    {
-        delete [] aiBestCategory;
-        aiBestCategory = NULL;
-    }
 }
 
 
@@ -71,44 +40,6 @@ GBMRESULT CNodeSearch::Initialize
 )
 {
     GBMRESULT hr = GBM_OK;
-
-    adGroupSumZ = new double[k_cMaxClasses];
-    if(adGroupSumZ == NULL)
-    {
-        hr = GBM_OUTOFMEMORY;
-        goto Error;
-    }
-    adGroupW = new double[k_cMaxClasses];
-    if(adGroupW == NULL)
-    {
-        hr = GBM_OUTOFMEMORY;
-        goto Error;
-    }
-    acGroupN = new ULONG[k_cMaxClasses];
-    if(acGroupN == NULL)
-    {
-        hr = GBM_OUTOFMEMORY;
-        goto Error;
-    }
-    adGroupMean = new double[k_cMaxClasses];
-    if(adGroupMean == NULL)
-    {
-        hr = GBM_OUTOFMEMORY;
-        goto Error;
-    }
-    aiCurrentCategory = new int[k_cMaxClasses];
-    if(aiCurrentCategory == NULL)
-    {
-        hr = GBM_OUTOFMEMORY;
-        goto Error;
-    }
-    aiBestCategory = new ULONG[k_cMaxClasses];
-    if(aiBestCategory == NULL)
-    {
-        hr = GBM_OUTOFMEMORY;
-        goto Error;
-    }
-
     this->cMinObsInNode = cMinObsInNode;
 
 Cleanup:
@@ -269,16 +200,14 @@ GBMRESULT CNodeSearch::ResetForNewVar
 )
 {
     GBMRESULT hr = GBM_OK;
-    long i=0;
 
     if(fIsSplit) goto Cleanup;
 
-    for(i=0; i<cCurrentVarClasses; i++)
-    {
-        adGroupSumZ[i] = 0.0;
-        adGroupW[i] = 0.0;
-        acGroupN[i] = 0;
-    }
+    assert(cCurrentVarClasses <= adGroupSumZ.size());
+
+    std::fill(adGroupSumZ.begin(), adGroupSumZ.begin() + cCurrentVarClasses, 0);
+    std::fill(adGroupW.begin(), adGroupW.begin() + cCurrentVarClasses, 0);
+    std::fill(acGroupN.begin(), acGroupN.begin() + cCurrentVarClasses, 0);
 
     iCurrentSplitVar = iWhichVar;
     this->cCurrentVarClasses = cCurrentVarClasses;
@@ -357,7 +286,7 @@ GBMRESULT CNodeSearch::EvaluateCategoricalSplit()
         }
     }
 
-    rsort_with_index(adGroupMean,aiCurrentCategory,cCurrentVarClasses);
+    rsort_with_index(&adGroupMean[0],&aiCurrentCategory[0],cCurrentVarClasses);
 
     // if only one group has a finite mean it will not consider
     // might be all are missing so no categories enter here
@@ -386,10 +315,9 @@ GBMRESULT CNodeSearch::EvaluateCategoricalSplit()
             {
                 iBestSplitVar = iCurrentSplitVar;
                 cBestVarClasses = cCurrentVarClasses;
-                for(j=0; j<cCurrentVarClasses; j++)
-                {
-                    aiBestCategory[j] = aiCurrentCategory[j];
-                }
+		std::copy(aiCurrentCategory.begin(),
+			  aiCurrentCategory.end(),
+			  aiBestCategory.begin());
             }
 
             dBestLeftSumZ      = dCurrentLeftSumZ;
@@ -445,13 +373,10 @@ GBMRESULT CNodeSearch::SetupNewNodes
 
         // set up the categorical split
         pNewNodeCategorical->iSplitVar = iBestSplitVar;
-        pNewNodeCategorical->cLeftCategory = (ULONG)dBestSplitValue + 1;
-        pNewNodeCategorical->aiLeftCategory = 
-            new ULONG[pNewNodeCategorical->cLeftCategory];
-        for(i=0; i<pNewNodeCategorical->cLeftCategory; i++)
-        {
-            pNewNodeCategorical->aiLeftCategory[i] = aiBestCategory[i];
-        }
+        pNewNodeCategorical->aiLeftCategory.resize(1 + (ULONG)dBestSplitValue);
+	std::copy(aiBestCategory.begin(),
+		  aiBestCategory.begin() + pNewNodeCategorical->aiLeftCategory.size(),
+		  pNewNodeCategorical->aiLeftCategory.begin());
 
         pNewSplitNode = pNewNodeCategorical;
     }

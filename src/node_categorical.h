@@ -25,8 +25,8 @@ class CNodeCategorical : public CNodeNonterminal
 {
 public:
 
-    CNodeCategorical();
-    ~CNodeCategorical();
+ CNodeCategorical() : aiLeftCategory() {};
+  ~CNodeCategorical();
 
     GBMRESULT PrintSubtree(unsigned long cIndent);
     GBMRESULT TransferTreeToRList(int &iNodeID,
@@ -52,8 +52,7 @@ public:
 
     GBMRESULT RecycleSelf(CNodeFactory *pNodeFactory);
 
-    unsigned long *aiLeftCategory;
-    unsigned long cLeftCategory;
+    std::vector<unsigned long> aiLeftCategory;
 };
 
 typedef CNodeCategorical *PCNodeCategorical;
