@@ -70,23 +70,13 @@ GBMRESULT CGBM::Initialize
 
     // allocate the tree structure
     ptreeTemp = new CCARTTree;
-    if(ptreeTemp == NULL)
-    {
-        hr = GBM_OUTOFMEMORY;
-        goto Error;
-    }
-
+    
     cValid = pData->cRows - cTrain;
     cTotalInBag = (unsigned long)(dBagFraction*cTrain);
     adZ.assign((pData->cRows) * cNumClasses, 0);
     adFadj.assign((pData->cRows) * cNumClasses, 0);
 
     pNodeFactory = new CNodeFactory();
-    if(pNodeFactory == NULL)
-    {
-        hr = GBM_OUTOFMEMORY;
-        goto Error;
-    }
     hr = pNodeFactory->Initialize(cDepth);
     if(GBM_FAILED(hr))
     {
@@ -96,20 +86,12 @@ GBMRESULT CGBM::Initialize
 
     // array for flagging those observations in the bag
     afInBag = new bool[cTrain];
-    if(afInBag==NULL)
-    {
-        hr = GBM_OUTOFMEMORY;
-        goto Error;
-    }
+    
     // aiNodeAssign tracks to which node each training obs belongs
     aiNodeAssign.resize(cTrain);
     // NodeSearch objects help decide which nodes to split
     aNodeSearch = new CNodeSearch[2*cDepth+1];
-    if(aNodeSearch==NULL)
-    {
-        hr = GBM_OUTOFMEMORY;
-        goto Error;
-    }
+    
     for(i=0; i<2*cDepth+1; i++)
     {
         aNodeSearch[i].Initialize(cMinObsInNode);
