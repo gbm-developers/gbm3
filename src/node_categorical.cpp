@@ -3,23 +3,12 @@
 #include "node_categorical.h"
 #include "node_factory.h"
 
-CNodeCategorical::CNodeCategorical()
-{
-    aiLeftCategory = NULL;
-    cLeftCategory = 0;
-}
-
 
 CNodeCategorical::~CNodeCategorical()
 {
     #ifdef NOISY_DEBUG
     Rprintf("categorical destructor\n");
     #endif
-    if(aiLeftCategory != NULL)
-    {
-        delete [] aiLeftCategory;
-        aiLeftCategory = NULL;
-    }
 }
 
 
@@ -30,7 +19,8 @@ GBMRESULT CNodeCategorical::PrintSubtree
 {
     GBMRESULT hr = GBM_OK;
     unsigned long i = 0;
-    
+    const std::size_t cLeftCategory = aiLeftCategory.size();
+
     for(i=0; i< cIndent; i++) Rprintf("  ");
     Rprintf("N=%f, Improvement=%f, Prediction=%f, NA pred=%f\n",
            dTrainW,
@@ -77,9 +67,9 @@ signed char CNodeCategorical::WhichNode
 
     if(!ISNA(dX))
     {
-        if(std::find(aiLeftCategory,
-                     aiLeftCategory+cLeftCategory,
-                     (ULONG)dX) != aiLeftCategory+cLeftCategory)
+      if(std::find(aiLeftCategory.begin(),
+		   aiLeftCategory.end(),
+		   (ULONG)dX) != aiLeftCategory.end())
         {
             ReturnValue = -1;
         }
@@ -107,9 +97,9 @@ signed char CNodeCategorical::WhichNode
 
     if(!ISNA(dX))
     {
-        if(std::find(aiLeftCategory,
-                     aiLeftCategory+cLeftCategory,
-                     (ULONG)dX) != aiLeftCategory+cLeftCategory)
+      if(std::find(aiLeftCategory.begin(),
+		   aiLeftCategory.end(),
+		   (ULONG)dX) != aiLeftCategory.end())
         {
             ReturnValue = -1;
         }
@@ -161,6 +151,7 @@ GBMRESULT CNodeCategorical::TransferTreeToRList
     unsigned long cCatSplits = vecSplitCodes.size();
     unsigned long i = 0;
     int cLevels = pData->acVarClasses[iSplitVar];
+    const std::size_t cLeftCategory = aiLeftCategory.size();
 
     aiSplitVar[iThisNodeID] = iSplitVar;
     adSplitPoint[iThisNodeID] = cCatSplits+cCatSplitsOld; // 0 based

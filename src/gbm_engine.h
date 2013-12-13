@@ -76,6 +76,8 @@ public:
     GBMRESULT PrintTree();
 
     bool IsPairwise() const { return (cGroups >= 0); }
+ private:
+
     CDataset *pData;            // the data
     CDistribution *pDist;       // the distribution
     bool fInitialized;          // indicates whether the GBM has been initialized
@@ -84,14 +86,13 @@ public:
     // these objects are for the tree growing
     // allocate them once here for all trees to use
     bool *afInBag;
-    unsigned long *aiNodeAssign;
+    std::vector<unsigned long> aiNodeAssign;
     CNodeSearch *aNodeSearch;
     PCCARTTree ptreeTemp;
     VEC_P_NODETERMINAL vecpTermNodes;
-    double *adZ;
-    double *adFadj;
+    std::vector<double> adZ;
+    std::vector<double> adFadj;
 
-private:
     double dLambda;
     unsigned long cTrain;
     unsigned long cValid;

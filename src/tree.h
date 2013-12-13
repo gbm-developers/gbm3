@@ -20,6 +20,7 @@
 #include <cstdio>
 #include <cfloat>
 #include <algorithm>
+#include <vector>
 #include "dataset.h"
 #include "node_factory.h"
 #include "node_search.h"
@@ -42,8 +43,8 @@ public:
                  double dLambda,
                  unsigned long cMaxDepth,
                  unsigned long cMinObsInNode,
-                 bool *afInBag,
-                 unsigned long *aiNodeAssign,
+		   bool *afInBag,
+		   std::vector<unsigned long>& aiNodeAssign,
                  CNodeSearch *aNodeSearch,
                  VEC_P_NODETERMINAL &vecpTermNodes);
     GBMRESULT Reset();
@@ -70,11 +71,11 @@ public:
                     unsigned long cCol, 
                     unsigned long iRow, 
                     double &dFadj);
-    GBMRESULT Adjust(unsigned long *aiNodeAssign,
-                   double *adFadj,
-                   unsigned long cTrain,
-                   VEC_P_NODETERMINAL &vecpTermNodes,
-                   unsigned long cMinObsInNode);
+    GBMRESULT Adjust(std::vector<unsigned long>& aiNodeAssign,
+		     double *adFadj,
+		     unsigned long cTrain,
+		     VEC_P_NODETERMINAL &vecpTermNodes,
+		     unsigned long cMinObsInNode);
 
     GBMRESULT GetNodeCount(int &cNodes);
     GBMRESULT SetShrinkage(double dShrink)
@@ -94,7 +95,7 @@ private:
                          unsigned long nTrain,
                          CNodeSearch *aNodeSearch,
                          unsigned long cTerminalNodes,
-                         unsigned long *aiNodeAssign,
+			   std::vector<unsigned long>& aiNodeAssign,
                          bool *afInBag,
                          double *adZ,
                          double *adW,

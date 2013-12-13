@@ -9,6 +9,7 @@
 #ifndef LOCMCGBM_H
 #define LOCMCGBM_H
 
+#include <string>
 #include <utility>
 #include <vector>
 #include <algorithm>
@@ -21,20 +22,26 @@ class CLocationM
 
 public:
 
-    CLocationM(const char *sType, int iN, double *adParams);
+ CLocationM(const std::string& sType) : msType(sType), mdEps(1e-8) {};
 
-    virtual ~CLocationM();
+ CLocationM(const std::string& sType, const double& singleParam) :
+  msType(sType), mdEps(1e-8), madParams(1, singleParam) {};
 
-	double Median(int iN, double *adV, double *adW);
+ CLocationM(const std::string& sType, const std::vector<double>& adParams) :
+  msType(sType), madParams(adParams), mdEps(1e-8) {};
 
-	double PsiFun(double dX);
+  virtual ~CLocationM() {};
 
-	double LocationM(int iN, double *adX, double *adW);
+  double Median(int iN, double *adV, double *adW);
+
+  double PsiFun(double dX);
+
+  double LocationM(int iN, double *adX, double *adW);
 
 private:
-	double *madParams;
-	const char *msType;
-	double mdEps;
+  std::vector<double> madParams;
+  std::string msType;
+  double mdEps;
 
     struct comp{
 

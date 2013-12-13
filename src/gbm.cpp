@@ -5,6 +5,7 @@
 //
 //------------------------------------------------------------------------------
 
+#include <algorithm>
 #include<vector>
 #include "gbm.h"
 
@@ -70,136 +71,60 @@ unsigned long gbm_setup
     if(strncmp(pszFamily,"bernoulli",2) == 0)
     {
         pDist = new CBernoulli();
-        if(pDist==NULL)
-        {
-            hr = GBM_OUTOFMEMORY;
-            goto Error;
-        }
     }
     else if(strncmp(pszFamily,"gaussian",2) == 0)
     {
         pDist = new CGaussian();
-        if(pDist==NULL)
-        {
-            hr = GBM_OUTOFMEMORY;
-            goto Error;
-        }
     }
     else if(strncmp(pszFamily,"poisson",2) == 0)
     {
         pDist = new CPoisson();
-        if(pDist==NULL)
-        {
-            hr = GBM_OUTOFMEMORY;
-            goto Error;
-        }
     }
     else if(strncmp(pszFamily,"adaboost",2) == 0)
     {
         pDist = new CAdaBoost();
-        if(pDist==NULL)
-        {
-            hr = GBM_OUTOFMEMORY;
-            goto Error;
-        }
     }
     else if(strncmp(pszFamily,"coxph",2) == 0)
     {
         pDist = new CCoxPH();
-        if(pDist==NULL)
-        {
-            hr = GBM_OUTOFMEMORY;
-            goto Error;
-        }
     }
     else if(strncmp(pszFamily,"laplace",2) == 0)
     {
         pDist = new CLaplace();
-        if(pDist==NULL)
-        {
-            hr = GBM_OUTOFMEMORY;
-            goto Error;
-        }
     }
     else if(strncmp(pszFamily,"quantile",2) == 0)
     {
         pDist = new CQuantile(adMisc[0]);
-        if(pDist==NULL)
-        {
-            hr = GBM_OUTOFMEMORY;
-            goto Error;
-        }
     }
     else if(strncmp(pszFamily,"tdist",2) == 0)
     {
         pDist = new CTDist(adMisc[0]);
-        if(pDist==NULL)
-        {
-            hr = GBM_OUTOFMEMORY;
-            goto Error;
-        }
     }
     else if(strncmp(pszFamily,"multinomial",2) == 0)
     {
         pDist = new CMultinomial(cNumClasses, cRows);
-        if(pDist==NULL)
-        {
-            hr = GBM_OUTOFMEMORY;
-            goto Error;
-        }
     }
     else if(strncmp(pszFamily,"huberized",2) == 0)
     {
         pDist = new CHuberized();
-        if(pDist==NULL)
-        {
-            hr = GBM_OUTOFMEMORY;
-            goto Error;
-        }
     }
     else if(strcmp(pszFamily,"pairwise_conc") == 0)
     {
         pDist = new CPairwise("conc");
-        if(pDist==NULL)
-        {
-            hr = GBM_OUTOFMEMORY;
-            goto Error;
-        }
     }
     else if(strcmp(pszFamily,"pairwise_ndcg") == 0)
     {
         pDist = new CPairwise("ndcg");
-        if(pDist==NULL)
-        {
-            hr = GBM_OUTOFMEMORY;
-            goto Error;
-        }
     }
     else if(strcmp(pszFamily,"pairwise_map") == 0)
     {
         pDist = new CPairwise("map");
-        if(pDist==NULL)
-        {
-            hr = GBM_OUTOFMEMORY;
-            goto Error;
-        }
     }
     else if(strcmp(pszFamily,"pairwise_mrr") == 0)
     {
         pDist = new CPairwise("mrr");
-        if(pDist==NULL)
-        {
-            hr = GBM_OUTOFMEMORY;
-            goto Error;
-        }
     }
     else
-    {
-        hr = GBM_INVALIDARG;
-        goto Error;
-    }
-
-    if(pDist==NULL)
     {
         hr = GBM_INVALIDARG;
         goto Error;
@@ -261,12 +186,9 @@ GBMRESULT gbm_transfer_catsplits_to_R
     int *aiSplitCodes
 )
 {
-    unsigned long i=0;
-
-    for(i=0; i<vecSplitCodes[iCatSplit].size(); i++)
-    {
-        aiSplitCodes[i] = vecSplitCodes[iCatSplit][i];
-    }
+    std::copy(vecSplitCodes[iCatSplit].begin(),
+	      vecSplitCodes[iCatSplit].end(),
+	      aiSplitCodes);
 
     return GBM_OK;
 }

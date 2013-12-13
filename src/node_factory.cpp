@@ -101,8 +101,7 @@ CNodeCategorical* CNodeFactory::GetNewNodeCategorical()
         pNodeCategoricalTemp->pLeftNode = NULL;
         pNodeCategoricalTemp->pRightNode = NULL;
         pNodeCategoricalTemp->iSplitVar = 0;
-        pNodeCategoricalTemp->aiLeftCategory = NULL;
-        pNodeCategoricalTemp->cLeftCategory = 0;
+        pNodeCategoricalTemp->aiLeftCategory.resize(0);
     }
 
     return pNodeCategoricalTemp;
@@ -146,11 +145,7 @@ GBMRESULT CNodeFactory::RecycleNode
         if(pNode->pLeftNode != NULL) pNode->pLeftNode->RecycleSelf(this);
         if(pNode->pRightNode != NULL) pNode->pRightNode->RecycleSelf(this);
         if(pNode->pMissingNode != NULL) pNode->pMissingNode->RecycleSelf(this);
-        if(pNode->aiLeftCategory != NULL)
-        {
-            delete [] pNode->aiLeftCategory;
-            pNode->aiLeftCategory = NULL;
-        }
+	pNode->aiLeftCategory.resize(0);
         CategoricalStack.push(pNode);
     }
 

@@ -79,7 +79,7 @@ GBMRESULT CCARTTree::grow
     unsigned long cMaxDepth,
     unsigned long cMinObsInNode,
     bool *afInBag,
-    unsigned long *aiNodeAssign,
+    std::vector<unsigned long>& aiNodeAssign,
     CNodeSearch *aNodeSearch,
     VEC_P_NODETERMINAL &vecpTermNodes
 )
@@ -232,7 +232,7 @@ GBMRESULT CCARTTree::GetBestSplit
     unsigned long nTrain,
     CNodeSearch *aNodeSearch,
     unsigned long cTerminalNodes,
-    unsigned long *aiNodeAssign,
+    std::vector<unsigned long>& aiNodeAssign,
     bool *afInBag,
     double *adZ,
     double *adW,
@@ -366,7 +366,7 @@ GBMRESULT CCARTTree::Predict
 
 GBMRESULT CCARTTree::Adjust
 (
-    unsigned long *aiNodeAssign,
+ std::vector<unsigned long>& aiNodeAssign,
     double *adFadj,
     unsigned long cTrain,
     VEC_P_NODETERMINAL &vecpTermNodes,

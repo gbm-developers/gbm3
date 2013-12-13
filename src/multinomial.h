@@ -14,6 +14,7 @@
 #define KMULTICGBM_H
 
 #include <algorithm>
+#include <vector>
 #include "distribution.h"
 #include "locationm.h"
 
@@ -22,9 +23,9 @@ class CMultinomial : public CDistribution
 
 public:
 
-    CMultinomial(int cNumClasses, int cRows);
+ CMultinomial(int cNumClasses, int cRows) : mcNumClasses(cNumClasses),
+    mcRows(cRows), madProb(cNumClasses * cRows, 0) {};
 
-    virtual ~CMultinomial();
     GBMRESULT UpdateParams(double *adF,
                            double *adOffset,
                            double *adWeight,
@@ -53,7 +54,7 @@ public:
                               double *adW,
                               double *adF,
                               double *adZ,
-                              unsigned long *aiNodeAssign,
+                              const std::vector<unsigned long>& aiNodeAssign,
                               unsigned long nTrain,
                               VEC_P_NODETERMINAL vecpTermNodes,
                               unsigned long cTermNodes,
@@ -83,7 +84,7 @@ public:
 private:
    unsigned long mcNumClasses;
    unsigned long mcRows;
-   double *madProb; 
+   std::vector<double> madProb; 
 };
 
 #endif // KMULTICGBM_H

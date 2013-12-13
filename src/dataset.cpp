@@ -1,5 +1,6 @@
 //  GBM by Greg Ridgeway  Copyright (C) 2003
 
+#include <algorithm>
 #include "dataset.h"
 
 CDataset::CDataset()
@@ -28,7 +29,6 @@ CDataset::~CDataset()
 GBMRESULT CDataset::ResetWeights()
 {
     GBMRESULT hr = GBM_OK;
-    int i = 0;
 
     if(adWeight == NULL)
     {
@@ -36,10 +36,7 @@ GBMRESULT CDataset::ResetWeights()
         goto Error;
     }
 
-    for(i=0; i<cRows; i++)
-    {
-        adWeight[i] = 1.0;
-    }
+    std::fill(adWeight, adWeight + cRows, 1.0);
 
 Cleanup:
     return hr;

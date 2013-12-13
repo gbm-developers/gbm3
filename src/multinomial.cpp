@@ -2,22 +2,6 @@
 
 #include "multinomial.h"
 
-CMultinomial::CMultinomial(int cNumClasses, int cRows)
-{
-   mcNumClasses = cNumClasses;
-   mcRows = cRows;
-
-   madProb = new double[cNumClasses * cRows];
-}
-
-CMultinomial::~CMultinomial()
-{
-   if(madProb != NULL)
-   {
-      delete [] madProb;
-   }
-}
-
 
 GBMRESULT CMultinomial::UpdateParams
 (
@@ -126,7 +110,7 @@ GBMRESULT CMultinomial::FitBestConstant
     double *adW,
     double *adF,
     double *adZ,
-    unsigned long *aiNodeAssign,
+    const std::vector<unsigned long>& aiNodeAssign,
     unsigned long nTrain,
     VEC_P_NODETERMINAL vecpTermNodes,
     unsigned long cTermNodes,

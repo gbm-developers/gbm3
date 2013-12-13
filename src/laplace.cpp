@@ -1,18 +1,11 @@
 //  GBM by Greg Ridgeway  Copyright (C) 2003
 
+#include <vector>
 #include "laplace.h"
 
-CLaplace::CLaplace()
-{
-   mpLocM = NULL;
-}
 
 CLaplace::~CLaplace()
 {
-   if(mpLocM != NULL)
-   {
-      delete mpLocM;
-   }
 }
 
 
@@ -67,23 +60,7 @@ GBMRESULT CLaplace::InitF
     unsigned long ii = 0;
     int nLength = int(cLength);
 
-    double *adArr = NULL;
-
-    // Create a new LocationM object (for weighted medians)
-    double *pTemp = NULL;
-    mpLocM = new CLocationM("Other", 0, pTemp);
-    if(mpLocM == NULL)
-    {
-        hr = GBM_OUTOFMEMORY;
-        goto Error;
-    }
-    
-    adArr = new double[cLength];
-    if(adArr == NULL)
-    {
-        hr = GBM_OUTOFMEMORY;
-        goto Error;
-    }
+    std::vector<double> adArr(cLength);
 
     for (ii = 0; ii < cLength; ii++)
     {
@@ -91,10 +68,9 @@ GBMRESULT CLaplace::InitF
         adArr[ii] = adY[ii] - dOffset;
     }
 
-    dInitF = mpLocM->Median(nLength, adArr, adWeight);
+    dInitF = mpLocM.Median(nLength, &adArr[0], adWeight);
 
 Cleanup:
-    delete[] adArr;
     return hr;
 Error:
     goto Cleanup;
@@ -146,7 +122,7 @@ GBMRESULT CLaplace::FitBestConstant
     double *adW,
     double *adF,
     double *adZ,
-    unsigned long *aiNodeAssign,
+    const std::vector<unsigned long>& aiNodeAssign,
     unsigned long nTrain,
     VEC_P_NODETERMINAL vecpTermNodes,
     unsigned long cTermNodes,
@@ -165,8 +141,8 @@ GBMRESULT CLaplace::FitBestConstant
 
 //    vecd.resize(nTrain); // should already be this size from InitF
   
-   double *adArr = new double[nTrain];
-   double *adW2 = new double[nTrain];
+    std::vector<double> adArr(nTrain);
+    std::vector<double> adW2(nTrain);
 
     for(iNode=0; iNode<cTermNodes; iNode++)
     {
@@ -186,13 +162,10 @@ GBMRESULT CLaplace::FitBestConstant
             
             }
 
-         vecpTermNodes[iNode]->dPrediction = mpLocM->Median(iVecd, adArr, adW2);
+	    vecpTermNodes[iNode]->dPrediction = mpLocM.Median(iVecd, &adArr[0], &adW2[0]);
 
         }
     }
-
-    delete[] adW2;
-    delete[] adArr;
 
     return hr;
 }

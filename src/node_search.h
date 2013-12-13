@@ -17,6 +17,8 @@
 #ifndef NODESEARCH_H
 #define NODESEARCH_H
 
+#include <vector>
+
 #include "node_factory.h"
 #include "dataset.h"
 
@@ -106,13 +108,14 @@ private:
 
     double dLastXValue;
 
-    double *adGroupSumZ;
-    double *adGroupW;
-    unsigned long *acGroupN;
-    double *adGroupMean;
-    int *aiCurrentCategory;
-    unsigned long *aiBestCategory;
-    const unsigned long k_cMaxClasses;
+    std::vector<double> adGroupSumZ;
+    std::vector<double> adGroupW;
+    std::vector<unsigned long> acGroupN;
+    std::vector<double> adGroupMean;
+    // this is an int to fit in with R API
+    // it's probably best not to ask.
+    std::vector<int> aiCurrentCategory;
+    std::vector<unsigned long> aiBestCategory;
 
     CNodeTerminal *pThisNode;
     CNode **ppParentPointerToThisNode;

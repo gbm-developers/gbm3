@@ -22,9 +22,9 @@ class CTDist : public CDistribution
 
 public:
 
-    CTDist(double adNu);
+ CTDist(double adNu) : mdNu(adNu), mpLocM("tdist", adNu) {};
 
-    virtual ~CTDist();
+  virtual ~CTDist() {};
 
 	GBMRESULT UpdateParams(double *adF,
 	                       double *adOffset,
@@ -57,7 +57,7 @@ public:
                               double *adW,
                               double *adF,
                               double *adZ,
-                              unsigned long *aiNodeAssign,
+                              const std::vector<unsigned long> &aiNodeAssign,
                               unsigned long nTrain,
                               VEC_P_NODETERMINAL vecpTermNodes,
                               unsigned long cTermNodes,
@@ -86,7 +86,7 @@ public:
 
 private:
 	double mdNu;
-	CLocationM *mpLocM;
+	CLocationM mpLocM;
 };
 
 #endif // TDISTCGBM_H

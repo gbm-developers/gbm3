@@ -17,6 +17,8 @@
 #ifndef DISTRIBUTION_H
 #define DISTRIBUTION_H
 
+#include <vector>
+
 #include "node_terminal.h"
 
 class CDistribution
@@ -108,7 +110,7 @@ public:
                                     double *adWeight,
                                     double *adF,
                                     double *adZ,
-                                    unsigned long *aiNodeAssign,
+ 			      const std::vector<unsigned long>& aiNodeAssign,
                                     unsigned long cLength,
                                     VEC_P_NODETERMINAL vecpTermNodes,
                                     unsigned long cTermNodes,
