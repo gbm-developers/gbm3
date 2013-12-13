@@ -47,8 +47,9 @@ test.gbm <- function(){
                 cv.folds=10)                 # do 10-fold cross-validation
 
     # Get best model
-    best.iter <- gbm.perf(gbm1,method="cv", plot.it=FALSE)   # returns cv estimate of best number of trees
-
+    best.iter <- gbm.perf(gbm1,method="cv")   # returns cv estimate of best number of trees
+    plot(gbm1)
+    
     set.seed(2)
     # make some new data
     N <- 1000
@@ -71,7 +72,7 @@ test.gbm <- function(){
     f.predict <- predict(gbm1,data2,best.iter) # f.predict will be on the canonical scale (logit,log,etc.)
 
     # Base the validation tests on observed discrepancies
-    checkTrue(abs(mean(data2$Y-f.predict)) < 0.01, msg="Gaussian absolute error within tolerance")
+    checkTrue(cor(data2$Y, f.predict) > 0.990, msg="Gaussian absolute error within tolerance")
     checkTrue(sd(data2$Y-f.predict) < sigma , msg="Gaussian squared erroor within tolerance")
 
     ############################################################################
@@ -117,8 +118,9 @@ test.gbm <- function(){
                 n.minobsinnode = 10,       # minimum total weight needed in each node
                 keep.data = TRUE)
 
-    best.iter <- gbm.perf(gbm1,method="test", plot.it=FALSE) # returns test set estimate of best number of trees
-
+    best.iter <- gbm.perf(gbm1,method="test") # returns test set estimate of best number of trees
+    plot(gbm1)
+    
     # make some new data
     set.seed(2)
     N <- 1000
@@ -180,8 +182,9 @@ test.gbm <- function(){
                 cv.folds=5,                # do 5-fold cross-validation
                 n.minobsinnode = 10)       # minimum total weight needed in each node
 
-    best.iter.test <- gbm.perf(gbm1,method="test", plot.it=FALSE) # returns test set estimate of best number of trees
-
+    best.iter.test <- gbm.perf(gbm1,method="test") # returns test set estimate of best number of trees
+    plot(gbm1)
+    
     best.iter <- best.iter.test
 
     # make some new data
@@ -224,7 +227,8 @@ test.relative.influence <- function(){
     X <- data.frame(cbind(X1, X2, cls))
     mod <- gbm(cls ~ ., data= X, n.trees=1000, cv.folds=5,
                 shrinkage=.01, interaction.depth=2)
-    ri <- rev(sort(relative.influence(mod)))
+    ri <- relative.influence(mod, sort.=TRUE, scale.=TRUE)
+    dotchart(ri)
     wh <- names(ri)[1:5]
     res <- sum(wh %in% paste("V", 51:55, sep = ""))
     checkEqualsNumeric(res, 5, msg="Testing relative.influence identifies true predictors")
@@ -259,7 +263,7 @@ validate.gbm <- function () {
        dump(tests[i], file = str)
    }
    res <- defineTestSuite("gbm", dirs = dir, testFuncRegexp = "^test.+", testFileRegexp = "*.R")
-   cat("Running gbm test suite.\nThis will take some time...\n\n")
+   cat("Running gbm test suite.\nThis will take some time...\n")
    res <- runTestSuite(res)
    res
 }
