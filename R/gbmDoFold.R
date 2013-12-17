@@ -11,7 +11,7 @@ function(X,
     set.seed(s[[X]])
 
     i <- order(cv.group == X)
-    x <- x[i.train,,drop=TRUE][i,,drop=FALSE]
+    x <- x[i.train,,drop=FALSE][i,,drop=FALSE]
     y <- y[i.train][i]
     offset <- offset[i.train][i]
     nTrain <- length(which(cv.group != X))
