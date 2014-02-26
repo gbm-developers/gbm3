@@ -9,6 +9,8 @@ gbm(formula = formula(data),
     distribution = "bernoulli",
     data = list(),
     weights,
+    subset,
+    offset,
     var.monotone = NULL,
     n.trees = 100,
     interaction.depth = 1,
@@ -101,6 +103,8 @@ For details and background on the algorithm, see e.g. Burges (2010).
 
 \item{data}{an optional data frame containing the variables in the model. By default the variables are taken from \code{environment(formula)}, typically the environment from which \code{gbm} is called. If \code{keep.data=TRUE} in the initial call to \code{gbm} then \code{gbm} stores a copy with the object. If \code{keep.data=FALSE} then subsequent calls to \code{\link{gbm.more}} must resupply the same dataset. It becomes the user's responsibility to resupply the same data at this point.}
 \item{weights}{an optional vector of weights to be used in the fitting process. Must be positive but do not need to be normalized. If \code{keep.data=FALSE} in the initial call to \code{gbm} then it is the user's responsibility to resupply the weights to \code{\link{gbm.more}}.}
+\item{subset}{an optional vector defining a subset of the data to be used}
+\item{offset}{an optional model offset}
 \item{var.monotone}{an optional vector, the same length as the number of predictors, indicating which variables have a monotone increasing (+1), decreasing (-1), or arbitrary (0) relationship with the outcome.}
 \item{n.trees}{the total number of trees to fit. This is equivalent to the number of iterations and the number of basis functions in the additive expansion.}
 \item{cv.folds}{Number of cross-validation folds to perform. If \code{cv.folds}>1 then \code{gbm}, in addition to the usual fit, will perform a cross-validation, calculate an estimate of generalization error returned in \code{cv.error}.}

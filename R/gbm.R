@@ -10,6 +10,8 @@ gbm <- function(formula = formula(data),
                 distribution = "bernoulli",
                 data = list(),
                 weights,
+                subset,
+                offset,
                 var.monotone = NULL,
                 n.trees = 100,
                 interaction.depth = 1,
@@ -29,7 +31,7 @@ gbm <- function(formula = formula(data),
                else { verbose }
 
    mf <- match.call(expand.dots = FALSE)
-   m <- match(c("formula", "data", "weights", "offset"), names(mf), 0)
+   m <- match(c("formula", "data", "weights", "subset", "offset"), names(mf), 0)
    mf <- mf[c(1, m)]
    mf$drop.unused.levels <- TRUE
    mf$na.action <- na.pass
@@ -37,7 +39,6 @@ gbm <- function(formula = formula(data),
    m <- mf
    mf <- eval(mf, parent.frame())
    Terms <- attr(mf, "terms")
-
    y <- model.response(mf)
 
    if (missing(distribution)){ distribution <- guessDist(y) }
@@ -46,13 +47,15 @@ gbm <- function(formula = formula(data),
    w <- model.weights(mf)
    offset <- model.offset(mf)
 
-   var.names <- attributes(Terms)$term.labels
-   x <- model.frame(terms(reformulate(var.names)),
-                    data,
-                    na.action=na.pass)
-
    # get the character name of the response variable
    response.name <- as.character(formula[[2]])
+   
+   var.names <- attributes(Terms)$term.labels
+#   x <- model.frame(terms(reformulate(var.names)),
+#                    data,
+#                    na.action=na.pass)
+
+  x <- mf[, !is.element(names(mf), response.name)]
 
    lVerbose <- if (!is.logical(verbose)) { FALSE }
                else { verbose }
