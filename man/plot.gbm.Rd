@@ -29,7 +29,7 @@ Plots the marginal effect of the selected variables by "integrating" out the oth
   predictor in \code{i.var} (in the same order as \code{i.var}). For continuous
   predictors this is usually a regular sequence of values within the range of the
   variable. For categorical predictors, the points are the levels of the factor. When
-  \code{length(i.var)} is one, the values can be provided directly, outside a list.\n
+  \code{length(i.var)} is one, the values can be provided directly, outside a list.
   This is NULL by default and generated automatically from the data, using
   \code{continuous.resolution} for continuous predictors. Forcing the values can be
   useful to evaluate two models on the same exact range }
