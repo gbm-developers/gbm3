@@ -28,12 +28,14 @@ checkWeights <- function(w, n){
    w
 }
 
-checkOffset <- function(o, y){
+checkOffset <- function(o, y, dist){
    # Check offset
-   if(is.null(o) | all(o==0)) { o <- NA  }
-   else if(length(o) != length(y))   {
+  if(is.null(o) | all(o==0))
+      o <- NULL
+   else if((length(o) != length(y)) & dist != "coxph")
       stop("The length of offset does not equal the length of y.")
-   }
+   else if ((length(o) != (length(y)/2)) & dist == "coxph")
+     stop("The length of offset does not equal the length of y.")
    o
 }
 

@@ -15,8 +15,7 @@ gbm.fit <- function(x,y,
                     verbose = TRUE,
                     var.names = NULL,
                     response.name = "y",
-                    group = NULL)
-{
+                    group = NULL){
 
    if(is.character(distribution)) { distribution <- list(name=distribution) }
 
@@ -65,45 +64,38 @@ gbm.fit <- function(x,y,
    ch <- checkMissing(x, y)
    interaction.depth <- checkID(interaction.depth)
    w <- checkWeights(w, length(y))
-   offset <- checkOffset(offset, y)
+   offset <- checkOffset(offset, y, distribution)
 
    Misc <- NA
 
    # setup variable types
-   var.type <- rep(0,cCols)
-   var.levels <- vector("list",cCols)
-   for(i in 1:length(var.type))
-   {
-      if(all(is.na(x[,i])))
-      {
+   var.type <- rep(0, cCols)
+   var.levels <- vector("list", cCols)
+   for(i in 1:length(var.type)) {
+      if(all(is.na(x[,i]))) {
          stop("variable ",i,": ",var.names[i]," has only missing values.")
       }
-      if(is.ordered(x[,i]))
-      {
+      if(is.ordered(x[,i])) {
          var.levels[[i]] <- levels(factor(x[,i]))
          x[,i] <- as.numeric(factor(x[,i]))-1
          var.type[i] <- 0
       }
-      else if(is.factor(x[,i]))
-      {
+      else if(is.factor(x[,i])) {
          if(length(levels(x[,i]))>1024)
             stop("gbm does not currently handle categorical variables with more than 1024 levels. Variable ",i,": ",var.names[i]," has ",length(levels(x[,i]))," levels.")
          var.levels[[i]] <- levels(factor(x[,i]))
          x[,i] <- as.numeric(factor(x[,i]))-1
          var.type[i] <- max(x[,i],na.rm=TRUE)+1
       }
-      else if(is.numeric(x[,i]))
-      {
-         var.levels[[i]] <- quantile(x[,i],prob=(0:10)/10,na.rm=TRUE)
+      else if(is.numeric(x[,i])) {
+        var.levels[[i]] <- quantile(x[,i],prob=(0:10)/10,na.rm=TRUE)
       }
-      else
-      {
+      else{
          stop("variable ",i,": ",var.names[i]," is not of type numeric, ordered, or factor.")
       }
 
       # check for some variation in each variable
-      if(length(unique(var.levels[[i]])) == 1)
-      {
+      if(length(unique(var.levels[[i]])) == 1) {
          warning("variable ",i,": ",var.names[i]," has no variation.")
       }
    }
@@ -190,7 +182,7 @@ gbm.fit <- function(x,y,
       Misc <- Misc[i.timeorder]
       x <- x[i.timeorder,,drop=FALSE]
       w <- w[i.timeorder]
-      if(!is.na(offset)) offset <- offset[i.timeorder]
+      if(is.null(offset)) offset <- offset[i.timeorder]
    }
    if(distribution$name == "tdist")
    {

@@ -10,7 +10,7 @@ gbm <- function(formula = formula(data),
                 distribution = "bernoulli",
                 data = list(),
                 weights,
-                subset,
+                subset = NULL,
                 offset,
                 var.monotone = NULL,
                 n.trees = 100,
@@ -51,11 +51,12 @@ gbm <- function(formula = formula(data),
    response.name <- as.character(formula[[2]])
    
    var.names <- attributes(Terms)$term.labels
-#   x <- model.frame(terms(reformulate(var.names)),
-#                    data,
-#                    na.action=na.pass)
+   x <- model.frame(terms(reformulate(var.names)),
+                    data,
+                    na.action=na.pass,
+                    subset=subset)
 
-  x <- mf[, !is.element(names(mf), response.name)]
+#  x <- mf[, !is.element(names(mf), response.name)]
 
    lVerbose <- if (!is.logical(verbose)) { FALSE }
                else { verbose }
