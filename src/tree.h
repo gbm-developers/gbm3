@@ -39,6 +39,7 @@ public:
                  double *adAlgW,
                  double *adF,
                  unsigned long nTrain,
+                 unsigned long nMtry,
                  unsigned long nBagged,
                  double dLambda,
                  unsigned long cMaxDepth,
@@ -93,6 +94,7 @@ public:
 private:
     GBMRESULT GetBestSplit(CDataset *pData,
                          unsigned long nTrain,
+                         unsigned long nMtry,
                          CNodeSearch *aNodeSearch,
                          unsigned long cTerminalNodes,
 			   std::vector<unsigned long>& aiNodeAssign,

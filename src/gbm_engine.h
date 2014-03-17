@@ -37,6 +37,7 @@ public:
                          CDistribution *pDist,
                          double dLambda,
                          unsigned long nTrain,
+                         unsigned long nMtry,
                          double dBagFraction,
                          unsigned long cLeaves,
                          unsigned long cMinObsInNode,
@@ -96,6 +97,7 @@ public:
     double dLambda;
     unsigned long cTrain;
     unsigned long cValid;
+    unsigned long cMtry;
     unsigned long cTotalInBag;
     double dBagFraction;
     unsigned long cDepth;
