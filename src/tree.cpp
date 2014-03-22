@@ -74,7 +74,7 @@ GBMRESULT CCARTTree::grow
     double *adW,
     double *adF,
     unsigned long nTrain,
-    unsigned long nMtry,
+    unsigned long nFeatures,
     unsigned long nBagged,
     double dLambda,
     unsigned long cMaxDepth,
@@ -144,7 +144,7 @@ GBMRESULT CCARTTree::grow
         #endif
         hr = GetBestSplit(pData,
                           nTrain,
-                          nMtry,
+                          nFeatures,
                           aNodeSearch,
                           cTerminalNodes,
                           aiNodeAssign,
@@ -232,7 +232,7 @@ GBMRESULT CCARTTree::GetBestSplit
 (
     CDataset *pData,
     unsigned long nTrain,
-    unsigned long nMtry,
+    unsigned long nFeatures,
     CNodeSearch *aNodeSearch,
     unsigned long cTerminalNodes,
     std::vector<unsigned long>& aiNodeAssign,
@@ -255,7 +255,7 @@ GBMRESULT CCARTTree::GetBestSplit
 	// Define a template class vector of int
 	int iFill = 0;
   
-  typedef vector<int> IntVector ;
+	typedef vector<int> IntVector ;
 
    //Define an iterator for template class vector of strings
    typedef IntVector::iterator IntVectorIt ;
@@ -276,11 +276,9 @@ GBMRESULT CCARTTree::GetBestSplit
    // shuffle the elements in a random order
    std::random_shuffle(colNumbers.begin(), colNumbers.end()) ;
 
-   // shuffle the elements in a random order
-   std::random_shuffle(colNumbers.begin(), colNumbers.end()) ;
-    for(it=start; it != (end - pData->cCols + nMtry ); it++)
+    for(it=start; it != (end - pData->cCols + nFeatures ); it++)
     {
-  	iVar = *it;
+		iVar = *it;
         cVarClasses = pData->acVarClasses[iVar];
 
         for(iNode=0; iNode < cTerminalNodes; iNode++)
