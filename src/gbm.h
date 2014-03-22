@@ -55,6 +55,7 @@ GBMRESULT gbm_setup
     double dShrinkage,
     double dBagFraction,
     int cTrain,
+	int cFeatures,
     CDataset *pData,
     PCDistribution &pDist,
     int& cGroups

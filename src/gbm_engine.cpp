@@ -16,6 +16,7 @@ CGBM::CGBM()
     fInitialized = false;
     cTotalInBag = 0;
     cTrain = 0;
+	cFeatures = 0;
     cValid = 0;
 
     pData = NULL;
@@ -40,7 +41,7 @@ GBMRESULT CGBM::Initialize
     CDistribution *pDist,
     double dLambda,
     unsigned long cTrain,
-    unsigned long cMtry,
+    unsigned long cFeatures,
     double dBagFraction,
     unsigned long cDepth,
     unsigned long cMinObsInNode,
@@ -66,7 +67,7 @@ GBMRESULT CGBM::Initialize
     this->pDist = pDist;
     this->dLambda = dLambda;
     this->cTrain = cTrain;
-    this->cMtry = cMtry;
+    this->cFeatures = cFeatures;
     this->dBagFraction = dBagFraction;
     this->cDepth = cDepth;
     this->cMinObsInNode = cMinObsInNode;
@@ -303,7 +304,7 @@ GBMRESULT CGBM::iterate
 #endif
 
     hr = ptreeTemp->grow(&(adZ[cIdxOff]), pData, &(pData->adWeight[cIdxOff]),
-                         &(adFadj[cIdxOff]), cTrain, cMtry, cTotalInBag, dLambda, cDepth,
+                         &(adFadj[cIdxOff]), cTrain, cFeatures, cTotalInBag, dLambda, cDepth,
                          cMinObsInNode, afInBag, aiNodeAssign, aNodeSearch,
                          vecpTermNodes);
 
