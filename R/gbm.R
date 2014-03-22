@@ -19,6 +19,7 @@ gbm <- function(formula = formula(data),
                 shrinkage = 0.001,
                 bag.fraction = 0.5,
                 train.fraction = 1.0,
+                mFeatures = NULL,
                 cv.folds=0,
                 keep.data = TRUE,
                 verbose = 'CV',
@@ -136,6 +137,18 @@ gbm <- function(formula = formula(data),
      p <- cv.results$predictions
    } # Close if(cv.folds > 1
 
+   #Determine the number of features to consider at each node
+   if (is.null(mFeatures)) {
+     mFeatures <- cCols
+   } else {
+     if (mFeatures > cCols) {
+       print("mFeatures was greater than the number of columns. It was reset to the available features.")
+       mFeatures <- cCols
+     } else {
+       mFeatures <- max(mFeatures, 1)
+     }
+   }
+
    gbm.obj <- gbm.fit(x,y,
                       offset = offset,
                       distribution = distribution,
@@ -147,6 +160,7 @@ gbm <- function(formula = formula(data),
                       shrinkage = shrinkage,
                       bag.fraction = bag.fraction,
                       nTrain = nTrain,
+                      mFeatures = mFeatures,
                       keep.data = keep.data,
                       verbose = lVerbose,
                       var.names = var.names,
