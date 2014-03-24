@@ -39,11 +39,13 @@ gbm1 <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
             interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
             bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
             train.fraction = 0.5,        # fraction of data for training, first train.fraction*N used for training
+            mFeatures = 3,
             n.minobsinnode = 10,         # minimum number of obs needed in each node
             keep.data=TRUE,
-            cv.folds=10,                 # do 10-fold cross-validation
-            verbose = FALSE)             # don't print progress
-
+            cv.folds=3,                 # do 10-fold cross-validation
+            verbose = FALSE,
+            n.cores=1)             # don't print progress
+str(gbm1,max.level=1)
 # plot the performance
 best.iter <- gbm.perf(gbm1,method="OOB")  # returns out-of-bag estimated best number of trees
 best.iter <- gbm.perf(gbm1,method="test") # returns test set estimate of best number of trees
@@ -105,3 +107,4 @@ i.var <- subset(expand.grid(x1=1:6,x2=1:6), x1<x2)
 rownames(i.var) <- apply(i.var,1,paste,collapse=":",sep="")
 apply(i.var,1,
       function(i.var) interact.gbm(gbm1,data=data,i.var=i.var,n.trees=best.iter))
+

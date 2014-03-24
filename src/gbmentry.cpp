@@ -108,7 +108,7 @@ SEXP gbm
                    REAL(rdShrinkage)[0],
                    REAL(rdBagFraction)[0],
                    INTEGER(rcTrain)[0],
-				   INTEGER(rcFeatures)[0],
+				   //INTEGER(rcFeatures)[0],
                    pData,
                    pDist,
                    cGroups);

@@ -4,3 +4,9 @@
 *.tar.gz
 *~
 src/*.o
+*.Rbuildignore
+*.pper
+.Rproj.user/9D7A4555/sdb/prop/53E7342B
+.Rproj.user/9D7A4555/sdb/prop/INDEX
+.Rproj.user/9D7A4555/sdb/s-513ACC67/lock_file
+*.Rproj

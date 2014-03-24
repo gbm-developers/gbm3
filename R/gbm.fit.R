@@ -47,7 +47,7 @@ gbm.fit <- function(x,y,
    }
    
    if (is.null(mFeatures)) {
-     mFeatures < cCols
+     mFeatures <- cCols
    }
 
    if(is.null(var.names)) {
