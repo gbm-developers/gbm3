@@ -46,7 +46,7 @@
 \author{ Harry Southworth, Daniel Edwards }
 
 \references{
-P. J. Rousseeuw and A. M. Leroy, Robust Regresion and Outlier Detection, Wiley, 1987 (2003).
+P. J. Rousseeuw and A. M. Leroy, Robust Regression and Outlier Detection, Wiley, 1987 (2003).
 }
 
 \seealso{ \code{\link{gbm}} }

@@ -148,7 +148,7 @@ GBMRESULT CGaussian::FitBestConstant
 	int cIdxOff
 )
 {
-    // the tree aready stores the mean prediction
+    // the tree already stores the mean prediction
     // no refitting necessary
 
     return GBM_OK;

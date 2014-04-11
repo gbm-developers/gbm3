@@ -15,4 +15,4 @@ Description: This package implements extensions
   exponential loss, Huberized hinge loss,
   and Learning to Rank measures (LambdaMart).
 License: GPL (>= 2) | file LICENSE
-URL: http://code.google.com/p/gradientboostedmodels/
+URL: https://github.com/harrysouthworth/gbm

@@ -39,7 +39,7 @@ test.gbm <- function(){
                                             # list(name="quantile",alpha=0.05) for quantile regression
                 n.trees=2000,                 # number of trees
                 shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
-                interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
+                interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc.
                 bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
                 train.fraction = 0.5,        # fraction of data for training, first train.fraction*N used for training
                 n.minobsinnode = 10,         # minimum number of obs needed in each node
@@ -73,7 +73,7 @@ test.gbm <- function(){
 
     # Base the validation tests on observed discrepancies
     checkTrue(cor(data2$Y, f.predict) > 0.990, msg="Gaussian absolute error within tolerance")
-    checkTrue(sd(data2$Y-f.predict) < sigma , msg="Gaussian squared erroor within tolerance")
+    checkTrue(sd(data2$Y-f.predict) < sigma , msg="Gaussian squared error within tolerance")
 
     ############################################################################
     ## test coxph distribution gbm model
@@ -111,7 +111,7 @@ test.gbm <- function(){
                 distribution="coxph",
                 n.trees=3000,              # number of trees
                 shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
-                interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
+                interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc.
                 bag.fraction = 0.5,        # subsampling fraction, 0.5 is probably best
                 train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
                 cv.folds = 5,              # do 5-fold cross-validation
@@ -176,7 +176,7 @@ test.gbm <- function(){
                 distribution="bernoulli",
                 n.trees=3000,              # number of trees
                 shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
-                interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
+                interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc.
                 bag.fraction = 0.5,        # subsampling fraction, 0.5 is probably best
                 train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
                 cv.folds=5,                # do 5-fold cross-validation
