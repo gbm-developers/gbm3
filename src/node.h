@@ -6,7 +6,7 @@
 //  License:    GNU GPL (version 2 or later)
 //
 //  Contents:   a node in the tree
-//        	  
+//
 //  Owner:      gregr@rand.org
 //
 //  History:    3/26/2001   gregr created
@@ -37,8 +37,8 @@ public:
     CNode();
     virtual ~CNode();
     virtual GBMRESULT Adjust(unsigned long cMinObsInNode);
-    virtual GBMRESULT Predict(CDataset *pData, 
-                            unsigned long iRow, 
+    virtual GBMRESULT Predict(CDataset *pData,
+                            unsigned long iRow,
                             double &dFadj);
     virtual GBMRESULT Predict(double *adX,
                             unsigned long cRow,

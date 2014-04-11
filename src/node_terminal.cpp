@@ -44,8 +44,8 @@ GBMRESULT CNodeTerminal::ApplyShrinkage
 
 GBMRESULT CNodeTerminal::Predict
 (
-    CDataset *pData, 
-    unsigned long iRow, 
+    CDataset *pData,
+    unsigned long iRow,
     double &dFadj
 )
 {
@@ -79,7 +79,7 @@ GBMRESULT CNodeTerminal::PrintSubtree
 )
 {
     unsigned long i = 0;
-    
+
     for(i=0; i< cIndent; i++) Rprintf("  ");
     Rprintf("N=%f, Prediction=%f *\n",
            dTrainW,

@@ -28,8 +28,8 @@ GBMRESULT CNode::Adjust
 
 GBMRESULT CNode::Predict
 (
-    CDataset *pData, 
-    unsigned long iRow, 
+    CDataset *pData,
+    unsigned long iRow,
     double &dFadj
 )
 {

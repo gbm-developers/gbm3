@@ -25,7 +25,7 @@ GBMRESULT CNodeContinuous::PrintSubtree
 {
     GBMRESULT hr = GBM_OK;
     unsigned long i = 0;
-    
+
     for(i=0; i< cIndent; i++) Rprintf("  ");
     Rprintf("N=%f, Improvement=%f, Prediction=%f, NA pred=%f\n",
            dTrainW,

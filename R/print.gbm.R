@@ -57,7 +57,7 @@ print.gbm <- function(x, ... ){
        cat("\nCross-validation confusion matrix:\n")
        print(conf.mat)
 
-       cat("\nCross-validation prediction Accuracy = ", pred.acc, "%\n", sep = "") 
+       cat("\nCross-validation prediction Accuracy = ", pred.acc, "%\n", sep = "")
    }
    else if (x$distribution$name %in% c("bernoulli", "adaboost", "huberized")){
 
@@ -83,7 +83,7 @@ print.gbm <- function(x, ... ){
        cat("\nSummary of cross-validation residuals:\n" )
        print(quantile(r))
        cat("\n")
-       
+
        # Do pseudo R^2
        if (x$distribution$name == "gaussian"){
            yadj <- d[, 1] - mean(d[, 1])
@@ -97,7 +97,7 @@ print.gbm <- function(x, ... ){
    }
 
    #############################################################################
-   
+
    invisible()
 }
 

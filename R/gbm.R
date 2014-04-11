@@ -49,7 +49,7 @@ gbm <- function(formula = formula(data),
 
    # get the character name of the response variable
    response.name <- as.character(formula[[2]])
-   
+
    var.names <- attributes(Terms)$term.labels
    x <- model.frame(terms(reformulate(var.names)),
                     data,

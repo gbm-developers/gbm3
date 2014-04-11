@@ -49,7 +49,7 @@ test.gbm <- function(){
     # Get best model
     best.iter <- gbm.perf(gbm1,method="cv")   # returns cv estimate of best number of trees
     plot(gbm1)
-    
+
     set.seed(2)
     # make some new data
     N <- 1000
@@ -65,7 +65,7 @@ test.gbm <- function(){
     Y <- X1**1.5 + 2 * (X2**.5) + mu
 
     # Want to see how close predictions are to the underlying signal; noise would just interfere with this
-    # Y <- Y + rnorm(N,0,sigma) 
+    # Y <- Y + rnorm(N,0,sigma)
     data2 <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3,X4=X4,X5=X5,X6=X6)
 
     # predict on the new data using "best" number of trees
@@ -120,7 +120,7 @@ test.gbm <- function(){
 
     best.iter <- gbm.perf(gbm1,method="test") # returns test set estimate of best number of trees
     plot(gbm1)
-    
+
     # make some new data
     set.seed(2)
     N <- 1000
@@ -148,7 +148,7 @@ test.gbm <- function(){
 
     ############################################################################
     ## Test bernoulli distribution gbm model
-    
+
     set.seed(1)
 
     cat("Running logistic regression example.\n")
@@ -184,7 +184,7 @@ test.gbm <- function(){
 
     best.iter.test <- gbm.perf(gbm1,method="test") # returns test set estimate of best number of trees
     plot(gbm1)
-    
+
     best.iter <- best.iter.test
 
     # make some new data
@@ -208,7 +208,7 @@ test.gbm <- function(){
 
     # Base the validation tests on observed discrepancies
     checkTrue(sd(f.new - f.1.predict) < 1.0 )
-    
+
     invisible()
 }
 
@@ -223,7 +223,7 @@ test.relative.influence <- function(){
     X1 <- apply(X1, 2, function(x) rnorm(1000)) # Random noise
     X2 <- matrix(nrow=1000, ncol=5)
     X2 <- apply(X2, 2, function(x) c(rnorm(500), rnorm(500, 3))) # Real predictors
-    cls <- rep(c(0, 1), ea=500) # Class 
+    cls <- rep(c(0, 1), ea=500) # Class
     X <- data.frame(cbind(X1, X2, cls))
     mod <- gbm(cls ~ ., data= X, n.trees=1000, cv.folds=5,
                 shrinkage=.01, interaction.depth=2)

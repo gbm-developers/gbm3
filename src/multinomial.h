@@ -7,7 +7,7 @@
 //  Contains:   Distribution object to implement multinomial
 //
 //  History:    04/04/2008   Created
-//                    
+//
 //------------------------------------------------------------------------------
 
 #ifndef KMULTICGBM_H
@@ -34,18 +34,18 @@ public:
     GBMRESULT ComputeWorkingResponse(double *adY,
                                      double *adMisc,
                                      double *adOffset,
-                                     double *adF, 
-                                     double *adZ, 
+                                     double *adF,
+                                     double *adZ,
                                      double *adWeight,
                                      bool *afInBag,
                                      unsigned long nTrain,
                                      int cIdxOff);
 
-    GBMRESULT InitF(double *adY, 
+    GBMRESULT InitF(double *adY,
                     double *adMisc,
                     double *adOffset,
                     double *adWeight,
-                    double &dInitF, 
+                    double &dInitF,
                     unsigned long cLength);
 
     GBMRESULT FitBestConstant(double *adY,
@@ -84,7 +84,7 @@ public:
 private:
    unsigned long mcNumClasses;
    unsigned long mcRows;
-   std::vector<double> madProb; 
+   std::vector<double> madProb;
 };
 
 #endif // KMULTICGBM_H

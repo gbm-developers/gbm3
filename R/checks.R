@@ -40,7 +40,7 @@ checkOffset <- function(o, y, dist){
      stop("offset must be numeric")
    else if(sum(is.na(o))>0)
      stop("offset can not contain NA's")
-  
+
    o
 }
 

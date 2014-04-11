@@ -16,8 +16,8 @@ GBMRESULT CCoxPH::ComputeWorkingResponse
     double *adT,
     double *adDelta,
     double *adOffset,
-    double *adF, 
-    double *adZ, 
+    double *adF,
+    double *adZ,
     double *adWeight,
     bool *afInBag,
     unsigned long nTrain,
@@ -64,9 +64,9 @@ GBMRESULT CCoxPH::InitF
 (
     double *adY,
     double *adMisc,
-    double *adOffset, 
+    double *adOffset,
     double *adWeight,
-    double &dInitF, 
+    double &dInitF,
     unsigned long cLength
 )
 {
@@ -80,7 +80,7 @@ double CCoxPH::Deviance
 (
     double *adT,
     double *adDelta,
-    double *adOffset, 
+    double *adOffset,
     double *adWeight,
     double *adF,
     unsigned long cLength,
@@ -149,7 +149,7 @@ GBMRESULT CCoxPH::FitBestConstant
             veciK2Node[K] = i;
             veciNode2K[i] = K;
             K++;
-        }            
+        }
     }
 
     vecdP.resize(K);
@@ -185,11 +185,11 @@ GBMRESULT CCoxPH::FitBestConstant
                 // compute g and H
                 for(k=0; k<K-1; k++)
                 {
-                    vecdG[k] += 
+                    vecdG[k] +=
                         adW[i]*((aiNodeAssign[i]==veciK2Node[k]) - vecdP[k]/dRiskTot);
 
                     matH.getvalue(k,k,dTemp,fTemp);
-                    matH.setvalue(k,k,dTemp - 
+                    matH.setvalue(k,k,dTemp -
                         adW[i]*vecdP[k]/dRiskTot*(1-vecdP[k]/dRiskTot));
                     for(m=0; m<k; m++)
                     {
@@ -231,7 +231,7 @@ GBMRESULT CCoxPH::FitBestConstant
             {
                 vecpTermNodes[veciK2Node[k]]->dPrediction = 0.0;
                 break;
-            } 
+            }
             else
             {
                 vecpTermNodes[veciK2Node[k]]->dPrediction -= dTemp*vecdG[m];
@@ -274,7 +274,7 @@ double CCoxPH::BagImprovement
             dDen += adWeight[i]*exp(dF);
             if(adDelta[i]==1.0)
             {
-                dReturnValue += 
+                dReturnValue +=
                     adWeight[i]*(dStepSize*adFadj[i] - log(dNum) + log(dDen));
                 dW += adWeight[i];
             }
