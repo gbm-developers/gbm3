@@ -55,7 +55,7 @@ gbm.more(object,
 
 Currently available options are "gaussian" (squared error), "laplace" (absolute loss), "tdist" (t-distribution loss), "bernoulli" (logistic regression for 0-1 outcomes),
 "huberized" (huberized hinge loss for 0-1 outcomes),
-"multinomial" (classification when there are more than 2 classes), "adaboost" (the AdaBoost exponential loss for 0-1 outcomes), "poisson" (count outcomes), "coxph" (right censored observations), "quantile", or "pairwise" (ranking measure using the LambdaMart algorithm).
+"multinomial" (classification when there are more than 2 classes), "adaboost" (the AdaBoost exponential loss for 0-1 outcomes), "poisson" (count outcomes), "coxph" (right censored observations), "quantile", or "pairwise" (ranking measure using the LambdaMART algorithm).
 
 If quantile regression is specified, \code{distribution} must be a list of the form \code{list(name="quantile",alpha=0.25)} where \code{alpha} is the quantile to estimate. The current version's quantile regression method does not handle non-constant weights and will stop.
 
@@ -124,7 +124,7 @@ For details and background on the algorithm, see e.g. Burges (2010).
 \item{object}{a \code{gbm} object created from an initial call to \code{\link{gbm}}.}
 \item{n.new.trees}{the number of additional trees to add to \code{object}.}
 \item{verbose}{If TRUE, gbm will print out progress and performance indicators. If this option is left unspecified for gbm.more then it uses \code{verbose} from \code{object}.}
-\item{class.stratify.cv}{whether or not the cross-validation should be stratified by class. Defaults to \code{TRUE} for \code{distribution="multinomial"} and is only implementated for \code{multinomial} and \code{bernoulli}. The purpose of stratifying the cross-validation is to help avoiding situations in which training sets do not contain all classes.}
+\item{class.stratify.cv}{whether or not the cross-validation should be stratified by class. Defaults to \code{TRUE} for \code{distribution="multinomial"} and is only implemented for \code{multinomial} and \code{bernoulli}. The purpose of stratifying the cross-validation is to help avoiding situations in which training sets do not contain all classes.}
 \item{x, y}{For \code{gbm.fit}: \code{x} is a data frame or data matrix containing the predictor variables and \code{y} is the vector of outcomes. The number of rows in \code{x} must be the same as the length of \code{y}.}
 \item{offset}{a vector of values for the offset}
 \item{misc}{For \code{gbm.fit}: \code{misc} is an R object that is simply passed on to the gbm engine. It can be used for additional data for the specific distribution. Currently it is only used for passing the censoring indicator for the Cox proportional hazards model.}
@@ -137,7 +137,7 @@ For details and background on the algorithm, see e.g. Burges (2010).
   \code{n.cores} is not specified by the user, it is guessed using the
   \code{detectCores} function in the \code{parallel} package. Note that
   the documentation for \code{detectCores} makes clear that it is not
-  failsave and could return a spurious number of available cores.}
+  reliable and could return a spurious number of available cores.}
 }
 
 \details{See the \href{../doc/gbm.pdf}{gbm vignette} for technical details.

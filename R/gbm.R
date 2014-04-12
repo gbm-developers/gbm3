@@ -49,7 +49,7 @@ gbm <- function(formula = formula(data),
 
    # get the character name of the response variable
    response.name <- as.character(formula[[2]])
-   
+
    var.names <- attributes(Terms)$term.labels
    x <- model.frame(terms(reformulate(var.names)),
                     data,
@@ -77,7 +77,7 @@ gbm <- function(formula = formula(data),
       distribution.group <- distribution[["group"]]
       if (is.null(distribution.group))
       {
-         stop("For pairwise regression, the distribution parameter must be a list with a parameter 'group' for the a list of the column names indicating groups, for example list(name=\"pairwise\",group=c(\"date\",\"session\",\"category\",\"keywords\")).")
+         stop("For pairwise regression, the distribution parameter must be a list with a parameter 'group' for the list of the column names indicating groups, for example list(name=\"pairwise\",group=c(\"date\",\"session\",\"category\",\"keywords\")).")
       }
 
       # Check if group names are valid

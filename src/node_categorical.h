@@ -6,7 +6,7 @@
 //  License:    GNU GPL (version 2 or later)
 //
 //  Contents:   a node with a categorical split
-//        	  
+//
 //  Owner:      gregr@rand.org
 //
 //  History:    3/26/2001   gregr created

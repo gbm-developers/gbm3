@@ -6,7 +6,7 @@
 //  License:    GNU GPL (version 2 or later)
 //
 //  Contents:   does the searching for where to split a node
-//            
+//
 //  Owner:      gregr@rand.org
 //
 //  History:    3/26/2001   gregr created
@@ -47,8 +47,8 @@ public:
                            long cVarClasses);
 
     double BestImprovement() { return dBestImprovement; }
-    GBMRESULT SetToSplit() 
-    {    
+    GBMRESULT SetToSplit()
+    {
         fIsSplit = true;
         return GBM_OK;
     };

@@ -65,7 +65,7 @@ CNodeContinuous* CNodeFactory::GetNewNodeContinuous()
     }
     else
     {
-        pNodeContinuousTemp = ContinuousStack.top(); 
+        pNodeContinuousTemp = ContinuousStack.top();
         ContinuousStack.pop();
 
         pNodeContinuousTemp->dPrediction = 0.0;

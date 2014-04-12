@@ -1,7 +1,7 @@
 \name{shrink.gbm.pred}
 \alias{shrink.gbm.pred}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{ Predictions from a shrunked GBM }
+\title{ Predictions from a shrunken GBM }
 \description{
   Makes predictions from a shrunken GBM model.
 }

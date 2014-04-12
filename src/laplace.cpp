@@ -14,8 +14,8 @@ GBMRESULT CLaplace::ComputeWorkingResponse
     double *adY,
     double *adMisc,
     double *adOffset,
-    double *adF, 
-    double *adZ, 
+    double *adF,
+    double *adZ,
     double *adWeight,
     bool *afInBag,
     unsigned long nTrain,
@@ -48,9 +48,9 @@ GBMRESULT CLaplace::InitF
 (
     double *adY,
     double *adMisc,
-    double *adOffset, 
+    double *adOffset,
     double *adWeight,
-    double &dInitF, 
+    double &dInitF,
     unsigned long cLength
 )
 {
@@ -81,7 +81,7 @@ double CLaplace::Deviance
 (
     double *adY,
     double *adMisc,
-    double *adOffset, 
+    double *adOffset,
     double *adWeight,
     double *adF,
     unsigned long cLength,
@@ -140,7 +140,7 @@ GBMRESULT CLaplace::FitBestConstant
     double dOffset;
 
 //    vecd.resize(nTrain); // should already be this size from InitF
-  
+
     std::vector<double> adArr(nTrain);
     std::vector<double> adW2(nTrain);
 
@@ -159,7 +159,7 @@ GBMRESULT CLaplace::FitBestConstant
                 iVecd++;
             }
 
-            
+
             }
 
 	    vecpTermNodes[iNode]->dPrediction = mpLocM.Median(iVecd, &adArr[0], &adW2[0]);
@@ -195,8 +195,8 @@ double CLaplace::BagImprovement
         if(!afInBag[i])
         {
             dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
-            
-            dReturnValue += 
+
+            dReturnValue +=
                 adWeight[i]*(fabs(adY[i]-dF) - fabs(adY[i]-dF-dStepSize*adFadj[i]));
             dW += adWeight[i];
         }

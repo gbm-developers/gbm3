@@ -5,7 +5,7 @@ interact.gbm <- function(x, data, i.var = 1, n.trees = x$n.trees){
     if (x$interaction.depth < length(i.var)){
        stop("interaction.depth too low in model call")
    }
-   
+
    if (all(is.character(i.var))){
       i <- match(i.var, x$var.names)
       if (any(is.na(i))) {
@@ -69,7 +69,7 @@ interact.gbm <- function(x, data, i.var = 1, n.trees = x$n.trees){
       FF[[j]]$f <- apply(FF[[j]]$f, 2, function(x, w){
                                           x - weighted.mean(x, w, na.rm=TRUE)
                                        }, w=FF[[j]]$n)
- 
+
       # precompute the sign of these terms to appear in H
       FF[[j]]$sign <- ifelse(length(a[[j]]) %% 2 == length(i.var) %% 2, 1, -1)
    }
@@ -95,7 +95,7 @@ interact.gbm <- function(x, data, i.var = 1, n.trees = x$n.trees){
    if (x$distribution$name=="multinomial"){
       names(H) <- x$classes
    }
-   
+
    # If H > 1, rounding and tiny main effects have messed things up
    H[H > 1] <- NaN
 

@@ -36,7 +36,7 @@ calibrate.plot(y,p,
   \item{rug.par}{graphics parameters passed to \code{\link{rug}}}
   \item{xlab}{x-axis label corresponding to the predicted values}
   \item{ylab}{y-axis label corresponding to the observed average}
-  \item{xlim,ylim}{x and y-axis limits. If not specified te function will select
+  \item{xlim,ylim}{x and y-axis limits. If not specified the function will select
                    limits}
   \item{knots,df}{these parameters are passed directly to 
                   \code{\link[splines]{ns}} for constructing a natural spline 

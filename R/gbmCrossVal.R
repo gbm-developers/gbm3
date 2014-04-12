@@ -113,6 +113,6 @@ gbmCrossValModelBuild <- function(cv.folds, cv.group, n.cores, i.train,
             w, var.monotone, n.trees,
             interaction.depth, n.minobsinnode, shrinkage,
             bag.fraction,
-            cv.group, var.names, response.name, group, seeds) 
+            cv.group, var.names, response.name, group, seeds)
   }
 }

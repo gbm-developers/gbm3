@@ -12,8 +12,8 @@ GBMRESULT CTDist::ComputeWorkingResponse
     double *adY,
     double *adMisc,
     double *adOffset,
-    double *adF, 
-    double *adZ, 
+    double *adF,
+    double *adZ,
     double *adWeight,
     bool *afInBag,
     unsigned long nTrain,
@@ -28,14 +28,14 @@ GBMRESULT CTDist::ComputeWorkingResponse
         for(i=0; i<nTrain; i++)
         {
 		    dU = adY[i] - adF[i];
-			adZ[i] = (2 * dU) / (mdNu + (dU * dU));          
+			adZ[i] = (2 * dU) / (mdNu + (dU * dU));
         }
     }
     else
     {
         for(i=0; i<nTrain; i++)
         {
- 		    dU = adY[i] - adOffset[i] - adF[i];	
+ 		    dU = adY[i] - adOffset[i] - adF[i];
 			adZ[i] = (2 * dU) / (mdNu + (dU * dU));
         }
     }
@@ -48,9 +48,9 @@ GBMRESULT CTDist::InitF
 (
     double *adY,
     double *adMisc,
-    double *adOffset, 
+    double *adOffset,
     double *adWeight,
-    double &dInitF, 
+    double &dInitF,
     unsigned long cLength
 )
 {
@@ -78,7 +78,7 @@ double CTDist::Deviance
 (
     double *adY,
     double *adMisc,
-    double *adOffset, 
+    double *adOffset,
     double *adWeight,
     double *adF,
     unsigned long cLength,
@@ -135,7 +135,7 @@ GBMRESULT CTDist::FitBestConstant
     GBMRESULT hr = GBM_OK;
     unsigned long iNode = 0;
     unsigned long iObs = 0;
-    
+
 
     std::vector<double> adArr, adWeight;
 	// Call LocM for the array of values on each node
@@ -156,8 +156,8 @@ GBMRESULT CTDist::FitBestConstant
                 }
 	    }
 
-	  vecpTermNodes[iNode]->dPrediction = mpLocM.LocationM(adArr.size(), &adArr[0], 
-							       &adWeight[0]); 
+	  vecpTermNodes[iNode]->dPrediction = mpLocM.LocationM(adArr.size(), &adArr[0],
+							       &adWeight[0]);
 
         }
     }

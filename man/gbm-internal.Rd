@@ -29,7 +29,7 @@ gbmCluster(n)
   \item{class.stratify.cv}{Whether or not to stratify, if provided by
         the user}
   \item{i.train}{Computed internally by \code{gbm}}
-  \item{group}{The group, if using \code{distibution='pairwise'}}
+  \item{group}{The group, if using \code{distribution='pairwise'}}
   \item{strat}{Whether or not to stratify}
   \item{cv.folds}{The number of cross-validation folds}
   \item{x}{The design matrix}

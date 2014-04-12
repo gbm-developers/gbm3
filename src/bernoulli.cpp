@@ -16,8 +16,8 @@ GBMRESULT CBernoulli::ComputeWorkingResponse
     double *adY,
     double *adMisc,
     double *adOffset,
-    double *adF, 
-    double *adZ, 
+    double *adF,
+    double *adZ,
     double *adWeight,
     bool *afInBag,
     unsigned long nTrain,
@@ -46,7 +46,7 @@ GBMRESULT CBernoulli::InitF
     double *adMisc,
     double *adOffset,
     double *adWeight,
-    double &dInitF, 
+    double &dInitF,
     unsigned long cLength
 )
 {
@@ -66,7 +66,7 @@ GBMRESULT CBernoulli::InitF
         dInitF = log(dSum/(dTemp-dSum));
     }
     else
-    { 
+    {
         // Newton method for solving for F
         // should take about 3-6 iterations.
         double dNum=0.0;         // numerator
@@ -163,7 +163,7 @@ GBMRESULT CBernoulli::FitBestConstant
         if(afInBag[iObs])
         {
             vecdNum[aiNodeAssign[iObs]] += adW[iObs]*adZ[iObs];
-            vecdDen[aiNodeAssign[iObs]] += 
+            vecdDen[aiNodeAssign[iObs]] +=
                 adW[iObs]*(adY[iObs]-adZ[iObs])*(1-adY[iObs]+adZ[iObs]);
         }
     }
@@ -178,7 +178,7 @@ GBMRESULT CBernoulli::FitBestConstant
             }
             else
             {
-                vecpTermNodes[iNode]->dPrediction = 
+                vecpTermNodes[iNode]->dPrediction =
                     vecdNum[iNode]/vecdDen[iNode];
             }
         }
@@ -217,7 +217,7 @@ double CBernoulli::BagImprovement
                 dReturnValue += adWeight[i]*dStepSize*adFadj[i];
             }
             dReturnValue += adWeight[i]*
-                            (log(1.0+exp(dF)) - 
+                            (log(1.0+exp(dF)) -
                              log(1.0+exp(dF+dStepSize*adFadj[i])));
             dW += adWeight[i];
         }

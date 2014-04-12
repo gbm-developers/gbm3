@@ -18,8 +18,8 @@ GBMRESULT CHuberized::ComputeWorkingResponse
     double *adY,
     double *adMisc,
     double *adOffset,
-    double *adF, 
-    double *adZ, 
+    double *adF,
+    double *adZ,
     double *adWeight,
     bool *afInBag,
     unsigned long nTrain,
@@ -28,7 +28,7 @@ GBMRESULT CHuberized::ComputeWorkingResponse
 {
    unsigned long i = 0;
    double dF = 0.0;
-   
+
    for(i=0; i<nTrain; i++)
    {
       dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
@@ -134,7 +134,7 @@ double CHuberized::Deviance
          }
          else
          {
-            dL += adWeight[i] * ( 1 - (2*adY[i]-1)*dF ) * 
+            dL += adWeight[i] * ( 1 - (2*adY[i]-1)*dF ) *
                                 ( 1 - (2*adY[i]-1)*dF );
             dW += adWeight[i];
          }
@@ -178,10 +178,10 @@ GBMRESULT CHuberized::FitBestConstant
         if(afInBag[iObs])
         {
            dF = adF[iObs] + ((adOffset==NULL) ? 0.0 : adOffset[iObs]);
-           if( (2*adY[iObs]-1)*adF[iObs] < -1 ){ 
+           if( (2*adY[iObs]-1)*adF[iObs] < -1 ){
               vecdNum[aiNodeAssign[iObs]] +=
                 adW[iObs]*4*(2*adY[iObs]-1);
-              vecdDen[aiNodeAssign[iObs]] += 
+              vecdDen[aiNodeAssign[iObs]] +=
                 -adW[iObs]*4*(2*adY[iObs]-1)*dF;
            }
            else if ( 1 - (2*adY[iObs]-1)*adF[iObs] < 0 ){
@@ -205,7 +205,7 @@ GBMRESULT CHuberized::FitBestConstant
             }
             else
             {
-                vecpTermNodes[iNode]->dPrediction = 
+                vecpTermNodes[iNode]->dPrediction =
                     vecdNum[iNode]/vecdDen[iNode];
             }
         }

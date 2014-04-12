@@ -30,7 +30,7 @@ GBMRESULT CCARTTree::Initialize
     return hr;
 }
 
-    
+
 GBMRESULT CCARTTree::Reset()
 {
     GBMRESULT hr = GBM_OK;
@@ -69,8 +69,8 @@ Error:
 //------------------------------------------------------------------------------
 GBMRESULT CCARTTree::grow
 (
-    double *adZ, 
-    CDataset *pData, 
+    double *adZ,
+    CDataset *pData,
     double *adW,
     double *adF,
     unsigned long nTrain,
@@ -90,7 +90,7 @@ GBMRESULT CCARTTree::grow
     Rprintf("Growing tree\n");
     #endif
 
-    if((adZ==NULL) || (pData==NULL) || (adW==NULL) || (adF==NULL) || 
+    if((adZ==NULL) || (pData==NULL) || (adW==NULL) || (adF==NULL) ||
        (cMaxDepth < 1))
     {
         hr = GBM_INVALIDARG;
@@ -320,8 +320,8 @@ GBMRESULT CCARTTree::GetNodeCount
 
 GBMRESULT CCARTTree::PredictValid
 (
-    CDataset *pData, 
-    unsigned long nValid, 
+    CDataset *pData,
+    unsigned long nValid,
     double *adFadj
 )
 {
@@ -342,9 +342,9 @@ GBMRESULT CCARTTree::PredictValid
 GBMRESULT CCARTTree::Predict
 (
     double *adX,
-    unsigned long cRow, 
-    unsigned long cCol, 
-    unsigned long iRow, 
+    unsigned long cRow,
+    unsigned long cCol,
+    unsigned long iRow,
     double &dFadj
 )
 {
@@ -375,7 +375,7 @@ GBMRESULT CCARTTree::Adjust
 {
     unsigned long hr = GBM_OK;
     unsigned long iObs = 0;
-    
+
     hr = pRootNode->Adjust(cMinObsInNode);
     if(GBM_FAILED(hr))
     {

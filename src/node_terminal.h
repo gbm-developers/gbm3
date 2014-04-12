@@ -6,7 +6,7 @@
 //  License:    GNU GPL (version 2 or later)
 //
 //  Contents:   terminal node class
-//        	  
+//
 //  Owner:      gregr@rand.org
 //
 //  History:    3/26/2001   gregr created
@@ -47,8 +47,8 @@ public:
                                 double dShrinkage);
 
     GBMRESULT ApplyShrinkage(double dLambda);
-    GBMRESULT Predict(CDataset *pData, 
-                    unsigned long i, 
+    GBMRESULT Predict(CDataset *pData,
+                    unsigned long i,
                     double &dFadj);
     GBMRESULT Predict(double *adX,
                     unsigned long cRow,

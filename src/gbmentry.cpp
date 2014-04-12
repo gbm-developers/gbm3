@@ -11,15 +11,15 @@ SEXP gbm
 (
     SEXP radY,       // outcome or response
     SEXP radOffset,  // offset for f(x), NA for no offset
-    SEXP radX,        
-    SEXP raiXOrder,        
+    SEXP radX,
+    SEXP raiXOrder,
     SEXP radWeight,
     SEXP radMisc,   // other row specific data (eg failure time), NA=no Misc
     SEXP rcRows,
     SEXP rcCols,
     SEXP racVarClasses,
     SEXP ralMonotoneVar,
-    SEXP rszFamily, 
+    SEXP rszFamily,
     SEXP rcTrees,
     SEXP rcDepth,       // interaction depth
     SEXP rcMinObsInNode,
@@ -114,15 +114,15 @@ SEXP gbm
     {
         goto Error;
     }
-       
+
     // allocate the GBM
     pGBM = new CGBM();
 
     // initialize the GBM
     hr = pGBM->Initialize(pData,
                           pDist,
-                          REAL(rdShrinkage)[0], 
-                          cTrain, 
+                          REAL(rdShrinkage)[0],
+                          cTrain,
                           REAL(rdBagFraction)[0],
                           INTEGER(rcDepth)[0],
                           INTEGER(rcMinObsInNode)[0],
@@ -160,7 +160,7 @@ SEXP gbm
                           pData->adMisc,
                           pData->adOffset,
                           pData->adWeight,
-                          REAL(rdInitF)[0], 
+                          REAL(rdInitF)[0],
                           cTrain);
 
         for(i=0; i < (pData->cRows) * cNumClasses; i++)
@@ -242,10 +242,10 @@ SEXP gbm
             SET_VECTOR_ELT(rNewTree,5,rdErrorReduction);
             SET_VECTOR_ELT(rNewTree,6,rdWeight);
             SET_VECTOR_ELT(rNewTree,7,rdPred);
-            UNPROTECT(cTreeComponents); 
+            UNPROTECT(cTreeComponents);
             SET_VECTOR_ELT(rSetOfTrees,(iK + iT * cNumClasses),rNewTree);
             UNPROTECT(1); // rNewTree
-        
+
             hr = gbm_transfer_to_R(pGBM,
                                    vecSplitCodes,
                                    INTEGER(riSplitVar),
@@ -287,7 +287,7 @@ SEXP gbm
 
     for(i=0; i<(int)vecSplitCodes.size(); i++)
     {
-        PROTECT(rSplitCode = 
+        PROTECT(rSplitCode =
                     allocVector(INTSXP, size_of_vector(vecSplitCodes,i)));
         SET_VECTOR_ELT(rSetSplitCodes,i,rSplitCode);
         UNPROTECT(1); // rSplitCode
@@ -440,22 +440,22 @@ SEXP gbm_pred
                      }
                      else if(iCatSplitIndicator==1)
                      {
-                        iCurrentNode = aiRightNode[iCurrentNode]; 
-                     }  
+                        iCurrentNode = aiRightNode[iCurrentNode];
+                     }
                      else // categorical level not present in training
                      {
                         iCurrentNode = aiMissingNode[iCurrentNode];
                      }
                   }
                }
-               REAL(radPredF)[cRows*cNumClasses*iPredIteration+cRows*iClass+iObs] += 
+               REAL(radPredF)[cRows*cNumClasses*iPredIteration+cRows*iClass+iObs] +=
                   adSplitCode[iCurrentNode]; // add the prediction
             } // iObs
             iTree++;
          } // iClass
       } // iTree
    }  // iPredIteration
-    
+
 Cleanup:
     UNPROTECT(1); // radPredF
     return radPredF;
@@ -540,7 +540,7 @@ SEXP gbm_plot
 
                     if(aiSplitVar[iCurrentNode] == -1) // terminal node
                     {
-                        REAL(radPredF)[iClass*cRows + iObs] += 
+                        REAL(radPredF)[iClass*cRows + iObs] +=
                             adWeightStack[cStackNodes]*adSplitCode[iCurrentNode];
                     }
                     else // non-terminal node
@@ -556,13 +556,13 @@ SEXP gbm_plot
                         }
 
                         if(iPredVar != -1) // this split is among raiWhichVar
-                        {    
+                        {
                             dX = REAL(radX)[iPredVar*cRows + iObs];
                             // missing?
                             if(ISNA(dX))
                             {
                                 aiNodeStack[cStackNodes] = aiMissingNode[iCurrentNode];
-                                cStackNodes++;                            
+                                cStackNodes++;
                             }
                             // continuous?
                             else if(INTEGER(raiVarType)[aiSplitVar[iCurrentNode]] == 0)
@@ -599,7 +599,7 @@ SEXP gbm_plot
                                 }
                             }
                         } // iPredVar != -1
-                        else // not interested in this split, average left and right 
+                        else // not interested in this split, average left and right
                         {
                             aiNodeStack[cStackNodes] = aiRightNode[iCurrentNode];
                             dCurrentW = adWeightStack[cStackNodes];
@@ -609,7 +609,7 @@ SEXP gbm_plot
                                  adW[aiRightNode[iCurrentNode]]);
                             cStackNodes++;
                             aiNodeStack[cStackNodes] = aiLeftNode[iCurrentNode];
-                            adWeightStack[cStackNodes] = 
+                            adWeightStack[cStackNodes] =
                                     dCurrentW-adWeightStack[cStackNodes-1];
                             cStackNodes++;
                         }
@@ -760,13 +760,13 @@ SEXP gbm_shrink_pred
                  else
                  {
                     // compute the parent node's prediction
-                    adNodePred[i] = 
+                    adNodePred[i] =
                        (adNodeW[aiLeftNode[i]]*adNodePred[aiLeftNode[i]] +
                         adNodeW[aiRightNode[i]]*adNodePred[aiRightNode[i]]+
                         adNodeW[aiMissingNode[i]]*adNodePred[aiMissingNode[i]])/
                             adNodeW[i];
                     cNodeStack--;
-                 }         
+                 }
               }
 
               // predict for the observations
@@ -782,7 +782,7 @@ SEXP gbm_shrink_pred
                              (1-adLambda[aiSplitVar[iCurrentNode]])*
                              adNodePred[iCurrentNode];
                     dLambda *= adLambda[aiSplitVar[iCurrentNode]];
-               
+
                     dX = REAL(radX)[aiSplitVar[iCurrentNode]*cRows + iObs];
                     // missing?
                     if(ISNA(dX))
@@ -886,10 +886,10 @@ SEXP gbm_shrink_gradient
 {
    unsigned long hr = 0;
    int iTree = 0;
-   
+
    int iObs = 0;
    int iLambda = 0;
-   int iNode = 0;   
+   int iNode = 0;
    int iClass = 0;
    int cRows = INTEGER(rcRows)[0];
    int cNumClasses = INTEGER(rcNumClasses)[0];
@@ -899,7 +899,7 @@ SEXP gbm_shrink_gradient
    double dPred = 0.0;
    double dNewPredTerm = 0.0;
    double dDJDf = 0.0;
-   
+
    // NB for K-Class
    double *adProb = NULL;
    double dDenom = 0.0;
@@ -926,7 +926,7 @@ SEXP gbm_shrink_gradient
    int *aiInPath = NULL;
    int cInPath = 0;
    double *adDfDLambda = NULL;
-   
+
    adDfDLambda = new double[length(radLambda)];
    if(adDfDLambda == NULL)
    {
@@ -991,7 +991,7 @@ SEXP gbm_shrink_gradient
       REAL(radGradient)[iLambda] = 0.0;
    }
    REAL(rdObjective)[0] = 0.0;
-   
+
    // predict for the observations
    // first loop has to be over observations in order to compute the gradient
    for(iObs=0; iObs<cRows; iObs++)
@@ -1000,11 +1000,11 @@ SEXP gbm_shrink_gradient
        {
            adDfDLambda[iLambda] = 0.0;
        }
-     
+
    	   for(iTree=0; iTree<INTEGER(rcTrees)[0]; iTree++)
          {
             for (iClass = 0; iClass < cNumClasses; iClass++)
-            { 
+            {
 
                rThisTree     = VECTOR_ELT(rTrees,iClass + iTree * cNumClasses);
                aiSplitVar    = INTEGER(VECTOR_ELT(rThisTree,0));
@@ -1027,29 +1027,29 @@ SEXP gbm_shrink_gradient
                   dNewPredTerm = dLambdaProduct*
                                  (1-adLambda[aiSplitVar[iCurrentNode]])*
                                  adNodePred[iCurrentNode];
-            
+
                   // update prediction
    	            dPred += dNewPredTerm;
-             
+
    	            // update gradient
    	            if(adLambda[aiSplitVar[iCurrentNode]]!=1.0)
                   {
-                     adDfDLambda[aiSplitVar[iCurrentNode]] -= 
+                     adDfDLambda[aiSplitVar[iCurrentNode]] -=
                         dNewPredTerm/(1.0-adLambda[aiSplitVar[iCurrentNode]]);
                   }
    	            for(iNode=0; iNode<cInPath; iNode++)
                   {
                      if(adLambda[aiInPath[iNode]]!=0.0)
                      {
-                        adDfDLambda[aiInPath[iNode]] += 
+                        adDfDLambda[aiInPath[iNode]] +=
                             dNewPredTerm/adLambda[aiInPath[iNode]];
                      }
-                  } 
+                  }
                   aiInPath[cInPath] = aiSplitVar[iCurrentNode];
                   cInPath++;
-  
+
                   dLambdaProduct *= adLambda[aiSplitVar[iCurrentNode]];
-             
+
                   dX = REAL(radX)[aiSplitVar[iCurrentNode]*cRows + iObs];
                   // missing?
                   if(ISNA(dX))
@@ -1067,7 +1067,7 @@ SEXP gbm_shrink_gradient
                      {
                         iCurrentNode = aiRightNode[iCurrentNode];
                      }
-                  } 
+                  }
                   else // categorical
                   {
                      iCatSplitIndicator = INTEGER(
@@ -1085,7 +1085,7 @@ SEXP gbm_shrink_gradient
                      {
                         iCurrentNode = aiMissingNode[iCurrentNode];
                      }
-                  } 
+                  }
                } // aiSplitVar[iCurrentNode] != -1
 
                // incorporate the terminal node
@@ -1096,16 +1096,16 @@ SEXP gbm_shrink_gradient
                {
                   if(adLambda[aiInPath[iNode]] != 0.0)
                   {
-                     adDfDLambda[aiInPath[iNode]] += 
+                     adDfDLambda[aiInPath[iNode]] +=
                         dNewPredTerm/adLambda[aiInPath[iNode]];
                   }
                }
 
                // add the prediction from tree iTree to prediction iObs
-               REAL(radPredF)[iObs + iClass * cRows] += dPred; 
+               REAL(radPredF)[iObs + iClass * cRows] += dPred;
            } // iClass
        } // iTree
-       
+
        // If multinomial was used (i.e. numClasses > 1) then calculate the probabilities
        if (cNumClasses > 1)
        {
@@ -1136,12 +1136,12 @@ SEXP gbm_shrink_gradient
                                (adY[iObs]-REAL(radPredF)[iObs]);
            dDJDf = -2*(adY[iObs]-REAL(radPredF)[iObs]);
        }
-      
-       for(iLambda=0; iLambda<length(radLambda); iLambda++)  
+
+       for(iLambda=0; iLambda<length(radLambda); iLambda++)
        {
            if(adDfDLambda[iLambda] != 0.0)
            {
-               REAL(radGradient)[iLambda] += 
+               REAL(radGradient)[iLambda] +=
                   dDJDf * adDfDLambda[iLambda]; // * adLambda[iLambda]*(1.0-adLambda[iLambda]);
            }
        }
@@ -1163,7 +1163,7 @@ Cleanup:
        delete [] adProb;
        adProb = NULL;
    }
-   
+
    UNPROTECT(1); // rResult
    return rResult;
 Error:

@@ -24,7 +24,7 @@
   \item{\dots}{ further arguments passed to or from other methods }
 }
 \details{
-\code{predict.gbm} produces predicted values for each observation in \code{newdata} using the the first \code{n.trees} iterations of the boosting sequence. If \code{n.trees} is a vector than the result is a matrix with each column representing the predictions from gbm models with \code{n.trees[1]} iterations, \code{n.trees[2]} iterations, and so on.
+\code{predict.gbm} produces predicted values for each observation in \code{newdata} using the first \code{n.trees} iterations of the boosting sequence. If \code{n.trees} is a vector than the result is a matrix with each column representing the predictions from gbm models with \code{n.trees[1]} iterations, \code{n.trees[2]} iterations, and so on.
 
 The predictions from \code{gbm} do not include the offset term. The user may add the value of the offset to the predicted value if desired.
 

@@ -35,7 +35,7 @@ GBMRESULT CMultinomial::UpdateParams
       }
    }
 
-   return GBM_OK; 
+   return GBM_OK;
 }
 
 
@@ -44,8 +44,8 @@ GBMRESULT CMultinomial::ComputeWorkingResponse
     double *adY,
     double *adMisc,
     double *adOffset,
-    double *adF, 
-    double *adZ, 
+    double *adF,
+    double *adZ,
     double *adWeight,
     bool *afInBag,
     unsigned long nTrain,
@@ -67,9 +67,9 @@ GBMRESULT CMultinomial::InitF
 (
     double *adY,
     double *adMisc,
-    double *adOffset, 
+    double *adOffset,
     double *adWeight,
-    double &dInitF, 
+    double &dInitF,
     unsigned long cLength
 )
 {
@@ -81,7 +81,7 @@ double CMultinomial::Deviance
 (
     double *adY,
     double *adMisc,
-    double *adOffset, 
+    double *adOffset,
     double *adWeight,
     double *adF,
     unsigned long cLength,
@@ -204,7 +204,7 @@ double CMultinomial::BagImprovement
          for (kk = 0; kk < mcNumClasses; kk++)
          {
             int iIdx = ii + kk * mcRows;
-                dReturnValue += adWeight[iIdx] * adY[iIdx] * 
+                dReturnValue += adWeight[iIdx] * adY[iIdx] *
                                (log(adStepProb[iIdx]) - log(madProb[iIdx]));
 
             dW += adWeight[iIdx] * adY[iIdx];

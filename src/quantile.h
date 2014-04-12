@@ -5,12 +5,12 @@
 //  License:    GNU GPL (version 2 or later)
 //
 //  Contents:   laplace object
-//            
+//
 //  Owner:      gregr@rand.org
 //
 //  History:    10/8/2006   Created by Brian Kriegler (bk@stat.ucla.edu)
-//              6/11/2007   gregr merged with official gbm 
-//        
+//              6/11/2007   gregr merged with official gbm
+//
 //------------------------------------------------------------------------------
 
 #ifndef QUANTILE_H
@@ -33,25 +33,25 @@ public:
 	                       double *adOffset,
 						   double *adWeight,
 	                       unsigned long cLength)
-	{ 
+	{
 		return GBM_OK;
 	};
 
     GBMRESULT ComputeWorkingResponse(double *adY,
                                      double *adMisc,
                                      double *adOffset,
-                                     double *adF, 
-                                     double *adZ, 
+                                     double *adF,
+                                     double *adZ,
                                      double *adWeight,
                                      bool *afInBag,
                                      unsigned long nTrain,
 	                                 int cIdxOff);
 
-    GBMRESULT InitF(double *adY, 
+    GBMRESULT InitF(double *adY,
                     double *adMisc,
                     double *adOffset,
                     double *adWeight,
-                    double &dInitF, 
+                    double &dInitF,
                     unsigned long cLength);
 
     GBMRESULT FitBestConstant(double *adY,
