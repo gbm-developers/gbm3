@@ -67,7 +67,7 @@ a bug. That's been fixed (Thanks to Trevor Hastie for catching this)
 
 - gbm now tries to guess what distribution you meant if you didn't specify. 
 
-- gbm has a new argument, class.stratifiy.cv, to control if cross-validation is stratified by class with distribution is "bernoulli" or "multinomial". Defaults to TRUE for multinomial, FALSE for bernoulli. The purpose is to avoid unusable training sets. 
+- gbm has a new argument, class.stratify.cv, to control if cross-validation is stratified by class with distribution is "bernoulli" or "multinomial". Defaults to TRUE for multinomial, FALSE for bernoulli. The purpose is to avoid unusable training sets. 
 
 - gbm.perf now puts a vertical line at the best number of trees when method = "cv" or "test". Tries to guess what method you meant if you don't tell it. 
 
@@ -242,7 +242,7 @@ was a single predictor the functions would drop the unused array dimension issui
 an error.
 
 - corrected gbm() distribution="coxph" when train.fraction=1.0. The program would
-set two non-existant observations in the validation set and issue a warning.
+set two non-existent observations in the validation set and issue a warning.
 
 - if a predictor variable has no variation a warning (rather than an error) is
 now issued
