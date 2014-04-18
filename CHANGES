@@ -1,6 +1,6 @@
 Changes in version 2.1-x
 
-- Added Mtry parameter to gbm. Mtry is the decimal percentage of features to consider at each node. This increases variability of each tree and will increase speed for large feature sets. A value of 1.0 behaves like the original GBM. 
+- Added mFeature parameter to gbm. mFeature is an integer number of features to consider at each node. This increases variability of each tree and will increase speed for large feature sets. NULL will consider all features and the number of features is bounded by 1 and total number of features.
 - Fixed bug that caused gbm to fail with cv.folds=1
 - Stopped gbm from launching multiple processes when n.cores=1
 - Explicitly call parallel::parLapply to avoid failure when Snow is
