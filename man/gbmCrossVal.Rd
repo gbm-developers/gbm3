@@ -12,7 +12,7 @@ gbmCrossVal(cv.folds, nTrain, n.cores,
 class.stratify.cv, data,
 x, y, offset, distribution, w, var.monotone,
 n.trees, interaction.depth, n.minobsinnode,
-shrinkage, bag.fraction,
+shrinkage, bag.fraction, mFeatures
 var.names, response.name, group)
 
 gbmCrossValModelBuild(cv.folds, cv.group, n.cores,
@@ -20,11 +20,11 @@ i.train, x, y, offset,
 distribution, w, var.monotone,
 n.trees, interaction.depth,
 n.minobsinnode, shrinkage,
-bag.fraction, var.names,
+bag.fraction, mFeatures, var.names,
 response.name, group)
 
 gbmDoFold(X, i.train, x, y, offset, distribution, w, var.monotone, n.trees,
-         interaction.depth, n.minobsinnode, shrinkage, bag.fraction,
+         interaction.depth, n.minobsinnode, shrinkage, bag.fraction, mFeatures,
          cv.group, var.names, response.name, group, s)
 
 gbmCrossValErr(cv.models, cv.folds, cv.group, nTrain, n.trees)
@@ -52,6 +52,7 @@ best.iter.cv, distribution, data, y)
 \item{n.minobsinnode}{See \code{\link{gbm}}.}
 \item{shrinkage}{See \code{\link{gbm}}.}
 \item{bag.fraction}{See \code{\link{gbm}}.}
+\item{mFeatures}{See \code{\link{gbm}}.}
 \item{var.names}{See \code{\link{gbm}}.}
 \item{response.name}{See \code{\link{gbm}}.}
 \item{group}{Used when \code{distribution = "pairwise"}. See
