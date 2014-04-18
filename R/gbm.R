@@ -11,7 +11,7 @@ gbm <- function(formula = formula(data),
                 data = list(),
                 weights,
                 subset = NULL,
-                offset,
+                offset = NULL,
                 var.monotone = NULL,
                 n.trees = 100,
                 interaction.depth = 1,
@@ -19,6 +19,7 @@ gbm <- function(formula = formula(data),
                 shrinkage = 0.001,
                 bag.fraction = 0.5,
                 train.fraction = 1.0,
+                mFeatures = NULL,
                 cv.folds=0,
                 keep.data = TRUE,
                 verbose = 'CV',
@@ -124,13 +125,25 @@ gbm <- function(formula = formula(data),
       Misc             <- group
    } # close if(distribution$name=="coxph") ...
 
+    #Determine the number of features to consider at each node
+    if (is.null(mFeatures)) {
+      mFeatures <- ncol(x)
+    } else {
+      if (mFeatures > ncol(x)) {
+        print("mFeatures was greater than the number of columns. It was reset to the available features.")
+        mFeatures <- ncol(x)
+      } else {
+        mFeatures <- max(mFeatures, 1)
+      }
+    }
+
    cv.error <- NULL
    if(cv.folds>1) {
      cv.results <- gbmCrossVal(cv.folds, nTrain, n.cores,
                                class.stratify.cv, data,
                                x, y, offset, distribution, w, var.monotone,
                                n.trees, interaction.depth, n.minobsinnode,
-                               shrinkage, bag.fraction,
+                               shrinkage, bag.fraction, mFeatures,
                                var.names, response.name, group)
      cv.error <- cv.results$error
      p <- cv.results$predictions
@@ -147,6 +160,7 @@ gbm <- function(formula = formula(data),
                       shrinkage = shrinkage,
                       bag.fraction = bag.fraction,
                       nTrain = nTrain,
+                      mFeatures = mFeatures,
                       keep.data = keep.data,
                       verbose = lVerbose,
                       var.names = var.names,

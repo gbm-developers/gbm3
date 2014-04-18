@@ -74,6 +74,7 @@ GBMRESULT CCARTTree::grow
     double *adW,
     double *adF,
     unsigned long nTrain,
+    unsigned long nFeatures,
     unsigned long nBagged,
     double dLambda,
     unsigned long cMaxDepth,
@@ -143,6 +144,7 @@ GBMRESULT CCARTTree::grow
         #endif
         hr = GetBestSplit(pData,
                           nTrain,
+                          nFeatures,
                           aNodeSearch,
                           cTerminalNodes,
                           aiNodeAssign,
@@ -230,6 +232,7 @@ GBMRESULT CCARTTree::GetBestSplit
 (
     CDataset *pData,
     unsigned long nTrain,
+    unsigned long nFeatures,
     CNodeSearch *aNodeSearch,
     unsigned long cTerminalNodes,
     std::vector<unsigned long>& aiNodeAssign,
@@ -249,8 +252,33 @@ GBMRESULT CCARTTree::GetBestSplit
     unsigned long cVarClasses = 0;
     double dX = 0.0;
 
-    for(iVar=0; iVar < pData->cCols; iVar++)
+	// Define a template class vector of int
+	int iFill = 0;
+  
+	typedef vector<int> IntVector ;
+
+   //Define an iterator for template class vector of strings
+   typedef IntVector::iterator IntVectorIt ;
+
+   IntVector colNumbers(pData->cCols) ;
+
+   IntVectorIt start, end, it ;
+
+   // Initialize vector colNumbers
+   // I am sure there is a more efficent way to make an intVector of increasing numbers
+   for(iFill=0; iFill < pData->cCols; iFill++)
+   {
+  	colNumbers[iFill] = iFill ;
+	}
+	start = colNumbers.begin();
+	end = colNumbers.end();
+	
+   // shuffle the elements in a random order
+   std::random_shuffle(colNumbers.begin(), colNumbers.end()) ;
+
+    for(it=start; it != (end - pData->cCols + nFeatures ); it++)
     {
+		iVar = *it;
         cVarClasses = pData->acVarClasses[iVar];
 
         for(iNode=0; iNode < cTerminalNodes; iNode++)

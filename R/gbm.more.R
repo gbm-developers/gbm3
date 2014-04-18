@@ -199,7 +199,8 @@ gbm.more <- function(object,
                     n.classes = as.integer(object$num.classes),
                     shrinkage = as.double(object$shrinkage),
                     bag.fraction = as.double(object$bag.fraction),
-                    train.fraction = as.integer(nTrain),
+                    train.fraction = as.integer(nTrain), #Should this be as.double(train.fraction)
+                    mFeatures = as.integer(mFeatures),
                     fit.old = as.double(object$fit),
                     n.cat.splits.old = as.integer(length(object$c.splits)),
                     n.trees.old = as.integer(object$n.trees),
@@ -231,6 +232,7 @@ gbm.more <- function(object,
    gbm.obj$n.minobsinnode    <- object$n.minobsinnode
    gbm.obj$num.classes       <- object$num.classes
    gbm.obj$nTrain            <- object$nTrain
+   gbm.obj$mFeatures         <- object$mFeatures
    gbm.obj$response.name     <- object$response.name
    gbm.obj$Terms             <- object$Terms
    gbm.obj$var.levels        <- object$var.levels

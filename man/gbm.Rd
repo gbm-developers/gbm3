@@ -18,6 +18,7 @@ gbm(formula = formula(data),
     shrinkage = 0.001,
     bag.fraction = 0.5,
     train.fraction = 1.0,
+    mFeatures = NULL,
     cv.folds=0,
     keep.data = TRUE,
     verbose = "CV",
@@ -37,6 +38,7 @@ gbm.fit(x, y,
         bag.fraction = 0.5,
         nTrain = NULL,
         train.fraction = NULL,
+        mFeatures = NULL,
         keep.data = TRUE,
         verbose = TRUE,
         var.names = NULL,
@@ -120,6 +122,7 @@ For details and background on the algorithm, see e.g. Burges (2010).
   The option \code{train.fraction} in \code{gbm.fit} is deprecated and
   only maintained for backward compatibility. These two parameters are
   mutually exclusive. If both are unspecified, all data is used for training.}
+\item{mFeatures}{Each node will be trained on a random subset of \code{mFeatures} number of features. Each node will consider a new random subset of features, adding variability to tree growth and reducing computation time. \code{mFeatures} will be bounded between 1 and \code{nCols}. Values outside of this bound will be to the lower or upper limits.}
 \item{keep.data}{a logical variable indicating whether to keep the data and an index of the data stored with the object. Keeping the data and index makes subsequent calls to \code{\link{gbm.more}} faster at the cost of storing an extra copy of the dataset.}
 \item{object}{a \code{gbm} object created from an initial call to \code{\link{gbm}}.}
 \item{n.new.trees}{the number of additional trees to add to \code{object}.}
@@ -217,6 +220,7 @@ gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
     bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
     train.fraction = 0.5,        # fraction of data for training,
                                  # first train.fraction*N used for training
+    mFeatures = 3,        			 # half of the features are considered at each node
     n.minobsinnode = 10,         # minimum total weight needed in each node
     cv.folds = 3,                # do 3-fold cross-validation
     keep.data=TRUE,              # keep a copy of the dataset with the object
