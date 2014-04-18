@@ -27,7 +27,7 @@ X3[sample(1:N,size=300)] <- NA
 w <- rep(1,N)
 
 data <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3,X4=X4,X5=X5,X6=X6)
-
+require(gbm)
 # fit initial model
 gbm1 <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
             data=data,                   # dataset
@@ -39,12 +39,12 @@ gbm1 <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
             interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
             bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
             train.fraction = 0.5,        # fraction of data for training, first train.fraction*N used for training
-            mFeatures = 3,
+            mFeatures = 3,               # Number of features to consider at each node.
             n.minobsinnode = 10,         # minimum number of obs needed in each node
             keep.data=TRUE,
-            cv.folds=3,                 # do 10-fold cross-validation
-            verbose = FALSE,
-            n.cores=1)             # don't print progress
+            cv.folds=10,                 # do 10-fold cross-validation
+            verbose = FALSE)             # don't print progress
+
 str(gbm1,max.level=1)
 # plot the performance
 best.iter <- gbm.perf(gbm1,method="OOB")  # returns out-of-bag estimated best number of trees

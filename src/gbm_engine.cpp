@@ -16,7 +16,7 @@ CGBM::CGBM()
     fInitialized = false;
     cTotalInBag = 0;
     cTrain = 0;
-	cFeatures = 0;
+    cFeatures = 0;
     cValid = 0;
 
     pData = NULL;
