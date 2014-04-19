@@ -12,8 +12,8 @@ Huberized hinge loss.}
 \details{
 \tabular{ll}{
 Package: \tab gbm\cr
-Version: \tab 2.1-0.5\cr
-Date: \tab 2014-02-26\cr
+Version: \tab 2.1-0.6\cr
+Date: \tab 2014-04-19\cr
 Depends: \tab R (>= 2.9.0), survival, lattice, mgcv\cr
 License: \tab GPL (version 2 or newer)\cr
 URL: \tab https://github.com/harrysouthworth/gbm/\cr
