@@ -15,9 +15,9 @@
 \arguments{
   \item{object}{ Object of class inheriting from (\code{\link{gbm.object}}) }
   \item{newdata}{ Data frame of observations for which to make predictions }
-  \item{n.trees}{ Number of trees used in the prediction. \code{n.trees} may
-                  be a vector in which case predictions are returned for each
-                  iteration specified}
+  \item{n.trees}{ Number of trees used in the prediction. If \code{n.trees}
+                  is a vector, predictions are returned for each
+                  iteration specified.}
   \item{type}{ The scale on which gbm makes the predictions }
   \item{single.tree}{If \code{single.tree=TRUE} then \code{predict.gbm} returns
                      only the predictions from tree(s) \code{n.trees}}
@@ -28,7 +28,7 @@
 
 The predictions from \code{gbm} do not include the offset term. The user may add the value of the offset to the predicted value if desired.
 
-If \code{object} was fit using \code{\link{gbm.fit}} there will be no
+If \code{object} was fit using \code{\link{gbm.fit}}, there will be no
 \code{Terms} component. Therefore, the user has greater responsibility to make
 sure that \code{newdata} is of the same format (order and number of variables)
 as the one originally used to fit the model.
