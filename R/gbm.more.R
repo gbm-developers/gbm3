@@ -200,7 +200,7 @@ gbm.more <- function(object,
                     shrinkage = as.double(object$shrinkage),
                     bag.fraction = as.double(object$bag.fraction),
                     train.fraction = as.integer(nTrain), #Should this be as.double(train.fraction)
-                    mFeatures = as.integer(mFeatures),
+                    mFeatures = as.integer(object$mFeatures),
                     fit.old = as.double(object$fit),
                     n.cat.splits.old = as.integer(length(object$c.splits)),
                     n.trees.old = as.integer(object$n.trees),
