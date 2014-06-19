@@ -153,7 +153,7 @@ print(result.table,digits=2)
 # Therefore, the 'optimal' possible ranking is just by X2. Of course, the
 # pairwise models don't know this and don't completely achieve the same
 # accuracy, due to noise and data limitation.
-# 
+#
 # The Gaussian model uses mostly X1, due to the high variance of X2; on the
 # contrary, the pairwise models rely mainly on X2. The loss table shows that
 # both pairwise models are better in terms of the ranking metrics, but worse in

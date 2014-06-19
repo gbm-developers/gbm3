@@ -169,7 +169,7 @@ gbm.more <- function(object,
          i.timeorder <- object$data$i.timeorder
          object$fit  <- object$fit[i.timeorder]
       }
-      if (object$distribution$name == "pairwise") 
+      if (object$distribution$name == "pairwise")
       {
          object$fit   <- object$fit[object$ord.group] # object$fit is stored in the original order
       }
@@ -251,7 +251,7 @@ gbm.more <- function(object,
       gbm.obj$fit <- gbm.obj$fit[order(object$ord.group)]
       object$fit  <- object$fit[order(object$ord.group)]
       gbm.obj$ord.group <- object$ord.group
-   }  
+   }
 
    if(!is.null(object$data))
    {

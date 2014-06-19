@@ -78,7 +78,7 @@ GBMRESULT CDataset::SetData
     this->adWeight = adWeight;
     this->acVarClasses = acVarClasses;
     this->alMonotoneVar = alMonotoneVar;
-    
+
     if((adOffset != NULL) && !ISNA(*adOffset))
     {
         this->adOffset = adOffset;

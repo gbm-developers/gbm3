@@ -6,7 +6,7 @@
 //  License:    GNU GPL (version 2 or later)
 //
 //  Contents:   distribution object
-//        	
+//
 //  Owner:      gregr@rand.org
 //
 //  History:    3/26/2001   gregr created
@@ -44,7 +44,7 @@ public:
 // * cIdxOff  - Offset used for multi-class training (CMultinomial).
 
 // Initialize() is called once, before training starts.
-// It gives derived classes a chance for custom preparations, e.g., to allocate 
+// It gives derived classes a chance for custom preparations, e.g., to allocate
 // memory or to pre-compute values that do not change between iterations.
 
     virtual GBMRESULT Initialize(double *adY,
@@ -63,7 +63,7 @@ public:
 
 // ComputeWorkingResonse() calculates the negative gradients of the
 // loss function, and stores them in adZ.
-    
+
     virtual GBMRESULT ComputeWorkingResponse(double *adY,
                                              double *adMisc,
                                              double *adOffset,
@@ -74,7 +74,7 @@ public:
                                              unsigned long cLength,
 	                                     int cIdxOff) = 0;
 
-// InitF() computes the best constant prediction for all instances, and 
+// InitF() computes the best constant prediction for all instances, and
 // stores it in dInitF.
 
     virtual GBMRESULT InitF(double *adY,
@@ -84,7 +84,7 @@ public:
                             double &dInitF,
                             unsigned long cLength) = 0;
 
-// Deviance() returns the value of the loss function, based on the 
+// Deviance() returns the value of the loss function, based on the
 // current predictions (adF).
 
     virtual double Deviance(double *adY,
@@ -95,13 +95,13 @@ public:
                             unsigned long cLength,
 	                    int cIdxOff) = 0;
 
-// FitBestConstant() calculates and sets prediction values for all terminal nodes 
+// FitBestConstant() calculates and sets prediction values for all terminal nodes
 // of the tree being currently constructed.
-// Assumptions: 
+// Assumptions:
 // * cTermNodes is the number of terminal nodes of the tree.
-// * vecpTermNodes is a vector of (pointers to) the terminal nodes of the tree, of 
+// * vecpTermNodes is a vector of (pointers to) the terminal nodes of the tree, of
 //   size cTermNodes.
-// * aiNodeAssign is a vector of size cLength, that maps each instance to an index 
+// * aiNodeAssign is a vector of size cLength, that maps each instance to an index
 //   into vecpTermNodes for the corresponding terminal node.
 
     virtual GBMRESULT FitBestConstant(double *adY,
@@ -119,9 +119,9 @@ public:
                                     double *adFadj,
 	                            int cIdxOff) = 0;
 
-// BagImprovement() returns the incremental difference in the loss 
-// function induced by scoring with (adF + dStepSize * adFAdj) instead of adF, for 
-// all instances that were not part of the training set for the current tree (i.e., 
+// BagImprovement() returns the incremental difference in the loss
+// function induced by scoring with (adF + dStepSize * adFAdj) instead of adF, for
+// all instances that were not part of the training set for the current tree (i.e.,
 // afInBag set to false).
 
     virtual double BagImprovement(double *adY,

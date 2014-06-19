@@ -659,7 +659,7 @@ GBMRESULT CPairwise::ComputeWorkingResponse
 //   = \Sum_{(i,j) in P} |Delta Z_ij| C(s_i - s_j)
 //   = \Sum_{(i,j) in P} |Delta Z_ij| / (1 + exp(-(s_i - s_j))),
 // where |Delta Z_ij| is the cost of swapping (only) i and j in the current ranking,
-// and s_i, s_j are the prediction scores (sum of the tree predictions) for items 
+// and s_i, s_j are the prediction scores (sum of the tree predictions) for items
 // i and j.
 //
 // For (i,j) in P, define

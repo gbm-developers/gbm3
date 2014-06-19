@@ -6,7 +6,7 @@
 //  License:    GNU GPL (version 2 or later)
 //
 //  Contents:   a node in the tree
-//        	  
+//
 //  Owner:      gregr@rand.org
 //
 //  History:    3/26/2001   gregr created
@@ -48,8 +48,8 @@ public:
                                         int cCatSplitsOld,
                                         double dShrinkage) = 0;
 
-    GBMRESULT Predict(CDataset *pData, 
-                    unsigned long iRow, 
+    GBMRESULT Predict(CDataset *pData,
+                    unsigned long iRow,
                     double &dFadj);
     GBMRESULT Predict(double *adX,
                     unsigned long cRow,

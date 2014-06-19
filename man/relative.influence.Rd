@@ -13,7 +13,7 @@ gbm.loss(y,f,w,offset,dist,baseline, group, max.rank)
 }
 \arguments{
 \item{object}{a \code{gbm} object created from an initial call to \code{\link{gbm}}.}
-\item{n.trees}{ the number of trees to use for computations. If not provided, the
+\item{n.trees}{ the number of trees to use for computations. If not provided,
     the function will guess: if a test set was used in fitting, the number of
     trees resulting in lowest test set error will be used; otherwise, if
     cross-validation was performed, the number of trees resulting in lowest

@@ -16,8 +16,8 @@ GBMRESULT CPoisson::ComputeWorkingResponse
     double *adY,
     double *adMisc,
     double *adOffset,
-    double *adF, 
-    double *adZ, 
+    double *adF,
+    double *adZ,
     double *adWeight,
     bool *afInBag,
     unsigned long nTrain,
@@ -45,7 +45,7 @@ GBMRESULT CPoisson::InitF
     double *adMisc,
     double *adOffset,
     double *adWeight,
-    double &dInitF, 
+    double &dInitF,
     unsigned long cLength
 )
 {
@@ -105,7 +105,7 @@ double CPoisson::Deviance
     {
         for(i=cIdxOff; i<cLength+cIdxOff; i++)
         {
-            dL += adWeight[i]*(adY[i]*(adOffset[i]+adF[i]) - 
+            dL += adWeight[i]*(adY[i]*(adOffset[i]+adF[i]) -
                                exp(adOffset[i]+adF[i]));
             dW += adWeight[i];
        }
@@ -141,7 +141,7 @@ GBMRESULT CPoisson::FitBestConstant
     vecdNum.assign(vecdNum.size(),0.0);
     vecdDen.resize(cTermNodes);
     vecdDen.assign(vecdDen.size(),0.0);
-    
+
     vecdMax.resize(cTermNodes);
     vecdMax.assign(vecdMax.size(),-HUGE_VAL);
     vecdMin.resize(cTermNodes);
@@ -156,9 +156,9 @@ GBMRESULT CPoisson::FitBestConstant
                 vecdNum[aiNodeAssign[iObs]] += adW[iObs]*adY[iObs];
                 vecdDen[aiNodeAssign[iObs]] += adW[iObs]*exp(adF[iObs]);
             }
-            vecdMax[aiNodeAssign[iObs]] = 
+            vecdMax[aiNodeAssign[iObs]] =
                fmax2(adF[iObs],vecdMax[aiNodeAssign[iObs]]);
-            vecdMin[aiNodeAssign[iObs]] =  
+            vecdMin[aiNodeAssign[iObs]] =
                fmin2(adF[iObs],vecdMin[aiNodeAssign[iObs]]);
         }
     }
@@ -169,10 +169,10 @@ GBMRESULT CPoisson::FitBestConstant
             if(afInBag[iObs])
             {
                 vecdNum[aiNodeAssign[iObs]] += adW[iObs]*adY[iObs];
-                vecdDen[aiNodeAssign[iObs]] += 
+                vecdDen[aiNodeAssign[iObs]] +=
                     adW[iObs]*exp(adOffset[iObs]+adF[iObs]);
             }
-        }        
+        }
     }
     for(iNode=0; iNode<cTermNodes; iNode++)
     {
@@ -189,16 +189,16 @@ GBMRESULT CPoisson::FitBestConstant
             else if(vecdDen[iNode] == 0.0)
             {
                 vecpTermNodes[iNode]->dPrediction = 0.0;
-            }            
+            }
             else
             {
-                vecpTermNodes[iNode]->dPrediction = 
+                vecpTermNodes[iNode]->dPrediction =
                     log(vecdNum[iNode]/vecdDen[iNode]);
             }
-            vecpTermNodes[iNode]->dPrediction = 
+            vecpTermNodes[iNode]->dPrediction =
                fmin2(vecpTermNodes[iNode]->dPrediction,
                      19-vecdMax[iNode]);
-            vecpTermNodes[iNode]->dPrediction = 
+            vecpTermNodes[iNode]->dPrediction =
                fmax2(vecpTermNodes[iNode]->dPrediction,
                      -19-vecdMin[iNode]);
         }

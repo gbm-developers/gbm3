@@ -85,14 +85,14 @@ GBMRESULT CNodeSearch::IncorporateObs
         // Evaluate the current split
         // the newest observation is still in the right child
         dCurrentSplitValue = 0.5*(dLastXValue + dX);
-        if((dLastXValue != dX) && 
-            (cCurrentLeftN >= cMinObsInNode) && 
+        if((dLastXValue != dX) &&
+            (cCurrentLeftN >= cMinObsInNode) &&
             (cCurrentRightN >= cMinObsInNode) &&
             ((lMonotone==0) ||
-            (lMonotone*(dCurrentRightSumZ*dCurrentLeftTotalW - 
+            (lMonotone*(dCurrentRightSumZ*dCurrentLeftTotalW -
                         dCurrentLeftSumZ*dCurrentRightTotalW) > 0)))
         {
-            dCurrentImprovement = 
+            dCurrentImprovement =
                 CNode::Improvement(dCurrentLeftTotalW,dCurrentRightTotalW,
                                     dCurrentMissingTotalW,
                                     dCurrentLeftSumZ,dCurrentRightSumZ,
@@ -301,12 +301,12 @@ GBMRESULT CNodeSearch::EvaluateCategoricalSplit()
         dCurrentRightTotalW -= adGroupW[aiCurrentCategory[i]];
         cCurrentRightN      -= acGroupN[aiCurrentCategory[i]];
 
-        dCurrentImprovement = 
+        dCurrentImprovement =
             CNode::Improvement(dCurrentLeftTotalW,dCurrentRightTotalW,
                                dCurrentMissingTotalW,
                                dCurrentLeftSumZ,dCurrentRightSumZ,
                                dCurrentMissingSumZ);
-        if((cCurrentLeftN >= cMinObsInNode) && 
+        if((cCurrentLeftN >= cMinObsInNode) &&
            (cCurrentRightN >= cMinObsInNode) &&
            (dCurrentImprovement > dBestImprovement))
         {

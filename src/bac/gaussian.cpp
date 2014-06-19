@@ -16,8 +16,8 @@ GBMRESULT CGaussian::ComputeWorkingResponse
     double *adY,
     double *adMisc,
     double *adOffset,
-    double *adF, 
-    double *adZ, 
+    double *adF,
+    double *adZ,
     double *adWeight,
     bool *afInBag,
     unsigned long nTrain,
@@ -60,9 +60,9 @@ GBMRESULT CGaussian::InitF
 (
     double *adY,
     double *adMisc,
-    double *adOffset, 
+    double *adOffset,
     double *adWeight,
-    double &dInitF, 
+    double &dInitF,
     unsigned long cLength
 )
 {
@@ -97,7 +97,7 @@ double CGaussian::Deviance
 (
     double *adY,
     double *adMisc,
-    double *adOffset, 
+    double *adOffset,
     double *adWeight,
     double *adF,
     unsigned long cLength,
@@ -148,7 +148,7 @@ GBMRESULT CGaussian::FitBestConstant
 	int cIdxOff
 )
 {
-    // the tree aready stores the mean prediction
+    // the tree already stores the mean prediction
     // no refitting necessary
 
     return GBM_OK;
@@ -177,7 +177,7 @@ double CGaussian::BagImprovement
         if(!afInBag[i])
         {
             dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
-            
+
             dReturnValue += adWeight[i]*dStepSize*adFadj[i]*
                             (2.0*(adY[i]-dF) - dStepSize*adFadj[i]);
             dW += adWeight[i];

@@ -75,7 +75,7 @@ GBMRESULT CGBM::Initialize
 
     // allocate the tree structure
     ptreeTemp = new CCARTTree;
-    
+
     cValid = pData->cRows - cTrain;
     cTotalInBag = (unsigned long)(dBagFraction*cTrain);
     adZ.assign((pData->cRows) * cNumClasses, 0);
@@ -91,12 +91,12 @@ GBMRESULT CGBM::Initialize
 
     // array for flagging those observations in the bag
     afInBag = new bool[cTrain];
-    
+
     // aiNodeAssign tracks to which node each training obs belongs
     aiNodeAssign.resize(cTrain);
     // NodeSearch objects help decide which nodes to split
     aNodeSearch = new CNodeSearch[2*cDepth+1];
-    
+
     for(i=0; i<2*cDepth+1; i++)
     {
         aNodeSearch[i].Initialize(cMinObsInNode);
@@ -223,7 +223,7 @@ GBMRESULT CGBM::iterate
                     afInBag[i] = false;
                 }
 /*                if (cBagged >= cTotalInBag){
-                    break; 		
+                    break;
                 } */
             }
 	    std::fill(afInBag + i, afInBag + cTrain, false);

@@ -1,12 +1,12 @@
 //------------------------------------------------------------------------------
 //  GBM by Greg Ridgeway  Copyright (C) 2003
-//  
+//
 //  File:       tree.h
 //
 //  License:    GNU GPL (version 2 or later)
 //
 //  Contents:   regression tree
-//        	  
+//
 //  Owner:      gregr@rand.org
 //
 //  History:    3/26/2001   gregr created
@@ -35,8 +35,8 @@ public:
     ~CCARTTree();
 
     GBMRESULT Initialize(CNodeFactory *pNodeFactory);
-    GBMRESULT grow(double *adZ, 
-                 CDataset *pData, 
+    GBMRESULT grow(double *adZ,
+                 CDataset *pData,
                  double *adAlgW,
                  double *adF,
                  unsigned long nTrain,
@@ -64,14 +64,14 @@ public:
                                 int cCatSplitsOld,
                                 double dShrinkage);
 
-    GBMRESULT PredictValid(CDataset *pData, 
-                         unsigned long nValid, 
+    GBMRESULT PredictValid(CDataset *pData,
+                         unsigned long nValid,
                          double *adFadj);
 
     GBMRESULT Predict(double *adX,
-                    unsigned long cRow, 
-                    unsigned long cCol, 
-                    unsigned long iRow, 
+                    unsigned long cRow,
+                    unsigned long cCol,
+                    unsigned long iRow,
                     double &dFadj);
     GBMRESULT Adjust(std::vector<unsigned long>& aiNodeAssign,
 		     double *adFadj,

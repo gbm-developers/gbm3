@@ -5,7 +5,7 @@
 //  License:    GNU GPL (version 2 or later)
 //
 //  Contents:   poisson object
-//        	  
+//
 //  Owner:      gregr@rand.org
 //
 //  History:    3/26/2001   gregr created
@@ -32,7 +32,7 @@ public:
 	                       double *adOffset,
 						   double *adWeight,
 	                       unsigned long cLength)
-	{ 
+	{
 		return GBM_OK;
 	};
 
@@ -54,11 +54,11 @@ public:
                     unsigned long cLength,
         	        int cIdxOff);
 
-    GBMRESULT InitF(double *adY, 
+    GBMRESULT InitF(double *adY,
                     double *adMisc,
                     double *adOffset,
                     double *adWeight,
-                    double &dInitF, 
+                    double &dInitF,
                     unsigned long cLength);
 
     GBMRESULT FitBestConstant(double *adY,

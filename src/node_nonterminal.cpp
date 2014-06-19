@@ -28,7 +28,7 @@ GBMRESULT CNodeNonterminal::Adjust
 
     hr = pLeftNode->Adjust(cMinObsInNode);
     hr = pRightNode->Adjust(cMinObsInNode);
-    
+
     if(pMissingNode->isTerminal && (pMissingNode->cN < cMinObsInNode))
     {
         dPrediction = ((pLeftNode->dTrainW)*(pLeftNode->dPrediction) +
@@ -39,7 +39,7 @@ GBMRESULT CNodeNonterminal::Adjust
     else
     {
         hr = pMissingNode->Adjust(cMinObsInNode);
-        dPrediction = 
+        dPrediction =
             ((pLeftNode->dTrainW)*   (pLeftNode->dPrediction) +
              (pRightNode->dTrainW)*  (pRightNode->dPrediction) +
              (pMissingNode->dTrainW)*(pMissingNode->dPrediction))/
@@ -53,8 +53,8 @@ GBMRESULT CNodeNonterminal::Adjust
 
 GBMRESULT CNodeNonterminal::Predict
 (
-    CDataset *pData, 
-    unsigned long iRow, 
+    CDataset *pData,
+    unsigned long iRow,
     double &dFadj
 )
 {

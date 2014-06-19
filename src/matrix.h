@@ -1,5 +1,5 @@
 // header file for matrix template class
-// NOTE:  all matrices handled here must be SQUARE 
+// NOTE:  all matrices handled here must be SQUARE
 //        (i.e., # rows = # columns)
 // in addition, all DIAGONAL ELEMENTS MUST BE NONZERO
 // written by Mike Dinolfo 12/98
@@ -60,22 +60,22 @@ public:
             {
                 getvalue(i,j,rv,xyz);
                 cout << rv << " ";
-            } 
+            }
             cout << endl;
         }
     };
 
-    void comparetoidentity()  
+    void comparetoidentity()
     {
         int worstdiagonal = 0;
         D maxunitydeviation = 0.0;
         D currentunitydeviation;
         int i = 0;
-        for ( i = 0; i < actualsize; i++ )  
+        for ( i = 0; i < actualsize; i++ )
         {
             currentunitydeviation = data[i*maxsize+i] - 1.;
             if ( currentunitydeviation < 0.0) currentunitydeviation *= -1.;
-            if ( currentunitydeviation > maxunitydeviation )  
+            if ( currentunitydeviation > maxunitydeviation )
             {
                 maxunitydeviation = currentunitydeviation;
                 worstdiagonal = i;
@@ -85,14 +85,14 @@ public:
         int worstoffdiagonalcolumn = 0;
         D maxzerodeviation = 0.0;
         D currentzerodeviation ;
-        for ( i = 0; i < actualsize; i++ )  
+        for ( i = 0; i < actualsize; i++ )
         {
-            for ( int j = 0; j < actualsize; j++ )  
+            for ( int j = 0; j < actualsize; j++ )
             {
                 if ( i == j ) continue;  // we look only at non-diagonal terms
                 currentzerodeviation = data[i*maxsize+j];
                 if ( currentzerodeviation < 0.0) currentzerodeviation *= -1.0;
-                if ( currentzerodeviation > maxzerodeviation )  
+                if ( currentzerodeviation > maxzerodeviation )
                 {
                     maxzerodeviation = currentzerodeviation;
                     worstoffdiagonalrow = i;
@@ -100,29 +100,29 @@ public:
                 }
             }
         }
-        cout << "Worst diagonal value deviation from unity: " 
+        cout << "Worst diagonal value deviation from unity: "
              << maxunitydeviation << " at row/column " << worstdiagonal << endl;
-        cout << "Worst off-diagonal value deviation from zero: " 
-             << maxzerodeviation << " at row = " << worstoffdiagonalrow 
+        cout << "Worst off-diagonal value deviation from zero: "
+             << maxzerodeviation << " at row = " << worstoffdiagonalrow
              << ", column = " << worstoffdiagonalcolumn << endl;
     }
 
-    void settoproduct(matrix& left, matrix& right)  
+    void settoproduct(matrix& left, matrix& right)
     {
         actualsize = left.getactualsize();
-        if ( maxsize < left.getactualsize() )   
+        if ( maxsize < left.getactualsize() )
         {
             maxsize = left.getactualsize();
             allocateD();
         }
         for ( int i = 0; i < actualsize; i++ )
         {
-            for ( int j = 0; j < actualsize; j++ )  
+            for ( int j = 0; j < actualsize; j++ )
             {
                 D sum = 0.0;
                 D leftvalue, rightvalue;
                 bool success;
-                for (int c = 0; c < actualsize; c++)  
+                for (int c = 0; c < actualsize; c++)
                 {
                     left.getvalue(i,c,leftvalue,success);
                     right.getvalue(c,j,rightvalue,success);
@@ -133,17 +133,17 @@ public:
         }
     }
 
-    void copymatrix(matrix&  source)  
+    void copymatrix(matrix&  source)
     {
         actualsize = source.getactualsize();
-        if ( maxsize < source.getactualsize() )  
+        if ( maxsize < source.getactualsize() )
         {
             maxsize = source.getactualsize();
             allocateD();
         }
         for ( int i = 0; i < actualsize; i++ )
         {
-            for ( int j = 0; j < actualsize; j++ )  
+            for ( int j = 0; j < actualsize; j++ )
             {
                 D value;
                 bool success;
@@ -153,7 +153,7 @@ public:
         }
     };
 
-    void setactualsize(int newactualsize) 
+    void setactualsize(int newactualsize)
     {
         if ( newactualsize > maxsize )
         {
@@ -170,15 +170,15 @@ public:
     void getvalue(int row, int column, D& returnvalue, bool& success)
     {
         if ( (row>=maxsize) || (column>=maxsize) || (row<0) || (column<0) )
-        {  
+        {
             success = false;
-            return;    
+            return;
         }
         returnvalue = data[ row * maxsize + column ];
         success = true;
     };
 
-    bool setvalue(int row, int column, D newvalue)  
+    bool setvalue(int row, int column, D newvalue)
     {
         if ( (row >= maxsize) || (column >= maxsize) || (row<0) || (column<0) )
             return false;
@@ -186,7 +186,7 @@ public:
         return true;
     };
 
-    void invert()  
+    void invert()
     {
         int i = 0;
         int j = 0;
@@ -198,17 +198,17 @@ public:
             return;
         }
         for (i=1; i < actualsize; i++) data[i] /= data[0]; // normalize row 0
-        for (i=1; i < actualsize; i++)  
-        { 
-            for ( j=i; j < actualsize; j++)  
+        for (i=1; i < actualsize; i++)
+        {
+            for ( j=i; j < actualsize; j++)
             { // do a column of L
                 D sum = 0.0;
-                for ( k = 0; k < i; k++)  
+                for ( k = 0; k < i; k++)
                     sum += data[j*maxsize+k] * data[k*maxsize+i];
                 data[j*maxsize+i] -= sum;
             }
             if (i == actualsize-1) continue;
-            for ( j=i+1; j < actualsize; j++)  
+            for ( j=i+1; j < actualsize; j++)
             {  // do a row of U
                 D sum = 0.0;
                 for ( k = 0; k < i; k++)
@@ -218,13 +218,13 @@ public:
         }
         for ( i = 0; i < actualsize; i++ )  // invert L
         {
-            for ( j = i; j < actualsize; j++ )  
+            for ( j = i; j < actualsize; j++ )
             {
                 D x = 1.0;
-                if ( i != j ) 
+                if ( i != j )
                 {
                     x = 0.0;
-                    for ( k = i; k < j; k++ ) 
+                    for ( k = i; k < j; k++ )
                         x -= data[j*maxsize+k]*data[k*maxsize+i];
                 }
                 data[j*maxsize+i] = x / data[j*maxsize+j];
@@ -232,7 +232,7 @@ public:
         }
         for ( i = 0; i < actualsize; i++ )   // invert U
         {
-            for (  j = i; j < actualsize; j++ )  
+            for (  j = i; j < actualsize; j++ )
             {
                 if ( i == j ) continue;
                 D sum = 0.0;
@@ -243,10 +243,10 @@ public:
         }
         for ( i = 0; i < actualsize; i++ )   // final inversion
         {
-            for ( j = 0; j < actualsize; j++ )  
+            for ( j = 0; j < actualsize; j++ )
             {
                 D sum = 0.0;
-                for ( k = ((i>j)?i:j); k < actualsize; k++ )  
+                for ( k = ((i>j)?i:j); k < actualsize; k++ )
                     sum += ((j==k)?1.0:data[j*maxsize+k])*data[k*maxsize+i];
                 data[j*maxsize+i] = sum;
             }

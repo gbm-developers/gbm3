@@ -14,8 +14,8 @@ GBMRESULT CQuantile::ComputeWorkingResponse
     double *adY,
     double *adMisc,
     double *adOffset,
-    double *adF, 
-    double *adZ, 
+    double *adF,
+    double *adZ,
     double *adWeight,
     bool *afInBag,
     unsigned long nTrain,
@@ -23,7 +23,7 @@ GBMRESULT CQuantile::ComputeWorkingResponse
 )
 {
     unsigned long i = 0;
-    
+
     if(adOffset == NULL)
     {
         for(i=0; i<nTrain; i++)
@@ -51,13 +51,13 @@ GBMRESULT CQuantile::InitF
     double *adMisc,
     double *adOffset,
     double *adWeight,
-    double &dInitF, 
+    double &dInitF,
     unsigned long cLength
 )
 {
     double dOffset=0.0;
     unsigned long i=0;
-    
+
     vecd.resize(cLength);
     for(i=0; i<cLength; i++)
     {
@@ -73,7 +73,7 @@ GBMRESULT CQuantile::InitF
         nth_element(vecd.begin(), vecd.begin() + int(cLength*dAlpha), vecd.end());
         dInitF = *(vecd.begin() + int(cLength*dAlpha));
     }
-    
+
     return GBM_OK;
 }
 
@@ -82,7 +82,7 @@ double CQuantile::Deviance
 (
     double *adY,
     double *adMisc,
-    double *adOffset, 
+    double *adOffset,
     double *adWeight,
     double *adF,
     unsigned long cLength,
@@ -92,7 +92,7 @@ double CQuantile::Deviance
     unsigned long i=0;
     double dL = 0.0;
     double dW = 0.0;
-    
+
     if(adOffset == NULL)
     {
         for(i=cIdxOff; i<cLength+cIdxOff; i++)
@@ -153,7 +153,7 @@ GBMRESULT CQuantile::FitBestConstant
     unsigned long iObs = 0;
     unsigned long iVecd = 0;
     double dOffset;
-    
+
     vecd.resize(nTrain); // should already be this size from InitF
     for(iNode=0; iNode<cTermNodes; iNode++)
     {
@@ -173,14 +173,14 @@ GBMRESULT CQuantile::FitBestConstant
 
             if(dAlpha==1.0)
             {
-                vecpTermNodes[iNode]->dPrediction = 
+                vecpTermNodes[iNode]->dPrediction =
                     *max_element(vecd.begin(), vecd.begin()+iVecd);
             } else
             {
-                nth_element(vecd.begin(), 
-                            vecd.begin() + int(iVecd*dAlpha), 
+                nth_element(vecd.begin(),
+                            vecd.begin() + int(iVecd*dAlpha),
                             vecd.begin() + int(iVecd));
-                vecpTermNodes[iNode]->dPrediction = 
+                vecpTermNodes[iNode]->dPrediction =
                     *(vecd.begin() + int(iVecd*dAlpha));
             }
          }
@@ -223,7 +223,7 @@ double CQuantile::BagImprovement
             {
                 dReturnValue += adWeight[i]*(1-dAlpha)*(dF-adY[i]);
             }
-            
+
             if(adY[i] > dF+dStepSize*adFadj[i])
             {
                 dReturnValue -= adWeight[i]*dAlpha*

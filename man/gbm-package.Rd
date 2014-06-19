@@ -12,11 +12,11 @@ Huberized hinge loss.}
 \details{
 \tabular{ll}{
 Package: \tab gbm\cr
-Version: \tab 2.1-0.5\cr
-Date: \tab 2014-02-26\cr
+Version: \tab 2.1-0.6\cr
+Date: \tab 2014-04-19\cr
 Depends: \tab R (>= 2.9.0), survival, lattice, mgcv\cr
 License: \tab GPL (version 2 or newer)\cr
-URL: \tab http://code.google.com/p/gradientboostedmodels/\cr
+URL: \tab https://github.com/harrysouthworth/gbm/\cr
 }
 Index:
 \preformatted{basehaz.gbm             Baseline hazard function
@@ -30,7 +30,7 @@ pretty.gbm.tree         Print gbm tree components
 quantile.rug            Quantile rug plot
 relative.influence      Methods for estimating relative influence
 shrink.gbm              L1 shrinkage of the predictor variables in a GBM
-shrink.gbm.pred         Predictions from a shrunked GBM
+shrink.gbm.pred         Predictions from a shrunken GBM
 summary.gbm             Summary of a gbm object
 }
 

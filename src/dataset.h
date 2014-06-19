@@ -5,8 +5,8 @@
 //
 //  License:    GNU GPL (version 2 or later)
 //
-//  Contents:   Dataset class 
-//        	  
+//  Contents:   Dataset class
+//
 //  Owner:      gregr@rand.org
 //
 //  History:    3/26/2001   gregr created
@@ -19,7 +19,7 @@
 
 #include "buildinfo.h"
 
-class CDataset  
+class CDataset
 {
 public:
 	CDataset();
