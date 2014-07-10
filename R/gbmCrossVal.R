@@ -6,7 +6,7 @@ gbmCrossVal <- function(cv.folds, nTrain, n.cores,
                         class.stratify.cv, data,
                         x, y, offset, distribution, w, var.monotone,
                         n.trees, interaction.depth, n.minobsinnode,
-                        shrinkage, bag.fraction,
+                        shrinkage, bag.fraction, mFeatures,
                         var.names, response.name, group) {
   i.train <- 1:nTrain
   cv.group <- getCVgroup(distribution, class.stratify.cv, y,
@@ -17,11 +17,12 @@ gbmCrossVal <- function(cv.folds, nTrain, n.cores,
                                      distribution, w, var.monotone,
                                      n.trees, interaction.depth,
                                      n.minobsinnode, shrinkage,
-                                     bag.fraction, var.names,
+                                     bag.fraction, mFeatures, var.names,
                                      response.name, group)
   ## get the errors
   cv.error  <- gbmCrossValErr(cv.models, cv.folds, cv.group, nTrain, n.trees)
   best.iter.cv <- which.min(cv.error)
+
   ## get the predictions
   predictions <- gbmCrossValPredictions(cv.models, cv.folds, cv.group,
                                         best.iter.cv, distribution,
@@ -88,7 +89,7 @@ gbmCrossValModelBuild <- function(cv.folds, cv.group, n.cores, i.train,
                                   x, y, offset, distribution,
                                   w, var.monotone, n.trees,
                                   interaction.depth, n.minobsinnode,
-                                  shrinkage, bag.fraction,
+                                  shrinkage, bag.fraction, mFeatures,
                                   var.names, response.name,
                                   group) {
   ## set up the cluster and add a finalizer
@@ -104,7 +105,7 @@ gbmCrossValModelBuild <- function(cv.folds, cv.group, n.cores, i.train,
             gbmDoFold, i.train, x, y, offset, distribution,
             w, var.monotone, n.trees,
             interaction.depth, n.minobsinnode, shrinkage,
-            bag.fraction,
+            bag.fraction, mFeatures,
             cv.group, var.names, response.name, group, seeds)
   }
   else {
@@ -112,7 +113,7 @@ gbmCrossValModelBuild <- function(cv.folds, cv.group, n.cores, i.train,
             gbmDoFold, i.train, x, y, offset, distribution,
             w, var.monotone, n.trees,
             interaction.depth, n.minobsinnode, shrinkage,
-            bag.fraction,
+            bag.fraction, mFeatures,
             cv.group, var.names, response.name, group, seeds)
   }
 }

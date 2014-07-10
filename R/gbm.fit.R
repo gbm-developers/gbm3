@@ -11,6 +11,7 @@ gbm.fit <- function(x,y,
                     bag.fraction = 0.5,
                     nTrain = NULL,
                     train.fraction = NULL,
+                    mFeatures = NULL,
                     keep.data = TRUE,
                     verbose = TRUE,
                     var.names = NULL,
@@ -43,6 +44,10 @@ gbm.fit <- function(x,y,
 
    if (is.null(train.fraction)){
       train.fraction <- nTrain / cRows
+   }
+   
+   if (is.null(mFeatures)) {
+     mFeatures <- cCols
    }
 
    if(is.null(var.names)) {
@@ -322,6 +327,7 @@ gbm.fit <- function(x,y,
                     shrinkage=as.double(shrinkage),
                     bag.fraction=as.double(bag.fraction),
                     nTrain=as.integer(nTrain),
+                    mFeatures=as.integer(mFeatures),
                     fit.old=as.double(NA),
                     n.cat.splits.old=as.integer(0),
                     n.trees.old=as.integer(0),
@@ -338,6 +344,7 @@ gbm.fit <- function(x,y,
    gbm.obj$num.classes <- nClass
    gbm.obj$n.trees <- length(gbm.obj$trees) / nClass
    gbm.obj$nTrain <- nTrain
+   gbm.obj$mFeatures <- mFeatures
    gbm.obj$train.fraction <- train.fraction
    gbm.obj$response.name <- response.name
    gbm.obj$shrinkage <- shrinkage

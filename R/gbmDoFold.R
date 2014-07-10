@@ -3,7 +3,7 @@ gbmDoFold <-
     # passing to individual cores.
 function(X,
          i.train, x, y, offset, distribution, w, var.monotone, n.trees,
-         interaction.depth, n.minobsinnode, shrinkage, bag.fraction,
+         interaction.depth, n.minobsinnode, shrinkage, bag.fraction, mFeatures,
          cv.group, var.names, response.name, group, s){
     library(gbm, quietly=TRUE)
     cat("CV:", X, "\n")
@@ -24,7 +24,7 @@ function(X,
                    n.minobsinnode=n.minobsinnode,
                    shrinkage=shrinkage,
                    bag.fraction=bag.fraction,
-                   nTrain=nTrain, keep.data=FALSE,
+                   nTrain=nTrain, mFeatures=mFeatures, keep.data=FALSE,
                    verbose=FALSE, response.name=response.name,
                    group=group)
     res

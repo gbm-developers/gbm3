@@ -24,6 +24,7 @@
 #include "dataset.h"
 #include "node_factory.h"
 #include "node_search.h"
+#include <ctime>
 
 
 class CCARTTree
@@ -39,12 +40,13 @@ public:
                  double *adAlgW,
                  double *adF,
                  unsigned long nTrain,
+                 unsigned long nFeatures,
                  unsigned long nBagged,
                  double dLambda,
                  unsigned long cMaxDepth,
                  unsigned long cMinObsInNode,
-		   bool *afInBag,
-		   std::vector<unsigned long>& aiNodeAssign,
+				 bool *afInBag,
+		         std::vector<unsigned long>& aiNodeAssign,
                  CNodeSearch *aNodeSearch,
                  VEC_P_NODETERMINAL &vecpTermNodes);
     GBMRESULT Reset();
@@ -93,6 +95,7 @@ public:
 private:
     GBMRESULT GetBestSplit(CDataset *pData,
                          unsigned long nTrain,
+                         unsigned long nFeatures,
                          CNodeSearch *aNodeSearch,
                          unsigned long cTerminalNodes,
 			   std::vector<unsigned long>& aiNodeAssign,

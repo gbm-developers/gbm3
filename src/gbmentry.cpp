@@ -27,6 +27,7 @@ SEXP gbm
     SEXP rdShrinkage,
     SEXP rdBagFraction,
     SEXP rcTrain,
+    SEXP rcFeatures,
     SEXP radFOld,
     SEXP rcCatSplitsOld,
     SEXP rcTreesOld,
@@ -70,6 +71,7 @@ SEXP gbm
     // riRightNode, riMissingNode, rdErrorReduction, rdWeight, rdPred
     int cNodes = 0;
     int cTrain = INTEGER(rcTrain)[0];
+    int cFeatures = INTEGER(rcFeatures)[0];
     int cNumClasses = INTEGER(rcNumClasses)[0];
 
     double dTrainError = 0.0;
@@ -106,6 +108,7 @@ SEXP gbm
                    REAL(rdShrinkage)[0],
                    REAL(rdBagFraction)[0],
                    INTEGER(rcTrain)[0],
+                   INTEGER(rcFeatures)[0],
                    pData,
                    pDist,
                    cGroups);
@@ -123,6 +126,7 @@ SEXP gbm
                           pDist,
                           REAL(rdShrinkage)[0],
                           cTrain,
+                          cFeatures,
                           REAL(rdBagFraction)[0],
                           INTEGER(rcDepth)[0],
                           INTEGER(rcMinObsInNode)[0],
