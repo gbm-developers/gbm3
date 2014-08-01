@@ -14,15 +14,15 @@
 // Change P value here
 double pTweedie = 1.5;
 
-Ctweedie::Ctweedie()
+CTweedie::CTweedie()
 {
 }
 
-Ctweedie::~Ctweedie()
+CTweedie::~CTweedie()
 {
 }
 
-GBMRESULT Ctweedie::ComputeWorkingResponse
+GBMRESULT CTweedie::ComputeWorkingResponse
 (
     double *adY,
     double *adMisc,
@@ -61,7 +61,7 @@ Error:
 
 
 
-GBMRESULT Ctweedie::InitF
+GBMRESULT CTweedie::InitF
 (
     double *adY,
     double *adMisc,
@@ -106,7 +106,7 @@ GBMRESULT Ctweedie::InitF
 }
 
 
-double Ctweedie::Deviance
+double CTweedie::Deviance
 (
     double *adY,
     double *adMisc,
@@ -136,7 +136,7 @@ double Ctweedie::Deviance
 }
 
 
-GBMRESULT Ctweedie::FitBestConstant
+GBMRESULT CTweedie::FitBestConstant
 (
     double *adY,
     double *adMisc,
@@ -218,7 +218,7 @@ GBMRESULT Ctweedie::FitBestConstant
 	return hr;
 }
 
-double Ctweedie::BagImprovement
+double CTweedie::BagImprovement
 (
 	double *adY,
 	double *adMisc,

@@ -5,16 +5,16 @@
 #include <math.h>
 #include <iostream>
 
-Cgamma::Cgamma()
+CGamma::CGamma()
 {
 }
 
-Cgamma::~Cgamma()
+CGamma::~CGamma()
 {
 }
 
 
-GBMRESULT Cgamma::ComputeWorkingResponse
+GBMRESULT CGamma::ComputeWorkingResponse
 (
     double *adY,
     double *adMisc,
@@ -51,7 +51,7 @@ Error:
 
 
 
-GBMRESULT Cgamma::InitF
+GBMRESULT CGamma::InitF
 (
     double *adY,
     double *adMisc,
@@ -94,7 +94,7 @@ GBMRESULT Cgamma::InitF
 }
 
 
-double Cgamma::Deviance
+double CGamma::Deviance
 (
     double *adY,
     double *adMisc,
@@ -121,7 +121,7 @@ double Cgamma::Deviance
 }
 
 
-GBMRESULT Cgamma::FitBestConstant
+GBMRESULT CGamma::FitBestConstant
 (
     double *adY,
     double *adMisc,
@@ -201,7 +201,7 @@ GBMRESULT Cgamma::FitBestConstant
     return hr;
 }
 
-double Cgamma::BagImprovement
+double CGamma::BagImprovement
 (
 	double *adY,
 	double *adMisc,

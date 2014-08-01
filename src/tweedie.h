@@ -4,14 +4,14 @@
 #include <Rmath.h>
 #include "distribution.h"
 
-class Ctweedie : public CDistribution
+class CTweedie : public CDistribution
 {
 
 public:
 
-    Ctweedie();
+    CTweedie();
 
-    virtual ~Ctweedie();
+    virtual ~CTweedie();
 
 	GBMRESULT UpdateParams(double *adF,
 	                       double *adOffset,

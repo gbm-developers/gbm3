@@ -4,14 +4,14 @@
 #include <Rmath.h>
 #include "distribution.h"
 
-class Cgamma : public CDistribution
+class CGamma : public CDistribution
 {
 
 public:
 
-    Cgamma();
+    CGamma();
 
-    virtual ~Cgamma();
+    virtual ~CGamma();
 
 	GBMRESULT UpdateParams(double *adF,
 	                       double *adOffset,
