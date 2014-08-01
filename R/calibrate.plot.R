@@ -60,6 +60,14 @@ calibrate.plot <- function(y,p,
       {
          se.lower[se.lower < 0] <- 0
       }
+      if(distribution=="gamma")
+      {
+         se.lower[se.lower < 0] <- 0
+      }
+      if(distribution=="tweedie")
+      {
+         se.lower[se.lower < 0] <- 0
+      }
       if(is.null(xlim)) xlim <- range(se.lower,se.upper,x)
       if(is.null(ylim)) ylim <- range(se.lower,se.upper,x)
    }

@@ -112,7 +112,7 @@ gbm.fit <- function(x,y,
    }
    supported.distributions <-
    c("bernoulli","gaussian","poisson","adaboost","laplace","coxph","quantile",
-     "tdist", "multinomial", "huberized", "pairwise")
+     "tdist", "multinomial", "huberized", "pairwise","gamma","tweedie")
 
    distribution.call.name <- distribution$name
 
@@ -132,6 +132,14 @@ gbm.fit <- function(x,y,
    if((distribution$name == "poisson") && any(y<0))
    {
       stop("Poisson requires the response to be positive")
+   }
+   if((distribution$name == "gamma") && any(y<0))
+   {
+      stop("Gamma requires the response to be positive")
+   }
+   if((distribution$name == "tweedie") && any(y<0))
+   {
+      stop("Tweedie requires the response to be positive")
    }
    if((distribution$name == "poisson") && any(y != trunc(y)))
    {

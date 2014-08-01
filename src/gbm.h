@@ -31,6 +31,8 @@
 #include "gbm_engine.h"
 #include "locationm.h"
 #include "huberized.h"
+#include "gamma.h"
+#include "tweedie.h"
 
 typedef vector<char> VEC_CATEGORIES;
 typedef vector<VEC_CATEGORIES> VEC_VEC_CATEGORIES;
