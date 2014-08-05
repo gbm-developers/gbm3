@@ -145,7 +145,6 @@ gbm.fit <- function(x,y,
       }
       if(is.null(distribution$power))
       {
-         stop("Tweedie not working properly")
          distribution$power = 1.5
       }
       Misc <- c(power=distribution$power)
