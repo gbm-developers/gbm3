@@ -29,7 +29,6 @@ GBMRESULT CTweedie::ComputeWorkingResponse
 	int cIdxOff
 )
 {
-	double p = dPower;
 
     GBMRESULT hr = GBM_OK;
     unsigned long i = 0;
@@ -44,7 +43,7 @@ GBMRESULT CTweedie::ComputeWorkingResponse
 	for(i=0; i<nTrain; i++)
     {
 		dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
-		adZ[i] = adY[i]*exp(dF*(1.0-p)) - exp(dF*(2.0-p));
+		adZ[i] = adY[i]*exp(dF*(1.0-dPower)) - exp(dF*(2.0-dPower));
     }
 
 Cleanup:
@@ -64,9 +63,7 @@ GBMRESULT CTweedie::InitF
     double &dInitF, 
     unsigned long cLength
 )
-{
-	double p = dPower;
-	
+{	
     double dSum=0.0;
     double dTotalWeight = 0.0;
 	double Min = -19.0;
@@ -85,8 +82,8 @@ GBMRESULT CTweedie::InitF
 	{
 		for(i=0; i<cLength; i++)
 		{
-			dSum += adWeight[i]*adY[i]*exp(adOffset[i]*(1.0-p));
-			dTotalWeight += adWeight[i]*exp(adOffset[i]*(2.0-p));
+			dSum += adWeight[i]*adY[i]*exp(adOffset[i]*(1.0-dPower));
+			dTotalWeight += adWeight[i]*exp(adOffset[i]*(2.0-dPower));
 		}
 	}
 
@@ -111,8 +108,6 @@ double CTweedie::Deviance
 	int cIdxOff
 )
 {
-	double p = dPower;
-	
 	double dF = 0.0;
 	unsigned long i=0;
 	double dL = 0.0;
@@ -121,8 +116,8 @@ double CTweedie::Deviance
 	for(i=cIdxOff; i<cLength+cIdxOff; i++)
 	{
 		dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
-		dL += adWeight[i]*(pow(adY[i],2.0-p)/((1.0-p)*(2.0-p)) -
-			adY[i]*exp(dF*(1.0-p))/(1.0-p) + exp(dF*(2.0-p))/(2.0-p) );
+		dL += adWeight[i]*(pow(adY[i],2.0-dPower)/((1.0-dPower)*(2.0-dPower)) -
+			adY[i]*exp(dF*(1.0-dPower))/(1.0-dPower) + exp(dF*(2.0-dPower))/(2.0-dPower) );
 		dW += adWeight[i];
 	}
 
@@ -148,8 +143,6 @@ GBMRESULT CTweedie::FitBestConstant
 	int cIdxOff
 )
 {
-	double p = dPower;
-	
     GBMRESULT hr = GBM_OK;
 
 	double dF = 0.0;
@@ -173,8 +166,8 @@ GBMRESULT CTweedie::FitBestConstant
 		if(afInBag[iObs])
 		{
 			dF = adF[iObs] + ((adOffset==NULL) ? 0.0 : adOffset[iObs]);
-			vecdNum[aiNodeAssign[iObs]] += adW[iObs]*adY[iObs]*exp(dF*(1.0-p));
-			vecdDen[aiNodeAssign[iObs]] += adW[iObs]*exp(dF*(2.0-p));
+			vecdNum[aiNodeAssign[iObs]] += adW[iObs]*adY[iObs]*exp(dF*(1.0-dPower));
+			vecdDen[aiNodeAssign[iObs]] += adW[iObs]*exp(dF*(2.0-dPower));
 
 			// Keep track of largest and smallest prediction in each node
 			vecdMax[aiNodeAssign[iObs]] = fmax2(dF,vecdMax[aiNodeAssign[iObs]]);
@@ -225,8 +218,6 @@ double CTweedie::BagImprovement
 	unsigned long nTrain
 )
 {
-	double p = dPower;
-
 	double dReturnValue = 0.0;
 	double dF = 0.0;
 	double dW = 0.0;
@@ -238,9 +229,9 @@ double CTweedie::BagImprovement
 		{
 			dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
 
-			dReturnValue += adWeight[i]*( exp(dF*(1.0-p))*adY[i]/(1.0-p)*
-				(exp(dStepSize*adFadj[i]*(1.0-p))-1.0) +
-				exp(dF*(2.0-p))/(2.0-p)*(1.0-exp(dStepSize*adFadj[i]*(2.0-p))) );
+			dReturnValue += adWeight[i]*( exp(dF*(1.0-dPower))*adY[i]/(1.0-dPower)*
+				(exp(dStepSize*adFadj[i]*(1.0-dPower))-1.0) +
+				exp(dF*(2.0-dPower))/(2.0-dPower)*(1.0-exp(dStepSize*adFadj[i]*(2.0-dPower))) );
 			dW += adWeight[i];
 		}
 	}
