@@ -137,7 +137,7 @@ gbm.fit <- function(x,y,
    {
       stop("Gamma requires the response to be positive")
    }
-   if((distribution$name == "tweedie")
+   if(distribution$name == "tweedie")
    {
       if(any(y<0))
       {
