@@ -75,7 +75,7 @@ unsigned long gbm_setup
     }
     else if(strcmp(pszFamily,"tweedie") == 0)
     {
-        pDist = new CTweedie();
+        pDist = new CTweedie(adMisc[0]);
     }
     else if(strncmp(pszFamily,"bernoulli",2) == 0)
     {

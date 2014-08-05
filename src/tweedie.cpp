@@ -11,9 +11,6 @@
 #include <deque>
 #include <fstream>
 
-// Change P value here
-double pTweedie = 1.5;
-
 CTweedie::CTweedie()
 {
 }
@@ -35,7 +32,7 @@ GBMRESULT CTweedie::ComputeWorkingResponse
 	int cIdxOff
 )
 {
-	double p = pTweedie;
+	double p = dPower;
 
     GBMRESULT hr = GBM_OK;
     unsigned long i = 0;
@@ -71,7 +68,7 @@ GBMRESULT CTweedie::InitF
     unsigned long cLength
 )
 {
-	double p = pTweedie;
+	double p = dPower;
 	
     double dSum=0.0;
     double dTotalWeight = 0.0;
@@ -117,7 +114,7 @@ double CTweedie::Deviance
 	int cIdxOff
 )
 {
-	double p = pTweedie;
+	double p = dPower;
 	
 	double dF = 0.0;
 	unsigned long i=0;
@@ -154,7 +151,7 @@ GBMRESULT CTweedie::FitBestConstant
 	int cIdxOff
 )
 {
-	double p = pTweedie;
+	double p = dPower;
 	
     GBMRESULT hr = GBM_OK;
 
@@ -231,7 +228,7 @@ double CTweedie::BagImprovement
 	unsigned long nTrain
 )
 {
-	double p = pTweedie;
+	double p = dPower;
 
 	double dReturnValue = 0.0;
 	double dF = 0.0;

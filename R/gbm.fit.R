@@ -137,9 +137,17 @@ gbm.fit <- function(x,y,
    {
       stop("Gamma requires the response to be positive")
    }
-   if((distribution$name == "tweedie") && any(y<0))
+   if((distribution$name == "tweedie")
    {
-      stop("Tweedie requires the response to be positive")
+      if(any(y<0))
+      {
+         stop("Tweedie requires the response to be positive")
+      }
+      if(is.null(distribution$power))
+      {
+         distribution$power = 1.5
+      }
+      Misc <- c(power=distribution$power)
    }
    if((distribution$name == "poisson") && any(y != trunc(y)))
    {

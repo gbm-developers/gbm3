@@ -9,7 +9,7 @@ class CTweedie : public CDistribution
 
 public:
 
-    CTweedie();
+    CTweedie(double dPower) : dPower(dPower) {};
 
     virtual ~CTweedie();
 
@@ -75,6 +75,7 @@ private:
     vector<double> vecdDen;
 	vector<double> vecdMax;
     vector<double> vecdMin;
+    double dPower;
 };
 
 #endif // TWEEDIE_H
