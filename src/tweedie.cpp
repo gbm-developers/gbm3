@@ -1,7 +1,7 @@
 // Tweedie distribution with natural log link function ( mean = exp(prediction) )
 // -19 <= prediction <= +19
 
-// Parameter P is hard coded at P = 1.5
+// Parameter dPower defaults to 1.5
 
 #include "tweedie.h"
 #include <math.h>
@@ -11,9 +11,6 @@
 #include <deque>
 #include <fstream>
 
-CTweedie::CTweedie()
-{
-}
 
 CTweedie::~CTweedie()
 {
