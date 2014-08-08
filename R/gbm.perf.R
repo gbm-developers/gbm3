@@ -62,7 +62,13 @@ gbm.perf <- function(object,
       par(mar=c(5,4,4,4)+.1)
       if (object$distribution$name !="pairwise")
       {
-         ylab <- switch(substring(object$distribution$name,1,2),
+         if(object$distribution$name == 'gamma'){
+            ylab <- 'Gamma deviance'
+         } else if(object$distribution$name == 'tweedie'){
+            ylab <- 'Tweedie deviance'
+         } else{
+
+            ylab <- switch(substring(object$distribution$name,1,2),
                         ga="Squared error loss",
                         be="Bernoulli deviance",
                         po="Poisson deviance",
@@ -73,6 +79,7 @@ gbm.perf <- function(object,
                         mu="Multinomial deviance",
                         td="t-distribution deviance"
                         )
+         }
       }
       else # object$distribution$name =="pairwise"
       {

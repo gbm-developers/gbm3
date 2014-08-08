@@ -104,6 +104,14 @@ predict.gbm <- function(object,newdata,n.trees,
       if(object$distribution$name=="poisson")
       {
          predF <- exp(predF)
+      } else
+      if(object$distribution$name=="gamma")
+      {
+         predF <- exp(predF)
+      } else
+      if(object$distribution$name=="tweedie")
+      {
+         predF <- exp(predF)
       }
       else if (object$distribution$name == "adaboost"){
          predF <- 1 / (1 + exp(-2*predF))

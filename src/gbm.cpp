@@ -69,7 +69,15 @@ unsigned long gbm_setup
     }
 
     // set the distribution
-    if(strncmp(pszFamily,"bernoulli",2) == 0)
+    if(strcmp(pszFamily,"gamma") == 0)
+    {
+        pDist = new CGamma();
+    }
+    else if(strcmp(pszFamily,"tweedie") == 0)
+    {
+        pDist = new CTweedie(adMisc[0]);
+    }
+    else if(strncmp(pszFamily,"bernoulli",2) == 0)
     {
         pDist = new CBernoulli();
     }

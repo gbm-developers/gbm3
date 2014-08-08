@@ -119,8 +119,14 @@ plot.gbm <- function(x,
    else if ((x$distribution$name=="poisson") && (type=="response")){
       X$y <- exp(y)
    }
+   else if ((x$distribution$name=="gamma") && (type=="response")){
+      X$y <- exp(y)
+   }
+   else if ((x$distribution$name=="tweedie") && (type=="response")){
+      X$y <- exp(y)
+   }
    else if (type=="response"){
-      warning("type 'response' only implemented for 'bernoulli', 'poisson', 'multinomial', and 'pairwise'. Ignoring" )
+      warning("type 'response' only implemented for 'bernoulli', 'poisson', 'gamma', 'tweedie', 'multinomial', and 'pairwise'. Ignoring" )
    }
    else { X$y <- y }
 
