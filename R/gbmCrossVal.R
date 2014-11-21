@@ -94,7 +94,7 @@ gbmCrossValModelBuild <- function(cv.folds, cv.group, n.cores, i.train,
                                   group) {
   ## set up the cluster and add a finalizer
   cluster <- gbmCluster(n.cores)
-  on.exit(if (!is.null(cluster)){ stopCluster(cluster) })
+  on.exit(if (!is.null(cluster)){ parallel::stopCluster(cluster) })
 
   ## get ourselves some random seeds
   seeds <- as.integer(runif(cv.folds, -(2^31 - 1), 2^31))
