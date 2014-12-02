@@ -5,5 +5,5 @@ gbmCluster <- function(n){
       n <- detectCores()
     }
     if (n == 1){ NULL }
-    else { makeCluster(n) }
+    else { parallel::makeCluster(n) }
 }
