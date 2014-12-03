@@ -6,7 +6,7 @@ Author: Greg Ridgeway <gregridgeway@gmail.com> with contributions from others
 Maintainer: Harry Southworth <harry.southworth@gmail.com>
 Depends: R (>= 2.9.0), survival, lattice, splines, parallel
 Suggests: RUnit
-Description: This package implements extensions
+Description: Extensions
   to Freund and Schapire's AdaBoost algorithm and Friedman's
   gradient boosting machine. Includes regression methods for least
   squares, absolute loss, t-distribution loss,
