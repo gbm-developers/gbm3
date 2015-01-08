@@ -4,6 +4,6 @@ guessDist <- function(y){
     else if (class(y) == "Surv" ){ d <- "coxph" }
     else if (is.factor(y)){ d <- "multinomial" }
     else{ d <- "gaussian" }
-    cat(paste("Distribution not specified, assuming", d, "...\n"))
+    message(paste("Distribution not specified, assuming", d, "...\n"))
     list(name=d)
 }
