@@ -6,17 +6,16 @@ predict.gbm <- function(object,newdata,n.trees,
    if ( missing( newdata ) ){
       newdata <- reconstructGBMdata(object)
    }
-   if ( missing(n.trees) ) {
+   if (missing(n.trees)){
       if ( object$train.fraction < 1 ){
          n.trees <- gbm.perf( object, method="test", plot.it = FALSE )
-      }
-      else if (!is.null(object$cv.error)){
+      } else if (!is.null(object$cv.error)){
          n.trees <- gbm.perf( object, method="cv", plot.it = FALSE )
+      } else{
+        best <- length(object$train.error)
       }
-      else{ best <- length( object$train.error ) }
-      cat( paste( "Using", n.trees, "trees...\n" ) )
-   }
-   else if (length(n.trees) == 0){
+      message(paste("Using", n.trees, "trees...\n"))
+   } else if (length(n.trees) == 0){
       stop("n.trees cannot be NULL or a vector of zero length")
    }
 

@@ -9,12 +9,12 @@ gbm.perf <- function(object,
    if ( missing( method ) ){
       if ( object$train.fraction < 1 ){
          method <- "test"
-      }
-      else if ( !is.null( object$cv.error ) ){
+      } else if ( !is.null( object$cv.error ) ){
          method <- "cv"
+      } else {
+        method <- "OOB"
       }
-      else { method <- "OOB" }
-      cat( paste( "Using", method, "method...\n" ) )
+      message(paste("Using", method, "method...\n"))
    }
 
    if((method == "OOB") || oobag.curve)
