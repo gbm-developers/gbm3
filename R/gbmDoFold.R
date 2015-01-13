@@ -6,7 +6,7 @@ function(X,
          interaction.depth, n.minobsinnode, shrinkage, bag.fraction, mFeatures,
          cv.group, var.names, response.name, group, s){
     library(gbm, quietly=TRUE)
-    messaage("CV:", X, "\n")
+    message("CV:", X, "\n")
 
     set.seed(s[[X]])
 
