@@ -138,17 +138,21 @@ gbm <- function(formula = formula(data),
     }
 
    cv.error <- NULL
+
+   # If CV is used, final model is calculated within the cluster
    if(cv.folds>1) {
      cv.results <- gbmCrossVal(cv.folds, nTrain, n.cores,
                                class.stratify.cv, data,
                                x, y, offset, distribution, w, var.monotone,
                                n.trees, interaction.depth, n.minobsinnode,
                                shrinkage, bag.fraction, mFeatures,
-                               var.names, response.name, group)
+                               var.names, response.name, group, lVerbose, keep.data)
      cv.error <- cv.results$error
-     p <- cv.results$predictions
-   } # Close if(cv.folds > 1
+     p        <- cv.results$predictions
+     gbm.obj  <- cv.results$all.model
+   } 
 
+   else {
    gbm.obj <- gbm.fit(x,y,
                       offset = offset,
                       distribution = distribution,
@@ -166,6 +170,7 @@ gbm <- function(formula = formula(data),
                       var.names = var.names,
                       response.name = response.name,
                       group = group)
+   }
 
    gbm.obj$train.fraction <- train.fraction
    gbm.obj$Terms <- Terms
