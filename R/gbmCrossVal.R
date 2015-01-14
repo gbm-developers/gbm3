@@ -7,7 +7,7 @@ gbmCrossVal <- function(cv.folds, nTrain, n.cores,
                         x, y, offset, distribution, w, var.monotone,
                         n.trees, interaction.depth, n.minobsinnode,
                         shrinkage, bag.fraction, mFeatures,
-                        var.names, response.name, group) {
+                        var.names, response.name, group, lVerbose, keep.data) {
   i.train <- 1:nTrain
   cv.group <- getCVgroup(distribution, class.stratify.cv, y,
                          i.train, cv.folds, group)
@@ -18,7 +18,11 @@ gbmCrossVal <- function(cv.folds, nTrain, n.cores,
                                      n.trees, interaction.depth,
                                      n.minobsinnode, shrinkage,
                                      bag.fraction, mFeatures, var.names,
-                                     response.name, group)
+                                     response.name, group, lVerbose, keep.data, nTrain)
+
+  # First element is final model
+  all.model <- cv.models[[1]]
+  cv.models <- cv.models[-1]
   ## get the errors
   cv.error  <- gbmCrossValErr(cv.models, cv.folds, cv.group, nTrain, n.trees)
   best.iter.cv <- which.min(cv.error)
@@ -28,7 +32,8 @@ gbmCrossVal <- function(cv.folds, nTrain, n.cores,
                                         best.iter.cv, distribution,
                                         data[i.train,,drop=FALSE], y)
   list(error=cv.error,
-       predictions=predictions)
+       predictions=predictions,
+       all.model=all.model)
 }
 
 ##' Get the gbm cross-validation error
@@ -91,7 +96,7 @@ gbmCrossValModelBuild <- function(cv.folds, cv.group, n.cores, i.train,
                                   interaction.depth, n.minobsinnode,
                                   shrinkage, bag.fraction, mFeatures,
                                   var.names, response.name,
-                                  group) {
+                                  group, lVerbose, keep.data, nTrain) {
   ## set up the cluster and add a finalizer
   cluster <- gbmCluster(n.cores)
   on.exit(if (!is.null(cluster)){ parallel::stopCluster(cluster) })
@@ -101,19 +106,19 @@ gbmCrossValModelBuild <- function(cv.folds, cv.group, n.cores, i.train,
 
   ## now do the cross-validation model builds
   if ( ! is.null(cluster) ){
-    parallel::parLapply(cl=cluster, X=1:cv.folds,
+    parallel::parLapply(cl=cluster, X=0:cv.folds,
             gbmDoFold, i.train, x, y, offset, distribution,
             w, var.monotone, n.trees,
             interaction.depth, n.minobsinnode, shrinkage,
             bag.fraction, mFeatures,
-            cv.group, var.names, response.name, group, seeds)
+            cv.group, var.names, response.name, group, seeds, lVerbose, keep.data, nTrain)
   }
   else {
-    lapply(X=1:cv.folds,
+    lapply(X=0:cv.folds,
             gbmDoFold, i.train, x, y, offset, distribution,
             w, var.monotone, n.trees,
             interaction.depth, n.minobsinnode, shrinkage,
             bag.fraction, mFeatures,
-            cv.group, var.names, response.name, group, seeds)
+            cv.group, var.names, response.name, group, seeds, lVerbose, keep.data, nTrain)
   }
 }
