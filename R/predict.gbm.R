@@ -12,7 +12,7 @@ predict.gbm <- function(object,newdata,n.trees,
       } else if (!is.null(object$cv.error)){
          n.trees <- gbm.perf( object, method="cv", plot.it = FALSE )
       } else{
-        best <- length(object$train.error)
+        n.trees <- length(object$train.error)
       }
       message(paste("Using", n.trees, "trees...\n"))
    } else if (length(n.trees) == 0){
