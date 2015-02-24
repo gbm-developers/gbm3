@@ -27,7 +27,7 @@ gbmDoFold <- function(X,
                        response.name = response.name,
                        group = group)
     } else {
-      cat("CV:", X, "\n")
+      if (lVerbose) message("CV:", X, "\n")
       set.seed(s[[X]])
       i <- order(cv.group == X)
       x <- x[i.train,,drop=FALSE][i,,drop=FALSE]
