@@ -3,12 +3,6 @@
 #include "quantile.h"
 
 
-//CQuantile::~CQuantile()
-//{
-//
-//}
-
-
 GBMRESULT CQuantile::ComputeWorkingResponse
 (
     double *adY,
@@ -43,8 +37,6 @@ GBMRESULT CQuantile::ComputeWorkingResponse
 }
 
 
-
-// DEBUG: needs weighted quantile
 GBMRESULT CQuantile::InitF
 (
     double *adY,
@@ -65,15 +57,6 @@ GBMRESULT CQuantile::InitF
         dOffset = (adOffset==NULL) ? 0.0 : adOffset[i];
         vecd[i] = adY[i] - dOffset;
     }
-
-//    if(dAlpha==1.0)
-//    {
-//        dInitF = *max_element(vecd.begin(), vecd.end());
-//    } else
-//    {
-//        nth_element(vecd.begin(), vecd.begin() + int(cLength*dAlpha), vecd.end());
-//        dInitF = *(vecd.begin() + int(cLength*dAlpha));
-//    }
 
     dInitF = mpLocM.Median(nLength, &vecd[0], adWeight, dAlpha);
 
@@ -130,8 +113,6 @@ double CQuantile::Deviance
     return dL/dW;
 }
 
-
-// DEBUG: needs weighted quantile
 GBMRESULT CQuantile::FitBestConstant
 (
     double *adY,
@@ -177,18 +158,6 @@ GBMRESULT CQuantile::FitBestConstant
                 }
             }
 
-//            if(dAlpha==1.0)
-//            {
-//               vecpTermNodes[iNode]->dPrediction =
-//                    *max_element(vecd.begin(), vecd.begin()+iVecd);
-//            } else
-//            {
-//                nth_element(vecd.begin(),
-//                            vecd.begin() + int(iVecd*dAlpha),
-//                            vecd.begin() + int(iVecd));
-//                vecpTermNodes[iNode]->dPrediction =
-//                    *(vecd.begin() + int(iVecd*dAlpha));                
-//            }
             vecpTermNodes[iNode]->dPrediction = mpLocM.Median(iVecd, &vecd[0], &adW2[0], dAlpha);
          }
     }
