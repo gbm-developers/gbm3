@@ -68,7 +68,7 @@ GBMRESULT CTDist::InitF
 		adArr[ii] = adY[ii] - dOffset;
 	}
 
-	dInitF = mpLocM.LocationM(iN, &adArr[0], adWeight);
+	dInitF = mpLocM.LocationM(iN, &adArr[0], adWeight, 0.5);
 
 
     return GBM_OK;
@@ -157,7 +157,7 @@ GBMRESULT CTDist::FitBestConstant
 	    }
 
 	  vecpTermNodes[iNode]->dPrediction = mpLocM.LocationM(adArr.size(), &adArr[0],
-							       &adWeight[0]);
+							       &adWeight[0], 0.5);
 
         }
     }

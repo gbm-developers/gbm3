@@ -32,11 +32,11 @@ public:
 
   virtual ~CLocationM() {};
 
-  double Median(int iN, double *adV, double *adW);
+  double Median(int iN, double *adV, double *adW, double dAlpha);
 
   double PsiFun(double dX);
 
-  double LocationM(int iN, double *adX, double *adW);
+  double LocationM(int iN, double *adX, double *adW, double dAlpha);
 
 private:
   std::vector<double> madParams;
