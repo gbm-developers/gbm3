@@ -145,6 +145,7 @@ double CLocationM::PsiFun(double dX)
 // Parameters: iN  - Number of data points
 //             adX - Data vector
 //             adW - Weight vector
+//             dAlpha - Quantile to calculate (0.5 for median)
 //
 // Returns :   Location M-Estimate of (X, W)
 /////////////////////////////////////////////////
