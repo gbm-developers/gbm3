@@ -150,7 +150,7 @@ double CLocationM::LocationM(int iN, double *adX, double *adW, double dAlpha)
 	int ii;
 
 	// Get the initial estimate of location
-	double dBeta0 = Median(iN, adX, adW, dAlpha);
+	double dBeta0 = weightedQuantile(iN, adX, adW, dAlpha);
 
 	// Get the initial estimate of scale
 	std::vector<double> adDiff(iN);
