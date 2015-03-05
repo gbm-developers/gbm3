@@ -58,7 +58,7 @@ GBMRESULT CQuantile::InitF
         vecd[i] = adY[i] - dOffset;
     }
 
-    dInitF = mpLocM.Median(nLength, &vecd[0], adWeight, dAlpha);
+    dInitF = mpLocM.weightedQuantile(nLength, &vecd[0], adWeight, dAlpha);
 
     return GBM_OK;
 }
@@ -158,7 +158,7 @@ GBMRESULT CQuantile::FitBestConstant
                 }
             }
 
-            vecpTermNodes[iNode]->dPrediction = mpLocM.Median(iVecd, &vecd[0], &adW2[0], dAlpha);
+            vecpTermNodes[iNode]->dPrediction = mpLocM.weightedQuantile(iVecd, &vecd[0], &adW2[0], dAlpha);
          }
     }
 

@@ -17,7 +17,7 @@ using namespace std;
 
 
 /////////////////////////////////////////////////
-// Median
+// weightedQuantile
 //
 // Function to return the weighted quantile of
 // a vector of a given length
@@ -29,7 +29,7 @@ using namespace std;
 //
 // Returns :   Weighted quantile
 /////////////////////////////////////////////////
-double CLocationM::Median(int iN, double *adV, double *adW, double dAlpha)
+double CLocationM::weightedQuantile(int iN, double *adV, double *adW, double dAlpha)
 {
 
 	// Local variables
@@ -159,7 +159,7 @@ double CLocationM::LocationM(int iN, double *adX, double *adW, double dAlpha)
 		adDiff[ii] = fabs(adX[ii] - dBeta0);
 	}
 
-	double dScale0 = 1.4826 * Median(iN, &adDiff[0], adW, dAlpha);
+	double dScale0 = 1.4826 * weightedQuantile(iN, &adDiff[0], adW, dAlpha);
 	dScale0 = fmax(dScale0, mdEps);
 
 	// Loop over until the error is low enough

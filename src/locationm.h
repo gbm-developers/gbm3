@@ -32,7 +32,7 @@ public:
 
   virtual ~CLocationM() {};
 
-  double Median(int iN, double *adV, double *adW, double dAlpha);
+  double weightedQuantile(int iN, double *adV, double *adW, double dAlpha);
 
   double PsiFun(double dX);
 
