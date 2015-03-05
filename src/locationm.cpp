@@ -38,12 +38,6 @@ double CLocationM::Median(int iN, double *adV, double *adW, double dAlpha)
 	vector< pair<int, double> > vecV;
 	double dCumSum, dWSum, dMed;
 
-	// Set missing to 0.5; Median
-//	if (dAlpha == NULL)
-//	{
-//		dAlpha = 0.5;
-//	}
-
 	// Check the vector size
 	if (iN == 0)
 	{
@@ -151,9 +145,6 @@ double CLocationM::PsiFun(double dX)
 /////////////////////////////////////////////////
 double CLocationM::LocationM(int iN, double *adX, double *adW, double dAlpha)
 {
-//	if (dAlpha == NULL){
-//		dAlpha = 0.5;
-//	}
 
 	// Local variables
 	int ii;
