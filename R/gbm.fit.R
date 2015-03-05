@@ -159,10 +159,6 @@ gbm.fit <- function(x,y,
    }
    if(distribution$name == "quantile")
    {
-      if(length(unique(w)) > 1)
-      {
-         stop("This version of gbm for the quantile regression lacks a weighted quantile. For now the weights must be constant.")
-      }
       if(is.null(distribution$alpha))
       {
          stop("For quantile regression, the distribution parameter must be a list with a parameter 'alpha' indicating the quantile, for example list(name=\"quantile\",alpha=0.95).")

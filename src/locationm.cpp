@@ -17,7 +17,7 @@ using namespace std;
 
 
 /////////////////////////////////////////////////
-// Median
+// weightedQuantile
 //
 // Function to return the weighted quantile of
 // a vector of a given length
@@ -29,7 +29,7 @@ using namespace std;
 //
 // Returns :   Weighted quantile
 /////////////////////////////////////////////////
-double CLocationM::Median(int iN, double *adV, double *adW)
+double CLocationM::weightedQuantile(int iN, double *adV, double *adW, double dAlpha)
 {
 
 	// Local variables
@@ -70,7 +70,7 @@ double CLocationM::Median(int iN, double *adV, double *adW)
 	// Get the first index where the cumulative weight is >=0.5
 	iMedIdx = -1;
 	dCumSum = 0.0;
-	while (dCumSum < 0.5 * dWSum)
+	while (dCumSum < dAlpha * dWSum)
 	{
 	    iMedIdx ++;
 		dCumSum += vecW[iMedIdx];
@@ -87,13 +87,13 @@ double CLocationM::Median(int iN, double *adV, double *adW)
 	}
 
 	// Use this index unless the cumulative sum is exactly alpha
-	if (iNextNonZero == iN || dCumSum > 0.5 * dWSum)
+	if (iNextNonZero == iN || dCumSum > dAlpha * dWSum)
 	{
 		dMed = vecV[iMedIdx].second;
 	}
 	else
 	{
-		dMed = 0.5 * (vecV[iMedIdx].second + vecV[iNextNonZero].second);
+		dMed = dAlpha * (vecV[iMedIdx].second + vecV[iNextNonZero].second);
 	}
 
 	return dMed;
@@ -139,16 +139,18 @@ double CLocationM::PsiFun(double dX)
 // Parameters: iN  - Number of data points
 //             adX - Data vector
 //             adW - Weight vector
+//             dAlpha - Quantile to calculate (0.5 for median)
 //
 // Returns :   Location M-Estimate of (X, W)
 /////////////////////////////////////////////////
-double CLocationM::LocationM(int iN, double *adX, double *adW)
+double CLocationM::LocationM(int iN, double *adX, double *adW, double dAlpha)
 {
+
 	// Local variables
 	int ii;
 
 	// Get the initial estimate of location
-	double dBeta0 = Median(iN, adX, adW);
+	double dBeta0 = weightedQuantile(iN, adX, adW, dAlpha);
 
 	// Get the initial estimate of scale
 	std::vector<double> adDiff(iN);
@@ -157,7 +159,7 @@ double CLocationM::LocationM(int iN, double *adX, double *adW)
 		adDiff[ii] = fabs(adX[ii] - dBeta0);
 	}
 
-	double dScale0 = 1.4826 * Median(iN, &adDiff[0], adW);
+	double dScale0 = 1.4826 * weightedQuantile(iN, &adDiff[0], adW, dAlpha);
 	dScale0 = fmax(dScale0, mdEps);
 
 	// Loop over until the error is low enough

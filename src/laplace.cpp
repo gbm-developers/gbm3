@@ -68,7 +68,7 @@ GBMRESULT CLaplace::InitF
         adArr[ii] = adY[ii] - dOffset;
     }
 
-    dInitF = mpLocM.Median(nLength, &adArr[0], adWeight);
+    dInitF = mpLocM.weightedQuantile(nLength, &adArr[0], adWeight, 0.5); // median
 
 Cleanup:
     return hr;
@@ -162,7 +162,7 @@ GBMRESULT CLaplace::FitBestConstant
 
             }
 
-	    vecpTermNodes[iNode]->dPrediction = mpLocM.Median(iVecd, &adArr[0], &adW2[0]);
+	    vecpTermNodes[iNode]->dPrediction = mpLocM.weightedQuantile(iVecd, &adArr[0], &adW2[0], 0.5); // median
 
         }
     }

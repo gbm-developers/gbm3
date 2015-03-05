@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include "distribution.h"
+#include "locationm.h"
 
 
 class CQuantile: public CDistribution
@@ -25,9 +26,9 @@ class CQuantile: public CDistribution
 
 public:
 
- CQuantile(double dAlpha) : dAlpha(dAlpha) {};
+ CQuantile(double dAlpha) : dAlpha(dAlpha), mpLocM("Other") {};
 
-    virtual ~CQuantile();
+    virtual ~CQuantile() {};
 
 	GBMRESULT UpdateParams(double *adF,
 	                       double *adOffset,
@@ -90,6 +91,7 @@ public:
 private:
     vector<double> vecd;
     double dAlpha;
+    CLocationM mpLocM;
 };
 
 #endif // QUANTILE_H
