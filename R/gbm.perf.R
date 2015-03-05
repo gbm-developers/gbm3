@@ -2,7 +2,8 @@ gbm.perf <- function(object,
                      plot.it=TRUE,
                      oobag.curve=FALSE,
                      overlay=TRUE,
-                     method)
+                     method,
+                     main="")
 {
    smoother <- NULL
 
@@ -106,7 +107,7 @@ gbm.perf <- function(object,
       plot(object$train.error,
            ylim=ylim,
            type="l",
-           xlab="Iteration",ylab=ylab)
+           xlab="Iteration", ylab=ylab, main=main)
 
       if(object$train.fraction!=1)
       {

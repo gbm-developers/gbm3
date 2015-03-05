@@ -16,7 +16,7 @@ relative.influence <- function(object,
          # so use the following instead.
          n.trees <- length( object$train.error )
       }
-      cat( paste( "n.trees not given. Using", n.trees, "trees.\n" ) )
+      message(paste( "n.trees not given. Using", n.trees, "trees.\n" ))
       if (object$distribution == "multinomial"){
           n.trees <- n.trees * object$num.classes
       }
