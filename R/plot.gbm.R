@@ -1,3 +1,55 @@
+#' Marginal plots of fitted gbm objects
+#' 
+#' Plots the marginal effect of the selected variables by "integrating" out the
+#' other variables.
+#' 
+#' \code{plot.gbm} produces low dimensional projections of the
+#' \code{\link{gbm.object}} by integrating out the variables not included in
+#' the \code{i.var} argument. The function selects a grid of points and uses
+#' the weighted tree traversal method described in Friedman (2001) to do the
+#' integration. Based on the variable types included in the projection,
+#' \code{plot.gbm} selects an appropriate display choosing amongst line plots,
+#' contour plots, and \code{\link[lattice]{lattice}} plots. If the default
+#' graphics are not sufficient the user may set \code{return.grid=TRUE}, store
+#' the result of the function, and develop another graphic display more
+#' appropriate to the particular example.
+#' 
+#' @param x a \code{\link{gbm.object}} fitted using a call to \code{\link{gbm}}
+#' @param i.var a vector of indices or the names of the variables to plot. If
+#' using indices, the variables are indexed in the same order that they appear
+#' in the initial \code{gbm} formula.  If \code{length(i.var)} is between 1 and
+#' 3 then \code{plot.gbm} produces the plots. Otherwise, \code{plot.gbm}
+#' returns only the grid of evaluation points and their average predictions
+#' @param n.trees the number of trees used to generate the plot. Only the first
+#' \code{n.trees} trees will be used
+#' @param continuous.resolution The number of equally space points at which to
+#' evaluate continuous predictors
+#' @param grid.levels A list containing the points at which to evaluate each
+#' predictor in \code{i.var} (in the same order as \code{i.var}). For
+#' continuous predictors this is usually a regular sequence of values within
+#' the range of the variable. For categorical predictors, the points are the
+#' levels of the factor. When \code{length(i.var)} is one, the values can be
+#' provided directly, outside a list.  This is NULL by default and generated
+#' automatically from the data, using \code{continuous.resolution} for
+#' continuous predictors. Forcing the values can be useful to evaluate two
+#' models on the same exact range
+#' @param return.grid if \code{TRUE} then \code{plot.gbm} produces no graphics
+#' and only returns the grid of evaluation points and their average
+#' predictions. This is useful for customizing the graphics for special
+#' variable types or for dimensions greater than 3
+#' @param type the type of prediction to plot on the vertical axis. See
+#' \code{predict.gbm}
+#' @param \dots other arguments passed to the plot function
+#' @return Nothing unless \code{return.grid} is true then \code{plot.gbm}
+#' produces no graphics and only returns the grid of evaluation points and
+#' their average predictions.
+#' @author Greg Ridgeway \email{gregridgeway@@gmail.com}
+#' @seealso \code{\link{gbm}}, \code{\link{gbm.object}},
+#' \code{\link[graphics]{plot}}
+#' @references J.H. Friedman (2001). "Greedy Function Approximation: A Gradient
+#' Boosting Machine," Annals of Statistics 29(4).
+#' @keywords hplot
+#' @export
 plot.gbm <- function(x,
                      i.var=1,
                      n.trees=x$n.trees,

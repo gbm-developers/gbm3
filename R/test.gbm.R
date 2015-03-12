@@ -238,6 +238,32 @@ test.relative.influence <- function(){
 ################################ validate.gbm() ################################
 ################################                ################################
 
+
+
+#' Test the \code{gbm} package.
+#' 
+#' Run tests on \code{gbm} functions to perform logical checks and
+#' reproducibility.
+#' 
+#' The function uses functionality in the \code{RUnit} package. A fairly small
+#' validation suite is executed that checks to see that relative influence
+#' identifies sensible variables from simulated data, and that predictions from
+#' GBMs with Gaussian, Cox or binomial distributions are sensible,
+#' 
+#' @aliases validate.gbm test.gbm test.relative.influence
+#' @return An object of class \code{RUnitTestData}. See the help for
+#' \code{RUnit} for details.
+#' @note The test suite is not comprehensive.
+#' @author Harry Southworth
+#' @seealso \code{\link{gbm}}
+#' @keywords models
+#' @examples
+#' 
+#' # Uncomment the following lines to run - commented out to make CRAN happy
+#' #library(RUnit)
+#' #val <- validate.texmex()
+#' #printHTMLProtocol(val, "texmexReport.html")
+#' 
 validate.gbm <- function () {
    check <- "package:RUnit" %in% search()
    if (!check) {
