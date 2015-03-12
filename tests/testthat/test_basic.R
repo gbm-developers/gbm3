@@ -1,12 +1,11 @@
-test.gbm <- function(){
-    # Based on example in R package
-    # Gaussian example
+context("some basic checks")
 
-    ############################################################################
+test_that("gaussian works", {
+
+    ## Based on example in R package
+    
     ## test Gaussian distribution gbm model
     set.seed(1)
-
-    cat("Running least squares regression example.\n")
 
     # create some data
     N <- 1000
@@ -48,8 +47,7 @@ test.gbm <- function(){
 
     # Get best model
     best.iter <- gbm.perf(gbm1,method="cv")   # returns cv estimate of best number of trees
-    plot(gbm1)
-
+    
     set.seed(2)
     # make some new data
     N <- 1000
@@ -72,14 +70,12 @@ test.gbm <- function(){
     f.predict <- predict(gbm1,data2,best.iter) # f.predict will be on the canonical scale (logit,log,etc.)
 
     # Base the validation tests on observed discrepancies
-    checkTrue(cor(data2$Y, f.predict) > 0.990, msg="Gaussian absolute error within tolerance")
-    checkTrue(sd(data2$Y-f.predict) < sigma , msg="Gaussian squared error within tolerance")
+    expect_true(cor(data2$Y, f.predict) > 0.990)
+    expect_true(sd(data2$Y-f.predict) < sigma)
+})
 
-    ############################################################################
-    ## test coxph distribution gbm model
-    ## COX PROPORTIONAL HAZARDS REGRESSION EXAMPLE
+test_that("coxph works", {
 
-    cat("Running cox proportional hazards regression example.\n")
     # create some data
     set.seed(1)
     N <- 3000
@@ -119,7 +115,6 @@ test.gbm <- function(){
                 keep.data = TRUE)
 
     best.iter <- gbm.perf(gbm1,method="test") # returns test set estimate of best number of trees
-    plot(gbm1)
 
     # make some new data
     set.seed(2)
@@ -144,14 +139,13 @@ test.gbm <- function(){
 
     #plot(data2$f,f.predict)
     # Use observed sd
-    checkTrue(sd(data2$f - f.predict) < 0.4, msg="Coxph: squared error within tolerance")
+    expect_true(sd(data2$f - f.predict) < 0.4)
+})
 
-    ############################################################################
-    ## Test bernoulli distribution gbm model
+test_that("bernoulli works", {
 
     set.seed(1)
 
-    cat("Running logistic regression example.\n")
     # create some data
     N <- 1000
     X1 <- runif(N)
@@ -183,7 +177,6 @@ test.gbm <- function(){
                 n.minobsinnode = 10)       # minimum total weight needed in each node
 
     best.iter.test <- gbm.perf(gbm1,method="test") # returns test set estimate of best number of trees
-    plot(gbm1)
 
     best.iter <- best.iter.test
 
@@ -207,17 +200,11 @@ test.gbm <- function(){
     f.new = sin(3*X1) - 4*X2 + mu
 
     # Base the validation tests on observed discrepancies
-    checkTrue(sd(f.new - f.1.predict) < 1.0 )
+    expect_true(sd(f.new - f.1.predict) < 1.0)
+})
 
-    invisible()
-}
 
-################################################################################
-########################### test.relative.influence() ##########################
-###########################                           ##########################
-
-test.relative.influence <- function(){
-    # Test that relative.influence really does pick out the true predictors
+test_that("relative influence picks out true predictors", {
     set.seed(1234)
     X1 <- matrix(nrow=1000, ncol=50)
     X1 <- apply(X1, 2, function(x) rnorm(1000)) # Random noise
@@ -226,71 +213,10 @@ test.relative.influence <- function(){
     cls <- rep(c(0, 1), ea=500) # Class
     X <- data.frame(cbind(X1, X2, cls))
     mod <- gbm(cls ~ ., data= X, n.trees=1000, cv.folds=5,
-                shrinkage=.01, interaction.depth=2)
+               shrinkage=.01, interaction.depth=2)
     ri <- relative.influence(mod, sort.=TRUE, scale.=TRUE)
-    dotchart(ri)
+    
     wh <- names(ri)[1:5]
     res <- sum(wh %in% paste("V", 51:55, sep = ""))
-    checkEqualsNumeric(res, 5, msg="Testing relative.influence identifies true predictors")
-}
-
-################################################################################
-################################ validate.gbm() ################################
-################################                ################################
-
-
-
-#' Test the \code{gbm} package.
-#' 
-#' Run tests on \code{gbm} functions to perform logical checks and
-#' reproducibility.
-#' 
-#' The function uses functionality in the \code{RUnit} package. A fairly small
-#' validation suite is executed that checks to see that relative influence
-#' identifies sensible variables from simulated data, and that predictions from
-#' GBMs with Gaussian, Cox or binomial distributions are sensible,
-#' 
-#' @aliases validate.gbm test.gbm test.relative.influence
-#' @return An object of class \code{RUnitTestData}. See the help for
-#' \code{RUnit} for details.
-#' @note The test suite is not comprehensive.
-#' @author Harry Southworth
-#' @seealso \code{\link{gbm}}
-#' @keywords models
-#' @examples
-#' 
-#' # Uncomment the following lines to run - commented out to make CRAN happy
-#' #library(RUnit)
-#' #val <- validate.texmex()
-#' #printHTMLProtocol(val, "texmexReport.html")
-#' 
-validate.gbm <- function () {
-   check <- "package:RUnit" %in% search()
-   if (!check) {
-       check <- try(library(RUnit))
-       if (class(check) == "try-error") {
-           stop("You need to attach the RUnit package to validate gbm")
-       }
-   }
-
-   wh <- (1:length(search()))[search() == "package:gbm"]
-   tests <- objects(wh)[substring(objects(wh), 1, 5) == "test."]
-
-   # Create temporary directory to put tests into
-   if (.Platform$OS.type == "windows"){ sep <- "\\" }
-   else { sep <- "/" }
-
-   dir <- file.path(tempdir(), "gbm.tests", fsep = sep)
-
-   dir.create(dir)
-
-   for (i in 1:length(tests)) {
-       str <- paste(dir, sep, tests[i], ".R", sep = "")
-       dump(tests[i], file = str)
-   }
-   res <- defineTestSuite("gbm", dirs = dir, testFuncRegexp = "^test.+", testFileRegexp = "*.R")
-   cat("Running gbm test suite.\nThis will take some time...\n")
-   res <- runTestSuite(res)
-   res
-}
-
+    expect_equal(res, 5)
+})
