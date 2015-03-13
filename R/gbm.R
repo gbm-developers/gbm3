@@ -152,6 +152,8 @@ gbm <- function(formula = formula(data),
                      "because of levels in fold.id."))
      } 
      cv.folds <- inferred_folds
+     # Set fold.id from whatever it is to an integer ascending from 1. Lazy way.
+     fold.id <- as.numeric(as.factor(fold.id))
    }
 
    # If CV is used, final model is calculated within the cluster
