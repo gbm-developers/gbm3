@@ -1,3 +1,20 @@
+#' Predictions from a shrunken GBM
+#' 
+#' Makes predictions from a shrunken GBM model.
+#' 
+#' 
+#' @param object a \code{\link{gbm.object}}
+#' @param newdata dataset for predictions
+#' @param n.trees the number of trees to use
+#' @param lambda a vector with length equal to the number of variables
+#' containing the shrinkage parameter for each variable
+#' @param \dots other parameters (ignored)
+#' @return A vector with length equal to the number of observations in newdata
+#' containing the predictions
+#' @section Warning: This function is experimental
+#' @author Greg Ridgeway \email{gregridgeway@@gmail.com}
+#' @seealso \code{\link{shrink.gbm}}, \code{\link{gbm}}
+#' @keywords methods
 shrink.gbm.pred <- function(object,newdata,n.trees,
                             lambda=rep(1,length(object$var.names)),
                             ...)

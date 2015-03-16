@@ -1,3 +1,4 @@
+#' @export
 gbm.more <- function(object,
                      n.new.trees = 100,
                      data = NULL,
