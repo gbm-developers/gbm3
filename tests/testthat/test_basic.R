@@ -43,7 +43,8 @@ test_that("gaussian works", {
                 train.fraction = 0.5,        # fraction of data for training, first train.fraction*N used for training
                 n.minobsinnode = 10,         # minimum number of obs needed in each node
                 keep.data=TRUE,
-                cv.folds=10)                 # do 10-fold cross-validation
+                cv.folds=10, # do 10-fold cross-validation
+                n.cores=1)                 
 
     # Get best model
     best.iter <- gbm.perf(gbm1,method="cv")   # returns cv estimate of best number of trees
@@ -112,7 +113,7 @@ test_that("coxph works", {
                 train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
                 cv.folds = 5,              # do 5-fold cross-validation
                 n.minobsinnode = 10,       # minimum total weight needed in each node
-                keep.data = TRUE)
+                keep.data = TRUE, n.cores=1)
 
     best.iter <- gbm.perf(gbm1,method="test") # returns test set estimate of best number of trees
 
@@ -174,8 +175,9 @@ test_that("bernoulli works", {
                 bag.fraction = 0.5,        # subsampling fraction, 0.5 is probably best
                 train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
                 cv.folds=5,                # do 5-fold cross-validation
-                n.minobsinnode = 10)       # minimum total weight needed in each node
-
+                n.minobsinnode = 10,       # minimum total weight needed in each node
+                n.cores=1)
+    
     best.iter.test <- gbm.perf(gbm1,method="test") # returns test set estimate of best number of trees
 
     best.iter <- best.iter.test
@@ -213,7 +215,7 @@ test_that("relative influence picks out true predictors", {
     cls <- rep(c(0, 1), ea=500) # Class
     X <- data.frame(cbind(X1, X2, cls))
     mod <- gbm(cls ~ ., data= X, n.trees=1000, cv.folds=5,
-               shrinkage=.01, interaction.depth=2)
+               shrinkage=.01, interaction.depth=2, n.cores=1)
     ri <- relative.influence(mod, sort.=TRUE, scale.=TRUE)
     
     wh <- names(ri)[1:5]
