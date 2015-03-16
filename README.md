@@ -11,5 +11,5 @@ release workflow. To install from GitHub, first install `devtools` from CRAN:
 
 Then install `gbm` from GitHub:
 
-    library(devtools)
-    install_github("harrysouthworth/gbm")
+    library("devtools")
+    install_github("gbm-developers/gbm")
