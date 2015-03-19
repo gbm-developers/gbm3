@@ -435,25 +435,30 @@ SEXP gbm_pred
                   }
                   else // categorical
                   {
-                     iCatSplitIndicator = INTEGER(
-                                 VECTOR_ELT(rCSplits,
-                                            (int)adSplitCode[iCurrentNode]))[(int)dX];
-                     if(iCatSplitIndicator==-1)
-                     {
-                        iCurrentNode = aiLeftNode[iCurrentNode];
-                     }
-                     else if(iCatSplitIndicator==1)
-                     {
-                        iCurrentNode = aiRightNode[iCurrentNode];
-                     }
-                     else // categorical level not present in training
-                     {
-                        iCurrentNode = aiMissingNode[iCurrentNode];
-                     }
+                    if (LENGTH(VECTOR_ELT(rCSplits,
+                                          (int)adSplitCode[iCurrentNode])) < (int)dX + 1) {
+                      iCurrentNode = aiMissingNode[iCurrentNode];
+                    } else {
+                      
+                      iCatSplitIndicator = INTEGER(
+                                                   VECTOR_ELT(rCSplits,
+                                                              (int)adSplitCode[iCurrentNode]))[(int)dX];
+                      if(iCatSplitIndicator==-1)
+                        {
+                          iCurrentNode = aiLeftNode[iCurrentNode];
+                        }
+                      else if(iCatSplitIndicator==1)
+                        {
+                          iCurrentNode = aiRightNode[iCurrentNode];
+                        }
+                      else // categorical level not present in training
+                        {
+                          iCurrentNode = aiMissingNode[iCurrentNode];
+                        }
+                    }
                   }
                }
-               REAL(radPredF)[cRows*cNumClasses*iPredIteration+cRows*iClass+iObs] +=
-                  adSplitCode[iCurrentNode]; // add the prediction
+               REAL(radPredF)[cRows*cNumClasses*iPredIteration+cRows*iClass+iObs] += adSplitCode[iCurrentNode]; // add the prediction
             } // iObs
             iTree++;
          } // iClass
