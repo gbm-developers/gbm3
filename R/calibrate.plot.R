@@ -80,7 +80,7 @@ quantile.rug <- function(x,prob=(0:10)/10,...)
 #' #glm1 <- glm(y~poly(x,2),family=binomial)
 #' #p <- predict(glm1,type="response")
 #' #calibrate.plot(y, p, xlim=c(0,0.6), ylim=c(0,0.6))
-#' 
+#' @importFrom splines ns
 calibrate.plot <- function(y,p,
                            distribution="bernoulli",
                            replace=TRUE,
