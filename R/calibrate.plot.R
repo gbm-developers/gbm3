@@ -71,16 +71,16 @@ quantile.rug <- function(x,prob=(0:10)/10,...)
 #' @keywords hplot
 #' @examples
 #' 
-#' # Don't want R CMD check to think there is a dependency on rpart
-#' # so comment out the example
-#' #library(rpart)
-#' #data(kyphosis)
-#' #y <- as.numeric(kyphosis$Kyphosis)-1
-#' #x <- kyphosis$Age
-#' #glm1 <- glm(y~poly(x,2),family=binomial)
-#' #p <- predict(glm1,type="response")
-#' #calibrate.plot(y, p, xlim=c(0,0.6), ylim=c(0,0.6))
-#' 
+#' \dontrun{
+#' library(rpart)
+#' data(kyphosis)
+#' y <- as.numeric(kyphosis$Kyphosis)-1
+#' x <- kyphosis$Age
+#' glm1 <- glm(y~poly(x,2),family=binomial)
+#' p <- predict(glm1,type="response")
+#' calibrate.plot(y, p, xlim=c(0,0.6), ylim=c(0,0.6))
+#' }
+#' @importFrom splines ns
 calibrate.plot <- function(y,p,
                            distribution="bernoulli",
                            replace=TRUE,
