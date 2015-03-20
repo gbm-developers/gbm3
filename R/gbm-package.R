@@ -96,9 +96,7 @@ NULL
 #' plot.gbm Marginal plots of fitted gbm objects predict.gbm Predict method for
 #' GBM Model Fits pretty.gbm.tree Print gbm tree components quantile.rug
 #' Quantile rug plot relative.influence Methods for estimating relative
-#' influence shrink.gbm L1 shrinkage of the predictor variables in a GBM
-#' shrink.gbm.pred Predictions from a shrunken GBM summary.gbm Summary of a gbm
-#' object }
+#' influence}
 #' 
 #' Further information is available in the following vignettes: \tabular{ll}{
 #' \code{gbm} \tab Generalized Boosted Models: A guide to the gbm package
