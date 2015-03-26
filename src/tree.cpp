@@ -1,4 +1,6 @@
 //  GBM by Greg Ridgeway  Copyright (C) 2003
+#include <algorithm>
+
 #include "tree.h"
 
 CCARTTree::CCARTTree()
@@ -228,6 +230,12 @@ Error:
 }
 
 
+namespace {
+  std::ptrdiff_t shuffler(std::ptrdiff_t n) {
+    return n * unif_rand();
+  };
+}
+
 GBMRESULT CCARTTree::GetBestSplit
 (
     CDataset *pData,
@@ -273,8 +281,8 @@ GBMRESULT CCARTTree::GetBestSplit
 	start = colNumbers.begin();
 	end = colNumbers.end();
 	
-   // shuffle the elements in a random order
-   std::random_shuffle(colNumbers.begin(), colNumbers.end()) ;
+        // shuffle the elements in a random order
+        std::random_shuffle(colNumbers.begin(), colNumbers.end(), shuffler);
 
     for(it=start; it != (end - pData->cCols + nFeatures ); it++)
     {
