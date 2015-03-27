@@ -81,31 +81,28 @@ SEXP gbm
     // set up the dataset
     std::auto_ptr<CDataset> pData(new CDataset());
     // initialize some things
-    hr = gbm_setup(adY.begin(),
-                   adOffset.begin(),
-                   adX.begin(),
-                   aiXOrder.begin(),
-                   adWeight.begin(),
-                   adMisc.begin(),
-                   cRows,
-                   cCols,
-                   acVarClasses.begin(),
-                   alMonotoneVar.begin(),
-                   family.c_str(),
-                   cTrees,
-                   cDepth,
-                   cMinObsInNode,
-                   cNumClasses,
-                   dShrinkage,
-                   dBagFraction,
-                   cTrain,
-                   cFeatures,
-                   pData.get(),
-                   pDist_tmp,
-                   cGroups);
-    if (GBM_FAILED(hr)) {
-      throw std::runtime_error("gbm failed");
-    }
+    gbm_setup(adY.begin(),
+	      adOffset.begin(),
+	      adX.begin(),
+	      aiXOrder.begin(),
+	      adWeight.begin(),
+	      adMisc.begin(),
+	      cRows,
+	      cCols,
+	      acVarClasses.begin(),
+	      alMonotoneVar.begin(),
+	      family.c_str(),
+	      cTrees,
+	      cDepth,
+	      cMinObsInNode,
+	      cNumClasses,
+	      dShrinkage,
+	      dBagFraction,
+	      cTrain,
+	      cFeatures,
+	      pData.get(),
+	      pDist_tmp,
+	      cGroups);
     
     std::auto_ptr<CDistribution> pDist(pDist_tmp);
     std::auto_ptr<CGBM> pGBM(new CGBM());

@@ -15,7 +15,7 @@
 //
 //------------------------------------------------------------------------------
 
-#include<vector>
+#include <vector>
 #include "dataset.h"
 #include "distribution.h"
 #include "bernoulli.h"
@@ -37,7 +37,7 @@
 typedef vector<char> VEC_CATEGORIES;
 typedef vector<VEC_CATEGORIES> VEC_VEC_CATEGORIES;
 
-GBMRESULT gbm_setup
+void gbm_setup
 (
     double *adY,
     double *adOffset,

@@ -6,7 +6,7 @@
 //------------------------------------------------------------------------------
 
 #include <algorithm>
-#include<vector>
+#include <vector>
 #include "gbm.h"
 
 // Count the number of distinct groups in the input data
@@ -31,7 +31,7 @@ int num_groups(const double* adMisc, int cTrain)
     return cGroups;
 }
 
-unsigned long gbm_setup
+void gbm_setup
 (
     double *adY,
     double *adOffset,
@@ -57,16 +57,10 @@ unsigned long gbm_setup
     int& cGroups
 )
 {
-    unsigned long hr = 0;
     cGroups = -1;
 
-    hr = pData->SetData(adX,aiXOrder,adY,adOffset,adWeight,adMisc,
-                        cRows,cCols,acVarClasses,alMonotoneVar);
-
-    if(GBM_FAILED(hr))
-    {
-        goto Error;
-    }
+    pData->SetData(adX,aiXOrder,adY,adOffset,adWeight,adMisc,
+		   cRows,cCols,acVarClasses,alMonotoneVar);
 
     // set the distribution
     if(strcmp(pszFamily,"gamma") == 0)
@@ -135,19 +129,13 @@ unsigned long gbm_setup
     }
     else
     {
-        hr = GBM_INVALIDARG;
-        goto Error;
+      throw GBM::invalid_argument();
     }
 
     if (!strncmp(pszFamily, "pairwise", strlen("pairwise")))
     {
         cGroups = num_groups(adMisc, cTrain);
     }
-
-Cleanup:
-    return hr;
-Error:
-    goto Cleanup;
 }
 
 
