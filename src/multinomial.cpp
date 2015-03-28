@@ -1,5 +1,6 @@
 //  GBM by Greg Ridgeway  Copyright (C) 2003
 
+#include <vector>
 #include "multinomial.h"
 
 
@@ -172,7 +173,7 @@ double CMultinomial::BagImprovement
    unsigned long kk;
 
    // Calculate the probabilities after the step
-   double *adStepProb = new double[mcNumClasses * mcRows];
+   std::vector<double> adStepProb(mcNumClasses * mcRows);
 
    // Assume that this is last class - calculate new prob as in updateParams but
    // using (F_ik + ss*Fadj_ik) instead of F_ik. Then calculate OOB improve
@@ -211,8 +212,6 @@ double CMultinomial::BagImprovement
          }
       }
     }
-
-    delete[] adStepProb;
 
     return dReturnValue/dW;
 }
