@@ -55,6 +55,7 @@
 #ifndef PAIRWISE_H
 #define PAIRWISE_H
 
+#include <memory>
 #include "distribution.h"
 #include "buildinfo.h"
 
@@ -334,7 +335,7 @@ protected:
     // Calculate and accumulate up the gradients and Hessians from all training pairs
     void ComputeLambdas(int iGroup, unsigned int cNumItems, const double* const adY, const double* const adF, const double* const adWeight, double* adZ, double* adDeriv);
 
-    CIRMeasure* pirm;                 // The IR measure to use
+    std::auto_ptr<CIRMeasure> pirm;                 // The IR measure to use
     CRanker ranker;                   // The ranker
 
     vector<double> vecdHessian;       // Second derivative of loss function, for each training instance; used for Newton step

@@ -529,29 +529,28 @@ CPairwise::CPairwise(const char* szIRMeasure)
     // Construct the IR Measure
     if (!strcmp(szIRMeasure, "conc"))
     {
-        pirm = new CConc();
+      pirm.reset(new CConc());
     }
     else if (!strcmp(szIRMeasure, "map"))
     {
-        pirm = new CMAP();
+      pirm.reset(new CMAP());
     }
     else if (!strcmp(szIRMeasure, "mrr"))
     {
-        pirm = new CMRR();
+      pirm.reset(new CMRR());
     }
     else
-    {
+      {
         if (strcmp(szIRMeasure, "ndcg"))
-        {
+	  {
             Rprintf("Unknown IR measure '%s' in initialization, using 'ndcg' instead\n", szIRMeasure);
         }
-        pirm = new CNDCG();
-    }
+        pirm.reset(new CNDCG());
+      }
 }
 
 CPairwise::~CPairwise()
 {
-    delete pirm;
 }
 
 
