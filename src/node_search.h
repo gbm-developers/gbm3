@@ -30,35 +30,34 @@ public:
 
     CNodeSearch();
     ~CNodeSearch();
-    GBMRESULT Initialize(unsigned long cMinObsInNode);
+    void Initialize(unsigned long cMinObsInNode);
 
-    GBMRESULT IncorporateObs(double dX,
-                             double dZ,
-                             double dW,
-                             long lMonotone);
+    void IncorporateObs(double dX,
+			double dZ,
+			double dW,
+			long lMonotone);
 
-    GBMRESULT Set(double dSumZ,
-                double dTotalW,
-                unsigned long cTotalN,
-                CNodeTerminal *pThisNode,
-                CNode **ppParentPointerToThisNode,
-                CNodeFactory *pNodeFactory);
-    GBMRESULT ResetForNewVar(unsigned long iWhichVar,
-                           long cVarClasses);
-
+    void Set(double dSumZ,
+	     double dTotalW,
+	     unsigned long cTotalN,
+	     CNodeTerminal *pThisNode,
+	     CNode **ppParentPointerToThisNode,
+	     CNodeFactory *pNodeFactory);
+    void ResetForNewVar(unsigned long iWhichVar,
+			long cVarClasses);
+    
     double BestImprovement() { return dBestImprovement; }
-    GBMRESULT SetToSplit()
+    void SetToSplit()
     {
         fIsSplit = true;
-        return GBM_OK;
     };
-    GBMRESULT SetupNewNodes(PCNodeNonterminal &pNewSplitNode,
-                          PCNodeTerminal &pNewLeftNode,
-                          PCNodeTerminal &pNewRightNode,
-                          PCNodeTerminal &pNewMissingNode);
+    void SetupNewNodes(PCNodeNonterminal &pNewSplitNode,
+		       PCNodeTerminal &pNewLeftNode,
+		       PCNodeTerminal &pNewRightNode,
+		       PCNodeTerminal &pNewMissingNode);
 
-    GBMRESULT EvaluateCategoricalSplit();
-    GBMRESULT WrapUpCurrentVariable();
+    void EvaluateCategoricalSplit();
+    void WrapUpCurrentVariable();
     double ThisNodePrediction() {return pThisNode->dPrediction;}
     bool operator<(const CNodeSearch &ns) {return dBestImprovement<ns.dBestImprovement;}
 

@@ -1,6 +1,7 @@
 #ifndef GBMEXCEPT_H
 #define GBMEXCEPT_H
 
+#include <string>
 #include <stdexcept>
 
 namespace GBM {
@@ -18,6 +19,7 @@ namespace GBM {
   class failure : public std::runtime_error {
   public:
   failure() : std::runtime_error("unspecified failure") {};
+  failure(const std::string& msg) : std::runtime_error(msg) {};
   };
 
 }
