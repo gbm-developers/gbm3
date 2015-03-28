@@ -49,7 +49,7 @@ public:
 		         std::vector<unsigned long>& aiNodeAssign,
                  CNodeSearch *aNodeSearch,
                  VEC_P_NODETERMINAL &vecpTermNodes);
-    GBMRESULT Reset();
+    void Reset();
 
     GBMRESULT TransferTreeToRList(CDataset *pData,
                                 int *aiSplitVar,

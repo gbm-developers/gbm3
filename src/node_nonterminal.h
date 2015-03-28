@@ -58,8 +58,7 @@ public:
                     double &dFadj);
 
     GBMRESULT GetVarRelativeInfluence(double *adRelInf);
-    virtual GBMRESULT RecycleSelf(CNodeFactory *pNodeFactory) = 0;
-
+    
     CNode *pLeftNode;
     CNode *pRightNode;
     CNode *pMissingNode;

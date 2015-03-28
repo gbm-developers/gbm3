@@ -98,15 +98,9 @@ GBMRESULT CNodeTerminal::GetVarRelativeInfluence
 }
 
 
-GBMRESULT CNodeTerminal::RecycleSelf
-(
-    CNodeFactory *pNodeFactory
-)
-{
-    pNodeFactory->RecycleNode(this);
-    return GBM_OK;
+void CNodeTerminal::RecycleSelf(CNodeFactory *pNodeFactory) {
+  pNodeFactory->RecycleNode(this);
 };
-
 
 
 GBMRESULT CNodeTerminal::TransferTreeToRList

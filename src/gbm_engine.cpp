@@ -82,11 +82,7 @@ GBMRESULT CGBM::Initialize
     adFadj.assign((pData->cRows) * cNumClasses, 0);
 
     pNodeFactory = new CNodeFactory();
-    hr = pNodeFactory->Initialize(cDepth);
-    if(GBM_FAILED(hr))
-    {
-        goto Error;
-    }
+    pNodeFactory->Initialize(cDepth);
     ptreeTemp->Initialize(pNodeFactory);
 
     // array for flagging those observations in the bag
@@ -298,7 +294,7 @@ GBMRESULT CGBM::iterate
 #ifdef NOISY_DEBUG
     Rprintf("Reset tree\n");
 #endif
-    hr = ptreeTemp->Reset();
+    ptreeTemp->Reset();
 #ifdef NOISY_DEBUG
     Rprintf("grow tree\n");
 #endif

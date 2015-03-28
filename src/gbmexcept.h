@@ -10,6 +10,10 @@ namespace GBM {
     invalid_argument() : std::runtime_error("invalid argument") {} ;
   };
 
+  class out_of_nodes : public std::runtime_error {
+  public:
+    out_of_nodes() : std::runtime_error("factory empty!") {};
+  };
 
 }
 

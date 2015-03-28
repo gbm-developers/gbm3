@@ -95,7 +95,7 @@ public:
 
     double TotalError();
     virtual GBMRESULT GetVarRelativeInfluence(double *adRelInf);
-    virtual GBMRESULT RecycleSelf(CNodeFactory *pNodeFactory) = 0;
+    virtual void RecycleSelf(CNodeFactory *pNodeFactory) = 0;
 
     double dPrediction;
     double dTrainW;   // total training weight in node

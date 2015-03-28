@@ -11,12 +11,10 @@ CCARTTree::CCARTTree()
 }
 
 
-CCARTTree::~CCARTTree()
-{
-    if(pRootNode != NULL)
-    {
-        pRootNode->RecycleSelf(pNodeFactory);
-    }
+CCARTTree::~CCARTTree() {
+  if (pRootNode) {
+    pRootNode->RecycleSelf(pNodeFactory);
+  }
 }
 
 
@@ -33,35 +31,22 @@ GBMRESULT CCARTTree::Initialize
 }
 
 
-GBMRESULT CCARTTree::Reset()
-{
-    GBMRESULT hr = GBM_OK;
+void CCARTTree::Reset() {
+  if (pRootNode) {
+    // delete the old tree and start over
+    pRootNode->RecycleSelf(pNodeFactory);
+  }
+  
+  iBestNode = 0;
+  dBestNodeImprovement = 0.0;
 
-    if(pRootNode != NULL)
-    {
-        // delete the old tree and start over
-        hr = pRootNode->RecycleSelf(pNodeFactory);
-    }
-    if(GBM_FAILED(hr))
-    {
-        goto Error;
-    }
-
-    iBestNode = 0;
-    dBestNodeImprovement = 0.0;
-
-    schWhichNode = 0;
-
-    pNewSplitNode    = NULL;
-    pNewLeftNode     = NULL;
-    pNewRightNode    = NULL;
-    pNewMissingNode  = NULL;
-    pInitialRootNode = NULL;
-
-Cleanup:
-    return hr;
-Error:
-    goto Cleanup;
+  schWhichNode = 0;
+  
+  pNewSplitNode    = NULL;
+  pNewLeftNode     = NULL;
+  pNewRightNode    = NULL;
+  pNewMissingNode  = NULL;
+  pInitialRootNode = NULL;
 }
 
 

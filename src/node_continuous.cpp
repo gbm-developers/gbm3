@@ -109,14 +109,13 @@ signed char CNodeContinuous::WhichNode
 
 
 
-GBMRESULT CNodeContinuous::RecycleSelf
+void CNodeContinuous::RecycleSelf
 (
-    CNodeFactory *pNodeFactory
+ CNodeFactory *pNodeFactory
 )
 {
-    GBMRESULT hr = GBM_OK;
-    pNodeFactory->RecycleNode(this);
-    return hr;
+  pNodeFactory->RecycleNode(this);
+    
 };
 
 

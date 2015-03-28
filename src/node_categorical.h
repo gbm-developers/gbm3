@@ -50,7 +50,7 @@ public:
                           unsigned long cCol,
                           unsigned long iRow);
 
-    GBMRESULT RecycleSelf(CNodeFactory *pNodeFactory);
+    void RecycleSelf(CNodeFactory *pNodeFactory);
 
     std::vector<unsigned long> aiLeftCategory;
 };

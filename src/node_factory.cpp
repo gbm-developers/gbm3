@@ -1,5 +1,6 @@
 //  GBM by Greg Ridgeway  Copyright (C) 2003
 
+#include "gbmexcept.h"
 #include "node_factory.h"
 
 CNodeFactory::CNodeFactory()
@@ -15,141 +16,91 @@ CNodeFactory::~CNodeFactory()
 }
 
 
-GBMRESULT CNodeFactory::Initialize
-(
-    unsigned long cDepth
-)
-{
-    GBMRESULT hr = GBM_OK;
-    unsigned long i = 0;
-
-    for(i=0; i<NODEFACTORY_NODGBM_RESERVE; i++)
-    {
-        TerminalStack.push(&(aBlockTerminal[i]));
-        ContinuousStack.push(&(aBlockContinuous[i]));
-        CategoricalStack.push(&(aBlockCategorical[i]));
-    }
-
-    return hr;
+void CNodeFactory::Initialize(unsigned long cDepth) {
+  unsigned long i = 0;
+  
+  for(i=0; i<NODEFACTORY_NODGBM_RESERVE; i++) {
+    TerminalStack.push(&(aBlockTerminal[i]));
+    ContinuousStack.push(&(aBlockContinuous[i]));
+    CategoricalStack.push(&(aBlockCategorical[i]));
+  }
 }
 
 
-CNodeTerminal* CNodeFactory::GetNewNodeTerminal()
-{
-    if(TerminalStack.empty())
-    {
-        #ifdef NOISY_DEBUG
-        Rprintf("Terminal stack is empty\n");
-        #endif
-        pNodeTerminalTemp = NULL;
-    }
-    else
-    {
-        pNodeTerminalTemp = TerminalStack.top();
-        TerminalStack.pop();
-
-        pNodeTerminalTemp->dPrediction = 0.0;
-    }
-    return pNodeTerminalTemp;
+CNodeTerminal* CNodeFactory::GetNewNodeTerminal() {
+ 
+  if(TerminalStack.empty()) {
+    throw GBM::out_of_nodes();
+  }
+  
+  CNodeTerminal* res = TerminalStack.top();
+  TerminalStack.pop();
+  res->dPrediction = 0.0;
+  return res;
 }
 
 
-CNodeContinuous* CNodeFactory::GetNewNodeContinuous()
-{
-    if(ContinuousStack.empty())
-    {
-        #ifdef NOISY_DEBUG
-        Rprintf("Continuous stack is empty\n");
-        #endif
-        pNodeContinuousTemp = NULL;
-    }
-    else
-    {
-        pNodeContinuousTemp = ContinuousStack.top();
-        ContinuousStack.pop();
+CNodeContinuous* CNodeFactory::GetNewNodeContinuous() {
+  if(ContinuousStack.empty()) {
+    throw GBM::out_of_nodes();
+  }
 
-        pNodeContinuousTemp->dPrediction = 0.0;
-        pNodeContinuousTemp->dImprovement = 0.0;
-        pNodeContinuousTemp->pMissingNode = NULL;
-        pNodeContinuousTemp->pLeftNode = NULL;
-        pNodeContinuousTemp->pRightNode = NULL;
-        pNodeContinuousTemp->iSplitVar = 0;
-        pNodeContinuousTemp->dSplitValue = 0.0;
-    }
-
-    return pNodeContinuousTemp;
+  CNodeContinuous* res = ContinuousStack.top();
+  ContinuousStack.pop();
+  
+  res->dPrediction = 0.0;
+  res->dImprovement = 0.0;
+  res->pMissingNode = NULL;
+  res->pLeftNode = NULL;
+  res->pRightNode = NULL;
+  res->iSplitVar = 0;
+  res->dSplitValue = 0.0;
+  
+  return res;
 }
 
 
-CNodeCategorical* CNodeFactory::GetNewNodeCategorical()
-{
-    if(CategoricalStack.empty())
-    {
-        #ifdef NOISY_DEBUG
-        Rprintf("Categorical stack is empty\n");
-        #endif
-        pNodeCategoricalTemp = NULL;
-    }
-    else
-    {
-        pNodeCategoricalTemp = CategoricalStack.top();
-        CategoricalStack.pop();
-
-        pNodeCategoricalTemp->dPrediction = 0.0;
-        pNodeCategoricalTemp->dImprovement = 0.0;
-        pNodeCategoricalTemp->pMissingNode = NULL;
-        pNodeCategoricalTemp->pLeftNode = NULL;
-        pNodeCategoricalTemp->pRightNode = NULL;
-        pNodeCategoricalTemp->iSplitVar = 0;
-        pNodeCategoricalTemp->aiLeftCategory.resize(0);
-    }
-
-    return pNodeCategoricalTemp;
+CNodeCategorical* CNodeFactory::GetNewNodeCategorical() {
+  
+  if (CategoricalStack.empty()) {
+    throw GBM::out_of_nodes();
+  }
+     
+  CNodeCategorical* res = CategoricalStack.top();
+  CategoricalStack.pop();
+  
+  res->dPrediction = 0.0;
+  res->dImprovement = 0.0;
+  res->pMissingNode = NULL;
+  res->pLeftNode = NULL;
+  res->pRightNode = NULL;
+  res->iSplitVar = 0;
+  res->aiLeftCategory.resize(0);
+  
+  return res;
+}
+  
+void CNodeFactory::RecycleNode(CNodeTerminal *pNode) {
+  if(pNode) {
+    TerminalStack.push(pNode);
+  }
 }
 
-
-GBMRESULT CNodeFactory::RecycleNode
-(
-    CNodeTerminal *pNode
-)
-{
-    if(pNode != NULL)
-    {
-        TerminalStack.push(pNode);
-    }
-    return GBM_OK;
+void CNodeFactory::RecycleNode(CNodeContinuous *pNode) {
+  if(pNode) {
+    if(pNode->pLeftNode) pNode->pLeftNode->RecycleSelf(this);
+    if(pNode->pRightNode) pNode->pRightNode->RecycleSelf(this);
+    if(pNode->pMissingNode) pNode->pMissingNode->RecycleSelf(this);
+    ContinuousStack.push(pNode);
+  }
 }
-
-GBMRESULT CNodeFactory::RecycleNode
-(
-    CNodeContinuous *pNode
-)
-{
-    if(pNode != NULL)
-    {
-        if(pNode->pLeftNode != NULL) pNode->pLeftNode->RecycleSelf(this);
-        if(pNode->pRightNode != NULL) pNode->pRightNode->RecycleSelf(this);
-        if(pNode->pMissingNode != NULL) pNode->pMissingNode->RecycleSelf(this);
-        ContinuousStack.push(pNode);
-    }
-    return GBM_OK;
+  
+void CNodeFactory::RecycleNode(CNodeCategorical *pNode) {
+  if (pNode) {
+    if(pNode->pLeftNode) pNode->pLeftNode->RecycleSelf(this);
+    if(pNode->pRightNode) pNode->pRightNode->RecycleSelf(this);
+    if(pNode->pMissingNode) pNode->pMissingNode->RecycleSelf(this);
+    pNode->aiLeftCategory.resize(0);
+    CategoricalStack.push(pNode);
+  }
 }
-
-GBMRESULT CNodeFactory::RecycleNode
-(
-    CNodeCategorical *pNode
-)
-{
-    if(pNode != NULL)
-    {
-        if(pNode->pLeftNode != NULL) pNode->pLeftNode->RecycleSelf(this);
-        if(pNode->pRightNode != NULL) pNode->pRightNode->RecycleSelf(this);
-        if(pNode->pMissingNode != NULL) pNode->pMissingNode->RecycleSelf(this);
-	pNode->aiLeftCategory.resize(0);
-        CategoricalStack.push(pNode);
-    }
-
-    return GBM_OK;
-}
-
-

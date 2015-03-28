@@ -116,15 +116,9 @@ signed char CNodeCategorical::WhichNode
 
 
 
-GBMRESULT CNodeCategorical::RecycleSelf
-(
-    CNodeFactory *pNodeFactory
-)
-{
-    GBMRESULT hr = GBM_OK;
-    hr = pNodeFactory->RecycleNode(this);
-    return hr;
-};
+void CNodeCategorical::RecycleSelf(CNodeFactory *pNodeFactory) {
+  pNodeFactory->RecycleNode(this);
+}
 
 
 
