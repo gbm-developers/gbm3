@@ -16,6 +16,7 @@
 //------------------------------------------------------------------------------
 
 #include <vector>
+#include <string>
 #include "dataset.h"
 #include "distribution.h"
 #include "bernoulli.h"
@@ -37,7 +38,7 @@
 typedef vector<char> VEC_CATEGORIES;
 typedef vector<VEC_CATEGORIES> VEC_VEC_CATEGORIES;
 
-void gbm_setup
+CDistribution* gbm_setup
 (
     double *adY,
     double *adOffset,
@@ -49,7 +50,7 @@ void gbm_setup
     int cCols,
     int *acVarClasses,
     int *alMonotoneVar,
-    const char *pszFamily,
+    const std::string& family,
     int cTrees,
     int cLeaves,
     int cMinObsInNode,
@@ -59,7 +60,6 @@ void gbm_setup
     int cTrain,
     int cFeatures,
     CDataset *pData,
-    PCDistribution &pDist,
     int& cGroups
 );
 

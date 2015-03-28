@@ -73,7 +73,6 @@ SEXP gbm
     double dValidError = 0.0;
     double dOOBagImprove = 0.0;
 
-    CDistribution *pDist_tmp = NULL;
     int cGroups = -1;
 
     Rcpp::RNGScope scope;
@@ -81,30 +80,28 @@ SEXP gbm
     // set up the dataset
     std::auto_ptr<CDataset> pData(new CDataset());
     // initialize some things
-    gbm_setup(adY.begin(),
-	      adOffset.begin(),
-	      adX.begin(),
-	      aiXOrder.begin(),
-	      adWeight.begin(),
-	      adMisc.begin(),
-	      cRows,
-	      cCols,
-	      acVarClasses.begin(),
-	      alMonotoneVar.begin(),
-	      family.c_str(),
-	      cTrees,
-	      cDepth,
-	      cMinObsInNode,
-	      cNumClasses,
-	      dShrinkage,
-	      dBagFraction,
-	      cTrain,
-	      cFeatures,
-	      pData.get(),
-	      pDist_tmp,
-	      cGroups);
+    std::auto_ptr<CDistribution> pDist(gbm_setup(adY.begin(),
+						 adOffset.begin(),
+						 adX.begin(),
+						 aiXOrder.begin(),
+						 adWeight.begin(),
+						 adMisc.begin(),
+						 cRows,
+						 cCols,
+						 acVarClasses.begin(),
+						 alMonotoneVar.begin(),
+						 family,
+						 cTrees,
+						 cDepth,
+						 cMinObsInNode,
+						 cNumClasses,
+						 dShrinkage,
+						 dBagFraction,
+						 cTrain,
+						 cFeatures,
+						 pData.get(),
+						 cGroups));
     
-    std::auto_ptr<CDistribution> pDist(pDist_tmp);
     std::auto_ptr<CGBM> pGBM(new CGBM());
     
     // initialize the GBM

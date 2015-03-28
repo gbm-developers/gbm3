@@ -31,7 +31,7 @@ int num_groups(const double* adMisc, int cTrain)
     return cGroups;
 }
 
-void gbm_setup
+CDistribution* gbm_setup
 (
     double *adY,
     double *adOffset,
@@ -43,7 +43,7 @@ void gbm_setup
     int cCols,
     int *acVarClasses,
     int *alMonotoneVar,
-    const char *pszFamily,
+    const std::string& family,
     int cTrees,
     int cDepth,
     int cMinObsInNode,
@@ -53,89 +53,89 @@ void gbm_setup
     int cTrain,
     int cFeatures,
     CDataset *pData,
-    PCDistribution &pDist,
     int& cGroups
 )
 {
-    cGroups = -1;
-
-    pData->SetData(adX,aiXOrder,adY,adOffset,adWeight,adMisc,
-		   cRows,cCols,acVarClasses,alMonotoneVar);
-
+  CDistribution* pDist = 0;
+  cGroups = -1;
+  
+  pData->SetData(adX,aiXOrder,adY,adOffset,adWeight,adMisc,
+		 cRows,cCols,acVarClasses,alMonotoneVar);
+  
     // set the distribution
-    if(strcmp(pszFamily,"gamma") == 0)
+  if (family == "gamma") {
+      pDist = new CGamma();
+  } 
+  else if (family == "tweedie") {
+      pDist = new CTweedie(adMisc[0]);
+  }
+  else if (family == "bernoulli") 
     {
-        pDist = new CGamma();
+      pDist = new CBernoulli();
     }
-    else if(strcmp(pszFamily,"tweedie") == 0)
+  else if (family == "gaussian") 
     {
-        pDist = new CTweedie(adMisc[0]);
+      pDist = new CGaussian();
     }
-    else if(strncmp(pszFamily,"bernoulli",2) == 0)
+  else if (family == "poisson")
     {
-        pDist = new CBernoulli();
+      pDist = new CPoisson();
     }
-    else if(strncmp(pszFamily,"gaussian",2) == 0)
+  else if (family == "adaboost")
     {
-        pDist = new CGaussian();
+      pDist = new CAdaBoost();
     }
-    else if(strncmp(pszFamily,"poisson",2) == 0)
+  else if (family == "coxph")
     {
-        pDist = new CPoisson();
+      pDist = new CCoxPH();
     }
-    else if(strncmp(pszFamily,"adaboost",2) == 0)
+  else if (family == "laplace")
     {
-        pDist = new CAdaBoost();
+      pDist = new CLaplace();
     }
-    else if(strncmp(pszFamily,"coxph",2) == 0)
+  else if (family == "quantile")
     {
-        pDist = new CCoxPH();
+      pDist = new CQuantile(adMisc[0]);
     }
-    else if(strncmp(pszFamily,"laplace",2) == 0)
+  else if (family == "tdist")
     {
-        pDist = new CLaplace();
+      pDist = new CTDist(adMisc[0]);
     }
-    else if(strncmp(pszFamily,"quantile",2) == 0)
+  else if (family == "multinomial")
     {
-        pDist = new CQuantile(adMisc[0]);
+      pDist = new CMultinomial(cNumClasses, cRows);
     }
-    else if(strncmp(pszFamily,"tdist",2) == 0)
+  else if (family == "huberized")
     {
-        pDist = new CTDist(adMisc[0]);
+      pDist = new CHuberized();
     }
-    else if(strncmp(pszFamily,"multinomial",2) == 0)
+  else if (family == "pairwise_conc")
     {
-        pDist = new CMultinomial(cNumClasses, cRows);
+      pDist = new CPairwise("conc");
     }
-    else if(strncmp(pszFamily,"huberized",2) == 0)
+  else if (family == "pairwise_ndcg")
     {
-        pDist = new CHuberized();
+      pDist = new CPairwise("ndcg");
     }
-    else if(strcmp(pszFamily,"pairwise_conc") == 0)
+  else if (family == "pairwise_map")
     {
-        pDist = new CPairwise("conc");
+      pDist = new CPairwise("map");
     }
-    else if(strcmp(pszFamily,"pairwise_ndcg") == 0)
+  else if (family == "pairwise_mrr")
     {
-        pDist = new CPairwise("ndcg");
+      pDist = new CPairwise("mrr");
     }
-    else if(strcmp(pszFamily,"pairwise_map") == 0)
-    {
-        pDist = new CPairwise("map");
-    }
-    else if(strcmp(pszFamily,"pairwise_mrr") == 0)
-    {
-        pDist = new CPairwise("mrr");
-    }
-    else
+  else
     {
       throw GBM::invalid_argument();
     }
 
-    if (!strncmp(pszFamily, "pairwise", strlen("pairwise")))
+  if (0==family.compare(0, 8, "pairwise")) 
     {
-        cGroups = num_groups(adMisc, cTrain);
+      cGroups = num_groups(adMisc, cTrain);
     }
+  
+  return pDist;
 }
 
 
