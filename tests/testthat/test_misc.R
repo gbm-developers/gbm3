@@ -22,3 +22,15 @@ test_that("predicts correctly on unknown levels (issue #18)", {
 
     expect_equal(sum(abs(p)), 0)
 })
+
+test_that("print.gbm works without cross-validation (issue #5)", {
+    df <- data.frame(
+        x = runif(100),
+        y = runif(100),
+        z = sample(0:1, 100, replace = TRUE)
+    )
+
+    trained_gbm <- gbm.fit(df[, c("x", "y")], df$z)
+    
+    expect_null(print(trained_gbm))
+})
