@@ -33,48 +33,34 @@ public:
 
     CGBM();
     ~CGBM();
-    GBMRESULT Initialize(CDataset *pData,
-                         CDistribution *pDist,
-                         double dLambda,
-                         unsigned long nTrain,
-                         unsigned long cFeatures,
-                         double dBagFraction,
-                         unsigned long cLeaves,
-                         unsigned long cMinObsInNode,
-			 unsigned long cNumClasses,
-                         int cGroups);
+    void Initialize(CDataset *pData,
+		    CDistribution *pDist,
+		    double dLambda,
+		    unsigned long nTrain,
+		    unsigned long cFeatures,
+		    double dBagFraction,
+		    unsigned long cLeaves,
+		    unsigned long cMinObsInNode,
+		    unsigned long cNumClasses,
+		    int cGroups);
 
-    GBMRESULT iterate(double *adF,
-                    double &dTrainError,
-                    double &dValidError,
-                    double &dOOBagImprove,
-                    int &cNodes,
-					int cNumClasses,
-					int cClassIdx);
-    GBMRESULT TransferTreeToRList(int *aiSplitVar,
-                                double *adSplitPoint,
-                                int *aiLeftNode,
-                                int *aiRightNode,
-                                int *aiMissingNode,
-                                double *adErrorReduction,
-                                double *adWeight,
-                                double *adPred,
-                                VEC_VEC_CATEGORIES &vecSplitCodes,
-                                int cCatSplitsOld);
-    GBMRESULT Predict(unsigned long iVar,
-                    unsigned long cTrees,
-                    double *adF,
-                    double *adX,
-                    unsigned long cLength);
-    GBMRESULT Predict(double *adX,
-                    unsigned long cRow,
-                    unsigned long cCol,
-                    unsigned long cTrees,
-                    double *adF);
-
-    GBMRESULT GetVarRelativeInfluence(double *adRelInf,
-                                    unsigned long cTrees);
-    GBMRESULT PrintTree();
+    void iterate(double *adF,
+		 double &dTrainError,
+		 double &dValidError,
+		 double &dOOBagImprove,
+		 int &cNodes,
+		 int cNumClasses,
+		 int cClassIdx);
+    void TransferTreeToRList(int *aiSplitVar,
+			     double *adSplitPoint,
+			     int *aiLeftNode,
+			     int *aiRightNode,
+			     int *aiMissingNode,
+			     double *adErrorReduction,
+			     double *adWeight,
+			     double *adPred,
+			     VEC_VEC_CATEGORIES &vecSplitCodes,
+			     int cCatSplitsOld);
 
     bool IsPairwise() const { return (cGroups >= 0); }
  private:

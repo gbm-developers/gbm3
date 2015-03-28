@@ -29,34 +29,34 @@ public:
 
     CNodeTerminal();
     ~CNodeTerminal();
-    GBMRESULT Adjust(unsigned long cMinObsInNode);
+    void Adjust(unsigned long cMinObsInNode);
 
-    GBMRESULT PrintSubtree(unsigned long cIndent);
-    GBMRESULT TransferTreeToRList(int &iNodeID,
-                                CDataset *pData,
-                                int *aiSplitVar,
-                                double *adSplitPoint,
-                                int *aiLeftNode,
-                                int *aiRightNode,
-                                int *aiMissingNode,
-                                double *adErrorReduction,
-                                double *adWeight,
-                                double *adPred,
-                                VEC_VEC_CATEGORIES &vecSplitCodes,
-                                int cCatSplitsOld,
-                                double dShrinkage);
+    void PrintSubtree(unsigned long cIndent);
+    void TransferTreeToRList(int &iNodeID,
+			     CDataset *pData,
+			     int *aiSplitVar,
+			     double *adSplitPoint,
+			     int *aiLeftNode,
+			     int *aiRightNode,
+			     int *aiMissingNode,
+			     double *adErrorReduction,
+			     double *adWeight,
+			     double *adPred,
+			     VEC_VEC_CATEGORIES &vecSplitCodes,
+			     int cCatSplitsOld,
+			     double dShrinkage);
+    
+    void ApplyShrinkage(double dLambda);
+    void Predict(CDataset *pData,
+		 unsigned long i,
+		 double &dFadj);
+    void Predict(double *adX,
+		 unsigned long cRow,
+		 unsigned long cCol,
+		 unsigned long iRow,
+		 double &dFadj);
 
-    GBMRESULT ApplyShrinkage(double dLambda);
-    GBMRESULT Predict(CDataset *pData,
-                    unsigned long i,
-                    double &dFadj);
-    GBMRESULT Predict(double *adX,
-                    unsigned long cRow,
-                    unsigned long cCol,
-                    unsigned long iRow,
-                    double &dFadj);
-
-    GBMRESULT GetVarRelativeInfluence(double *adRelInf);
+    void GetVarRelativeInfluence(double *adRelInf);
     void RecycleSelf(CNodeFactory *pNodeFactory);
 };
 

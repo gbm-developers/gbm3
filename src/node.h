@@ -36,15 +36,15 @@ public:
 
     CNode();
     virtual ~CNode();
-    virtual GBMRESULT Adjust(unsigned long cMinObsInNode);
-    virtual GBMRESULT Predict(CDataset *pData,
-                            unsigned long iRow,
-                            double &dFadj);
-    virtual GBMRESULT Predict(double *adX,
-                            unsigned long cRow,
-                            unsigned long cCol,
-                            unsigned long iRow,
-                            double &dFadj) = 0;
+    virtual void Adjust(unsigned long cMinObsInNode) = 0;
+    virtual void Predict(CDataset *pData,
+			 unsigned long iRow,
+			 double &dFadj) = 0;
+    virtual void Predict(double *adX,
+			 unsigned long cRow,
+			 unsigned long cCol,
+			 unsigned long iRow,
+			 double &dFadj) = 0;
     static double Improvement
     (
         double dLeftW,
@@ -78,23 +78,22 @@ public:
     }
 
 
-    virtual GBMRESULT PrintSubtree(unsigned long cIndent);
-    virtual GBMRESULT TransferTreeToRList(int &iNodeID,
-                                        CDataset *pData,
-                                        int *aiSplitVar,
-                                        double *adSplitPoint,
-                                        int *aiLeftNode,
-                                        int *aiRightNode,
-                                        int *aiMissingNode,
-                                        double *adErrorReduction,
-                                        double *adWeight,
-                                        double *adPred,
-                                        VEC_VEC_CATEGORIES &vecSplitCodes,
-                                        int cCatSplitsOld,
-                                        double dShrinkage);
+    virtual void PrintSubtree(unsigned long cIndent) = 0;
+    virtual void TransferTreeToRList(int &iNodeID,
+				     CDataset *pData,
+				     int *aiSplitVar,
+				     double *adSplitPoint,
+				     int *aiLeftNode,
+				     int *aiRightNode,
+				     int *aiMissingNode,
+				     double *adErrorReduction,
+				     double *adWeight,
+				     double *adPred,
+				     VEC_VEC_CATEGORIES &vecSplitCodes,
+				     int cCatSplitsOld,
+				     double dShrinkage) = 0;
 
-    double TotalError();
-    virtual GBMRESULT GetVarRelativeInfluence(double *adRelInf);
+    virtual void GetVarRelativeInfluence(double *adRelInf) = 0;
     virtual void RecycleSelf(CNodeFactory *pNodeFactory) = 0;
 
     double dPrediction;
@@ -104,8 +103,8 @@ public:
 
 protected:
     double GetXEntry(CDataset *pData,
-                            unsigned long iRow,
-                            unsigned long iCol)
+		     unsigned long iRow,
+		     unsigned long iCol)
     {
         return pData->adX[iCol*(pData->cRows) + iRow];
     }

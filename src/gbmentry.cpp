@@ -34,9 +34,9 @@ SEXP gbm
 )
 {
   BEGIN_RCPP
-  unsigned long hr = 0;
+    
+    GBMRESULT hr;
 
- 
     VEC_VEC_CATEGORIES vecSplitCodes;
 
     int i = 0;
@@ -105,30 +105,25 @@ SEXP gbm
     std::auto_ptr<CGBM> pGBM(new CGBM());
     
     // initialize the GBM
-    hr = pGBM->Initialize(pData.get(),
-                          pDist.get(),
-                          dShrinkage,
-                          cTrain,
-                          cFeatures,
-                          dBagFraction,
-                          cDepth,
-                          cMinObsInNode,
-                          cNumClasses,
-                          cGroups);
-
-    if(GBM_FAILED(hr))
-    {
-      throw std::runtime_error("gbm failed");
-    }
+    pGBM->Initialize(pData.get(),
+		     pDist.get(),
+		     dShrinkage,
+		     cTrain,
+		     cFeatures,
+		     dBagFraction,
+		     cDepth,
+		     cMinObsInNode,
+		     cNumClasses,
+		     cGroups);
 
     double dInitF;
     Rcpp::NumericVector adF(pData->cRows * cNumClasses);
 
-    hr = pDist->Initialize(pData->adY,
-                           pData->adMisc,
-                           pData->adOffset,
-                           pData->adWeight,
-                           pData->cRows);
+    pDist->Initialize(pData->adY,
+		      pData->adMisc,
+		      pData->adOffset,
+		      pData->adWeight,
+		      pData->cRows);
     
     if(ISNA(adFold[0])) // check for old predictions
     {
@@ -176,14 +171,9 @@ SEXP gbm
         for (iK = 0; iK < cNumClasses; iK++)
         {
           
-          hr = pGBM->iterate(adF.begin(),
-                             dTrainError,dValidError,dOOBagImprove,
-                             cNodes, cNumClasses, iK);
-          
-          if(GBM_FAILED(hr))
-            {
-              throw std::runtime_error("gbm failed");
-            }
+          pGBM->iterate(adF.begin(),
+			dTrainError,dValidError,dOOBagImprove,
+			cNodes, cNumClasses, iK);
           
           // store the performance measures
           adTrainError[iT] += dTrainError;
@@ -199,17 +189,17 @@ SEXP gbm
           Rcpp::NumericVector dWeight(cNodes);
           Rcpp::NumericVector dPred(cNodes);
 
-          hr = gbm_transfer_to_R(pGBM.get(),
-                                 vecSplitCodes,
-                                 iSplitVar.begin(),
-                                 dSplitPoint.begin(),
-                                 iLeftNode.begin(),
-                                 iRightNode.begin(),
-                                 iMissingNode.begin(),
-                                 dErrorReduction.begin(),
-                                 dWeight.begin(),
-                                 dPred.begin(),
-                                 cCatSplitsOld);
+          gbm_transfer_to_R(pGBM.get(),
+			    vecSplitCodes,
+			    iSplitVar.begin(),
+			    dSplitPoint.begin(),
+			    iLeftNode.begin(),
+			    iRightNode.begin(),
+			    iMissingNode.begin(),
+			    dErrorReduction.begin(),
+			    dWeight.begin(),
+			    dPred.begin(),
+			    cCatSplitsOld);
 
 	  setOfTrees[iK + iT * cNumClasses] = 
 	    Rcpp::List::create(iSplitVar,

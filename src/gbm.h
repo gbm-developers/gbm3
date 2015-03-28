@@ -64,34 +64,19 @@ CDistribution* gbm_setup
 );
 
 
-GBMRESULT gbm_transfer_to_R
+void gbm_transfer_to_R
 (
-    CGBM *pGBM,
-    VEC_VEC_CATEGORIES &vecSplitCodes,
-    int *aiSplitVar,
-    double *adSplitPoint,
-    int *aiLeftNode,
-    int *aiRightNode,
-    int *aiMissingNode,
-    double *adErrorReduction,
-    double *adWeight,
-    double *adPred,
-    int cCatSplitsOld
-);
-
-
-GBMRESULT gbm_transfer_catsplits_to_R
-(
-    int iCatSplit,
-    VEC_VEC_CATEGORIES &vecSplitCodes,
-    int *aiSplitCodes
-);
-
-
-int size_of_vector
-(
-    VEC_VEC_CATEGORIES &vec,
-    int i
+ CGBM *pGBM,
+ VEC_VEC_CATEGORIES &vecSplitCodes,
+ int *aiSplitVar,
+ double *adSplitPoint,
+ int *aiLeftNode,
+ int *aiRightNode,
+ int *aiMissingNode,
+ double *adErrorReduction,
+ double *adWeight,
+ double *adPred,
+ int cCatSplitsOld
 );
 
 

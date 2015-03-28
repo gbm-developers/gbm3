@@ -15,6 +15,11 @@ namespace GBM {
     out_of_nodes() : std::runtime_error("factory empty!") {};
   };
 
+  class failure : public std::runtime_error {
+  public:
+  failure() : std::runtime_error("unspecified failure") {};
+  };
+
 }
 
 #endif

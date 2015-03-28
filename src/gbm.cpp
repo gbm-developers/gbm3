@@ -139,66 +139,33 @@ CDistribution* gbm_setup
 }
 
 
-GBMRESULT gbm_transfer_to_R
+void gbm_transfer_to_R
 (
-    CGBM *pGBM,
-    VEC_VEC_CATEGORIES &vecSplitCodes,
-    int *aiSplitVar,
-    double *adSplitPoint,
-    int *aiLeftNode,
-    int *aiRightNode,
-    int *aiMissingNode,
-    double *adErrorReduction,
-    double *adWeight,
-    double *adPred,
-    int cCatSplitsOld
-)
+ CGBM *pGBM,
+ VEC_VEC_CATEGORIES &vecSplitCodes,
+ int *aiSplitVar,
+ double *adSplitPoint,
+ int *aiLeftNode,
+ int *aiRightNode,
+ int *aiMissingNode,
+ double *adErrorReduction,
+ double *adWeight,
+ double *adPred,
+ int cCatSplitsOld
+ )
 {
-    GBMRESULT hr = GBM_OK;
-
-
-    hr = pGBM->TransferTreeToRList(aiSplitVar,
-                                   adSplitPoint,
-                                   aiLeftNode,
-                                   aiRightNode,
-                                   aiMissingNode,
-                                   adErrorReduction,
-                                   adWeight,
-                                   adPred,
-                                   vecSplitCodes,
-                                   cCatSplitsOld);
-    if(GBM_FAILED(hr)) goto Error;
-
-Cleanup:
-    return hr;
-Error:
-    goto Cleanup;
+    pGBM->TransferTreeToRList(aiSplitVar,
+			      adSplitPoint,
+			      aiLeftNode,
+			      aiRightNode,
+			      aiMissingNode,
+			      adErrorReduction,
+			      adWeight,
+			      adPred,
+			      vecSplitCodes,
+			      cCatSplitsOld);
 }
 
-
-GBMRESULT gbm_transfer_catsplits_to_R
-(
-    int iCatSplit,
-    VEC_VEC_CATEGORIES &vecSplitCodes,
-    int *aiSplitCodes
-)
-{
-    std::copy(vecSplitCodes[iCatSplit].begin(),
-	      vecSplitCodes[iCatSplit].end(),
-	      aiSplitCodes);
-
-    return GBM_OK;
-}
-
-
-int size_of_vector
-(
-    VEC_VEC_CATEGORIES &vec,
-    int i
-)
-{
-    return vec[i].size();
-}
 
 
 
