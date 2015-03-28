@@ -12,7 +12,7 @@
 //  This file implements the LambdaMart algorithm for learning ranking functions.
 //  The main idea is to model p_ij, the probability that item i should rank higher
 //  than j, as
-//       p_ij = 1 / (1 + exp(s_i - s_j)),
+//       p_ij = 1 / (1 + std::exp(s_i - s_j)),
 //  where s_i, s_j are the model scores for the two items.
 //
 //  While scores are still generated one item at a time, gradients for learning
@@ -266,30 +266,22 @@ public:
 
     virtual ~CPairwise();
 
-    GBMRESULT Initialize(double *adY,
-                         double *adGroup,
-                         double *adOffset,
-                         double *adWeight,
-                         unsigned long cLength);
-
-    GBMRESULT UpdateParams(double *adF,
-                           double *adOffset,
-                           double *adWeight,
-                           unsigned long cLength)
-    {
-        return GBM_OK;
-    };
-
-    GBMRESULT ComputeWorkingResponse(double *adY,
-                                     double *adGroup,
-                                     double *adOffset,
-                                     double *adF,
-                                     double *adZ,
-                                     double *adWeight,
-                                     int *afInBag,
-                                     unsigned long nTrain,
-                                     int cIdxOff);
-
+    void Initialize(double *adY,
+		    double *adGroup,
+		    double *adOffset,
+		    double *adWeight,
+		    unsigned long cLength);
+    
+    void ComputeWorkingResponse(double *adY,
+				double *adGroup,
+				double *adOffset,
+				double *adF,
+				double *adZ,
+				double *adWeight,
+				int *afInBag,
+				unsigned long nTrain,
+				int cIdxOff);
+    
     double Deviance(double *adY,
                     double *adGroup,
                     double *adOffset,
@@ -298,27 +290,27 @@ public:
                     unsigned long cLength,
                     int cIdxOff);
 
-    GBMRESULT InitF(double *adY,
-                    double *adGroup,
-                    double *adOffset,
-                    double *adWeight,
-                    double &dInitF,
-                    unsigned long cLength);
+    void InitF(double *adY,
+	       double *adGroup,
+	       double *adOffset,
+	       double *adWeight,
+	       double &dInitF,
+	       unsigned long cLength);
 
-    GBMRESULT FitBestConstant(double *adY,
-                              double *adGroup,
-                              double *adOffset,
-                              double *adW,
-                              double *adF,
-                              double *adZ,
-                              const std::vector<unsigned long>& aiNodeAssign,
-                              unsigned long nTrain,
-                              VEC_P_NODETERMINAL vecpTermNodes,
-                              unsigned long cTermNodes,
-                              unsigned long cMinObsInNode,
-                              int *afInBag,
-                              double *adFadj,
-                              int cIdxOff);
+    void FitBestConstant(double *adY,
+			 double *adGroup,
+			 double *adOffset,
+			 double *adW,
+			 double *adF,
+			 double *adZ,
+			 const std::vector<unsigned long>& aiNodeAssign,
+			 unsigned long nTrain,
+			 VEC_P_NODETERMINAL vecpTermNodes,
+			 unsigned long cTermNodes,
+			 unsigned long cMinObsInNode,
+			 int *afInBag,
+			 double *adFadj,
+			 int cIdxOff);
 
     double BagImprovement(double *adY,
                           double *adGroup,

@@ -47,42 +47,42 @@ public:
 // It gives derived classes a chance for custom preparations, e.g., to allocate
 // memory or to pre-compute values that do not change between iterations.
 
-    virtual GBMRESULT Initialize(double *adY,
-                                 double *adMisc,
-                                 double *adOffset,
-                                 double *adWeight,
-                                 unsigned long cLength) { return GBM_OK; }
+    virtual void Initialize(double *adY,
+			    double *adMisc,
+			    double *adOffset,
+			    double *adWeight,
+			    unsigned long cLength) {  }
 
 // UpdateParams() is called at the start of each iteration.
 // CMultinomial uses it to normalize predictions across multiple classes.
 
-    virtual GBMRESULT UpdateParams(double *adF,
-                                   double *adOffset,
-                                   double *adWeight,
-                                   unsigned long cLength) = 0;
+    virtual void UpdateParams(double *adF,
+			      double *adOffset,
+			      double *adWeight,
+			      unsigned long cLength) { };
 
 // ComputeWorkingResonse() calculates the negative gradients of the
 // loss function, and stores them in adZ.
-
-    virtual GBMRESULT ComputeWorkingResponse(double *adY,
-                                             double *adMisc,
-                                             double *adOffset,
-                                             double *adF,
-                                             double *adZ,
-                                             double *adWeight,
-                                             int *afInBag,
-                                             unsigned long cLength,
-	                                     int cIdxOff) = 0;
+    
+    virtual void ComputeWorkingResponse(double *adY,
+					double *adMisc,
+					double *adOffset,
+					double *adF,
+					double *adZ,
+					double *adWeight,
+					int *afInBag,
+					unsigned long cLength,
+					int cIdxOff) = 0;
 
 // InitF() computes the best constant prediction for all instances, and
 // stores it in dInitF.
 
-    virtual GBMRESULT InitF(double *adY,
-                            double *adMisc,
-                            double *adOffset,
-                            double *adWeight,
-                            double &dInitF,
-                            unsigned long cLength) = 0;
+    virtual void InitF(double *adY,
+		       double *adMisc,
+		       double *adOffset,
+		       double *adWeight,
+		       double &dInitF,
+		       unsigned long cLength) = 0;
 
 // Deviance() returns the value of the loss function, based on the
 // current predictions (adF).
@@ -104,20 +104,20 @@ public:
 // * aiNodeAssign is a vector of size cLength, that maps each instance to an index
 //   into vecpTermNodes for the corresponding terminal node.
 
-    virtual GBMRESULT FitBestConstant(double *adY,
-                                    double *adMisc,
-                                    double *adOffset,
-                                    double *adWeight,
-                                    double *adF,
-                                    double *adZ,
- 			      const std::vector<unsigned long>& aiNodeAssign,
-                                    unsigned long cLength,
-                                    VEC_P_NODETERMINAL vecpTermNodes,
-                                    unsigned long cTermNodes,
-                                    unsigned long cMinObsInNode,
-                                    int *afInBag,
-                                    double *adFadj,
-	                            int cIdxOff) = 0;
+    virtual void FitBestConstant(double *adY,
+				      double *adMisc,
+				      double *adOffset,
+				      double *adWeight,
+				      double *adF,
+				      double *adZ,
+				      const std::vector<unsigned long>& aiNodeAssign,
+				      unsigned long cLength,
+				      VEC_P_NODETERMINAL vecpTermNodes,
+				      unsigned long cTermNodes,
+				      unsigned long cMinObsInNode,
+				      int *afInBag,
+				      double *adFadj,
+				      int cIdxOff) = 0;
 
 // BagImprovement() returns the incremental difference in the loss
 // function induced by scoring with (adF + dStepSize * adFAdj) instead of adF, for

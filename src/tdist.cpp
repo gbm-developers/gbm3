@@ -4,10 +4,7 @@
 
 #include "tdist.h"
 
-
-
-
-GBMRESULT CTDist::ComputeWorkingResponse
+void CTDist::ComputeWorkingResponse
 (
     double *adY,
     double *adMisc,
@@ -17,18 +14,18 @@ GBMRESULT CTDist::ComputeWorkingResponse
     double *adWeight,
     int *afInBag,
     unsigned long nTrain,
-	int cIdxOff
+    int cIdxOff
 )
 {
     unsigned long i = 0;
-	double dU = 0.0;
+    double dU = 0.0;
 
     if(adOffset == NULL)
     {
         for(i=0; i<nTrain; i++)
         {
-		    dU = adY[i] - adF[i];
-			adZ[i] = (2 * dU) / (mdNu + (dU * dU));
+	  dU = adY[i] - adF[i];
+	  adZ[i] = (2 * dU) / (mdNu + (dU * dU));
         }
     }
     else
@@ -39,12 +36,10 @@ GBMRESULT CTDist::ComputeWorkingResponse
 			adZ[i] = (2 * dU) / (mdNu + (dU * dU));
         }
     }
-
-    return GBM_OK;
 }
 
 
-GBMRESULT CTDist::InitF
+void CTDist::InitF
 (
     double *adY,
     double *adMisc,
@@ -69,9 +64,6 @@ GBMRESULT CTDist::InitF
 	}
 
 	dInitF = mpLocM.LocationM(iN, &adArr[0], adWeight, 0.5);
-
-
-    return GBM_OK;
 }
 
 double CTDist::Deviance
@@ -82,7 +74,7 @@ double CTDist::Deviance
     double *adWeight,
     double *adF,
     unsigned long cLength,
-	int cIdxOff
+    int cIdxOff
 )
 {
     unsigned long i=0;
@@ -95,7 +87,7 @@ double CTDist::Deviance
         for(i=cIdxOff; i<cLength+cIdxOff; i++)
         {
 			dU = adY[i] - adF[i];
-			dL += adWeight[i] * log(mdNu + (dU * dU));
+			dL += adWeight[i] * std::log(mdNu + (dU * dU));
             dW += adWeight[i];
         }
     }
@@ -104,7 +96,7 @@ double CTDist::Deviance
         for(i=cIdxOff; i<cLength+cIdxOff; i++)
         {
 			dU = adY[i] - adOffset[i] - adF[i];
-		    dL += adWeight[i] * log(mdNu + (dU * dU));
+		    dL += adWeight[i] * std::log(mdNu + (dU * dU));
             dW += adWeight[i];
         }
     }
@@ -113,7 +105,7 @@ double CTDist::Deviance
 }
 
 
-GBMRESULT CTDist::FitBestConstant
+void CTDist::FitBestConstant
 (
     double *adY,
     double *adMisc,
@@ -132,7 +124,6 @@ GBMRESULT CTDist::FitBestConstant
 )
 {
    	// Local variables
-    GBMRESULT hr = GBM_OK;
     unsigned long iNode = 0;
     unsigned long iObs = 0;
 
@@ -161,8 +152,6 @@ GBMRESULT CTDist::FitBestConstant
 
         }
     }
-
-    return hr;
 }
 
 double CTDist::BagImprovement
@@ -191,7 +180,7 @@ double CTDist::BagImprovement
 	    const double dU = (adY[i] - dF);
 	    const double dV = (adY[i] - dF - dStepSize * adFadj[i]) ;
 
-            dReturnValue += adWeight[i] * (log(mdNu + (dU * dU)) - log(mdNu + (dV * dV)));
+            dReturnValue += adWeight[i] * (std::log(mdNu + (dU * dU)) - log(mdNu + (dV * dV)));
             dW += adWeight[i];
         }
     }

@@ -35,8 +35,6 @@ SEXP gbm
 {
   BEGIN_RCPP
     
-    GBMRESULT hr;
-
     VEC_VEC_CATEGORIES vecSplitCodes;
 
     int i = 0;
@@ -127,21 +125,21 @@ SEXP gbm
     
     if(ISNA(adFold[0])) // check for old predictions
     {
-        // set the initial value of F as a constant
-        hr = pDist->InitF(pData->adY,
-                          pData->adMisc,
-                          pData->adOffset,
-                          pData->adWeight,
-                          dInitF,
-                          cTrain);
+      // set the initial value of F as a constant
+      pDist->InitF(pData->adY,
+		   pData->adMisc,
+		   pData->adOffset,
+		   pData->adWeight,
+		   dInitF,
+		   cTrain);
 
-        adF.fill(dInitF);
+      adF.fill(dInitF);
     }
     else
-    {
-      std::copy(adFold.begin(),
-                adFold.begin() + cNumClasses * pData->cRows,
-                adF.begin());
+      {
+	std::copy(adFold.begin(),
+		  adFold.begin() + cNumClasses * pData->cRows,
+		  adF.begin());
     }
 
     Rcpp::NumericVector adTrainError(cTrees);
@@ -156,15 +154,11 @@ SEXP gbm
     for(iT=0; iT<cTrees; iT++)
       {
         // Update the parameters
-        hr = pDist->UpdateParams(adF.begin(),
-                                 pData->adOffset,
-                                 pData->adWeight,
-                                 cTrain);
+        pDist->UpdateParams(adF.begin(),
+			    pData->adOffset,
+			    pData->adWeight,
+			    cTrain);
 
-        if(GBM_FAILED(hr))
-          {
-            throw std::runtime_error("gbm failed");
-          }
         adTrainError[iT] = 0;
         adValidError[iT] = 0;
         adOOBagImprove[iT] = 0;
@@ -263,7 +257,6 @@ SEXP gbm_pred
 )
 {
    BEGIN_RCPP
-   unsigned long hr = 0;
    int iTree = 0;
    int iObs = 0;
    const int cRows = Rcpp::as<int>(rcRows);

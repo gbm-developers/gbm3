@@ -321,8 +321,6 @@ void CGBM::TransferTreeToRList
  int cCatSplitsOld
  )
 {
-  GBMRESULT hr = GBM_OK;
-  
   ptreeTemp->TransferTreeToRList(pData,
 				 aiSplitVar,
 				 adSplitPoint,
