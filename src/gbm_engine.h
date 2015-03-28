@@ -18,6 +18,7 @@
 #define GBM_ENGINGBM_H
 
 #include <vector>
+#include <memory>
 #include "buildinfo.h"
 #include "distribution.h"
 #include "tree.h"
@@ -68,14 +69,14 @@ public:
     CDataset *pData;            // the data
     CDistribution *pDist;       // the distribution
     bool fInitialized;          // indicates whether the GBM has been initialized
-    CNodeFactory *pNodeFactory;
+    std::auto_ptr<CNodeFactory> pNodeFactory;
 
     // these objects are for the tree growing
     // allocate them once here for all trees to use
-    bool *afInBag;
+    std::vector<int> afInBag;
     std::vector<unsigned long> aiNodeAssign;
-    CNodeSearch *aNodeSearch;
-    PCCARTTree ptreeTemp;
+    std::vector<CNodeSearch> aNodeSearch;
+    std::auto_ptr<CCARTTree> ptreeTemp;
     VEC_P_NODETERMINAL vecpTermNodes;
     std::vector<double> adZ;
     std::vector<double> adFadj;

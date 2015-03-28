@@ -45,7 +45,7 @@ public:
 	      double dLambda,
 	      unsigned long cMaxDepth,
 	      unsigned long cMinObsInNode,
-	      bool *afInBag,
+	      int *afInBag,
 	      std::vector<unsigned long>& aiNodeAssign,
 	      CNodeSearch *aNodeSearch,
 	      VEC_P_NODETERMINAL &vecpTermNodes);
@@ -98,7 +98,7 @@ private:
 		      CNodeSearch *aNodeSearch,
 		      unsigned long cTerminalNodes,
 		      std::vector<unsigned long>& aiNodeAssign,
-		      bool *afInBag,
+		      int *afInBag,
 		      double *adZ,
 		      double *adW,
 		      unsigned long &iBestNode,

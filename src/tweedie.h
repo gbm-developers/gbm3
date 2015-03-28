@@ -27,7 +27,7 @@ public:
                                      double *adWeight,
                                      double *adF,
                                      double *adZ,
-                                     bool *afInBag,
+                                     int *afInBag,
                                      unsigned long nTrain,
 	                                 int cIdxOff);
 
@@ -49,7 +49,7 @@ public:
                               VEC_P_NODETERMINAL vecpTermNodes,
                               unsigned long cTermNodes,
                               unsigned long cMinObsInNode,
-                              bool *afInBag,
+                              int *afInBag,
                               double *adFadj,
                            	  int cIdxOff);
 
@@ -67,7 +67,7 @@ public:
                           double *adWeight,
                           double *adF,
                           double *adFadj,
-                          bool *afInBag,
+                          int *afInBag,
                           double dStepSize,
                           unsigned long nTrain);
 private:

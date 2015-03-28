@@ -6,9 +6,6 @@
 
 CGBM::CGBM()
 {
-    afInBag = NULL;
-    aNodeSearch = NULL;
-
     cDepth = 0;
     cMinObsInNode = 0;
     dBagFraction = 0.0;
@@ -21,17 +18,11 @@ CGBM::CGBM()
 
     pData = NULL;
     pDist = NULL;
-    pNodeFactory = NULL;
-    ptreeTemp = NULL;
 }
 
 
 CGBM::~CGBM()
 {
-    delete[] afInBag;
-    delete[] aNodeSearch;
-    delete ptreeTemp;
-    delete pNodeFactory;
 }
 
 
@@ -66,24 +57,24 @@ void CGBM::Initialize
   this->cGroups = cGroups;
 
   // allocate the tree structure
-  ptreeTemp = new CCARTTree;
+  ptreeTemp.reset(new CCARTTree);
   
   cValid = pData->cRows - cTrain;
   cTotalInBag = (unsigned long)(dBagFraction*cTrain);
   adZ.assign((pData->cRows) * cNumClasses, 0);
   adFadj.assign((pData->cRows) * cNumClasses, 0);
   
-  pNodeFactory = new CNodeFactory();
+  pNodeFactory.reset(new CNodeFactory());
   pNodeFactory->Initialize(cDepth);
-  ptreeTemp->Initialize(pNodeFactory);
+  ptreeTemp->Initialize(pNodeFactory.get());
   
   // array for flagging those observations in the bag
-  afInBag = new bool[cTrain];
+  afInBag.resize(cTrain);
   
   // aiNodeAssign tracks to which node each training obs belongs
   aiNodeAssign.resize(cTrain);
   // NodeSearch objects help decide which nodes to split
-  aNodeSearch = new CNodeSearch[2*cDepth+1];
+  aNodeSearch.resize(2 * cDepth + 1);
   
   for(i=0; i<2*cDepth+1; i++)
     {
@@ -144,7 +135,7 @@ void CGBM::iterate
                     break;
                 } */
             }
-	    std::fill(afInBag + i, afInBag + cTrain, false);
+	    std::fill(afInBag.begin() + i, afInBag.end(), false);
         }
         else
         {
@@ -190,7 +181,7 @@ void CGBM::iterate
                 }
             }
             // the remainder is not in the bag
-	    std::fill(afInBag + i, afInBag + cTrain, false);
+	    std::fill(afInBag.begin() + i, afInBag.end(), false);
         }
     }
 
@@ -204,7 +195,7 @@ void CGBM::iterate
 				  adF,
 				  &adZ[0],
 				  pData->adWeight,
-				  afInBag,
+				  &afInBag[0],
 				  cTrain,
 				  cIdxOff);
 
@@ -217,8 +208,9 @@ void CGBM::iterate
 #endif
 
     ptreeTemp->grow(&(adZ[cIdxOff]), pData, &(pData->adWeight[cIdxOff]),
-		    &(adFadj[cIdxOff]), cTrain, cFeatures, cTotalInBag, dLambda, cDepth,
-		    cMinObsInNode, afInBag, aiNodeAssign, aNodeSearch,
+		    &(adFadj[cIdxOff]), cTrain, cFeatures, cTotalInBag, 
+		    dLambda, cDepth,
+		    cMinObsInNode, &afInBag[0], aiNodeAssign, &aNodeSearch[0],
 		    vecpTermNodes);
     
     
@@ -244,7 +236,7 @@ void CGBM::iterate
 			   vecpTermNodes,
 			   (2*cNodes+1)/3, // number of terminal nodes
 			   cMinObsInNode,
-			   afInBag,
+			   &afInBag[0],
 			   &adFadj[0],
 			   cIdxOff);
     
@@ -263,7 +255,7 @@ void CGBM::iterate
 					    pData->adWeight,
 					    &adF[0],
 					    &adFadj[0],
-					    afInBag,
+					    &afInBag[0],
 					    dLambda,
 					    cTrain);
     }

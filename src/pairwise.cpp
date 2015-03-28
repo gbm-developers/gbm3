@@ -581,7 +581,7 @@ GBMRESULT CPairwise::ComputeWorkingResponse
     double *adF,
     double *adZ,
     double *adWeight,
-    bool *afInBag,
+    int *afInBag,
     unsigned long nTrain,
     int cIdxOff
 )
@@ -960,7 +960,7 @@ GBMRESULT CPairwise::FitBestConstant
     VEC_P_NODETERMINAL vecpTermNodes,
     unsigned long cTermNodes,
     unsigned long cMinObsInNode,
-    bool *afInBag,
+    int *afInBag,
     double *adFadj,
     int cIdxOff
 )
@@ -1034,7 +1034,7 @@ double CPairwise::BagImprovement
     double *adWeight,
     double *adF,
     double *adFadj,
-    bool *afInBag,
+    int *afInBag,
     double dStepSize,
     unsigned long nTrain
 )
