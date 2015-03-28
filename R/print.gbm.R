@@ -86,6 +86,10 @@ print.gbm <- function(x, ... ){
 
    #############################################################################
 
+   if (is.null(x$cv.fitted)) {
+       return(invisible())
+   }
+   
    d <- reconstructGBMdata(x)
    if (x$distribution$name == "multinomial"){
        n.class <- x$num.classes
