@@ -254,11 +254,11 @@ SEXP gbm_pred
    int iTree = 0;
    int iObs = 0;
    const int cRows = Rcpp::as<int>(rcRows);
-   Rcpp::IntegerVector cTrees(rcTrees);
-   Rcpp::GenericVector trees(rTrees);
-   Rcpp::IntegerVector aiVarType(raiVarType);
-   Rcpp::GenericVector cSplits(rCSplits);
-   Rcpp::NumericVector adX(radX);
+   const Rcpp::IntegerVector cTrees(rcTrees);
+   const Rcpp::GenericVector trees(rTrees);
+   const Rcpp::IntegerVector aiVarType(raiVarType);
+   const Rcpp::GenericVector cSplits(rCSplits);
+   const Rcpp::NumericVector adX(radX);
    const int cCols = Rcpp::as<int>(rcCols);
    const int cNumClasses = Rcpp::as<int>(rcNumClasses);
    const bool fSingleTree = Rcpp::as<bool>(riSingleTree);
@@ -295,12 +295,12 @@ SEXP gbm_pred
        {
          for (iClass = 0; iClass < cNumClasses; iClass++)
            {
-             Rcpp::GenericVector thisTree = trees[iTree];
-             Rcpp::IntegerVector iSplitVar = thisTree[0];
-             Rcpp::NumericVector dSplitCode = thisTree[1];
-             Rcpp::IntegerVector iLeftNode = thisTree[2];
-             Rcpp::IntegerVector iRightNode = thisTree[3];
-             Rcpp::IntegerVector iMissingNode = thisTree[4];
+             const Rcpp::GenericVector thisTree = trees[iTree];
+             const Rcpp::IntegerVector iSplitVar = thisTree[0];
+             const Rcpp::NumericVector dSplitCode = thisTree[1];
+             const Rcpp::IntegerVector iLeftNode = thisTree[2];
+             const Rcpp::IntegerVector iRightNode = thisTree[3];
+             const Rcpp::IntegerVector iMissingNode = thisTree[4];
               
              for(iObs=0; iObs<cRows; iObs++)
                {
@@ -327,7 +327,7 @@ SEXP gbm_pred
                        }
                      else // categorical
                        {
-                         Rcpp::IntegerVector mySplits = cSplits[dSplitCode[iCurrentNode]];
+                         const Rcpp::IntegerVector mySplits = cSplits[dSplitCode[iCurrentNode]];
                          if (mySplits.size() < (int)dX + 1) {
                            iCurrentNode = iMissingNode[iCurrentNode];
                          } else {
@@ -382,11 +382,11 @@ SEXP gbm_plot
     const int cCols = Rcpp::as<int>(rcCols);
     const int cTrees = Rcpp::as<int>(rcTrees);
     const int cNumClasses = Rcpp::as<int>(rcNumClasses);
-    Rcpp::NumericVector adX(radX);
-    Rcpp::IntegerVector aiWhichVar(raiWhichVar);
-    Rcpp::GenericVector trees(rTrees);
-    Rcpp::GenericVector cSplits(rCSplits);
-    Rcpp::IntegerVector aiVarType(raiVarType);
+    const Rcpp::NumericVector adX(radX);
+    const Rcpp::IntegerVector aiWhichVar(raiWhichVar);
+    const Rcpp::GenericVector trees(rTrees);
+    const Rcpp::GenericVector cSplits(rCSplits);
+    const Rcpp::IntegerVector aiVarType(raiVarType);
 
     int aiNodeStack[40];
     double adWeightStack[40];
@@ -397,13 +397,13 @@ SEXP gbm_plot
     {
         for (iClass = 0; iClass < cNumClasses; iClass++)
         {
-          Rcpp::GenericVector thisTree = trees[iClass + iTree*cNumClasses];
-          Rcpp::IntegerVector iSplitVar = thisTree[0];
-          Rcpp::NumericVector dSplitCode = thisTree[1];
-          Rcpp::IntegerVector iLeftNode = thisTree[2];
-          Rcpp::IntegerVector iRightNode = thisTree[3];
-          Rcpp::IntegerVector iMissingNode = thisTree[4];
-          Rcpp::NumericVector dW = thisTree[6];
+          const Rcpp::GenericVector thisTree = trees[iClass + iTree*cNumClasses];
+          const Rcpp::IntegerVector iSplitVar = thisTree[0];
+          const Rcpp::NumericVector dSplitCode = thisTree[1];
+          const Rcpp::IntegerVector iLeftNode = thisTree[2];
+          const Rcpp::IntegerVector iRightNode = thisTree[3];
+          const Rcpp::IntegerVector iMissingNode = thisTree[4];
+          const Rcpp::NumericVector dW = thisTree[6];
           for(iObs=0; iObs<cRows; iObs++)
             {
               aiNodeStack[0] = 0;
@@ -456,7 +456,7 @@ SEXP gbm_plot
                             }
                             else // categorical
                             {
-                              Rcpp::IntegerVector catSplits = cSplits[dSplitCode[iCurrentNode]];
+                              const Rcpp::IntegerVector catSplits = cSplits[dSplitCode[iCurrentNode]];
                               
                               const int iCatSplitIndicator = catSplits[dX];
                               if(iCatSplitIndicator==-1)
