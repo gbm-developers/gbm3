@@ -9,6 +9,7 @@ namespace GBM {
   class invalid_argument : public std::runtime_error {
   public:
     invalid_argument() : std::runtime_error("invalid argument") {} ;
+    invalid_argument(const std::string& msg) : std::runtime_error(msg) {};
   };
 
   class out_of_nodes : public std::runtime_error {

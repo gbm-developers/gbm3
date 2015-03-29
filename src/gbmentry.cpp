@@ -133,10 +133,14 @@ SEXP gbm
     }
     else
       {
+	if (adFold.size() != adF.size()) {
+	  throw GBM::invalid_argument("old predictions are the wrong shape");
+	}
+
 	std::copy(adFold.begin(),
 		  adFold.begin() + cNumClasses * pData->cRows,
 		  adF.begin());
-    }
+      }
 
     Rcpp::NumericVector adTrainError(cTrees, 0.0);
     Rcpp::NumericVector adValidError(cTrees, 0.0);
