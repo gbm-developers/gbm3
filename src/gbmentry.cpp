@@ -67,10 +67,6 @@ SEXP gbm
     
     int cNodes = 0;
 
-    double dTrainError = 0.0;
-    double dValidError = 0.0;
-    double dOOBagImprove = 0.0;
-
     int cGroups = -1;
 
     Rcpp::RNGScope scope;
@@ -142,9 +138,9 @@ SEXP gbm
 		  adF.begin());
     }
 
-    Rcpp::NumericVector adTrainError(cTrees);
-    Rcpp::NumericVector adValidError(cTrees);
-    Rcpp::NumericVector adOOBagImprove(cTrees);
+    Rcpp::NumericVector adTrainError(cTrees, 0.0);
+    Rcpp::NumericVector adValidError(cTrees, 0.0);
+    Rcpp::NumericVector adOOBagImprove(cTrees, 0.0);
     Rcpp::GenericVector setOfTrees(cTrees * cNumClasses);
 
     if(verbose)
@@ -159,12 +155,11 @@ SEXP gbm
 			    pData->adWeight,
 			    cTrain);
 
-        adTrainError[iT] = 0;
-        adValidError[iT] = 0;
-        adOOBagImprove[iT] = 0;
         for (iK = 0; iK < cNumClasses; iK++)
         {
-          
+          double dTrainError = 0;
+	  double dValidError = 0;
+	  double dOOBagImprove = 0;
           pGBM->iterate(adF.begin(),
 			dTrainError,dValidError,dOOBagImprove,
 			cNodes, cNumClasses, iK);
