@@ -266,9 +266,6 @@ SEXP gbm_pred
    int iPredIteration = 0;
    int iClass = 0;
 
-   int iCurrentNode = 0;
-   double dX = 0.0;
-   int iCatSplitIndicator = 0;
    Rcpp::NumericVector adPredF(cRows*cNumClasses*cPredIterations);
 
    // initialize the predicted values
@@ -307,10 +304,10 @@ SEXP gbm_pred
               
              for(iObs=0; iObs<cRows; iObs++)
                {
-                 iCurrentNode = 0;
+                 int iCurrentNode = 0;
                  while(iSplitVar[iCurrentNode] != -1)
                    {
-                     dX = adX[iSplitVar[iCurrentNode]*cRows + iObs];
+                     const double dX = adX[iSplitVar[iCurrentNode]*cRows + iObs];
                      // missing?
                      if(ISNA(dX))
                        {
@@ -334,7 +331,7 @@ SEXP gbm_pred
                          if (mySplits.size() < (int)dX + 1) {
                            iCurrentNode = iMissingNode[iCurrentNode];
                          } else {
-                           iCatSplitIndicator = mySplits[(int)dX];
+                           const int iCatSplitIndicator = mySplits[(int)dX];
                            if(iCatSplitIndicator==-1)
                              {
                                iCurrentNode = iLeftNode[iCurrentNode];
@@ -390,15 +387,9 @@ SEXP gbm_plot
     Rcpp::GenericVector trees(rTrees);
     Rcpp::GenericVector cSplits(rCSplits);
     Rcpp::IntegerVector aiVarType(raiVarType);
-    int iCurrentNode = 0;
-    double dCurrentW = 0.0;
-    double dX = 0.0;
-    int iCatSplitIndicator = 0;
 
     int aiNodeStack[40];
     double adWeightStack[40];
-    int cStackNodes = 0;
-    int iPredVar = 0;
 
     Rcpp::NumericVector adPredF(cRows * cNumClasses,
                                 Rcpp::as<double>(rdInitF));
@@ -417,11 +408,11 @@ SEXP gbm_plot
             {
               aiNodeStack[0] = 0;
               adWeightStack[0] = 1.0;
-              cStackNodes = 1;
+              int cStackNodes = 1;
               while(cStackNodes > 0)
                 {
                   cStackNodes--;
-                  iCurrentNode = aiNodeStack[cStackNodes];
+                  int iCurrentNode = aiNodeStack[cStackNodes];
                   
                   if(iSplitVar[iCurrentNode] == -1) // terminal node
                     {
@@ -431,7 +422,7 @@ SEXP gbm_plot
                     else // non-terminal node
                     {
                         // is this a split variable that interests me?
-                        iPredVar = -1;
+                        int iPredVar = -1;
                         for(i=0; (iPredVar == -1) && (i < cCols); i++)
                         {
                           if(aiWhichVar[i] == iSplitVar[iCurrentNode])
@@ -442,7 +433,7 @@ SEXP gbm_plot
 
                         if(iPredVar != -1) // this split is among raiWhichVar
                         {
-                          dX = adX[iPredVar*cRows + iObs];
+                          const double dX = adX[iPredVar*cRows + iObs];
                           // missing?
                           if(ISNA(dX))
                             {
@@ -467,7 +458,7 @@ SEXP gbm_plot
                             {
                               Rcpp::IntegerVector catSplits = cSplits[dSplitCode[iCurrentNode]];
                               
-                              iCatSplitIndicator = catSplits[dX];
+                              const int iCatSplitIndicator = catSplits[dX];
                               if(iCatSplitIndicator==-1)
                                 {
                                   aiNodeStack[cStackNodes] = iLeftNode[iCurrentNode];
@@ -487,7 +478,7 @@ SEXP gbm_plot
                         else // not interested in this split, average left and right
                           {
                             aiNodeStack[cStackNodes] = iRightNode[iCurrentNode];
-                            dCurrentW = adWeightStack[cStackNodes];
+                            const double dCurrentW = adWeightStack[cStackNodes];
                             adWeightStack[cStackNodes] = dCurrentW *
                               dW[iRightNode[iCurrentNode]]/
                               (dW[iLeftNode[iCurrentNode]]+
