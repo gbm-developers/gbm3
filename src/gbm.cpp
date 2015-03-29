@@ -31,7 +31,7 @@ int num_groups(const double* adMisc, int cTrain)
     return cGroups;
 }
 
-CDistribution* gbm_setup
+std::auto_ptr<CDistribution> gbm_setup
 (
     double *adY,
     double *adOffset,
@@ -56,7 +56,7 @@ CDistribution* gbm_setup
     int& cGroups
 )
 {
-  CDistribution* pDist = 0;
+  std::auto_ptr<CDistribution> pDist;
   cGroups = -1;
   
   pData->SetData(adX,aiXOrder,adY,adOffset,adWeight,adMisc,
@@ -64,66 +64,66 @@ CDistribution* gbm_setup
   
     // set the distribution
   if (family == "gamma") {
-      pDist = new CGamma();
+    pDist.reset(new CGamma());
   } 
   else if (family == "tweedie") {
-      pDist = new CTweedie(adMisc[0]);
+    pDist.reset(new CTweedie(adMisc[0]));
   }
   else if (family == "bernoulli") 
     {
-      pDist = new CBernoulli();
+      pDist.reset(new CBernoulli());
     }
   else if (family == "gaussian") 
     {
-      pDist = new CGaussian();
+      pDist.reset(new CGaussian());
     }
   else if (family == "poisson")
     {
-      pDist = new CPoisson();
+      pDist.reset(new CPoisson());
     }
   else if (family == "adaboost")
     {
-      pDist = new CAdaBoost();
+      pDist.reset(new CAdaBoost());
     }
   else if (family == "coxph")
     {
-      pDist = new CCoxPH();
+      pDist.reset(new CCoxPH());
     }
   else if (family == "laplace")
     {
-      pDist = new CLaplace();
+      pDist.reset(new CLaplace());
     }
   else if (family == "quantile")
     {
-      pDist = new CQuantile(adMisc[0]);
+      pDist.reset(new CQuantile(adMisc[0]));
     }
   else if (family == "tdist")
     {
-      pDist = new CTDist(adMisc[0]);
+      pDist.reset(new CTDist(adMisc[0]));
     }
   else if (family == "multinomial")
     {
-      pDist = new CMultinomial(cNumClasses, cRows);
+      pDist.reset(new CMultinomial(cNumClasses, cRows));
     }
   else if (family == "huberized")
     {
-      pDist = new CHuberized();
+      pDist.reset(new CHuberized());
     }
   else if (family == "pairwise_conc")
     {
-      pDist = new CPairwise("conc");
+      pDist.reset(new CPairwise("conc"));
     }
   else if (family == "pairwise_ndcg")
     {
-      pDist = new CPairwise("ndcg");
+      pDist.reset(new CPairwise("ndcg"));
     }
   else if (family == "pairwise_map")
     {
-      pDist = new CPairwise("map");
+      pDist.reset(new CPairwise("map"));
     }
   else if (family == "pairwise_mrr")
     {
-      pDist = new CPairwise("mrr");
+      pDist.reset(new CPairwise("mrr"));
     }
   else
     {
