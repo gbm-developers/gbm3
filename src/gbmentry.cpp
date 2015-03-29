@@ -383,7 +383,6 @@ SEXP gbm_plot
 )
 {
     BEGIN_RCPP
-    unsigned long hr = 0;
     int i = 0;
     int iTree = 0;
     int iObs = 0;
