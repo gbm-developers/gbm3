@@ -52,6 +52,11 @@ public:
 
   void RecycleSelf(CNodeFactory *pNodeFactory);
 
+  void reset() {
+    CNodeNonterminal::reset();
+    aiLeftCategory.resize(0);
+  }
+
   std::vector<unsigned long> aiLeftCategory;
 };
 

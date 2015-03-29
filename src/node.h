@@ -95,7 +95,8 @@ public:
 
     virtual void GetVarRelativeInfluence(double *adRelInf) = 0;
     virtual void RecycleSelf(CNodeFactory *pNodeFactory) = 0;
-
+    
+    virtual void reset() { dPrediction = 0; }
     double dPrediction;
     double dTrainW;   // total training weight in node
     unsigned long cN; // number of training observations in node

@@ -35,7 +35,7 @@ CNodeTerminal* CNodeFactory::GetNewNodeTerminal() {
   
   CNodeTerminal* res = TerminalStack.top();
   TerminalStack.pop();
-  res->dPrediction = 0.0;
+  res->reset();
   return res;
 }
 
@@ -48,13 +48,7 @@ CNodeContinuous* CNodeFactory::GetNewNodeContinuous() {
   CNodeContinuous* res = ContinuousStack.top();
   ContinuousStack.pop();
   
-  res->dPrediction = 0.0;
-  res->dImprovement = 0.0;
-  res->pMissingNode = NULL;
-  res->pLeftNode = NULL;
-  res->pRightNode = NULL;
-  res->iSplitVar = 0;
-  res->dSplitValue = 0.0;
+  res->reset();
   
   return res;
 }
@@ -69,13 +63,7 @@ CNodeCategorical* CNodeFactory::GetNewNodeCategorical() {
   CNodeCategorical* res = CategoricalStack.top();
   CategoricalStack.pop();
   
-  res->dPrediction = 0.0;
-  res->dImprovement = 0.0;
-  res->pMissingNode = NULL;
-  res->pLeftNode = NULL;
-  res->pRightNode = NULL;
-  res->iSplitVar = 0;
-  res->aiLeftCategory.resize(0);
+  res->reset();
   
   return res;
 }

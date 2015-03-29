@@ -59,6 +59,13 @@ public:
 
     void GetVarRelativeInfluence(double *adRelInf);
     
+    void reset() {
+      CNode::reset();
+      pLeftNode = pRightNode = pMissingNode = 0;
+      iSplitVar = 0;
+      dImprovement = 0;
+    }
+    
     CNode *pLeftNode;
     CNode *pRightNode;
     CNode *pMissingNode;
