@@ -6,7 +6,7 @@
 //------------------------------------------------------------------------------
 
 #include <algorithm>
-#include<vector>
+#include <vector>
 #include "gbm.h"
 
 // Count the number of distinct groups in the input data
@@ -31,7 +31,7 @@ int num_groups(const double* adMisc, int cTrain)
     return cGroups;
 }
 
-unsigned long gbm_setup
+std::auto_ptr<CDistribution> gbm_setup
 (
     double *adY,
     double *adOffset,
@@ -43,7 +43,7 @@ unsigned long gbm_setup
     int cCols,
     int *acVarClasses,
     int *alMonotoneVar,
-    const char *pszFamily,
+    const std::string& family,
     int cTrees,
     int cDepth,
     int cMinObsInNode,
@@ -53,164 +53,119 @@ unsigned long gbm_setup
     int cTrain,
     int cFeatures,
     CDataset *pData,
-    PCDistribution &pDist,
     int& cGroups
 )
 {
-    unsigned long hr = 0;
-    cGroups = -1;
-
-    hr = pData->SetData(adX,aiXOrder,adY,adOffset,adWeight,adMisc,
-                        cRows,cCols,acVarClasses,alMonotoneVar);
-
-    if(GBM_FAILED(hr))
-    {
-        goto Error;
-    }
-
+  std::auto_ptr<CDistribution> pDist;
+  cGroups = -1;
+  
+  pData->SetData(adX,aiXOrder,adY,adOffset,adWeight,adMisc,
+		 cRows,cCols,acVarClasses,alMonotoneVar);
+  
     // set the distribution
-    if(strcmp(pszFamily,"gamma") == 0)
+  if (family == "gamma") {
+    pDist.reset(new CGamma());
+  } 
+  else if (family == "tweedie") {
+    pDist.reset(new CTweedie(adMisc[0]));
+  }
+  else if (family == "bernoulli") 
     {
-        pDist = new CGamma();
+      pDist.reset(new CBernoulli());
     }
-    else if(strcmp(pszFamily,"tweedie") == 0)
+  else if (family == "gaussian") 
     {
-        pDist = new CTweedie(adMisc[0]);
+      pDist.reset(new CGaussian());
     }
-    else if(strncmp(pszFamily,"bernoulli",2) == 0)
+  else if (family == "poisson")
     {
-        pDist = new CBernoulli();
+      pDist.reset(new CPoisson());
     }
-    else if(strncmp(pszFamily,"gaussian",2) == 0)
+  else if (family == "adaboost")
     {
-        pDist = new CGaussian();
+      pDist.reset(new CAdaBoost());
     }
-    else if(strncmp(pszFamily,"poisson",2) == 0)
+  else if (family == "coxph")
     {
-        pDist = new CPoisson();
+      pDist.reset(new CCoxPH());
     }
-    else if(strncmp(pszFamily,"adaboost",2) == 0)
+  else if (family == "laplace")
     {
-        pDist = new CAdaBoost();
+      pDist.reset(new CLaplace());
     }
-    else if(strncmp(pszFamily,"coxph",2) == 0)
+  else if (family == "quantile")
     {
-        pDist = new CCoxPH();
+      pDist.reset(new CQuantile(adMisc[0]));
     }
-    else if(strncmp(pszFamily,"laplace",2) == 0)
+  else if (family == "tdist")
     {
-        pDist = new CLaplace();
+      pDist.reset(new CTDist(adMisc[0]));
     }
-    else if(strncmp(pszFamily,"quantile",2) == 0)
+  else if (family == "multinomial")
     {
-        pDist = new CQuantile(adMisc[0]);
+      pDist.reset(new CMultinomial(cNumClasses, cRows));
     }
-    else if(strncmp(pszFamily,"tdist",2) == 0)
+  else if (family == "huberized")
     {
-        pDist = new CTDist(adMisc[0]);
+      pDist.reset(new CHuberized());
     }
-    else if(strncmp(pszFamily,"multinomial",2) == 0)
+  else if (family == "pairwise_conc")
     {
-        pDist = new CMultinomial(cNumClasses, cRows);
+      pDist.reset(new CPairwise("conc"));
     }
-    else if(strncmp(pszFamily,"huberized",2) == 0)
+  else if (family == "pairwise_ndcg")
     {
-        pDist = new CHuberized();
+      pDist.reset(new CPairwise("ndcg"));
     }
-    else if(strcmp(pszFamily,"pairwise_conc") == 0)
+  else if (family == "pairwise_map")
     {
-        pDist = new CPairwise("conc");
+      pDist.reset(new CPairwise("map"));
     }
-    else if(strcmp(pszFamily,"pairwise_ndcg") == 0)
+  else if (family == "pairwise_mrr")
     {
-        pDist = new CPairwise("ndcg");
+      pDist.reset(new CPairwise("mrr"));
     }
-    else if(strcmp(pszFamily,"pairwise_map") == 0)
+  else
     {
-        pDist = new CPairwise("map");
-    }
-    else if(strcmp(pszFamily,"pairwise_mrr") == 0)
-    {
-        pDist = new CPairwise("mrr");
-    }
-    else
-    {
-        hr = GBM_INVALIDARG;
-        goto Error;
+      throw GBM::invalid_argument();
     }
 
-    if (!strncmp(pszFamily, "pairwise", strlen("pairwise")))
+  if (0==family.compare(0, 8, "pairwise")) 
     {
-        cGroups = num_groups(adMisc, cTrain);
+      cGroups = num_groups(adMisc, cTrain);
     }
-
-Cleanup:
-    return hr;
-Error:
-    goto Cleanup;
+  
+  return pDist;
 }
 
 
-GBMRESULT gbm_transfer_to_R
+void gbm_transfer_to_R
 (
-    CGBM *pGBM,
-    VEC_VEC_CATEGORIES &vecSplitCodes,
-    int *aiSplitVar,
-    double *adSplitPoint,
-    int *aiLeftNode,
-    int *aiRightNode,
-    int *aiMissingNode,
-    double *adErrorReduction,
-    double *adWeight,
-    double *adPred,
-    int cCatSplitsOld
-)
+ CGBM *pGBM,
+ VEC_VEC_CATEGORIES &vecSplitCodes,
+ int *aiSplitVar,
+ double *adSplitPoint,
+ int *aiLeftNode,
+ int *aiRightNode,
+ int *aiMissingNode,
+ double *adErrorReduction,
+ double *adWeight,
+ double *adPred,
+ int cCatSplitsOld
+ )
 {
-    GBMRESULT hr = GBM_OK;
-
-
-    hr = pGBM->TransferTreeToRList(aiSplitVar,
-                                   adSplitPoint,
-                                   aiLeftNode,
-                                   aiRightNode,
-                                   aiMissingNode,
-                                   adErrorReduction,
-                                   adWeight,
-                                   adPred,
-                                   vecSplitCodes,
-                                   cCatSplitsOld);
-    if(GBM_FAILED(hr)) goto Error;
-
-Cleanup:
-    return hr;
-Error:
-    goto Cleanup;
+    pGBM->TransferTreeToRList(aiSplitVar,
+			      adSplitPoint,
+			      aiLeftNode,
+			      aiRightNode,
+			      aiMissingNode,
+			      adErrorReduction,
+			      adWeight,
+			      adPred,
+			      vecSplitCodes,
+			      cCatSplitsOld);
 }
 
-
-GBMRESULT gbm_transfer_catsplits_to_R
-(
-    int iCatSplit,
-    VEC_VEC_CATEGORIES &vecSplitCodes,
-    int *aiSplitCodes
-)
-{
-    std::copy(vecSplitCodes[iCatSplit].begin(),
-	      vecSplitCodes[iCatSplit].end(),
-	      aiSplitCodes);
-
-    return GBM_OK;
-}
-
-
-int size_of_vector
-(
-    VEC_VEC_CATEGORIES &vec,
-    int i
-)
-{
-    return vec[i].size();
-}
 
 
 

@@ -18,6 +18,7 @@
 #define DATASET_H
 
 #include "buildinfo.h"
+#include "gbmexcept.h"
 
 class CDataset
 {
@@ -25,50 +26,25 @@ public:
 	CDataset();
 	~CDataset();
 
-    GBMRESULT ResetWeights();
-
-    GBMRESULT SetData(double *adX,
-                      int *aiXOrder,
-                      double *adY,
-                      double *adOffset,
-                      double *adWeight,
-                      double *adMisc,
-                      int cRows,
-                      int cCols,
-                      int *acVarClasses,
-                      int *alMonotoneVar);
-
-    GBMRESULT Entry(int iRow,
-                  int iCol,
-                  double &dValue)
-    {
-        GBMRESULT hr = GBM_OK;
-
-        if((iRow >= cRows) || (iCol >= cCols))
-        {
-            hr = GBM_INVALIDARG;
-            goto Error;
-        }
-
-        dValue = adX[iCol*cRows + iRow];
-
-    Cleanup:
-        return hr;
-    Error:
-        goto Cleanup;
-    }
-
+	void SetData(double *adX,
+		     int *aiXOrder,
+		     double *adY,
+		     double *adOffset,
+		     double *adWeight,
+		     double *adMisc,
+		     int cRows,
+		     int cCols,
+		     int *acVarClasses,
+		     int *alMonotoneVar);
 
     bool fHasOffset;
     double *adX;
     int *aiXOrder;
-    double *adXTemp4Order;
 
     double *adY;
     double *adOffset;
     double *adWeight;
     double *adMisc;
-    char **apszVarNames;
     int *acVarClasses;
     int *alMonotoneVar;
 

@@ -1,3 +1,5 @@
+
+#' @importFrom Rcpp sourceCpp
 #' @useDynLib gbm
 #' @importFrom survival Surv
 #' @import lattice

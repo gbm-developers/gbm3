@@ -11,7 +11,7 @@ CBernoulli::~CBernoulli()
 }
 
 
-GBMRESULT CBernoulli::ComputeWorkingResponse
+void CBernoulli::ComputeWorkingResponse
 (
     double *adY,
     double *adMisc,
@@ -19,7 +19,7 @@ GBMRESULT CBernoulli::ComputeWorkingResponse
     double *adF,
     double *adZ,
     double *adWeight,
-    bool *afInBag,
+    int *afInBag,
     unsigned long nTrain,
     int cIdxOff
 )
@@ -31,16 +31,14 @@ GBMRESULT CBernoulli::ComputeWorkingResponse
     for(i=0; i<nTrain; i++)
     {
         dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
-        dProb = 1.0/(1.0+exp(-dF));
+        dProb = 1.0/(1.0+std::exp(-dF));
 
         adZ[i] = adY[i] - dProb;
     }
-
-    return GBM_OK;
 }
 
 
-GBMRESULT CBernoulli::InitF
+void CBernoulli::InitF
 (
     double *adY,
     double *adMisc,
@@ -50,8 +48,6 @@ GBMRESULT CBernoulli::InitF
     unsigned long cLength
 )
 {
-    GBMRESULT hr = GBM_OK;
-
     unsigned long i=0;
     double dTemp=0.0;
 
@@ -63,7 +59,7 @@ GBMRESULT CBernoulli::InitF
             dSum += adWeight[i]*adY[i];
             dTemp += adWeight[i];
         }
-        dInitF = log(dSum/(dTemp-dSum));
+        dInitF = std::log(dSum/(dTemp-dSum));
     }
     else
     {
@@ -79,7 +75,7 @@ GBMRESULT CBernoulli::InitF
             dDen=0.0;
             for(i=0; i<cLength; i++)
             {
-                dTemp = 1.0/(1.0+exp(-(adOffset[i] + dInitF)));
+                dTemp = 1.0/(1.0+std::exp(-(adOffset[i] + dInitF)));
                 dNum += adWeight[i]*(adY[i]-dTemp);
                 dDen += adWeight[i]*dTemp*(1.0-dTemp);
             }
@@ -87,8 +83,6 @@ GBMRESULT CBernoulli::InitF
             dInitF += dNewtonStep;
         }
     }
-
-    return hr;
 }
 
 
@@ -113,7 +107,7 @@ double CBernoulli::Deviance
    {
       for(i=cIdxOff; i<cLength+cIdxOff; i++)
       {
-         dL += adWeight[i]*(adY[i]*adF[i] - log(1.0+exp(adF[i])));
+         dL += adWeight[i]*(adY[i]*adF[i] - std::log(1.0+std::exp(adF[i])));
          dW += adWeight[i];
       }
    }
@@ -122,7 +116,7 @@ double CBernoulli::Deviance
       for(i=cIdxOff; i<cLength+cIdxOff; i++)
       {
          dF = adF[i] + adOffset[i];
-         dL += adWeight[i]*(adY[i]*dF - log(1.0+exp(dF)));
+         dL += adWeight[i]*(adY[i]*dF - std::log(1.0+std::exp(dF)));
          dW += adWeight[i];
       }
    }
@@ -131,7 +125,7 @@ double CBernoulli::Deviance
 }
 
 
-GBMRESULT CBernoulli::FitBestConstant
+void CBernoulli::FitBestConstant
 (
     double *adY,
     double *adMisc,
@@ -144,13 +138,11 @@ GBMRESULT CBernoulli::FitBestConstant
     VEC_P_NODETERMINAL vecpTermNodes,
     unsigned long cTermNodes,
     unsigned long cMinObsInNode,
-    bool *afInBag,
+    int *afInBag,
     double *adFadj,
 	int cIdxOff
 )
 {
-    GBMRESULT hr = GBM_OK;
-
     unsigned long iObs = 0;
     unsigned long iNode = 0;
     vecdNum.resize(cTermNodes);
@@ -183,8 +175,6 @@ GBMRESULT CBernoulli::FitBestConstant
             }
         }
     }
-
-    return hr;
 }
 
 
@@ -196,7 +186,7 @@ double CBernoulli::BagImprovement
     double *adWeight,
     double *adF,
     double *adFadj,
-    bool *afInBag,
+    int *afInBag,
     double dStepSize,
     unsigned long nTrain
 )
@@ -217,8 +207,8 @@ double CBernoulli::BagImprovement
                 dReturnValue += adWeight[i]*dStepSize*adFadj[i];
             }
             dReturnValue += adWeight[i]*
-                            (log(1.0+exp(dF)) -
-                             log(1.0+exp(dF+dStepSize*adFadj[i])));
+                            (std::log(1.0+std::exp(dF)) -
+                             std::log(1.0+std::exp(dF+dStepSize*adFadj[i])));
             dW += adWeight[i];
         }
     }

@@ -18,67 +18,58 @@ CNodeNonterminal::~CNodeNonterminal()
 }
 
 
-
-GBMRESULT CNodeNonterminal::Adjust
+void CNodeNonterminal::Adjust
 (
     unsigned long cMinObsInNode
 )
 {
-    GBMRESULT hr = GBM_OK;
-
-    hr = pLeftNode->Adjust(cMinObsInNode);
-    hr = pRightNode->Adjust(cMinObsInNode);
-
-    if(pMissingNode->isTerminal && (pMissingNode->cN < cMinObsInNode))
+  pLeftNode->Adjust(cMinObsInNode);
+  pRightNode->Adjust(cMinObsInNode);
+  
+  if(pMissingNode->isTerminal && (pMissingNode->cN < cMinObsInNode))
     {
-        dPrediction = ((pLeftNode->dTrainW)*(pLeftNode->dPrediction) +
-                       (pRightNode->dTrainW)*(pRightNode->dPrediction))/
-                      (pLeftNode->dTrainW + pRightNode->dTrainW);
-        pMissingNode->dPrediction = dPrediction;
+      dPrediction = ((pLeftNode->dTrainW)*(pLeftNode->dPrediction) +
+		     (pRightNode->dTrainW)*(pRightNode->dPrediction))/
+	(pLeftNode->dTrainW + pRightNode->dTrainW);
+      pMissingNode->dPrediction = dPrediction;
     }
-    else
+  else
     {
-        hr = pMissingNode->Adjust(cMinObsInNode);
-        dPrediction =
-            ((pLeftNode->dTrainW)*   (pLeftNode->dPrediction) +
-             (pRightNode->dTrainW)*  (pRightNode->dPrediction) +
-             (pMissingNode->dTrainW)*(pMissingNode->dPrediction))/
-            (pLeftNode->dTrainW + pRightNode->dTrainW + pMissingNode->dTrainW);
+      pMissingNode->Adjust(cMinObsInNode);
+      dPrediction =
+	((pLeftNode->dTrainW)*   (pLeftNode->dPrediction) +
+	 (pRightNode->dTrainW)*  (pRightNode->dPrediction) +
+	 (pMissingNode->dTrainW)*(pMissingNode->dPrediction))/
+	(pLeftNode->dTrainW + pRightNode->dTrainW + pMissingNode->dTrainW);
     }
-
-    return hr;
 }
 
 
 
-GBMRESULT CNodeNonterminal::Predict
+void CNodeNonterminal::Predict
 (
     CDataset *pData,
     unsigned long iRow,
     double &dFadj
 )
 {
-    GBMRESULT hr = GBM_OK;
-
-    signed char schWhichNode = WhichNode(pData,iRow);
-    if(schWhichNode == -1)
+  signed char schWhichNode = WhichNode(pData,iRow);
+  if(schWhichNode == -1)
     {
-        hr = pLeftNode->Predict(pData, iRow, dFadj);
+      pLeftNode->Predict(pData, iRow, dFadj);
     }
-    else if(schWhichNode == 1)
+  else if(schWhichNode == 1)
     {
-        hr = pRightNode->Predict(pData, iRow, dFadj);
+      pRightNode->Predict(pData, iRow, dFadj);
     }
-    else
+  else
     {
-        hr = pMissingNode->Predict(pData, iRow, dFadj);
+      pMissingNode->Predict(pData, iRow, dFadj);
     }
-
-    return hr;
 }
 
 
-GBMRESULT CNodeNonterminal::Predict
+void CNodeNonterminal::Predict
 (
     double *adX,
     unsigned long cRow,
@@ -87,39 +78,30 @@ GBMRESULT CNodeNonterminal::Predict
     double &dFadj
 )
 {
-    GBMRESULT hr = GBM_OK;
-
-    signed char schWhichNode = WhichNode(adX,cRow,cCol,iRow);
-    if(schWhichNode == -1)
+  signed char schWhichNode = WhichNode(adX,cRow,cCol,iRow);
+  if(schWhichNode == -1)
     {
-        hr = pLeftNode->Predict(adX,cRow,cCol,iRow,dFadj);
+      pLeftNode->Predict(adX,cRow,cCol,iRow,dFadj);
     }
-    else if(schWhichNode == 1)
+  else if(schWhichNode == 1)
     {
-        hr = pRightNode->Predict(adX,cRow,cCol,iRow,dFadj);
+      pRightNode->Predict(adX,cRow,cCol,iRow,dFadj);
     }
-    else
+  else
     {
-        hr = pMissingNode->Predict(adX,cRow,cCol,iRow,dFadj);
+      pMissingNode->Predict(adX,cRow,cCol,iRow,dFadj);
     }
-
-    return hr;
 }
 
 
-GBMRESULT CNodeNonterminal::GetVarRelativeInfluence
+void CNodeNonterminal::GetVarRelativeInfluence
 (
     double *adRelInf
 )
 {
-    GBMRESULT hr = GBM_OK;
-
-    adRelInf[iSplitVar] += dImprovement;
-    pLeftNode->GetVarRelativeInfluence(adRelInf);
-    pRightNode->GetVarRelativeInfluence(adRelInf);
-
-
-    return hr;
+  adRelInf[iSplitVar] += dImprovement;
+  pLeftNode->GetVarRelativeInfluence(adRelInf);
+  pRightNode->GetVarRelativeInfluence(adRelInf);
 }
 
 

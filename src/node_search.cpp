@@ -10,6 +10,7 @@
 CNodeSearch::CNodeSearch()
 {
     iBestSplitVar = 0;
+
     dBestSplitValue = 0.0;
     fIsSplit = false;
 
@@ -34,22 +35,16 @@ CNodeSearch::~CNodeSearch()
 }
 
 
-GBMRESULT CNodeSearch::Initialize
+void CNodeSearch::Initialize
 (
     unsigned long cMinObsInNode
 )
 {
-    GBMRESULT hr = GBM_OK;
     this->cMinObsInNode = cMinObsInNode;
-
-Cleanup:
-    return hr;
-Error:
-    goto Cleanup;
 }
 
 
-GBMRESULT CNodeSearch::IncorporateObs
+void CNodeSearch::IncorporateObs
 (
     double dX,
     double dZ,
@@ -57,10 +52,9 @@ GBMRESULT CNodeSearch::IncorporateObs
     long lMonotone
 )
 {
-    GBMRESULT hr = GBM_OK;
     static double dWZ = 0.0;
 
-    if(fIsSplit) goto Cleanup;
+    if(fIsSplit) return;
 
     dWZ = dW*dZ;
 
@@ -77,10 +71,8 @@ GBMRESULT CNodeSearch::IncorporateObs
     {
         if(dLastXValue > dX)
         {
-            error("Observations are not in order. gbm() was unable to build an index for the design matrix. Could be a bug in gbm or an unusual data type in data.\n");
-            hr = GBM_FAIL;
-            goto Error;
-        }
+	  throw GBM::failure("Observations are not in order. gbm() was unable to build an index for the design matrix. Could be a bug in gbm or an unusual data type in data.");
+	}
 
         // Evaluate the current split
         // the newest observation is still in the right child
@@ -130,16 +122,11 @@ GBMRESULT CNodeSearch::IncorporateObs
         adGroupW[(unsigned long)dX] += dW;
         acGroupN[(unsigned long)dX] ++;
     }
-
-Cleanup:
-    return hr;
-Error:
-    goto Cleanup;
 }
 
 
 
-GBMRESULT CNodeSearch::Set
+void CNodeSearch::Set
 (
     double dSumZ,
     double dTotalW,
@@ -149,8 +136,6 @@ GBMRESULT CNodeSearch::Set
     CNodeFactory *pNodeFactory
 )
 {
-    GBMRESULT hr = GBM_OK;
-
     dInitSumZ = dSumZ;
     dInitTotalW = dTotalW;
     cInitN = cTotalN;
@@ -188,158 +173,141 @@ GBMRESULT CNodeSearch::Set
     this->pThisNode = pThisNode;
     this->ppParentPointerToThisNode = ppParentPointerToThisNode;
     this->pNodeFactory = pNodeFactory;
-
-    return hr;
 }
 
 
-GBMRESULT CNodeSearch::ResetForNewVar
+void CNodeSearch::ResetForNewVar
 (
     unsigned long iWhichVar,
     long cCurrentVarClasses
 )
 {
-    GBMRESULT hr = GBM_OK;
+  if(fIsSplit) return;
 
-    if(fIsSplit) goto Cleanup;
+  assert(cCurrentVarClasses <= adGroupSumZ.size());
 
-    assert(cCurrentVarClasses <= adGroupSumZ.size());
+  std::fill(adGroupSumZ.begin(), adGroupSumZ.begin() + cCurrentVarClasses, 0);
+  std::fill(adGroupW.begin(), adGroupW.begin() + cCurrentVarClasses, 0);
+  std::fill(acGroupN.begin(), acGroupN.begin() + cCurrentVarClasses, 0);
+  
+  iCurrentSplitVar = iWhichVar;
+  this->cCurrentVarClasses = cCurrentVarClasses;
 
-    std::fill(adGroupSumZ.begin(), adGroupSumZ.begin() + cCurrentVarClasses, 0);
-    std::fill(adGroupW.begin(), adGroupW.begin() + cCurrentVarClasses, 0);
-    std::fill(acGroupN.begin(), acGroupN.begin() + cCurrentVarClasses, 0);
-
-    iCurrentSplitVar = iWhichVar;
-    this->cCurrentVarClasses = cCurrentVarClasses;
-
-    dCurrentLeftSumZ      = 0.0;
-    dCurrentLeftTotalW    = 0.0;
-    cCurrentLeftN         = 0;
-    dCurrentRightSumZ     = dInitSumZ;
-    dCurrentRightTotalW   = dInitTotalW;
-    cCurrentRightN        = cInitN;
-    dCurrentMissingSumZ   = 0.0;
-    dCurrentMissingTotalW = 0.0;
-    cCurrentMissingN      = 0;
-
-    dCurrentImprovement = 0.0;
-
-    dLastXValue = -HUGE_VAL;
-
-Cleanup:
-    return hr;
+  dCurrentLeftSumZ      = 0.0;
+  dCurrentLeftTotalW    = 0.0;
+  cCurrentLeftN         = 0;
+  dCurrentRightSumZ     = dInitSumZ;
+  dCurrentRightTotalW   = dInitTotalW;
+  cCurrentRightN        = cInitN;
+  dCurrentMissingSumZ   = 0.0;
+  dCurrentMissingTotalW = 0.0;
+  cCurrentMissingN      = 0;
+  
+  dCurrentImprovement = 0.0;
+  
+  dLastXValue = -HUGE_VAL;
 }
 
 
 
-GBMRESULT CNodeSearch::WrapUpCurrentVariable()
+void CNodeSearch::WrapUpCurrentVariable()
 {
-    GBMRESULT hr = GBM_OK;
-    if(iCurrentSplitVar == iBestSplitVar)
+  if(iCurrentSplitVar == iBestSplitVar)
     {
-        if(cCurrentMissingN > 0)
+      if(cCurrentMissingN > 0)
         {
-            dBestMissingSumZ   = dCurrentMissingSumZ;
-            dBestMissingTotalW = dCurrentMissingTotalW;
-            cBestMissingN      = cCurrentMissingN;
+	  dBestMissingSumZ   = dCurrentMissingSumZ;
+	  dBestMissingTotalW = dCurrentMissingTotalW;
+	  cBestMissingN      = cCurrentMissingN;
         }
-        else // DEBUG: consider a weighted average with parent node?
+      else // DEBUG: consider a weighted average with parent node?
         {
-            dBestMissingSumZ   = dInitSumZ;
-            dBestMissingTotalW = dInitTotalW;
-            cBestMissingN      = 0;
+	  dBestMissingSumZ   = dInitSumZ;
+	  dBestMissingTotalW = dInitTotalW;
+	  cBestMissingN      = 0;
         }
     }
-
-    return hr;
 }
 
 
 
-GBMRESULT CNodeSearch::EvaluateCategoricalSplit()
+void CNodeSearch::EvaluateCategoricalSplit()
 {
-    GBMRESULT hr = GBM_OK;
-    long i=0;
-    long j=0;
-    unsigned long cFiniteMeans = 0;
-
-    if(fIsSplit) goto Cleanup;
-
-    if(cCurrentVarClasses == 0)
+  long i=0;
+  long j=0;
+  unsigned long cFiniteMeans = 0;
+  
+  if(fIsSplit) return;
+  
+  if(cCurrentVarClasses == 0)
     {
-        hr = GBM_INVALIDARG;
-        goto Error;
+      throw GBM::invalid_argument();
     }
 
-    cFiniteMeans = 0;
-    for(i=0; i<cCurrentVarClasses; i++)
+  cFiniteMeans = 0;
+  for(i=0; i<cCurrentVarClasses; i++)
     {
-        aiCurrentCategory[i] = i;
-        if(adGroupW[i] != 0.0)
+      aiCurrentCategory[i] = i;
+      if(adGroupW[i] != 0.0)
         {
-            adGroupMean[i] = adGroupSumZ[i]/adGroupW[i];
-            cFiniteMeans++;
+	  adGroupMean[i] = adGroupSumZ[i]/adGroupW[i];
+	  cFiniteMeans++;
         }
-        else
+      else
         {
-            adGroupMean[i] = HUGE_VAL;
+	  adGroupMean[i] = HUGE_VAL;
         }
     }
-
-    rsort_with_index(&adGroupMean[0],&aiCurrentCategory[0],cCurrentVarClasses);
-
-    // if only one group has a finite mean it will not consider
-    // might be all are missing so no categories enter here
-    for(i=0; (cFiniteMeans>1) && ((ULONG)i<cFiniteMeans-1); i++)
+  
+  rsort_with_index(&adGroupMean[0],&aiCurrentCategory[0],cCurrentVarClasses);
+    
+  // if only one group has a finite mean it will not consider
+  // might be all are missing so no categories enter here
+  for(i=0; (cFiniteMeans>1) && ((ULONG)i<cFiniteMeans-1); i++)
     {
-        dCurrentSplitValue = (double)i;
-
-        dCurrentLeftSumZ    += adGroupSumZ[aiCurrentCategory[i]];
-        dCurrentLeftTotalW  += adGroupW[aiCurrentCategory[i]];
-        cCurrentLeftN       += acGroupN[aiCurrentCategory[i]];
-        dCurrentRightSumZ   -= adGroupSumZ[aiCurrentCategory[i]];
-        dCurrentRightTotalW -= adGroupW[aiCurrentCategory[i]];
-        cCurrentRightN      -= acGroupN[aiCurrentCategory[i]];
-
-        dCurrentImprovement =
-            CNode::Improvement(dCurrentLeftTotalW,dCurrentRightTotalW,
-                               dCurrentMissingTotalW,
-                               dCurrentLeftSumZ,dCurrentRightSumZ,
-                               dCurrentMissingSumZ);
-        if((cCurrentLeftN >= cMinObsInNode) &&
-           (cCurrentRightN >= cMinObsInNode) &&
-           (dCurrentImprovement > dBestImprovement))
+      dCurrentSplitValue = (double)i;
+      
+      dCurrentLeftSumZ    += adGroupSumZ[aiCurrentCategory[i]];
+      dCurrentLeftTotalW  += adGroupW[aiCurrentCategory[i]];
+      cCurrentLeftN       += acGroupN[aiCurrentCategory[i]];
+      dCurrentRightSumZ   -= adGroupSumZ[aiCurrentCategory[i]];
+      dCurrentRightTotalW -= adGroupW[aiCurrentCategory[i]];
+      cCurrentRightN      -= acGroupN[aiCurrentCategory[i]];
+      
+      dCurrentImprovement =
+	CNode::Improvement(dCurrentLeftTotalW,dCurrentRightTotalW,
+			   dCurrentMissingTotalW,
+			   dCurrentLeftSumZ,dCurrentRightSumZ,
+			   dCurrentMissingSumZ);
+      if((cCurrentLeftN >= cMinObsInNode) &&
+	 (cCurrentRightN >= cMinObsInNode) &&
+	 (dCurrentImprovement > dBestImprovement))
         {
-            dBestSplitValue = dCurrentSplitValue;
-            if(iBestSplitVar != iCurrentSplitVar)
+	  dBestSplitValue = dCurrentSplitValue;
+	  if(iBestSplitVar != iCurrentSplitVar)
             {
-                iBestSplitVar = iCurrentSplitVar;
-                cBestVarClasses = cCurrentVarClasses;
-		std::copy(aiCurrentCategory.begin(),
-			  aiCurrentCategory.end(),
-			  aiBestCategory.begin());
+	      iBestSplitVar = iCurrentSplitVar;
+	      cBestVarClasses = cCurrentVarClasses;
+	      std::copy(aiCurrentCategory.begin(),
+			aiCurrentCategory.end(),
+			aiBestCategory.begin());
             }
-
-            dBestLeftSumZ      = dCurrentLeftSumZ;
-            dBestLeftTotalW    = dCurrentLeftTotalW;
-            cBestLeftN         = cCurrentLeftN;
-            dBestRightSumZ     = dCurrentRightSumZ;
-            dBestRightTotalW   = dCurrentRightTotalW;
-            cBestRightN        = cCurrentRightN;
-            dBestImprovement   = dCurrentImprovement;
+	  
+	  dBestLeftSumZ      = dCurrentLeftSumZ;
+	  dBestLeftTotalW    = dCurrentLeftTotalW;
+	  cBestLeftN         = cCurrentLeftN;
+	  dBestRightSumZ     = dCurrentRightSumZ;
+	  dBestRightTotalW   = dCurrentRightTotalW;
+	  cBestRightN        = cCurrentRightN;
+	  dBestImprovement   = dCurrentImprovement;
         }
     }
-
-Cleanup:
-    return hr;
-Error:
-    goto Cleanup;
 }
 
 
 
 
-GBMRESULT CNodeSearch::SetupNewNodes
+void CNodeSearch::SetupNewNodes
 (
     PCNodeNonterminal &pNewSplitNode,
     PCNodeTerminal &pNewLeftNode,
@@ -347,7 +315,6 @@ GBMRESULT CNodeSearch::SetupNewNodes
     PCNodeTerminal &pNewMissingNode
 )
 {
-    GBMRESULT hr = GBM_OK;
     CNodeContinuous *pNewNodeContinuous = NULL;
     CNodeCategorical *pNewNodeCategorical = NULL;
     unsigned long i=0;
@@ -401,6 +368,4 @@ GBMRESULT CNodeSearch::SetupNewNodes
     pNewMissingNode->cN          = cBestMissingN;
 
     pThisNode->RecycleSelf(pNodeFactory);
-
-    return hr;
 }

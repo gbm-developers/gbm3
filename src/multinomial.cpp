@@ -1,9 +1,10 @@
 //  GBM by Greg Ridgeway  Copyright (C) 2003
 
+#include <vector>
 #include "multinomial.h"
 
 
-GBMRESULT CMultinomial::UpdateParams
+void CMultinomial::UpdateParams
 (
    double *adF,
    double *adOffset,
@@ -23,8 +24,8 @@ GBMRESULT CMultinomial::UpdateParams
       {
          int iIdx = ii + kk * mcRows;
          double dF = (adOffset == NULL) ? adF[iIdx] : adF[iIdx] + adOffset[iIdx];
-         madProb[iIdx] = adWeight[iIdx] * exp(dF);
-         dClassSum += adWeight[iIdx] * exp(dF);
+         madProb[iIdx] = adWeight[iIdx] * std::exp(dF);
+         dClassSum += adWeight[iIdx] * std::exp(dF);
       }
 
       dClassSum = (dClassSum > 0) ? dClassSum : 1e-8;
@@ -34,12 +35,10 @@ GBMRESULT CMultinomial::UpdateParams
          madProb[ii + kk * mcRows] /= dClassSum;
       }
    }
-
-   return GBM_OK;
 }
 
 
-GBMRESULT CMultinomial::ComputeWorkingResponse
+void CMultinomial::ComputeWorkingResponse
 (
     double *adY,
     double *adMisc,
@@ -47,7 +46,7 @@ GBMRESULT CMultinomial::ComputeWorkingResponse
     double *adF,
     double *adZ,
     double *adWeight,
-    bool *afInBag,
+    int *afInBag,
     unsigned long nTrain,
     int cIdxOff
 )
@@ -59,11 +58,10 @@ GBMRESULT CMultinomial::ComputeWorkingResponse
        adZ[i] = adY[i] - madProb[i];
     }
 
-    return GBM_OK;
 }
 
 
-GBMRESULT CMultinomial::InitF
+void CMultinomial::InitF
 (
     double *adY,
     double *adMisc,
@@ -74,7 +72,6 @@ GBMRESULT CMultinomial::InitF
 )
 {
     dInitF = 0.0;
-    return GBM_OK;
 }
 
 double CMultinomial::Deviance
@@ -94,7 +91,7 @@ double CMultinomial::Deviance
 
     for(ii=cIdxOff; ii<cLength+cIdxOff; ii++)
     {
-        dL += -adWeight[ii] * adY[ii] * log(madProb[ii]);
+        dL += -adWeight[ii] * adY[ii] * std::log(madProb[ii]);
         dW += adWeight[ii];
     }
 
@@ -102,7 +99,7 @@ double CMultinomial::Deviance
 }
 
 
-GBMRESULT CMultinomial::FitBestConstant
+void CMultinomial::FitBestConstant
 (
     double *adY,
     double *adMisc,
@@ -115,41 +112,38 @@ GBMRESULT CMultinomial::FitBestConstant
     VEC_P_NODETERMINAL vecpTermNodes,
     unsigned long cTermNodes,
     unsigned long cMinObsInNode,
-    bool *afInBag,
+    int *afInBag,
     double *adFadj,
-   int cIdxOff
+    int cIdxOff
 )
 {
       // Local variables
-    GBMRESULT hr = GBM_OK;
-    unsigned long iNode = 0;
-    unsigned long iObs = 0;
-
-   // Call LocM for the array of values on each node
-    for(iNode=0; iNode<cTermNodes; iNode++)
+  unsigned long iNode = 0;
+  unsigned long iObs = 0;
+  
+  // Call LocM for the array of values on each node
+  for(iNode=0; iNode<cTermNodes; iNode++)
     {
-        if(vecpTermNodes[iNode]->cN >= cMinObsInNode)
+      if(vecpTermNodes[iNode]->cN >= cMinObsInNode)
         {
-         // Get the number of nodes here
-         double dNum = 0.0;
-         double dDenom = 0.0;
-         for (iObs = 0; iObs < nTrain; iObs++)
-         {
-            if(afInBag[iObs] && (aiNodeAssign[iObs] == iNode))
+	  // Get the number of nodes here
+	  double dNum = 0.0;
+	  double dDenom = 0.0;
+	  for (iObs = 0; iObs < nTrain; iObs++)
+	    {
+	      if(afInBag[iObs] && (aiNodeAssign[iObs] == iNode))
                 {
-               int iIdx = iObs + cIdxOff;
-                    dNum += adW[iIdx] * adZ[iIdx];
-               dDenom += adW[iIdx] * fabs(adZ[iIdx]) * (1 - fabs(adZ[iIdx]));
+		  int iIdx = iObs + cIdxOff;
+		  dNum += adW[iIdx] * adZ[iIdx];
+		  dDenom += adW[iIdx] * fabs(adZ[iIdx]) * (1 - fabs(adZ[iIdx]));
                 }
-         }
-
-         dDenom = (dDenom > 0) ? dDenom : 1e-8;
-
-         vecpTermNodes[iNode]->dPrediction = dNum / dDenom;
+	    }
+	  
+	  dDenom = (dDenom > 0) ? dDenom : 1e-8;
+	  
+	  vecpTermNodes[iNode]->dPrediction = dNum / dDenom;
         }
     }
-
-    return hr;
 }
 
 double CMultinomial::BagImprovement
@@ -160,7 +154,7 @@ double CMultinomial::BagImprovement
     double *adWeight,
     double *adF,
     double *adFadj,
-    bool *afInBag,
+    int *afInBag,
     double dStepSize,
     unsigned long nTrain
 )
@@ -172,7 +166,7 @@ double CMultinomial::BagImprovement
    unsigned long kk;
 
    // Calculate the probabilities after the step
-   double *adStepProb = new double[mcNumClasses * mcRows];
+   std::vector<double> adStepProb(mcNumClasses * mcRows);
 
    // Assume that this is last class - calculate new prob as in updateParams but
    // using (F_ik + ss*Fadj_ik) instead of F_ik. Then calculate OOB improve
@@ -184,8 +178,8 @@ double CMultinomial::BagImprovement
          int iIdx = ii + kk * mcRows;
          double dF = (adOffset == NULL) ? adF[iIdx] : adF[iIdx] + adOffset[iIdx];
          dF += dStepSize * adFadj[iIdx];
-         adStepProb[iIdx] = adWeight[iIdx] * exp(dF);
-         dClassSum += adWeight[iIdx] * exp(dF);
+         adStepProb[iIdx] = adWeight[iIdx] * std::exp(dF);
+         dClassSum += adWeight[iIdx] * std::exp(dF);
       }
 
       dClassSum = (dClassSum > 0) ? dClassSum : 1e-8;
@@ -205,14 +199,12 @@ double CMultinomial::BagImprovement
          {
             int iIdx = ii + kk * mcRows;
                 dReturnValue += adWeight[iIdx] * adY[iIdx] *
-                               (log(adStepProb[iIdx]) - log(madProb[iIdx]));
+                               (std::log(adStepProb[iIdx]) - log(madProb[iIdx]));
 
             dW += adWeight[iIdx] * adY[iIdx];
          }
       }
     }
-
-    delete[] adStepProb;
 
     return dReturnValue/dW;
 }
