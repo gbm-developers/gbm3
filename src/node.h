@@ -101,15 +101,6 @@ public:
     double dTrainW;   // total training weight in node
     unsigned long cN; // number of training observations in node
     bool isTerminal;
-
-protected:
-    double GetXEntry(CDataset *pData,
-		     unsigned long iRow,
-		     unsigned long iCol)
-    {
-        return pData->adX[iCol*(pData->cRows) + iRow];
-    }
-
 };
 
 typedef CNode *PCNode;

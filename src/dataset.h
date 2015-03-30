@@ -39,18 +39,6 @@ public:
 		     int *acVarClasses,
 		     int *alMonotoneVar);
 
-	void Entry(int iRow,
-		   int iCol,
-		   double &dValue) {
-	  if((iRow >= cRows) || (iCol >= cCols))
-	    {
-	      throw GBM::invalid_argument();
-	    }
-	  
-	  dValue = adX[iCol*cRows + iRow];
-	}
-
-
     bool fHasOffset;
     double *adX;
     int *aiXOrder;
