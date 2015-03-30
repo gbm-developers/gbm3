@@ -2,7 +2,30 @@
 
 #include "gbm.h"
 #include <memory>
+#include <utility>
 #include <Rcpp.h>
+
+namespace {
+  class nodeStack {
+  public:
+    bool empty() const {
+      return stack.empty();
+    }
+    
+    std::pair< int, double > pop() {
+      std::pair< int, double > result = stack.back();
+      stack.pop_back();
+      return result;
+    }
+
+    void push(int nodeIndex, double weight=0.0) {
+      stack.push_back(std::make_pair(nodeIndex, weight)); 
+    }
+    
+  private:
+    std::vector< std::pair< int, double > > stack;
+  };
+}
 
 extern "C" {
 
@@ -70,7 +93,7 @@ SEXP gbm
     int cGroups = -1;
 
     Rcpp::RNGScope scope;
-    
+
     // set up the dataset
     std::auto_ptr<CDataset> pData(new CDataset());
     // initialize some things
@@ -383,9 +406,6 @@ SEXP gbm_plot
     const Rcpp::GenericVector cSplits(rCSplits);
     const Rcpp::IntegerVector aiVarType(raiVarType);
 
-    int aiNodeStack[40];
-    double adWeightStack[40];
-
     Rcpp::NumericVector adPredF(cRows * cNumClasses,
                                 Rcpp::as<double>(rdInitF));
     for(iTree=0; iTree<cTrees; iTree++)
@@ -401,52 +421,46 @@ SEXP gbm_plot
           const Rcpp::NumericVector dW = thisTree[6];
           for(iObs=0; iObs<cRows; iObs++)
             {
-              aiNodeStack[0] = 0;
-              adWeightStack[0] = 1.0;
-              int cStackNodes = 1;
-              while(cStackNodes > 0)
+              nodeStack stack;
+              stack.push(0, 1.0);
+              while( !stack.empty() )
                 {
-                  cStackNodes--;
-                  int iCurrentNode = aiNodeStack[cStackNodes];
+                  const std::pair<int, double> top = stack.pop();
+                  int iCurrentNode = top.first;
+                  const double dWeight = top.second;
                   
                   if(iSplitVar[iCurrentNode] == -1) // terminal node
                     {
                       adPredF[iClass*cRows + iObs] +=
-                         adWeightStack[cStackNodes]*dSplitCode[iCurrentNode];
+                         dWeight * dSplitCode[iCurrentNode];
                     }
                     else // non-terminal node
                     {
                         // is this a split variable that interests me?
-                        int iPredVar = -1;
-                        for(i=0; (iPredVar == -1) && (i < cCols); i++)
+                        const Rcpp::IntegerVector::const_iterator
+                          found = std::find(aiWhichVar.begin(),
+                                            aiWhichVar.end(),
+                                            iSplitVar[iCurrentNode]);
+                        
+                        if (found != aiWhichVar.end())
                         {
-                          if(aiWhichVar[i] == iSplitVar[iCurrentNode])
-                            {
-                              iPredVar = i; // split is on one that interests me
-                            }
-                        }
-
-                        if(iPredVar != -1) // this split is among raiWhichVar
-                        {
+                          const int iPredVar = found - aiWhichVar.begin();
                           const double dX = adX[iPredVar*cRows + iObs];
                           // missing?
                           if(ISNA(dX))
                             {
-                              aiNodeStack[cStackNodes] = iMissingNode[iCurrentNode];
-                              cStackNodes++;
+                              stack.push(iMissingNode[iCurrentNode]);
                             }
                           // continuous?
                           else if(aiVarType[iSplitVar[iCurrentNode]] == 0)
                             {
                               if(dX < dSplitCode[iCurrentNode])
                                 {
-                                  aiNodeStack[cStackNodes] = iLeftNode[iCurrentNode];
-                                  cStackNodes++;
+                                  stack.push(iLeftNode[iCurrentNode]);
                                 }
                               else
                                 {
-                                  aiNodeStack[cStackNodes] = iRightNode[iCurrentNode];
-                                  cStackNodes++;
+                                  stack.push(iRightNode[iCurrentNode]);
                                 }
                             }
                             else // categorical
@@ -456,13 +470,11 @@ SEXP gbm_plot
                               const int iCatSplitIndicator = catSplits[dX];
                               if(iCatSplitIndicator==-1)
                                 {
-                                  aiNodeStack[cStackNodes] = iLeftNode[iCurrentNode];
-                                  cStackNodes++;
+                                  stack.push(iLeftNode[iCurrentNode]);
                                 }
                               else if(iCatSplitIndicator==1)
                                 {
-                                  aiNodeStack[cStackNodes] = iRightNode[iCurrentNode];
-                                  cStackNodes++;
+                                  stack.push(iRightNode[iCurrentNode]);
                                 }
                               else // handle unused level
                                 {
@@ -472,17 +484,16 @@ SEXP gbm_plot
                         } // iPredVar != -1
                         else // not interested in this split, average left and right
                           {
-                            aiNodeStack[cStackNodes] = iRightNode[iCurrentNode];
-                            const double dCurrentW = adWeightStack[cStackNodes];
-                            adWeightStack[cStackNodes] = dCurrentW *
-                              dW[iRightNode[iCurrentNode]]/
-                              (dW[iLeftNode[iCurrentNode]]+
-                               dW[iRightNode[iCurrentNode]]);
-                            cStackNodes++;
-                            aiNodeStack[cStackNodes] = iLeftNode[iCurrentNode];
-                            adWeightStack[cStackNodes] =
-                              dCurrentW-adWeightStack[cStackNodes-1];
-                            cStackNodes++;
+                            const int right = iRightNode[iCurrentNode];
+                            const int left = iLeftNode[iCurrentNode];
+                            const double right_weight = dW[right];
+                            const double left_weight = dW[left];
+                            stack.push(right,
+                                       dWeight * right_weight /
+                                       (right_weight + left_weight));
+                            stack.push(left,
+                                       dWeight * left_weight /
+                                       (right_weight + left_weight));
                         }
                     } // non-terminal node
                 } // while(cStackNodes > 0)
