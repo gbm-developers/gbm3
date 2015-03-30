@@ -8,11 +8,9 @@ CDataset::CDataset()
     fHasOffset = false;
     adX = NULL;
     aiXOrder = NULL;
-    adXTemp4Order = NULL;
     adY = NULL;
     adOffset = NULL;
     adWeight = NULL;
-    apszVarNames = NULL;
 
     cRows = 0;
     cCols = 0;
@@ -22,19 +20,6 @@ CDataset::CDataset()
 CDataset::~CDataset()
 {
 }
-
-
-
-
-void CDataset::ResetWeights()
-{
-  if (!adWeight) {
-    throw GBM::invalid_argument();
-  }
-  
-  std::fill(adWeight, adWeight + cRows, 1.0);
-}
-
 
 
 void CDataset::SetData

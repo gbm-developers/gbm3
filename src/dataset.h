@@ -26,8 +26,6 @@ public:
 	CDataset();
 	~CDataset();
 
-	void ResetWeights();
-
 	void SetData(double *adX,
 		     int *aiXOrder,
 		     double *adY,
@@ -42,13 +40,11 @@ public:
     bool fHasOffset;
     double *adX;
     int *aiXOrder;
-    double *adXTemp4Order;
 
     double *adY;
     double *adOffset;
     double *adWeight;
     double *adMisc;
-    char **apszVarNames;
     int *acVarClasses;
     int *alMonotoneVar;
 
