@@ -26,7 +26,7 @@ class CNodeFactory;
 
 using namespace std;
 
-typedef vector<char> VEC_CATEGORIES;
+typedef vector<int> VEC_CATEGORIES;
 typedef vector<VEC_CATEGORIES> VEC_VEC_CATEGORIES;
 
 

@@ -221,22 +221,13 @@ SEXP gbm
 
     if(verbose) Rprintf("\n");
 
-    Rcpp::GenericVector setSplitCodes(vecSplitCodes.size());
-
-    for(i=0; i<(int)vecSplitCodes.size(); i++)
-    {
-      Rcpp::IntegerVector vec(vecSplitCodes[i].size());
-      std::copy(vecSplitCodes[i].begin(), vecSplitCodes[i].end(), vec.begin());
-      setSplitCodes[i] = vec;
-    }
-
     return Rcpp::List::create(dInitF,
                               adF,
                               adTrainError,
                               adValidError,
                               adOOBagImprove,
                               setOfTrees,
-                              setSplitCodes);
+                              vecSplitCodes);
    END_RCPP
 }
 

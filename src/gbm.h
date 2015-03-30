@@ -36,9 +36,6 @@
 #include "gamma.h"
 #include "tweedie.h"
 
-typedef vector<char> VEC_CATEGORIES;
-typedef vector<VEC_CATEGORIES> VEC_VEC_CATEGORIES;
-
 std::auto_ptr<CDistribution> gbm_setup
 (
     double *adY,
