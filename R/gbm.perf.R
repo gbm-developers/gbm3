@@ -23,7 +23,10 @@
 #' out-of-sample estimate. \code{method="cv"} extracts the optimal number of
 #' iterations using cross-validation if \code{gbm} was called with \code{cv.folds}>1.
 #' @param main the main title for the plot. Defaults to \code{main = ""}.
-#' @param metric What type of performance measure to compute in \code{perf.pairwise}..
+#' @param y,f,group,w,max.rank Arguments to \code{perf.pairwise}.
+#' @param metric What type of performance measure to compute in \code{perf.pairwise}.
+#'   Can take values "ir.measure.conc", "ir.measure.mrr", "ir.measure.map" or
+#'   "ir.measure.ndgc".
 
 #' @usage gbm.perf(object, plot.it = TRUE, oobag.curve = FALSE, overlay = TRUE,
 #' method, main="")
