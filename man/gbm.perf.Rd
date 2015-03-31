@@ -2,10 +2,12 @@
 % Please edit documentation in R/gbm.perf.R
 \name{gbm.perf}
 \alias{gbm.perf}
+\alias{perf.pairwise}
 \title{GBM performance}
 \usage{
 gbm.perf(object, plot.it = TRUE, oobag.curve = FALSE, overlay = TRUE,
-  method, main = "")
+method, main="")
+perf.pairwise(y, f, group, metric = "ndcg", w = NULL, max.rank = 0)
 }
 \arguments{
 \item{object}{a \code{\link{gbm.object}} created from an initial call to
@@ -29,8 +31,15 @@ the loss function is plotted versus the iteration number.}
 boosting iterations. \code{method="OOB"} computes the out-of-bag estimate
 and \code{method="test"} uses the test (or validation) dataset to compute an
 out-of-sample estimate. \code{method="cv"} extracts the optimal number of
-iterations using cross-validation if \code{gbm} was called with
-\code{cv.folds}>1}
+iterations using cross-validation if \code{gbm} was called with \code{cv.folds}>1.}
+
+\item{main}{the main title for the plot. Defaults to \code{main = ""}.}
+
+\item{y,f,group,w,max.rank}{Arguments to \code{perf.pairwise}.}
+
+\item{metric}{What type of performance measure to compute in \code{perf.pairwise}.
+Can take values "ir.measure.conc", "ir.measure.mrr", "ir.measure.map" or
+"ir.measure.ndgc".}
 }
 \value{
 \code{gbm.perf} returns the estimated optimal number of iterations.

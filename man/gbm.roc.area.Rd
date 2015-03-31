@@ -3,12 +3,6 @@
 \name{gbm.roc.area}
 \alias{gbm.conc}
 \alias{gbm.roc.area}
-\alias{ir.measure.auc}
-\alias{ir.measure.conc}
-\alias{ir.measure.map}
-\alias{ir.measure.mrr}
-\alias{ir.measure.ndcg}
-\alias{perf.pairwise}
 \title{Compute Information Retrieval measures.}
 \usage{
 gbm.roc.area(obs, pred)
@@ -17,10 +11,6 @@ gbm.roc.area(obs, pred)
 \item{obs}{Observed value}
 
 \item{pred}{Predicted value}
-
-\item{metric}{What type of performance measure to compute.}
-
-\item{y,y.f,f,w,group,max.rank}{Used internally.}
 }
 \value{
 The requested performance measure.
