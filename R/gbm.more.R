@@ -9,25 +9,17 @@ gbm.more <- function(object,
    theCall <- match.call()
    nTrain  <- object$nTrain
 
-   if (object$distribution$name != "pairwise")
-   {
+   if (object$distribution$name != "pairwise") {
       distribution.call.name <- object$distribution$name
-   }
-   else
-   {
-      distribution.call.name <- sprintf("pairwise_%s", object$distribution$metric)
+   } else {
+     distribution.call.name <- sprintf("pairwise_%s", object$distribution$metric)
    }
 
-   if(is.null(object$Terms) && is.null(object$data))
-   {
-      stop("The gbm model was fit using gbm.fit (rather than gbm) and keep.data was set to FALSE. gbm.more cannot locate the dataset.")
-   }
-   else if(is.null(object$data) && is.null(data))
-   {
-      stop("keep.data was set to FALSE on original gbm call and argument 'data' is NULL")
-   }
-   else if(is.null(object$data))
-   {
+   if(is.null(object$Terms) && is.null(object$data)) {
+     stop("The gbm model was fit using gbm.fit (rather than gbm) and keep.data was set to FALSE. gbm.more cannot locate the dataset.")
+   } else if(is.null(object$data) && is.null(data)) {
+     stop("keep.data was set to FALSE on original gbm call and argument 'data' is NULL")
+   }  else if(is.null(object$data)) {
       m <- eval(object$m, parent.frame())
 
       Terms <- attr(m, "terms")
@@ -53,8 +45,7 @@ gbm.more <- function(object,
       }
       Misc <- NA
 
-      if(object$distribution$name == "coxph")
-      {
+      if(object$distribution$name == "coxph") {
          Misc <- as.numeric(y)[-(1:cRows)]
          y <- as.numeric(y)[1:cRows]
 
@@ -69,17 +60,14 @@ gbm.more <- function(object,
          w <- w[i.timeorder]
          if(!is.na(offset)) offset <- offset[i.timeorder]
          object$fit <- object$fit[i.timeorder]
-      }
-      else if(object$distribution$name == "tdist" ){
-         Misc <- object$distribution$df
-      }
-      else if (object$distribution$name == "pairwise"){
+      } else if(object$distribution$name == "tdist" ){
+        Misc <- object$distribution$df
+      } else if (object$distribution$name == "pairwise"){
 
          # Check if group names are valid
          distribution.group <- object$distribution$group
          i <- match(distribution.group, colnames(data))
-         if (any(is.na(i)))
-         {
+         if (any(is.na(i))) {
             stop("Group column does not occur in data: ", distribution.group[is.na(i)])
          }
 
@@ -87,13 +75,11 @@ gbm.more <- function(object,
          group <- factor(do.call(paste, c(data[,distribution.group, drop=FALSE], sep=":")))
 
          # Check that weights are constant across groups
-         if ((!missing(weights)) && (!is.null(weights)))
-         {
+         if ((!missing(weights)) && (!is.null(weights))) {
             w.min <- tapply(w, INDEX=group, FUN=min)
             w.max <- tapply(w, INDEX=group, FUN=max)
 
-            if (any(w.min != w.max))
-            {
+            if (any(w.min != w.max)) {
                stop("For distribution 'pairwise', all instances for the same group must have the same weight")
             }
 
@@ -122,8 +108,7 @@ gbm.more <- function(object,
 
          metric <- object$distribution[["metric"]]
 
-         if (is.element(metric, c("mrr", "map")) && (!all(is.element(y, 0:1))))
-         {
+         if (is.element(metric, c("mrr", "map")) && (!all(is.element(y, 0:1)))) {
             stop("Metrics 'map' and 'mrr' require the response to be in {0,1}")
          }
 
@@ -132,14 +117,10 @@ gbm.more <- function(object,
          # Default of 0 means no cutoff
 
          max.rank <- 0
-         if (!is.null(object$distribution[["max.rank"]]) && object$distribution[["max.rank"]] > 0)
-         {
-            if (is.element(metric, c("ndcg", "mrr")))
-            {
+         if (!is.null(object$distribution[["max.rank"]]) && object$distribution[["max.rank"]] > 0) {
+            if (is.element(metric, c("ndcg", "mrr"))) {
                max.rank <- object$distribution[["max.rank"]]
-            }
-            else
-            {
+            } else {
                stop("Parameter 'max.rank' cannot be specified for metric '", metric, "', only supported for 'ndcg' and 'mrr'")
             }
          }
@@ -153,9 +134,7 @@ gbm.more <- function(object,
       x <- data.matrix(x)
       cRows <- nrow(x)
       cCols <- ncol(x)
-   }
-   else
-   {
+   } else {
       y       <- object$data$y
       x       <- object$data$x
       x.order <- object$data$x.order
@@ -165,19 +144,16 @@ gbm.more <- function(object,
       nTrain  <- object$nTrain
       cRows   <- length(y)
       cCols   <- length(x)/cRows
-      if(object$distribution$name == "coxph")
-      {
+      if(object$distribution$name == "coxph") {
          i.timeorder <- object$data$i.timeorder
          object$fit  <- object$fit[i.timeorder]
       }
-      if (object$distribution$name == "pairwise")
-      {
+      if (object$distribution$name == "pairwise") {
          object$fit   <- object$fit[object$ord.group] # object$fit is stored in the original order
       }
    }
 
-   if(is.null(verbose))
-   {
+   if(is.null(verbose)) {
       verbose <- object$verbose
    }
    x <- as.vector(x)
@@ -239,13 +215,11 @@ gbm.more <- function(object,
    gbm.obj$var.levels        <- object$var.levels
    gbm.obj$verbose           <- verbose
 
-   if(object$distribution$name == "coxph")
-   {
+   if(object$distribution$name == "coxph") {
       gbm.obj$fit[i.timeorder] <- gbm.obj$fit
    }
 
-   if (object$distribution$name == "pairwise")
-   {
+   if (object$distribution$name == "pairwise") {
       # Data has been reordered according to queries.
       # We need to permute the fitted values to correspond
       # to the original order.
@@ -254,12 +228,9 @@ gbm.more <- function(object,
       gbm.obj$ord.group <- object$ord.group
    }
 
-   if(!is.null(object$data))
-   {
+   if(!is.null(object$data)) {
       gbm.obj$data <- object$data
-   }
-   else
-   {
+   } else {
       gbm.obj$data <- NULL
    }
    gbm.obj$m <- object$m

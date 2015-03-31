@@ -3,11 +3,10 @@
 #' Helper functions for computing the relative influence of each variable in
 #' the gbm object.
 #' 
-#' This is not intended for end-user use. These functions offer the different
+#' These functions offer the different
 #' methods for computing the relative influence in \code{\link{summary.gbm}}.
-#' \code{gbm.loss} is a helper function for \code{permutation.test.gbm}.
-#' 
-#' @aliases relative.influence permutation.test.gbm gbm.loss
+#'
+#' @aliases relative.influence permutation.test.gbm
 #' @param object a \code{gbm} object created from an initial call to
 #' \code{\link{gbm}}.
 #' @param n.trees the number of trees to use for computations. If not provided,
@@ -19,15 +18,18 @@
 #' \code{FALSE}.
 #' @param sort.  whether or not the results should be (reverse) sorted.
 #' Defaults to \code{FALSE}.
-#' @param y,f,w,offset,dist,baseline For \code{gbm.loss}: These components are
-#' the outcome, predicted value, observation weight, offset, distribution, and
-#' comparison loss function, respectively.
-#' @param group,max.rank Used internally when \code{distribution =
-#' \'pairwise\'}.
 #' @return By default, returns an unprocessed vector of estimated relative
 #' influences. If the \code{scale.} and \code{sort.} arguments are used,
 #' returns a processed version of the same.
 #' @author Greg Ridgeway \email{gregridgeway@@gmail.com}
+#' @details \code{\link{relative.influence}} is the same as that
+#' described in Friedman (2001).
+#' \code{\link{permutation.test.gbm}} randomly permutes each
+#' predictor variable at a time and computes the associated reduction in
+#' predictive performance. This is similar to the variable importance measures
+#' Breiman uses for random forests, but \code{gbm} currently computes using the
+#' entire training dataset (not the out-of-bag observations).
+
 #' @seealso \code{\link{summary.gbm}}
 #' @references J.H. Friedman (2001). "Greedy Function Approximation: A Gradient
 #' Boosting Machine," Annals of Statistics 29(5):1189-1232.
@@ -37,12 +39,7 @@
 #' Forests}.
 #' @keywords hplot
 #' @export
-relative.influence <- function(object,
-                               n.trees,
-                               scale. = FALSE,
-                               sort. = FALSE )
-{
-
+relative.influence <- function(object, n.trees, scale. = FALSE, sort. = FALSE){
    if( missing( n.trees ) ){
       if ( object$train.fraction < 1 ){
          n.trees <- gbm.perf( object, method="test", plot.it=FALSE )
@@ -77,12 +74,8 @@ relative.influence <- function(object,
 
    names(rel.inf) <- object$var.names
 
-   if (scale.){
-      rel.inf <- rel.inf / max(rel.inf)
-   }
-   if (sort.){
-      rel.inf <- rev(sort(rel.inf))
-   }
+   if (scale.) rel.inf <- rel.inf / max(rel.inf)
+   if (sort.) rel.inf <- rev(sort(rel.inf))
 
-   return(rel.inf=rel.inf)
+   rel.inf
 }

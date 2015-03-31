@@ -1,7 +1,7 @@
 # Functions to compute IR measures for pairwise loss for
 # a single group
 # Notes:
-# * Inputs are passed as a 2-elemen (y,f) list, to
+# * Inputs are passed as a 2-element (y,f) list, to
 #   facilitate the 'by' iteration
 # * Return the respective metric, or a negative value if
 #   it is undefined for the given group
@@ -33,12 +33,9 @@
 #' \code{gbm.conc} is more general as it allows non-binary targets, but is
 #' significantly slower.
 #' 
-#' @aliases gbm.roc.area gbm.conc ir.measure.conc ir.measure.auc ir.measure.mrr
-#' ir.measure.map ir.measure.ndcg perf.pairwise
+#' @aliases gbm.roc.area gbm.conc
 #' @param obs Observed value
 #' @param pred Predicted value
-#' @param metric What type of performance measure to compute.
-#' @param y,y.f,f,w,group,max.rank Used internally.
 #' @return The requested performance measure.
 #' @author Stefan Schroedl
 #' @seealso \code{\link{gbm}}
@@ -52,8 +49,7 @@
 #' ##--	or do  help(data=index)  for the standard data sets.
 #' 
 #' 
-gbm.roc.area <- function(obs, pred)
-{
+gbm.roc.area <- function(obs, pred) {
    n1 <- sum(obs)
    n <- length(obs)
    if (n==n1) { return(1) }
@@ -69,14 +65,12 @@ gbm.roc.area <- function(obs, pred)
 #      gbm.roc.area(obs, pred) = gbm.conc(obs[order(-pred)])
 # gbm.conc is more general as it allows non-binary targets,
 # but is significantly slower
-gbm.conc <- function(x)
-{
+gbm.conc <- function(x) {
    lx <- length(x)
    return (sum(mapply(function(r) { sum(x[(r+1):lx]<x[r]) }, 1:(lx-1))))
 }
 
-ir.measure.conc <- function(y.f, max.rank=0)
-{
+ir.measure.conc <- function(y.f, max.rank=0) {
    # Note: max.rank is meaningless for CONC
 
    y           <- y.f[[1]]
@@ -86,18 +80,14 @@ ir.measure.conc <- function(y.f, max.rank=0)
    csum        <- cumsum(tab)
    total.pairs <- sum(tab * (csum - tab))
 
-   if (total.pairs == 0)
-   {
-      return (-1.0)
-   }
-   else
-   {
-      return (gbm.conc(y[order(-f)]) / total.pairs)
+   if (total.pairs == 0) {
+     return (-1.0)
+   } else {
+     return (gbm.conc(y[order(-f)]) / total.pairs)
    }
 }
 
-ir.measure.auc <- function(y.f, max.rank=0)
-{
+ir.measure.auc <- function(y.f, max.rank=0){
    # Note: max.rank is meaningless for AUC
    y       <- y.f[[1]]
    f       <- y.f[[2]]
@@ -113,8 +103,7 @@ ir.measure.auc <- function(y.f, max.rank=0)
    }
 }
 
-ir.measure.mrr <- function(y.f, max.rank)
-{
+ir.measure.mrr <- function(y.f, max.rank) {
    y       <- y.f[[1]]
    f       <- y.f[[2]]
    num.pos <- sum(y>0)
@@ -137,8 +126,7 @@ ir.measure.mrr <- function(y.f, max.rank)
    }
 }
 
-ir.measure.map <- function(y.f, max.rank=0)
-{
+ir.measure.map <- function(y.f, max.rank=0) {
    # Note: max.rank is meaningless for MAP
 
    y         <- y.f[[1]]
@@ -157,15 +145,11 @@ ir.measure.map <- function(y.f, max.rank=0)
    return (sum((1:length(idx.pos))/idx.pos) / num.pos)
 }
 
-ir.measure.ndcg <- function(y.f, max.rank)
-{
+ir.measure.ndcg <- function(y.f, max.rank) {
    y         <- y.f[[1]]
    f         <- y.f[[2]]
 
-   if (length(f) <= 1 || all(diff(y)==0))
-   {
-      return (-1.0)
-   }
+   if (length(f) <= 1 || all(diff(y)==0)) return (-1.0)
 
    num.items <- min(length(f), max.rank)
    ord       <- order(f, decreasing=TRUE)

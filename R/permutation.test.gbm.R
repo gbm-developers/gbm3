@@ -1,14 +1,12 @@
-permutation.test.gbm <- function(object,
-                                 n.trees)
-{
+#' @export
+permutation.test.gbm <- function(object, n.trees, scale.=FALSE, sort.=FALSE){
    # get variables used in the model
    i.vars <- sort(unique(unlist(lapply(object$trees[1:n.trees],
                                        function(x){unique(x[[1]])}))))
    i.vars <- i.vars[i.vars!=-1] + 1
    rel.inf <- rep(0,length(object$var.names))
 
-   if(!is.null(object$data))
-   {
+   if(!is.null(object$data)) {
       y            <- object$data$y
       os           <- object$data$offset
       Misc         <- object$data$Misc
@@ -24,16 +22,13 @@ permutation.test.gbm <- function(object,
          group     <- Misc[1:length(y)]
          max.rank  <- Misc[length(y)+1]
       }
-   }
-   else
-   {
-      stop("Model was fit with keep.data=FALSE. permutation.test.gbm has not been implemented for that case.")
+   } else {
+     stop("Model was fit with keep.data=FALSE. permutation.test.gbm has not been implemented for that case.")
    }
 
    # the index shuffler
    j <- sample(1:nrow(x))
-   for(i in 1:length(i.vars))
-   {
+   for(i in 1:length(i.vars)) {
       x[ ,i.vars[i]]  <- x[j,i.vars[i]]
 
       new.pred <- predict.gbm(object,newdata=x,n.trees=n.trees)
@@ -46,5 +41,8 @@ permutation.test.gbm <- function(object,
       x[j,i.vars[i]] <- x[ ,i.vars[i]]
    }
 
-   return(rel.inf=rel.inf)
+   if (scale.) rel.inf <- rel.inf / max(rel.inf)
+   if (sort.) rel.inf <- rev(sort(rel.inf))
+
+   rel.inf
 }

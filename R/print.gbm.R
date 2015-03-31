@@ -1,5 +1,4 @@
-# print, show and summary functions for gbm
-
+# print and summary functions for gbm
 
 #' Print model summary
 #' 
@@ -148,8 +147,6 @@ print.gbm <- function(x, ... ){
            cat("Cross-validation robust pseudo R-squared: ", signif(R2, 3), "\n")
        }
    }
-
-   #############################################################################
 
    invisible()
 }
