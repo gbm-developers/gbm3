@@ -178,6 +178,8 @@
 #' \code{detectCores} function in the \code{parallel} package. Note that the
 #' documentation for \code{detectCores} makes clear that it is not reliable and
 #' could return a spurious number of available cores.
+#' @param fold.id An optional vector of values identifying what fold each
+#' observation is in. If supplied, cv.folds can be missing.
 #' 
 #' @usage gbm(formula = formula(data), distribution = "bernoulli", data = list(),
 #' weights, subset = NULL, offset = NULL, var.monotone = NULL,
