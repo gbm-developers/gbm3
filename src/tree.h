@@ -34,77 +34,76 @@ public:
     CCARTTree();
     ~CCARTTree();
 
-    GBMRESULT Initialize(CNodeFactory *pNodeFactory);
-    GBMRESULT grow(double *adZ,
-                 CDataset *pData,
-                 double *adAlgW,
-                 double *adF,
-                 unsigned long nTrain,
-                 unsigned long nFeatures,
-                 unsigned long nBagged,
-                 double dLambda,
-                 unsigned long cMaxDepth,
-                 unsigned long cMinObsInNode,
-				 bool *afInBag,
-		         std::vector<unsigned long>& aiNodeAssign,
-                 CNodeSearch *aNodeSearch,
-                 VEC_P_NODETERMINAL &vecpTermNodes);
-    GBMRESULT Reset();
+    void Initialize(CNodeFactory *pNodeFactory);
+    void grow(double *adZ,
+	      CDataset *pData,
+	      double *adAlgW,
+	      double *adF,
+	      unsigned long nTrain,
+	      unsigned long nFeatures,
+	      unsigned long nBagged,
+	      double dLambda,
+	      unsigned long cMaxDepth,
+	      unsigned long cMinObsInNode,
+	      int *afInBag,
+	      std::vector<unsigned long>& aiNodeAssign,
+	      CNodeSearch *aNodeSearch,
+	      VEC_P_NODETERMINAL &vecpTermNodes);
+    void Reset();
 
-    GBMRESULT TransferTreeToRList(CDataset *pData,
-                                int *aiSplitVar,
-                                double *adSplitPoint,
-                                int *aiLeftNode,
-                                int *aiRightNode,
-                                int *aiMissingNode,
-                                double *adErrorReduction,
-                                double *adWeight,
-                                double *adPred,
-                                VEC_VEC_CATEGORIES &vecSplitCodes,
-                                int cCatSplitsOld,
-                                double dShrinkage);
+    void TransferTreeToRList(CDataset *pData,
+			     int *aiSplitVar,
+			     double *adSplitPoint,
+			     int *aiLeftNode,
+			     int *aiRightNode,
+			     int *aiMissingNode,
+			     double *adErrorReduction,
+			     double *adWeight,
+			     double *adPred,
+			     VEC_VEC_CATEGORIES &vecSplitCodes,
+			     int cCatSplitsOld,
+			     double dShrinkage);
 
-    GBMRESULT PredictValid(CDataset *pData,
-                         unsigned long nValid,
-                         double *adFadj);
-
-    GBMRESULT Predict(double *adX,
-                    unsigned long cRow,
-                    unsigned long cCol,
-                    unsigned long iRow,
-                    double &dFadj);
-    GBMRESULT Adjust(std::vector<unsigned long>& aiNodeAssign,
-		     double *adFadj,
-		     unsigned long cTrain,
-		     VEC_P_NODETERMINAL &vecpTermNodes,
-		     unsigned long cMinObsInNode);
-
-    GBMRESULT GetNodeCount(int &cNodes);
-    GBMRESULT SetShrinkage(double dShrink)
+    void PredictValid(CDataset *pData,
+		      unsigned long nValid,
+		      double *adFadj);
+    
+    void Predict(double *adX,
+		 unsigned long cRow,
+		 unsigned long cCol,
+		 unsigned long iRow,
+		 double &dFadj);
+    void Adjust(std::vector<unsigned long>& aiNodeAssign,
+		double *adFadj,
+		unsigned long cTrain,
+		VEC_P_NODETERMINAL &vecpTermNodes,
+		unsigned long cMinObsInNode);
+    
+    void GetNodeCount(int &cNodes);
+    void SetShrinkage(double dShrink)
     {
         this->dShrink = dShrink;
-        return GBM_OK;
     }
     double GetShrinkage() {return dShrink;}
 
-    GBMRESULT Print();
-    GBMRESULT GetVarRelativeInfluence(double *adRelInf);
+    void Print();
+    void GetVarRelativeInfluence(double *adRelInf);
 
 
     double dError; // total squared error before carrying out the splits
 private:
-    GBMRESULT GetBestSplit(CDataset *pData,
-                         unsigned long nTrain,
-                         unsigned long nFeatures,
-                         CNodeSearch *aNodeSearch,
-                         unsigned long cTerminalNodes,
-			   std::vector<unsigned long>& aiNodeAssign,
-                         bool *afInBag,
-                         double *adZ,
-                         double *adW,
-                         unsigned long &iBestNode,
-                         double &dBestNodeImprovement);
-
+    void GetBestSplit(CDataset *pData,
+		      unsigned long nTrain,
+		      unsigned long nFeatures,
+		      CNodeSearch *aNodeSearch,
+		      unsigned long cTerminalNodes,
+		      std::vector<unsigned long>& aiNodeAssign,
+		      int *afInBag,
+		      double *adZ,
+		      double *adW,
+		      unsigned long &iBestNode,
+		      double &dBestNodeImprovement);
+    
     CNode *pRootNode;
     double dShrink;
 

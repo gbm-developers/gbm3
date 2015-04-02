@@ -12,47 +12,44 @@ CNodeCategorical::~CNodeCategorical()
 }
 
 
-GBMRESULT CNodeCategorical::PrintSubtree
+void CNodeCategorical::PrintSubtree
 (
     unsigned long cIndent
 )
 {
-    GBMRESULT hr = GBM_OK;
-    unsigned long i = 0;
-    const std::size_t cLeftCategory = aiLeftCategory.size();
+  unsigned long i = 0;
+  const std::size_t cLeftCategory = aiLeftCategory.size();
+  
+  for(i=0; i< cIndent; i++) Rprintf("  ");
+  Rprintf("N=%f, Improvement=%f, Prediction=%f, NA pred=%f\n",
+	  dTrainW,
+	  dImprovement,
+	  dPrediction,
+	  (pMissingNode == NULL ? 0.0 : pMissingNode->dPrediction));
 
-    for(i=0; i< cIndent; i++) Rprintf("  ");
-    Rprintf("N=%f, Improvement=%f, Prediction=%f, NA pred=%f\n",
-           dTrainW,
-           dImprovement,
-           dPrediction,
-           (pMissingNode == NULL ? 0.0 : pMissingNode->dPrediction));
-
-    for(i=0; i< cIndent; i++) Rprintf("  ");
-    Rprintf("V%d in ",iSplitVar);
-    for(i=0; i<cLeftCategory; i++)
+  for(i=0; i< cIndent; i++) Rprintf("  ");
+  Rprintf("V%d in ",iSplitVar);
+  for(i=0; i<cLeftCategory; i++)
     {
-        Rprintf("%d",aiLeftCategory[i]);
-        if(i<cLeftCategory-1) Rprintf(",");
+      Rprintf("%d",aiLeftCategory[i]);
+      if(i<cLeftCategory-1) Rprintf(",");
     }
-    Rprintf("\n");
-    hr = pLeftNode->PrintSubtree(cIndent+1);
+  Rprintf("\n");
+  pLeftNode->PrintSubtree(cIndent+1);
 
-    for(i=0; i< cIndent; i++) Rprintf("  ");
-    Rprintf("V%d not in ",iSplitVar);
-    for(i=0; i<cLeftCategory; i++)
+  for(i=0; i< cIndent; i++) Rprintf("  ");
+  Rprintf("V%d not in ",iSplitVar);
+  for(i=0; i<cLeftCategory; i++)
     {
-        Rprintf("%d",aiLeftCategory[i]);
-        if(i<cLeftCategory-1) Rprintf(",");
+      Rprintf("%d",aiLeftCategory[i]);
+      if(i<cLeftCategory-1) Rprintf(",");
     }
-    Rprintf("\n");
-    hr = pRightNode->PrintSubtree(cIndent+1);
-
-    for(i=0; i< cIndent; i++) Rprintf("  ");
-    Rprintf("missing\n");
-    hr = pMissingNode->PrintSubtree(cIndent+1);
-
-    return hr;
+  Rprintf("\n");
+  pRightNode->PrintSubtree(cIndent+1);
+  
+  for(i=0; i< cIndent; i++) Rprintf("  ");
+  Rprintf("missing\n");
+  pMissingNode->PrintSubtree(cIndent+1);
 }
 
 
@@ -116,111 +113,94 @@ signed char CNodeCategorical::WhichNode
 
 
 
-GBMRESULT CNodeCategorical::RecycleSelf
+void CNodeCategorical::RecycleSelf(CNodeFactory *pNodeFactory) {
+  pNodeFactory->RecycleNode(this);
+}
+
+
+
+void CNodeCategorical::TransferTreeToRList
 (
-    CNodeFactory *pNodeFactory
+ int &iNodeID,
+ CDataset *pData,
+ int *aiSplitVar,
+ double *adSplitPoint,
+ int *aiLeftNode,
+ int *aiRightNode,
+ int *aiMissingNode,
+ double *adErrorReduction,
+ double *adWeight,
+ double *adPred,
+ VEC_VEC_CATEGORIES &vecSplitCodes,
+ int cCatSplitsOld,
+ double dShrinkage
 )
 {
-    GBMRESULT hr = GBM_OK;
-    hr = pNodeFactory->RecycleNode(this);
-    return hr;
-};
-
-
-
-GBMRESULT CNodeCategorical::TransferTreeToRList
-(
-    int &iNodeID,
-    CDataset *pData,
-    int *aiSplitVar,
-    double *adSplitPoint,
-    int *aiLeftNode,
-    int *aiRightNode,
-    int *aiMissingNode,
-    double *adErrorReduction,
-    double *adWeight,
-    double *adPred,
-    VEC_VEC_CATEGORIES &vecSplitCodes,
-    int cCatSplitsOld,
-    double dShrinkage
-)
-{
-    GBMRESULT hr = GBM_OK;
-
-    int iThisNodeID = iNodeID;
-    unsigned long cCatSplits = vecSplitCodes.size();
-    unsigned long i = 0;
-    int cLevels = pData->acVarClasses[iSplitVar];
-    const std::size_t cLeftCategory = aiLeftCategory.size();
-
-    aiSplitVar[iThisNodeID] = iSplitVar;
-    adSplitPoint[iThisNodeID] = cCatSplits+cCatSplitsOld; // 0 based
-    adErrorReduction[iThisNodeID] = dImprovement;
-    adWeight[iThisNodeID] = dTrainW;
-    adPred[iThisNodeID] = dShrinkage*dPrediction;
-
-    vecSplitCodes.push_back(VEC_CATEGORIES());
-
-    vecSplitCodes[cCatSplits].resize(cLevels,1);
-    for(i=0; i<cLeftCategory; i++)
+  
+  int iThisNodeID = iNodeID;
+  unsigned long cCatSplits = vecSplitCodes.size();
+  unsigned long i = 0;
+  int cLevels = pData->acVarClasses[iSplitVar];
+  const std::size_t cLeftCategory = aiLeftCategory.size();
+  
+  aiSplitVar[iThisNodeID] = iSplitVar;
+  adSplitPoint[iThisNodeID] = cCatSplits+cCatSplitsOld; // 0 based
+  adErrorReduction[iThisNodeID] = dImprovement;
+  adWeight[iThisNodeID] = dTrainW;
+  adPred[iThisNodeID] = dShrinkage*dPrediction;
+  
+  vecSplitCodes.push_back(VEC_CATEGORIES());
+  
+  vecSplitCodes[cCatSplits].resize(cLevels,1);
+  for(i=0; i<cLeftCategory; i++)
     {
-        vecSplitCodes[cCatSplits][aiLeftCategory[i]] = -1;
+      vecSplitCodes[cCatSplits][aiLeftCategory[i]] = -1;
     }
 
-    iNodeID++;
-    aiLeftNode[iThisNodeID] = iNodeID;
-    hr = pLeftNode->TransferTreeToRList(iNodeID,
-                                        pData,
-                                        aiSplitVar,
-                                        adSplitPoint,
-                                        aiLeftNode,
-                                        aiRightNode,
-                                        aiMissingNode,
-                                        adErrorReduction,
-                                        adWeight,
-                                        adPred,
-                                        vecSplitCodes,
-                                        cCatSplitsOld,
-                                        dShrinkage);
-    if(GBM_FAILED(hr)) goto Error;
-
-    aiRightNode[iThisNodeID] = iNodeID;
-    hr = pRightNode->TransferTreeToRList(iNodeID,
-                                         pData,
-                                         aiSplitVar,
-                                         adSplitPoint,
-                                         aiLeftNode,
-                                         aiRightNode,
-                                         aiMissingNode,
-                                         adErrorReduction,
-                                         adWeight,
-                                         adPred,
-                                         vecSplitCodes,
-                                         cCatSplitsOld,
-                                         dShrinkage);
-    if(GBM_FAILED(hr)) goto Error;
-
-    aiMissingNode[iThisNodeID] = iNodeID;
-    hr = pMissingNode->TransferTreeToRList(iNodeID,
-                                           pData,
-                                           aiSplitVar,
-                                           adSplitPoint,
-                                           aiLeftNode,
-                                           aiRightNode,
-                                           aiMissingNode,
-                                           adErrorReduction,
-                                           adWeight,
-                                           adPred,
-                                           vecSplitCodes,
-                                           cCatSplitsOld,
-                                           dShrinkage);
-    if(GBM_FAILED(hr)) goto Error;
-
-
-Cleanup:
-    return hr;
-Error:
-    goto Cleanup;
+  iNodeID++;
+  aiLeftNode[iThisNodeID] = iNodeID;
+  pLeftNode->TransferTreeToRList(iNodeID,
+				 pData,
+				 aiSplitVar,
+				 adSplitPoint,
+				 aiLeftNode,
+				 aiRightNode,
+				 aiMissingNode,
+				 adErrorReduction,
+				 adWeight,
+				 adPred,
+				 vecSplitCodes,
+				 cCatSplitsOld,
+				 dShrinkage);
+  aiRightNode[iThisNodeID] = iNodeID;
+  pRightNode->TransferTreeToRList(iNodeID,
+				  pData,
+				  aiSplitVar,
+				  adSplitPoint,
+				  aiLeftNode,
+				  aiRightNode,
+				  aiMissingNode,
+				  adErrorReduction,
+				  adWeight,
+				  adPred,
+				  vecSplitCodes,
+				  cCatSplitsOld,
+				  dShrinkage);
+  
+  aiMissingNode[iThisNodeID] = iNodeID;
+  pMissingNode->TransferTreeToRList(iNodeID,
+				    pData,
+				    aiSplitVar,
+				    adSplitPoint,
+				    aiLeftNode,
+				    aiRightNode,
+				    aiMissingNode,
+				    adErrorReduction,
+				    adWeight,
+				    adPred,
+				    vecSplitCodes,
+				    cCatSplitsOld,
+				    dShrinkage);
 }
 
 

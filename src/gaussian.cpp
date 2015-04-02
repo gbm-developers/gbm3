@@ -11,52 +11,42 @@ CGaussian::~CGaussian()
 }
 
 
-GBMRESULT CGaussian::ComputeWorkingResponse
+void CGaussian::ComputeWorkingResponse
 (
-    double *adY,
-    double *adMisc,
-    double *adOffset,
-    double *adF,
-    double *adZ,
-    double *adWeight,
-    bool *afInBag,
-    unsigned long nTrain,
-	int cIdxOff
-)
+ double *adY,
+ double *adMisc,
+ double *adOffset,
+ double *adF,
+ double *adZ,
+ double *adWeight,
+ int *afInBag,
+ unsigned long nTrain,
+ int cIdxOff
+ )
 {
-    GBMRESULT hr = GBM_OK;
-    unsigned long i = 0;
-
-    if((adY == NULL) || (adF == NULL) || (adZ == NULL) || (adWeight == NULL))
+  unsigned long i = 0;
+  
+  if (!(adY && adF && adZ && adWeight)) {
+    throw GBM::invalid_argument();
+  }
+  
+  if(adOffset == NULL)
     {
-        hr = GBM_INVALIDARG;
-        goto Error;
-    }
-
-    if(adOffset == NULL)
-    {
-        for(i=0; i<nTrain; i++)
+      for(i=0; i<nTrain; i++)
         {
-            adZ[i] = adY[i] - adF[i];
+	  adZ[i] = adY[i] - adF[i];
         }
     }
-    else
+  else
     {
-        for(i=0; i<nTrain; i++)
+      for(i=0; i<nTrain; i++)
         {
-            adZ[i] = adY[i] - adOffset[i] - adF[i];
+	  adZ[i] = adY[i] - adOffset[i] - adF[i];
         }
     }
-
-Cleanup:
-    return hr;
-Error:
-    goto Cleanup;
 }
 
-
-
-GBMRESULT CGaussian::InitF
+void CGaussian::InitF
 (
     double *adY,
     double *adMisc,
@@ -88,8 +78,6 @@ GBMRESULT CGaussian::InitF
         }
     }
     dInitF = dSum/dTotalWeight;
-
-    return GBM_OK;
 }
 
 
@@ -130,7 +118,7 @@ double CGaussian::Deviance
 }
 
 
-GBMRESULT CGaussian::FitBestConstant
+void CGaussian::FitBestConstant
 (
     double *adY,
     double *adMisc,
@@ -143,15 +131,13 @@ GBMRESULT CGaussian::FitBestConstant
     VEC_P_NODETERMINAL vecpTermNodes,
     unsigned long cTermNodes,
     unsigned long cMinObsInNode,
-    bool *afInBag,
+    int *afInBag,
     double *adFadj,
 	int cIdxOff
 )
 {
-    // the tree aready stores the mean prediction
-    // no refitting necessary
-
-    return GBM_OK;
+  // the tree aready stores the mean prediction
+  // no refitting necessary
 }
 
 double CGaussian::BagImprovement
@@ -162,7 +148,7 @@ double CGaussian::BagImprovement
     double *adWeight,
     double *adF,
     double *adFadj,
-    bool *afInBag,
+    int *afInBag,
     double dStepSize,
     unsigned long nTrain
 )

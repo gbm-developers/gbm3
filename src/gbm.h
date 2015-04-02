@@ -15,7 +15,9 @@
 //
 //------------------------------------------------------------------------------
 
-#include<vector>
+#include <vector>
+#include <string>
+#include <memory>
 #include "dataset.h"
 #include "distribution.h"
 #include "bernoulli.h"
@@ -34,10 +36,7 @@
 #include "gamma.h"
 #include "tweedie.h"
 
-typedef vector<char> VEC_CATEGORIES;
-typedef vector<VEC_CATEGORIES> VEC_VEC_CATEGORIES;
-
-GBMRESULT gbm_setup
+std::auto_ptr<CDistribution> gbm_setup
 (
     double *adY,
     double *adOffset,
@@ -49,7 +48,7 @@ GBMRESULT gbm_setup
     int cCols,
     int *acVarClasses,
     int *alMonotoneVar,
-    const char *pszFamily,
+    const std::string& family,
     int cTrees,
     int cLeaves,
     int cMinObsInNode,
@@ -59,39 +58,23 @@ GBMRESULT gbm_setup
     int cTrain,
     int cFeatures,
     CDataset *pData,
-    PCDistribution &pDist,
     int& cGroups
 );
 
 
-GBMRESULT gbm_transfer_to_R
+void gbm_transfer_to_R
 (
-    CGBM *pGBM,
-    VEC_VEC_CATEGORIES &vecSplitCodes,
-    int *aiSplitVar,
-    double *adSplitPoint,
-    int *aiLeftNode,
-    int *aiRightNode,
-    int *aiMissingNode,
-    double *adErrorReduction,
-    double *adWeight,
-    double *adPred,
-    int cCatSplitsOld
-);
-
-
-GBMRESULT gbm_transfer_catsplits_to_R
-(
-    int iCatSplit,
-    VEC_VEC_CATEGORIES &vecSplitCodes,
-    int *aiSplitCodes
-);
-
-
-int size_of_vector
-(
-    VEC_VEC_CATEGORIES &vec,
-    int i
+ CGBM *pGBM,
+ VEC_VEC_CATEGORIES &vecSplitCodes,
+ int *aiSplitVar,
+ double *adSplitPoint,
+ int *aiLeftNode,
+ int *aiRightNode,
+ int *aiMissingNode,
+ double *adErrorReduction,
+ double *adWeight,
+ double *adPred,
+ int cCatSplitsOld
 );
 
 

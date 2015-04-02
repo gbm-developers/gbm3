@@ -28,31 +28,36 @@ public:
  CNodeCategorical() : aiLeftCategory() {};
   ~CNodeCategorical();
 
-    GBMRESULT PrintSubtree(unsigned long cIndent);
-    GBMRESULT TransferTreeToRList(int &iNodeID,
-                                CDataset *pData,
-                                int *aiSplitVar,
-                                double *adSplitPoint,
-                                int *aiLeftNode,
-                                int *aiRightNode,
-                                int *aiMissingNode,
-                                double *adErrorReduction,
-                                double *adWeight,
-                                double *adPred,
-                                VEC_VEC_CATEGORIES &vecSplitCodes,
-                                int cCatSplitsOld,
-                                double dShrinkage);
+  void PrintSubtree(unsigned long cIndent);
+  void TransferTreeToRList(int &iNodeID,
+			   CDataset *pData,
+			   int *aiSplitVar,
+			   double *adSplitPoint,
+			   int *aiLeftNode,
+			   int *aiRightNode,
+			   int *aiMissingNode,
+			   double *adErrorReduction,
+			   double *adWeight,
+			   double *adPred,
+			   VEC_VEC_CATEGORIES &vecSplitCodes,
+			   int cCatSplitsOld,
+			   double dShrinkage);
 
-    signed char WhichNode(CDataset *pData,
-                          unsigned long iObs);
-    signed char WhichNode(double *adX,
-                          unsigned long cRow,
-                          unsigned long cCol,
-                          unsigned long iRow);
+  signed char WhichNode(CDataset *pData,
+			unsigned long iObs);
+  signed char WhichNode(double *adX,
+			unsigned long cRow,
+			unsigned long cCol,
+			unsigned long iRow);
 
-    GBMRESULT RecycleSelf(CNodeFactory *pNodeFactory);
+  void RecycleSelf(CNodeFactory *pNodeFactory);
 
-    std::vector<unsigned long> aiLeftCategory;
+  void reset() {
+    CNodeNonterminal::reset();
+    aiLeftCategory.resize(0);
+  }
+
+  std::vector<unsigned long> aiLeftCategory;
 };
 
 typedef CNodeCategorical *PCNodeCategorical;

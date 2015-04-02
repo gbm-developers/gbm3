@@ -1,3 +1,43 @@
+#' GBM performance
+#' 
+#' Estimates the optimal number of boosting iterations for a \code{gbm} object
+#' and optionally plots various performance measures
+#' 
+#' @aliases perf.pairwise
+#' @param object a \code{\link{gbm.object}} created from an initial call to
+#' \code{\link{gbm}}.
+#' @param plot.it an indicator of whether or not to plot the performance
+#' measures. Setting \code{plot.it=TRUE} creates two plots. The first plot
+#' plots \code{object$train.error} (in black) and \code{object$valid.error} (in
+#' red) versus the iteration number. The scale of the error measurement, shown
+#' on the left vertical axis, depends on the \code{distribution} argument used
+#' in the initial call to \code{\link{gbm}}.
+#' @param oobag.curve indicates whether to plot the out-of-bag performance
+#' measures in a second plot.
+#' @param overlay if TRUE and oobag.curve=TRUE then a right y-axis is added to
+#' the training and test error plot and the estimated cumulative improvement in
+#' the loss function is plotted versus the iteration number.
+#' @param method indicate the method used to estimate the optimal number of
+#' boosting iterations. \code{method="OOB"} computes the out-of-bag estimate
+#' and \code{method="test"} uses the test (or validation) dataset to compute an
+#' out-of-sample estimate. \code{method="cv"} extracts the optimal number of
+#' iterations using cross-validation if \code{gbm} was called with \code{cv.folds}>1.
+#' @param main the main title for the plot. Defaults to \code{main = ""}.
+#' @param y,f,group,w,max.rank Arguments to \code{perf.pairwise}.
+#' @param metric What type of performance measure to compute in \code{perf.pairwise}.
+#'   Can take values "ir.measure.conc", "ir.measure.mrr", "ir.measure.map" or
+#'   "ir.measure.ndgc".
+
+#' @usage gbm.perf(object, plot.it = TRUE, oobag.curve = FALSE, overlay = TRUE,
+#' method, main="")
+#' perf.pairwise(y, f, group, metric = "ndcg", w = NULL, max.rank = 0)
+
+#' @return \code{gbm.perf} returns the estimated optimal number of iterations.
+#' The method of computation depends on the \code{method} argument.
+#' @author Greg Ridgeway \email{gregridgeway@@gmail.com}
+#' @seealso \code{\link{gbm}}, \code{\link{gbm.object}}
+#' @keywords nonlinear survival nonparametric tree
+#' @export
 gbm.perf <- function(object,
                      plot.it=TRUE,
                      oobag.curve=FALSE,
@@ -148,9 +188,8 @@ gbm.perf <- function(object,
    return(best.iter)
 }
 
-
-perf.pairwise <- function(y, f, group, metric="ndcg", w=NULL, max.rank=0)
-{
+#' @export
+perf.pairwise <- function(y, f, group, metric="ndcg", w=NULL, max.rank=0){
    func.name <- switch(metric,
                        conc = "ir.measure.conc",
                        mrr  = "ir.measure.mrr",
@@ -161,14 +200,12 @@ perf.pairwise <- function(y, f, group, metric="ndcg", w=NULL, max.rank=0)
 
    # Optimization: for binary targets,
    # AUC is equivalent but faster than CONC
-   if (metric == "conc" && all(is.element(y, 0:1)))
-   {
+   if (metric == "conc" && all(is.element(y, 0:1))) {
       func.name <- "ir.measure.auc"
    }
 
    # Max rank = 0 means no cut off
-   if (max.rank <= 0)
-   {
+   if (max.rank <= 0) {
       max.rank <- length(y)+1
    }
 
@@ -182,12 +219,9 @@ perf.pairwise <- function(y, f, group, metric="ndcg", w=NULL, max.rank=0)
    # Exclude groups with single result or only negative or positive instances
    idx <- which((!is.null(measure.by.group)) & measure.by.group >= 0)
 
-   if (is.null(w))
-   {
+   if (is.null(w)) {
       return (mean(measure.by.group[idx]))
-   }
-   else
-   {
+   } else {
       # Assumption: weights are constant per group
       w.by.group <- tapply(w, group, mean)
       return (weighted.mean(measure.by.group[idx], w=w.by.group[idx]))

@@ -11,7 +11,7 @@ CPoisson::~CPoisson()
 }
 
 
-GBMRESULT CPoisson::ComputeWorkingResponse
+void CPoisson::ComputeWorkingResponse
 (
     double *adY,
     double *adMisc,
@@ -19,9 +19,9 @@ GBMRESULT CPoisson::ComputeWorkingResponse
     double *adF,
     double *adZ,
     double *adWeight,
-    bool *afInBag,
+    int *afInBag,
     unsigned long nTrain,
-	int cIdxOff
+    int cIdxOff
 )
 {
     unsigned long i = 0;
@@ -31,15 +31,13 @@ GBMRESULT CPoisson::ComputeWorkingResponse
     for(i=0; i < nTrain; i++)
     {
         dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
-        adZ[i] = adY[i] - exp(dF);
+        adZ[i] = adY[i] - std::exp(dF);
     }
-
-    return GBM_OK;
 }
 
 
 
-GBMRESULT CPoisson::InitF
+void CPoisson::InitF
 (
     double *adY,
     double *adMisc,
@@ -49,8 +47,6 @@ GBMRESULT CPoisson::InitF
     unsigned long cLength
 )
 {
-    GBMRESULT hr = GBM_OK;
-
     double dSum = 0.0;
     double dDenom = 0.0;
     unsigned long i = 0;
@@ -68,13 +64,11 @@ GBMRESULT CPoisson::InitF
         for(i=0; i<cLength; i++)
         {
             dSum += adWeight[i]*adY[i];
-            dDenom += adWeight[i]*exp(adOffset[i]);
+            dDenom += adWeight[i]*std::exp(adOffset[i]);
         }
     }
 
-    dInitF = log(dSum/dDenom);
-
-    return hr;
+    dInitF = std::log(dSum/dDenom);
 }
 
 
@@ -97,7 +91,7 @@ double CPoisson::Deviance
     {
         for(i=cIdxOff; i<cLength+cIdxOff; i++)
         {
-            dL += adWeight[i]*(adY[i]*adF[i] - exp(adF[i]));
+            dL += adWeight[i]*(adY[i]*adF[i] - std::exp(adF[i]));
             dW += adWeight[i];
         }
     }
@@ -106,7 +100,7 @@ double CPoisson::Deviance
         for(i=cIdxOff; i<cLength+cIdxOff; i++)
         {
             dL += adWeight[i]*(adY[i]*(adOffset[i]+adF[i]) -
-                               exp(adOffset[i]+adF[i]));
+                               std::exp(adOffset[i]+adF[i]));
             dW += adWeight[i];
        }
     }
@@ -115,7 +109,7 @@ double CPoisson::Deviance
 }
 
 
-GBMRESULT CPoisson::FitBestConstant
+void CPoisson::FitBestConstant
 (
     double *adY,
     double *adMisc,
@@ -128,13 +122,11 @@ GBMRESULT CPoisson::FitBestConstant
     VEC_P_NODETERMINAL vecpTermNodes,
     unsigned long cTermNodes,
     unsigned long cMinObsInNode,
-    bool *afInBag,
+    int *afInBag,
     double *adFadj,
-	int cIdxOff
+    int cIdxOff
 )
 {
-    GBMRESULT hr = GBM_OK;
-
     unsigned long iObs = 0;
     unsigned long iNode = 0;
     vecdNum.resize(cTermNodes);
@@ -154,12 +146,12 @@ GBMRESULT CPoisson::FitBestConstant
             if(afInBag[iObs])
             {
                 vecdNum[aiNodeAssign[iObs]] += adW[iObs]*adY[iObs];
-                vecdDen[aiNodeAssign[iObs]] += adW[iObs]*exp(adF[iObs]);
+                vecdDen[aiNodeAssign[iObs]] += adW[iObs]*std::exp(adF[iObs]);
             }
             vecdMax[aiNodeAssign[iObs]] =
-               fmax2(adF[iObs],vecdMax[aiNodeAssign[iObs]]);
+               R::fmax2(adF[iObs],vecdMax[aiNodeAssign[iObs]]);
             vecdMin[aiNodeAssign[iObs]] =
-               fmin2(adF[iObs],vecdMin[aiNodeAssign[iObs]]);
+               R::fmin2(adF[iObs],vecdMin[aiNodeAssign[iObs]]);
         }
     }
     else
@@ -170,7 +162,7 @@ GBMRESULT CPoisson::FitBestConstant
             {
                 vecdNum[aiNodeAssign[iObs]] += adW[iObs]*adY[iObs];
                 vecdDen[aiNodeAssign[iObs]] +=
-                    adW[iObs]*exp(adOffset[iObs]+adF[iObs]);
+                    adW[iObs]*std::exp(adOffset[iObs]+adF[iObs]);
             }
         }
     }
@@ -193,18 +185,16 @@ GBMRESULT CPoisson::FitBestConstant
             else
             {
                 vecpTermNodes[iNode]->dPrediction =
-                    log(vecdNum[iNode]/vecdDen[iNode]);
+                    std::log(vecdNum[iNode]/vecdDen[iNode]);
             }
             vecpTermNodes[iNode]->dPrediction =
-               fmin2(vecpTermNodes[iNode]->dPrediction,
+               R::fmin2(vecpTermNodes[iNode]->dPrediction,
                      19-vecdMax[iNode]);
             vecpTermNodes[iNode]->dPrediction =
-               fmax2(vecpTermNodes[iNode]->dPrediction,
+               R::fmax2(vecpTermNodes[iNode]->dPrediction,
                      -19-vecdMin[iNode]);
         }
     }
-
-    return hr;
 }
 
 
@@ -216,7 +206,7 @@ double CPoisson::BagImprovement
     double *adWeight,
     double *adF,
     double *adFadj,
-    bool *afInBag,
+    int *afInBag,
     double dStepSize,
     unsigned long nTrain
 )
@@ -234,8 +224,8 @@ double CPoisson::BagImprovement
 
             dReturnValue += adWeight[i]*
                             (adY[i]*dStepSize*adFadj[i] -
-                             exp(dF+dStepSize*adFadj[i]) +
-                             exp(dF));
+                             std::exp(dF+dStepSize*adFadj[i]) +
+                             std::exp(dF));
             dW += adWeight[i];
         }
     }

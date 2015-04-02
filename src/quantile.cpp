@@ -3,7 +3,7 @@
 #include "quantile.h"
 
 
-GBMRESULT CQuantile::ComputeWorkingResponse
+void CQuantile::ComputeWorkingResponse
 (
     double *adY,
     double *adMisc,
@@ -11,7 +11,7 @@ GBMRESULT CQuantile::ComputeWorkingResponse
     double *adF,
     double *adZ,
     double *adWeight,
-    bool *afInBag,
+    int *afInBag,
     unsigned long nTrain,
     int cIdxOff
 )
@@ -32,12 +32,10 @@ GBMRESULT CQuantile::ComputeWorkingResponse
             adZ[i] = (adY[i] > adF[i]+adOffset[i]) ? dAlpha : -(1.0-dAlpha);
         }
     }
-
-    return GBM_OK;
 }
 
 
-GBMRESULT CQuantile::InitF
+void CQuantile::InitF
 (
     double *adY,
     double *adMisc,
@@ -59,8 +57,6 @@ GBMRESULT CQuantile::InitF
     }
 
     dInitF = mpLocM.weightedQuantile(nLength, &vecd[0], adWeight, dAlpha);
-
-    return GBM_OK;
 }
 
 
@@ -72,7 +68,7 @@ double CQuantile::Deviance
     double *adWeight,
     double *adF,
     unsigned long cLength,
-	int cIdxOff
+    int cIdxOff
 )
 {
     unsigned long i=0;
@@ -113,7 +109,7 @@ double CQuantile::Deviance
     return dL/dW;
 }
 
-GBMRESULT CQuantile::FitBestConstant
+void CQuantile::FitBestConstant
 (
     double *adY,
     double *adMisc,
@@ -126,43 +122,39 @@ GBMRESULT CQuantile::FitBestConstant
     VEC_P_NODETERMINAL vecpTermNodes,
     unsigned long cTermNodes,
     unsigned long cMinObsInNode,
-    bool *afInBag,
+    int *afInBag,
     double *adFadj,
 	int cIdxOff
 )
 {
-    GBMRESULT hr = GBM_OK;
+  unsigned long iNode = 0;
+  unsigned long iObs = 0;
+  unsigned long iVecd = 0;
+  double dOffset;
 
-    unsigned long iNode = 0;
-    unsigned long iObs = 0;
-    unsigned long iVecd = 0;
-    double dOffset;
+  vecd.resize(nTrain); // should already be this size from InitF
+  std::vector<double> adW2(nTrain);
 
-    vecd.resize(nTrain); // should already be this size from InitF
-    std::vector<double> adW2(nTrain);
-
-    for(iNode=0; iNode<cTermNodes; iNode++)
+  for(iNode=0; iNode<cTermNodes; iNode++)
     {
-        if(vecpTermNodes[iNode]->cN >= cMinObsInNode)
+      if(vecpTermNodes[iNode]->cN >= cMinObsInNode)
         {
-            iVecd = 0;
-            for(iObs=0; iObs<nTrain; iObs++)
+	  iVecd = 0;
+	  for(iObs=0; iObs<nTrain; iObs++)
             {
-                if(afInBag[iObs] && (aiNodeAssign[iObs] == iNode))
+	      if(afInBag[iObs] && (aiNodeAssign[iObs] == iNode))
                 {
-                    dOffset = (adOffset==NULL) ? 0.0 : adOffset[iObs];
-
-                    vecd[iVecd] = adY[iObs] - dOffset - adF[iObs];
-                    adW2[iVecd] = adW[iObs];
-                    iVecd++;
+		  dOffset = (adOffset==NULL) ? 0.0 : adOffset[iObs];
+		  
+		  vecd[iVecd] = adY[iObs] - dOffset - adF[iObs];
+		  adW2[iVecd] = adW[iObs];
+		  iVecd++;
                 }
             }
-
-            vecpTermNodes[iNode]->dPrediction = mpLocM.weightedQuantile(iVecd, &vecd[0], &adW2[0], dAlpha);
-         }
+	  
+	  vecpTermNodes[iNode]->dPrediction = mpLocM.weightedQuantile(iVecd, &vecd[0], &adW2[0], dAlpha);
+	}
     }
-
-    return hr;
 }
 
 
@@ -175,7 +167,7 @@ double CQuantile::BagImprovement
     double *adWeight,
     double *adF,
     double *adFadj,
-    bool *afInBag,
+    int *afInBag,
     double dStepSize,
     unsigned long nTrain
 )

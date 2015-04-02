@@ -18,38 +18,35 @@ CNodeContinuous::~CNodeContinuous()
 
 
 
-GBMRESULT CNodeContinuous::PrintSubtree
+void CNodeContinuous::PrintSubtree
 (
-    unsigned long cIndent
+ unsigned long cIndent
 )
 {
-    GBMRESULT hr = GBM_OK;
-    unsigned long i = 0;
+  unsigned long i = 0;
+  
+  for(i=0; i< cIndent; i++) Rprintf("  ");
+  Rprintf("N=%f, Improvement=%f, Prediction=%f, NA pred=%f\n",
+	  dTrainW,
+	  dImprovement,
+	  dPrediction,
+	  (pMissingNode == NULL ? 0.0 : pMissingNode->dPrediction));
 
-    for(i=0; i< cIndent; i++) Rprintf("  ");
-    Rprintf("N=%f, Improvement=%f, Prediction=%f, NA pred=%f\n",
-           dTrainW,
-           dImprovement,
-           dPrediction,
-           (pMissingNode == NULL ? 0.0 : pMissingNode->dPrediction));
+  for(i=0; i< cIndent; i++) Rprintf("  ");
+  Rprintf("V%d < %f\n",
+	  iSplitVar,
+	  dSplitValue);
+  pLeftNode->PrintSubtree(cIndent+1);
+  
+  for(i=0; i< cIndent; i++) Rprintf("  ");
+  Rprintf("V%d > %f\n",
+	  iSplitVar,
+	  dSplitValue);
+  pRightNode->PrintSubtree(cIndent+1);
 
-    for(i=0; i< cIndent; i++) Rprintf("  ");
-    Rprintf("V%d < %f\n",
-           iSplitVar,
-           dSplitValue);
-    hr = pLeftNode->PrintSubtree(cIndent+1);
-
-    for(i=0; i< cIndent; i++) Rprintf("  ");
-    Rprintf("V%d > %f\n",
-           iSplitVar,
-           dSplitValue);
-    hr = pRightNode->PrintSubtree(cIndent+1);
-
-    for(i=0; i< cIndent; i++) Rprintf("  ");
-    Rprintf("missing\n");
-    hr = pMissingNode->PrintSubtree(cIndent+1);
-
-    return hr;
+  for(i=0; i< cIndent; i++) Rprintf("  ");
+  Rprintf("missing\n");
+  pMissingNode->PrintSubtree(cIndent+1);
 }
 
 
@@ -109,19 +106,18 @@ signed char CNodeContinuous::WhichNode
 
 
 
-GBMRESULT CNodeContinuous::RecycleSelf
+void CNodeContinuous::RecycleSelf
 (
-    CNodeFactory *pNodeFactory
+ CNodeFactory *pNodeFactory
 )
 {
-    GBMRESULT hr = GBM_OK;
-    pNodeFactory->RecycleNode(this);
-    return hr;
+  pNodeFactory->RecycleNode(this);
+    
 };
 
 
 
-GBMRESULT CNodeContinuous::TransferTreeToRList
+void CNodeContinuous::TransferTreeToRList
 (
     int &iNodeID,
     CDataset *pData,
@@ -138,69 +134,60 @@ GBMRESULT CNodeContinuous::TransferTreeToRList
     double dShrinkage
 )
 {
-    GBMRESULT hr = GBM_OK;
-    int iThisNodeID = iNodeID;
+  int iThisNodeID = iNodeID;
+  
+  aiSplitVar[iThisNodeID] = iSplitVar;
+  adSplitPoint[iThisNodeID] = dSplitValue;
+  adErrorReduction[iThisNodeID] = dImprovement;
+  adWeight[iThisNodeID] = dTrainW;
+  adPred[iThisNodeID] = dShrinkage*dPrediction;
+  
+  
+  iNodeID++;
+  aiLeftNode[iThisNodeID] = iNodeID;
+  pLeftNode->TransferTreeToRList(iNodeID,
+				 pData,
+				 aiSplitVar,
+				 adSplitPoint,
+				 aiLeftNode,
+				 aiRightNode,
+				 aiMissingNode,
+				 adErrorReduction,
+				 adWeight,
+				 adPred,
+				 vecSplitCodes,
+				 cCatSplitsOld,
+				 dShrinkage);
 
-    aiSplitVar[iThisNodeID] = iSplitVar;
-    adSplitPoint[iThisNodeID] = dSplitValue;
-    adErrorReduction[iThisNodeID] = dImprovement;
-    adWeight[iThisNodeID] = dTrainW;
-    adPred[iThisNodeID] = dShrinkage*dPrediction;
+  aiRightNode[iThisNodeID] = iNodeID;
+  pRightNode->TransferTreeToRList(iNodeID,
+				  pData,
+				  aiSplitVar,
+				  adSplitPoint,
+				  aiLeftNode,
+				  aiRightNode,
+				  aiMissingNode,
+				  adErrorReduction,
+				  adWeight,
+				  adPred,
+				  vecSplitCodes,
+				  cCatSplitsOld,
+				  dShrinkage);
 
-
-    iNodeID++;
-    aiLeftNode[iThisNodeID] = iNodeID;
-    hr = pLeftNode->TransferTreeToRList(iNodeID,
-                                        pData,
-                                        aiSplitVar,
-                                        adSplitPoint,
-                                        aiLeftNode,
-                                        aiRightNode,
-                                        aiMissingNode,
-                                        adErrorReduction,
-                                        adWeight,
-                                        adPred,
-                                        vecSplitCodes,
-                                        cCatSplitsOld,
-                                        dShrinkage);
-    if(GBM_FAILED(hr)) goto Error;
-
-    aiRightNode[iThisNodeID] = iNodeID;
-    hr = pRightNode->TransferTreeToRList(iNodeID,
-                                         pData,
-                                         aiSplitVar,
-                                         adSplitPoint,
-                                         aiLeftNode,
-                                         aiRightNode,
-                                         aiMissingNode,
-                                         adErrorReduction,
-                                         adWeight,
-                                         adPred,
-                                         vecSplitCodes,
-                                         cCatSplitsOld,
-                                         dShrinkage);
-    if(GBM_FAILED(hr)) goto Error;
-
-    aiMissingNode[iThisNodeID] = iNodeID;
-    hr = pMissingNode->TransferTreeToRList(iNodeID,
-                                           pData,
-                                           aiSplitVar,
-                                           adSplitPoint,
-                                           aiLeftNode,
-                                           aiRightNode,
-                                           aiMissingNode,
-                                           adErrorReduction,
-                                           adWeight,
-                                           adPred,
-                                           vecSplitCodes,
-                                           cCatSplitsOld,
-                                           dShrinkage);
-    if(GBM_FAILED(hr)) goto Error;
-
-Cleanup:
-    return hr;
-Error:
-    goto Cleanup;
+  aiMissingNode[iThisNodeID] = iNodeID;
+  pMissingNode->TransferTreeToRList(iNodeID,
+				    pData,
+				    aiSplitVar,
+				    adSplitPoint,
+				    aiLeftNode,
+				    aiRightNode,
+				    aiMissingNode,
+				    adErrorReduction,
+				    adWeight,
+				    adPred,
+				    vecSplitCodes,
+				    cCatSplitsOld,
+				    dShrinkage);
 }
 
 

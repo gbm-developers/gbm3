@@ -1,7 +1,13 @@
-##' Perform gbm cross-validation
-##'
-##' This function has far too many arguments, but there isn't the
-##' abstraction in gbm to lose them.
+# Cross-validate a gbm
+# 
+# Functions for cross-validating gbm. These functions are used internally and
+# are not intended for end-user direct usage.
+# 
+# These functions are not intended for end-user direct usage, but are used
+# internally by \code{gbm}.
+# 
+# aliases: gbmCrossVal gbmCrossValModelBuild gbmDoFold gbmCrossValErr
+# gbmCrossValPredictions
 gbmCrossVal <- function(cv.folds, nTrain, n.cores,
                         class.stratify.cv, data,
                         x, y, offset, distribution, w, var.monotone,
@@ -41,7 +47,7 @@ gbmCrossVal <- function(cv.folds, nTrain, n.cores,
        all.model=all.model)
 }
 
-##' Get the gbm cross-validation error
+## Get the gbm cross-validation error
 gbmCrossValErr <- function(cv.models, cv.folds, cv.group, nTrain, n.trees) {
   in.group <- tabulate(cv.group, nbins=cv.folds)
   cv.error <- vapply(1:cv.folds,
@@ -55,9 +61,9 @@ gbmCrossValErr <- function(cv.models, cv.folds, cv.group, nTrain, n.trees) {
   rowSums(cv.error) / nTrain
 }
 
-##' Get the predictions for GBM cross validation
-##'
-##' This function is not as nice as it could be (leakage of y)
+## Get the predictions for GBM cross validation
+##
+## This function is not as nice as it could be (leakage of y)
 gbmCrossValPredictions <- function(cv.models, cv.folds, cv.group,
                                    best.iter.cv, distribution, data, y) {
   ## test cv.group and data match
@@ -92,9 +98,9 @@ gbmCrossValPredictions <- function(cv.models, cv.folds, cv.group,
 }
 
 
-##' Perform gbm cross-validation
-##'
-##' This function has far too many arguments.
+## Perform gbm cross-validation
+##
+## This function has far too many arguments.
 gbmCrossValModelBuild <- function(cv.folds, cv.group, n.cores, i.train,
                                   x, y, offset, distribution,
                                   w, var.monotone, n.trees,

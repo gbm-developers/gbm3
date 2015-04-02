@@ -9,17 +9,17 @@ CLaplace::~CLaplace()
 }
 
 
-GBMRESULT CLaplace::ComputeWorkingResponse
+void CLaplace::ComputeWorkingResponse
 (
-    double *adY,
-    double *adMisc,
-    double *adOffset,
-    double *adF,
-    double *adZ,
-    double *adWeight,
-    bool *afInBag,
-    unsigned long nTrain,
-    int cIdxOff
+ double *adY,
+ double *adMisc,
+ double *adOffset,
+ double *adF,
+ double *adZ,
+ double *adWeight,
+ int *afInBag,
+ unsigned long nTrain,
+ int cIdxOff
 )
 {
     unsigned long i = 0;
@@ -38,13 +38,11 @@ GBMRESULT CLaplace::ComputeWorkingResponse
             adZ[i] = (adY[i] - adOffset[i] - adF[i]) > 0.0 ? 1.0 : -1.0;
         }
     }
-
-    return GBM_OK;
 }
 
 
 
-GBMRESULT CLaplace::InitF
+void CLaplace::InitF
 (
     double *adY,
     double *adMisc,
@@ -54,26 +52,19 @@ GBMRESULT CLaplace::InitF
     unsigned long cLength
 )
 {
-    GBMRESULT hr = GBM_OK;
-
-    double dOffset = 0.0;
-    unsigned long ii = 0;
-    int nLength = int(cLength);
-
-    std::vector<double> adArr(cLength);
-
-    for (ii = 0; ii < cLength; ii++)
+  double dOffset = 0.0;
+  unsigned long ii = 0;
+  int nLength = int(cLength);
+  
+  std::vector<double> adArr(cLength);
+  
+  for (ii = 0; ii < cLength; ii++)
     {
-        dOffset = (adOffset==NULL) ? 0.0 : adOffset[ii];
-        adArr[ii] = adY[ii] - dOffset;
+      dOffset = (adOffset==NULL) ? 0.0 : adOffset[ii];
+      adArr[ii] = adY[ii] - dOffset;
     }
-
-    dInitF = mpLocM.weightedQuantile(nLength, &adArr[0], adWeight, 0.5); // median
-
-Cleanup:
-    return hr;
-Error:
-    goto Cleanup;
+  
+  dInitF = mpLocM.weightedQuantile(nLength, &adArr[0], adWeight, 0.5); // median
 }
 
 
@@ -114,60 +105,55 @@ double CLaplace::Deviance
 
 
 // DEBUG: needs weighted median
-GBMRESULT CLaplace::FitBestConstant
+void CLaplace::FitBestConstant
 (
-    double *adY,
-    double *adMisc,
-    double *adOffset,
-    double *adW,
-    double *adF,
-    double *adZ,
-    const std::vector<unsigned long>& aiNodeAssign,
-    unsigned long nTrain,
-    VEC_P_NODETERMINAL vecpTermNodes,
-    unsigned long cTermNodes,
-    unsigned long cMinObsInNode,
-    bool *afInBag,
-    double *adFadj,
-   int cIdxOff
+ double *adY,
+ double *adMisc,
+ double *adOffset,
+ double *adW,
+ double *adF,
+ double *adZ,
+ const std::vector<unsigned long>& aiNodeAssign,
+ unsigned long nTrain,
+ VEC_P_NODETERMINAL vecpTermNodes,
+ unsigned long cTermNodes,
+ unsigned long cMinObsInNode,
+ int *afInBag,
+ double *adFadj,
+ int cIdxOff
 )
 {
-    GBMRESULT hr = GBM_OK;
-
-    unsigned long iNode = 0;
-    unsigned long iObs = 0;
-    unsigned long iVecd = 0;
-    double dOffset;
-
+  unsigned long iNode = 0;
+  unsigned long iObs = 0;
+  unsigned long iVecd = 0;
+  double dOffset;
+  
 //    vecd.resize(nTrain); // should already be this size from InitF
 
-    std::vector<double> adArr(nTrain);
-    std::vector<double> adW2(nTrain);
-
-    for(iNode=0; iNode<cTermNodes; iNode++)
+  std::vector<double> adArr(nTrain);
+  std::vector<double> adW2(nTrain);
+  
+  for(iNode=0; iNode<cTermNodes; iNode++)
     {
-        if(vecpTermNodes[iNode]->cN >= cMinObsInNode)
+      if(vecpTermNodes[iNode]->cN >= cMinObsInNode)
         {
-         iVecd = 0;
-            for(iObs=0; iObs<nTrain; iObs++)
+	  iVecd = 0;
+	  for(iObs=0; iObs<nTrain; iObs++)
             {
-                if(afInBag[iObs] && (aiNodeAssign[iObs] == iNode))
+	      if(afInBag[iObs] && (aiNodeAssign[iObs] == iNode))
                 {
-                    dOffset = (adOffset==NULL) ? 0.0 : adOffset[iObs];
-                    adArr[iVecd] = adY[iObs] - dOffset - adF[iObs];
-               adW2[iVecd] = adW[iObs];
-                iVecd++;
+		  dOffset = (adOffset==NULL) ? 0.0 : adOffset[iObs];
+		  adArr[iVecd] = adY[iObs] - dOffset - adF[iObs];
+		  adW2[iVecd] = adW[iObs];
+		  iVecd++;
+		}
+	      
             }
-
-
-            }
-
-	    vecpTermNodes[iNode]->dPrediction = mpLocM.weightedQuantile(iVecd, &adArr[0], &adW2[0], 0.5); // median
-
+	  
+	  vecpTermNodes[iNode]->dPrediction = mpLocM.weightedQuantile(iVecd, &adArr[0], &adW2[0], 0.5); // median
+	  
         }
     }
-
-    return hr;
 }
 
 
@@ -180,7 +166,7 @@ double CLaplace::BagImprovement
     double *adWeight,
     double *adF,
     double *adFadj,
-    bool *afInBag,
+    int *afInBag,
     double dStepSize,
     unsigned long nTrain
 )

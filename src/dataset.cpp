@@ -8,11 +8,9 @@ CDataset::CDataset()
     fHasOffset = false;
     adX = NULL;
     aiXOrder = NULL;
-    adXTemp4Order = NULL;
     adY = NULL;
     adOffset = NULL;
     adWeight = NULL;
-    apszVarNames = NULL;
 
     cRows = 0;
     cCols = 0;
@@ -24,29 +22,7 @@ CDataset::~CDataset()
 }
 
 
-
-
-GBMRESULT CDataset::ResetWeights()
-{
-    GBMRESULT hr = GBM_OK;
-
-    if(adWeight == NULL)
-    {
-        hr = GBM_INVALIDARG;
-        goto Error;
-    }
-
-    std::fill(adWeight, adWeight + cRows, 1.0);
-
-Cleanup:
-    return hr;
-Error:
-    goto Cleanup;
-}
-
-
-
-GBMRESULT CDataset::SetData
+void CDataset::SetData
 (
     double *adX,
     int *aiXOrder,
@@ -60,48 +36,39 @@ GBMRESULT CDataset::SetData
     int *alMonotoneVar
 )
 {
-    GBMRESULT hr = GBM_OK;
-
-    if((adX == NULL) || (adY == NULL))
+  if (!(adX && adY)) {
+    throw GBM::invalid_argument();
+  }
+  
+  this->cRows = cRows;
+  this->cCols = cCols;
+  
+  this->adX = adX;
+  this->aiXOrder = aiXOrder;
+  this->adY = adY;
+  this->adOffset = adOffset;
+  this->adWeight = adWeight;
+  this->acVarClasses = acVarClasses;
+  this->alMonotoneVar = alMonotoneVar;
+  
+  if((adOffset != NULL) && !ISNA(*adOffset))
     {
-        hr = GBM_INVALIDARG;
-        goto Error;
+      this->adOffset = adOffset;
+      fHasOffset = true;
     }
-
-    this->cRows = cRows;
-    this->cCols = cCols;
-
-    this->adX = adX;
-    this->aiXOrder = aiXOrder;
-    this->adY = adY;
-    this->adOffset = adOffset;
-    this->adWeight = adWeight;
-    this->acVarClasses = acVarClasses;
-    this->alMonotoneVar = alMonotoneVar;
-
-    if((adOffset != NULL) && !ISNA(*adOffset))
+  else
     {
-        this->adOffset = adOffset;
-        fHasOffset = true;
+      this->adOffset = NULL;
+      fHasOffset = false;
     }
-    else
+  if((adMisc != NULL) && !ISNA(*adMisc))
     {
-        this->adOffset = NULL;
-        fHasOffset = false;
+      this->adMisc = adMisc;
     }
-    if((adMisc != NULL) && !ISNA(*adMisc))
+  else
     {
-        this->adMisc = adMisc;
+      this->adMisc = NULL;
     }
-    else
-    {
-        this->adMisc = NULL;
-    }
-
-Cleanup:
-   return hr;
-Error:
-    goto Cleanup;
 }
 
 

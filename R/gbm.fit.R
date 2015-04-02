@@ -1,3 +1,4 @@
+#' @export gbm.fit
 gbm.fit <- function(x,y,
                     offset = NULL,
                     misc = NULL,

@@ -33,22 +33,18 @@ public:
     CNodeFactory();
     ~CNodeFactory();
 
-    GBMRESULT Initialize(unsigned long cDepth);
+    void Initialize(unsigned long cDepth);
     CNodeTerminal* GetNewNodeTerminal();
     CNodeContinuous* GetNewNodeContinuous();
     CNodeCategorical* GetNewNodeCategorical();
-    GBMRESULT RecycleNode(CNodeTerminal *pNode);
-    GBMRESULT RecycleNode(CNodeContinuous *pNode);
-    GBMRESULT RecycleNode(CNodeCategorical *pNode);
+    void RecycleNode(CNodeTerminal *pNode);
+    void RecycleNode(CNodeContinuous *pNode);
+    void RecycleNode(CNodeCategorical *pNode);
 
 private:
     stack<PCNodeTerminal> TerminalStack;
     stack<PCNodeContinuous> ContinuousStack;
     stack<PCNodeCategorical> CategoricalStack;
-
-    CNodeTerminal* pNodeTerminalTemp;
-    CNodeContinuous* pNodeContinuousTemp;
-    CNodeCategorical* pNodeCategoricalTemp;
 
     CNodeTerminal aBlockTerminal[NODEFACTORY_NODGBM_RESERVE];
     CNodeContinuous aBlockContinuous[NODEFACTORY_NODGBM_RESERVE];

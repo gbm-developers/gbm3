@@ -1,5 +1,53 @@
-# print, show and summary functions for gbm
+# print and summary functions for gbm
 
+#' Print model summary
+#' 
+#' Display basic information about a \code{gbm} object.
+#' 
+#' Prints some information about the model object. In particular, this method
+#' prints the call to \code{gbm()}, the type of loss function that was used,
+#' and the total number of iterations.
+#' 
+#' If cross-validation was performed, the 'best' number of trees as estimated
+#' by cross-validation error is displayed. If a test set was used, the 'best'
+#' number of trees as estimated by the test set error is displayed.
+#' 
+#' The number of available predictors, and the number of those having non-zero
+#' influence on predictions is given (which might be interesting in data mining
+#' applications).
+#' 
+#' If multinomial, bernoulli or adaboost was used, the confusion matrix and
+#' prediction accuracy are printed (objects being allocated to the class with
+#' highest probability for multinomial and bernoulli). These classifications
+#' are performed using the cross-validation fitted values.
+#' 
+#' If the 'distribution' was specified as gaussian, laplace, quantile or
+#' t-distribution, a summary of the residuals is displayed.  The residuals are
+#' the cross-validation residuals. Also, a pseudo R-squared value is displayed.
+#' For Gaussian response, this is 1 - sum(r*r) / sum(z*z) where z = y -
+#' mean(y). For the other distributions, this is 1 - (median(abs(r)) /
+#' mad(y))^2, following the suggestion of Rousseeuw and Leroy (equation 3.11).
+#' Note that this definition of a robust R-squared is contentious.
+#' 
+#' @param x an object of class \code{gbm}.
+#' @param \dots arguments passed to \code{print.default}.
+#' @author Harry Southworth, Daniel Edwards
+#' @seealso \code{\link{gbm}}
+#' @references P. J. Rousseeuw and A. M. Leroy, Robust Regression and Outlier
+#' Detection, Wiley, 1987 (2003).
+#' @keywords models nonlinear survival nonparametric
+#' @examples
+#' 
+#' data(iris)
+#' iris.mod <- gbm(Species ~ ., distribution="multinomial", data=iris,
+#'                  n.trees=2000, shrinkage=0.01, cv.folds=5,
+#'                  verbose=FALSE, n.cores=1)
+#' iris.mod
+#' #data(lung)
+#' #lung.mod <- gbm(Surv(time, status) ~ ., distribution="coxph", data=lung,
+#' #                 n.trees=2000, shrinkage=0.01, cv.folds=5,verbose =FALSE)
+#' #lung.mod
+#' @export
 print.gbm <- function(x, ... ){
    if (!is.null(x$call)){ print(x$call) }
    dist.name <- x$distribution$name
@@ -37,6 +85,10 @@ print.gbm <- function(x, ... ){
 
    #############################################################################
 
+   if (is.null(x$cv.fitted)) {
+       return(invisible())
+   }
+   
    d <- reconstructGBMdata(x)
    if (x$distribution$name == "multinomial"){
        n.class <- x$num.classes
@@ -96,11 +148,55 @@ print.gbm <- function(x, ... ){
        }
    }
 
-   #############################################################################
-
    invisible()
 }
 
+
+
+#' Summary of a gbm object
+#' 
+#' Computes the relative influence of each variable in the gbm object.
+#' 
+#' For \code{distribution="gaussian"} this returns exactly the reduction of
+#' squared error attributable to each variable. For other loss functions this
+#' returns the reduction attributable to each variable in sum of squared error
+#' in predicting the gradient on each iteration. It describes the relative
+#' influence of each variable in reducing the loss function. See the references
+#' below for exact details on the computation.
+#' 
+#' @param object a \code{gbm} object created from an initial call to
+#' \code{\link{gbm}}.
+#' @param cBars the number of bars to plot. If \code{order=TRUE} the only the
+#' variables with the \code{cBars} largest relative influence will appear in
+#' the barplot. If \code{order=FALSE} then the first \code{cBars} variables
+#' will appear in the plot. In either case, the function will return the
+#' relative influence of all of the variables.
+#' @param n.trees the number of trees used to generate the plot. Only the first
+#' \code{n.trees} trees will be used.
+#' @param plotit an indicator as to whether the plot is generated.
+#' @param order an indicator as to whether the plotted and/or returned relative
+#' influences are sorted.
+#' @param method The function used to compute the relative influence.
+#' \code{\link{relative.influence}} is the default and is the same as that
+#' described in Friedman (2001). The other current (and experimental) choice is
+#' \code{\link{permutation.test.gbm}}. This method randomly permutes each
+#' predictor variable at a time and computes the associated reduction in
+#' predictive performance. This is similar to the variable importance measures
+#' Breiman uses for random forests, but \code{gbm} currently computes using the
+#' entire training dataset (not the out-of-bag observations).
+#' @param normalize if \code{FALSE} then \code{summary.gbm} returns the
+#' unnormalized influence.
+#' @param ...  other arguments passed to the plot function.
+#' @return Returns a data frame where the first component is the variable name
+#' and the second is the computed relative influence, normalized to sum to 100.
+#' @author Greg Ridgeway \email{gregridgeway@@gmail.com}
+#' @seealso \code{\link{gbm}}
+#' @references J.H. Friedman (2001). "Greedy Function Approximation: A Gradient
+#' Boosting Machine," Annals of Statistics 29(5):1189-1232.
+#' 
+#' L. Breiman (2001). \href{http://oz.berkeley.edu/users/breiman/randomforest2001.pdf}{Random Forests}.
+#' @keywords hplot
+#' @export
 summary.gbm <- function(object,
                         cBars=length(object$var.names),
                         n.trees=object$n.trees,

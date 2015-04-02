@@ -251,7 +251,7 @@ void CNDCG::Init
     // Precompute rank weights
     for (unsigned int i = 1; i <= cMaxRank; i++)
     {
-        vecdRankWeight[i] = log((double)2) / log((double)(i+1));
+        vecdRankWeight[i] = std::log((double)2) / log((double)(i+1));
     }
 
     // Allocate buffer
@@ -529,29 +529,28 @@ CPairwise::CPairwise(const char* szIRMeasure)
     // Construct the IR Measure
     if (!strcmp(szIRMeasure, "conc"))
     {
-        pirm = new CConc();
+      pirm.reset(new CConc());
     }
     else if (!strcmp(szIRMeasure, "map"))
     {
-        pirm = new CMAP();
+      pirm.reset(new CMAP());
     }
     else if (!strcmp(szIRMeasure, "mrr"))
     {
-        pirm = new CMRR();
+      pirm.reset(new CMRR());
     }
     else
-    {
+      {
         if (strcmp(szIRMeasure, "ndcg"))
-        {
+	  {
             Rprintf("Unknown IR measure '%s' in initialization, using 'ndcg' instead\n", szIRMeasure);
         }
-        pirm = new CNDCG();
-    }
+        pirm.reset(new CNDCG());
+      }
 }
 
 CPairwise::~CPairwise()
 {
-    delete pirm;
 }
 
 
@@ -573,81 +572,69 @@ inline const double* OffsetVector(const double* const adX, const double* const a
     }
 }
 
-GBMRESULT CPairwise::ComputeWorkingResponse
+void CPairwise::ComputeWorkingResponse
 (
-    double *adY,
-    double *adGroup,
-    double *adOffset,
-    double *adF,
-    double *adZ,
-    double *adWeight,
-    bool *afInBag,
-    unsigned long nTrain,
-    int cIdxOff
+ double *adY,
+ double *adGroup,
+ double *adOffset,
+ double *adF,
+ double *adZ,
+ double *adWeight,
+ int *afInBag,
+ unsigned long nTrain,
+ int cIdxOff
 )
 {
 #ifdef NOISY_DEBUG
     Rprintf("compute working response, nTrain = %u,  cIdxOff = %d\n", nTrain, cIdxOff);
 #endif
-
-    if (nTrain <= 0)
-    {
-        return GBM_OK;
-    }
-
-    try
-    {
-        // Iterate through all groups, compute gradients
-
-        unsigned int iItemStart = 0;
-        unsigned int iItemEnd   = 0;
-
-        while (iItemStart < nTrain)
-        {
-            adZ[iItemEnd]           = 0;
-            vecdHessian[iItemEnd]   = 0;
-
-            const double dGroup = adGroup[iItemStart];
-
-            // Find end of current group, initialize working response
-            for (iItemEnd = iItemStart + 1; iItemEnd < nTrain && adGroup[iItemEnd] == dGroup; iItemEnd++)
-            {
-                // Clear gradients from last iteration
-                adZ[iItemEnd]         = 0;
-                vecdHessian[iItemEnd] = 0;
-            }
-
+    
+    if (nTrain <= 0) return;
+    
+    // Iterate through all groups, compute gradients
+    
+    unsigned int iItemStart = 0;
+    unsigned int iItemEnd   = 0;
+    
+    while (iItemStart < nTrain)
+      {
+	adZ[iItemEnd]           = 0;
+	vecdHessian[iItemEnd]   = 0;
+	
+	const double dGroup = adGroup[iItemStart];
+	
+	// Find end of current group, initialize working response
+	for (iItemEnd = iItemStart + 1; iItemEnd < nTrain && adGroup[iItemEnd] == dGroup; iItemEnd++)
+	  {
+	    // Clear gradients from last iteration
+	    adZ[iItemEnd]         = 0;
+	    vecdHessian[iItemEnd] = 0;
+	  }
+	
 #ifdef NOISY_DEBUG
-            // Check sorting
-            for (unsigned int i = iItemStart; i < iItemEnd-1; i++)
-            {
-                assert(adY[i] >= adY[i+1]);
-            }
+	// Check sorting
+	for (unsigned int i = iItemStart; i < iItemEnd-1; i++)
+	  {
+	    assert(adY[i] >= adY[i+1]);
+	  }
 #endif
 
-            if (afInBag[iItemStart])
-            {
-                // Group is part of the training set
-
-                const int cNumItems = iItemEnd - iItemStart;
-
-                // If offset given, add up current scores
-                const double* adFPlusOffset = OffsetVector(adF, adOffset, iItemStart, iItemEnd, vecdFPlusOffset);
-
-                // Accumulate gradients
-                ComputeLambdas((int)dGroup, cNumItems, adY + iItemStart, adFPlusOffset, adWeight + iItemStart, adZ + iItemStart, &vecdHessian[iItemStart]);
-            }
-
-            // Next group
-            iItemStart = iItemEnd;
-        }
-    }
-    catch (std::bad_alloc&)
-    {
-        return GBM_OUTOFMEMORY;
-    }
-
-    return GBM_OK;
+	if (afInBag[iItemStart])
+	  {
+	    // Group is part of the training set
+	    
+	    const int cNumItems = iItemEnd - iItemStart;
+	    
+	    // If offset given, add up current scores
+	    const double* adFPlusOffset = OffsetVector(adF, adOffset, iItemStart, iItemEnd, vecdFPlusOffset);
+	    
+	    // Accumulate gradients
+	    ComputeLambdas((int)dGroup, cNumItems, adY + iItemStart, adFPlusOffset, adWeight + iItemStart, adZ + iItemStart, &vecdHessian[iItemStart]);
+	  }
+	
+	// Next group
+	iItemStart = iItemEnd;
+      }
 }
 
 
@@ -657,7 +644,7 @@ GBMRESULT CPairwise::ComputeWorkingResponse
 // The approximation to the IR measure is the utility function C (to be maximized)
 //   C
 //   = \Sum_{(i,j) in P} |Delta Z_ij| C(s_i - s_j)
-//   = \Sum_{(i,j) in P} |Delta Z_ij| / (1 + exp(-(s_i - s_j))),
+//   = \Sum_{(i,j) in P} |Delta Z_ij| / (1 + std::exp(-(s_i - s_j))),
 // where |Delta Z_ij| is the cost of swapping (only) i and j in the current ranking,
 // and s_i, s_j are the prediction scores (sum of the tree predictions) for items
 // i and j.
@@ -665,10 +652,10 @@ GBMRESULT CPairwise::ComputeWorkingResponse
 // For (i,j) in P, define
 //   lambda_ij
 //   = dC(s_i-s_j) / ds_i
-//   = - |Delta Z_ij| / (1 + exp(s_i - s_j))
+//   = - |Delta Z_ij| / (1 + std::exp(s_i - s_j))
 //   = - |Delta Z_ij| * rho_ij,
 // with
-//   rho_ij = - lambda_ij / |Delta Z_ij| = 1 / (1 + exp(s_i - s_j))
+//   rho_ij = - lambda_ij / |Delta Z_ij| = 1 / (1 + std::exp(s_i - s_j))
 //
 // So the gradient of C with respect to s_i is
 //   dC / ds_i
@@ -768,7 +755,7 @@ void CPairwise::ComputeLambdas(int iGroup, unsigned int cNumItems, const double*
             {
 #ifdef NOISY_DEBUG
                 cPairs++;
-                const double dRhoij    = 1.0 / (1.0 + exp(adF[i]- adF[j])) ;
+                const double dRhoij    = 1.0 / (1.0 + std::exp(adF[i]- adF[j])) ;
                 assert(isfinite(dRhoij));
 
                 const double dLambdaij = dSwapCost * dRhoij;
@@ -796,7 +783,7 @@ void CPairwise::ComputeLambdas(int iGroup, unsigned int cNumItems, const double*
     }
 }
 
-GBMRESULT CPairwise::Initialize
+void CPairwise::Initialize
 (
     double *adY,
     double *adGroup,
@@ -805,73 +792,62 @@ GBMRESULT CPairwise::Initialize
     unsigned long cLength
 )
 {
-    if (cLength <= 0)
+  if (cLength <= 0) return;
+  
+  // Allocate memory for derivative buffer
+  vecdHessian.resize(cLength);
+
+  // Count the groups and number of items per group
+  unsigned int cMaxItemsPerGroup = 0;
+  double       dMaxGroup         = 0;
+  
+  unsigned int iItemStart        = 0;
+  unsigned int iItemEnd          = 0;
+  
+  while (iItemStart < cLength)
     {
-        return GBM_OK;
+      
+      const double dGroup = adGroup[iItemStart];
+      
+      // Find end of current group
+      for (iItemEnd = iItemStart + 1; iItemEnd < cLength && adGroup[iItemEnd] == dGroup; iItemEnd++);
+      
+      const unsigned int cNumItems = iItemEnd - iItemStart;
+      if (cNumItems > cMaxItemsPerGroup)
+	{
+	  cMaxItemsPerGroup = cNumItems;
+	}
+      if (dGroup > dMaxGroup)
+	{
+	  dMaxGroup = dGroup;
+	}
+      
+      // Next group
+      iItemStart = iItemEnd;
     }
-
-    try
+  
+  // Allocate buffer for offset addition
+  vecdFPlusOffset.resize(cMaxItemsPerGroup);
+  
+  // Allocate ranker memory
+  ranker.Init(cMaxItemsPerGroup);
+  
+  // Allocate IR measure memory
+  
+  // The last element of adGroup specifies the cutoff
+  // (zero means no cutoff)
+  unsigned int cRankCutoff = cMaxItemsPerGroup;
+  if (adGroup[cLength] > 0)
     {
-        // Allocate memory for derivative buffer
-        vecdHessian.resize(cLength);
-
-        // Count the groups and number of items per group
-        unsigned int cMaxItemsPerGroup = 0;
-        double       dMaxGroup         = 0;
-
-        unsigned int iItemStart        = 0;
-        unsigned int iItemEnd          = 0;
-
-        while (iItemStart < cLength)
-        {
-
-            const double dGroup = adGroup[iItemStart];
-
-            // Find end of current group
-            for (iItemEnd = iItemStart + 1; iItemEnd < cLength && adGroup[iItemEnd] == dGroup; iItemEnd++);
-
-            const unsigned int cNumItems = iItemEnd - iItemStart;
-            if (cNumItems > cMaxItemsPerGroup)
-            {
-                cMaxItemsPerGroup = cNumItems;
-            }
-            if (dGroup > dMaxGroup)
-            {
-                dMaxGroup = dGroup;
-            }
-
-            // Next group
-            iItemStart = iItemEnd;
-        }
-
-        // Allocate buffer for offset addition
-        vecdFPlusOffset.resize(cMaxItemsPerGroup);
-
-        // Allocate ranker memory
-        ranker.Init(cMaxItemsPerGroup);
-
-        // Allocate IR measure memory
-
-        // The last element of adGroup specifies the cutoff
-        // (zero means no cutoff)
-        unsigned int cRankCutoff = cMaxItemsPerGroup;
-        if (adGroup[cLength] > 0)
-        {
-            cRankCutoff = (unsigned int)adGroup[cLength];
-        }
-        pirm->Init((unsigned long)dMaxGroup, cMaxItemsPerGroup, cRankCutoff);
+      cRankCutoff = (unsigned int)adGroup[cLength];
+    }
+  pirm->Init((unsigned long)dMaxGroup, cMaxItemsPerGroup, cRankCutoff);
 #ifdef NOISY_DEBUG
-        Rprintf("Initialization: instances=%ld, groups=%u, max items per group=%u, rank cutoff=%u, offset specified: %d\n", cLength, (unsigned long)dMaxGroup, cMaxItemsPerGroup, cRankCutoff, (adOffset != NULL));
+  Rprintf("Initialization: instances=%ld, groups=%u, max items per group=%u, rank cutoff=%u, offset specified: %d\n", cLength, (unsigned long)dMaxGroup, cMaxItemsPerGroup, cRankCutoff, (adOffset != NULL));
 #endif
-    }
-    catch (std::bad_alloc&)
-    {
-        return GBM_OUTOFMEMORY;
-    }
-    return GBM_OK;
 }
 
-GBMRESULT CPairwise::InitF
+void CPairwise::InitF
 (
     double *adY,
     double *adGroup,
@@ -882,7 +858,6 @@ GBMRESULT CPairwise::InitF
 )
 {
     dInitF = 0.0;
-    return GBM_OK;
 }
 
 
@@ -947,7 +922,7 @@ double CPairwise::Deviance
 }
 
 
-GBMRESULT CPairwise::FitBestConstant
+void CPairwise::FitBestConstant
 (
     double *adY,
     double *adGroup,
@@ -960,7 +935,7 @@ GBMRESULT CPairwise::FitBestConstant
     VEC_P_NODETERMINAL vecpTermNodes,
     unsigned long cTermNodes,
     unsigned long cMinObsInNode,
-    bool *afInBag,
+    int *afInBag,
     double *adFadj,
     int cIdxOff
 )
@@ -973,25 +948,18 @@ GBMRESULT CPairwise::FitBestConstant
     // Assumption: ComputeWorkingResponse() has been executed before with
     // the same arguments
 
-    try
-    {
-        // Allocate space for numerators and denominators, and set to zero
-        vecdNum.reserve(cTermNodes);
-        vecdDenom.reserve(cTermNodes);
-        for (unsigned int i = 0; i < cTermNodes; i++)
-        {
-            vecdNum[i]   = 0.0;
-            vecdDenom[i] = 0.0;
-        }
-    }
-    catch (std::bad_alloc&)
-    {
-        return GBM_OUTOFMEMORY;
-    }
+    // Allocate space for numerators and denominators, and set to zero
+    vecdNum.reserve(cTermNodes);
+    vecdDenom.reserve(cTermNodes);
+    for (unsigned int i = 0; i < cTermNodes; i++)
+      {
+	vecdNum[i]   = 0.0;
+	vecdDenom[i] = 0.0;
+      }
 
     for (unsigned int iObs = 0; iObs < nTrain; iObs++)
     {
-        if (afInBag[iObs])
+      if (afInBag[iObs])
         {
 #ifdef NOISY_DEBUG
             assert(isfinite(adW[iObs]));
@@ -1021,8 +989,6 @@ GBMRESULT CPairwise::FitBestConstant
             }
         }
     }
-
-    return GBM_OK;
 }
 
 
@@ -1034,7 +1000,7 @@ double CPairwise::BagImprovement
     double *adWeight,
     double *adF,
     double *adFadj,
-    bool *afInBag,
+    int *afInBag,
     double dStepSize,
     unsigned long nTrain
 )

@@ -4,8 +4,8 @@ Date: 2014-04-19
 Title: Generalized Boosted Regression Models
 Author: Greg Ridgeway <gregridgeway@gmail.com> with contributions from others
 Maintainer: Harry Southworth <harry.southworth@gmail.com>
-Depends: R (>= 2.9.0), survival, lattice, splines, parallel
-Suggests: RUnit
+Imports: survival, lattice, splines, parallel, Rcpp
+Suggests: testthat
 Description: Extensions
   to Freund and Schapire's AdaBoost algorithm and Friedman's
   gradient boosting machine. Includes regression methods for least
@@ -15,4 +15,4 @@ Description: Extensions
   exponential loss, Huberized hinge loss,
   and Learning to Rank measures (LambdaMART).
 License: GPL (>= 2) | file LICENSE
-URL: https://github.com/harrysouthworth/gbm
+URL: https://github.com/gbm-developers/gbm

@@ -26,7 +26,7 @@ public:
 
     CNodeNonterminal();
     virtual ~CNodeNonterminal();
-    virtual GBMRESULT Adjust(unsigned long cMinObsInNode);
+    virtual void Adjust(unsigned long cMinObsInNode);
 
     virtual signed char WhichNode(CDataset *pData,
                                   unsigned long iObs) = 0;
@@ -34,32 +34,38 @@ public:
                                   unsigned long cRow,
                                   unsigned long cCol,
                                   unsigned long iRow) = 0;
-    virtual GBMRESULT TransferTreeToRList(int &iNodeID,
-                                        CDataset *pData,
-                                        int *aiSplitVar,
-                                        double *adSplitPoint,
-                                        int *aiLeftNode,
-                                        int *aiRightNode,
-                                        int *aiMissingNode,
-                                        double *adErrorReduction,
-                                        double *adWeight,
-                                        double *adPred,
-                                        VEC_VEC_CATEGORIES &vecSplitCodes,
-                                        int cCatSplitsOld,
-                                        double dShrinkage) = 0;
+    virtual void TransferTreeToRList(int &iNodeID,
+				     CDataset *pData,
+				     int *aiSplitVar,
+				     double *adSplitPoint,
+				     int *aiLeftNode,
+				     int *aiRightNode,
+				     int *aiMissingNode,
+				     double *adErrorReduction,
+				     double *adWeight,
+				     double *adPred,
+				     VEC_VEC_CATEGORIES &vecSplitCodes,
+				     int cCatSplitsOld,
+				     double dShrinkage) = 0;
 
-    GBMRESULT Predict(CDataset *pData,
-                    unsigned long iRow,
-                    double &dFadj);
-    GBMRESULT Predict(double *adX,
-                    unsigned long cRow,
-                    unsigned long cCol,
-                    unsigned long iRow,
-                    double &dFadj);
+    void Predict(CDataset *pData,
+		 unsigned long iRow,
+		 double &dFadj);
+    void Predict(double *adX,
+		 unsigned long cRow,
+		 unsigned long cCol,
+		 unsigned long iRow,
+		 double &dFadj);
 
-    GBMRESULT GetVarRelativeInfluence(double *adRelInf);
-    virtual GBMRESULT RecycleSelf(CNodeFactory *pNodeFactory) = 0;
-
+    void GetVarRelativeInfluence(double *adRelInf);
+    
+    void reset() {
+      CNode::reset();
+      pLeftNode = pRightNode = pMissingNode = 0;
+      iSplitVar = 0;
+      dImprovement = 0;
+    }
+    
     CNode *pLeftNode;
     CNode *pRightNode;
     CNode *pMissingNode;

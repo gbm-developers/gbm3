@@ -11,7 +11,7 @@ CCoxPH::~CCoxPH()
 }
 
 
-GBMRESULT CCoxPH::ComputeWorkingResponse
+void CCoxPH::ComputeWorkingResponse
 (
     double *adT,
     double *adDelta,
@@ -19,9 +19,9 @@ GBMRESULT CCoxPH::ComputeWorkingResponse
     double *adF,
     double *adZ,
     double *adWeight,
-    bool *afInBag,
+    int *afInBag,
     unsigned long nTrain,
-	int cIdxOff
+    int cIdxOff
 )
 {
     unsigned long i = 0;
@@ -36,7 +36,7 @@ GBMRESULT CCoxPH::ComputeWorkingResponse
         if(afInBag[i])
         {
             dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
-            dRiskTot += adWeight[i]*exp(dF);
+            dRiskTot += adWeight[i]*std::exp(dF);
             vecdRiskTot[i] = dRiskTot;
         }
     }
@@ -51,16 +51,15 @@ GBMRESULT CCoxPH::ComputeWorkingResponse
                 dTot += adWeight[i]/vecdRiskTot[i];
             }
             dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
-            adZ[i] = adDelta[i] - exp(dF)*dTot;
+            adZ[i] = adDelta[i] - std::exp(dF)*dTot;
         }
     }
 
-    return GBM_OK;
 }
 
 
 
-GBMRESULT CCoxPH::InitF
+void CCoxPH::InitF
 (
     double *adY,
     double *adMisc,
@@ -71,8 +70,6 @@ GBMRESULT CCoxPH::InitF
 )
 {
     dInitF = 0.0;
-
-    return GBM_OK;
 }
 
 
@@ -84,7 +81,7 @@ double CCoxPH::Deviance
     double *adWeight,
     double *adF,
     unsigned long cLength,
-	int cIdxOff
+    int cIdxOff
 )
 {
     unsigned long i=0;
@@ -97,10 +94,10 @@ double CCoxPH::Deviance
     for(i=cIdxOff; i<cLength+cIdxOff; i++)
     {
         dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
-        dTotalAtRisk += adWeight[i]*exp(dF);
+        dTotalAtRisk += adWeight[i]*std::exp(dF);
         if(adDelta[i]==1.0)
         {
-            dL += adWeight[i]*(dF - log(dTotalAtRisk));
+            dL += adWeight[i]*(dF - std::log(dTotalAtRisk));
             dW += adWeight[i];
         }
     }
@@ -109,7 +106,7 @@ double CCoxPH::Deviance
 }
 
 
-GBMRESULT CCoxPH::FitBestConstant
+void CCoxPH::FitBestConstant
 (
     double *adT,
     double *adDelta,
@@ -122,13 +119,11 @@ GBMRESULT CCoxPH::FitBestConstant
     VEC_P_NODETERMINAL vecpTermNodes,
     unsigned long cTermNodes,
     unsigned long cMinObsInNode,
-    bool *afInBag,
+    int *afInBag,
     double *adFadj,
 	int cIdxOff
 )
 {
-    GBMRESULT hr = GBM_OK;
-
     double dF = 0.0;
     double dRiskTot = 0.0;
     unsigned long i = 0;
@@ -177,8 +172,8 @@ GBMRESULT CCoxPH::FitBestConstant
         if(afInBag[i] && (vecpTermNodes[aiNodeAssign[i]]->cN >= cMinObsInNode))
         {
             dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
-            vecdP[veciNode2K[aiNodeAssign[i]]] += adW[i]*exp(dF);
-            dRiskTot += adW[i]*exp(dF);
+            vecdP[veciNode2K[aiNodeAssign[i]]] += adW[i]*std::exp(dF);
+            dRiskTot += adW[i]*std::exp(dF);
 
             if(adDelta[i]==1.0)
             {
@@ -239,8 +234,6 @@ GBMRESULT CCoxPH::FitBestConstant
           }
     }
     // vecpTermNodes[veciK2Node[K-1]]->dPrediction = 0.0; // already set to 0.0
-
-    return hr;
 }
 
 
@@ -252,7 +245,7 @@ double CCoxPH::BagImprovement
     double *adWeight,
     double *adF,
     double *adFadj,
-    bool *afInBag,
+    int *afInBag,
     double dStepSize,
     unsigned long nTrain
 )
@@ -270,12 +263,12 @@ double CCoxPH::BagImprovement
     {
         if(!afInBag[i])
         {
-            dNum += adWeight[i]*exp(dF + dStepSize*adFadj[i]);
-            dDen += adWeight[i]*exp(dF);
+            dNum += adWeight[i]*std::exp(dF + dStepSize*adFadj[i]);
+            dDen += adWeight[i]*std::exp(dF);
             if(adDelta[i]==1.0)
             {
                 dReturnValue +=
-                    adWeight[i]*(dStepSize*adFadj[i] - log(dNum) + log(dDen));
+                    adWeight[i]*(dStepSize*adFadj[i] - std::log(dNum) + log(dDen));
                 dW += adWeight[i];
             }
         }
