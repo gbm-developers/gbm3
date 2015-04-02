@@ -18,7 +18,7 @@ n.minobsinnode = 10, shrinkage = 0.001, bag.fraction = 0.5,
 nTrain = NULL, train.fraction = NULL, mFeatures = NULL, keep.data = TRUE,
 verbose = TRUE, var.names = NULL, response.name = "y", group = NULL)
 gbm.more(object, n.new.trees = 100, data = NULL, weights = NULL,
-offset = NULL, verbose = NULL)
+offset = NULL, verbose = NULL, fold.id = NULL)
 }
 \arguments{
 \item{formula}{a symbolic description of the model to be fit. The formula
@@ -167,6 +167,9 @@ will attempt to send different CV folds off to different cores. If
 \code{detectCores} function in the \code{parallel} package. Note that the
 documentation for \code{detectCores} makes clear that it is not reliable and
 could return a spurious number of available cores.}
+
+\item{fold.id}{An optional vector of values identifying what fold each
+observation is in. If supplied, cv.folds can be missing.}
 
 \item{nTrain}{An integer representing the number of cases on which to train.
 This is the preferred way of specification for \code{gbm.fit}; The option

@@ -191,7 +191,7 @@
 #' nTrain = NULL, train.fraction = NULL, mFeatures = NULL, keep.data = TRUE, 
 #' verbose = TRUE, var.names = NULL, response.name = "y", group = NULL)
 #' gbm.more(object, n.new.trees = 100, data = NULL, weights = NULL, 
-#' offset = NULL, verbose = NULL)
+#' offset = NULL, verbose = NULL, fold.id = NULL)
 #'
 #' @return \code{gbm}, \code{gbm.fit}, and \code{gbm.more} return a
 #' \code{\link{gbm.object}}.
