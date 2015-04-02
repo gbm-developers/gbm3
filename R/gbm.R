@@ -178,6 +178,8 @@
 #' \code{detectCores} function in the \code{parallel} package. Note that the
 #' documentation for \code{detectCores} makes clear that it is not reliable and
 #' could return a spurious number of available cores.
+#' @param fold.id An optional vector of values identifying what fold each
+#' observation is in. If supplied, cv.folds can be missing.
 #' 
 #' @usage gbm(formula = formula(data), distribution = "bernoulli", data = list(),
 #' weights, subset = NULL, offset = NULL, var.monotone = NULL,
@@ -191,7 +193,7 @@
 #' nTrain = NULL, train.fraction = NULL, mFeatures = NULL, keep.data = TRUE, 
 #' verbose = TRUE, var.names = NULL, response.name = "y", group = NULL)
 #' gbm.more(object, n.new.trees = 100, data = NULL, weights = NULL, 
-#' offset = NULL, verbose = NULL)
+#' offset = NULL, verbose = NULL, fold.id = NULL)
 #'
 #' @return \code{gbm}, \code{gbm.fit}, and \code{gbm.more} return a
 #' \code{\link{gbm.object}}.
@@ -366,7 +368,8 @@ gbm <- function(formula = formula(data),
                 keep.data = TRUE,
                 verbose = 'CV',
                 class.stratify.cv=NULL,
-                n.cores=NULL){
+                n.cores=NULL,
+                fold.id = NULL){
    theCall <- match.call()
 
 
@@ -481,14 +484,31 @@ gbm <- function(formula = formula(data),
 
    cv.error <- NULL
 
+   # Set cv.folds from fold.id if present.
+   if (!is.null(fold.id)) {
+     if (length(fold.id) != nrow(x)){
+       stop("fold.id inequal to number of rows.")
+     }
+     inferred_folds <- length(unique(fold.id))
+     if (cv.folds > 0 & cv.folds != inferred_folds) {
+       # Warn if cv.folds and fold.id disagree, but take fold.id.
+       warning(paste("CV folds changed from", cv.folds, "to", inferred_folds,
+                     "because of levels in fold.id."))
+     } 
+     cv.folds <- inferred_folds
+     # Set fold.id from whatever it is to an integer ascending from 1. Lazy way.
+     fold.id <- as.numeric(as.factor(fold.id))
+   }
+
    # If CV is used, final model is calculated within the cluster
-   if(cv.folds>1) {
+   if (cv.folds>1 | !is.null(fold.id)) {
      cv.results <- gbmCrossVal(cv.folds, nTrain, n.cores,
                                class.stratify.cv, data,
                                x, y, offset, distribution, w, var.monotone,
                                n.trees, interaction.depth, n.minobsinnode,
                                shrinkage, bag.fraction, mFeatures,
-                               var.names, response.name, group, lVerbose, keep.data)
+                               var.names, response.name, group, lVerbose,
+                               keep.data, fold.id)
      cv.error <- cv.results$error
      p        <- cv.results$predictions
      gbm.obj  <- cv.results$all.model

@@ -13,10 +13,11 @@ gbmCrossVal <- function(cv.folds, nTrain, n.cores,
                         x, y, offset, distribution, w, var.monotone,
                         n.trees, interaction.depth, n.minobsinnode,
                         shrinkage, bag.fraction, mFeatures,
-                        var.names, response.name, group, lVerbose, keep.data) {
+                        var.names, response.name, group, lVerbose, keep.data,
+                        fold.id) {
   i.train <- 1:nTrain
   cv.group <- getCVgroup(distribution, class.stratify.cv, y,
-                         i.train, cv.folds, group)
+                         i.train, cv.folds, group, fold.id)
   ## build the models
   cv.models <- gbmCrossValModelBuild(cv.folds, cv.group, n.cores,
                                      i.train, x, y, offset,
@@ -24,7 +25,8 @@ gbmCrossVal <- function(cv.folds, nTrain, n.cores,
                                      n.trees, interaction.depth,
                                      n.minobsinnode, shrinkage,
                                      bag.fraction, mFeatures, var.names,
-                                     response.name, group, lVerbose, keep.data, nTrain)
+                                     response.name, group, lVerbose, keep.data, 
+                                     nTrain)
 
   # First element is final model
   all.model <- cv.models[[1]]
@@ -37,6 +39,9 @@ gbmCrossVal <- function(cv.folds, nTrain, n.cores,
   predictions <- gbmCrossValPredictions(cv.models, cv.folds, cv.group,
                                         best.iter.cv, distribution,
                                         data[i.train,,drop=FALSE], y)
+
+  all.model$fold.id <- fold.id
+
   list(error=cv.error,
        predictions=predictions,
        all.model=all.model)
