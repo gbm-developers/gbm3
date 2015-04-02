@@ -1,6 +1,6 @@
 getCVgroup <-
     # Construct cross-validation groups depending on the type of model to be fit
-function(distribution, class.stratify.cv, y, i.train, cv.folds, group){
+function(distribution, class.stratify.cv, y, i.train, cv.folds, group, fold.id){
 
     if (distribution$name %in% c( "bernoulli", "multinomial" ) & class.stratify.cv ){
         nc <- table(y[i.train]) # Number in each class
@@ -18,8 +18,11 @@ function(distribution, class.stratify.cv, y, i.train, cv.folds, group){
          s <- sample(rep(1:cv.folds, length=nlevels(group)))
          cv.group <- s[as.integer(group[i.train])]
       }
-      else {
+    else if (!is.null(fold.id)) {
+         cv.group <- fold.id
+    }
+    else {
          cv.group <- sample(rep(1:cv.folds, length=length(i.train)))
-      }
-      cv.group
+    }
+    cv.group
 }
