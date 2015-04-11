@@ -84,7 +84,17 @@ SEXP gbm
     Rcpp::IntegerVector acVarClasses(racVarClasses);
     Rcpp::IntegerVector alMonotoneVar(ralMonotoneVar);
     const std::string family = Rcpp::as<std::string>(rszFamily);
-    
+
+    /*
+      In the fullness of time this should move into the dataset
+      object, whatever that ends up as.
+    */
+
+    if ((adX.ncol() != acVarClasses.size()) ||
+	(adX.ncol() != alMonotoneVar.size())) {
+      throw GBM::invalid_argument("shape mismatch");
+    }
+
     int cNodes = 0;
 
     int cGroups = -1;
@@ -276,6 +286,10 @@ SEXP gbm_pred
    int iPredIteration = 0;
    int iClass = 0;
 
+   if ((adX.ncol() != aiVarType.size())) {
+     throw GBM::invalid_argument("shape mismatch");
+   }
+     
    Rcpp::NumericVector adPredF(cRows*cNumClasses*cPredIterations);
 
    // initialize the predicted values
@@ -373,7 +387,7 @@ SEXP gbm_plot
 (
     SEXP radX,          // vector or matrix of points to make predictions
     SEXP rcNumClasses,  // number of classes
-    SEXP raiWhichVar,   // length=cCols, index of which var cols of X are
+    SEXP raiWhichVar,   // index of which var cols of X are
     SEXP rcTrees,       // number of trees to use
     SEXP rdInitF,       // initial value
     SEXP rTrees,        // tree list object
