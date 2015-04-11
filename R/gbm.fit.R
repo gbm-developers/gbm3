@@ -305,10 +305,6 @@ gbm.fit <- function(x,y,
    x.order <- apply(x[1:nTrain,,drop=FALSE],2,order,na.last=FALSE)-1
 
    x <- as.vector(data.matrix(x))
-   predF <- rep(0,length(y))
-   train.error <- rep(0,n.trees)
-   valid.error <- rep(0,n.trees)
-   oobag.improve <- rep(0,n.trees)
 
    if(is.null(var.monotone)) var.monotone <- rep(0,cCols)
    else if(length(var.monotone)!=cCols)
@@ -319,7 +315,6 @@ gbm.fit <- function(x,y,
    {
       stop("var.monotone must be -1, 0, or 1")
    }
-   fError <- FALSE
 
    gbm.obj <- .Call("gbm",
                     Y=as.double(y),
