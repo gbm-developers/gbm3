@@ -447,7 +447,7 @@ SEXP gbm_plot
                         if (found != aiWhichVar.end())
                         {
                           const int iPredVar = found - aiWhichVar.begin();
-                          const double dX = adX[iPredVar*cRows + iObs];
+                          const double dX = adX(iObs, iPredVar);
                           // missing?
                           if(ISNA(dX))
                             {
