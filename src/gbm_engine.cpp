@@ -195,7 +195,7 @@ void CGBM::iterate
 				  adF,
 				  &adZ[0],
 				  pData->adWeight,
-				  &afInBag[0],
+				  afInBag,
 				  cTrain,
 				  cIdxOff);
 
@@ -210,7 +210,7 @@ void CGBM::iterate
     ptreeTemp->grow(&(adZ[cIdxOff]), pData, &(pData->adWeight[cIdxOff]),
 		    &(adFadj[cIdxOff]), cTrain, cFeatures, cTotalInBag, 
 		    dLambda, cDepth,
-		    cMinObsInNode, &afInBag[0], aiNodeAssign, &aNodeSearch[0],
+		    cMinObsInNode, afInBag, aiNodeAssign, &aNodeSearch[0],
 		    vecpTermNodes);
     
     
@@ -236,7 +236,7 @@ void CGBM::iterate
 			   vecpTermNodes,
 			   (2*cNodes+1)/3, // number of terminal nodes
 			   cMinObsInNode,
-			   &afInBag[0],
+			   afInBag,
 			   &adFadj[0],
 			   cIdxOff);
     
@@ -255,7 +255,7 @@ void CGBM::iterate
 					    pData->adWeight,
 					    &adF[0],
 					    &adFadj[0],
-					    &afInBag[0],
+					    afInBag,
 					    dLambda,
 					    cTrain);
     }

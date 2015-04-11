@@ -17,6 +17,10 @@
 #ifndef DATASET_H
 #define DATASET_H
 
+#include <vector>
+
+typedef std::vector<int> bag;
+
 #include "buildinfo.h"
 #include "gbmexcept.h"
 

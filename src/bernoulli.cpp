@@ -19,7 +19,7 @@ void CBernoulli::ComputeWorkingResponse
     double *adF,
     double *adZ,
     double *adWeight,
-    int *afInBag,
+    const bag& afInBag,
     unsigned long nTrain,
     int cIdxOff
 )
@@ -138,7 +138,7 @@ void CBernoulli::FitBestConstant
     VEC_P_NODETERMINAL vecpTermNodes,
     unsigned long cTermNodes,
     unsigned long cMinObsInNode,
-    int *afInBag,
+    const bag& afInBag,
     double *adFadj,
 	int cIdxOff
 )
@@ -186,7 +186,7 @@ double CBernoulli::BagImprovement
     double *adWeight,
     double *adF,
     double *adFadj,
-    int *afInBag,
+    const bag& afInBag,
     double dStepSize,
     unsigned long nTrain
 )
