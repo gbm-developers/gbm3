@@ -169,7 +169,6 @@ double CTDist::BagImprovement
 {
     double dReturnValue = 0.0;
     unsigned long i = 0;
-    double dU = 0.0;
     double dW = 0.0;
 
     for(i=0; i<nTrain; i++)

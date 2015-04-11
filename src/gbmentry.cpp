@@ -60,7 +60,6 @@ SEXP gbm
     
     VEC_VEC_CATEGORIES vecSplitCodes;
 
-    int i = 0;
     int iT = 0;
     int iK = 0;
     const int cTrees = Rcpp::as<int>(rcTrees);
@@ -277,7 +276,6 @@ SEXP gbm_pred
    const Rcpp::IntegerVector aiVarType(raiVarType);
    const Rcpp::GenericVector cSplits(rCSplits);
    const Rcpp::NumericVector adX(radX);
-   const int cCols = Rcpp::as<int>(rcCols);
    const int cNumClasses = Rcpp::as<int>(rcNumClasses);
    const bool fSingleTree = Rcpp::as<bool>(riSingleTree);
    const int cPredIterations = cTrees.size();
@@ -392,12 +390,10 @@ SEXP gbm_plot
 )
 {
     BEGIN_RCPP
-    int i = 0;
     int iTree = 0;
     int iObs = 0;
     int iClass = 0;
     const int cRows = Rcpp::as<int>(rcRows);
-    const int cCols = Rcpp::as<int>(rcCols);
     const int cTrees = Rcpp::as<int>(rcTrees);
     const int cNumClasses = Rcpp::as<int>(rcNumClasses);
     const Rcpp::NumericVector adX(radX);
