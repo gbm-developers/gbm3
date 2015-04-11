@@ -243,13 +243,15 @@ SEXP gbm
 
     if(verbose) Rprintf("\n");
 
-    return Rcpp::List::create(dInitF,
-                              adF,
-                              adTrainError,
-                              adValidError,
-                              adOOBagImprove,
-                              setOfTrees,
-                              vecSplitCodes);
+    using Rcpp::_;
+
+    return Rcpp::List::create(_["initF"]=dInitF,
+                              _["fit"]=adF,
+                              _["train.error"]=adTrainError,
+                              _["valid.error"]=adValidError,
+                              _["oobag.improve"]=adOOBagImprove,
+                              _["trees"]=setOfTrees,
+                              _["c.splits"]=vecSplitCodes);
    END_RCPP
 }
 

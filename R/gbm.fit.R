@@ -342,9 +342,6 @@ gbm.fit <- function(x,y,
                     verbose=as.integer(verbose),
                     PACKAGE = "gbm")
 
-   names(gbm.obj) <- c("initF","fit","train.error","valid.error",
-                       "oobag.improve","trees","c.splits")
-
    gbm.obj$bag.fraction <- bag.fraction
    gbm.obj$distribution <- distribution
    gbm.obj$interaction.depth <- interaction.depth

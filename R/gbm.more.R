@@ -183,8 +183,6 @@ gbm.more <- function(object,
                     n.trees.old = as.integer(object$n.trees),
                     verbose = as.integer(verbose),
                     PACKAGE = "gbm")
-   names(gbm.obj) <- c("initF","fit","train.error","valid.error",
-                       "oobag.improve","trees","c.splits")
 
    gbm.obj$initF         <- object$initF
    gbm.obj$train.error   <- c(object$train.error, gbm.obj$train.error)
