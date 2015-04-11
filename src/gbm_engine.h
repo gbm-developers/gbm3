@@ -73,7 +73,7 @@ public:
 
     // these objects are for the tree growing
     // allocate them once here for all trees to use
-    std::vector<int> afInBag;
+    bag afInBag;
     std::vector<unsigned long> aiNodeAssign;
     std::vector<CNodeSearch> aNodeSearch;
     std::auto_ptr<CCARTTree> ptreeTemp;

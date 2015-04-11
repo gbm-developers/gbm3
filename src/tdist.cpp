@@ -12,7 +12,7 @@ void CTDist::ComputeWorkingResponse
     double *adF,
     double *adZ,
     double *adWeight,
-    int *afInBag,
+    const bag& afInBag,
     unsigned long nTrain,
     int cIdxOff
 )
@@ -118,7 +118,7 @@ void CTDist::FitBestConstant
     VEC_P_NODETERMINAL vecpTermNodes,
     unsigned long cTermNodes,
     unsigned long cMinObsInNode,
-    int *afInBag,
+    const bag& afInBag,
     double *adFadj,
 	int cIdxOff
 )
@@ -162,14 +162,13 @@ double CTDist::BagImprovement
     double *adWeight,
     double *adF,
     double *adFadj,
-    int *afInBag,
+    const bag& afInBag,
     double dStepSize,
     unsigned long nTrain
 )
 {
     double dReturnValue = 0.0;
     unsigned long i = 0;
-    double dU = 0.0;
     double dW = 0.0;
 
     for(i=0; i<nTrain; i++)

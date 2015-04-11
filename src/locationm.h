@@ -25,10 +25,10 @@ public:
  CLocationM(const std::string& sType) : msType(sType), mdEps(1e-8) {};
 
  CLocationM(const std::string& sType, const double& singleParam) :
-  msType(sType), mdEps(1e-8), madParams(1, singleParam) {};
+  madParams(1, singleParam), msType(sType), mdEps(1e-8) {};
 
  CLocationM(const std::string& sType, const std::vector<double>& adParams) :
-  msType(sType), madParams(adParams), mdEps(1e-8) {};
+  madParams(adParams), msType(sType), mdEps(1e-8) {};
 
   virtual ~CLocationM() {};
 
@@ -43,13 +43,12 @@ private:
   std::string msType;
   double mdEps;
 
-    struct comp{
-
-	    bool operator()(pair<int, double> prP, pair<int, double> prQ)
-		{
-		    return (prP.second < prQ.second);
-		}
-	};
+  struct comp {
+    bool operator()(pair<int, double> prP, pair<int, double> prQ)
+    {
+      return (prP.second < prQ.second);
+    }
+  };
 };
 
 #endif // LOCMCGBM_H

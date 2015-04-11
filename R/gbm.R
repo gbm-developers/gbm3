@@ -4,55 +4,65 @@
 #' 
 #' See the gbm vignette for technical details.
 #' 
-#' This package implements the generalized boosted modeling framework. Boosting
-#' is the process of iteratively adding basis functions in a greedy fashion so
-#' that each additional basis function further reduces the selected loss
-#' function. This implementation closely follows Friedman's Gradient Boosting
-#' Machine (Friedman, 2001).
+#' This package implements the generalized boosted modeling
+#' framework. Boosting is the process of iteratively adding basis
+#' functions in a greedy fashion so that each additional basis
+#' function further reduces the selected loss function. This
+#' implementation closely follows Friedman's Gradient Boosting Machine
+#' (Friedman, 2001).
 #' 
-#' In addition to many of the features documented in the Gradient Boosting
-#' Machine, \code{gbm} offers additional features including the out-of-bag
-#' estimator for the optimal number of iterations, the ability to store and
-#' manipulate the resulting \code{gbm} object, and a variety of other loss
-#' functions that had not previously had associated boosting algorithms,
-#' including the Cox partial likelihood for censored data, the poisson
-#' likelihood for count outcomes, and a gradient boosting implementation to
-#' minimize the AdaBoost exponential loss function.
+#' In addition to many of the features documented in the Gradient
+#' Boosting Machine, \code{gbm} offers additional features including
+#' the out-of-bag estimator for the optimal number of iterations, the
+#' ability to store and manipulate the resulting \code{gbm} object,
+#' and a variety of other loss functions that had not previously had
+#' associated boosting algorithms, including the Cox partial
+#' likelihood for censored data, the poisson likelihood for count
+#' outcomes, and a gradient boosting implementation to minimize the
+#' AdaBoost exponential loss function.
 #' 
 #' \code{gbm.fit} provides the link between R and the C++ gbm engine.
-#' \code{gbm} is a front-end to \code{gbm.fit} that uses the familiar R
-#' modeling formulas. However, \code{\link[stats]{model.frame}} is very slow if
-#' there are many predictor variables. For power-users with many variables use
-#' \code{gbm.fit}. For general practice \code{gbm} is preferable.
+#' \code{gbm} is a front-end to \code{gbm.fit} that uses the familiar
+#' R modeling formulas. However, \code{\link[stats]{model.frame}} is
+#' very slow if there are many predictor variables. For power-users
+#' with many variables use \code{gbm.fit}. For general practice
+#' \code{gbm} is preferable.
 #' 
 #' @aliases gbm gbm.more gbm.fit
-#' @param formula a symbolic description of the model to be fit. The formula
-#' may include an offset term (e.g. y~offset(n)+x). If \code{keep.data=FALSE}
-#' in the initial call to \code{gbm} then it is the user's responsibility to
-#' resupply the offset to \code{\link{gbm.more}}.
-#' @param distribution either a character string specifying the name of the
-#' distribution to use or a list with a component \code{name} specifying the
-#' distribution and any additional parameters needed. If not specified,
-#' \code{gbm} will try to guess: if the response has only two unique values,
-#' bernoulli is assumed; otherwise, if the response is a factor, multinomial is
-#' assumed; otherwise, if the response has class "Surv", coxph is assumed;
+#' 
+#' @param formula a symbolic description of the model to be fit. The
+#' formula may include an offset term (e.g. y~offset(n)+x). If
+#' \code{keep.data=FALSE} in the initial call to \code{gbm} then it is
+#' the user's responsibility to resupply the offset to
+#' \code{\link{gbm.more}}.
+#' 
+#' @param distribution either a character string specifying the name
+#' of the distribution to use or a list with a component \code{name}
+#' specifying the distribution and any additional parameters
+#' needed. If not specified, \code{gbm} will try to guess: if the
+#' response has only two unique values, bernoulli is assumed;
+#' otherwise, if the response is a factor, multinomial is assumed;
+#' otherwise, if the response has class "Surv", coxph is assumed;
 #' otherwise, gaussian is assumed.
 #' 
-#' Available distributions are "gaussian" (squared error), "laplace" (absolute
-#' loss), "tdist" (t-distribution loss), "bernoulli" (logistic regression for
-#' 0-1 outcomes), "huberized" (Huberized hinge loss for 0-1 outcomes),
-#' "multinomial" (classification when there are more than two classes),
-#' "adaboost" (the AdaBoost exponential loss for 0-1 outcomes), "poisson"
-#' (count outcomes), "coxph" (right censored observations), "quantile", or
-#' "pairwise" (ranking measure using the LambdaMART algorithm).
+#' Available distributions are "gaussian" (squared error), "laplace"
+#' (absolute loss), "tdist" (t-distribution loss), "bernoulli"
+#' (logistic regression for 0-1 outcomes), "huberized" (Huberized
+#' hinge loss for 0-1 outcomes), "multinomial" (classification when
+#' there are more than two classes), "adaboost" (the AdaBoost
+#' exponential loss for 0-1 outcomes), "poisson" (count outcomes),
+#' "coxph" (right censored observations), "quantile", or "pairwise"
+#' (ranking measure using the LambdaMART algorithm).
 #' 
-#' If quantile regression is specified, \code{distribution} must be a list of
-#' the form \code{list(name="quantile",alpha=0.25)} where \code{alpha} is the
-#' quantile to estimate. Non-constant weights are unsupported.
+#' If quantile regression is specified, \code{distribution} must be a
+#' list of the form \code{list(name="quantile",alpha=0.25)} where
+#' \code{alpha} is the quantile to estimate. Non-constant weights are
+#' unsupported.
 #' 
-#' If "tdist" is specified, the default degrees of freedom is four and this can
-#' be controlled by specifying \code{distribution=list(name="tdist", df=DF)}
-#' where \code{DF} is your chosen degrees of freedom.
+#' If "tdist" is specified, the default degrees of freedom is four and
+#' this can be controlled by specifying
+#' \code{distribution=list(name="tdist", df=DF)} where \code{DF} is
+#' your chosen degrees of freedom.
 #' 
 #' If "pairwise" regression is specified, \code{distribution} must be a list of
 #' the form \code{list(name="pairwise",group=...,metric=...,max.rank=...)}
@@ -90,110 +100,150 @@
 #' assumed that they are constant for instances from the same group.
 #' 
 #' For details and background on the algorithm, see e.g. Burges (2010).
-#' @param data an optional data frame containing the variables in the model. By
-#' default the variables are taken from \code{environment(formula)}, typically
-#' the environment from which \code{gbm} is called. If \code{keep.data=TRUE} in
-#' the initial call to \code{gbm} then \code{gbm} stores a copy with the
-#' object. If \code{keep.data=FALSE} then subsequent calls to
-#' \code{\link{gbm.more}} must resupply the same dataset. It becomes the user's
-#' responsibility to resupply the same data at this point.
-#' @param weights an optional vector of weights to be used in the fitting
-#' process. The weights must be positive but do not need to be normalized. If
-#' \code{keep.data=FALSE} in the initial call to \code{gbm}, then it is the
-#' user's responsibility to resupply the weights to \code{\link{gbm.more}}.
+#'
+#' @param data an optional data frame containing the variables in the
+#' model. By default the variables are taken from
+#' \code{environment(formula)}, typically the environment from which
+#' \code{gbm} is called. If \code{keep.data=TRUE} in the initial call
+#' to \code{gbm} then \code{gbm} stores a copy with the object. If
+#' \code{keep.data=FALSE} then subsequent calls to
+#' \code{\link{gbm.more}} must resupply the same dataset. It becomes
+#' the user's responsibility to resupply the same data at this point.
+#'
+#' @param weights an optional vector of weights to be used in the
+#' fitting process. The weights must be positive but do not need to be
+#' normalized. If \code{keep.data=FALSE} in the initial call to
+#' \code{gbm}, then it is the user's responsibility to resupply the
+#' weights to \code{\link{gbm.more}}.
+#'
 #' @param subset an optional vector defining a subset of the data to be used
+#'
 #' @param offset an optional model offset
-#' @param var.monotone an optional vector, the same length as the number of
-#' predictors, indicating which variables have a monotone increasing (+1),
-#' decreasing (-1), or arbitrary (0) relationship with the outcome.
-#' @param n.trees the total number of trees to fit. This is equivalent to the
-#' number of iterations and the number of basis functions in the additive
-#' expansion.
+#'
+#' @param var.monotone an optional vector, the same length as the
+#' number of predictors, indicating which variables have a monotone
+#' increasing (+1), decreasing (-1), or arbitrary (0) relationship
+#' with the outcome.
+#'
+#' @param n.trees the total number of trees to fit. This is equivalent
+#' to the number of iterations and the number of basis functions in
+#' the additive expansion.
+#'
 #' @param cv.folds Number of cross-validation folds to perform. If
-#' \code{cv.folds}>1 then \code{gbm}, in addition to the usual fit, will
-#' perform a cross-validation and calculate an estimate of generalization error
-#' returned in \code{cv.error}.
-#' @param interaction.depth The maximum depth of variable interactions: 1
-#' builds an additive model, 2 builds a model with up to two-way interactions,
-#' etc.
-#' @param n.minobsinnode minimum number of observations (not total weights) in
-#' the terminal nodes of the trees.
+#' \code{cv.folds}>1 then \code{gbm}, in addition to the usual fit,
+#' will perform a cross-validation and calculate an estimate of
+#' generalization error returned in \code{cv.error}.
+#'
+#' @param interaction.depth The maximum depth of variable
+#' interactions: 1 builds an additive model, 2 builds a model with up
+#' to two-way interactions, etc.
+#'
+#' @param n.minobsinnode minimum number of observations (not total
+#' weights) in the terminal nodes of the trees.
+#'
 #' @param shrinkage a shrinkage parameter applied to each tree in the
 #' expansion. Also known as the learning rate or step-size reduction.
-#' @param bag.fraction the fraction of the training set observations randomly
-#' selected to propose the next tree in the expansion. This introduces
-#' randomness into the model fit. If \code{bag.fraction}<1 then running the
-#' same model twice will result in similar but different fits. \code{gbm} uses
-#' the R random number generator, so \code{set.seed} ensures the same model can
-#' be reconstructed. Preferably, the user can save the returned
+#'
+#' @param bag.fraction the fraction of the training set observations
+#' randomly selected to propose the next tree in the expansion. This
+#' introduces randomness into the model fit. If \code{bag.fraction}<1
+#' then running the same model twice will result in similar but
+#' different fits. \code{gbm} uses the R random number generator, so
+#' \code{set.seed} ensures the same model can be
+#' reconstructed. Preferably, the user can save the returned
 #' \code{\link{gbm.object}} using \code{\link{save}}.
+#'
 #' @param train.fraction The first \code{train.fraction * nrows(data)}
 #' observations are used to fit the \code{gbm} and the remainder are used for
 #' computing out-of-sample estimates of the loss function.
-#' @param nTrain An integer representing the number of cases on which to train.
-#' This is the preferred way of specification for \code{gbm.fit}; The option
-#' \code{train.fraction} in \code{gbm.fit} is deprecated and only maintained
-#' for backward compatibility. These two parameters are mutually exclusive. If
-#' both are unspecified, all data is used for training.
+#'
+#' @param nTrain An integer representing the number of cases on which
+#' to train.  This is the preferred way of specification for
+#' \code{gbm.fit}; The option \code{train.fraction} in \code{gbm.fit}
+#' is deprecated and only maintained for backward compatibility. These
+#' two parameters are mutually exclusive. If both are unspecified, all
+#' data is used for training.
+#'
 #' @param mFeatures Each node will be trained on a random subset of
-#' \code{mFeatures} number of features. Each node will consider a new random
-#' subset of features, adding variability to tree growth and reducing
-#' computation time. \code{mFeatures} will be bounded between 1 and
-#' \code{nCols}. Values outside of this bound will be to the lower or upper
-#' limits.
-#' @param keep.data a logical variable indicating whether to keep the data and
-#' an index of the data stored with the object. Keeping the data and index
-#' makes subsequent calls to \code{\link{gbm.more}} faster at the cost of
-#' storing an extra copy of the dataset.
+#' \code{mFeatures} number of features. Each node will consider a new
+#' random subset of features, adding variability to tree growth and
+#' reducing computation time. \code{mFeatures} will be bounded between
+#' 1 and \code{nCols}. Values outside of this bound will be to the
+#' lower or upper limits.
+#'
+#' @param keep.data a logical variable indicating whether to keep the
+#' data and an index of the data stored with the object. Keeping the
+#' data and index makes subsequent calls to \code{\link{gbm.more}}
+#' faster at the cost of storing an extra copy of the dataset.
+#'
 #' @param object a \code{gbm} object created from an initial call to
 #' \code{\link{gbm}}.
-#' @param n.new.trees the number of additional trees to add to \code{object} using
-#'   \code{gbm.more}.
+#'
+#' @param n.new.trees the number of additional trees to add to
+#' \code{object} using \code{gbm.more}.
+#'
 #' @param verbose If TRUE, gbm will print out progress and performance
 #' indicators. If this option is left unspecified for gbm.more then it uses
 #' \code{verbose} from \code{object}.
-#' @param class.stratify.cv whether the cross-validation should be stratified
-#' by class. Defaults to \code{TRUE} for \code{distribution="multinomial"} and
-#' is only implemented for \code{multinomial} and \code{bernoulli}. The purpose
-#' of stratifying the cross-validation is to help avoiding situations in which
+#' 
+#' @param class.stratify.cv whether the cross-validation should be
+#' stratified by class. Defaults to \code{TRUE} for
+#' \code{distribution="multinomial"} and is only implemented for
+#' \code{multinomial} and \code{bernoulli}. The purpose of stratifying
+#' the cross-validation is to help avoiding situations in which
 #' training sets do not contain all classes.
-#' @param x,y For \code{gbm.fit}: \code{x} is a data frame or data matrix
-#' containing the predictor variables and \code{y} is the vector of outcomes.
-#' The number of rows in \code{x} must be the same as the length of \code{y}.
-#' @param misc For \code{gbm.fit}: \code{misc} is an R object that is simply
-#' passed on to the gbm engine. It can be used for additional data for the
-#' specific distribution. Currently it is only used for passing the censoring
-#' indicator for the Cox proportional hazards model.
+#'
+#' @param x,y For \code{gbm.fit}: \code{x} is a data frame or data
+#' matrix containing the predictor variables and \code{y} is the
+#' vector of outcomes.  The number of rows in \code{x} must be the
+#' same as the length of \code{y}.
+#'
+#' @param misc For \code{gbm.fit}: \code{misc} is an R object that is
+#' simply passed on to the gbm engine. It can be used for additional
+#' data for the specific distribution. Currently it is only used for
+#' passing the censoring indicator for the Cox proportional hazards
+#' model.
+#'
 #' @param w For \code{gbm.fit}: \code{w} is a vector of weights of the same
 #' length as the \code{y}.
-#' @param var.names For \code{gbm.fit}: A vector of strings of length equal to
-#' the number of columns of \code{x} containing the names of the predictor
-#' variables.
-#' @param response.name For \code{gbm.fit}: A character string label for the
-#' response variable.
-#' @param group \code{group} used when \code{distribution = 'pairwise'.}
-#' @param n.cores The number of CPU cores to use. The cross-validation loop
-#' will attempt to send different CV folds off to different cores. If
-#' \code{n.cores} is not specified by the user, it is guessed using the
-#' \code{detectCores} function in the \code{parallel} package. Note that the
-#' documentation for \code{detectCores} makes clear that it is not reliable and
-#' could return a spurious number of available cores.
-#' @param fold.id An optional vector of values identifying what fold each
-#' observation is in. If supplied, cv.folds can be missing.
+#'
+#' @param var.names For \code{gbm.fit}: A vector of strings of length
+#' equal to the number of columns of \code{x} containing the names of
+#' the predictor variables.
+#'
+#' @param response.name For \code{gbm.fit}: A character string label
+#' for the response variable.
+#'
+#' @param group \code{group} used when \code{distribution =
+#' 'pairwise'.}
+#'
+#' @param n.cores The number of CPU cores to use. The cross-validation
+#' loop will attempt to send different CV folds off to different
+#' cores. If \code{n.cores} is not specified by the user, it is
+#' guessed using the \code{detectCores} function in the
+#' \code{parallel} package. Note that the documentation for
+#' \code{detectCores} makes clear that it is not reliable and could
+#' return a spurious number of available cores.
+#'
+#' @param fold.id An optional vector of values identifying what fold
+#' each observation is in. If supplied, cv.folds can be missing.
 #' 
-#' @usage gbm(formula = formula(data), distribution = "bernoulli", data = list(),
-#' weights, subset = NULL, offset = NULL, var.monotone = NULL,
-#' n.trees = 100, interaction.depth = 1, n.minobsinnode = 10,
+#' @usage
+#' gbm(formula = formula(data), distribution = "bernoulli",
+#' data = list(), weights, subset = NULL, offset = NULL, var.monotone
+#' = NULL, n.trees = 100, interaction.depth = 1, n.minobsinnode = 10,
 #' shrinkage = 0.001, bag.fraction = 0.5, train.fraction = 1,
 #' mFeatures = NULL, cv.folds = 0, keep.data = TRUE, verbose = "CV",
-#' class.stratify.cv = NULL, n.cores = NULL)
+#' class.stratify.cv = NULL, n.cores = NULL, fold.id=NULL)
+#' 
 #' gbm.fit(x, y, offset = NULL, misc = NULL, distribution = "bernoulli", 
 #' w = NULL, var.monotone = NULL, n.trees = 100, interaction.depth = 1, 
 #' n.minobsinnode = 10, shrinkage = 0.001, bag.fraction = 0.5, 
 #' nTrain = NULL, train.fraction = NULL, mFeatures = NULL, keep.data = TRUE, 
 #' verbose = TRUE, var.names = NULL, response.name = "y", group = NULL)
+#'
 #' gbm.more(object, n.new.trees = 100, data = NULL, weights = NULL, 
-#' offset = NULL, verbose = NULL, fold.id = NULL)
+#' offset = NULL, verbose = NULL)
 #'
 #' @return \code{gbm}, \code{gbm.fit}, and \code{gbm.more} return a
 #' \code{\link{gbm.object}}.

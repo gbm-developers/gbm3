@@ -62,7 +62,7 @@ void CCARTTree::grow
  double dLambda,
  unsigned long cMaxDepth,
  unsigned long cMinObsInNode,
- int *afInBag,
+ const bag& afInBag,
  std::vector<unsigned long>& aiNodeAssign,
  CNodeSearch *aNodeSearch,
  VEC_P_NODETERMINAL &vecpTermNodes
@@ -213,7 +213,7 @@ void CCARTTree::GetBestSplit
  CNodeSearch *aNodeSearch,
  unsigned long cTerminalNodes,
  std::vector<unsigned long>& aiNodeAssign,
- int *afInBag,
+ const bag& afInBag,
  double *adZ,
  double *adW,
  unsigned long &iBestNode,

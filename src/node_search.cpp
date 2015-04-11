@@ -234,7 +234,6 @@ void CNodeSearch::WrapUpCurrentVariable()
 void CNodeSearch::EvaluateCategoricalSplit()
 {
   long i=0;
-  long j=0;
   unsigned long cFiniteMeans = 0;
   
   if(fIsSplit) return;
@@ -317,7 +316,6 @@ void CNodeSearch::SetupNewNodes
 {
     CNodeContinuous *pNewNodeContinuous = NULL;
     CNodeCategorical *pNewNodeCategorical = NULL;
-    unsigned long i=0;
 
     pNewLeftNode    = pNodeFactory->GetNewNodeTerminal();
     pNewRightNode   = pNodeFactory->GetNewNodeTerminal();

@@ -33,7 +33,7 @@ class CTDist : public CDistribution
 			      double *adF,
 			      double *adZ,
 			      double *adWeight,
-			      int *afInBag,
+			      const bag& afInBag,
 			      unsigned long nTrain,
 			      int cIdxOff);
 
@@ -55,7 +55,7 @@ class CTDist : public CDistribution
 			 VEC_P_NODETERMINAL vecpTermNodes,
 			 unsigned long cTermNodes,
 			 unsigned long cMinObsInNode,
-			 int *afInBag,
+			 const bag& afInBag,
 			 double *adFadj,
 			 int cIdxOff);
 
@@ -73,7 +73,7 @@ class CTDist : public CDistribution
                           double *adWeight,
                           double *adF,
                           double *adFadj,
-                          int *afInBag,
+                          const bag& afInBag,
                           double dStepSize,
                           unsigned long nTrain);
 
