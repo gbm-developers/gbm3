@@ -410,6 +410,11 @@ SEXP gbm_plot
 
     Rcpp::NumericVector adPredF(cRows * cNumClasses,
                                 Rcpp::as<double>(rdInitF));
+
+    if (adX.ncol() != aiWhichVar.size()) {
+      throw GBM::invalid_argument("shape mismatch");
+    }
+
     for(iTree=0; iTree<cTrees; iTree++)
     {
         for (iClass = 0; iClass < cNumClasses; iClass++)
