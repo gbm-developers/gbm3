@@ -175,6 +175,7 @@ SEXP gbm
     }
     for(iT=0; iT<cTrees; iT++)
       {
+	Rcpp::checkUserInterrupt();
         // Update the parameters
         pDist->UpdateParams(adF.begin(),
 			    pData->adOffset,
@@ -224,20 +225,15 @@ SEXP gbm
         } // Close for iK
 
         // print the information
-        if((iT <= 9) ||
-           (0 == (iT+1+cTreesOld) % 20) ||
-	   (iT==cTrees-1))
-        {
-            R_CheckUserInterrupt();
-            if(verbose)
-	      {
-		Rprintf("%6d %13.4f %15.4f %10.4f %9.4f\n",
-			iT+1+cTreesOld,
-			adTrainError[iT],
-			adValidError[iT],
-			dShrinkage,
-			adOOBagImprove[iT]);
-	      }
+        if((verbose) && ((iT <= 9) ||
+			 (0 == (iT+1+cTreesOld) % 20) ||
+			 (iT==cTrees-1))) {
+	  Rprintf("%6d %13.4f %15.4f %10.4f %9.4f\n",
+		  iT+1+cTreesOld,
+		  adTrainError[iT],
+		  adValidError[iT],
+		  dShrinkage,
+		  adOOBagImprove[iT]);
         }
       }
 
