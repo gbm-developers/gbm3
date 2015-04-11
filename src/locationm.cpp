@@ -11,6 +11,8 @@
 
 
 #include "locationm.h"
+#include "gbmexcept.h"
+
 #include <algorithm>
 
 using namespace std;
@@ -112,21 +114,16 @@ double CLocationM::weightedQuantile(int iN, double *adV, double *adW, double dAl
 /////////////////////////////////////////////////
 double CLocationM::PsiFun(double dX)
 {
-	// Local variables
-	double dPsiVal = 0.0;
-
-	// Switch on the type of function
-	if(msType == "tdist")
-	{
-		dPsiVal = dX / (madParams[0] + (dX * dX));
-	}
-	else
-	{
-		// TODO: Handle the error
-	  Rprintf("Error: Function type %s not found\n", msType.c_str());
-	}
-
-	return dPsiVal;
+  /*
+    why we are checking this here rather than at construction
+    is entirely unknown...
+   */
+  if(msType == "tdist")
+    {
+      return dX / (madParams[0] + (dX * dX));
+    }
+  
+  throw GBM::failure("Function type " + msType + "not known.");
 }
 
 /////////////////////////////////////////////////
@@ -206,10 +203,3 @@ double CLocationM::LocationM(int iN, double *adX, double *adW, double dAlpha)
 
 	return dBeta0;
 }
-
-
-
-
-
-
-
