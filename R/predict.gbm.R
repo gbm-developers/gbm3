@@ -106,9 +106,7 @@ predict.gbm <- function(object,newdata,n.trees,
    }
 
    predF <- .Call("gbm_pred",
-                  X=as.double(x),
-                  cRows=as.integer(cRows),
-                  cCols=as.integer(cCols),
+                  X=matrix(x, cRows, cCols),
                   cNumClasses = as.integer(object$num.classes),
                   n.trees=as.integer(n.trees[i.ntree.order]),
                   initF=object$initF,

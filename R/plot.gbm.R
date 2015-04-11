@@ -141,9 +141,7 @@ plot.gbm <- function(x,
 
    # evaluate at each data point
    y <- .Call("gbm_plot",
-              X = as.double(data.matrix(X)),
-              cRows = as.integer(nrow(X)),
-              cCols = as.integer(ncol(X)),
+              X = data.matrix(X),
               n.class = as.integer(x$num.classes),
               i.var = as.integer(i.var-1),
               n.trees = as.integer(n.trees) ,

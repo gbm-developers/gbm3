@@ -37,8 +37,6 @@ SEXP gbm
     SEXP raiXOrder,
     SEXP radWeight,
     SEXP radMisc,   // other row specific data (eg failure time), NA=no Misc
-    SEXP rcRows,
-    SEXP rcCols,
     SEXP racVarClasses,
     SEXP ralMonotoneVar,
     SEXP rszFamily,
@@ -76,13 +74,13 @@ SEXP gbm
     
     Rcpp::NumericVector adY(radY);
     Rcpp::NumericVector adOffset(radOffset);
-    Rcpp::NumericVector adX(radX);
+    Rcpp::NumericMatrix adX(radX);
     Rcpp::IntegerVector aiXOrder(raiXOrder);
     Rcpp::NumericVector adMisc(radMisc);
     Rcpp::NumericVector adFold(radFOld);
     Rcpp::NumericVector adWeight(radWeight);
-    const int cRows = Rcpp::as<int>(rcRows);
-    const int cCols = Rcpp::as<int>(rcCols);
+    const int cRows = adX.nrow();
+    const int cCols = adX.ncol();
     Rcpp::IntegerVector acVarClasses(racVarClasses);
     Rcpp::IntegerVector alMonotoneVar(ralMonotoneVar);
     const std::string family = Rcpp::as<std::string>(rszFamily);
@@ -254,8 +252,6 @@ SEXP gbm
 SEXP gbm_pred
 (
    SEXP radX,         // the data matrix
-   SEXP rcRows,       // number of rows
-   SEXP rcCols,       // number of columns
    SEXP rcNumClasses, // number of classes
    SEXP rcTrees,      // number of trees, may be a vector
    SEXP rdInitF,      // the initial value
@@ -268,12 +264,12 @@ SEXP gbm_pred
    BEGIN_RCPP
    int iTree = 0;
    int iObs = 0;
-   const int cRows = Rcpp::as<int>(rcRows);
+   const Rcpp::NumericMatrix adX(radX);
+   const int cRows = adX.nrow();
    const Rcpp::IntegerVector cTrees(rcTrees);
    const Rcpp::GenericVector trees(rTrees);
    const Rcpp::IntegerVector aiVarType(raiVarType);
    const Rcpp::GenericVector cSplits(rCSplits);
-   const Rcpp::NumericVector adX(radX);
    const int cNumClasses = Rcpp::as<int>(rcNumClasses);
    const bool fSingleTree = Rcpp::as<bool>(riSingleTree);
    const int cPredIterations = cTrees.size();
@@ -376,8 +372,6 @@ SEXP gbm_pred
 SEXP gbm_plot
 (
     SEXP radX,          // vector or matrix of points to make predictions
-    SEXP rcRows,        // number of rows in X
-    SEXP rcCols,        // number of columns in X
     SEXP rcNumClasses,  // number of classes
     SEXP raiWhichVar,   // length=cCols, index of which var cols of X are
     SEXP rcTrees,       // number of trees to use
@@ -391,10 +385,10 @@ SEXP gbm_plot
     int iTree = 0;
     int iObs = 0;
     int iClass = 0;
-    const int cRows = Rcpp::as<int>(rcRows);
+    const Rcpp::NumericMatrix adX(radX);
+    const int cRows = adX.nrow();
     const int cTrees = Rcpp::as<int>(rcTrees);
     const int cNumClasses = Rcpp::as<int>(rcNumClasses);
-    const Rcpp::NumericVector adX(radX);
     const Rcpp::IntegerVector aiWhichVar(raiWhichVar);
     const Rcpp::GenericVector trees(rTrees);
     const Rcpp::GenericVector cSplits(rCSplits);

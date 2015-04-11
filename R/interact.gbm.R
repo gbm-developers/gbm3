@@ -85,9 +85,7 @@ interact.gbm <- function(x, data, i.var = 1, n.trees = x$n.trees){
       FF[[j]]$n <- as.numeric(FF[[j]]$Z$n)
       FF[[j]]$Z$n <- NULL
       FF[[j]]$f <- .Call("gbm_plot",
-                         X = as.double(data.matrix(FF[[j]]$Z)),
-                         cRows = as.integer(nrow(FF[[j]]$Z)),
-                         cCols = as.integer(ncol(FF[[j]]$Z)),
+                         X = data.matrix(FF[[j]]$Z),
                          n.class = as.integer(x$num.classes),
                          i.var = as.integer(i.var[a[[j]]] - 1),
                          n.trees = as.integer(n.trees),
