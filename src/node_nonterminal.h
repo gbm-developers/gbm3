@@ -28,14 +28,14 @@ public:
     virtual ~CNodeNonterminal();
     virtual void Adjust(unsigned long cMinObsInNode);
 
-    virtual signed char WhichNode(CDataset *pData,
+    virtual signed char WhichNode(CDataset &data,
                                   unsigned long iObs) = 0;
     virtual signed char WhichNode(double *adX,
                                   unsigned long cRow,
                                   unsigned long cCol,
                                   unsigned long iRow) = 0;
     virtual void TransferTreeToRList(int &iNodeID,
-				     CDataset *pData,
+				     CDataset &data,
 				     int *aiSplitVar,
 				     double *adSplitPoint,
 				     int *aiLeftNode,
@@ -48,7 +48,7 @@ public:
 				     int cCatSplitsOld,
 				     double dShrinkage) = 0;
 
-    void Predict(CDataset *pData,
+    void Predict(CDataset &data,
 		 unsigned long iRow,
 		 double &dFadj);
     void Predict(double *adX,

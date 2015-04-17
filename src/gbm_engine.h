@@ -34,7 +34,7 @@ public:
 
     CGBM();
     ~CGBM();
-    void Initialize(CDataset *pData,
+    void Initialize(CDataset &pData,
 		    CDistribution *pDist,
 		    double dLambda,
 		    unsigned long nTrain,

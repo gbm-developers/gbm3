@@ -71,29 +71,8 @@ SEXP gbm
     const double dShrinkage = Rcpp::as<double>(rdShrinkage);
     const double dBagFraction = Rcpp::as<double>(rdBagFraction);
     const bool verbose = Rcpp::as<bool>(rfVerbose);
-    
-    Rcpp::NumericVector adY(radY);
-    Rcpp::NumericVector adOffset(radOffset);
-    Rcpp::NumericMatrix adX(radX);
-    Rcpp::IntegerVector aiXOrder(raiXOrder);
-    Rcpp::NumericVector adMisc(radMisc);
-    Rcpp::NumericVector adFold(radFOld);
-    Rcpp::NumericVector adWeight(radWeight);
-    const int cRows = adX.nrow();
-    const int cCols = adX.ncol();
-    Rcpp::IntegerVector acVarClasses(racVarClasses);
-    Rcpp::IntegerVector alMonotoneVar(ralMonotoneVar);
+    const Rcpp::NumericVector adFold(radFOld);
     const std::string family = Rcpp::as<std::string>(rszFamily);
-
-    /*
-      In the fullness of time this should move into the dataset
-      object, whatever that ends up as.
-    */
-
-    if ((adX.ncol() != acVarClasses.size()) ||
-	(adX.ncol() != alMonotoneVar.size())) {
-      throw GBM::invalid_argument("shape mismatch");
-    }
 
     int cNodes = 0;
 
@@ -102,19 +81,12 @@ SEXP gbm
     Rcpp::RNGScope scope;
 
     // set up the dataset
-    std::auto_ptr<CDataset> pData(new CDataset());
+    CDataset data(radY, radOffset, radX, raiXOrder,
+                  radWeight, radMisc, racVarClasses,
+                  ralMonotoneVar);
+    
     // initialize some things
-    std::auto_ptr<CDistribution> pDist(gbm_setup(adY.begin(),
-						 adOffset.begin(),
-						 adX.begin(),
-						 aiXOrder.begin(),
-						 adWeight.begin(),
-						 adMisc.begin(),
-						 cRows,
-						 cCols,
-						 acVarClasses.begin(),
-						 alMonotoneVar.begin(),
-						 family,
+    std::auto_ptr<CDistribution> pDist(gbm_setup(data, family,
 						 cTrees,
 						 cDepth,
 						 cMinObsInNode,
@@ -123,13 +95,12 @@ SEXP gbm
 						 dBagFraction,
 						 cTrain,
 						 cFeatures,
-						 pData.get(),
 						 cGroups));
     
     std::auto_ptr<CGBM> pGBM(new CGBM());
     
     // initialize the GBM
-    pGBM->Initialize(pData.get(),
+    pGBM->Initialize(data,
 		     pDist.get(),
 		     dShrinkage,
 		     cTrain,
@@ -141,21 +112,21 @@ SEXP gbm
 		     cGroups);
 
     double dInitF;
-    Rcpp::NumericVector adF(pData->cRows * cNumClasses);
+    Rcpp::NumericVector adF(data.nrow() * cNumClasses);
 
-    pDist->Initialize(pData->adY,
-		      pData->adMisc,
-		      pData->adOffset,
-		      pData->adWeight,
-		      pData->cRows);
+    pDist->Initialize(data.y_ptr(),
+		      data.misc_ptr(false),
+		      data.offset_ptr(false),
+		      data.weight_ptr(),
+		      data.nrow());
     
     if(ISNA(adFold[0])) // check for old predictions
     {
       // set the initial value of F as a constant
-      pDist->InitF(pData->adY,
-		   pData->adMisc,
-		   pData->adOffset,
-		   pData->adWeight,
+      pDist->InitF(data.y_ptr(),
+                   data.misc_ptr(false),
+                   data.offset_ptr(false),
+                   data.weight_ptr(),
 		   dInitF,
 		   cTrain);
 
@@ -167,9 +138,7 @@ SEXP gbm
 	  throw GBM::invalid_argument("old predictions are the wrong shape");
 	}
 
-	std::copy(adFold.begin(),
-		  adFold.begin() + cNumClasses * pData->cRows,
-		  adF.begin());
+	std::copy(adFold.begin(), adFold.end(), adF.begin());
       }
 
     Rcpp::NumericVector adTrainError(cTrees, 0.0);
@@ -186,8 +155,8 @@ SEXP gbm
 	Rcpp::checkUserInterrupt();
         // Update the parameters
         pDist->UpdateParams(adF.begin(),
-			    pData->adOffset,
-			    pData->adWeight,
+			    data.offset_ptr(false),
+			    data.weight_ptr(),
 			    cTrain);
 
         for (iK = 0; iK < cNumClasses; iK++)

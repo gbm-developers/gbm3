@@ -53,7 +53,7 @@ void CCARTTree::Reset() {
 void CCARTTree::grow
 (
  double *adZ,
- CDataset *pData,
+ CDataset &data,
  double *adW,
  double *adF,
  unsigned long nTrain,
@@ -72,7 +72,7 @@ void CCARTTree::grow
   Rprintf("Growing tree\n");
 #endif
   
-  if((adZ==NULL) || (pData==NULL) || (adW==NULL) || (adF==NULL) ||
+  if((adZ==NULL) || (adW==NULL) || (adF==NULL) ||
      (cMaxDepth < 1))
     {
       throw GBM::invalid_argument();
@@ -122,7 +122,7 @@ void CCARTTree::grow
 #ifdef NOISY_DEBUG
       Rprintf("%d ",cDepth);
 #endif
-      GetBestSplit(pData,
+      GetBestSplit(data,
 		   nTrain,
 		   nFeatures,
 		   aNodeSearch,
@@ -156,7 +156,7 @@ void CCARTTree::grow
 	  iWhichNode = aiNodeAssign[iObs];
 	  if(iWhichNode==iBestNode)
             {
-	      schWhichNode = pNewSplitNode->WhichNode(pData,iObs);
+	      schWhichNode = pNewSplitNode->WhichNode(data,iObs);
 	      if(schWhichNode == 1) // goes right
                 {
 		  aiNodeAssign[iObs] = cTerminalNodes-2;
@@ -199,15 +199,9 @@ void CCARTTree::grow
 }
 
 
-namespace {
-  std::ptrdiff_t shuffler(std::ptrdiff_t n) {
-    return n * unif_rand();
-  };
-}
-
 void CCARTTree::GetBestSplit
 (
- CDataset *pData,
+ CDataset &data,
  unsigned long nTrain,
  unsigned long nFeatures,
  CNodeSearch *aNodeSearch,
@@ -221,59 +215,37 @@ void CCARTTree::GetBestSplit
  )
 {
   
-  int iVar = 0;
   unsigned long iNode = 0;
   unsigned long iOrderObs = 0;
   unsigned long iWhichObs = 0;
-  unsigned long cVarClasses = 0;
-  double dX = 0.0;
   
-  // Define a template class vector of int
-  int iFill = 0;
+  const CDataset::index_vector colNumbers(data.random_order());
+  const CDataset::index_vector::const_iterator final = colNumbers.begin() + nFeatures;
   
-  typedef vector<int> IntVector ;
-  
-  //Define an iterator for template class vector of strings
-  typedef IntVector::iterator IntVectorIt ;
-  
-  IntVector colNumbers(pData->cCols) ;
-  
-  IntVectorIt start, end, it ;
-
-  // Initialize vector colNumbers
-  // I am sure there is a more efficent way to make an intVector of increasing numbers
-  for(iFill=0; iFill < pData->cCols; iFill++)
+  for(CDataset::index_vector::const_iterator it=colNumbers.begin();
+      it != final;
+      it++)
     {
-      colNumbers[iFill] = iFill ;
-    }
-  start = colNumbers.begin();
-  end = colNumbers.end();
-  
-  // shuffle the elements in a random order
-  std::random_shuffle(colNumbers.begin(), colNumbers.end(), shuffler);
-  
-  for(it=start; it != (end - pData->cCols + nFeatures ); it++)
-    {
-      iVar = *it;
-      cVarClasses = pData->acVarClasses[iVar];
+      const int iVar = *it;
+      const int cVarClasses = data.varclass_ptr()[iVar];
       
       for(iNode=0; iNode < cTerminalNodes; iNode++)
         {
-	  aNodeSearch[iNode].ResetForNewVar(iVar,cVarClasses);
+	  aNodeSearch[iNode].ResetForNewVar(iVar, cVarClasses);
         }
 
       // distribute the observations in order to the correct node search
       for(iOrderObs=0; iOrderObs < nTrain; iOrderObs++)
         {
-	  iWhichObs = pData->aiXOrder[iVar*nTrain + iOrderObs];
+	  iWhichObs = data.order_ptr()[iVar*nTrain + iOrderObs];
 	  if(afInBag[iWhichObs])
             {
-	      iNode = aiNodeAssign[iWhichObs];
-	      dX = pData->adX[iVar*(pData->cRows) + iWhichObs];
+	      const int iNode = aiNodeAssign[iWhichObs];
+	      const double dX = data.x_value(iWhichObs, iVar);
 	      aNodeSearch[iNode].IncorporateObs(dX,
 						adZ[iWhichObs],
 						adW[iWhichObs],
-						pData->alMonotoneVar[iVar]);
+						data.monotone_ptr()[iVar]);
             }
         }
         for(iNode=0; iNode<cTerminalNodes; iNode++)
@@ -313,16 +285,16 @@ void CCARTTree::GetNodeCount
 
 void CCARTTree::PredictValid
 (
- CDataset *pData,
+ CDataset &data,
  unsigned long nValid,
  double *adFadj
  )
 {
   int i=0;
   
-  for(i=pData->cRows - nValid; i<pData->cRows; i++)
+  for(i=data.nrow() - nValid; i<data.nrow(); i++)
     {
-      pRootNode->Predict(pData, i, adFadj[i]);
+      pRootNode->Predict(data, i, adFadj[i]);
       adFadj[i] *= dShrink;
     }
 }
@@ -400,7 +372,7 @@ void CCARTTree::GetVarRelativeInfluence
 
 void CCARTTree::TransferTreeToRList
 (
-    CDataset *pData,
+    CDataset &data,
     int *aiSplitVar,
     double *adSplitPoint,
     int *aiLeftNode,
@@ -420,7 +392,7 @@ void CCARTTree::TransferTreeToRList
     if(pRootNode)
     {
         pRootNode->TransferTreeToRList(iNodeID,
-				       pData,
+				       data,
 				       aiSplitVar,
 				       adSplitPoint,
 				       aiLeftNode,

@@ -29,7 +29,7 @@ public:
 
     void PrintSubtree(unsigned long cIndent);
     void TransferTreeToRList(int &iNodeID,
-			     CDataset *pData,
+			     CDataset &data,
 			     int *aiSplitVar,
 			     double *adSplitPoint,
 			     int *aiLeftNode,
@@ -42,7 +42,7 @@ public:
 			     int cCatSplitsOld,
 			     double dShrinkage);
 
-    signed char WhichNode(CDataset *pData,
+    signed char WhichNode(CDataset &data,
                           unsigned long iObs);
     signed char WhichNode(double *adX,
                           unsigned long cRow,

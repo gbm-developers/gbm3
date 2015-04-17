@@ -16,8 +16,8 @@ CGBM::CGBM()
     cFeatures = 0;
     cValid = 0;
 
-    pData = NULL;
     pDist = NULL;
+    pData = NULL;
 }
 
 
@@ -28,7 +28,7 @@ CGBM::~CGBM()
 
 void CGBM::Initialize
 (
-    CDataset *pData,
+    CDataset& data,
     CDistribution *pDist,
     double dLambda,
     unsigned long cTrain,
@@ -42,11 +42,11 @@ void CGBM::Initialize
 {
   unsigned long i=0;
   
-  if(!(pData && pDist)) {
+  if(!pDist) {
     throw GBM::invalid_argument();
   }
   
-  this->pData = pData;
+  this->pData = &data;
   this->pDist = pDist;
   this->dLambda = dLambda;
   this->cTrain = cTrain;
@@ -59,10 +59,20 @@ void CGBM::Initialize
   // allocate the tree structure
   ptreeTemp.reset(new CCARTTree);
   
-  cValid = pData->cRows - cTrain;
+  cValid = data.nrow() - cTrain;
+
+  if ((cTrain <= 0) || (cValid < 0)) {
+    throw GBM::invalid_argument("your training instances don't make sense");
+  }
+  
   cTotalInBag = (unsigned long)(dBagFraction*cTrain);
-  adZ.assign((pData->cRows) * cNumClasses, 0);
-  adFadj.assign((pData->cRows) * cNumClasses, 0);
+
+  if (cTotalInBag <= 0) {
+    throw GBM::invalid_argument("you have an empty bag!");
+  }
+  
+  adZ.assign(data.nrow() * cNumClasses, 0);
+  adFadj.assign(data.nrow() * cNumClasses, 0);
   
   pNodeFactory.reset(new CNodeFactory());
   pNodeFactory->Initialize(cDepth);
@@ -101,7 +111,6 @@ void CGBM::iterate
     unsigned long cBagged = 0;
     int cIdxOff = cClassIdx * (cTrain + cValid);
 
-    //   for(i=0; i < cTrain + cIdxOff; i++){ adF[i] = 0;}
     if(!fInitialized)
       {
 	throw GBM::failure();
@@ -153,31 +162,31 @@ void CGBM::iterate
             }
             for(i=0; i<cTrain; i++)
             {
-                const double dGroup = pData->adMisc[i];
-                if (dGroup != dLastGroup)
+              const double dGroup = pData->misc_ptr(true)[i];
+              if (dGroup != dLastGroup)
                 {
-                    if (cBaggedGroups >= cTotalGroupsInBag)
+                  if (cBaggedGroups >= cTotalGroupsInBag)
                     {
-                        break;
+                      break;
                     }
-
-                    // Group changed, make a new decision
-                    chosen = (unif_rand()*(cGroups - cSeenGroups) < cTotalGroupsInBag - cBaggedGroups);
-                    if (chosen)
+                  
+                  // Group changed, make a new decision
+                  chosen = (unif_rand()*(cGroups - cSeenGroups) < cTotalGroupsInBag - cBaggedGroups);
+                  if (chosen)
                     {
-                        cBaggedGroups++;
+                      cBaggedGroups++;
                     }
-                    dLastGroup = dGroup;
-                    cSeenGroups++;
+                  dLastGroup = dGroup;
+                  cSeenGroups++;
                 }
-                if (chosen)
+              if (chosen)
                 {
-                    afInBag[i] = true;
-                    cBagged++;
+                  afInBag[i] = true;
+                  cBagged++;
                 }
-                else
+              else
                 {
-                    afInBag[i] = false;
+                  afInBag[i] = false;
                 }
             }
             // the remainder is not in the bag
@@ -189,12 +198,12 @@ void CGBM::iterate
     Rprintf("Compute working response\n");
 #endif
 
-    pDist->ComputeWorkingResponse(pData->adY,
-				  pData->adMisc,
-				  pData->adOffset,
+    pDist->ComputeWorkingResponse(pData->y_ptr(),
+				  pData->misc_ptr(false),
+				  pData->offset_ptr(false),
 				  adF,
 				  &adZ[0],
-				  pData->adWeight,
+				  pData->weight_ptr(),
 				  afInBag,
 				  cTrain,
 				  cIdxOff);
@@ -207,7 +216,7 @@ void CGBM::iterate
     Rprintf("grow tree\n");
 #endif
 
-    ptreeTemp->grow(&(adZ[cIdxOff]), pData, &(pData->adWeight[cIdxOff]),
+    ptreeTemp->grow(&(adZ[cIdxOff]), *pData, pData->weight_ptr() + cIdxOff,
 		    &(adFadj[cIdxOff]), cTrain, cFeatures, cTotalInBag, 
 		    dLambda, cDepth,
 		    cMinObsInNode, afInBag, aiNodeAssign, &aNodeSearch[0],
@@ -225,10 +234,10 @@ void CGBM::iterate
     Rprintf("fit best constant\n");
 #endif
 
-    pDist->FitBestConstant(pData->adY,
-			   pData->adMisc,
-			   pData->adOffset,
-			   pData->adWeight,
+    pDist->FitBestConstant(pData->y_ptr(),
+			   pData->misc_ptr(false),
+			   pData->offset_ptr(false),
+			   pData->weight_ptr(),
 			   &adF[0],
 			   &adZ[0],
 			   aiNodeAssign,
@@ -249,10 +258,10 @@ void CGBM::iterate
 
     if (cClassIdx == (cNumClasses - 1))
     {
-      dOOBagImprove = pDist->BagImprovement(pData->adY,
-					    pData->adMisc,
-					    pData->adOffset,
-					    pData->adWeight,
+      dOOBagImprove = pDist->BagImprovement(pData->y_ptr(),
+					    pData->misc_ptr(false),
+					    pData->offset_ptr(false),
+					    pData->weight_ptr(),
 					    &adF[0],
 					    &adFadj[0],
 					    afInBag,
@@ -267,43 +276,30 @@ void CGBM::iterate
         adF[iIdx] += dLambda * adFadj[iIdx];
       }
 
-    dTrainError = pDist->Deviance(pData->adY,
-                                  pData->adMisc,
-                                  pData->adOffset,
-                                  pData->adWeight,
+    dTrainError = pDist->Deviance(pData->y_ptr(),
+                                  pData->misc_ptr(false),
+                                  pData->offset_ptr(false),
+                                  pData->weight_ptr(),
                                   adF,
                                   cTrain,
                                   cIdxOff);
 
     // update the validation predictions
-    ptreeTemp->PredictValid(pData,cValid,&(adFadj[cIdxOff]));
+    ptreeTemp->PredictValid(*pData,cValid,&(adFadj[cIdxOff]));
 
     for(i=cTrain; i < cTrain+cValid; i++)
       {
         adF[i + cIdxOff] += adFadj[i + cIdxOff];
       }
     
-    if(pData->fHasOffset)
-      {
-        dValidError =
-	  pDist->Deviance(pData->adY,
-			  pData->adMisc,
-			  pData->adOffset,
-			  pData->adWeight,
-			  adF,
-			  cValid,
-			  cIdxOff + cTrain);
-      }
-    else
-      {
-        dValidError = pDist->Deviance(pData->adY,
-                                      pData->adMisc,
-                                      NULL,
-                                      pData->adWeight,
-                                      adF,
-                                      cValid,
-                                      cIdxOff + cTrain);
-      }
+    dValidError =
+      pDist->Deviance(pData->y_ptr(),
+                      pData->misc_ptr(false),
+                      pData->offset_ptr(false),
+                      pData->weight_ptr(),
+                      adF,
+                      cValid,
+                      cIdxOff + cTrain);
 }
 
 
@@ -321,7 +317,7 @@ void CGBM::TransferTreeToRList
  int cCatSplitsOld
  )
 {
-  ptreeTemp->TransferTreeToRList(pData,
+  ptreeTemp->TransferTreeToRList(*pData,
 				 aiSplitVar,
 				 adSplitPoint,
 				 aiLeftNode,

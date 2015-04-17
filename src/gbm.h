@@ -38,16 +38,7 @@
 
 std::auto_ptr<CDistribution> gbm_setup
 (
-    double *adY,
-    double *adOffset,
-    double *adX,
-    int *aiXOrder,
-    double *adWeight,
-    double *adMisc,
-    int cRows,
-    int cCols,
-    int *acVarClasses,
-    int *alMonotoneVar,
+    CDataset& data,
     const std::string& family,
     int cTrees,
     int cLeaves,
@@ -57,7 +48,6 @@ std::auto_ptr<CDistribution> gbm_setup
     double dBagFraction,
     int cTrain,
     int cFeatures,
-    CDataset *pData,
     int& cGroups
 );
 
