@@ -48,23 +48,23 @@ void CNodeNonterminal::Adjust
 
 void CNodeNonterminal::Predict
 (
-    CDataset *pData,
+    CDataset &data,
     unsigned long iRow,
     double &dFadj
 )
 {
-  signed char schWhichNode = WhichNode(pData,iRow);
+  signed char schWhichNode = WhichNode(data,iRow);
   if(schWhichNode == -1)
     {
-      pLeftNode->Predict(pData, iRow, dFadj);
+      pLeftNode->Predict(data, iRow, dFadj);
     }
   else if(schWhichNode == 1)
     {
-      pRightNode->Predict(pData, iRow, dFadj);
+      pRightNode->Predict(data, iRow, dFadj);
     }
   else
     {
-      pMissingNode->Predict(pData, iRow, dFadj);
+      pMissingNode->Predict(data, iRow, dFadj);
     }
 }
 

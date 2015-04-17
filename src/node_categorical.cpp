@@ -55,12 +55,12 @@ void CNodeCategorical::PrintSubtree
 
 signed char CNodeCategorical::WhichNode
 (
-    CDataset *pData,
+    CDataset &data,
     unsigned long iObs
 )
 {
     signed char ReturnValue = 0;
-    double dX = pData->adX[iSplitVar*(pData->cRows) + iObs];
+    double dX = data.x_value(iObs, iSplitVar);
 
     if(!ISNA(dX))
     {
@@ -122,7 +122,7 @@ void CNodeCategorical::RecycleSelf(CNodeFactory *pNodeFactory) {
 void CNodeCategorical::TransferTreeToRList
 (
  int &iNodeID,
- CDataset *pData,
+ CDataset &data,
  int *aiSplitVar,
  double *adSplitPoint,
  int *aiLeftNode,
@@ -140,7 +140,7 @@ void CNodeCategorical::TransferTreeToRList
   int iThisNodeID = iNodeID;
   unsigned long cCatSplits = vecSplitCodes.size();
   unsigned long i = 0;
-  int cLevels = pData->acVarClasses[iSplitVar];
+  int cLevels = data.varclass_ptr()[iSplitVar];
   const std::size_t cLeftCategory = aiLeftCategory.size();
   
   aiSplitVar[iThisNodeID] = iSplitVar;
@@ -160,7 +160,7 @@ void CNodeCategorical::TransferTreeToRList
   iNodeID++;
   aiLeftNode[iThisNodeID] = iNodeID;
   pLeftNode->TransferTreeToRList(iNodeID,
-				 pData,
+				 data,
 				 aiSplitVar,
 				 adSplitPoint,
 				 aiLeftNode,
@@ -174,7 +174,7 @@ void CNodeCategorical::TransferTreeToRList
 				 dShrinkage);
   aiRightNode[iThisNodeID] = iNodeID;
   pRightNode->TransferTreeToRList(iNodeID,
-				  pData,
+				  data,
 				  aiSplitVar,
 				  adSplitPoint,
 				  aiLeftNode,
@@ -189,7 +189,7 @@ void CNodeCategorical::TransferTreeToRList
   
   aiMissingNode[iThisNodeID] = iNodeID;
   pMissingNode->TransferTreeToRList(iNodeID,
-				    pData,
+				    data,
 				    aiSplitVar,
 				    adSplitPoint,
 				    aiLeftNode,

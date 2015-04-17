@@ -33,41 +33,28 @@ int num_groups(const double* adMisc, int cTrain)
 
 std::auto_ptr<CDistribution> gbm_setup
 (
-    double *adY,
-    double *adOffset,
-    double *adX,
-    int *aiXOrder,
-    double *adWeight,
-    double *adMisc,
-    int cRows,
-    int cCols,
-    int *acVarClasses,
-    int *alMonotoneVar,
-    const std::string& family,
-    int cTrees,
-    int cDepth,
-    int cMinObsInNode,
-    int cNumClasses,
-    double dShrinkage,
-    double dBagFraction,
-    int cTrain,
-    int cFeatures,
-    CDataset *pData,
-    int& cGroups
-)
+ CDataset& data,
+ const std::string& family,
+ int cTrees,
+ int cDepth,
+ int cMinObsInNode,
+ int cNumClasses,
+ double dShrinkage,
+ double dBagFraction,
+ int cTrain,
+ int cFeatures,
+ int& cGroups
+ )
 {
   std::auto_ptr<CDistribution> pDist;
   cGroups = -1;
-  
-  pData->SetData(adX,aiXOrder,adY,adOffset,adWeight,adMisc,
-		 cRows,cCols,acVarClasses,alMonotoneVar);
   
     // set the distribution
   if (family == "gamma") {
     pDist.reset(new CGamma());
   } 
   else if (family == "tweedie") {
-    pDist.reset(new CTweedie(adMisc[0]));
+    pDist.reset(new CTweedie(data.misc_ptr()[0]));
   }
   else if (family == "bernoulli") 
     {
@@ -95,15 +82,15 @@ std::auto_ptr<CDistribution> gbm_setup
     }
   else if (family == "quantile")
     {
-      pDist.reset(new CQuantile(adMisc[0]));
+      pDist.reset(new CQuantile(data.misc_ptr()[0]));
     }
   else if (family == "tdist")
     {
-      pDist.reset(new CTDist(adMisc[0]));
+      pDist.reset(new CTDist(data.misc_ptr()[0]));
     }
   else if (family == "multinomial")
     {
-      pDist.reset(new CMultinomial(cNumClasses, cRows));
+      pDist.reset(new CMultinomial(cNumClasses, data.nrow()));
     }
   else if (family == "huberized")
     {
@@ -132,7 +119,7 @@ std::auto_ptr<CDistribution> gbm_setup
 
   if (0==family.compare(0, 8, "pairwise")) 
     {
-      cGroups = num_groups(adMisc, cTrain);
+      cGroups = num_groups(data.misc_ptr(), cTrain);
     }
   
   return pDist;

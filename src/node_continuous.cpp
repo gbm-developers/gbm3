@@ -53,12 +53,12 @@ void CNodeContinuous::PrintSubtree
 
 signed char CNodeContinuous::WhichNode
 (
-    CDataset *pData,
+    CDataset &data,
     unsigned long iObs
 )
 {
     signed char ReturnValue = 0;
-    double dX = pData->adX[iSplitVar*(pData->cRows) + iObs];
+    double dX = data.x_value(iObs, iSplitVar);
 
     if(!ISNA(dX))
     {
@@ -120,7 +120,7 @@ void CNodeContinuous::RecycleSelf
 void CNodeContinuous::TransferTreeToRList
 (
     int &iNodeID,
-    CDataset *pData,
+    CDataset &data,
     int *aiSplitVar,
     double *adSplitPoint,
     int *aiLeftNode,
@@ -146,7 +146,7 @@ void CNodeContinuous::TransferTreeToRList
   iNodeID++;
   aiLeftNode[iThisNodeID] = iNodeID;
   pLeftNode->TransferTreeToRList(iNodeID,
-				 pData,
+				 data,
 				 aiSplitVar,
 				 adSplitPoint,
 				 aiLeftNode,
@@ -161,7 +161,7 @@ void CNodeContinuous::TransferTreeToRList
 
   aiRightNode[iThisNodeID] = iNodeID;
   pRightNode->TransferTreeToRList(iNodeID,
-				  pData,
+				  data,
 				  aiSplitVar,
 				  adSplitPoint,
 				  aiLeftNode,
@@ -176,7 +176,7 @@ void CNodeContinuous::TransferTreeToRList
 
   aiMissingNode[iThisNodeID] = iNodeID;
   pMissingNode->TransferTreeToRList(iNodeID,
-				    pData,
+				    data,
 				    aiSplitVar,
 				    adSplitPoint,
 				    aiLeftNode,
