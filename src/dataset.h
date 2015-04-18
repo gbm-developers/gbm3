@@ -144,12 +144,8 @@ public:
     return adX.begin();
   }
 
-  int* varclass_ptr() {
-    return acVarClasses.begin();
-  }
-
-  const int* varclass_ptr() const {
-    return acVarClasses.begin();
+  int varclass(int ind) const {
+    return acVarClasses[ind];
   }
 
   int* monotone_ptr() {

@@ -140,7 +140,7 @@ void CNodeCategorical::TransferTreeToRList
   int iThisNodeID = iNodeID;
   unsigned long cCatSplits = vecSplitCodes.size();
   unsigned long i = 0;
-  int cLevels = data.varclass_ptr()[iSplitVar];
+  int cLevels = data.varclass(iSplitVar);
   const std::size_t cLeftCategory = aiLeftCategory.size();
   
   aiSplitVar[iThisNodeID] = iSplitVar;

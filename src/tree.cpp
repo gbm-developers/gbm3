@@ -227,7 +227,7 @@ void CCARTTree::GetBestSplit
       it++)
     {
       const int iVar = *it;
-      const int cVarClasses = data.varclass_ptr()[iVar];
+      const int cVarClasses = data.varclass(iVar);
       
       for(iNode=0; iNode < cTerminalNodes; iNode++)
         {
