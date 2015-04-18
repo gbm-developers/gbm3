@@ -148,12 +148,8 @@ public:
     return acVarClasses[ind];
   }
 
-  int* monotone_ptr() {
-    return alMonotoneVar.begin();
-  }
-
-  const int* monotone_ptr() const {
-    return alMonotoneVar.begin();
+  int monotone(int ind) const {
+    return alMonotoneVar[ind];
   }
   
   int* order_ptr() {

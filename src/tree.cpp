@@ -245,7 +245,7 @@ void CCARTTree::GetBestSplit
 	      aNodeSearch[iNode].IncorporateObs(dX,
 						adZ[iWhichObs],
 						adW[iWhichObs],
-						data.monotone_ptr()[iVar]);
+						data.monotone(iVar));
             }
         }
         for(iNode=0; iNode<cTerminalNodes; iNode++)
