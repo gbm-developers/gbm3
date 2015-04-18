@@ -7,7 +7,6 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-#include <assert.h>
 
 //#define NOISY_DEBUG
 #ifdef NOISY_DEBUG
@@ -310,7 +309,7 @@ double CNDCG::MaxMeasure(unsigned int iGroup, const double* const adY, unsigned 
             if (vecdMaxDCG[iGroup] == 0)
             {
                 Rprintf("max score is 0: iGroup = %d, maxScore = %f, sz = %d\n", iGroup,  vecdMaxDCG[iGroup], ranker.GetNumItems());
-                assert(false);
+                throw GBM::failure();
             }
 #endif
         }
@@ -613,10 +612,11 @@ void CPairwise::ComputeWorkingResponse
 	
 #ifdef NOISY_DEBUG
 	// Check sorting
-	for (unsigned int i = iItemStart; i < iItemEnd-1; i++)
-	  {
-	    assert(adY[i] >= adY[i+1]);
+	for (unsigned int i = iItemStart; i < iItemEnd-1; i++) {
+	  if (adY[i] < adY[i+1]) {
+	    throw GBM::failure("sorting failed in pairwise?");
 	  }
+	}  
 #endif
 
 	if (afInBag[iItemStart])
@@ -742,13 +742,17 @@ void CPairwise::ComputeLambdas(int iGroup, unsigned int cNumItems, const double*
                 {
                     Rprintf("%d\t%d\t%f\t%f\n", k, ranker.GetRank(k), adY[k], adF[k]);
                 }
-                assert(false);
+		throw GBM::failure("the impossible happened");
             }
-            assert(fabs(dMeasureBefore - dMeasureAfter) - fabs(dDelta) < 1e-5);
+	    if (fabs(dMeasureBefore - dMeasureAfter) - fabs(dDelta) >= 1e-5) {
+	      throw GBM::failure("the impossible happened");
+	    }
             ranker.SetRank(j, cRankj);
             ranker.SetRank(i, cRanki);
-
-            assert(isfinite(dSwapCost));
+	    
+	    if (!isfinite(dSwapCost)) {
+	      throw GBM::failure("infinite swap cost");
+	    }
 #endif
 
             if (dSwapCost > 0.0)
@@ -756,13 +760,17 @@ void CPairwise::ComputeLambdas(int iGroup, unsigned int cNumItems, const double*
 #ifdef NOISY_DEBUG
                 cPairs++;
                 const double dRhoij    = 1.0 / (1.0 + std::exp(adF[i]- adF[j])) ;
-                assert(isfinite(dRhoij));
+                if (!isfinite(dRhoij)) {
+		  throw GBM::failure("unanticipated infinity");
+		};
 
                 const double dLambdaij = dSwapCost * dRhoij;
                 adZ[i] += dLambdaij;
                 adZ[j] -= dLambdaij;
                 const double dDerivij  = dLambdaij * (1.0 - dRhoij);
-                assert(dDerivij >= 0);
+		if (dDerivij < 0) {
+		  throw GBM::failure("negative derivative!");
+		}
                 adDeriv[i] += dDerivij;
                 adDeriv[j] += dDerivij;
 #endif
@@ -962,9 +970,11 @@ void CPairwise::FitBestConstant
       if (afInBag[iObs])
         {
 #ifdef NOISY_DEBUG
-            assert(isfinite(adW[iObs]));
-            assert(isfinite(adZ[iObs]));
-            assert(isfinite(vecdHessian[iObs]));
+          if (!(isfinite(adW[iObs]) &&
+		isfinite(adZ[iObs]) &&
+		isfinite(vecdHessian[iObs]))) {
+	    throw GBM::failure("unanticipated infinities");
+	  };
 #endif
 
             vecdNum[aiNodeAssign[iObs]]   += adW[iObs] * adZ[iObs];

@@ -4,7 +4,6 @@
 //  File:       node_search.cpp
 //
 //------------------------------------------------------------------------------
-#include <cassert>
 #include "node_search.h"
 
 CNodeSearch::CNodeSearch()
@@ -184,7 +183,9 @@ void CNodeSearch::ResetForNewVar
 {
   if(fIsSplit) return;
 
-  assert(cCurrentVarClasses <= adGroupSumZ.size());
+  if (cCurrentVarClasses > adGroupSumZ.size()) {
+    throw GBM::failure("too many variable classes");
+  }
 
   std::fill(adGroupSumZ.begin(), adGroupSumZ.begin() + cCurrentVarClasses, 0);
   std::fill(adGroupW.begin(), adGroupW.begin() + cCurrentVarClasses, 0);
