@@ -47,29 +47,29 @@ public:
 // It gives derived classes a chance for custom preparations, e.g., to allocate
 // memory or to pre-compute values that do not change between iterations.
 
-    virtual void Initialize(double *adY,
-			    double *adMisc,
-			    double *adOffset,
-			    double *adWeight,
+    virtual void Initialize(const double *adY,
+			    const double *adMisc,
+			    const double *adOffset,
+			    const double *adWeight,
 			    unsigned long cLength) {  }
 
 // UpdateParams() is called at the start of each iteration.
 // CMultinomial uses it to normalize predictions across multiple classes.
 
-    virtual void UpdateParams(double *adF,
-			      double *adOffset,
-			      double *adWeight,
+    virtual void UpdateParams(const double *adF,
+			      const double *adOffset,
+			      const double *adWeight,
 			      unsigned long cLength) { };
 
 // ComputeWorkingResonse() calculates the negative gradients of the
 // loss function, and stores them in adZ.
     
-    virtual void ComputeWorkingResponse(double *adY,
-					double *adMisc,
-					double *adOffset,
-					double *adF,
+    virtual void ComputeWorkingResponse(const double *adY,
+					const double *adMisc,
+					const double *adOffset,
+					const double *adF,
 					double *adZ,
-					double *adWeight,
+					const double *adWeight,
 					const bag& afInBag,
 					unsigned long cLength,
 					int cIdxOff) = 0;
@@ -77,21 +77,21 @@ public:
 // InitF() computes the best constant prediction for all instances, and
 // stores it in dInitF.
 
-    virtual void InitF(double *adY,
-		       double *adMisc,
-		       double *adOffset,
-		       double *adWeight,
+    virtual void InitF(const double *adY,
+		       const double *adMisc,
+		       const double *adOffset,
+		       const double *adWeight,
 		       double &dInitF,
 		       unsigned long cLength) = 0;
 
 // Deviance() returns the value of the loss function, based on the
 // current predictions (adF).
 
-    virtual double Deviance(double *adY,
-                            double *adMisc,
-                            double *adOffset,
-                            double *adWeight,
-                            double *adF,
+    virtual double Deviance(const double *adY,
+                            const double *adMisc,
+                            const double *adOffset,
+                            const double *adWeight,
+                            const double *adF,
                             unsigned long cLength,
 	                    int cIdxOff) = 0;
 
@@ -104,11 +104,11 @@ public:
 // * aiNodeAssign is a vector of size cLength, that maps each instance to an index
 //   into vecpTermNodes for the corresponding terminal node.
 
-    virtual void FitBestConstant(double *adY,
-				      double *adMisc,
-				      double *adOffset,
-				      double *adWeight,
-				      double *adF,
+    virtual void FitBestConstant(const double *adY,
+				      const double *adMisc,
+				      const double *adOffset,
+				      const double *adWeight,
+				      const double *adF,
 				      double *adZ,
 				      const std::vector<unsigned long>& aiNodeAssign,
 				      unsigned long cLength,
@@ -116,7 +116,7 @@ public:
 				      unsigned long cTermNodes,
 				      unsigned long cMinObsInNode,
 				      const bag& afInBag,
-				      double *adFadj,
+				      const double *adFadj,
 				      int cIdxOff) = 0;
 
 // BagImprovement() returns the incremental difference in the loss
@@ -124,12 +124,12 @@ public:
 // all instances that were not part of the training set for the current tree (i.e.,
 // afInBag set to false).
 
-    virtual double BagImprovement(double *adY,
-                                  double *adMisc,
-                                  double *adOffset,
-                                  double *adWeight,
-                                  double *adF,
-                                  double *adFadj,
+    virtual double BagImprovement(const double *adY,
+                                  const double *adMisc,
+                                  const double *adOffset,
+                                  const double *adWeight,
+                                  const double *adF,
+                                  const double *adFadj,
                                   const bag& afInBag,
                                   double dStepSize,
                                   unsigned long cLength) = 0;

@@ -37,8 +37,8 @@ public:
     void Initialize(CNodeFactory *pNodeFactory);
     void grow(double *adZ,
 	      CDataset &pData,
-	      double *adAlgW,
-	      double *adF,
+	      const double *adAlgW,
+	      const double *adF,
 	      unsigned long nTrain,
 	      unsigned long nFeatures,
 	      unsigned long nBagged,
@@ -100,7 +100,7 @@ private:
 		      std::vector<unsigned long>& aiNodeAssign,
 		      const bag& afInBag,
 		      double *adZ,
-		      double *adW,
+		      const double *adW,
 		      unsigned long &iBestNode,
 		      double &dBestNodeImprovement);
     

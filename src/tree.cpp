@@ -54,8 +54,8 @@ void CCARTTree::grow
 (
  double *adZ,
  CDataset &data,
- double *adW,
- double *adF,
+ const double *adW,
+ const double *adF,
  unsigned long nTrain,
  unsigned long nFeatures,
  unsigned long nBagged,
@@ -209,7 +209,7 @@ void CCARTTree::GetBestSplit
  std::vector<unsigned long>& aiNodeAssign,
  const bag& afInBag,
  double *adZ,
- double *adW,
+ const double *adW,
  unsigned long &iBestNode,
  double &dBestNodeImprovement
  )

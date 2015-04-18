@@ -13,12 +13,12 @@ CAdaBoost::~CAdaBoost()
 
 void CAdaBoost::ComputeWorkingResponse
 (
- double *adY,
- double *adMisc,
- double *adOffset,
- double *adF,
+ const double *adY,
+ const double *adMisc,
+ const double *adOffset,
+ const double *adF,
  double *adZ,
- double *adWeight,
+ const double *adWeight,
  const bag& afInBag,
  unsigned long nTrain,
  int cIdxOff
@@ -46,10 +46,10 @@ void CAdaBoost::ComputeWorkingResponse
 
 void CAdaBoost::InitF
 (
- double *adY,
- double *adMisc,
- double *adOffset,
- double *adWeight,
+ const double *adY,
+ const double *adMisc,
+ const double *adOffset,
+ const double *adWeight,
  double &dInitF,
  unsigned long cLength
 )
@@ -95,11 +95,11 @@ void CAdaBoost::InitF
 
 double CAdaBoost::Deviance
 (
-    double *adY,
-    double *adMisc,
-    double *adOffset,
-    double *adWeight,
-    double *adF,
+    const double *adY,
+    const double *adMisc,
+    const double *adOffset,
+    const double *adWeight,
+    const double *adF,
     unsigned long cLength,
     int cIdxOff
 )
@@ -131,11 +131,11 @@ double CAdaBoost::Deviance
 
 void CAdaBoost::FitBestConstant
 (
-    double *adY,
-    double *adMisc,
-    double *adOffset,
-    double *adW,
-    double *adF,
+    const double *adY,
+    const double *adMisc,
+    const double *adOffset,
+    const double *adW,
+    const double *adF,
     double *adZ,
     const std::vector<unsigned long>& aiNodeAssign,
     unsigned long nTrain,
@@ -143,7 +143,7 @@ void CAdaBoost::FitBestConstant
     unsigned long cTermNodes,
     unsigned long cMinObsInNode,
     const bag& afInBag,
-    double *adFadj,
+    const double *adFadj,
     int cIdxOff
 )
 {
@@ -188,12 +188,12 @@ void CAdaBoost::FitBestConstant
 
 double CAdaBoost::BagImprovement
 (
-    double *adY,
-    double *adMisc,
-    double *adOffset,
-    double *adWeight,
-    double *adF,
-    double *adFadj,
+    const double *adY,
+    const double *adMisc,
+    const double *adOffset,
+    const double *adWeight,
+    const double *adF,
+    const double *adFadj,
     const bag& afInBag,
     double dStepSize,
     unsigned long nTrain
