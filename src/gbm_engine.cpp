@@ -28,7 +28,7 @@ CGBM::~CGBM()
 
 void CGBM::Initialize
 (
-    CDataset& data,
+    const CDataset& data,
     CDistribution *pDist,
     double dLambda,
     unsigned long cTrain,

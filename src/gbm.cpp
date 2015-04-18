@@ -33,7 +33,7 @@ int num_groups(const double* adMisc, int cTrain)
 
 std::auto_ptr<CDistribution> gbm_setup
 (
- CDataset& data,
+ const CDataset& data,
  const std::string& family,
  int cTrees,
  int cDepth,

@@ -53,9 +53,9 @@ void CCARTTree::Reset() {
 void CCARTTree::grow
 (
  double *adZ,
- CDataset &data,
- double *adW,
- double *adF,
+ const CDataset &data,
+ const double *adW,
+ const double *adF,
  unsigned long nTrain,
  unsigned long nFeatures,
  unsigned long nBagged,
@@ -201,7 +201,7 @@ void CCARTTree::grow
 
 void CCARTTree::GetBestSplit
 (
- CDataset &data,
+ const CDataset &data,
  unsigned long nTrain,
  unsigned long nFeatures,
  CNodeSearch *aNodeSearch,
@@ -209,7 +209,7 @@ void CCARTTree::GetBestSplit
  std::vector<unsigned long>& aiNodeAssign,
  const bag& afInBag,
  double *adZ,
- double *adW,
+ const double *adW,
  unsigned long &iBestNode,
  double &dBestNodeImprovement
  )
@@ -227,7 +227,7 @@ void CCARTTree::GetBestSplit
       it++)
     {
       const int iVar = *it;
-      const int cVarClasses = data.varclass_ptr()[iVar];
+      const int cVarClasses = data.varclass(iVar);
       
       for(iNode=0; iNode < cTerminalNodes; iNode++)
         {
@@ -245,7 +245,7 @@ void CCARTTree::GetBestSplit
 	      aNodeSearch[iNode].IncorporateObs(dX,
 						adZ[iWhichObs],
 						adW[iWhichObs],
-						data.monotone_ptr()[iVar]);
+						data.monotone(iVar));
             }
         }
         for(iNode=0; iNode<cTerminalNodes; iNode++)
@@ -285,7 +285,7 @@ void CCARTTree::GetNodeCount
 
 void CCARTTree::PredictValid
 (
- CDataset &data,
+ const CDataset &data,
  unsigned long nValid,
  double *adFadj
  )
@@ -372,7 +372,7 @@ void CCARTTree::GetVarRelativeInfluence
 
 void CCARTTree::TransferTreeToRList
 (
-    CDataset &data,
+    const CDataset &data,
     int *aiSplitVar,
     double *adSplitPoint,
     int *aiLeftNode,

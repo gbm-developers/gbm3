@@ -31,7 +31,7 @@ using namespace std;
 //
 // Returns :   Weighted quantile
 /////////////////////////////////////////////////
-double CLocationM::weightedQuantile(int iN, double *adV, double *adW, double dAlpha)
+double CLocationM::weightedQuantile(int iN, double *adV, const double *adW, double dAlpha)
 {
 
 	// Local variables
@@ -140,7 +140,7 @@ double CLocationM::PsiFun(double dX)
 //
 // Returns :   Location M-Estimate of (X, W)
 /////////////////////////////////////////////////
-double CLocationM::LocationM(int iN, double *adX, double *adW, double dAlpha)
+double CLocationM::LocationM(int iN, double *adX, const double *adW, double dAlpha)
 {
 
 	// Local variables

@@ -32,11 +32,11 @@ public:
 
   virtual ~CLocationM() {};
 
-  double weightedQuantile(int iN, double *adV, double *adW, double dAlpha);
+  double weightedQuantile(int iN, double *adV, const double *adW, double dAlpha);
 
   double PsiFun(double dX);
 
-  double LocationM(int iN, double *adX, double *adW, double dAlpha);
+  double LocationM(int iN, double *adX, const double *adW, double dAlpha);
 
 private:
   std::vector<double> madParams;

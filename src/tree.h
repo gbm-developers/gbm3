@@ -36,9 +36,9 @@ public:
 
     void Initialize(CNodeFactory *pNodeFactory);
     void grow(double *adZ,
-	      CDataset &pData,
-	      double *adAlgW,
-	      double *adF,
+	      const CDataset &pData,
+	      const double *adAlgW,
+	      const double *adF,
 	      unsigned long nTrain,
 	      unsigned long nFeatures,
 	      unsigned long nBagged,
@@ -51,7 +51,7 @@ public:
 	      VEC_P_NODETERMINAL &vecpTermNodes);
     void Reset();
 
-    void TransferTreeToRList(CDataset &pData,
+    void TransferTreeToRList(const CDataset &pData,
 			     int *aiSplitVar,
 			     double *adSplitPoint,
 			     int *aiLeftNode,
@@ -64,7 +64,7 @@ public:
 			     int cCatSplitsOld,
 			     double dShrinkage);
 
-    void PredictValid(CDataset &pData,
+    void PredictValid(const CDataset &pData,
 		      unsigned long nValid,
 		      double *adFadj);
     
@@ -92,7 +92,7 @@ public:
 
     double dError; // total squared error before carrying out the splits
 private:
-    void GetBestSplit(CDataset &pData,
+    void GetBestSplit(const CDataset &pData,
 		      unsigned long nTrain,
 		      unsigned long nFeatures,
 		      CNodeSearch *aNodeSearch,
@@ -100,7 +100,7 @@ private:
 		      std::vector<unsigned long>& aiNodeAssign,
 		      const bag& afInBag,
 		      double *adZ,
-		      double *adW,
+		      const double *adW,
 		      unsigned long &iBestNode,
 		      double &dBestNodeImprovement);
     

@@ -55,7 +55,7 @@ void CNodeCategorical::PrintSubtree
 
 signed char CNodeCategorical::WhichNode
 (
-    CDataset &data,
+    const CDataset &data,
     unsigned long iObs
 )
 {
@@ -122,7 +122,7 @@ void CNodeCategorical::RecycleSelf(CNodeFactory *pNodeFactory) {
 void CNodeCategorical::TransferTreeToRList
 (
  int &iNodeID,
- CDataset &data,
+ const CDataset &data,
  int *aiSplitVar,
  double *adSplitPoint,
  int *aiLeftNode,
@@ -140,7 +140,7 @@ void CNodeCategorical::TransferTreeToRList
   int iThisNodeID = iNodeID;
   unsigned long cCatSplits = vecSplitCodes.size();
   unsigned long i = 0;
-  int cLevels = data.varclass_ptr()[iSplitVar];
+  int cLevels = data.varclass(iSplitVar);
   const std::size_t cLeftCategory = aiLeftCategory.size();
   
   aiSplitVar[iThisNodeID] = iSplitVar;

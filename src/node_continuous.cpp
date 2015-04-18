@@ -53,7 +53,7 @@ void CNodeContinuous::PrintSubtree
 
 signed char CNodeContinuous::WhichNode
 (
-    CDataset &data,
+    const CDataset &data,
     unsigned long iObs
 )
 {
@@ -120,7 +120,7 @@ void CNodeContinuous::RecycleSelf
 void CNodeContinuous::TransferTreeToRList
 (
     int &iNodeID,
-    CDataset &data,
+    const CDataset &data,
     int *aiSplitVar,
     double *adSplitPoint,
     int *aiLeftNode,

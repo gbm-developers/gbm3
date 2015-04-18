@@ -48,7 +48,7 @@ void CNodeNonterminal::Adjust
 
 void CNodeNonterminal::Predict
 (
-    CDataset &data,
+    const CDataset &data,
     unsigned long iRow,
     double &dFadj
 )

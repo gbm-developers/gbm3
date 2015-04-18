@@ -573,12 +573,12 @@ inline const double* OffsetVector(const double* const adX, const double* const a
 
 void CPairwise::ComputeWorkingResponse
 (
- double *adY,
- double *adGroup,
- double *adOffset,
- double *adF,
+ const double *adY,
+ const double *adGroup,
+ const double *adOffset,
+ const double *adF,
  double *adZ,
- double *adWeight,
+ const double *adWeight,
  const bag& afInBag,
  unsigned long nTrain,
  int cIdxOff
@@ -793,10 +793,10 @@ void CPairwise::ComputeLambdas(int iGroup, unsigned int cNumItems, const double*
 
 void CPairwise::Initialize
 (
-    double *adY,
-    double *adGroup,
-    double *adOffset,
-    double *adWeight,
+    const double *adY,
+    const double *adGroup,
+    const double *adOffset,
+    const double *adWeight,
     unsigned long cLength
 )
 {
@@ -857,10 +857,10 @@ void CPairwise::Initialize
 
 void CPairwise::InitF
 (
-    double *adY,
-    double *adGroup,
-    double *adOffset,
-    double *adWeight,
+    const double *adY,
+    const double *adGroup,
+    const double *adOffset,
+    const double *adWeight,
     double &dInitF,
     unsigned long cLength
 )
@@ -871,11 +871,11 @@ void CPairwise::InitF
 
 double CPairwise::Deviance
 (
-   double *adY,
-   double *adGroup,
-   double *adOffset,
-   double *adWeight,
-   double *adF,
+   const double *adY,
+   const double *adGroup,
+   const double *adOffset,
+   const double *adWeight,
+   const double *adF,
    unsigned long cLength,
    int cIdxOff
 )
@@ -932,11 +932,11 @@ double CPairwise::Deviance
 
 void CPairwise::FitBestConstant
 (
-    double *adY,
-    double *adGroup,
-    double *adOffset,
-    double *adW,
-    double *adF,
+    const double *adY,
+    const double *adGroup,
+    const double *adOffset,
+    const double *adW,
+    const double *adF,
     double *adZ,
     const std::vector<unsigned long> &aiNodeAssign,
     unsigned long nTrain,
@@ -944,7 +944,7 @@ void CPairwise::FitBestConstant
     unsigned long cTermNodes,
     unsigned long cMinObsInNode,
     const bag& afInBag,
-    double *adFadj,
+    const double *adFadj,
     int cIdxOff
 )
 {
@@ -1004,12 +1004,12 @@ void CPairwise::FitBestConstant
 
 double CPairwise::BagImprovement
 (
-    double *adY,
-    double *adGroup,
-    double *adOffset,
-    double *adWeight,
-    double *adF,
-    double *adFadj,
+    const double *adY,
+    const double *adGroup,
+    const double *adOffset,
+    const double *adWeight,
+    const double *adF,
+    const double *adFadj,
     const bag& afInBag,
     double dStepSize,
     unsigned long nTrain
