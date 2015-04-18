@@ -37,7 +37,7 @@ public:
     CNode();
     virtual ~CNode();
     virtual void Adjust(unsigned long cMinObsInNode) = 0;
-    virtual void Predict(CDataset &data,
+    virtual void Predict(const CDataset &data,
 			 unsigned long iRow,
 			 double &dFadj) = 0;
     virtual void Predict(double *adX,
@@ -80,7 +80,7 @@ public:
 
     virtual void PrintSubtree(unsigned long cIndent) = 0;
     virtual void TransferTreeToRList(int &iNodeID,
-				     CDataset &data,
+				     const CDataset &data,
 				     int *aiSplitVar,
 				     double *adSplitPoint,
 				     int *aiLeftNode,

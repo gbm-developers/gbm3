@@ -33,7 +33,7 @@ public:
 
     void PrintSubtree(unsigned long cIndent);
     void TransferTreeToRList(int &iNodeID,
-			     CDataset &data,
+			     const CDataset &data,
 			     int *aiSplitVar,
 			     double *adSplitPoint,
 			     int *aiLeftNode,
@@ -47,7 +47,7 @@ public:
 			     double dShrinkage);
     
     void ApplyShrinkage(double dLambda);
-    void Predict(CDataset &data,
+    void Predict(const CDataset &data,
 		 unsigned long i,
 		 double &dFadj);
     void Predict(double *adX,

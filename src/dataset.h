@@ -75,8 +75,24 @@ public:
     return adY.begin();
   }
 
+  const double* y_ptr() const {
+    return adY.begin();
+  }
+
   
   double* offset_ptr(bool require=true) {
+    if (has_offset()) {
+      return adOffset.begin();
+    } else {
+      if (require) {
+        throw GBM::failure("You require a genuine offset, and don't have one.");
+      } else {
+        return 0;
+      }
+    }
+  }    
+
+  const double* offset_ptr(bool require=true) const {
     if (has_offset()) {
       return adOffset.begin();
     } else {
@@ -91,8 +107,24 @@ public:
   double* weight_ptr() {
     return adWeight.begin();
   }
-  
+
+  const double* weight_ptr() const {
+    return adWeight.begin();
+  }
+
   double* misc_ptr(bool require=true) {
+    if (has_misc()) {
+      return adMisc.begin();
+    } else {
+      if (require) {
+        throw GBM::failure("You require genuine misc, and don't have it.");
+      } else {
+        return 0;
+      }
+    }
+  }
+
+  const double* misc_ptr(bool require=true) const {
     if (has_misc()) {
       return adMisc.begin();
     } else {
@@ -108,15 +140,31 @@ public:
     return adX.begin();
   }
 
+  const double* x_ptr() const {
+    return adX.begin();
+  }
+
   int* varclass_ptr() {
+    return acVarClasses.begin();
+  }
+
+  const int* varclass_ptr() const {
     return acVarClasses.begin();
   }
 
   int* monotone_ptr() {
     return alMonotoneVar.begin();
   }
+
+  const int* monotone_ptr() const {
+    return alMonotoneVar.begin();
+  }
   
   int* order_ptr() {
+    return aiXOrder.begin();
+  }
+
+  const int* order_ptr() const {
     return aiXOrder.begin();
   }
 

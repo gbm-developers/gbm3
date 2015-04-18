@@ -55,7 +55,7 @@ void CNodeCategorical::PrintSubtree
 
 signed char CNodeCategorical::WhichNode
 (
-    CDataset &data,
+    const CDataset &data,
     unsigned long iObs
 )
 {
@@ -122,7 +122,7 @@ void CNodeCategorical::RecycleSelf(CNodeFactory *pNodeFactory) {
 void CNodeCategorical::TransferTreeToRList
 (
  int &iNodeID,
- CDataset &data,
+ const CDataset &data,
  int *aiSplitVar,
  double *adSplitPoint,
  int *aiLeftNode,

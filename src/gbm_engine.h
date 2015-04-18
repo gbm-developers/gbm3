@@ -34,7 +34,7 @@ public:
 
     CGBM();
     ~CGBM();
-    void Initialize(CDataset &pData,
+    void Initialize(const CDataset &pData,
 		    CDistribution *pDist,
 		    double dLambda,
 		    unsigned long nTrain,
@@ -66,7 +66,7 @@ public:
     bool IsPairwise() const { return (cGroups >= 0); }
  private:
 
-    CDataset *pData;            // the data
+    const CDataset *pData;            // the data
     CDistribution *pDist;       // the distribution
     bool fInitialized;          // indicates whether the GBM has been initialized
     std::auto_ptr<CNodeFactory> pNodeFactory;

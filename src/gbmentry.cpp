@@ -81,7 +81,7 @@ SEXP gbm
     Rcpp::RNGScope scope;
 
     // set up the dataset
-    CDataset data(radY, radOffset, radX, raiXOrder,
+    const CDataset data(radY, radOffset, radX, raiXOrder,
                   radWeight, radMisc, racVarClasses,
                   ralMonotoneVar);
     

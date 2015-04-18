@@ -38,7 +38,7 @@
 
 std::auto_ptr<CDistribution> gbm_setup
 (
-    CDataset& data,
+    const CDataset& data,
     const std::string& family,
     int cTrees,
     int cLeaves,

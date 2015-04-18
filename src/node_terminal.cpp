@@ -40,7 +40,7 @@ void CNodeTerminal::ApplyShrinkage
 
 void CNodeTerminal::Predict
 (
-    CDataset &data,
+    const CDataset &data,
     unsigned long iRow,
     double &dFadj
 )
@@ -95,7 +95,7 @@ void CNodeTerminal::RecycleSelf(CNodeFactory *pNodeFactory) {
 void CNodeTerminal::TransferTreeToRList
 (
     int &iNodeID,
-    CDataset &data,
+    const CDataset &data,
     int *aiSplitVar,
     double *adSplitPoint,
     int *aiLeftNode,

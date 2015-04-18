@@ -53,7 +53,7 @@ void CCARTTree::Reset() {
 void CCARTTree::grow
 (
  double *adZ,
- CDataset &data,
+ const CDataset &data,
  const double *adW,
  const double *adF,
  unsigned long nTrain,
@@ -201,7 +201,7 @@ void CCARTTree::grow
 
 void CCARTTree::GetBestSplit
 (
- CDataset &data,
+ const CDataset &data,
  unsigned long nTrain,
  unsigned long nFeatures,
  CNodeSearch *aNodeSearch,
@@ -285,7 +285,7 @@ void CCARTTree::GetNodeCount
 
 void CCARTTree::PredictValid
 (
- CDataset &data,
+ const CDataset &data,
  unsigned long nValid,
  double *adFadj
  )
@@ -372,7 +372,7 @@ void CCARTTree::GetVarRelativeInfluence
 
 void CCARTTree::TransferTreeToRList
 (
-    CDataset &data,
+    const CDataset &data,
     int *aiSplitVar,
     double *adSplitPoint,
     int *aiLeftNode,
