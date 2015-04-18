@@ -43,9 +43,10 @@ public:
   CDataset(SEXP radY, SEXP radOffset, SEXP radX, SEXP raiXOrder,
            SEXP radWeight, SEXP radMisc,
            SEXP racVarClasses, SEXP ralMonotoneVar) :
-  adY(radY), adOffset(radOffset), adX(radX), aiXOrder(raiXOrder),
-    adWeight(radWeight), adMisc(radMisc),
+  adY(radY), adOffset(radOffset), adWeight(radWeight), adMisc(radMisc),
+    adX(radX),
     acVarClasses(racVarClasses), alMonotoneVar(ralMonotoneVar),
+    aiXOrder(raiXOrder),
     fHasMisc(has_value(adMisc)), fHasOffset(has_value(adOffset)) {
 
     if (adX.ncol() != alMonotoneVar.size()) {

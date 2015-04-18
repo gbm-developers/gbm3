@@ -61,7 +61,7 @@ void CGBM::Initialize
   
   cValid = data.nrow() - cTrain;
 
-  if ((cTrain <= 0) || (cValid < 0)) {
+  if ((cTrain <= 0) || (data.nrow() < cTrain)) {
     throw GBM::invalid_argument("your training instances don't make sense");
   }
   
