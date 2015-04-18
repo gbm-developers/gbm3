@@ -136,14 +136,6 @@ public:
     }
   }
   
-  double* x_ptr() {
-    return adX.begin();
-  }
-
-  const double* x_ptr() const {
-    return adX.begin();
-  }
-
   int varclass(int ind) const {
     return acVarClasses[ind];
   }
