@@ -189,7 +189,7 @@ void CBernoulli::FitBestConstant
       {
         dTemp = vecdNum[iNode]/vecdDen[iNode];
         // avoid large changes in predictions on log odds scale
-        if(abs(dTemp) > 1.0)
+        if(std::abs(dTemp) > 1.0)
         {
           if(!fCappedPred)
           {
@@ -244,5 +244,3 @@ double CBernoulli::BagImprovement
 
     return dReturnValue/dW;
 }
-
-
