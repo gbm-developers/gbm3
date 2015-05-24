@@ -308,7 +308,8 @@ double CNDCG::MaxMeasure(unsigned int iGroup, const double* const adY, unsigned 
 #ifdef NOISY_DEBUG
             if (vecdMaxDCG[iGroup] == 0)
             {
-                Rprintf("max score is 0: iGroup = %d, maxScore = %f, sz = %d\n", iGroup,  vecdMaxDCG[iGroup], ranker.GetNumItems());
+                Rprintf("max score is 0: iGroup = %d, maxScore = %f\n", 
+                        iGroup,  vecdMaxDCG[iGroup]);
                 throw GBM::failure();
             }
 #endif
