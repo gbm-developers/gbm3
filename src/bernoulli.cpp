@@ -4,6 +4,8 @@
 
 CBernoulli::CBernoulli()
 {
+  // Used to issue warnings to user that at least one terminal node capped
+  fCappedPred = false;
 }
 
 CBernoulli::~CBernoulli()
@@ -24,17 +26,22 @@ void CBernoulli::ComputeWorkingResponse
     int cIdxOff
 )
 {
-    unsigned long i = 0;
-    double dProb = 0.0;
-    double dF = 0.0;
+  unsigned long i = 0;
+  double dProb = 0.0;
+  double dF = 0.0;
 
-    for(i=0; i<nTrain; i++)
-    {
-        dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
-        dProb = 1.0/(1.0+std::exp(-dF));
+  for(i=0; i<nTrain; i++)
+  {
+    dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
+    dProb = 1.0/(1.0+std::exp(-dF));
 
-        adZ[i] = adY[i] - dProb;
-    }
+    adZ[i] = adY[i] - dProb;
+#ifdef NOISY_DEBUG
+//  Rprintf("dF=%f, dProb=%f, adZ=%f, adY=%f\n", dF, dProb, adZ[i], adY[i]);
+    if(dProb<  0.0001) Rprintf("Small prob(i=%d)=%f Z=%f\n",i,dProb,adZ[i]);
+    if(dProb>1-0.0001) Rprintf("Large prob(i=%d)=%f Z=%f\n",i,dProb,adZ[i]);
+#endif
+  }
 }
 
 
@@ -127,54 +134,76 @@ double CBernoulli::Deviance
 
 void CBernoulli::FitBestConstant
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adW,
-    const double *adF,
-    double *adZ,
-    const std::vector<unsigned long>& aiNodeAssign,
-    unsigned long nTrain,
-    VEC_P_NODETERMINAL vecpTermNodes,
-    unsigned long cTermNodes,
-    unsigned long cMinObsInNode,
-    const bag& afInBag,
-    const double *adFadj,
-	int cIdxOff
+  const double *adY,
+  const double *adMisc,
+  const double *adOffset,
+  const double *adW,
+  const double *adF,
+  double *adZ,
+  const std::vector<unsigned long>& aiNodeAssign,
+  unsigned long nTrain,
+  VEC_P_NODETERMINAL vecpTermNodes,
+  unsigned long cTermNodes,
+  unsigned long cMinObsInNode,
+  const bag& afInBag,
+  const double *adFadj,
+  int cIdxOff
 )
 {
-    unsigned long iObs = 0;
-    unsigned long iNode = 0;
-    vecdNum.resize(cTermNodes);
-    vecdNum.assign(vecdNum.size(),0.0);
-    vecdDen.resize(cTermNodes);
-    vecdDen.assign(vecdDen.size(),0.0);
+  unsigned long iObs = 0;
+  unsigned long iNode = 0;
+  double dTemp = 0.0;
+  
+  vecdNum.resize(cTermNodes);
+  vecdNum.assign(vecdNum.size(),0.0);
+  vecdDen.resize(cTermNodes);
+  vecdDen.assign(vecdDen.size(),0.0);
 
-    for(iObs=0; iObs<nTrain; iObs++)
+  for(iObs=0; iObs<nTrain; iObs++)
+  {
+    if(afInBag[iObs])
     {
-        if(afInBag[iObs])
-        {
-            vecdNum[aiNodeAssign[iObs]] += adW[iObs]*adZ[iObs];
-            vecdDen[aiNodeAssign[iObs]] +=
-                adW[iObs]*(adY[iObs]-adZ[iObs])*(1-adY[iObs]+adZ[iObs]);
-        }
+      vecdNum[aiNodeAssign[iObs]] += adW[iObs]*adZ[iObs];
+      vecdDen[aiNodeAssign[iObs]] +=
+          adW[iObs]*(adY[iObs]-adZ[iObs])*(1-adY[iObs]+adZ[iObs]);
+#ifdef NOISY_DEBUG
+/*
+      Rprintf("iNode=%d, dNum(%d)=%f, dDen(%d)=%f\n",
+              aiNodeAssign[iObs],
+              iObs,vecdNum[aiNodeAssign[iObs]],
+              iObs,vecdDen[aiNodeAssign[iObs]]);
+*/
+#endif
     }
+  }
 
-    for(iNode=0; iNode<cTermNodes; iNode++)
+  for(iNode=0; iNode<cTermNodes; iNode++)
+  {
+    if(vecpTermNodes[iNode]!=NULL)
     {
-        if(vecpTermNodes[iNode]!=NULL)
+      if(vecdDen[iNode] == 0)
+      {
+          vecpTermNodes[iNode]->dPrediction = 0.0;
+      }
+      else
+      {
+        dTemp = vecdNum[iNode]/vecdDen[iNode];
+        // avoid large changes in predictions on log odds scale
+        if(abs(dTemp) > 1.0)
         {
-            if(vecdDen[iNode] == 0)
-            {
-                vecpTermNodes[iNode]->dPrediction = 0.0;
-            }
-            else
-            {
-                vecpTermNodes[iNode]->dPrediction =
-                    vecdNum[iNode]/vecdDen[iNode];
-            }
+          if(!fCappedPred)
+          {
+            // set fCappedPred=true so that warning only issued once
+            fCappedPred = true;  
+            Rcpp::warning("Some terminal node predictions were excessively large for Bernoulli and have been capped at 1.0. Likely due to a feature that separates the 0/1 outcomes. Consider reducing shrinkage parameter.");
+          }
+          if(dTemp>1.0) dTemp = 1.0;
+          else if(dTemp<-1.0) dTemp = -1.0;
         }
+        vecpTermNodes[iNode]->dPrediction = dTemp;              
+      }
     }
+  }
 }
 
 

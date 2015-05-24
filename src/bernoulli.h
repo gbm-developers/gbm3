@@ -82,6 +82,7 @@ public:
 private:
     vector<double> vecdNum;
     vector<double> vecdDen;
+    bool fCappedPred;
 };
 
 #endif // BERNOULLI_H
