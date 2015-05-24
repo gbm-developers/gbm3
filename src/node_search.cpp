@@ -183,7 +183,7 @@ void CNodeSearch::ResetForNewVar
 {
   if(fIsSplit) return;
 
-  if (cCurrentVarClasses > adGroupSumZ.size()) {
+  if (int(cCurrentVarClasses) > adGroupSumZ.size()) {
     throw GBM::failure("too many variable classes");
   }
 
