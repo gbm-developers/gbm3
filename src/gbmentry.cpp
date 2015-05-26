@@ -425,18 +425,18 @@ SEXP gbm_plot
                           // missing?
                           if(ISNA(dX))
                             {
-                              stack.push(iMissingNode[iCurrentNode]);
+                              stack.push(iMissingNode[iCurrentNode],dWeight);
                             }
                           // continuous?
                           else if(aiVarType[iSplitVar[iCurrentNode]] == 0)
                             {
                               if(dX < dSplitCode[iCurrentNode])
                                 {
-                                  stack.push(iLeftNode[iCurrentNode]);
+                                  stack.push(iLeftNode[iCurrentNode],dWeight);
                                 }
                               else
                                 {
-                                  stack.push(iRightNode[iCurrentNode]);
+                                  stack.push(iRightNode[iCurrentNode],dWeight);
                                 }
                             }
                             else // categorical
@@ -446,15 +446,15 @@ SEXP gbm_plot
                               const int iCatSplitIndicator = catSplits[dX];
                               if(iCatSplitIndicator==-1)
                                 {
-                                  stack.push(iLeftNode[iCurrentNode]);
+                                  stack.push(iLeftNode[iCurrentNode],dWeight);
                                 }
                               else if(iCatSplitIndicator==1)
                                 {
-                                  stack.push(iRightNode[iCurrentNode]);
+                                  stack.push(iRightNode[iCurrentNode],dWeight);
                                 }
                               else // handle unused level
                                 {
-                                  iCurrentNode = iMissingNode[iCurrentNode];
+                                  stack.push(iMissingNode[iCurrentNode],dWeight);
                                 }
                             }
                         } // iPredVar != -1
