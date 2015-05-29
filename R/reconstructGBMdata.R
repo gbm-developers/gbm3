@@ -20,16 +20,6 @@ reconstructGBMdata <- function(x)
    {
       stop("Cannot reconstruct data from gbm object. gbm() was called with keep.data=FALSE")
    } else
-   if (x$distribution$name=="multinomial")
-   {
-      y <- matrix(x$data$y, ncol=x$num.classes, byrow=FALSE)
-      yn <- apply(y, 1, function(z,nc) {(1:nc)[z == 1]},
-                  nc = x$num.classes)
-      y <- factor(yn, labels=x$classes)
-      xdat <- matrix(x$data$x, ncol=ncol(x$data$x.order), byrow=FALSE)
-      d <- data.frame(y, xdat)
-      names(d) <- c(x$response.name, x$var.names)
-   } else
    if (x$distribution$name == "coxph")
    {
       xdat <- matrix(x$data$x, ncol=ncol(x$data$x.order), byrow=FALSE)

@@ -85,7 +85,7 @@ NULL
 #' This package implements extensions to Freund and Schapire's AdaBoost
 #' algorithm and J. Friedman's gradient boosting machine. Includes regression
 #' methods for least squares, absolute loss, logistic, Poisson, Cox
-#' proportional hazards partial likelihood, multinomial, t-distribution,
+#' proportional hazards partial likelihood, t-distribution,
 #' AdaBoost exponential loss, Learning to Rank, and Huberized hinge loss.
 #' 
 #' \tabular{ll}{ Package: \tab gbm\cr Version: \tab 2.1-0.6\cr Date: \tab

@@ -20,8 +20,7 @@ void CAdaBoost::ComputeWorkingResponse
  double *adZ,
  const double *adWeight,
  const bag& afInBag,
- unsigned long nTrain,
- int cIdxOff
+ unsigned long nTrain
 )
 {
   unsigned long i = 0;
@@ -100,9 +99,7 @@ double CAdaBoost::Deviance
     const double *adOffset,
     const double *adWeight,
     const double *adF,
-    unsigned long cLength,
-    int cIdxOff
-)
+    unsigned long cLength)
 {
     unsigned long i=0;
     double dL = 0.0;
@@ -110,7 +107,7 @@ double CAdaBoost::Deviance
 
     if(adOffset == NULL)
     {
-        for(i=cIdxOff; i<cLength+cIdxOff; i++)
+        for(i=0; i!=cLength; i++)
         {
             dL += adWeight[i] * std::exp(-(2*adY[i]-1)*adF[i]);
             dW += adWeight[i];
@@ -118,7 +115,7 @@ double CAdaBoost::Deviance
     }
     else
     {
-        for(i=cIdxOff; i<cLength+cIdxOff; i++)
+        for(i=0; i!=cLength; i++)
         {
             dL += adWeight[i] * std::exp(-(2*adY[i]-1)*(adOffset[i]+adF[i]));
             dW += adWeight[i];
@@ -143,8 +140,7 @@ void CAdaBoost::FitBestConstant
     unsigned long cTermNodes,
     unsigned long cMinObsInNode,
     const bag& afInBag,
-    const double *adFadj,
-    int cIdxOff
+    const double *adFadj
 )
 {
   double dF = 0.0;

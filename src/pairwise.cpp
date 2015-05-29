@@ -581,12 +581,11 @@ void CPairwise::ComputeWorkingResponse
  double *adZ,
  const double *adWeight,
  const bag& afInBag,
- unsigned long nTrain,
- int cIdxOff
+ unsigned long nTrain
 )
 {
 #ifdef NOISY_DEBUG
-    Rprintf("compute working response, nTrain = %u,  cIdxOff = %d\n", nTrain, cIdxOff);
+    Rprintf("compute working response, nTrain = %u\n", nTrain);
 #endif
     
     if (nTrain <= 0) return;
@@ -877,13 +876,9 @@ double CPairwise::Deviance
    const double *adOffset,
    const double *adWeight,
    const double *adF,
-   unsigned long cLength,
-   int cIdxOff
+   unsigned long cLength
 )
 {
-#ifdef NOISY_DEBUG
-    Rprintf("Deviance, cLength = %u, cIdxOff = %d\n", cLength, cIdxOff);
-#endif
 
     if (cLength <= 0)
     {
@@ -893,9 +888,9 @@ double CPairwise::Deviance
     double dL = 0.0;
     double dW = 0.0;
 
-    unsigned int iItemStart  = cIdxOff;
+    unsigned int iItemStart  = 0;
     unsigned int iItemEnd    = iItemStart;
-    const unsigned int cEnd = cLength + cIdxOff;
+    const unsigned int cEnd = cLength;
 
     while (iItemStart < cEnd)
     {
@@ -945,13 +940,12 @@ void CPairwise::FitBestConstant
     unsigned long cTermNodes,
     unsigned long cMinObsInNode,
     const bag& afInBag,
-    const double *adFadj,
-    int cIdxOff
+    const double *adFadj
 )
 {
 
 #ifdef NOISY_DEBUG
-    Rprintf("FitBestConstant, nTrain = %u, cIdxOff = %d, cTermNodes = %d, \n", nTrain, cIdxOff, cTermNodes);
+    Rprintf("FitBestConstant, nTrain = %u,  cTermNodes = %d, \n", nTrain, cTermNodes);
 #endif
 
     // Assumption: ComputeWorkingResponse() has been executed before with

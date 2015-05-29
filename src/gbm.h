@@ -28,7 +28,6 @@
 #include "laplace.h"
 #include "quantile.h"
 #include "tdist.h"
-#include "multinomial.h"
 #include "pairwise.h"
 #include "gbm_engine.h"
 #include "locationm.h"
@@ -43,7 +42,6 @@ std::auto_ptr<CDistribution> gbm_setup
     int cTrees,
     int cLeaves,
     int cMinObsInNode,
-    int cNumClasses,
     double dShrinkage,
     double dBagFraction,
     int cTrain,

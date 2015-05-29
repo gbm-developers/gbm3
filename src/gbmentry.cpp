@@ -43,7 +43,6 @@ SEXP gbm
     SEXP rcTrees,
     SEXP rcDepth,       // interaction depth
     SEXP rcMinObsInNode,
-    SEXP rcNumClasses,
     SEXP rdShrinkage,
     SEXP rdBagFraction,
     SEXP rcTrain,
@@ -59,11 +58,9 @@ SEXP gbm
     VEC_VEC_CATEGORIES vecSplitCodes;
 
     int iT = 0;
-    int iK = 0;
     const int cTrees = Rcpp::as<int>(rcTrees);
     const int cTrain = Rcpp::as<int>(rcTrain);
     const int cFeatures = Rcpp::as<int>(rcFeatures);
-    const int cNumClasses = Rcpp::as<int>(rcNumClasses);
     const int cDepth = Rcpp::as<int>(rcDepth);
     const int cMinObsInNode = Rcpp::as<int>(rcMinObsInNode);
     const int cCatSplitsOld = Rcpp::as<int>(rcCatSplitsOld);
@@ -82,15 +79,14 @@ SEXP gbm
 
     // set up the dataset
     const CDataset data(radY, radOffset, radX, raiXOrder,
-                  radWeight, radMisc, racVarClasses,
-                  ralMonotoneVar);
+                        radWeight, radMisc, racVarClasses,
+                        ralMonotoneVar);
     
     // initialize some things
     std::auto_ptr<CDistribution> pDist(gbm_setup(data, family,
 						 cTrees,
 						 cDepth,
 						 cMinObsInNode,
-						 cNumClasses,
 						 dShrinkage,
 						 dBagFraction,
 						 cTrain,
@@ -108,11 +104,10 @@ SEXP gbm
 		     dBagFraction,
 		     cDepth,
 		     cMinObsInNode,
-		     cNumClasses,
 		     cGroups);
 
     double dInitF;
-    Rcpp::NumericVector adF(data.nrow() * cNumClasses);
+    Rcpp::NumericVector adF(data.nrow());
 
     pDist->Initialize(data.y_ptr(),
 		      data.misc_ptr(false),
@@ -144,7 +139,7 @@ SEXP gbm
     Rcpp::NumericVector adTrainError(cTrees, 0.0);
     Rcpp::NumericVector adValidError(cTrees, 0.0);
     Rcpp::NumericVector adOOBagImprove(cTrees, 0.0);
-    Rcpp::GenericVector setOfTrees(cTrees * cNumClasses);
+    Rcpp::GenericVector setOfTrees(cTrees);
 
     if(verbose)
     {
@@ -159,47 +154,44 @@ SEXP gbm
 			    data.weight_ptr(),
 			    cTrain);
 
-        for (iK = 0; iK < cNumClasses; iK++)
-        {
-          double dTrainError = 0;
-	  double dValidError = 0;
-	  double dOOBagImprove = 0;
-          pGBM->iterate(adF.begin(),
-			dTrainError,dValidError,dOOBagImprove,
-			cNodes, cNumClasses, iK);
+        double dTrainError = 0;
+        double dValidError = 0;
+        double dOOBagImprove = 0;
+        pGBM->iterate(adF.begin(),
+                      dTrainError,dValidError,dOOBagImprove,
+                      cNodes);
           
-          // store the performance measures
-          adTrainError[iT] += dTrainError;
-          adValidError[iT] += dValidError;
-          adOOBagImprove[iT] += dOOBagImprove;
+        // store the performance measures
+        adTrainError[iT] += dTrainError;
+        adValidError[iT] += dValidError;
+        adOOBagImprove[iT] += dOOBagImprove;
 
-          Rcpp::IntegerVector iSplitVar(cNodes);
-          Rcpp::NumericVector dSplitPoint(cNodes);
-          Rcpp::IntegerVector iLeftNode(cNodes);
-          Rcpp::IntegerVector iRightNode(cNodes);
-          Rcpp::IntegerVector iMissingNode(cNodes);
-          Rcpp::NumericVector dErrorReduction(cNodes);
-          Rcpp::NumericVector dWeight(cNodes);
-          Rcpp::NumericVector dPred(cNodes);
+        Rcpp::IntegerVector iSplitVar(cNodes);
+        Rcpp::NumericVector dSplitPoint(cNodes);
+        Rcpp::IntegerVector iLeftNode(cNodes);
+        Rcpp::IntegerVector iRightNode(cNodes);
+        Rcpp::IntegerVector iMissingNode(cNodes);
+        Rcpp::NumericVector dErrorReduction(cNodes);
+        Rcpp::NumericVector dWeight(cNodes);
+        Rcpp::NumericVector dPred(cNodes);
 
-          gbm_transfer_to_R(pGBM.get(),
-			    vecSplitCodes,
-			    iSplitVar.begin(),
-			    dSplitPoint.begin(),
-			    iLeftNode.begin(),
-			    iRightNode.begin(),
-			    iMissingNode.begin(),
-			    dErrorReduction.begin(),
-			    dWeight.begin(),
-			    dPred.begin(),
-			    cCatSplitsOld);
-
-	  setOfTrees[iK + iT * cNumClasses] = 
-	    Rcpp::List::create(iSplitVar,
-			       dSplitPoint,
-			       iLeftNode, iRightNode, iMissingNode,
-			       dErrorReduction, dWeight, dPred);
-        } // Close for iK
+        gbm_transfer_to_R(pGBM.get(),
+                          vecSplitCodes,
+                          iSplitVar.begin(),
+                          dSplitPoint.begin(),
+                          iLeftNode.begin(),
+                          iRightNode.begin(),
+                          iMissingNode.begin(),
+                          dErrorReduction.begin(),
+                          dWeight.begin(),
+                          dPred.begin(),
+                          cCatSplitsOld);
+        
+        setOfTrees[iT] = 
+          Rcpp::List::create(iSplitVar,
+                             dSplitPoint,
+                             iLeftNode, iRightNode, iMissingNode,
+                             dErrorReduction, dWeight, dPred);
 
         // print the information
         if((verbose) && ((iT <= 9) ||
@@ -231,7 +223,6 @@ SEXP gbm
 SEXP gbm_pred
 (
    SEXP radX,         // the data matrix
-   SEXP rcNumClasses, // number of classes
    SEXP rcTrees,      // number of trees, may be a vector
    SEXP rdInitF,      // the initial value
    SEXP rTrees,       // the list of trees
@@ -249,7 +240,6 @@ SEXP gbm_pred
    const Rcpp::GenericVector trees(rTrees);
    const Rcpp::IntegerVector aiVarType(raiVarType);
    const Rcpp::GenericVector cSplits(rCSplits);
-   const int cNumClasses = Rcpp::as<int>(rcNumClasses);
    const bool fSingleTree = Rcpp::as<bool>(riSingleTree);
    const int cPredIterations = cTrees.size();
    int iPredIteration = 0;
@@ -259,13 +249,13 @@ SEXP gbm_pred
      throw GBM::invalid_argument("shape mismatch");
    }
      
-   Rcpp::NumericVector adPredF(cRows*cNumClasses*cPredIterations);
+   Rcpp::NumericVector adPredF(cRows * cPredIterations);
 
    // initialize the predicted values
    if(!fSingleTree)
    {
      std::fill(adPredF.begin(),
-               adPredF.begin() + cRows * cNumClasses,
+               adPredF.begin() + cRows,
                Rcpp::as<double>(rdInitF));
    }
    else
@@ -280,70 +270,67 @@ SEXP gbm_pred
      if(!fSingleTree && (iPredIteration>0))
        {
          // copy over from the last rcTrees
-         std::copy(adPredF.begin() + cRows * cNumClasses * (iPredIteration -1),
-                   adPredF.begin() + cRows * cNumClasses * iPredIteration,
-                   adPredF.begin() + cRows * cNumClasses * iPredIteration);
+         std::copy(adPredF.begin() + cRows * (iPredIteration -1),
+                   adPredF.begin() + cRows * iPredIteration,
+                   adPredF.begin() + cRows * iPredIteration);
        }
-     while(iTree<mycTrees*cNumClasses)
+     while(iTree<mycTrees)
        {
-         for (iClass = 0; iClass < cNumClasses; iClass++)
+         const Rcpp::GenericVector thisTree = trees[iTree];
+         const Rcpp::IntegerVector iSplitVar = thisTree[0];
+         const Rcpp::NumericVector dSplitCode = thisTree[1];
+         const Rcpp::IntegerVector iLeftNode = thisTree[2];
+         const Rcpp::IntegerVector iRightNode = thisTree[3];
+         const Rcpp::IntegerVector iMissingNode = thisTree[4];
+         
+         for(iObs=0; iObs<cRows; iObs++)
            {
-             const Rcpp::GenericVector thisTree = trees[iTree];
-             const Rcpp::IntegerVector iSplitVar = thisTree[0];
-             const Rcpp::NumericVector dSplitCode = thisTree[1];
-             const Rcpp::IntegerVector iLeftNode = thisTree[2];
-             const Rcpp::IntegerVector iRightNode = thisTree[3];
-             const Rcpp::IntegerVector iMissingNode = thisTree[4];
-              
-             for(iObs=0; iObs<cRows; iObs++)
+             int iCurrentNode = 0;
+             while(iSplitVar[iCurrentNode] != -1)
                {
-                 int iCurrentNode = 0;
-                 while(iSplitVar[iCurrentNode] != -1)
+                 const double dX = adX[iSplitVar[iCurrentNode]*cRows + iObs];
+                 // missing?
+                 if(ISNA(dX))
                    {
-                     const double dX = adX[iSplitVar[iCurrentNode]*cRows + iObs];
-                     // missing?
-                     if(ISNA(dX))
+                     iCurrentNode = iMissingNode[iCurrentNode];
+                   }
+                 // continuous?
+                 else if (aiVarType[iSplitVar[iCurrentNode]] == 0)
+                   {
+                     if(dX < dSplitCode[iCurrentNode])
                        {
-                         iCurrentNode = iMissingNode[iCurrentNode];
+                         iCurrentNode = iLeftNode[iCurrentNode];
                        }
-                     // continuous?
-                     else if (aiVarType[iSplitVar[iCurrentNode]] == 0)
+                     else
                        {
-                         if(dX < dSplitCode[iCurrentNode])
-                           {
-                             iCurrentNode = iLeftNode[iCurrentNode];
-                           }
-                         else
-                           {
-                             iCurrentNode = iRightNode[iCurrentNode];
-                           }
-                       }
-                     else // categorical
-                       {
-                         const Rcpp::IntegerVector mySplits = cSplits[dSplitCode[iCurrentNode]];
-                         if (mySplits.size() < (int)dX + 1) {
-                           iCurrentNode = iMissingNode[iCurrentNode];
-                         } else {
-                           const int iCatSplitIndicator = mySplits[(int)dX];
-                           if(iCatSplitIndicator==-1)
-                             {
-                               iCurrentNode = iLeftNode[iCurrentNode];
-                             }
-                           else if (iCatSplitIndicator==1)
-                             {
-                               iCurrentNode = iRightNode[iCurrentNode];
-                             }
-                           else // categorical level not present in training
-                             {
-                               iCurrentNode = iMissingNode[iCurrentNode];
-                             }
-                         }
+                         iCurrentNode = iRightNode[iCurrentNode];
                        }
                    }
-                 adPredF[cRows*cNumClasses*iPredIteration+cRows*iClass+iObs] += dSplitCode[iCurrentNode]; // add the prediction
-               } // iObs
-             iTree++;
-           } // iClass
+                 else // categorical
+                   {
+                     const Rcpp::IntegerVector mySplits = cSplits[dSplitCode[iCurrentNode]];
+                     if (mySplits.size() < (int)dX + 1) {
+                       iCurrentNode = iMissingNode[iCurrentNode];
+                     } else {
+                       const int iCatSplitIndicator = mySplits[(int)dX];
+                       if(iCatSplitIndicator==-1)
+                         {
+                           iCurrentNode = iLeftNode[iCurrentNode];
+                         }
+                       else if (iCatSplitIndicator==1)
+                         {
+                           iCurrentNode = iRightNode[iCurrentNode];
+                         }
+                       else // categorical level not present in training
+                         {
+                           iCurrentNode = iMissingNode[iCurrentNode];
+                         }
+                     }
+                   }
+               }
+             adPredF[cRows*iPredIteration+cRows*iClass+iObs] += dSplitCode[iCurrentNode]; // add the prediction
+           } // iObs
+         iTree++;
        } // iTree
    }  // iPredIteration
    
@@ -355,7 +342,6 @@ SEXP gbm_pred
 SEXP gbm_plot
 (
     SEXP radX,          // vector or matrix of points to make predictions
-    SEXP rcNumClasses,  // number of classes
     SEXP raiWhichVar,   // index of which var cols of X are
     SEXP rcTrees,       // number of trees to use
     SEXP rdInitF,       // initial value
@@ -371,13 +357,12 @@ SEXP gbm_plot
     const Rcpp::NumericMatrix adX(radX);
     const int cRows = adX.nrow();
     const int cTrees = Rcpp::as<int>(rcTrees);
-    const int cNumClasses = Rcpp::as<int>(rcNumClasses);
     const Rcpp::IntegerVector aiWhichVar(raiWhichVar);
     const Rcpp::GenericVector trees(rTrees);
     const Rcpp::GenericVector cSplits(rCSplits);
     const Rcpp::IntegerVector aiVarType(raiVarType);
 
-    Rcpp::NumericVector adPredF(cRows * cNumClasses,
+    Rcpp::NumericVector adPredF(cRows,
                                 Rcpp::as<double>(rdInitF));
 
     if (adX.ncol() != aiWhichVar.size()) {
@@ -386,95 +371,92 @@ SEXP gbm_plot
 
     for(iTree=0; iTree<cTrees; iTree++)
     {
-        for (iClass = 0; iClass < cNumClasses; iClass++)
+      const Rcpp::GenericVector thisTree = trees[iTree];
+      const Rcpp::IntegerVector iSplitVar = thisTree[0];
+      const Rcpp::NumericVector dSplitCode = thisTree[1];
+      const Rcpp::IntegerVector iLeftNode = thisTree[2];
+      const Rcpp::IntegerVector iRightNode = thisTree[3];
+      const Rcpp::IntegerVector iMissingNode = thisTree[4];
+      const Rcpp::NumericVector dW = thisTree[6];
+      for(iObs=0; iObs<cRows; iObs++)
         {
-          const Rcpp::GenericVector thisTree = trees[iClass + iTree*cNumClasses];
-          const Rcpp::IntegerVector iSplitVar = thisTree[0];
-          const Rcpp::NumericVector dSplitCode = thisTree[1];
-          const Rcpp::IntegerVector iLeftNode = thisTree[2];
-          const Rcpp::IntegerVector iRightNode = thisTree[3];
-          const Rcpp::IntegerVector iMissingNode = thisTree[4];
-          const Rcpp::NumericVector dW = thisTree[6];
-          for(iObs=0; iObs<cRows; iObs++)
+          nodeStack stack;
+          stack.push(0, 1.0);
+          while( !stack.empty() )
             {
-              nodeStack stack;
-              stack.push(0, 1.0);
-              while( !stack.empty() )
+              const std::pair<int, double> top = stack.pop();
+              int iCurrentNode = top.first;
+              const double dWeight = top.second;
+              
+              if(iSplitVar[iCurrentNode] == -1) // terminal node
                 {
-                  const std::pair<int, double> top = stack.pop();
-                  int iCurrentNode = top.first;
-                  const double dWeight = top.second;
+                  adPredF[iClass*cRows + iObs] +=
+                    dWeight * dSplitCode[iCurrentNode];
+                }
+              else // non-terminal node
+                {
+                  // is this a split variable that interests me?
+                  const Rcpp::IntegerVector::const_iterator
+                    found = std::find(aiWhichVar.begin(),
+                                      aiWhichVar.end(),
+                                      iSplitVar[iCurrentNode]);
                   
-                  if(iSplitVar[iCurrentNode] == -1) // terminal node
+                  if (found != aiWhichVar.end())
                     {
-                      adPredF[iClass*cRows + iObs] +=
-                         dWeight * dSplitCode[iCurrentNode];
-                    }
-                    else // non-terminal node
-                    {
-                        // is this a split variable that interests me?
-                        const Rcpp::IntegerVector::const_iterator
-                          found = std::find(aiWhichVar.begin(),
-                                            aiWhichVar.end(),
-                                            iSplitVar[iCurrentNode]);
-                        
-                        if (found != aiWhichVar.end())
+                      const int iPredVar = found - aiWhichVar.begin();
+                      const double dX = adX(iObs, iPredVar);
+                      // missing?
+                      if(ISNA(dX))
                         {
-                          const int iPredVar = found - aiWhichVar.begin();
-                          const double dX = adX(iObs, iPredVar);
-                          // missing?
-                          if(ISNA(dX))
+                          stack.push(iMissingNode[iCurrentNode],dWeight);
+                        }
+                      // continuous?
+                      else if(aiVarType[iSplitVar[iCurrentNode]] == 0)
+                        {
+                          if(dX < dSplitCode[iCurrentNode])
+                            {
+                              stack.push(iLeftNode[iCurrentNode],dWeight);
+                            }
+                          else
+                            {
+                              stack.push(iRightNode[iCurrentNode],dWeight);
+                            }
+                        }
+                      else // categorical
+                        {
+                          const Rcpp::IntegerVector catSplits = cSplits[dSplitCode[iCurrentNode]];
+                          
+                          const int iCatSplitIndicator = catSplits[dX];
+                          if(iCatSplitIndicator==-1)
+                            {
+                              stack.push(iLeftNode[iCurrentNode],dWeight);
+                            }
+                          else if(iCatSplitIndicator==1)
+                            {
+                              stack.push(iRightNode[iCurrentNode],dWeight);
+                            }
+                          else // handle unused level
                             {
                               stack.push(iMissingNode[iCurrentNode],dWeight);
                             }
-                          // continuous?
-                          else if(aiVarType[iSplitVar[iCurrentNode]] == 0)
-                            {
-                              if(dX < dSplitCode[iCurrentNode])
-                                {
-                                  stack.push(iLeftNode[iCurrentNode],dWeight);
-                                }
-                              else
-                                {
-                                  stack.push(iRightNode[iCurrentNode],dWeight);
-                                }
-                            }
-                            else // categorical
-                            {
-                              const Rcpp::IntegerVector catSplits = cSplits[dSplitCode[iCurrentNode]];
-                              
-                              const int iCatSplitIndicator = catSplits[dX];
-                              if(iCatSplitIndicator==-1)
-                                {
-                                  stack.push(iLeftNode[iCurrentNode],dWeight);
-                                }
-                              else if(iCatSplitIndicator==1)
-                                {
-                                  stack.push(iRightNode[iCurrentNode],dWeight);
-                                }
-                              else // handle unused level
-                                {
-                                  stack.push(iMissingNode[iCurrentNode],dWeight);
-                                }
-                            }
-                        } // iPredVar != -1
-                        else // not interested in this split, average left and right
-                          {
-                            const int right = iRightNode[iCurrentNode];
-                            const int left = iLeftNode[iCurrentNode];
-                            const double right_weight = dW[right];
-                            const double left_weight = dW[left];
-                            stack.push(right,
-                                       dWeight * right_weight /
-                                       (right_weight + left_weight));
-                            stack.push(left,
-                                       dWeight * left_weight /
-                                       (right_weight + left_weight));
                         }
-                    } // non-terminal node
-                } // while(cStackNodes > 0)
-            } // iObs
-        } // iClass
+                    } // iPredVar != -1
+                  else // not interested in this split, average left and right
+                    {
+                      const int right = iRightNode[iCurrentNode];
+                      const int left = iLeftNode[iCurrentNode];
+                      const double right_weight = dW[right];
+                      const double left_weight = dW[left];
+                      stack.push(right,
+                                 dWeight * right_weight /
+                                 (right_weight + left_weight));
+                      stack.push(left,
+                                 dWeight * left_weight /
+                                 (right_weight + left_weight));
+                    }
+                } // non-terminal node
+            } // while(cStackNodes > 0)
+        } // iObs
     } // iTree
 
     return Rcpp::wrap(adPredF);

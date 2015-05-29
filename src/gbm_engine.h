@@ -42,16 +42,14 @@ public:
 		    double dBagFraction,
 		    unsigned long cLeaves,
 		    unsigned long cMinObsInNode,
-		    unsigned long cNumClasses,
 		    int cGroups);
 
     void iterate(double *adF,
 		 double &dTrainError,
 		 double &dValidError,
 		 double &dOOBagImprove,
-		 int &cNodes,
-		 int cNumClasses,
-		 int cClassIdx);
+		 int &cNodes);
+    
     void TransferTreeToRList(int *aiSplitVar,
 			     double *adSplitPoint,
 			     int *aiLeftNode,

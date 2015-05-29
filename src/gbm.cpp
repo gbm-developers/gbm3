@@ -38,7 +38,6 @@ std::auto_ptr<CDistribution> gbm_setup
  int cTrees,
  int cDepth,
  int cMinObsInNode,
- int cNumClasses,
  double dShrinkage,
  double dBagFraction,
  int cTrain,
@@ -87,10 +86,6 @@ std::auto_ptr<CDistribution> gbm_setup
   else if (family == "tdist")
     {
       pDist.reset(new CTDist(data.misc_ptr()[0]));
-    }
-  else if (family == "multinomial")
-    {
-      pDist.reset(new CMultinomial(cNumClasses, data.nrow()));
     }
   else if (family == "huberized")
     {

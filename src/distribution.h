@@ -41,7 +41,6 @@ public:
 // * cLength  - Number of instances (size of vectors)
 // * afInBag  - true if instance is part of training set for current tree
 //              (depends on random subsampling)
-// * cIdxOff  - Offset used for multi-class training (CMultinomial).
 
 // Initialize() is called once, before training starts.
 // It gives derived classes a chance for custom preparations, e.g., to allocate
@@ -71,8 +70,7 @@ public:
 					double *adZ,
 					const double *adWeight,
 					const bag& afInBag,
-					unsigned long cLength,
-					int cIdxOff) = 0;
+					unsigned long cLength) = 0;
 
 // InitF() computes the best constant prediction for all instances, and
 // stores it in dInitF.
@@ -92,8 +90,7 @@ public:
                             const double *adOffset,
                             const double *adWeight,
                             const double *adF,
-                            unsigned long cLength,
-	                    int cIdxOff) = 0;
+                            unsigned long cLength) = 0;
 
 // FitBestConstant() calculates and sets prediction values for all terminal nodes
 // of the tree being currently constructed.
@@ -116,8 +113,7 @@ public:
 				      unsigned long cTermNodes,
 				      unsigned long cMinObsInNode,
 				      const bag& afInBag,
-				      const double *adFadj,
-				      int cIdxOff) = 0;
+				      const double *adFadj) = 0;
 
 // BagImprovement() returns the incremental difference in the loss
 // function induced by scoring with (adF + dStepSize * adFAdj) instead of adF, for

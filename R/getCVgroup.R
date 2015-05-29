@@ -2,7 +2,7 @@ getCVgroup <-
     # Construct cross-validation groups depending on the type of model to be fit
 function(distribution, class.stratify.cv, y, i.train, cv.folds, group, fold.id){
 
-    if (distribution$name %in% c( "bernoulli", "multinomial" ) & class.stratify.cv ){
+    if (distribution$name %in% c( "bernoulli") & class.stratify.cv ){
         nc <- table(y[i.train]) # Number in each class
         uc <- names(nc)
         if (min(nc) < cv.folds){

@@ -20,8 +20,7 @@ void CCoxPH::ComputeWorkingResponse
     double *adZ,
     const double *adWeight,
     const bag& afInBag,
-    unsigned long nTrain,
-    int cIdxOff
+    unsigned long nTrain
 )
 {
     unsigned long i = 0;
@@ -80,8 +79,7 @@ double CCoxPH::Deviance
     const double *adOffset,
     const double *adWeight,
     const double *adF,
-    unsigned long cLength,
-    int cIdxOff
+    unsigned long cLength
 )
 {
     unsigned long i=0;
@@ -91,7 +89,7 @@ double CCoxPH::Deviance
     double dTotalAtRisk = 0.0;
 
     dTotalAtRisk = 0.0;
-    for(i=cIdxOff; i<cLength+cIdxOff; i++)
+    for(i=0; i!=cLength; i++)
     {
         dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
         dTotalAtRisk += adWeight[i]*std::exp(dF);
@@ -120,8 +118,7 @@ void CCoxPH::FitBestConstant
     unsigned long cTermNodes,
     unsigned long cMinObsInNode,
     const bag& afInBag,
-    const double *adFadj,
-	int cIdxOff
+    const double *adFadj
 )
 {
     double dF = 0.0;

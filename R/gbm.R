@@ -41,15 +41,13 @@
 #' specifying the distribution and any additional parameters
 #' needed. If not specified, \code{gbm} will try to guess: if the
 #' response has only two unique values, bernoulli is assumed;
-#' otherwise, if the response is a factor, multinomial is assumed;
 #' otherwise, if the response has class "Surv", coxph is assumed;
 #' otherwise, gaussian is assumed.
 #' 
 #' Available distributions are "gaussian" (squared error), "laplace"
 #' (absolute loss), "tdist" (t-distribution loss), "bernoulli"
 #' (logistic regression for 0-1 outcomes), "huberized" (Huberized
-#' hinge loss for 0-1 outcomes), "multinomial" (classification when
-#' there are more than two classes), "adaboost" (the AdaBoost
+#' hinge loss for 0-1 outcomes), "adaboost" (the AdaBoost
 #' exponential loss for 0-1 outcomes), "poisson" (count outcomes),
 #' "coxph" (right censored observations), "quantile", or "pairwise"
 #' (ranking measure using the LambdaMART algorithm).
@@ -187,9 +185,8 @@
 #' \code{verbose} from \code{object}.
 #' 
 #' @param class.stratify.cv whether the cross-validation should be
-#' stratified by class. Defaults to \code{TRUE} for
-#' \code{distribution="multinomial"} and is only implemented for
-#' \code{multinomial} and \code{bernoulli}. The purpose of stratifying
+#' stratified by class. Is only implemented for
+#' \code{bernoulli}. The purpose of stratifying
 #' the cross-validation is to help avoiding situations in which
 #' training sets do not contain all classes.
 #'
@@ -252,7 +249,7 @@
 #' Quantile regression code developed by Brian Kriegler
 #' \email{bk@@stat.ucla.edu}
 #' 
-#' t-distribution, and multinomial code developed by Harry Southworth and
+#' t-distribution code developed by Harry Southworth and
 #' Daniel Edwards
 #' 
 #' Pairwise code developed by Stefan Schroedl \email{schroedl@@a9.com}

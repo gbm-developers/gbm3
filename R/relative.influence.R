@@ -48,14 +48,10 @@ relative.influence <- function(object, n.trees, scale. = FALSE, sort. = FALSE){
          n.trees <- gbm.perf( object, method="cv", plot.it = FALSE )
       }
       else{
-         # If dist=multinomial, object$n.trees = n.trees * num.classes
-         # so use the following instead.
-         n.trees <- length( object$train.error )
+         n.trees <- object$n.trees
       }
       message(paste( "n.trees not given. Using", n.trees, "trees.\n" ))
-      if (object$distribution == "multinomial"){
-          n.trees <- n.trees * object$num.classes
-      }
+      
    }
    get.rel.inf <- function(obj)
    {

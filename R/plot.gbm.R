@@ -142,7 +142,6 @@ plot.gbm <- function(x,
    # evaluate at each data point
    y <- .Call("gbm_plot",
               X = data.matrix(X),
-              n.class = as.integer(x$num.classes),
               i.var = as.integer(i.var-1),
               n.trees = as.integer(n.trees) ,
               initF = as.double(x$initF),
@@ -151,19 +150,7 @@ plot.gbm <- function(x,
               var.type = as.integer(x$var.type),
               PACKAGE = "gbm")
 
-   if (x$distribution$name=="multinomial")
-   {
-      ## Put result into matrix form
-      X$y <- matrix(y, ncol = x$num.classes)
-      colnames(X$y) <- x$classes
-
-      ## Use class probabilities
-      if (type=="response"){
-         X$y <- exp(X$y)
-         X$y <- X$y / matrix(rowSums(X$y), ncol=ncol(X$y), nrow=nrow(X$y))
-      }
-   }
-   else if(is.element(x$distribution$name, c("bernoulli", "pairwise")) && type=="response") {
+   if(is.element(x$distribution$name, c("bernoulli", "pairwise")) && type=="response") {
       X$y <- 1/(1+exp(-y))
    }
    else if ((x$distribution$name=="poisson") && (type=="response")){
@@ -176,7 +163,7 @@ plot.gbm <- function(x,
       X$y <- exp(y)
    }
    else if (type=="response"){
-      warning("type 'response' only implemented for 'bernoulli', 'poisson', 'gamma', 'tweedie', 'multinomial', and 'pairwise'. Ignoring" )
+      warning("type 'response' only implemented for 'bernoulli', 'poisson', 'gamma', 'tweedie', and 'pairwise'. Ignoring" )
    }
    else { X$y <- y }
 
@@ -205,22 +192,7 @@ plot.gbm <- function(x,
       {
          j <- order(X$X1)
 
-         if (x$distribution$name == "multinomial") {
-            if ( type == "response" ){
-               ylabel <- "Predicted class probability"
-            }
-            else { ylabel <- paste("f(",x$var.names[i.var],")",sep="") }
-            plot(range(X$X1), range(X$y), type = "n", xlab = x$var.names[i.var],
-                 ylab = ylabel)
-
-            for (ii in 1:x$num.classes){
-               lines(X$X1,X$y[,ii],
-                     xlab=x$var.names[i.var],
-                     ylab=paste("f(",x$var.names[i.var],")",sep=""),
-                     col = ii, ...)
-            }
-         }
-         else if (is.element(x$distribution$name, c("bernoulli", "pairwise"))) {
+         if (is.element(x$distribution$name, c("bernoulli", "pairwise"))) {
             if ( type == "response" ){
                ylabel <- "Predicted probability"
             }
@@ -247,25 +219,7 @@ plot.gbm <- function(x,
       }
       else
       {
-         if (x$distribution$name == "multinomial") {
-            nX <- length(X$X1)
-            dim.y <- dim(X$y)
-            if (type == "response" ){
-               ylabel <- "Predicted probability"
-            }
-            else{ ylabel <- paste("f(",x$var.names[i.var],")",sep="") }
-
-            plot(c(0,nX), range(X$y), axes = FALSE, type = "n",
-                 xlab = x$var.names[i.var], ylab = ylabel)
-            axis(side = 1, labels = FALSE, at = 0:nX)
-            axis(side = 2)
-
-            mtext(as.character(X$X1), side = 1, at = 1:nX - 0.5)
-
-            segments(x1 = rep(1:nX - 0.75, each = dim.y[2]), y1 = as.vector(t(X$y)),
-                     x2 = rep(1:nX - 0.25, each = dim.y[2]), col = 1:dim.y[2])
-         }
-         else if (is.element(x$distribution$name, c("bernoulli", "pairwise")) && type == "response" ){
+         if (is.element(x$distribution$name, c("bernoulli", "pairwise")) && type == "response" ){
             ylabel <- "Predicted probability"
             plot( X$X1, X$y, type = "l", xlab=x$var.names[i.var], ylab=ylabel )
          }
@@ -285,94 +239,37 @@ plot.gbm <- function(x,
    {
       if(!f.factor[1] && !f.factor[2])
       {
-         if (x$distribution$name == "multinomial")
-         {
-            for (ii in 1:x$num.classes){
-               X$temp <- X$y[, ii]
-               print(levelplot(temp~X1*X2,data=X,
-                               xlab=x$var.names[i.var[1]],
-                               ylab=x$var.names[i.var[2]],...))
-               title(paste("Class:", dimnames(X$y)[[2]][ii]))
-            }
-            X$temp <- NULL
-         }
-         else {
-            print(levelplot(y~X1*X2,data=X,
-                      xlab=x$var.names[i.var[1]],
-                      ylab=x$var.names[i.var[2]],...))
-         }
+         print(levelplot(y~X1*X2,data=X,
+                         xlab=x$var.names[i.var[1]],
+                         ylab=x$var.names[i.var[2]],...))
+         
       }
       else if(f.factor[1] && !f.factor[2])
       {
-         if (x$distribution$name == "multinomial")
-         {
-            for (ii in 1:x$num.classes){
-               X$temp <- X$y[, ii]
-               print( xyplot(temp~X2|X1,data=X,
-                             xlab=x$var.names[i.var[2]],
-                             ylab=paste("f(",x$var.names[i.var[1]],",",x$var.names[i.var[2]],")",sep=""),
-                             type="l",
-                             panel = panel.xyplot,
-                             ...) )
-               title(paste("Class:", dimnames(X$y)[[2]][ii]))
-            }
-            X$temp <- NULL
-         }
-         else {
-            print(xyplot(y~X2|X1,data=X,
-                   xlab=x$var.names[i.var[2]],
-                   ylab=paste("f(",x$var.names[i.var[1]],",",x$var.names[i.var[2]],")",sep=""),
-                   type="l",
-                   panel = panel.xyplot,
-                   ...))
-         }
+         print(xyplot(y~X2|X1,data=X,
+                      xlab=x$var.names[i.var[2]],
+                      ylab=paste("f(",x$var.names[i.var[1]],",",x$var.names[i.var[2]],")",sep=""),
+                      type="l",
+                      panel = panel.xyplot,
+                      ...))
       }
       else if(!f.factor[1] && f.factor[2])
       {
-         if (x$distribution$name == "multinomial")
-         {
-            for (ii in 1:x$num.classes){
-               X$temp <- X$y[, ii]
-               print( xyplot(temp~X1|X2,data=X,
-                             xlab=x$var.names[i.var[1]],
-                             ylab=paste("f(",x$var.names[i.var[1]],",",x$var.names[i.var[2]],")",sep=""),
-                             type="l",
-                             panel = panel.xyplot,
-                             ...) )
-               title(paste("Class:", dimnames(X$y)[[2]][ii]))
-            }
-            X$temp <- NULL
-         }
-         else {
-            print(xyplot(y~X1|X2,data=X,
-                   xlab=x$var.names[i.var[1]],
-                   ylab=paste("f(",x$var.names[i.var[1]],",",x$var.names[i.var[2]],")",sep=""),
-                   type="l",
-                   panel = panel.xyplot,
-                   ...))
-         }
-      }
+         print(xyplot(y~X1|X2,data=X,
+                      xlab=x$var.names[i.var[1]],
+                      ylab=paste("f(",x$var.names[i.var[1]],",",x$var.names[i.var[2]],")",sep=""),
+                      type="l",
+                      panel = panel.xyplot,
+                      ...))
+     }
       else
       {
-         if (x$distribution$name == "multinomial")
-         {
-            for (ii in 1:x$num.classes){
-               X$temp <- X$y[, ii]
-               print( stripplot(X1~temp|X2,data=X,
-                                xlab=x$var.names[i.var[2]],
-                                ylab=paste("f(",x$var.names[i.var[1]],",",x$var.names[i.var[2]],")",sep=""),
-                                ...) )
-               title(paste("Class:", dimnames(X$y)[[2]][ii]))
-            }
-            X$temp <- NULL
-         }
-         else {
-            print(stripplot(X1~y|X2,data=X,
-                      xlab=x$var.names[i.var[2]],
-                      ylab=paste("f(",x$var.names[i.var[1]],",",x$var.names[i.var[2]],")",sep=""),
-                      ...))
-         }
-      }
+         print(stripplot(X1~y|X2,data=X,
+                         xlab=x$var.names[i.var[2]],
+                         ylab=paste("f(",x$var.names[i.var[1]],",",x$var.names[i.var[2]],")",sep=""),
+                         ...))
+         
+     }
    }
    else if(length(i.var)==3)
    {
@@ -385,90 +282,37 @@ plot.gbm <- function(x,
       if(sum(f.factor)==0)
       {
          X.new$X3 <- equal.count(X.new$X3)
-         if (x$distribution$name == "multinomial")
-         {
-            for (ii in 1:x$num.classes){
-               X.new$temp <- X.new$y[, ii]
-               print( levelplot(temp~X1*X2|X3,data=X.new,
-                                xlab=x$var.names[i.var[i[1]]],
-                                ylab=x$var.names[i.var[i[2]]],...) )
-               title(paste("Class:", dimnames(X.new$y)[[2]][ii]))
-            }
-            X.new$temp <- NULL
-         }
-         else {
-            print(levelplot(y~X1*X2|X3,data=X.new,
-                      xlab=x$var.names[i.var[i[1]]],
-                      ylab=x$var.names[i.var[i[2]]],...))
-         }
+         print(levelplot(y~X1*X2|X3,data=X.new,
+                         xlab=x$var.names[i.var[i[1]]],
+                         ylab=x$var.names[i.var[i[2]]],...))
+         
       }
       # 1 factor, 2 continuous
       else if(sum(f.factor)==1)
       {
-         if (x$distribution$name == "multinomial")
-         {
-            for (ii in 1:x$num.classes){
-               X.new$temp <- X.new$y[, ii]
-               print( levelplot(temp~X1*X2|X3,data=X.new,
-                                xlab=x$var.names[i.var[i[1]]],
-                                ylab=x$var.names[i.var[i[2]]],...))
-               title(paste("Class:", dimnames(X.new$y)[[2]][ii]) )
-            }
-            X.new$temp <- NULL
-         }
-         else {
-            print(levelplot(y~X1*X2|X3,data=X.new,
-                      xlab=x$var.names[i.var[i[1]]],
-                      ylab=x$var.names[i.var[i[2]]],...))
-         }
+         print(levelplot(y~X1*X2|X3,data=X.new,
+                         xlab=x$var.names[i.var[i[1]]],
+                         ylab=x$var.names[i.var[i[2]]],...))
+         
       }
       # 2 factors, 1 continuous
       else if(sum(f.factor)==2)
       {
-         if (x$distribution$name == "multinomial")
-         {
-            for (ii in 1:x$num.classes){
-               X.new$temp <- X.new$y[, ii]
-               print( xyplot(temp~X1|X2*X3,data=X.new,
-                             type="l",
-                             xlab=x$var.names[i.var[i[1]]],
-                             ylab=paste("f(",paste(x$var.names[i.var[1:3]],collapse=","),")",sep=""),
-                             panel = panel.xyplot,
-                             ...) )
-               title(paste("Class:", dimnames(X.new$y)[[2]][ii]) )
-            }
-            X.new$temp <- NULL
-         }
-         else {
-            print(xyplot(y~X1|X2*X3,data=X.new,
-                   type="l",
-                   xlab=x$var.names[i.var[i[1]]],
-                   ylab=paste("f(",paste(x$var.names[i.var[1:3]],collapse=","),")",sep=""),
-                   panel = panel.xyplot,
-                   ...))
-         }
+         print(xyplot(y~X1|X2*X3,data=X.new,
+                      type="l",
+                      xlab=x$var.names[i.var[i[1]]],
+                      ylab=paste("f(",paste(x$var.names[i.var[1:3]],collapse=","),")",sep=""),
+                      panel = panel.xyplot,
+                      ...))
       }
       # 3 factors, 0 continuous
       else if(sum(f.factor)==3)
       {
-         if (x$distribution$name == "multinomial")
-         {
-            for (ii in 1:x$num.classes){
-               X.new$temp <- X.new$y[, ii]
-               print( stripplot(X1~temp|X2*X3,data=X.new,
-                                xlab=x$var.names[i.var[i[1]]],
-                                ylab=paste("f(",paste(x$var.names[i.var[1:3]],collapse=","),")",sep=""),
-                                ...) )
-               title(paste("Class:", dimnames(X.new$y)[[2]][ii]) )
-            }
-            X.new$temp <- NULL
-         }
-         else {
-            print(stripplot(X1~y|X2*X3,data=X.new,
-                      xlab=x$var.names[i.var[i[1]]],
-                      ylab=paste("f(",paste(x$var.names[i.var[1:3]],collapse=","),")",sep=""),
-                      ...))
-         }
+         print(stripplot(X1~y|X2*X3,data=X.new,
+                         xlab=x$var.names[i.var[i[1]]],
+                         ylab=paste("f(",paste(x$var.names[i.var[1:3]],collapse=","),")",sep=""),
+                         ...))
+
       }
    }
 }

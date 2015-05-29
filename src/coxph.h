@@ -37,8 +37,7 @@ public:
 				double *adZ,
 				const double *adWeight,
 				const bag& afInBag,
-				unsigned long nTrain,
-				int cIdxOff);
+				unsigned long nTrain);
 
     void InitF(const double *adT,
 	       const double *adDelta,
@@ -59,16 +58,14 @@ public:
 			 unsigned long cTermNodes,
 			 unsigned long cMinObsInNode,
 			 const bag& afInBag,
-			 const double *adFadj,
-			 int cIdxOff);
+			 const double *adFadj);
     
     double Deviance(const double *adT,
                     const double *adDelta,
                     const double *adOffset,
                     const double *adWeight,
                     const double *adF,
-                    unsigned long cLength,
-		    int cIdxOff);
+                    unsigned long cLength);
 
     double BagImprovement(const double *adT,
                           const double *adDelta,

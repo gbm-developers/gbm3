@@ -171,7 +171,6 @@ gbm.more <- function(object,
                     n.trees = as.integer(n.new.trees),
                     interaction.depth = as.integer(object$interaction.depth),
                     n.minobsinnode = as.integer(object$n.minobsinnode),
-                    n.classes = as.integer(object$num.classes),
                     shrinkage = as.double(object$shrinkage),
                     bag.fraction = as.double(object$bag.fraction),
                     train.fraction = as.integer(nTrain), #Should this be as.double(train.fraction)

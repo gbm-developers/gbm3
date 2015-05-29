@@ -16,9 +16,9 @@
 #' influence on predictions is given (which might be interesting in data mining
 #' applications).
 #' 
-#' If multinomial, bernoulli or adaboost was used, the confusion matrix and
+#' If bernoulli or adaboost was used, the confusion matrix and
 #' prediction accuracy are printed (objects being allocated to the class with
-#' highest probability for multinomial and bernoulli). These classifications
+#' highest probability for bernoulli). These classifications
 #' are performed using the cross-validation fitted values.
 #' 
 #' If the 'distribution' was specified as gaussian, laplace, quantile or
@@ -36,17 +36,6 @@
 #' @references P. J. Rousseeuw and A. M. Leroy, Robust Regression and Outlier
 #' Detection, Wiley, 1987 (2003).
 #' @keywords models nonlinear survival nonparametric
-#' @examples
-#' 
-#' data(iris)
-#' iris.mod <- gbm(Species ~ ., distribution="multinomial", data=iris,
-#'                  n.trees=2000, shrinkage=0.01, cv.folds=5,
-#'                  verbose=FALSE, n.cores=1)
-#' iris.mod
-#' #data(lung)
-#' #lung.mod <- gbm(Surv(time, status) ~ ., distribution="coxph", data=lung,
-#' #                 n.trees=2000, shrinkage=0.01, cv.folds=5,verbose =FALSE)
-#' #lung.mod
 #' @export
 print.gbm <- function(x, ... ){
    if (!is.null(x$call)){ print(x$call) }
@@ -90,28 +79,8 @@ print.gbm <- function(x, ... ){
    }
    
    d <- reconstructGBMdata(x)
-   if (x$distribution$name == "multinomial"){
-       n.class <- x$num.classes
 
-       yn <- as.numeric(d[, x$response.name])
-
-       p <- apply(x$cv.fitted, 1, function(x , labels){ labels[x == max(x)] }, labels = x$classes)
-       p <- as.numeric(as.factor(p))
-       r <- yn
-
-       conf.mat <- matrix(table(c(r + n.class * p, (n.class + (1:(n.class^2))))),
-                          nrow = n.class)
-       conf.mat <- conf.mat - 1
-       pred.acc <- round(100 * sum(diag(conf.mat)) / sum(conf.mat),2)
-       conf.mat <- cbind(conf.mat, round(100*diag(conf.mat)/rowSums(conf.mat),2))
-       dimnames(conf.mat) <- list(x$classes, c(x$classes, "Pred. Acc."))
-
-       cat("\nCross-validation confusion matrix:\n")
-       print(conf.mat)
-
-       cat("\nCross-validation prediction Accuracy = ", pred.acc, "%\n", sep = "")
-   }
-   else if (x$distribution$name %in% c("bernoulli", "adaboost", "huberized")){
+   if (x$distribution$name %in% c("bernoulli", "adaboost", "huberized")){
 
        p <- 1 / (1 + exp(-x$cv.fitted))
        p <- ifelse(p < .5, 0, 1)
