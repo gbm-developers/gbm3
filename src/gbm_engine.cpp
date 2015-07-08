@@ -128,9 +128,9 @@ void CGBM::iterate
     if (!IsPairwise())
     {
       // regular instance based training
-      for(i=0; i<cTrain; i++)
+      for(i=0; i<cTrain && (cBagged < cTotalInBag); i++)
       {
-        if(unif_rand()*(cTrain-i) < cTotalInBag-cBagged)
+        if(unif_rand() * (cTrain-i) < cTotalInBag - cBagged)
         {
           afInBag[i] = true;
           cBagged++;
@@ -140,7 +140,7 @@ void CGBM::iterate
           afInBag[i] = false;
         }
       }
-	    std::fill(afInBag.begin() + i, afInBag.end(), false);
+      std::fill(afInBag.begin() + i, afInBag.end(), false);
     }
     else
     {
@@ -186,7 +186,7 @@ void CGBM::iterate
         }
       }
       // the remainder is not in the bag
-	    std::fill(afInBag.begin() + i, afInBag.end(), false);
+      std::fill(afInBag.begin() + i, afInBag.end(), false);
     }
   }
 
