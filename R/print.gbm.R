@@ -238,7 +238,8 @@ summary.gbm <- function(object,
               horiz=TRUE,
               col=rainbow(cBars,start=3/6,end=4/6),
               names=object$var.names[i[cBars:1]],
-              xlab="Relative influence",...)
+              xlab="Relative influence",
+              las=1,...)
    }
    return(data.frame(var=object$var.names[i],
                      rel.inf=rel.inf[i]))
