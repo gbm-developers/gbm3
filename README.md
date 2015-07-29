@@ -1,6 +1,8 @@
 gbm: gradient boosted models
 ----------------------------
 
+[![Build Status](https://travis-ci.org/gbm-developers/gbm.svg?branch=master)](https://travis-ci.org/gbm-developers/gbm)
+
 Originally written by Greg Ridgeway, added to by various authors,
 currently maintained by Harry Southworth.  Development is discussed
 --- somewhat --- at https://groups.google.com/forum/#!forum/gbm-dev .
