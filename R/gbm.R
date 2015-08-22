@@ -166,7 +166,7 @@
 #' \code{mFeatures} number of features. Each node will consider a new
 #' random subset of features, adding variability to tree growth and
 #' reducing computation time. \code{mFeatures} will be bounded between
-#' 1 and \code{nCols}. Values outside of this bound will be to the
+#' 1 and \code{nCols}. Values outside of this bound will be set to the
 #' lower or upper limits.
 #'
 #' @param keep.data a logical variable indicating whether to keep the
@@ -323,7 +323,7 @@
 #'     bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
 #'     train.fraction = 0.5,        # fraction of data for training,
 #'                                  # first train.fraction*N used for training
-#'     mFeatures = 3,        			 # half of the features are considered at each node
+#'     mFeatures = 3,               # half of the features are considered at each node
 #'     n.minobsinnode = 10,         # minimum total weight needed in each node
 #'     cv.folds = 3,                # do 3-fold cross-validation
 #'     keep.data=TRUE,              # keep a copy of the dataset with the object
