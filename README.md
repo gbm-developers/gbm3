@@ -2,6 +2,7 @@ gbm: gradient boosted models
 ----------------------------
 
 [![Build Status](https://travis-ci.org/gbm-developers/gbm.svg?branch=master)](https://travis-ci.org/gbm-developers/gbm)
+[![CRAN Status Badge](http://www.r-pkg.org/badges/version/gbm)](https://cran.r-project.org/web/packages/gbm/)
 
 Originally written by Greg Ridgeway, added to by various authors,
 currently maintained by Harry Southworth.  Development is discussed
