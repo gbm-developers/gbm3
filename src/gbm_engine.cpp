@@ -4,6 +4,14 @@
 
 #include "gbm_engine.h"
 
+namespace {
+  template <typename T> 
+  inline T* 
+  shift_ptr(T* x, std::ptrdiff_t y) {
+    if (x) { return x + y; } else { return x; }
+  }
+}
+
 CGBM::CGBM()
 {
     cDepth = 0;
@@ -36,7 +44,6 @@ void CGBM::Initialize
     double dBagFraction,
     unsigned long cDepth,
     unsigned long cMinObsInNode,
-    unsigned long cNumClasses,
     int cGroups
 )
 {
@@ -71,8 +78,8 @@ void CGBM::Initialize
     throw GBM::invalid_argument("you have an empty bag!");
   }
   
-  adZ.assign(data.nrow() * cNumClasses, 0);
-  adFadj.assign(data.nrow() * cNumClasses, 0);
+  adZ.assign(data.nrow(), 0);
+  adFadj.assign(data.nrow(), 0);
   
   pNodeFactory.reset(new CNodeFactory());
   pNodeFactory->Initialize(cDepth);
@@ -102,14 +109,11 @@ void CGBM::iterate
   double &dTrainError,
   double &dValidError,
   double &dOOBagImprove,
-  int &cNodes,
-  int cNumClasses,
-  int cClassIdx
+  int &cNodes
 )
 {
   unsigned long i = 0;
   unsigned long cBagged = 0;
-  int cIdxOff = cClassIdx * (cTrain + cValid);
 
   if(!fInitialized)
   {
@@ -123,9 +127,7 @@ void CGBM::iterate
   vecpTermNodes.assign(2*cDepth+1,NULL);
 
   // randomly assign observations to the Bag
-  if (cClassIdx == 0)
-  {
-    if (!IsPairwise())
+  if (!IsPairwise())
     {
       // regular instance based training
       for(i=0; i<cTrain; i++)
@@ -186,23 +188,22 @@ void CGBM::iterate
         }
       }
       // the remainder is not in the bag
-	    std::fill(afInBag.begin() + i, afInBag.end(), false);
+      std::fill(afInBag.begin() + i, afInBag.end(), false);
     }
-  }
+
 
 #ifdef NOISY_DEBUG
   Rprintf("Compute working response\n");
 #endif
 
   pDist->ComputeWorkingResponse(pData->y_ptr(),
-                      				  pData->misc_ptr(false),
-                      				  pData->offset_ptr(false),
-                      				  adF,
-                      				  &adZ[0],
-                      				  pData->weight_ptr(),
-                      				  afInBag,
-                      				  cTrain,
-                      				  cIdxOff);
+                                pData->misc_ptr(false),
+                                pData->offset_ptr(false),
+                                adF,
+                                &adZ[0],
+                                pData->weight_ptr(),
+                                afInBag,
+                                cTrain);
 
 #ifdef NOISY_DEBUG
   Rprintf("Reset tree\n");
@@ -212,20 +213,20 @@ void CGBM::iterate
   Rprintf("grow tree\n");
 #endif
 
-  ptreeTemp->grow(&(adZ[cIdxOff]), 
+  ptreeTemp->grow(&(adZ[0]), 
                   *pData, 
-                  pData->weight_ptr() + cIdxOff,
-	                &(adFadj[cIdxOff]), 
+                  pData->weight_ptr() ,
+                  &(adFadj[0]), 
                   cTrain, 
                   cFeatures, 
                   cTotalInBag, 
-	                dLambda, 
+                  dLambda, 
                   cDepth,
-	                cMinObsInNode, 
+                  cMinObsInNode, 
                   afInBag, 
                   aiNodeAssign, 
                   &aNodeSearch[0],
-	                vecpTermNodes);
+                  vecpTermNodes);
 
 #ifdef NOISY_DEBUG
   ptreeTemp->Print();
@@ -243,24 +244,23 @@ void CGBM::iterate
 #endif
 
   pDist->FitBestConstant(pData->y_ptr(),
-                			   pData->misc_ptr(false),
-                			   pData->offset_ptr(false),
-                			   pData->weight_ptr(),
-                			   &adF[0],
-                			   &adZ[0],
-                			   aiNodeAssign,
-                			   cTrain,
-                			   vecpTermNodes,
-                			   (2*cNodes+1)/3, // number of terminal nodes
-                			   cMinObsInNode,
-                			   afInBag,
-                			   &adFadj[0],
-                			   cIdxOff);
+                         pData->misc_ptr(false),
+                         pData->offset_ptr(false),
+                         pData->weight_ptr(),
+                         &adF[0],
+                         &adZ[0],
+                         aiNodeAssign,
+                         cTrain,
+                         vecpTermNodes,
+                         (2*cNodes+1)/3, // number of terminal nodes
+                         cMinObsInNode,
+                         afInBag,
+                         &adFadj[0]);
 
   // update training predictions
   // fill in missing nodes where N < cMinObsInNode
   ptreeTemp->Adjust(aiNodeAssign,
-                    &(adFadj[cIdxOff]),
+                    &(adFadj[0]),
                     cTrain,
                     vecpTermNodes,
                     cMinObsInNode);
@@ -269,51 +269,44 @@ void CGBM::iterate
   ptreeTemp->Print();
 #endif
 
-  if (cClassIdx == (cNumClasses - 1))
-  {
-    dOOBagImprove = pDist->BagImprovement(pData->y_ptr(),
-                            					    pData->misc_ptr(false),
-                            					    pData->offset_ptr(false),
-                            					    pData->weight_ptr(),
-                            					    &adF[0],
-                            					    &adFadj[0],
-                            					    afInBag,
-                            					    dLambda,
-                            					    cTrain);
-  }
+  dOOBagImprove = pDist->BagImprovement(pData->y_ptr(),
+                                        pData->misc_ptr(false),
+                                        pData->offset_ptr(false),
+                                        pData->weight_ptr(),
+                                        &adF[0],
+                                        &adFadj[0],
+                                        afInBag,
+                                        dLambda,
+                                        cTrain);
     
   // update the training predictions
-  int iIdx = 0;
   for(i=0; i < cTrain; i++)
   {
-    iIdx = i + cIdxOff;
-    adF[iIdx] += dLambda * adFadj[iIdx];
+    adF[i] += dLambda * adFadj[i];
   }
-
+  
   dTrainError = pDist->Deviance(pData->y_ptr(),
                                 pData->misc_ptr(false),
                                 pData->offset_ptr(false),
                                 pData->weight_ptr(),
                                 adF,
-                                cTrain,
-                                cIdxOff);
+                                cTrain);
 
   // update the validation predictions
-  ptreeTemp->PredictValid(*pData,cValid,&(adFadj[cIdxOff]));
+  ptreeTemp->PredictValid(*pData,cValid,&(adFadj[0]));
 
   for(i=cTrain; i < cTrain+cValid; i++)
   {
-    adF[i + cIdxOff] += adFadj[i + cIdxOff];
+    adF[i] += adFadj[i];
   }
     
   dValidError =
-    pDist->Deviance(pData->y_ptr(),
-                    pData->misc_ptr(false),
-                    pData->offset_ptr(false),
-                    pData->weight_ptr(),
-                    adF,
-                    cValid,
-                    cIdxOff + cTrain);
+    pDist->Deviance(pData->y_ptr() + cTrain,
+                    shift_ptr(pData->misc_ptr(false), cTrain),
+                    shift_ptr(pData->offset_ptr(false), cTrain),
+                    pData->weight_ptr() + cTrain,
+                    adF + cTrain,
+                    cValid);
 }
 
 

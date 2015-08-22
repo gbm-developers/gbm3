@@ -86,7 +86,6 @@ interact.gbm <- function(x, data, i.var = 1, n.trees = x$n.trees){
       FF[[j]]$Z$n <- NULL
       FF[[j]]$f <- .Call("gbm_plot",
                          X = data.matrix(FF[[j]]$Z),
-                         n.class = as.integer(x$num.classes),
                          i.var = as.integer(i.var[a[[j]]] - 1),
                          n.trees = as.integer(n.trees),
                          initF = as.double(x$initF),
@@ -96,8 +95,7 @@ interact.gbm <- function(x, data, i.var = 1, n.trees = x$n.trees){
                          PACKAGE = "gbm")
       # FF[[jj]]$Z is the data, f is the predictions, n is the number of levels for factors
 
-      # Need to restructure f to deal with multinomial case
-      FF[[j]]$f <- matrix(FF[[j]]$f, ncol=x$num.classes, byrow=FALSE)
+      FF[[j]]$f <- matrix(FF[[j]]$f, ncol=1, byrow=FALSE)
 
       # center the values
       FF[[j]]$f <- apply(FF[[j]]$f, 2, function(x, w){
@@ -120,15 +118,11 @@ interact.gbm <- function(x, data, i.var = 1, n.trees = x$n.trees){
 
    # Compute H
    w <- matrix(FF[[length(a)]]$n, ncol=1)
-   f <- matrix(FF[[length(a)]]$f^2, ncol=x$num.classes, byrow=FALSE)
+   f <- matrix(FF[[length(a)]]$f^2, ncol=1, byrow=FALSE)
 
    top <- apply(H^2, 2, weighted.mean, w = w, na.rm = TRUE)
    btm <- apply(f, 2, weighted.mean, w = w, na.rm = TRUE)
    H <- top / btm
-
-   if (x$distribution$name=="multinomial"){
-      names(H) <- x$classes
-   }
 
    # If H > 1, rounding and tiny main effects have messed things up
    H[H > 1] <- NaN

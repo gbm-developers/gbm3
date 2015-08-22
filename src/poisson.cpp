@@ -20,8 +20,7 @@ void CPoisson::ComputeWorkingResponse
     double *adZ,
     const double *adWeight,
     const bag& afInBag,
-    unsigned long nTrain,
-    int cIdxOff
+    unsigned long nTrain
 )
 {
     unsigned long i = 0;
@@ -79,8 +78,7 @@ double CPoisson::Deviance
     const double *adOffset,
     const double *adWeight,
     const double *adF,
-    unsigned long cLength,
-	int cIdxOff
+    unsigned long cLength
 )
 {
     unsigned long i=0;
@@ -89,7 +87,7 @@ double CPoisson::Deviance
 
     if(adOffset == NULL)
     {
-        for(i=cIdxOff; i<cLength+cIdxOff; i++)
+        for(i=0; i<cLength; i++)
         {
             dL += adWeight[i]*(adY[i]*adF[i] - std::exp(adF[i]));
             dW += adWeight[i];
@@ -97,7 +95,7 @@ double CPoisson::Deviance
     }
     else
     {
-        for(i=cIdxOff; i<cLength+cIdxOff; i++)
+        for(i=0; i<cLength; i++)
         {
             dL += adWeight[i]*(adY[i]*(adOffset[i]+adF[i]) -
                                std::exp(adOffset[i]+adF[i]));
@@ -123,8 +121,7 @@ void CPoisson::FitBestConstant
     unsigned long cTermNodes,
     unsigned long cMinObsInNode,
     const bag& afInBag,
-    const double *adFadj,
-    int cIdxOff
+    const double *adFadj
 )
 {
     unsigned long iObs = 0;

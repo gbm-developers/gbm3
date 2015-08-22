@@ -12,8 +12,7 @@ void CQuantile::ComputeWorkingResponse
     double *adZ,
     const double *adWeight,
     const bag& afInBag,
-    unsigned long nTrain,
-    int cIdxOff
+    unsigned long nTrain
 )
 {
     unsigned long i = 0;
@@ -67,8 +66,7 @@ double CQuantile::Deviance
     const double *adOffset,
     const double *adWeight,
     const double *adF,
-    unsigned long cLength,
-    int cIdxOff
+    unsigned long cLength
 )
 {
     unsigned long i=0;
@@ -77,7 +75,7 @@ double CQuantile::Deviance
 
     if(adOffset == NULL)
     {
-        for(i=cIdxOff; i<cLength+cIdxOff; i++)
+        for(i=0; i<cLength; i++)
         {
             if(adY[i] > adF[i])
             {
@@ -92,7 +90,7 @@ double CQuantile::Deviance
     }
     else
     {
-        for(i=cIdxOff; i<cLength+cIdxOff; i++)
+        for(i=0; i<cLength; i++)
         {
             if(adY[i] > adF[i] + adOffset[i])
             {
@@ -123,8 +121,7 @@ void CQuantile::FitBestConstant
     unsigned long cTermNodes,
     unsigned long cMinObsInNode,
     const bag& afInBag,
-    const double *adFadj,
-	int cIdxOff
+    const double *adFadj
 )
 {
   unsigned long iNode = 0;

@@ -22,8 +22,7 @@ void CHuberized::ComputeWorkingResponse
     double *adZ,
     const double *adWeight,
     const bag& afInBag,
-    unsigned long nTrain,
-    int cIdxOff
+    unsigned long nTrain
 )
 {
    unsigned long i = 0;
@@ -86,8 +85,7 @@ double CHuberized::Deviance
     const double *adOffset,
     const double *adWeight,
     const double *adF,
-    unsigned long cLength,
-    int cIdxOff
+    unsigned long cLength
 )
 {
    unsigned long i=0;
@@ -97,7 +95,7 @@ double CHuberized::Deviance
 
    if(adOffset==NULL)
    {
-      for(i=cIdxOff; i<cLength+cIdxOff; i++)
+      for(i=0; i<cLength; i++)
       {
         if ( (2*adY[i]-1)*adF[i] < -1 )
          {
@@ -116,7 +114,7 @@ double CHuberized::Deviance
    } // close if (adOffset==NULL)
    else
    {
-      for(i=cIdxOff; i<cLength+cIdxOff; i++)
+      for(i=0; i<cLength; i++)
       {
          dF = adOffset[i]+adF[i];
          if ( (2*adY[i]-1)*adF[i] < -1 )
@@ -156,8 +154,7 @@ void CHuberized::FitBestConstant
     unsigned long cTermNodes,
     unsigned long cMinObsInNode,
     const bag& afInBag,
-    const double *adFadj,
-   int cIdxOff
+    const double *adFadj
 )
 {
   double dF = 0.0;

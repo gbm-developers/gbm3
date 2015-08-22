@@ -107,7 +107,6 @@ predict.gbm <- function(object,newdata,n.trees,
 
    predF <- .Call("gbm_pred",
                   X=matrix(x, cRows, cCols),
-                  cNumClasses = as.integer(object$num.classes),
                   n.trees=as.integer(n.trees[i.ntree.order]),
                   initF=object$initF,
                   trees=object$trees,
@@ -118,17 +117,9 @@ predict.gbm <- function(object,newdata,n.trees,
 
    if((length(n.trees) > 1) || (object$num.classes > 1))
    {
-      if(object$distribution$name=="multinomial")
-      {
-         predF <- array(predF, dim=c(cRows,object$num.classes,length(n.trees)))
-         dimnames(predF) <- list(NULL, object$classes, n.trees)
-         predF[,,i.ntree.order] <- predF
-      } else
-      {
-         predF <- matrix(predF, ncol=length(n.trees), byrow=FALSE)
-         colnames(predF) <- n.trees
-         predF[,i.ntree.order] <- predF
-      }
+      predF <- matrix(predF, ncol=length(n.trees), byrow=FALSE)
+      colnames(predF) <- n.trees
+      predF[,i.ntree.order] <- predF
    }
 
    if(type=="response")
@@ -152,15 +143,7 @@ predict.gbm <- function(object,newdata,n.trees,
       else if (object$distribution$name == "adaboost"){
          predF <- 1 / (1 + exp(-2*predF))
       }
-      if(object$distribution$name=="multinomial")
-      {
-         pexp <- exp(predF)
-         psum  <- apply(pexp,  c(1, 3), function(x) { x / sum(x) })
-         # Transpose each 2d array
-         predF <- aperm(psum, c(2, 1, 3))
-      }
-
-      if((length(n.trees)==1) && (object$distribution$name!="multinomial"))
+      if(length(n.trees)==1)
       {
          predF <- as.vector(predF)
       }

@@ -117,7 +117,6 @@ gbm.perf <- function(object,
                         co="Cox partial deviance",
                         la="Absolute loss",
                         qu="Quantile loss",
-                        mu="Multinomial deviance",
                         td="t-distribution deviance"
                         )
          }

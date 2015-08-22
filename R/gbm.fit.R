@@ -106,14 +106,12 @@ gbm.fit <- function(x,y,
       }
    }
 
-   nClass <- 1
-
    if(!("name" %in% names(distribution))) {
       stop("The distribution is missing a 'name' component, for example list(name=\"gaussian\")")
    }
    supported.distributions <-
    c("bernoulli","gaussian","poisson","adaboost","laplace","coxph","quantile",
-     "tdist", "multinomial", "huberized", "pairwise","gamma","tweedie")
+     "tdist", "huberized", "pairwise","gamma","tweedie")
 
    distribution.call.name <- distribution$name
 
@@ -211,44 +209,6 @@ gbm.fit <- function(x,y,
          Misc <- distribution$df[1]
       }
    }
-   if (distribution$name == "multinomial")
-   {
-      ## Ensure that the training set contains all classes
-      classes <- attr(factor(y), "levels")
-      nClass <- length(classes)
-
-      if (nClass > nTrain){
-         stop(paste("Number of classes (", nClass,
-                    ") must be less than the size of the training set (", nTrain, ")",
-                    sep = ""))
-      }
-
-      #    f <- function(a,x){
-      #       min((1:length(x))[x==a])
-      #    }
-
-      new.idx <- as.vector(sapply(classes, function(a,x){ min((1:length(x))[x==a]) }, y))
-
-      all.idx <- 1:length(y)
-      new.idx <- c(new.idx, all.idx[!(all.idx %in% new.idx)])
-
-      y <- y[new.idx]
-      x <- x[new.idx, ]
-      w <- w[new.idx]
-      if (!is.null(offset)){
-         offset <- offset[new.idx]
-      }
-
-      ## Get the factors
-      y <- as.numeric(as.vector(outer(y, classes, "==")))
-
-      ## Fill out the weight and offset
-      w <- rep(w, nClass)
-      if (!is.null(offset)){
-         offset <- rep(offset, nClass)
-      }
-   } # close if (dist... == "multinomial"
-
    if(distribution$name == "pairwise")
    {
       distribution.metric <- distribution[["metric"]]
@@ -329,7 +289,6 @@ gbm.fit <- function(x,y,
                     n.trees=as.integer(n.trees),
                     interaction.depth=as.integer(interaction.depth),
                     n.minobsinnode=as.integer(n.minobsinnode),
-                    n.classes = as.integer(nClass),
                     shrinkage=as.double(shrinkage),
                     bag.fraction=as.double(bag.fraction),
                     nTrain=as.integer(nTrain),
@@ -344,8 +303,7 @@ gbm.fit <- function(x,y,
    gbm.obj$distribution <- distribution
    gbm.obj$interaction.depth <- interaction.depth
    gbm.obj$n.minobsinnode <- n.minobsinnode
-   gbm.obj$num.classes <- nClass
-   gbm.obj$n.trees <- length(gbm.obj$trees) / nClass
+   gbm.obj$n.trees <- length(gbm.obj$trees)
    gbm.obj$nTrain <- nTrain
    gbm.obj$mFeatures <- mFeatures
    gbm.obj$train.fraction <- train.fraction
@@ -362,17 +320,7 @@ gbm.fit <- function(x,y,
    {
       gbm.obj$fit[i.timeorder] <- gbm.obj$fit
    }
-   ## If K-Classification is used then split the fit and tree components
-   if (distribution$name == "multinomial"){
-      gbm.obj$fit <- matrix(gbm.obj$fit, ncol = nClass)
-      dimnames(gbm.obj$fit)[[2]] <- classes
-      gbm.obj$classes <- classes
-
-      ## Also get the class estimators
-      exp.f <- exp(gbm.obj$fit)
-      denom <- matrix(rep(rowSums(exp.f), nClass), ncol = nClass)
-      gbm.obj$estimator <- exp.f/denom
-   }
+   
 
    if(keep.data)
    {
@@ -381,17 +329,7 @@ gbm.fit <- function(x,y,
          # put the observations back in order
          gbm.obj$data <- list(y=y,x=x,x.order=x.order,offset=offset,Misc=Misc,w=w,
                               i.timeorder=i.timeorder)
-      }
-      else if ( distribution$name == "multinomial" ){
-         # Restore original order of the data
-         new.idx <- order( new.idx )
-         gbm.obj$data <- list( y=as.vector(matrix(y, ncol=length(classes),byrow=FALSE)[new.idx,]),
-                              x=as.vector(matrix(x, ncol=length(var.names), byrow=FALSE)[new.idx,]),
-                              x.order=x.order,
-                              offset=offset[new.idx],
-                              Misc=Misc, w=w[new.idx] )
-      }
-      else
+     } else
       {
          gbm.obj$data <- list(y=y,x=x,x.order=x.order,offset=offset,Misc=Misc,w=w)
       }

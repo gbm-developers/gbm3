@@ -70,12 +70,8 @@ gbmCrossValPredictions <- function(cv.models, cv.folds, cv.group,
   if (nrow(data) != length(cv.group)) {
     stop("mismatch between data and cv.group")
   }
-  ## this is a little complicated due to multinomial distribution
-  num.cols <- if (distribution$name == "multinomial") {
-    nlevels(factor(y))
-  } else {
-    1
-  }
+
+  num.cols <- 1
   result <- matrix(nrow=nrow(data), ncol=num.cols)
   ## there's no real reason to do this as other than a for loop
   data.names <- names(data)
@@ -90,11 +86,7 @@ gbmCrossValPredictions <- function(cv.models, cv.folds, cv.group,
     result[flag,] <- predictions
   }
 
-  if (distribution$name != "multinomial") {
-    result <- as.numeric(result)
-  }
-
-  result
+  as.numeric(result)
 }
 
 
