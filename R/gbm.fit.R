@@ -198,7 +198,7 @@ gbm.fit <- function(x,y,
       Misc <- Misc[i.timeorder]
       x <- x[i.timeorder,,drop=FALSE]
       w <- w[i.timeorder]
-      if(is.null(offset)) offset <- offset[i.timeorder]
+      if(!is.null(offset)) offset <- offset[i.timeorder]
    }
    if(distribution$name == "tdist")
    {
