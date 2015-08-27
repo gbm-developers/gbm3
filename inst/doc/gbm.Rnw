@@ -1,19 +1,17 @@
-% setwd("c:/dev/gbm/inst/doc") % Sweave("gbm.rnw"); system("texify gbm.tex"); system("c:\\MiKTeX\\texmf\\miktex\\bin\\yap.exe gbm.dvi",wait=FALSE)
-
 \documentclass{article}
 \bibliographystyle{plain}
-\usepackage[active]{srcltx}
+
 \newcommand{\EV}{\mathrm{E}}
 \newcommand{\Var}{\mathrm{Var}}
 \newcommand{\aRule}{\begin{center} \rule{5in}{1mm} \end{center}}
 
 \title{Generalized Boosted Models:\\A guide to the gbm package} \author{Greg Ridgeway}
 
+%\VignetteEngine{knitr::knitr}
 %\VignetteIndexEntry{Generalized Boosted Models: A guide to the gbm package}
 
 \newcommand{\mathgbf}[1]{{\mbox{\boldmath$#1$\unboldmath}}}
 
-\usepackage{Sweave}
 \begin{document}
 
 \maketitle
