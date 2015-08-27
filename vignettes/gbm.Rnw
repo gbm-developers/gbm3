@@ -191,11 +191,11 @@ regularization through shrinkage.
 The optimal number of iterations, $T$, and the learning rate,
 $\lambda$, depend on each other. In practice I set $\lambda$ to be as
 small as possible and then select $T$ by cross-validation. Performance
-is best when $\lambda$ is as small as possible performance with
+is best when $\lambda$ is as small as possible, with
 decreasing marginal utility for smaller and smaller $\lambda$. Slower
 learning rates do not necessarily scale the number of optimal
 iterations. That is, when $\lambda=1.0$ and the optimal $T$ is 100
-iterations, does {\it not} necessarily imply that when $\lambda=0.1$
+iterations, it does {\it not} necessarily imply that when $\lambda=0.1$
 the optimal $T$ is 1000 iterations.
 
 \subsection{Variance reduction using subsampling}
@@ -249,7 +249,8 @@ Select
 \item a loss function (\texttt{distribution})
 \item the number of iterations, $T$ (\texttt{n.trees})
 \item the depth of each tree, $K$ (\texttt{interaction.depth})
-\item the shrinkage (or learning rate) parameter, $\lambda$ (\texttt{shrinkage})
+\item the shrinkage (or learning rate) parameter, $\lambda$
+  (\texttt{shrinkage})
 \item the subsampling rate, $p$ (\texttt{bag.fraction})
 \end{itemize}
 Initialize $\hat f(\mathbf{x})$ to be a constant, $\hat f(\mathbf{x}) = \arg \min_{\rho} \sum_{i=1}^N \Psi(y_i,\rho)$ \\
