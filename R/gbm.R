@@ -522,7 +522,7 @@ gbm <- function(formula = formula(data),
       mFeatures <- ncol(x)
     } else {
       if (mFeatures > ncol(x)) {
-        print("mFeatures was greater than the number of columns. It was reset to the available features.")
+        warning("mFeatures was greater than the number of columns. It was reset to the available features.")
         mFeatures <- ncol(x)
       } else {
         mFeatures <- max(mFeatures, 1)
@@ -539,8 +539,8 @@ gbm <- function(formula = formula(data),
      inferred_folds <- length(unique(fold.id))
      if (cv.folds > 0 & cv.folds != inferred_folds) {
        # Warn if cv.folds and fold.id disagree, but take fold.id.
-       warning(paste("CV folds changed from", cv.folds, "to", inferred_folds,
-                     "because of levels in fold.id."))
+       warning("CV folds changed from ", cv.folds, " to ", inferred_folds,
+               " because of levels in fold.id.")
      } 
      cv.folds <- inferred_folds
      # Set fold.id from whatever it is to an integer ascending from 1. Lazy way.

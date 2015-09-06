@@ -5,7 +5,8 @@ Title: Generalized Boosted Regression Models
 Author: Greg Ridgeway <gregridgeway@gmail.com> with contributions from others
 Maintainer: Harry Southworth <harry.southworth@gmail.com>
 Imports: survival, lattice, splines, parallel, Rcpp
-Suggests: testthat
+Suggests: testthat, knitr
+VignetteBuilder: knitr
 Description: Extensions
   to Freund and Schapire's AdaBoost algorithm and Friedman's
   gradient boosting machine. Includes regression methods for least
