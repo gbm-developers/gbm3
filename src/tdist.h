@@ -72,7 +72,7 @@ class CTDist : public CDistribution {
                           double dStepSize,
                           unsigned long nTrain);
 
-private:
+  private:
   double mdNu;
   CLocationM mpLocM;
 };

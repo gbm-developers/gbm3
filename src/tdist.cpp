@@ -1,7 +1,7 @@
 //  GBM by Greg Ridgeway  Copyright (C) 2003
 
 #include <vector>
-
+#include <math.h>
 #include "tdist.h"
 
 void CTDist::ComputeWorkingResponse(
@@ -15,19 +15,22 @@ void CTDist::ComputeWorkingResponse(
      unsigned long nTrain){
 
   unsigned long i = 0;
-  double dU = 0.0;
-
-  if(adOffset == NULL) {
-    for(i=0; i<nTrain; i++) {
-      dU = adY[i] - adF[i];
-      adZ[i] = (2 * dU) / (mdNu + (dU * dU));
-    }
+  double dU[nTrain];
+  double absDev[nTrain];
+  double s = 0.0;
+  
+  
+  for (i = 0; i < nTrain; i++){
+    dU[i] = adY[i] - adF[i] - ((adOffset == NULL) ? 0.0 : adOffset[i]);
+    absDev[i] = fabs(dU[i]);
   }
-  else {
-    for(i=0; i<nTrain; i++) {
-      dU = adY[i] - adOffset[i] - adF[i];
-      adZ[i] = (2 * dU) / (mdNu + (dU * dU));
-    }
+  
+  // Estimate scale parameter
+  
+  
+  
+  for (i = 0; i < nTrain; i++){
+    adZ[i] = 2 * dU[i] / (mdNu + (dU[i] * dU[i]));
   }
 } // Close void CTDist::ComputeWorkingResponse
 

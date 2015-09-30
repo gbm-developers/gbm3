@@ -207,7 +207,9 @@ gbm.fit <- function(x,y,
       }
       else {
          Misc <- distribution$df[1]
+         if (Misc <= 2) stop("t-distribution kurtosis parameter (df) must be greater than 2")
       }
+
    }
    if(distribution$name == "pairwise")
    {
