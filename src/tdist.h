@@ -17,45 +17,43 @@
 #include "locationm.h"
 
 
-class CTDist : public CDistribution
-{
-  
- public:
-  
- CTDist(double adNu) : mdNu(adNu), mpLocM("tdist", adNu) {};
+class CTDist : public CDistribution {
+
+  public:
+
+  CTDist(double adNu) : mdNu(adNu), mpLocM("tdist", adNu) {};
 
   virtual ~CTDist() {};
-  
-  
-  void ComputeWorkingResponse(const double *adY,
-			      const double *adMisc,
-			      const double *adOffset,
-			      const double *adF,
-			      double *adZ,
-			      const double *adWeight,
-			      const bag& afInBag,
-			      unsigned long nTrain);
 
-    void InitF(const double *adY,
-	       const double *adMisc,
-	       const double *adOffset,
-	       const double *adWeight,
-	       double &dInitF,
-	       unsigned long cLength);
+  void ComputeWorkingResponse(const double *adY,
+                              const double *adMisc,
+                              const double *adOffset,
+                              const double *adF,
+                              double *adZ,
+                              const double *adWeight,
+                              const bag& afInBag,
+                              unsigned long nTrain);
+
+  void InitF(const double *adY,
+             const double *adMisc,
+             const double *adOffset,
+             const double *adWeight,
+             double &dInitF,
+             unsigned long cLength);
     
-    void FitBestConstant(const double *adY,
-			 const double *adMisc,
-			 const double *adOffset,
-			 const double *adW,
-			 const double *adF,
-			 double *adZ,
-			 const std::vector<unsigned long> &aiNodeAssign,
-			 unsigned long nTrain,
-			 VEC_P_NODETERMINAL vecpTermNodes,
-			 unsigned long cTermNodes,
-			 unsigned long cMinObsInNode,
-			 const bag& afInBag,
-			 const double *adFadj);
+  void FitBestConstant(const double *adY,
+                       const double *adMisc,
+                       const double *adOffset,
+                       const double *adW,
+                       const double *adF,
+                       double *adZ,
+                       const std::vector<unsigned long> &aiNodeAssign,
+                       unsigned long nTrain,
+                       VEC_P_NODETERMINAL vecpTermNodes,
+                       unsigned long cTermNodes,
+                       unsigned long cMinObsInNode,
+                       const bag& afInBag,
+                       const double *adFadj);
 
     double Deviance(const double *adY,
                     const double *adMisc,
@@ -75,11 +73,8 @@ class CTDist : public CDistribution
                           unsigned long nTrain);
 
 private:
-    double mdNu;
-    CLocationM mpLocM;
+  double mdNu;
+  CLocationM mpLocM;
 };
 
 #endif // TDISTCGBM_H
-
-
-
