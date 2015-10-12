@@ -6,7 +6,15 @@ checkMissing <- function(x, y){
       stop("Use NA for missing values. NaN found in predictor variables:",
            paste(nms[j],collapse=","))
    }
+   
    if(any(is.na(y))) stop("Missing values are not allowed in the response")
+   
+   AllMiss <- apply(x, 2, function(X){all(is.na(X))})
+   
+   if(any(AllMiss)) {
+      stop("variable(s) ", paste(which(AllMiss), collapse = ', '), ": ", paste(nms[which(AllMiss)], collapse = ', '), " contain only missing values.")
+   }
+   
    invisible(NULL)
  }
 

@@ -78,14 +78,6 @@ gbm.fit <- function(x,y,
    var.type <- rep(0, cCols)
    var.levels <- vector("list", cCols)
    
-   
-   AllMiss <- apply(x, 2, function(X){all(is.na(X))})
-   
-   if(any(AllMiss)) {
-      stop("variable(s) ", paste(which(AllMiss), collapse = ', '), ": ", paste(var.names[which(AllMiss)], collapse = ', '), " contain only missing values.")
-   }
-   
-   
    for(i in 1:length(var.type)) {
      
       if(is.ordered(x[,i])) {
