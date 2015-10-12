@@ -33,11 +33,11 @@ gbm.fit <- function(x,y,
 
    if(!is.null(nTrain) && !is.null(train.fraction)) {
       stop("Parameters 'nTrain' and 'train.fraction' cannot both be specified")
-   }
+   } 
    else if(!is.null(train.fraction)) {
       warning("Parameter 'train.fraction' of gbm.fit is deprecated, please specify 'nTrain' instead")
       nTrain <- floor(train.fraction*cRows)
-   }
+   } 
    else if(is.null(nTrain)) {
      # both undefined, use all training data
      nTrain <- cRows
@@ -77,21 +77,31 @@ gbm.fit <- function(x,y,
    # setup variable types
    var.type <- rep(0, cCols)
    var.levels <- vector("list", cCols)
+   
+   
+   AllMiss <- apply(x, 2, function(X){all(is.na(X))})
+   
+   if(any(AllMiss)) {
+      stop("variable(s) ", paste(which(AllMiss), collapse = ', '), ": ", paste(var.names[which(AllMiss)], collapse = ', '), " contain only missing values.")
+   }
+   
+   
    for(i in 1:length(var.type)) {
-      if(all(is.na(x[,i]))) {
-         stop("variable ",i,": ",var.names[i]," has only missing values.")
-      }
+     
       if(is.ordered(x[,i])) {
          var.levels[[i]] <- levels(factor(x[,i]))
          x[,i] <- as.numeric(factor(x[,i]))-1
          var.type[i] <- 0
       }
+     
       else if(is.factor(x[,i])) {
+        
          if(length(levels(x[,i]))>1024)
             stop("gbm does not currently handle categorical variables with more than 1024 levels. Variable ",i,": ",var.names[i]," has ",length(levels(x[,i]))," levels.")
          var.levels[[i]] <- levels(factor(x[,i]))
          x[,i] <- as.numeric(factor(x[,i]))-1
          var.type[i] <- max(x[,i],na.rm=TRUE)+1
+         
       }
       else if(is.numeric(x[,i])) {
         var.levels[[i]] <- quantile(x[,i],prob=(0:10)/10,na.rm=TRUE)
@@ -105,6 +115,9 @@ gbm.fit <- function(x,y,
          warning("variable ",i,": ",var.names[i]," has no variation.")
       }
    }
+   
+   
+   
 
    if(!("name" %in% names(distribution))) {
       stop("The distribution is missing a 'name' component, for example list(name=\"gaussian\")")
