@@ -33,12 +33,12 @@ gbm.fit <- function(x,y,
 
    if(!is.null(nTrain) && !is.null(train.fraction)) {
       stop("Parameters 'nTrain' and 'train.fraction' cannot both be specified")
-   } 
-   else if(!is.null(train.fraction)) {
+   
+   } else if(!is.null(train.fraction)) {
       warning("Parameter 'train.fraction' of gbm.fit is deprecated, please specify 'nTrain' instead")
       nTrain <- floor(train.fraction*cRows)
-   } 
-   else if(is.null(nTrain)) {
+   
+   } else if(is.null(nTrain)) {
      # both undefined, use all training data
      nTrain <- cRows
    }
