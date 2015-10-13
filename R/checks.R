@@ -59,4 +59,46 @@ getVarNames <- function(x){
    else if(is.data.frame(x)) { var.names <- names(x) }
    else { var.names <- paste("X",1:ncol(x),sep="") }
    var.names
- }
+}
+
+
+
+checkSanity <- function(x, y){
+  
+  nms <- getVarNames(x)
+  
+  # x and y are not the same length
+  if(nrow(x) != ifelse("Surv" %in% class(y), nrow(y), length(y))) {
+    stop("The number of rows in x does not equal the length of y.")
+  }
+  
+}
+
+checkVarType <- function(x, y){
+  
+  nms <- getVarNames(x)
+  
+  # Excessive Factors
+  Factors <- sapply(x, function(X){is.factor(X)})
+  nLevels <- sapply(x, function(X){length(levels(X))})
+  
+  excessLevels <- nLevels > 1024
+  excessLevelsIndex <- paste(which(excessLevels), collapse = ', ')
+  excessLevelsVars <- paste(nms[which(excessLevels)], collapse = ', ')
+  
+  if(any(excessLevels)) {
+    stop("gbm does not currently handle categorical variables with more than 1024 levels. Variable ", excessLevelsIndex,": ", excessLevelsVars," has ", nLevels[which(excessLevels)]," levels.")
+    
+  }
+  
+  # Not an acceptable class
+  inacceptClass <- sapply(x, function(X){! (is.ordered(X) | is.factor(X) | is.numeric(X)) })
+  inacceptClassIndex <- paste(which(inacceptClass), collapse = ', ')
+  inacceptClassVars <- paste(nms[which(inacceptClass)], collapse = ', ')
+  
+  if(any(inacceptClass)){
+    stop("variable ", inacceptClassIndex,": ", inacceptClassVars, " is not of type numeric, ordered, or factor.")
+  }
+  
+}
+
