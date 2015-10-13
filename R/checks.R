@@ -79,8 +79,8 @@ checkVarType <- function(x, y){
   nms <- getVarNames(x)
   
   # Excessive Factors
-  Factors <- sapply(x, function(X){is.factor(X)})
-  nLevels <- sapply(x, function(X){length(levels(X))})
+  Factors <- vapply(x, is.factor, TRUE)
+  nLevels <- vapply(x, nlevels, 0L)
   
   excessLevels <- nLevels > 1024
   excessLevelsIndex <- paste(which(excessLevels), collapse = ', ')
@@ -92,7 +92,7 @@ checkVarType <- function(x, y){
   }
   
   # Not an acceptable class
-  inacceptClass <- sapply(x, function(X){! (is.ordered(X) | is.factor(X) | is.numeric(X)) })
+  inacceptClass <- vapply(x, function(X){! (is.ordered(X) | is.factor(X) | is.numeric(X)) }, TRUE)
   inacceptClassIndex <- paste(which(inacceptClass), collapse = ', ')
   inacceptClassVars <- paste(nms[which(inacceptClass)], collapse = ', ')
   
