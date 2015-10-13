@@ -10,9 +10,11 @@ checkMissing <- function(x, y){
    if(any(is.na(y))) stop("Missing values are not allowed in the response")
    
    AllMiss <- apply(x, 2, function(X){all(is.na(X))})
+   AllMissVarIndex <- paste(which(AllMiss), collapse = ', ')
+   AllMissVar <- paste(nms[which(AllMiss)], collapse = ', ')
    
    if(any(AllMiss)) {
-      stop("variable(s) ", paste(which(AllMiss), collapse = ', '), ": ", paste(nms[which(AllMiss)], collapse = ', '), " contain only missing values.")
+      stop("variable(s) ", AllMissVarIndex, ": ", AllMissVar, " contain only missing values.")
    }
    
    invisible(NULL)
