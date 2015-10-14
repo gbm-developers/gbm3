@@ -6,7 +6,17 @@ checkMissing <- function(x, y){
       stop("Use NA for missing values. NaN found in predictor variables:",
            paste(nms[j],collapse=","))
    }
+   
    if(any(is.na(y))) stop("Missing values are not allowed in the response")
+   
+   AllMiss <- apply(x, 2, function(X){all(is.na(X))})
+   AllMissVarIndex <- paste(which(AllMiss), collapse = ', ')
+   AllMissVar <- paste(nms[which(AllMiss)], collapse = ', ')
+   
+   if(any(AllMiss)) {
+      stop("variable(s) ", AllMissVarIndex, ": ", AllMissVar, " contain only missing values.")
+   }
+   
    invisible(NULL)
  }
 
@@ -49,4 +59,46 @@ getVarNames <- function(x){
    else if(is.data.frame(x)) { var.names <- names(x) }
    else { var.names <- paste("X",1:ncol(x),sep="") }
    var.names
- }
+}
+
+
+
+checkSanity <- function(x, y){
+  
+  nms <- getVarNames(x)
+  
+  # x and y are not the same length
+  if(nrow(x) != ifelse("Surv" %in% class(y), nrow(y), length(y))) {
+    stop("The number of rows in x does not equal the length of y.")
+  }
+  
+}
+
+checkVarType <- function(x, y){
+  
+  nms <- getVarNames(x)
+  
+  # Excessive Factors
+  Factors <- vapply(x, is.factor, TRUE)
+  nLevels <- vapply(x, nlevels, 0L)
+  
+  excessLevels <- nLevels > 1024
+  excessLevelsIndex <- paste(which(excessLevels), collapse = ', ')
+  excessLevelsVars <- paste(nms[which(excessLevels)], collapse = ', ')
+  
+  if(any(excessLevels)) {
+    stop("gbm does not currently handle categorical variables with more than 1024 levels. Variable ", excessLevelsIndex,": ", excessLevelsVars," has ", nLevels[which(excessLevels)]," levels.")
+    
+  }
+  
+  # Not an acceptable class
+  inacceptClass <- vapply(x, function(X){! (is.ordered(X) | is.factor(X) | is.numeric(X)) }, TRUE)
+  inacceptClassIndex <- paste(which(inacceptClass), collapse = ', ')
+  inacceptClassVars <- paste(nms[which(inacceptClass)], collapse = ', ')
+  
+  if(any(inacceptClass)){
+    stop("variable ", inacceptClassIndex,": ", inacceptClassVars, " is not of type numeric, ordered, or factor.")
+  }
+  
+}
+
