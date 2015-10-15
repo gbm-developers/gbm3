@@ -27,6 +27,9 @@ gbm.fit <- function(x,y,
    checkSanity(x, y)
    ch <- checkMissing(x, y)
    checkVarType(x, y)
+   
+   oldy <- y
+   y <- checkY(oldy)
 
    # the preferred way to specify the number of training instances is via parameter 'nTrain'.
    # parameter 'train.fraction' is only maintained for backward compatibility.

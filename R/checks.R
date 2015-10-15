@@ -102,3 +102,17 @@ checkVarType <- function(x, y){
   
 }
 
+  
+checkY <- function(y){
+
+  FactorsY <- is.factor(y)
+  nLevelsY <- nlevels(y)
+  
+  if(FactorsY & nLevelsY == 2){
+    Y = as.numeric(y == levels(y)[2])
+  }
+  
+  return(Y)
+  
+}
+
