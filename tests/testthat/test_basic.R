@@ -222,3 +222,22 @@ test_that("relative influence picks out true predictors", {
     res <- sum(wh %in% paste("V", 51:55, sep = ""))
     expect_equal(res, 5)
 })
+
+
+test_that("Conversion of 2 factor Y is successful", {
+  
+  y = factor(sample(c('Yes', 'No'), 1000, replace = TRUE))
+    
+  FactorY <-
+    data.frame(
+      y = y
+      ,x1 = runif(1000)
+      ,x2 = runif(1000)
+    )
+  
+  y = FactorY$y
+  x = FactorY[,c('x1','x2')]
+
+  expect_that(gbm.fit(x = FactorY[,c('x1', 'x2')], y = FactorY$y), not(gives_warning()))
+  
+})
