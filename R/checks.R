@@ -110,6 +110,8 @@ checkY <- function(y){
   
   if(FactorsY & nLevelsY == 2){
     Y = as.numeric(y == levels(y)[2])
+  } else {
+    Y = y
   }
   
   return(Y)
