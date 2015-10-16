@@ -235,17 +235,15 @@ test_that("Conversion of 2 factor Y is successful", {
     ,x2 = runif(1000)
   )
 
-  expect_that(
-    gbm.fit(x = PredX, y = NumY)
-    , not(gives_warning())
-    )
+  set.seed(32479)
+  g1 <- gbm.fit(x = PredX, y = NumY, distribution = 'bernoulli', verbose = FALSE)
+  rig1 <- relative.influence(g1, n.trees=10)
   
-  expect_that(
-    gbm.fit(x = PredX, y = FactY)
-    , not(gives_warning()))
+  set.seed(32479)
+  g2 <- gbm.fit(x = PredX, y = FactY, distribution = 'bernoulli', verbose = FALSE)
+  rig2 <- relative.influence(g2, n.trees=10)
   
-  expect_that(
-    glm(NumY ~ PredX$x1 + PredX$x1, family = 'binomial')
-    , not(gives_warning()))
+  expect_equal(rig1, rig2)
+
   
 })
