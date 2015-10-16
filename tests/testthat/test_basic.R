@@ -226,18 +226,26 @@ test_that("relative influence picks out true predictors", {
 
 test_that("Conversion of 2 factor Y is successful", {
   
-  y = factor(sample(c('Yes', 'No'), 1000, replace = TRUE))
-    
-  FactorY <-
-    data.frame(
-      y = y
-      ,x1 = runif(1000)
-      ,x2 = runif(1000)
+  NumY <- sample(c(0, 1), size=1000, replace=TRUE)
+  FactY = factor(ifelse(NumY==1, "Yes", "No"), levels=c("No", "Yes"))
+
+  PredX <-
+  data.frame(
+    x1 = runif(1000)
+    ,x2 = runif(1000)
+  )
+
+  expect_that(
+    gbm.fit(x = PredX, y = NumY)
+    , not(gives_warning())
     )
   
-  y = FactorY$y
-  x = FactorY[,c('x1','x2')]
-
-  expect_that(gbm.fit(x = FactorY[,c('x1', 'x2')], y = FactorY$y), not(gives_warning()))
+  expect_that(
+    gbm.fit(x = PredX, y = FactY)
+    , not(gives_warning()))
+  
+  expect_that(
+    glm(NumY ~ PredX$x1 + PredX$x1, family = 'binomial')
+    , not(gives_warning()))
   
 })
