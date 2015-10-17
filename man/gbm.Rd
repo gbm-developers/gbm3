@@ -33,7 +33,8 @@ the user's responsibility to resupply the offset to
 of the distribution to use or a list with a component \code{name}
 specifying the distribution and any additional parameters
 needed. If not specified, \code{gbm} will try to guess: if the
-response has only two unique values, bernoulli is assumed;
+response has only two unique values, bernoulli is assumed
+(two-factor responses are converted to 0,1);
 otherwise, if the response has class "Surv", coxph is assumed;
 otherwise, gaussian is assumed.
 
@@ -147,7 +148,7 @@ computing out-of-sample estimates of the loss function.}
 \code{mFeatures} number of features. Each node will consider a new
 random subset of features, adding variability to tree growth and
 reducing computation time. \code{mFeatures} will be bounded between
-1 and \code{nCols}. Values outside of this bound will be to the
+1 and \code{nCols}. Values outside of this bound will be set to the
 lower or upper limits.}
 
 \item{cv.folds}{Number of cross-validation folds to perform. If
@@ -290,7 +291,7 @@ gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
     bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
     train.fraction = 0.5,        # fraction of data for training,
                                  # first train.fraction*N used for training
-    mFeatures = 3,        			 # half of the features are considered at each node
+    mFeatures = 3,               # half of the features are considered at each node
     n.minobsinnode = 10,         # minimum total weight needed in each node
     cv.folds = 3,                # do 3-fold cross-validation
     keep.data=TRUE,              # keep a copy of the dataset with the object

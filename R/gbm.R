@@ -40,7 +40,8 @@
 #' of the distribution to use or a list with a component \code{name}
 #' specifying the distribution and any additional parameters
 #' needed. If not specified, \code{gbm} will try to guess: if the
-#' response has only two unique values, bernoulli is assumed;
+#' response has only two unique values, bernoulli is assumed 
+#' (two-factor responses are converted to 0,1);
 #' otherwise, if the response has class "Surv", coxph is assumed;
 #' otherwise, gaussian is assumed.
 #' 
