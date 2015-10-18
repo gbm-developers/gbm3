@@ -27,6 +27,9 @@ gbm.fit <- function(x,y,
    checkSanity(x, y)
    ch <- checkMissing(x, y)
    checkVarType(x, y)
+   
+   oldy <- y
+   y <- checkY(oldy)
 
    # the preferred way to specify the number of training instances is via parameter 'nTrain'.
    # parameter 'train.fraction' is only maintained for backward compatibility.
@@ -329,11 +332,11 @@ gbm.fit <- function(x,y,
       if(distribution$name == "coxph")
       {
          # put the observations back in order
-         gbm.obj$data <- list(y=y,x=x,x.order=x.order,offset=offset,Misc=Misc,w=w,
+         gbm.obj$data <- list(y=oldy,x=x,x.order=x.order,offset=offset,Misc=Misc,w=w,
                               i.timeorder=i.timeorder)
      } else
       {
-         gbm.obj$data <- list(y=y,x=x,x.order=x.order,offset=offset,Misc=Misc,w=w)
+         gbm.obj$data <- list(y=oldy,x=x,x.order=x.order,offset=offset,Misc=Misc,w=w)
       }
    }
    else

@@ -222,3 +222,30 @@ test_that("relative influence picks out true predictors", {
     res <- sum(wh %in% paste("V", 51:55, sep = ""))
     expect_equal(res, 5)
 })
+
+
+test_that("Conversion of 2 factor Y is successful", {
+  
+  NumY <- sample(c(0, 1), size=1000, replace=TRUE)
+  FactY = factor(ifelse(NumY==1, "Yes", "No"), levels=c("No", "Yes"))
+
+  PredX <-
+  data.frame(
+    x1 = runif(1000)
+    ,x2 = runif(1000)
+  )
+
+  set.seed(32479)
+  g1 <- gbm(y ~ ., data = data.frame(y = NumY, PredX)
+            , distribution = 'bernoulli', verbose = FALSE)
+  rig1 <- relative.influence(g1, n.trees=10)
+  
+  set.seed(32479)
+  g2 <- gbm(y ~ ., data = data.frame(y = FactY, PredX)
+          , distribution = 'bernoulli', verbose = FALSE)
+  rig2 <- relative.influence(g2, n.trees=10)
+  
+  expect_equal(rig1, rig2)
+
+  
+})
