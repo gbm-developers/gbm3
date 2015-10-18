@@ -215,7 +215,8 @@ test_that("relative influence picks out true predictors", {
     cls <- rep(c(0, 1), ea=500) # Class
     X <- data.frame(cbind(X1, X2, cls))
     mod <- gbm(cls ~ ., data= X, n.trees=1000, cv.folds=5,
-               shrinkage=.01, interaction.depth=2, n.cores=1)
+               shrinkage=.01, interaction.depth=2, n.cores=1
+               ,distribution = 'bernoulli')
     ri <- relative.influence(mod, sort.=TRUE, scale.=TRUE)
     
     wh <- names(ri)[1:5]
