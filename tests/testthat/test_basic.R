@@ -238,13 +238,15 @@ test_that("Conversion of 2 factor Y is successful", {
 
   set.seed(32479)
   g1 <- gbm(y ~ ., data = data.frame(y = NumY, PredX)
-            , distribution = 'bernoulli', verbose = FALSE)
-  rig1 <- relative.influence(g1, n.trees=10)
+            , distribution = 'bernoulli', verbose = FALSE
+            , n.trees = 50)
+  rig1 <- relative.influence(g1, n.trees=50)
   
   set.seed(32479)
   g2 <- gbm(y ~ ., data = data.frame(y = FactY, PredX)
-          , distribution = 'bernoulli', verbose = FALSE)
-  rig2 <- relative.influence(g2, n.trees=10)
+          , distribution = 'bernoulli', verbose = FALSE
+          , n.trees = 50)
+  rig2 <- relative.influence(g2, n.trees=50)
   
   expect_equal(rig1, rig2)
 
