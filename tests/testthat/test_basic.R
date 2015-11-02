@@ -215,8 +215,8 @@ test_that("relative influence picks out true predictors", {
     cls <- rep(c(0, 1), ea=500) # Class
     X <- data.frame(cbind(X1, X2, cls))
     mod <- gbm(cls ~ ., data= X, n.trees=1000, cv.folds=5,
-               shrinkage=.01, interaction.depth=2, n.cores=1)
-    ri <- relative.influence(mod, sort.=TRUE, scale.=TRUE)
+               shrinkage=.01, interaction.depth=2, n.cores=1, distribution = 'bernoulli')
+    ri <- relative.influence(mod, sort.=TRUE, scale.=TRUE, n.trees = 1000)
     
     wh <- names(ri)[1:5]
     res <- sum(wh %in% paste("V", 51:55, sep = ""))
@@ -237,12 +237,14 @@ test_that("Conversion of 2 factor Y is successful", {
 
   set.seed(32479)
   g1 <- gbm(y ~ ., data = data.frame(y = NumY, PredX)
-            , distribution = 'bernoulli', verbose = FALSE)
+            , distribution = 'bernoulli', verbose = FALSE
+            , n.trees = 50)
   rig1 <- relative.influence(g1, n.trees=10)
   
   set.seed(32479)
   g2 <- gbm(y ~ ., data = data.frame(y = FactY, PredX)
-          , distribution = 'bernoulli', verbose = FALSE)
+          , distribution = 'bernoulli', verbose = FALSE
+          , n.trees = 50)
   rig2 <- relative.influence(g2, n.trees=10)
   
   expect_equal(rig1, rig2)
