@@ -252,3 +252,19 @@ test_that("Conversion of 2 factor Y is successful", {
 
   
 })
+
+
+test_that("Cross Validations", {
+  
+  NumY <- sample(rep(c(0,1), 500), size=1000)
+
+  cvGroup <- getCVgroup('bernoulli', FALSE, NumY, i.train = 1:1000, cv.folds = 4, fold.id = NULL)
+  expect_true(all(table(cvGroup)==250))
+  
+  cvStratified <- getCVgroup('bernoulli', TRUE, NumY, i.train = 1:1000, cv.folds = 4, fold.id = NULL)
+  
+  Strats <- sapply(1:4, function(x){table(NumY[cvStratified == 1])})
+  
+  expect_true(all(Strats == 125))
+  
+})

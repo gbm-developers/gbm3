@@ -22,10 +22,11 @@ getCVgroup <- function(
         )
       }
     
-    cv.group <- c(
-      sample(rep(1:cv.folds, length = Zeros))
-    , sample(rep(1:cv.folds, length = Ones))
-    )
+    cv.group <- vector(length = length(i.train))
+    cv.group[y[i.train] == 0] = sample(rep(1:cv.folds, length = Zeros))
+    cv.group[y[i.train] == 1] = sample(rep(1:cv.folds, length = Ones))
+    
+    cv.group
     
   } else if (distribution == "pairwise") {
     
