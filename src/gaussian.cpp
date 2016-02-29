@@ -1,9 +1,30 @@
-//  GBM by Greg Ridgeway  Copyright (C) 2003
+//-----------------------------------
+//
+// File: gaussian.cpp
+//
+// Description: gaussian distribution implementation for GBM.
+//
+//-----------------------------------
 
+//-----------------------------------
+// Includes
+//-----------------------------------
 #include "gaussian.h"
 
-CGaussian::CGaussian()
+//----------------------------------------
+// Function Members - Private
+//----------------------------------------
+CGaussian::CGaussian(SEXP radMisc, const CDataset& data): CDistribution(radMisc, data)
 {
+}
+
+//----------------------------------------
+// Function Members - Public
+//----------------------------------------
+std::auto_ptr<CDistribution> CGaussian::Create(SEXP radMisc, const CDataset& data,
+											const char* szIRMeasure, int& cGroups, int& cTrain)
+{
+	return std::auto_ptr<CDistribution>(new CGaussian(radMisc, data));
 }
 
 CGaussian::~CGaussian()
@@ -13,44 +34,36 @@ CGaussian::~CGaussian()
 
 void CGaussian::ComputeWorkingResponse
 (
- const double *adY,
- const double *adMisc,
- const double *adOffset,
  const double *adF,
  double *adZ,
- const double *adWeight,
  const bag& afInBag,
  unsigned long nTrain
  )
 {
   unsigned long i = 0;
   
-  if (!(adY && adF && adZ && adWeight)) {
+  if (!(pData->y_ptr() && adF && adZ && pData->weight_ptr())) {
     throw GBM::invalid_argument();
   }
   
-  if(adOffset == NULL)
+  if(pData->offset_ptr(false) == NULL)
     {
       for(i=0; i<nTrain; i++)
         {
-	  adZ[i] = adY[i] - adF[i];
+	  adZ[i] = pData->y_ptr()[i] - adF[i];
         }
     }
   else
     {
       for(i=0; i<nTrain; i++)
         {
-	  adZ[i] = adY[i] - adOffset[i] - adF[i];
+	  adZ[i] = pData->y_ptr()[i] - pData->offset_ptr(false)[i] - adF[i];
         }
     }
 }
 
 void CGaussian::InitF
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adWeight,
     double &dInitF,
     unsigned long cLength
 )
@@ -60,20 +73,20 @@ void CGaussian::InitF
     unsigned long i=0;
 
     // compute the mean
-    if(adOffset==NULL)
+    if(pData->offset_ptr(false)==NULL)
     {
         for(i=0; i<cLength; i++)
         {
-            dSum += adWeight[i]*adY[i];
-            dTotalWeight += adWeight[i];
+            dSum += pData->weight_ptr()[i]*pData->y_ptr()[i];
+            dTotalWeight += pData->weight_ptr()[i];
         }
     }
     else
     {
         for(i=0; i<cLength; i++)
         {
-            dSum += adWeight[i]*(adY[i] - adOffset[i]);
-            dTotalWeight += adWeight[i];
+            dSum += pData->weight_ptr()[i]*(pData->y_ptr()[i] - pData->offset_ptr(false)[i]);
+            dTotalWeight += pData->weight_ptr()[i];
         }
     }
     dInitF = dSum/dTotalWeight;
@@ -82,34 +95,41 @@ void CGaussian::InitF
 
 double CGaussian::Deviance
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adWeight,
     const double *adF,
-    unsigned long cLength
+    unsigned long cLength,
+    bool isValidationSet
 )
 {
     unsigned long i=0;
     double dL = 0.0;
     double dW = 0.0;
 
-    if(adOffset == NULL)
+    if(isValidationSet)
+    {
+    	pData->shift_to_validation();
+    }
+
+    if(pData->offset_ptr(false) == NULL)
     {
         for(i=0; i<cLength; i++)
         {
-            dL += adWeight[i]*(adY[i]-adF[i])*(adY[i]-adF[i]);
-            dW += adWeight[i];
+            dL += pData->weight_ptr()[i]*(pData->y_ptr()[i]-adF[i])*(pData->y_ptr()[i]-adF[i]);
+            dW += pData->weight_ptr()[i];
         }
     }
     else
     {
         for(i=0; i<cLength; i++)
         {
-            dL += adWeight[i]*(adY[i]-adOffset[i]-adF[i])*
-                              (adY[i]-adOffset[i]-adF[i]);
-            dW += adWeight[i];
+            dL += pData->weight_ptr()[i]*(pData->y_ptr()[i]-pData->offset_ptr(false)[i]-adF[i])*
+                              (pData->y_ptr()[i]-pData->offset_ptr(false)[i]-adF[i]);
+            dW += pData->weight_ptr()[i];
        }
+    }
+
+    if(isValidationSet)
+    {
+    	pData->shift_to_train();
     }
 
     return dL/dW;
@@ -118,10 +138,6 @@ double CGaussian::Deviance
 
 void CGaussian::FitBestConstant
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adW,
     const double *adF,
     double *adZ,
     const std::vector<unsigned long>& aiNodeAssign,
@@ -139,10 +155,6 @@ void CGaussian::FitBestConstant
 
 double CGaussian::BagImprovement
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adWeight,
     const double *adF,
     const double *adFadj,
     const bag& afInBag,
@@ -159,11 +171,11 @@ double CGaussian::BagImprovement
     {
         if(!afInBag[i])
         {
-            dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
+            dF = adF[i] + ((pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[i]);
 
-            dReturnValue += adWeight[i]*dStepSize*adFadj[i]*
-                            (2.0*(adY[i]-dF) - dStepSize*adFadj[i]);
-            dW += adWeight[i];
+            dReturnValue += pData->weight_ptr()[i]*dStepSize*adFadj[i]*
+                            (2.0*(pData->y_ptr()[i]-dF) - dStepSize*adFadj[i]);
+            dW += pData->weight_ptr()[i];
         }
     }
 

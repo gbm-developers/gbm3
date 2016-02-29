@@ -1,16 +1,7 @@
 //  GBM by Greg Ridgeway  Copyright (C) 2003
 //#define NOISY_DEBUG
 #include <algorithm>
-
 #include "gbm_engine.h"
-
-namespace {
-  template <typename T> 
-  inline T* 
-  shift_ptr(T* x, std::ptrdiff_t y) {
-    if (x) { return x + y; } else { return x; }
-  }
-}
 
 CGBM::CGBM()
 {
@@ -159,7 +150,7 @@ void CGBM::iterate
       }
       for(i=0; i<cTrain; i++)
       {
-        const double dGroup = pData->misc_ptr(true)[i];
+        const double dGroup = pDist->misc_ptr(true)[i];
         if(dGroup != dLastGroup)
         {
           if (cBaggedGroups >= cTotalGroupsInBag)
@@ -196,12 +187,8 @@ void CGBM::iterate
   Rprintf("Compute working response\n");
 #endif
 
-  pDist->ComputeWorkingResponse(pData->y_ptr(),
-                                pData->misc_ptr(false),
-                                pData->offset_ptr(false),
-                                adF,
+  pDist->ComputeWorkingResponse(adF,
                                 &adZ[0],
-                                pData->weight_ptr(),
                                 afInBag,
                                 cTrain);
 
@@ -243,11 +230,7 @@ void CGBM::iterate
   Rprintf("fit best constant\n");
 #endif
 
-  pDist->FitBestConstant(pData->y_ptr(),
-                         pData->misc_ptr(false),
-                         pData->offset_ptr(false),
-                         pData->weight_ptr(),
-                         &adF[0],
+  pDist->FitBestConstant(&adF[0],
                          &adZ[0],
                          aiNodeAssign,
                          cTrain,
@@ -269,11 +252,7 @@ void CGBM::iterate
   ptreeTemp->Print();
 #endif
 
-  dOOBagImprove = pDist->BagImprovement(pData->y_ptr(),
-                                        pData->misc_ptr(false),
-                                        pData->offset_ptr(false),
-                                        pData->weight_ptr(),
-                                        &adF[0],
+  dOOBagImprove = pDist->BagImprovement(&adF[0],
                                         &adFadj[0],
                                         afInBag,
                                         dLambda,
@@ -285,28 +264,17 @@ void CGBM::iterate
     adF[i] += dLambda * adFadj[i];
   }
   
-  dTrainError = pDist->Deviance(pData->y_ptr(),
-                                pData->misc_ptr(false),
-                                pData->offset_ptr(false),
-                                pData->weight_ptr(),
-                                adF,
-                                cTrain);
+  dTrainError = pDist->Deviance(adF, cTrain);
 
   // update the validation predictions
-  ptreeTemp->PredictValid(*pData,cValid,&(adFadj[0]));
+  ptreeTemp->PredictValid(*pData, cValid, &(adFadj[0]));
 
   for(i=cTrain; i < cTrain+cValid; i++)
   {
     adF[i] += adFadj[i];
   }
-    
-  dValidError =
-    pDist->Deviance(pData->y_ptr() + cTrain,
-                    shift_ptr(pData->misc_ptr(false), cTrain),
-                    shift_ptr(pData->offset_ptr(false), cTrain),
-                    pData->weight_ptr() + cTrain,
-                    adF + cTrain,
-                    cValid);
+
+  dValidError = pDist->Deviance(adF + cTrain, cValid, true);
 }
 
 

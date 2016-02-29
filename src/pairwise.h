@@ -57,6 +57,7 @@
 
 #include <memory>
 #include "distribution.h"
+#include "dataset.h"
 #include "buildinfo.h"
 
 // A class to rerank groups based on (intermediate) scores
@@ -261,45 +262,27 @@ class CPairwise : public CDistribution
 {
 public:
 
-    // Constructor: determine IR measure as either "conc", "map", "mrr", or "ndcg"
-    CPairwise(const char* szIRMeasure);
+	static std::auto_ptr<CDistribution> Create(SEXP radMisc, const CDataset& data,
+										const char* szIRMeasure,
+										int& cGroups, int& cTrain);
 
     virtual ~CPairwise();
 
-    void Initialize(const double *adY,
-		    const double *adGroup,
-		    const double *adOffset,
-		    const double *adWeight,
-		    unsigned long cLength);
+    void Initialize();
     
-    void ComputeWorkingResponse(const double *adY,
-				const double *adGroup,
-				const double *adOffset,
-				const double *adF,
+    void ComputeWorkingResponse(const double *adF,
 				double *adZ,
-				const double *adWeight,
 				const bag& afInBag,
 				unsigned long nTrain);
     
-    double Deviance(const double *adY,
-                    const double *adGroup,
-                    const double *adOffset,
-                    const double *adWeight,
-                    const double *adF,
-                    unsigned long cLength);
+    double Deviance(const double *adF,
+                    unsigned long cLength,
+                    bool isValidationSet=false);
 
-    void InitF(const double *adY,
-	       const double *adGroup,
-	       const double *adOffset,
-	       const double *adWeight,
-	       double &dInitF,
+    void InitF(double &dInitF,
 	       unsigned long cLength);
 
-    void FitBestConstant(const double *adY,
-			 const double *adGroup,
-			 const double *adOffset,
-			 const double *adW,
-			 const double *adF,
+    void FitBestConstant(const double *adF,
 			 double *adZ,
 			 const std::vector<unsigned long>& aiNodeAssign,
 			 unsigned long nTrain,
@@ -309,17 +292,16 @@ public:
 			 const bag& afInBag,
 			 const double *adFadj);
 
-    double BagImprovement(const double *adY,
-                          const double *adGroup,
-                          const double *adOffset,
-                          const double *adWeight,
-                          const double *adF,
+    double BagImprovement(const double *adF,
                           const double *adFadj,
                           const bag& afInBag,
                           double dStepSize,
                           unsigned long nTrain);
 
 protected:
+
+    // Constructor: determine IR measure as either "conc", "map", "mrr", or "ndcg"
+    CPairwise(SEXP radMisc, const CDataset& data, const char* szIRMeasure, int& cGroups, int& cTrain);
 
     // Calculate and accumulate up the gradients and Hessians from all training pairs
     void ComputeLambdas(int iGroup, unsigned int cNumItems, const double* const adY, const double* const adF, const double* const adWeight, double* adZ, double* adDeriv);
@@ -333,6 +315,7 @@ protected:
     vector<double> vecdDenom;         // Buffer used for denominator in FitBestConstant(), for each node
 
     vector<double> vecdFPlusOffset;   // Temporary buffer for (adF + adOffset), if the latter is not null
+    const double* adGroup;
 };
 
 #endif // PAIRWISE_H

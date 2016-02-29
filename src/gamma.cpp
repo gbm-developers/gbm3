@@ -1,12 +1,36 @@
-// Gamma distribution with natural log link function ( mean = std::exp(prediction) )
-// -19 <= prediction <= +19
+//-----------------------------------
+//
+// File: gamma.cpp
+//
+// Description: Gamma distribution with natural
+//  log link function ( mean = std::exp(prediction) )
+//
+// Notes: -19 <= prediction <= +19
+//-----------------------------------
+
+//-----------------------------------
+// Includes
+//-----------------------------------
 
 #include "gamma.h"
 #include <math.h>
 #include <iostream>
 
-CGamma::CGamma()
+//----------------------------------------
+// Function Members - Private
+//----------------------------------------
+CGamma::CGamma(SEXP radMisc, const CDataset& data): CDistribution(radMisc, data)
 {
+}
+
+//----------------------------------------
+// Function Members - Public
+//----------------------------------------
+std::auto_ptr<CDistribution> CGamma::Create(SEXP radMisc, const CDataset& data,
+										const char* szIRMeasure, int& cGroups, int& cTrain)
+{
+
+	return std::auto_ptr<CDistribution>(new CGamma(radMisc, data));
 }
 
 CGamma::~CGamma()
@@ -16,12 +40,8 @@ CGamma::~CGamma()
 
 void CGamma::ComputeWorkingResponse
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
     const double *adF, 
     double *adZ, 
-    const double *adWeight,
     const bag& afInBag,
     unsigned long nTrain
 )
@@ -29,14 +49,14 @@ void CGamma::ComputeWorkingResponse
   unsigned long i = 0;
   double dF = 0.0;
   
-  if (!(adY && adF && adZ && adWeight)) {
+  if (!(pData->y_ptr() && adF && adZ && pData->weight_ptr())) {
     throw GBM::invalid_argument();
   }
 
   for(i=0; i<nTrain; i++)
     {
-      dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
-      adZ[i] = adY[i]*std::exp(-dF)-1.0;
+      dF = adF[i] + ((pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[i]);
+      adZ[i] = pData->y_ptr()[i]*std::exp(-dF)-1.0;
     }
   
 }
@@ -44,10 +64,6 @@ void CGamma::ComputeWorkingResponse
 
 void CGamma::InitF
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset, 
-    const double *adWeight,
     double &dInitF, 
     unsigned long cLength
 )
@@ -58,20 +74,20 @@ void CGamma::InitF
     double Max = +19.0;
     unsigned long i=0;
 
-    if(adOffset==NULL)
+    if(pData->offset_ptr(false)==NULL)
     {
         for(i=0; i<cLength; i++)
         {
-            dSum += adWeight[i]*adY[i];
-            dTotalWeight += adWeight[i];
+            dSum += pData->weight_ptr()[i]*pData->y_ptr()[i];
+            dTotalWeight += pData->weight_ptr()[i];
         }
     }
     else
     {
         for(i=0; i<cLength; i++)
         {
-	  dSum += adWeight[i]*adY[i]*std::exp(-adOffset[i]);
-	  dTotalWeight += adWeight[i];
+	  dSum += pData->weight_ptr()[i]*pData->y_ptr()[i]*std::exp(-pData->offset_ptr(false)[i]);
+	  dTotalWeight += pData->weight_ptr()[i];
         }
     }
 
@@ -85,12 +101,9 @@ void CGamma::InitF
 
 double CGamma::Deviance
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset, 
-    const double *adWeight,
     const double *adF,
-    unsigned long cLength
+    unsigned long cLength,
+    bool isValidationSet
 )
 {
   unsigned long i=0;
@@ -98,23 +111,29 @@ double CGamma::Deviance
   double dW = 0.0;
   double dF = 0.0;
   
+  if(isValidationSet)
+  {
+	pData->shift_to_validation();
+  }
+
   for(i=0; i!=cLength; i++)
     {
-      dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
-      dL += adWeight[i]*(adY[i]*std::exp(-dF) + dF);
-      dW += adWeight[i];
+      dF = adF[i] + ((pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[i]);
+      dL += pData->weight_ptr()[i]*(pData->y_ptr()[i]*std::exp(-dF) + dF);
+      dW += pData->weight_ptr()[i];
     }
   
+  if(isValidationSet)
+  {
+	pData->shift_to_train();
+  }
+
   return 2*dL/dW;
 }
 
 
 void CGamma::FitBestConstant
 (
- const double *adY,
- const double *adMisc,
- const double *adOffset,
- const double *adW,
  const double *adF,
  double *adZ,
  const std::vector<unsigned long>& aiNodeAssign,
@@ -147,9 +166,9 @@ void CGamma::FitBestConstant
     {
       if(afInBag[iObs])
 	{
-	  dF = adF[iObs] + ((adOffset==NULL) ? 0.0 : adOffset[iObs]);
-	  vecdNum[aiNodeAssign[iObs]] += adW[iObs]*adY[iObs]*std::exp(-dF);
-	  vecdDen[aiNodeAssign[iObs]] += adW[iObs];
+	  dF = adF[iObs] + ((pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[iObs]);
+	  vecdNum[aiNodeAssign[iObs]] += pData->weight_ptr()[iObs]*pData->y_ptr()[iObs]*std::exp(-dF);
+	  vecdDen[aiNodeAssign[iObs]] += pData->weight_ptr()[iObs];
 	  
 	  // Keep track of largest and smallest prediction in each node
 	  vecdMax[aiNodeAssign[iObs]] = R::fmax2(dF,vecdMax[aiNodeAssign[iObs]]);
@@ -187,10 +206,6 @@ void CGamma::FitBestConstant
 
 double CGamma::BagImprovement
 (
-	const double *adY,
-	const double *adMisc,
-	const double *adOffset,
-	const double *adWeight,
 	const double *adF,
 	const double *adFadj,
 	const bag& afInBag,
@@ -207,9 +222,9 @@ double CGamma::BagImprovement
 	{
 		if(!afInBag[i])
 		{
-			dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
-			dReturnValue += adWeight[i]*(adY[i]*std::exp(-dF)*(1.0-exp(-dStepSize*adFadj[i])) - dStepSize*adFadj[i]);
-			dW += adWeight[i];
+			dF = adF[i] + ((pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[i]);
+			dReturnValue += pData->weight_ptr()[i]*(pData->y_ptr()[i]*std::exp(-dF)*(1.0-exp(-dStepSize*adFadj[i])) - dStepSize*adFadj[i]);
+			dW += pData->weight_ptr()[i];
 		}
 	}
 

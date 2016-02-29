@@ -1,62 +1,61 @@
 //------------------------------------------------------------------------------
-//  GBM by Greg Ridgeway  Copyright (C) 2003
 //
 //  File:       bernoulli.h
 //
-//  License:    GNU GPL (version 2 or later)
-//
-//  Contents:   bernoulli object
-//
-//  Owner:      gregr@rand.org
+//  Description:   bernoulli distribution class used in GBM
 //
 //  History:    3/26/2001   gregr created
 //              2/14/2003   gregr: adapted for R implementation
 //
 //------------------------------------------------------------------------------
 
-#ifndef BERNOULLI_H
-#define BERNOULLI_H
+#ifndef __bernoulli_h__
+#define __bernoulli_h__
+
+//------------------------------
+// Includes
+//------------------------------
 
 #include "distribution.h"
+#include "dataset.h"
 #include "buildinfo.h"
+#include <memory>
 
+//------------------------------
+// Class definition
+//------------------------------
 class CBernoulli : public CDistribution
 {
 
 public:
+	//---------------------
+	// Factory Function
+	//---------------------
+	static std::auto_ptr<CDistribution> Create(SEXP radMisc, const CDataset& data,
+											const char* szIRMeasure,
+											int& cGroups, int& cTrain);
 
-    CBernoulli();
-
+	//---------------------
+	// Public destructor
+	//---------------------
     virtual ~CBernoulli();
 
-    void ComputeWorkingResponse(const double *adY,
-				const double *adMisc,
-				const double *adOffset,
-				const double *adF,
+    //---------------------
+    // Public Functions
+    //---------------------
+    void ComputeWorkingResponse(const double *adF,
 				double *adZ,
-				const double *adWeight,
 				const bag& afInBag,
 				unsigned long nTrain);
 
-    double Deviance(const double *adY,
-                    const double *adMisc,
-                    const double *adOffset,
-                    const double *adWeight,
-                    const double *adF,
-                    unsigned long cLength);
+    double Deviance(const double *adF,
+                    unsigned long cLength,
+                    bool isValidationSet=false);
 
-    void InitF(const double *adY,
-	       const double *adMisc,
-	       const double *adOffset,
-	       const double *adWeight,
-	       double &dInitF,
+    void InitF(double &dInitF,
 	       unsigned long cLength);
 
-    void FitBestConstant(const double *adY,
-			 const double *adMisc,
-			 const double *adOffset,
-			 const double *adW,
-			 const double *adF,
+    void FitBestConstant(const double *adF,
 			 double *adZ,
 			 const std::vector<unsigned long>& aiNodeAssign,
 			 unsigned long nTrain,
@@ -66,17 +65,21 @@ public:
 			 const bag& afInBag,
 			 const double *adFadj);
     
-    double BagImprovement(const double *adY,
-                          const double *adMisc,
-                          const double *adOffset,
-                          const double *adWeight,
-                          const double *adF,
+    double BagImprovement(const double *adF,
                           const double *adFadj,
                           const bag& afInBag,
                           double dStepSize,
                           unsigned long nTrain);
 
 private:
+    //----------------------
+    // Private Constructors
+    //----------------------
+    CBernoulli(SEXP radMisc, const CDataset& data);
+
+    //-------------------
+    // Private Variables
+    //-------------------
     vector<double> vecdNum;
     vector<double> vecdDen;
     bool fCappedPred;

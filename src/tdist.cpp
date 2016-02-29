@@ -1,17 +1,47 @@
-//  GBM by Greg Ridgeway  Copyright (C) 2003
+//-----------------------------------
+//
+// File: tdist.cpp
+//
+// Description: t distribution implementation for GBM.
+//
+//-----------------------------------
 
+//-----------------------------------
+// Includes
+//-----------------------------------
+#include "locationm.h"
+#include "tdist.h"
 #include <vector>
 
-#include "tdist.h"
+//----------------------------------------
+// Function Members - Private
+//----------------------------------------
+CTDist::CTDist(SEXP radMisc, const CDataset& data):
+  CDistribution(radMisc, data), mpLocM("tdist", CDistribution::misc_ptr(true)[0])
+{
+	mdNu = CDistribution::misc_ptr(true)[0];
+}
+
+
+//----------------------------------------
+// Function Members - Public
+//----------------------------------------
+std::auto_ptr<CDistribution> CTDist::Create(SEXP radMisc, const CDataset& data,
+									const char* szIRMeasure,
+									int& cGroups, int& cTrain)
+{
+	return std::auto_ptr<CDistribution>(new CTDist(radMisc, data));
+}
+
+CTDist::~CTDist()
+{
+
+}
 
 void CTDist::ComputeWorkingResponse
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
     const double *adF,
     double *adZ,
-    const double *adWeight,
     const bag& afInBag,
     unsigned long nTrain
 )
@@ -19,11 +49,11 @@ void CTDist::ComputeWorkingResponse
     unsigned long i = 0;
     double dU = 0.0;
 
-    if(adOffset == NULL)
+    if(pData->offset_ptr(false) == NULL)
     {
         for(i=0; i<nTrain; i++)
         {
-	  dU = adY[i] - adF[i];
+	  dU = pData->y_ptr()[i] - adF[i];
 	  adZ[i] = (2 * dU) / (mdNu + (dU * dU));
         }
     }
@@ -31,7 +61,7 @@ void CTDist::ComputeWorkingResponse
     {
         for(i=0; i<nTrain; i++)
         {
- 		    dU = adY[i] - adOffset[i] - adF[i];
+ 		    dU = pData->y_ptr()[i] - pData->offset_ptr(false)[i] - adF[i];
 			adZ[i] = (2 * dU) / (mdNu + (dU * dU));
         }
     }
@@ -40,10 +70,6 @@ void CTDist::ComputeWorkingResponse
 
 void CTDist::InitF
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adWeight,
     double &dInitF,
     unsigned long cLength
 )
@@ -58,21 +84,18 @@ void CTDist::InitF
 
 	for (ii = 0; ii < iN; ii++)
 	{
-		double dOffset = (adOffset==NULL) ? 0.0 : adOffset[ii];
-		adArr[ii] = adY[ii] - dOffset;
+		double dOffset = (pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[ii];
+		adArr[ii] = pData->y_ptr()[ii] - dOffset;
 	}
 
-	dInitF = mpLocM.LocationM(iN, &adArr[0], adWeight, 0.5);
+	dInitF = mpLocM.LocationM(iN, &adArr[0], pData->weight_ptr(), 0.5);
 }
 
 double CTDist::Deviance
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adWeight,
     const double *adF,
-    unsigned long cLength
+    unsigned long cLength,
+    bool isValidationSet
 )
 {
     unsigned long i=0;
@@ -80,23 +103,35 @@ double CTDist::Deviance
     double dW = 0.0;
 	double dU = 0.0;
 
-    if(adOffset == NULL)
+	// Switch to validation set if necessary
+	if(isValidationSet)
+	{
+	   pData->shift_to_validation();
+	}
+
+    if(pData->offset_ptr(false) == NULL)
     {
         for(i=0; i<cLength; i++)
         {
-			dU = adY[i] - adF[i];
-			dL += adWeight[i] * std::log(mdNu + (dU * dU));
-            dW += adWeight[i];
+			dU = pData->y_ptr()[i] - adF[i];
+			dL += pData->weight_ptr()[i] * std::log(mdNu + (dU * dU));
+            dW += pData->weight_ptr()[i];
         }
     }
     else
     {
         for(i=0; i<cLength; i++)
         {
-			dU = adY[i] - adOffset[i] - adF[i];
-		    dL += adWeight[i] * std::log(mdNu + (dU * dU));
-            dW += adWeight[i];
+			dU = pData->y_ptr()[i] - pData->offset_ptr(false)[i] - adF[i];
+		    dL += pData->weight_ptr()[i] * std::log(mdNu + (dU * dU));
+            dW += pData->weight_ptr()[i];
         }
+    }
+
+    // Switch back to training set if necessary
+    if(isValidationSet)
+    {
+ 	   pData->shift_to_train();
     }
 
     return dL/dW;
@@ -105,10 +140,6 @@ double CTDist::Deviance
 
 void CTDist::FitBestConstant
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adW,
     const double *adF,
     double *adZ,
     const std::vector<unsigned long>& aiNodeAssign,
@@ -125,27 +156,27 @@ void CTDist::FitBestConstant
     unsigned long iObs = 0;
 
 
-    std::vector<double> adArr, adWeight;
+    std::vector<double> adArr, adW;
 	// Call LocM for the array of values on each node
     for(iNode=0; iNode<cTermNodes; iNode++)
     {
       if(vecpTermNodes[iNode]->cN >= cMinObsInNode)
         {
 	  adArr.clear();
-	  adWeight.clear();
+	  adW.clear();
 
 	  for (iObs = 0; iObs < nTrain; iObs++)
 	    {
 	      if(afInBag[iObs] && (aiNodeAssign[iObs] == iNode))
                 {
-		  const double dOffset = (adOffset==NULL) ? 0.0 : adOffset[iObs];
-		  adArr.push_back(adY[iObs] - dOffset - adF[iObs]);
-		  adWeight.push_back(adW[iObs]);
+		  const double dOffset = (pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[iObs];
+		  adArr.push_back(pData->y_ptr()[iObs] - dOffset - adF[iObs]);
+		  adW.push_back(pData->weight_ptr()[iObs]);
                 }
 	    }
 
 	  vecpTermNodes[iNode]->dPrediction = mpLocM.LocationM(adArr.size(), &adArr[0],
-							       &adWeight[0], 0.5);
+							       &adW[0], 0.5);
 
         }
     }
@@ -153,10 +184,6 @@ void CTDist::FitBestConstant
 
 double CTDist::BagImprovement
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adWeight,
     const double *adF,
     const double *adFadj,
     const bag& afInBag,
@@ -172,12 +199,12 @@ double CTDist::BagImprovement
     {
         if(!afInBag[i])
         {
-            const double dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
-	    const double dU = (adY[i] - dF);
-	    const double dV = (adY[i] - dF - dStepSize * adFadj[i]) ;
+            const double dF = adF[i] + ((pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[i]);
+	    const double dU = (pData->y_ptr()[i] - dF);
+	    const double dV = (pData->y_ptr()[i] - dF - dStepSize * adFadj[i]) ;
 
-            dReturnValue += adWeight[i] * (std::log(mdNu + (dU * dU)) - log(mdNu + (dV * dV)));
-            dW += adWeight[i];
+            dReturnValue += pData->weight_ptr()[i] * (std::log(mdNu + (dU * dU)) - log(mdNu + (dV * dV)));
+            dW += pData->weight_ptr()[i];
         }
     }
 

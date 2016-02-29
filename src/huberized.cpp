@@ -1,11 +1,32 @@
-// GBM by Greg Ridgeway  Copyright (C) 2003
-// huberized.ccp & huberized.h and associated R code added
-// by Harry Southworth, April 2009.
+//-----------------------------------
+//
+// File: huberized.cpp
+//
+// Description: huberized hinge loss.
+//
+//-----------------------------------
 
+//-----------------------------------
+// Includes
+//-----------------------------------
 #include "huberized.h"
 
-CHuberized::CHuberized()
+//----------------------------------------
+// Function Members - Private
+//----------------------------------------
+CHuberized::CHuberized(SEXP radMisc, const CDataset& data): CDistribution(radMisc, data)
 {
+}
+
+//----------------------------------------
+// Function Members - Public
+//----------------------------------------
+
+std::auto_ptr<CDistribution> CHuberized::Create(SEXP radMisc, const CDataset& data,
+										const char* szIRMeasure,
+										int& cGroups, int& cTrain)
+{
+	return std::auto_ptr<CDistribution>(new CHuberized(radMisc, data));
 }
 
 CHuberized::~CHuberized()
@@ -15,12 +36,8 @@ CHuberized::~CHuberized()
 
 void CHuberized::ComputeWorkingResponse
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
     const double *adF,
     double *adZ,
-    const double *adWeight,
     const bag& afInBag,
     unsigned long nTrain
 )
@@ -30,28 +47,24 @@ void CHuberized::ComputeWorkingResponse
 
    for(i=0; i<nTrain; i++)
    {
-      dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
-      if( (2*adY[i]-1)*dF < -1)
+      dF = adF[i] + ((pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[i]);
+      if( (2*pData->y_ptr()[i]-1)*dF < -1)
       {
-         adZ[i] = -4 * (2*adY[i]-1);
+         adZ[i] = -4 * (2*pData->y_ptr()[i]-1);
       }
-      else if ( 1 - (2*adY[i]-1)*dF < 0 )
+      else if ( 1 - (2*pData->y_ptr()[i]-1)*dF < 0 )
       {
          adZ[i] = 0;
       }
       else
       {
-         adZ[i] = -2 * (2*adY[i]-1) * ( 1 - (2*adY[i]-1)*dF );
+         adZ[i] = -2 * (2*pData->y_ptr()[i]-1) * ( 1 - (2*pData->y_ptr()[i]-1)*dF );
       }
    }
 }
 
 void CHuberized::InitF
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adWeight,
     double &dInitF,
     unsigned long cLength
 )
@@ -64,13 +77,13 @@ void CHuberized::InitF
 
     for(i=0; i<cLength; i++)
     {
-        if(adY[i]==1.0)
+        if(pData->y_ptr()[i]==1.0)
         {
-            dNum += adWeight[i];
+            dNum += pData->weight_ptr()[i];
         }
         else
         {
-            dDen += adWeight[i];
+            dDen += pData->weight_ptr()[i];
         }
     }
 
@@ -80,12 +93,9 @@ void CHuberized::InitF
 
 double CHuberized::Deviance
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adWeight,
     const double *adF,
-    unsigned long cLength
+    unsigned long cLength,
+    bool isValidationSet
 )
 {
    unsigned long i=0;
@@ -93,48 +103,58 @@ double CHuberized::Deviance
    double dF = 0.0;
    double dW = 0.0;
 
-   if(adOffset==NULL)
+   if(isValidationSet)
+   {
+	   pData->shift_to_validation();
+   }
+
+   if(pData->offset_ptr(false)==NULL)
    {
       for(i=0; i<cLength; i++)
       {
-        if ( (2*adY[i]-1)*adF[i] < -1 )
+        if ( (2*pData->y_ptr()[i]-1)*adF[i] < -1 )
          {
-            dL += -adWeight[i]*4*(2*adY[i]-1)*adF[i];
-            dW += adWeight[i];
+            dL += -pData->weight_ptr()[i]*4*(2*pData->y_ptr()[i]-1)*adF[i];
+            dW += pData->weight_ptr()[i];
          }
-         else if ( 1 - (2*adY[i]-1)*adF[i] < 0 ){
+         else if ( 1 - (2*pData->y_ptr()[i]-1)*adF[i] < 0 ){
             dL += 0;
-            dW += adWeight[i];
+            dW += pData->weight_ptr()[i];
          }
          else {
-            dL += adWeight[i]*( 1 - (2*adY[i]-1)*adF[i] )*( 1 - (2*adY[i]-1)*adF[i] );
-            dW += adWeight[i];
+            dL += pData->weight_ptr()[i]*( 1 - (2*pData->y_ptr()[i]-1)*adF[i] )*( 1 - (2*pData->y_ptr()[i]-1)*adF[i] );
+            dW += pData->weight_ptr()[i];
          }
       }
-   } // close if (adOffset==NULL)
+   } // close if (pData->offset_ptr(false)==NULL)
    else
    {
       for(i=0; i<cLength; i++)
       {
-         dF = adOffset[i]+adF[i];
-         if ( (2*adY[i]-1)*adF[i] < -1 )
+         dF = pData->offset_ptr(false)[i]+adF[i];
+         if ( (2*pData->y_ptr()[i]-1)*adF[i] < -1 )
          {
-            dL += -adWeight[i]*4*(2*adY[i]-1)*dF;
-            dW += adWeight[i];
+            dL += -pData->weight_ptr()[i]*4*(2*pData->y_ptr()[i]-1)*dF;
+            dW += pData->weight_ptr()[i];
          }
-         else if ( 1 - (2*adY[i]-1)*dF < 0 )
+         else if ( 1 - (2*pData->y_ptr()[i]-1)*dF < 0 )
          {
             dL += 0;
-            dW += adWeight[i];
+            dW += pData->weight_ptr()[i];
          }
          else
          {
-            dL += adWeight[i] * ( 1 - (2*adY[i]-1)*dF ) *
-                                ( 1 - (2*adY[i]-1)*dF );
-            dW += adWeight[i];
+            dL += pData->weight_ptr()[i] * ( 1 - (2*pData->y_ptr()[i]-1)*dF ) *
+                                ( 1 - (2*pData->y_ptr()[i]-1)*dF );
+            dW += pData->weight_ptr()[i];
          }
       } // close for(
    } // close else
+
+   if(isValidationSet)
+   {
+	   pData->shift_to_train();
+   }
 
    return dL/dW;
 }
@@ -142,10 +162,6 @@ double CHuberized::Deviance
 
 void CHuberized::FitBestConstant
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adW,
     const double *adF,
     double *adZ,
     const std::vector<unsigned long>& aiNodeAssign,
@@ -169,20 +185,20 @@ void CHuberized::FitBestConstant
     {
       if(afInBag[iObs])
         {
-	  dF = adF[iObs] + ((adOffset==NULL) ? 0.0 : adOffset[iObs]);
-	  if( (2*adY[iObs]-1)*adF[iObs] < -1 ){
+	  dF = adF[iObs] + ((pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[iObs]);
+	  if( (2*pData->y_ptr()[iObs]-1)*adF[iObs] < -1 ){
 	    vecdNum[aiNodeAssign[iObs]] +=
-	      adW[iObs]*4*(2*adY[iObs]-1);
+	      pData->weight_ptr()[iObs]*4*(2*pData->y_ptr()[iObs]-1);
 	    vecdDen[aiNodeAssign[iObs]] +=
-	      -adW[iObs]*4*(2*adY[iObs]-1)*dF;
+	      -pData->weight_ptr()[iObs]*4*(2*pData->y_ptr()[iObs]-1)*dF;
 	  }
-	  else if ( 1 - (2*adY[iObs]-1)*adF[iObs] < 0 ){
+	  else if ( 1 - (2*pData->y_ptr()[iObs]-1)*adF[iObs] < 0 ){
 	    vecdNum[aiNodeAssign[iObs]] += 0;
 	    vecdDen[aiNodeAssign[iObs]] += 0;
 	  }
 	  else{
-	    vecdNum[aiNodeAssign[iObs]] += adW[iObs]*2*(2*adY[iObs]-1)*( 1 - (2*adY[iObs]-1)*adF[iObs] );
-	    vecdDen[aiNodeAssign[iObs]] += adW[iObs]*( 1 - (2*adY[iObs]-1)*adF[iObs])*( 1 - (2*adY[iObs]-1)*adF[iObs]);
+	    vecdNum[aiNodeAssign[iObs]] += pData->weight_ptr()[iObs]*2*(2*pData->y_ptr()[iObs]-1)*( 1 - (2*pData->y_ptr()[iObs]-1)*adF[iObs] );
+	    vecdDen[aiNodeAssign[iObs]] += pData->weight_ptr()[iObs]*( 1 - (2*pData->y_ptr()[iObs]-1)*adF[iObs])*( 1 - (2*pData->y_ptr()[iObs]-1)*adF[iObs]);
 	  }
         } // close if(afInBag[iObs
     }
@@ -207,10 +223,6 @@ void CHuberized::FitBestConstant
 
 double CHuberized::BagImprovement
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adWeight,
     const double *adF,
     const double *adFadj,
     const bag& afInBag,
@@ -227,22 +239,22 @@ double CHuberized::BagImprovement
     {
         if(!afInBag[i])
         {
-            dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
+            dF = adF[i] + ((pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[i]);
 
-            if( (2*adY[i]-1)*dF < -1 ){
-               dReturnValue += adWeight[i]*
-                   (-4*(2*adY[i]-1)*dF -
-                    -4*(2*adY[i]-1)*(dF+dStepSize*adFadj[i]));
-               dW += adWeight[i];
+            if( (2*pData->y_ptr()[i]-1)*dF < -1 ){
+               dReturnValue += pData->weight_ptr()[i]*
+                   (-4*(2*pData->y_ptr()[i]-1)*dF -
+                    -4*(2*pData->y_ptr()[i]-1)*(dF+dStepSize*adFadj[i]));
+               dW += pData->weight_ptr()[i];
             }
-            else if ( 1 - (2*adY[i]-1)*dF < 0 ){
+            else if ( 1 - (2*pData->y_ptr()[i]-1)*dF < 0 ){
                dReturnValue += 0;
-               dW += adWeight[i];
+               dW += pData->weight_ptr()[i];
             }
             else {
-               dReturnValue += adWeight[i] *
-                  ( ( 1 - (2*adY[i]-1)*dF )*( 1 - (2*adY[i]-1)*dF ) -
-                    ( 1 - (2*adY[i]-1)*(dF+dStepSize*adFadj[i]) )*( 1 - (2*adY[i]-1)*(dF+dStepSize*adFadj[i]) )
+               dReturnValue += pData->weight_ptr()[i] *
+                  ( ( 1 - (2*pData->y_ptr()[i]-1)*dF )*( 1 - (2*pData->y_ptr()[i]-1)*dF ) -
+                    ( 1 - (2*pData->y_ptr()[i]-1)*(dF+dStepSize*adFadj[i]) )*( 1 - (2*pData->y_ptr()[i]-1)*(dF+dStepSize*adFadj[i]) )
                   );
             }
         }

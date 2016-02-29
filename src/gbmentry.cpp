@@ -72,26 +72,17 @@ SEXP gbm
     const std::string family = Rcpp::as<std::string>(rszFamily);
 
     int cNodes = 0;
-
     int cGroups = -1;
-
     Rcpp::RNGScope scope;
 
     // set up the dataset
     const CDataset data(radY, radOffset, radX, raiXOrder,
-                        radWeight, radMisc, racVarClasses,
-                        ralMonotoneVar);
+                        radWeight, racVarClasses,
+                        ralMonotoneVar, cTrain);
     
     // initialize some things
-    std::auto_ptr<CDistribution> pDist(gbm_setup(data, family,
-						 cTrees,
-						 cDepth,
-						 cMinObsInNode,
-						 dShrinkage,
-						 dBagFraction,
-						 cTrain,
-						 cFeatures,
-						 cGroups));
+    std::auto_ptr<CDistribution> pDist(gbm_setup(data, radMisc,
+    					 family, cTrain, cGroups));
     
     std::auto_ptr<CGBM> pGBM(new CGBM());
     
@@ -109,32 +100,21 @@ SEXP gbm
     double dInitF;
     Rcpp::NumericVector adF(data.nrow());
 
-    pDist->Initialize(data.y_ptr(),
-		      data.misc_ptr(false),
-		      data.offset_ptr(false),
-		      data.weight_ptr(),
-		      data.nrow());
+    pDist->Initialize();
     
     if(ISNA(adFold[0])) // check for old predictions
     {
       // set the initial value of F as a constant
-      pDist->InitF(data.y_ptr(),
-                   data.misc_ptr(false),
-                   data.offset_ptr(false),
-                   data.weight_ptr(),
-		   dInitF,
-		   cTrain);
-
+      pDist->InitF(dInitF, cTrain);
       adF.fill(dInitF);
     }
     else
-      {
-	if (adFold.size() != adF.size()) {
-	  throw GBM::invalid_argument("old predictions are the wrong shape");
-	}
-
-	std::copy(adFold.begin(), adFold.end(), adF.begin());
-      }
+    {
+		if (adFold.size() != adF.size()) {
+		  throw GBM::invalid_argument("old predictions are the wrong shape");
+		}
+		std::copy(adFold.begin(), adFold.end(), adF.begin());
+     }
 
     Rcpp::NumericVector adTrainError(cTrees, 0.0);
     Rcpp::NumericVector adValidError(cTrees, 0.0);
@@ -149,10 +129,7 @@ SEXP gbm
       {
 	Rcpp::checkUserInterrupt();
         // Update the parameters
-        pDist->UpdateParams(adF.begin(),
-			    data.offset_ptr(false),
-			    data.weight_ptr(),
-			    cTrain);
+        pDist->UpdateParams(adF.begin(), cTrain);
 
         double dTrainError = 0;
         double dValidError = 0;

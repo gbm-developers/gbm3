@@ -1,138 +1,117 @@
 //------------------------------------------------------------------------------
-//  GBM by Greg Ridgeway  Copyright (C) 2003
 //
 //  File:       distribution.h
 //
-//  License:    GNU GPL (version 2 or later)
+//  Description: Header file for distribution object used in GBM. This class
+//    is the parent class from which all other distributions inherit.
 //
-//  Contents:   distribution object
 //
 //  Owner:      gregr@rand.org
 //
 //  History:    3/26/2001   gregr created
 //              2/14/2003   gregr: adapted for R implementation
-//
+//				22/02/2016  jhickey: modified to implement factory pattern
 //------------------------------------------------------------------------------
 
-#ifndef DISTRIBUTION_H
-#define DISTRIBUTION_H
+#ifndef __distribution_h__
+#define __distribution_h__
 
-#include <vector>
-
+//------------------------------
+// Includes
+//------------------------------
 #include "node_terminal.h"
+#include "dataset.h"
+#include <vector>
+#include <Rcpp.h>
 
+//------------------------------
+// Class definition
+//------------------------------
 class CDistribution
 {
 
 public:
+	//----------------------
+	// Public Constructors
+	//----------------------
+    CDistribution(SEXP radMisc, const CDataset& data);
 
-    CDistribution();
+  	//---------------------
+  	// Public destructor
+  	//---------------------
     virtual ~CDistribution();
 
-// In the subsequent functions, parameters have the following meaning:
-// * adY      - The target
-// * adMisc   - Optional auxiliary data (the precise meaning is specific to the
-//              derived class)
-// * adOffset - An optional offset to the score (adF)
-// * adWeight - Instance training weight
-// * adF      - Current score (sum of all trees generated so far)
-// * adZ      - (Negative) gradient of loss function, to be predicted by tree
-// * adFadj   - Output of current tree, to be added to adF
-// * cLength  - Number of instances (size of vectors)
-// * afInBag  - true if instance is part of training set for current tree
-//              (depends on random subsampling)
+    //---------------------
+    // Public Functions
+    //---------------------
+  	bool has_misc() const ;
+  	const double* misc_ptr(bool require=false) const;
+  	double* misc_ptr(bool require=false);
+  
+  	// shifts the misc_ptr() as appropriate
+  	template<typename T>
+  	T* shift_ptr(T* x, std::ptrdiff_t y){
+  		if(x)
+  		{
+  			return x+y;
+  		}
+  		else
+  		{
+  			return x;
+  		}
+  	}
 
-// Initialize() is called once, before training starts.
-// It gives derived classes a chance for custom preparations, e.g., to allocate
-// memory or to pre-compute values that do not change between iterations.
-
-    virtual void Initialize(const double *adY,
-			    const double *adMisc,
-			    const double *adOffset,
-			    const double *adWeight,
-			    unsigned long cLength) {  }
-
-// UpdateParams() is called at the start of each iteration.
-// CMultinomial uses it to normalize predictions across multiple classes.
+    //---------------------
+    // Public Virtual Functions
+    //---------------------
+    virtual void Initialize() { };
 
     virtual void UpdateParams(const double *adF,
-			      const double *adOffset,
-			      const double *adWeight,
-			      unsigned long cLength) { };
+    			      unsigned long cLength) { };
 
-// ComputeWorkingResonse() calculates the negative gradients of the
-// loss function, and stores them in adZ.
-    
-    virtual void ComputeWorkingResponse(const double *adY,
-					const double *adMisc,
-					const double *adOffset,
-					const double *adF,
-					double *adZ,
-					const double *adWeight,
-					const bag& afInBag,
-					unsigned long cLength) = 0;
 
-// InitF() computes the best constant prediction for all instances, and
-// stores it in dInitF.
+    //---------------------
+    // Public Virtual Functions
+    //---------------------
+    virtual void ComputeWorkingResponse(const double *adF,
+									double *adZ,
+									const bag& afInBag,
+									unsigned long cLength) = 0;
 
-    virtual void InitF(const double *adY,
-		       const double *adMisc,
-		       const double *adOffset,
-		       const double *adWeight,
-		       double &dInitF,
-		       unsigned long cLength) = 0;
+    virtual void InitF(double &dInitF,
+    		       unsigned long cLength) = 0;
 
-// Deviance() returns the value of the loss function, based on the
-// current predictions (adF).
+    virtual double Deviance(const double *adF,
+                            unsigned long cLength,
+                            bool isValidationSet=false) = 0;
 
-    virtual double Deviance(const double *adY,
-                            const double *adMisc,
-                            const double *adOffset,
-                            const double *adWeight,
-                            const double *adF,
-                            unsigned long cLength) = 0;
+    virtual void FitBestConstant(const double *adF,
+						  double *adZ,
+						  const std::vector<unsigned long>& aiNodeAssign,
+						  unsigned long cLength,
+						  VEC_P_NODETERMINAL vecpTermNodes,
+						  unsigned long cTermNodes,
+						  unsigned long cMinObsInNode,
+						  const bag& afInBag,
+						  const double *adFadj) = 0;
 
-// FitBestConstant() calculates and sets prediction values for all terminal nodes
-// of the tree being currently constructed.
-// Assumptions:
-// * cTermNodes is the number of terminal nodes of the tree.
-// * vecpTermNodes is a vector of (pointers to) the terminal nodes of the tree, of
-//   size cTermNodes.
-// * aiNodeAssign is a vector of size cLength, that maps each instance to an index
-//   into vecpTermNodes for the corresponding terminal node.
+    virtual double BagImprovement(const double *adF,
+								  const double *adFadj,
+								  const bag& afInBag,
+								  double dStepSize,
+								  unsigned long cLength) = 0;
 
-    virtual void FitBestConstant(const double *adY,
-				      const double *adMisc,
-				      const double *adOffset,
-				      const double *adWeight,
-				      const double *adF,
-				      double *adZ,
-				      const std::vector<unsigned long>& aiNodeAssign,
-				      unsigned long cLength,
-				      VEC_P_NODETERMINAL vecpTermNodes,
-				      unsigned long cTermNodes,
-				      unsigned long cMinObsInNode,
-				      const bag& afInBag,
-				      const double *adFadj) = 0;
+protected:
+    const CDataset* pData;
 
-// BagImprovement() returns the incremental difference in the loss
-// function induced by scoring with (adF + dStepSize * adFAdj) instead of adF, for
-// all instances that were not part of the training set for the current tree (i.e.,
-// afInBag set to false).
+private:
+    Rcpp::NumericVector adMisc;
+    bool distHasMisc;
+    bool distRequiresMisc;
 
-    virtual double BagImprovement(const double *adY,
-                                  const double *adMisc,
-                                  const double *adOffset,
-                                  const double *adWeight,
-                                  const double *adF,
-                                  const double *adFadj,
-                                  const bag& afInBag,
-                                  double dStepSize,
-                                  unsigned long cLength) = 0;
 };
 
-typedef CDistribution *PCDistribution;
-#endif // DISTRIBUTION_H
+#endif // __distribution_h__
 
 
 

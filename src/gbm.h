@@ -1,11 +1,10 @@
 //------------------------------------------------------------------------------
-//  GBM by Greg Ridgeway  Copyright (C) 2003
 //
 //  File:       gbm.h
 //
 //  License:    GNU GPL (version 2 or later)
 //
-//  Contents:   Entry point for gbm.dll
+//  Description:   Entry point for gbm.dll
 //
 //  Owner:      gregr@rand.org
 //
@@ -15,9 +14,16 @@
 //
 //------------------------------------------------------------------------------
 
+#ifndef __gbm_h__
+#define __gbm_h__
+
+//------------------------------
+// Includes
+//------------------------------
 #include <vector>
 #include <string>
 #include <memory>
+#include <Rcpp.h>
 #include "dataset.h"
 #include "distribution.h"
 #include "bernoulli.h"
@@ -38,14 +44,9 @@
 std::auto_ptr<CDistribution> gbm_setup
 (
     const CDataset& data,
+    SEXP radMisc,
     const std::string& family,
-    int cTrees,
-    int cLeaves,
-    int cMinObsInNode,
-    double dShrinkage,
-    double dBagFraction,
     int cTrain,
-    int cFeatures,
     int& cGroups
 );
 
@@ -65,4 +66,4 @@ void gbm_transfer_to_R
  int cCatSplitsOld
 );
 
-
+#endif // __gbm_h__

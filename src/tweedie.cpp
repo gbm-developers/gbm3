@@ -1,8 +1,16 @@
-// Tweedie distribution with natural log link function ( mean = std::exp(prediction) )
-// -19 <= prediction <= +19
+//-----------------------------------
+//
+// File: tweedie.cpp
+//
+// Description: Tweedie distribution with natural
+//  log link function ( mean = std::exp(prediction) )
+//
+// Notes: -19 <= prediction <= +19, Parameter dPower defaults to 1.5
+//-----------------------------------
 
-// Parameter dPower defaults to 1.5
-
+//-----------------------------------
+// Includes
+//-----------------------------------
 #include "tweedie.h"
 #include <math.h>
 #include <typeinfo>
@@ -11,6 +19,23 @@
 #include <deque>
 #include <fstream>
 
+//----------------------------------------
+// Function Members - Private
+//----------------------------------------
+CTweedie:: CTweedie(SEXP radMisc, const CDataset& data): CDistribution(radMisc, data)
+{
+	dPower = CDistribution::misc_ptr(true)[0];
+}
+
+//----------------------------------------
+// Function Members - Public
+//----------------------------------------
+std::auto_ptr<CDistribution> CTweedie::Create(SEXP radMisc, const CDataset& data,
+									const char* szIRMeasure,
+									int& cGroups, int& cTrain)
+{
+	return std::auto_ptr<CDistribution>(new CTweedie(radMisc, data));
+}
 
 CTweedie::~CTweedie()
 {
@@ -18,12 +43,8 @@ CTweedie::~CTweedie()
 
 void CTweedie::ComputeWorkingResponse
 (
- const double *adY,
- const double *adMisc,
- const double *adOffset,
  const double *adF, 
  double *adZ, 
- const double *adWeight,
  const bag& afInBag,
  unsigned long nTrain
 )
@@ -32,25 +53,21 @@ void CTweedie::ComputeWorkingResponse
   unsigned long i = 0;
   double dF = 0.0;
     
-  if( ! (adY && adF && adZ && adWeight) )
+  if( ! (pData->y_ptr() && adF && adZ && pData->weight_ptr()) )
     {
       throw GBM::invalid_argument();
     }
 
   for(i=0; i<nTrain; i++)
     {
-      dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
-      adZ[i] = adY[i]*std::exp(dF*(1.0-dPower)) - exp(dF*(2.0-dPower));
+      dF = adF[i] + ((pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[i]);
+      adZ[i] = pData->y_ptr()[i]*std::exp(dF*(1.0-dPower)) - exp(dF*(2.0-dPower));
     }
 }
 
 
 void CTweedie::InitF
 (
- const double *adY,
- const double *adMisc,
- const double *adOffset, 
- const double *adWeight,
  double &dInitF, 
  unsigned long cLength
 )
@@ -61,20 +78,20 @@ void CTweedie::InitF
     double Max = +19.0;
     unsigned long i=0;
 
-    if(adOffset==NULL)
+    if(pData->offset_ptr(false)==NULL)
       {
 	for(i=0; i<cLength; i++)
 	  {
-	    dSum += adWeight[i]*adY[i];
-	    dTotalWeight += adWeight[i];
+	    dSum += pData->weight_ptr()[i]*pData->y_ptr()[i];
+	    dTotalWeight += pData->weight_ptr()[i];
 	  }
       }
     else
       {
 	for(i=0; i<cLength; i++)
 	  {
-	    dSum += adWeight[i]*adY[i]*std::exp(adOffset[i]*(1.0-dPower));
-	    dTotalWeight += adWeight[i]*std::exp(adOffset[i]*(2.0-dPower));
+	    dSum += pData->weight_ptr()[i]*pData->y_ptr()[i]*std::exp(pData->offset_ptr(false)[i]*(1.0-dPower));
+	    dTotalWeight += pData->weight_ptr()[i]*std::exp(pData->offset_ptr(false)[i]*(2.0-dPower));
 	  }
       }
     
@@ -88,12 +105,9 @@ void CTweedie::InitF
 
 double CTweedie::Deviance
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset, 
-    const double *adWeight,
     const double *adF,
-    unsigned long cLength
+    unsigned long cLength,
+    bool isValidationSet
 )
 {
   double dF = 0.0;
@@ -101,24 +115,32 @@ double CTweedie::Deviance
   double dL = 0.0;
   double dW = 0.0;
   
+  // Switch to validation set if necessary
+  if(isValidationSet)
+  {
+	   pData->shift_to_validation();
+  }
+
   for(i=0; i<cLength; i++)
     {
-      dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
-      dL += adWeight[i]*(pow(adY[i],2.0-dPower)/((1.0-dPower)*(2.0-dPower)) -
-			 adY[i]*std::exp(dF*(1.0-dPower))/(1.0-dPower) + exp(dF*(2.0-dPower))/(2.0-dPower) );
-      dW += adWeight[i];
+      dF = adF[i] + ((pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[i]);
+      dL += pData->weight_ptr()[i]*(pow(pData->y_ptr()[i],2.0-dPower)/((1.0-dPower)*(2.0-dPower)) -
+			 pData->y_ptr()[i]*std::exp(dF*(1.0-dPower))/(1.0-dPower) + exp(dF*(2.0-dPower))/(2.0-dPower) );
+      dW += pData->weight_ptr()[i];
     }
   
+  // Switch to training set if necessary
+  if(isValidationSet)
+  {
+	   pData->shift_to_train();
+  }
+
   return 2.0*dL/dW;
 }
 
 
 void CTweedie::FitBestConstant
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adW,
     const double *adF,
     double *adZ,
     const std::vector<unsigned long>& aiNodeAssign,
@@ -151,9 +173,9 @@ void CTweedie::FitBestConstant
     {
       if(afInBag[iObs])
 	{
-	  dF = adF[iObs] + ((adOffset==NULL) ? 0.0 : adOffset[iObs]);
-	  vecdNum[aiNodeAssign[iObs]] += adW[iObs]*adY[iObs]*std::exp(dF*(1.0-dPower));
-	  vecdDen[aiNodeAssign[iObs]] += adW[iObs]*std::exp(dF*(2.0-dPower));
+	  dF = adF[iObs] + ((pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[iObs]);
+	  vecdNum[aiNodeAssign[iObs]] += pData->weight_ptr()[iObs]*pData->y_ptr()[iObs]*std::exp(dF*(1.0-dPower));
+	  vecdDen[aiNodeAssign[iObs]] += pData->weight_ptr()[iObs]*std::exp(dF*(2.0-dPower));
 
 	  // Keep track of largest and smallest prediction in each node
 	  vecdMax[aiNodeAssign[iObs]] = R::fmax2(dF,vecdMax[aiNodeAssign[iObs]]);
@@ -191,10 +213,6 @@ void CTweedie::FitBestConstant
 
 double CTweedie::BagImprovement
 (
-	const double *adY,
-	const double *adMisc,
-	const double *adOffset,
-	const double *adWeight,
 	const double *adF,
 	const double *adFadj,
 	const bag& afInBag,
@@ -211,12 +229,12 @@ double CTweedie::BagImprovement
 	{
 		if(!afInBag[i])
 		{
-			dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
+			dF = adF[i] + ((pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[i]);
 
-			dReturnValue += adWeight[i]*( std::exp(dF*(1.0-dPower))*adY[i]/(1.0-dPower)*
+			dReturnValue += pData->weight_ptr()[i]*( std::exp(dF*(1.0-dPower))*pData->y_ptr()[i]/(1.0-dPower)*
 				(std::exp(dStepSize*adFadj[i]*(1.0-dPower))-1.0) +
 				std::exp(dF*(2.0-dPower))/(2.0-dPower)*(1.0-exp(dStepSize*adFadj[i]*(2.0-dPower))) );
-			dW += adWeight[i];
+			dW += pData->weight_ptr()[i];
 		}
 	}
 

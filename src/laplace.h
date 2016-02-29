@@ -1,89 +1,90 @@
 //------------------------------------------------------------------------------
-//  GBM by Greg Ridgeway  Copyright (C) 2003
+//
 //  File:       laplace.h
 //
-//  License:    GNU GPL (version 2 or later)
-//
-//  Contents:   laplace object
-//
-//  Owner:      gregr@rand.org
+//  Description:   laplace distribution for GBM.
 //
 //  History:    3/26/2001   gregr created
 //              2/14/2003   gregr: adapted for R implementation
-//
 //------------------------------------------------------------------------------
 
-#ifndef LAPLACGBM_H
-#define LAPLACGBM_H
+#ifndef __laplaceGBM_h__
+#define __laplaceGBM_h__
 
-#include <algorithm>
+//------------------------------
+// Includes
+//------------------------------
 #include "distribution.h"
+#include "dataset.h"
 #include "locationm.h"
+#include <algorithm>
+#include <memory>
 
-
+//------------------------------
+// Class definition
+//------------------------------
 class CLaplace : public CDistribution
 {
 
 public:
+	//---------------------
+	// Factory Function
+	//---------------------
+	static std::auto_ptr<CDistribution> Create(SEXP radMisc, const CDataset& data,
+										const char* szIRMeasure,
+										int& cGroups, int& cTrain);
 
- CLaplace()  : mpLocM("Other") {};
+	//---------------------
+	// Public destructor
+	//---------------------
+	virtual ~CLaplace();
 
-  virtual ~CLaplace();
-  
-  void ComputeWorkingResponse(const double *adY,
-			      const double *adMisc,
-			      const double *adOffset,
-			      const double *adF,
-			      double *adZ,
-			      const double *adWeight,
-			      const bag& afInBag,
-			      unsigned long nTrain);
+	//---------------------
+	// Public Functions
+	//---------------------
+	void ComputeWorkingResponse(const double *adF,
+				  double *adZ,
+				  const bag& afInBag,
+				  unsigned long nTrain);
 
-  void InitF(const double *adY,
-	     const double *adMisc,
-	     const double *adOffset,
-	     const double *adWeight,
-	     double &dInitF,
-	     unsigned long cLength);
+	void InitF(double &dInitF,
+			unsigned long cLength);
   
-  void FitBestConstant(const double *adY,
-		       const double *adMisc,
-		       const double *adOffset,
-		       const double *adW,
-		       const double *adF,
-		       double *adZ,
-		       const std::vector<unsigned long>& aiNodeAssign,
-		       unsigned long nTrain,
-		       VEC_P_NODETERMINAL vecpTermNodes,
-		       unsigned long cTermNodes,
-		       unsigned long cMinObsInNode,
-		       const bag& afInBag,
-		       const double *adFadj);
+	void FitBestConstant(const double *adF,
+		       	   double *adZ,
+		       	   const std::vector<unsigned long>& aiNodeAssign,
+		       	   unsigned long nTrain,
+		       	   VEC_P_NODETERMINAL vecpTermNodes,
+		       	   unsigned long cTermNodes,
+		       	   unsigned long cMinObsInNode,
+		       	   const bag& afInBag,
+		       	   const double *adFadj);
   
-  double Deviance(const double *adY,
-                    const double *adMisc,
-                    const double *adOffset,
-                    const double *adWeight,
-                    const double *adF,
-                    unsigned long cLength);
+	double Deviance(const double *adF,
+                    unsigned long cLength,
+                    bool isValidationSet=false);
   
-  double BagImprovement(const double *adY,
-			const double *adMisc,
-			const double *adOffset,
-			const double *adWeight,
-			const double *adF,
-			const double *adFadj,
-			const bag& afInBag,
-			double dStepSize,
-			unsigned long nTrain);
+	double BagImprovement(const double *adF,
+				const double *adFadj,
+				const bag& afInBag,
+				double dStepSize,
+				unsigned long nTrain);
 
 private:
-  vector<double> vecd;
-  vector<double>::iterator itMedian;
-  CLocationM mpLocM;
+	//----------------------
+	// Private Constructors
+	//----------------------
+	CLaplace(SEXP radMisc, const CDataset& data);
+
+	//-------------------
+	// Private Variables
+	//-------------------
+	vector<double> vecd;
+	vector<double>::iterator itMedian;
+	CLocationM mpLocM;
 };
 
-#endif // LAPLACGBM_H
+#endif // __laplaceGBM_h__
 
 
 

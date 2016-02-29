@@ -1,9 +1,33 @@
-//  GBM by Greg Ridgeway  Copyright (C) 2003
+//-----------------------------------
+//
+// File: coxph.cpp
+//
+// Description: Cox partial hazards model.
+//
+//-----------------------------------
 
+//-----------------------------------
+// Includes
+//-----------------------------------
 #include "coxph.h"
 
-CCoxPH::CCoxPH()
+//----------------------------------------
+// Function Members - Private
+//----------------------------------------
+CCoxPH::CCoxPH(SEXP radMisc, const CDataset& data): CDistribution(radMisc, data)
 {
+	adDelta = CDistribution::misc_ptr(false);
+}
+
+
+//----------------------------------------
+// Function Members - Public
+//----------------------------------------
+std::auto_ptr<CDistribution> CCoxPH::Create(SEXP radMisc, const CDataset& data,
+									const char* szIRMeasure,
+									int& cGroups, int& cTrain)
+{
+	return std::auto_ptr<CDistribution>(new CCoxPH(radMisc, data));
 }
 
 CCoxPH::~CCoxPH()
@@ -12,13 +36,22 @@ CCoxPH::~CCoxPH()
 
 
 void CCoxPH::ComputeWorkingResponse
+////////////////////////////////////////////
+// weightedQuantile
+//
+// Function to return the weighted quantile of
+// a vector of a given length
+//
+// Parameters: iN     - Length of vector
+//             adV    - Vector of doubles
+//             pData->weight_ptr()    - Array of weights
+//             dAlpha - Quantile to calculate (0.5 for median)
+//
+// Returns :   Weighted quantile
+/////////////////////////////////////////////////ponse
 (
-    const double *adT,
-    const double *adDelta,
-    const double *adOffset,
     const double *adF,
     double *adZ,
-    const double *adWeight,
     const bag& afInBag,
     unsigned long nTrain
 )
@@ -34,8 +67,8 @@ void CCoxPH::ComputeWorkingResponse
     {
         if(afInBag[i])
         {
-            dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
-            dRiskTot += adWeight[i]*std::exp(dF);
+            dF = adF[i] + ((pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[i]);
+            dRiskTot += pData->weight_ptr()[i]*std::exp(dF);
             vecdRiskTot[i] = dRiskTot;
         }
     }
@@ -47,9 +80,9 @@ void CCoxPH::ComputeWorkingResponse
         {
             if(adDelta[i]==1.0)
             {
-                dTot += adWeight[i]/vecdRiskTot[i];
+                dTot += pData->weight_ptr()[i]/vecdRiskTot[i];
             }
-            dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
+            dF = adF[i] + ((pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[i]);
             adZ[i] = adDelta[i] - std::exp(dF)*dTot;
         }
     }
@@ -60,10 +93,6 @@ void CCoxPH::ComputeWorkingResponse
 
 void CCoxPH::InitF
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adWeight,
     double &dInitF,
     unsigned long cLength
 )
@@ -74,12 +103,9 @@ void CCoxPH::InitF
 
 double CCoxPH::Deviance
 (
-    const double *adT,
-    const double *adDelta,
-    const double *adOffset,
-    const double *adWeight,
     const double *adF,
-    unsigned long cLength
+    unsigned long cLength,
+    bool isValidationSet
 )
 {
     unsigned long i=0;
@@ -88,28 +114,36 @@ double CCoxPH::Deviance
     double dW = 0.0;
     double dTotalAtRisk = 0.0;
 
-    dTotalAtRisk = 0.0;
+    if(isValidationSet)
+    {
+    	pData->shift_to_validation();
+    	adDelta = shift_ptr(CDistribution::misc_ptr(false), pData->get_trainSize());
+    }
+
+    dTotalAtRisk = 0.0; 
     for(i=0; i!=cLength; i++)
     {
-        dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
-        dTotalAtRisk += adWeight[i]*std::exp(dF);
+        dF = adF[i] + ((pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[i]);
+        dTotalAtRisk += pData->weight_ptr()[i]*std::exp(dF);
         if(adDelta[i]==1.0)
         {
-            dL += adWeight[i]*(dF - std::log(dTotalAtRisk));
-            dW += adWeight[i];
+            dL += pData->weight_ptr()[i]*(dF - std::log(dTotalAtRisk));
+            dW += pData->weight_ptr()[i];
         }
     }
 
+    // Shift back for future calculations if required
+    if(isValidationSet)
+    {
+    	pData->shift_to_train();
+    	adDelta = CDistribution::misc_ptr(false);
+    }
     return -2*dL/dW;
 }
 
 
 void CCoxPH::FitBestConstant
 (
-    const double *adT,
-    const double *adDelta,
-    const double *adOffset,
-    const double *adW,
     const double *adF,
     double *adZ,
     const std::vector<unsigned long>& aiNodeAssign,
@@ -168,9 +202,9 @@ void CCoxPH::FitBestConstant
     {
         if(afInBag[i] && (vecpTermNodes[aiNodeAssign[i]]->cN >= cMinObsInNode))
         {
-            dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
-            vecdP[veciNode2K[aiNodeAssign[i]]] += adW[i]*std::exp(dF);
-            dRiskTot += adW[i]*std::exp(dF);
+            dF = adF[i] + ((pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[i]);
+            vecdP[veciNode2K[aiNodeAssign[i]]] += pData->weight_ptr()[i]*std::exp(dF);
+            dRiskTot += pData->weight_ptr()[i]*std::exp(dF);
 
             if(adDelta[i]==1.0)
             {
@@ -178,15 +212,15 @@ void CCoxPH::FitBestConstant
                 for(k=0; k<K-1; k++)
                 {
                     vecdG[k] +=
-                        adW[i]*((aiNodeAssign[i]==veciK2Node[k]) - vecdP[k]/dRiskTot);
+                        pData->weight_ptr()[i]*((aiNodeAssign[i]==veciK2Node[k]) - vecdP[k]/dRiskTot);
 
                     matH.getvalue(k,k,dTemp,fTemp);
                     matH.setvalue(k,k,dTemp -
-                        adW[i]*vecdP[k]/dRiskTot*(1-vecdP[k]/dRiskTot));
+                        pData->weight_ptr()[i]*vecdP[k]/dRiskTot*(1-vecdP[k]/dRiskTot));
                     for(m=0; m<k; m++)
                     {
                         matH.getvalue(k,m,dTemp,fTemp);
-                        dTemp += adW[i]*vecdP[k]/dRiskTot*vecdP[m]/dRiskTot;
+                        dTemp += pData->weight_ptr()[i]*vecdP[k]/dRiskTot*vecdP[m]/dRiskTot;
                         matH.setvalue(k,m,dTemp);
                         matH.setvalue(m,k,dTemp);
                     }
@@ -236,10 +270,6 @@ void CCoxPH::FitBestConstant
 
 double CCoxPH::BagImprovement
 (
-    const double *adT,
-    const double *adDelta,
-    const double *adOffset,
-    const double *adWeight,
     const double *adF,
     const double *adFadj,
     const bag& afInBag,
@@ -260,13 +290,13 @@ double CCoxPH::BagImprovement
     {
         if(!afInBag[i])
         {
-            dNum += adWeight[i]*std::exp(dF + dStepSize*adFadj[i]);
-            dDen += adWeight[i]*std::exp(dF);
+            dNum += pData->weight_ptr()[i]*std::exp(dF + dStepSize*adFadj[i]);
+            dDen += pData->weight_ptr()[i]*std::exp(dF);
             if(adDelta[i]==1.0)
             {
                 dReturnValue +=
-                    adWeight[i]*(dStepSize*adFadj[i] - std::log(dNum) + log(dDen));
-                dW += adWeight[i];
+                    pData->weight_ptr()[i]*(dStepSize*adFadj[i] - std::log(dNum) + log(dDen));
+                dW += pData->weight_ptr()[i];
             }
         }
     }

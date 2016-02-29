@@ -1,8 +1,33 @@
-//  GBM by Greg Ridgeway  Copyright (C) 2003
+//-----------------------------------
+//
+// File: laplace.cpp
+//
+// Description: laplace distribution for GBM.
+//
+//-----------------------------------
 
-#include <vector>
+//-----------------------------------
+// Includes
+//-----------------------------------
 #include "laplace.h"
+#include <vector>
 
+//----------------------------------------
+// Function Members - Private
+//----------------------------------------
+CLaplace::CLaplace(SEXP radMisc, const CDataset& data): CDistribution(radMisc, data), mpLocM("Other")
+{
+}
+
+//----------------------------------------
+// Function Members - Public
+//----------------------------------------
+std::auto_ptr<CDistribution> CLaplace::Create(SEXP radMisc, const CDataset& data,
+										const char* szIRMeasure,
+										int& cGroups, int& cTrain)
+{
+	return std::auto_ptr<CDistribution>(new CLaplace(radMisc, data));
+}
 
 CLaplace::~CLaplace()
 {
@@ -11,30 +36,26 @@ CLaplace::~CLaplace()
 
 void CLaplace::ComputeWorkingResponse
 (
- const double *adY,
- const double *adMisc,
- const double *adOffset,
  const double *adF,
  double *adZ,
- const double *adWeight,
  const bag& afInBag,
  unsigned long nTrain
 )
 {
     unsigned long i = 0;
 
-    if(adOffset == NULL)
+    if(pData->offset_ptr(false) == NULL)
     {
         for(i=0; i<nTrain; i++)
         {
-            adZ[i] = (adY[i] - adF[i]) > 0.0 ? 1.0 : -1.0;
+            adZ[i] = (pData->y_ptr()[i] - adF[i]) > 0.0 ? 1.0 : -1.0;
         }
     }
     else
     {
         for(i=0; i<nTrain; i++)
         {
-            adZ[i] = (adY[i] - adOffset[i] - adF[i]) > 0.0 ? 1.0 : -1.0;
+            adZ[i] = (pData->y_ptr()[i] - pData->offset_ptr(false)[i] - adF[i]) > 0.0 ? 1.0 : -1.0;
         }
     }
 }
@@ -43,10 +64,6 @@ void CLaplace::ComputeWorkingResponse
 
 void CLaplace::InitF
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adWeight,
     double &dInitF,
     unsigned long cLength
 )
@@ -59,43 +76,50 @@ void CLaplace::InitF
   
   for (ii = 0; ii < cLength; ii++)
     {
-      dOffset = (adOffset==NULL) ? 0.0 : adOffset[ii];
-      adArr[ii] = adY[ii] - dOffset;
+      dOffset = (pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[ii];
+      adArr[ii] = pData->y_ptr()[ii] - dOffset;
     }
   
-  dInitF = mpLocM.weightedQuantile(nLength, &adArr[0], adWeight, 0.5); // median
+  dInitF = mpLocM.weightedQuantile(nLength, &adArr[0], pData->weight_ptr(), 0.5); // median
 }
 
 
 double CLaplace::Deviance
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adWeight,
     const double *adF,
-    unsigned long cLength
+    unsigned long cLength,
+    bool isValidationSet
 )
 {
     unsigned long i=0;
     double dL = 0.0;
     double dW = 0.0;
 
-    if(adOffset == NULL)
+    if(isValidationSet)
+    {
+    	pData->shift_to_validation();
+    }
+
+    if(pData->offset_ptr(false) == NULL)
     {
         for(i=0; i<cLength; i++)
         {
-            dL += adWeight[i]*fabs(adY[i]-adF[i]);
-            dW += adWeight[i];
+            dL += pData->weight_ptr()[i]*fabs(pData->y_ptr()[i]-adF[i]);
+            dW += pData->weight_ptr()[i];
         }
     }
     else
     {
         for(i=0; i<cLength; i++)
         {
-            dL += adWeight[i]*fabs(adY[i]-adOffset[i]-adF[i]);
-            dW += adWeight[i];
+            dL += pData->weight_ptr()[i]*fabs(pData->y_ptr()[i]-pData->offset_ptr(false)[i]-adF[i]);
+            dW += pData->weight_ptr()[i];
         }
+    }
+
+    if(isValidationSet)
+    {
+    	pData->shift_to_train();
     }
 
     return dL/dW;
@@ -105,10 +129,6 @@ double CLaplace::Deviance
 // DEBUG: needs weighted median
 void CLaplace::FitBestConstant
 (
- const double *adY,
- const double *adMisc,
- const double *adOffset,
- const double *adW,
  const double *adF,
  double *adZ,
  const std::vector<unsigned long>& aiNodeAssign,
@@ -139,9 +159,9 @@ void CLaplace::FitBestConstant
             {
 	      if(afInBag[iObs] && (aiNodeAssign[iObs] == iNode))
                 {
-		  dOffset = (adOffset==NULL) ? 0.0 : adOffset[iObs];
-		  adArr[iVecd] = adY[iObs] - dOffset - adF[iObs];
-		  adW2[iVecd] = adW[iObs];
+		  dOffset = (pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[iObs];
+		  adArr[iVecd] = pData->y_ptr()[iObs] - dOffset - adF[iObs];
+		  adW2[iVecd] = pData->weight_ptr()[iObs];
 		  iVecd++;
 		}
 	      
@@ -157,10 +177,6 @@ void CLaplace::FitBestConstant
 
 double CLaplace::BagImprovement
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adWeight,
     const double *adF,
     const double *adFadj,
     const bag& afInBag,
@@ -177,11 +193,11 @@ double CLaplace::BagImprovement
     {
         if(!afInBag[i])
         {
-            dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
+            dF = adF[i] + ((pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[i]);
 
             dReturnValue +=
-                adWeight[i]*(fabs(adY[i]-dF) - fabs(adY[i]-dF-dStepSize*adFadj[i]));
-            dW += adWeight[i];
+                pData->weight_ptr()[i]*(fabs(pData->y_ptr()[i]-dF) - fabs(pData->y_ptr()[i]-dF-dStepSize*adFadj[i]));
+            dW += pData->weight_ptr()[i];
         }
     }
 

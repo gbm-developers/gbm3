@@ -76,7 +76,9 @@ test_that("gaussian works", {
 })
 
 test_that("coxph works", {
-
+    # Require Surv to be available
+    require(survival)
+  
     # create some data
     set.seed(1)
     N <- 3000
@@ -196,7 +198,7 @@ test_that("bernoulli works", {
 
     # predict on the new data using "best" number of trees
     # f.predict will be on the canonical scale (logit,log,etc.)
-    f.1.predict <- predict.gbm(gbm1,data2, n.trees=best.iter.test)
+    f.1.predict <- predict(gbm1,data2, n.trees=best.iter.test)
 
     # compute quantity prior to transformation
     f.new = sin(3*X1) - 4*X2 + mu

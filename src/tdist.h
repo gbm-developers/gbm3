@@ -1,53 +1,56 @@
 //------------------------------------------------------------------------------
-//  GBM alteration by Daniel Edwards
 //
 //  File:       tdist.h
 //
-//  Contains:   Distribution object to implement t-distribution
+//  Description:   Distribution object to implement t-distribution
 //
 //  History:    04/04/2008   Created
 //
 //------------------------------------------------------------------------------
 
-#ifndef TDISTCGBM_H
-#define TDISTCGBM_H
+#ifndef __tdistGBM_h__
+#define __tdistGBM_h__
 
-#include <algorithm>
+//------------------------------
+// Includes
+//------------------------------
 #include "distribution.h"
+#include "dataset.h"
 #include "locationm.h"
+#include <algorithm>
+#include <memory>
 
-
+//------------------------------
+// Class definition
+//------------------------------
 class CTDist : public CDistribution
 {
   
- public:
-  
- CTDist(double adNu) : mdNu(adNu), mpLocM("tdist", adNu) {};
+public:
+	//---------------------
+	// Factory Function
+	//---------------------
+	static std::auto_ptr<CDistribution> Create(SEXP radMisc, const CDataset& data,
+										const char* szIRMeasure,
+										int& cGroups, int& cTrain);
 
-  virtual ~CTDist() {};
+	//---------------------
+	// Public destructor
+	//---------------------
+	virtual ~CTDist();
   
-  
-  void ComputeWorkingResponse(const double *adY,
-			      const double *adMisc,
-			      const double *adOffset,
-			      const double *adF,
-			      double *adZ,
-			      const double *adWeight,
-			      const bag& afInBag,
-			      unsigned long nTrain);
+    //---------------------
+    // Public Functions
+    //---------------------
+	void ComputeWorkingResponse(const double *adF,
+			      	  double *adZ,
+			      	  const bag& afInBag,
+			      	  unsigned long nTrain);
 
-    void InitF(const double *adY,
-	       const double *adMisc,
-	       const double *adOffset,
-	       const double *adWeight,
-	       double &dInitF,
+    void InitF(double &dInitF,
 	       unsigned long cLength);
     
-    void FitBestConstant(const double *adY,
-			 const double *adMisc,
-			 const double *adOffset,
-			 const double *adW,
-			 const double *adF,
+    void FitBestConstant(const double *adF,
 			 double *adZ,
 			 const std::vector<unsigned long> &aiNodeAssign,
 			 unsigned long nTrain,
@@ -57,29 +60,30 @@ class CTDist : public CDistribution
 			 const bag& afInBag,
 			 const double *adFadj);
 
-    double Deviance(const double *adY,
-                    const double *adMisc,
-                    const double *adOffset,
-                    const double *adWeight,
-                    const double *adF,
-                    unsigned long cLength);
+    double Deviance(const double *adF,
+                    unsigned long cLength,
+                    bool isValidationSet=false);
 
-    double BagImprovement(const double *adY,
-                          const double *adMisc,
-                          const double *adOffset,
-                          const double *adWeight,
-                          const double *adF,
+    double BagImprovement(const double *adF,
                           const double *adFadj,
                           const bag& afInBag,
                           double dStepSize,
                           unsigned long nTrain);
 
 private:
+    //----------------------
+    // Private Constructors
+    //----------------------
+    CTDist(SEXP radMisc, const CDataset& data);
+
+	//-------------------
+	// Private Variables
+	//-------------------
     double mdNu;
     CLocationM mpLocM;
 };
 
-#endif // TDISTCGBM_H
+#endif // __tdistGBM_h__
 
 
 

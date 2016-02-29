@@ -3,7 +3,7 @@
 // Author: Stefan Schroedl (schroedl@a9.com)
 
 #include "pairwise.h"
-
+#include "numGroups.h"
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -276,6 +276,7 @@ double CNDCG::MaxMeasure(unsigned int iGroup, const double* const adY, unsigned 
     {
         // Allocate additional space
         // (We should never get here if CPairwise::Initialize has been called before, as expected)
+    	// JHickey: Then should we call initialize in the constructor?
         vecdMaxDCG.resize(iGroup + 1, -1.0);
     }
 
@@ -524,8 +525,16 @@ double CMAP::Measure(const double* const adY, const CRanker& ranker)
 }
 
 
-CPairwise::CPairwise(const char* szIRMeasure)
+CPairwise::CPairwise(SEXP radMisc, const CDataset& data,
+					const char* szIRMeasure, int& cGroups, int& cTrain): CDistribution(radMisc, data)
 {
+
+	// Set up adGroup - this is not required
+	adGroup = CDistribution::misc_ptr(false);
+
+	// Set up the number of groups - this used externally
+	cGroups = GBM_Func::numGroups(CDistribution::misc_ptr(true), cTrain);
+
     // Construct the IR Measure
     if (!strcmp(szIRMeasure, "conc"))
     {
@@ -542,11 +551,18 @@ CPairwise::CPairwise(const char* szIRMeasure)
     else
       {
         if (strcmp(szIRMeasure, "ndcg"))
-	  {
+        {
             Rprintf("Unknown IR measure '%s' in initialization, using 'ndcg' instead\n", szIRMeasure);
         }
         pirm.reset(new CNDCG());
       }
+}
+
+std::auto_ptr<CDistribution> CPairwise::Create(SEXP radMisc, const CDataset& data,
+										const char* szIRMeasure, int& cGroups, int& cTrain)
+{
+
+	return std::auto_ptr<CDistribution>(new CPairwise(radMisc, data, szIRMeasure, cGroups, cTrain));
 }
 
 CPairwise::~CPairwise()
@@ -574,12 +590,8 @@ inline const double* OffsetVector(const double* const adX, const double* const a
 
 void CPairwise::ComputeWorkingResponse
 (
- const double *adY,
- const double *adGroup,
- const double *adOffset,
  const double *adF,
  double *adZ,
- const double *adWeight,
  const bag& afInBag,
  unsigned long nTrain
 )
@@ -613,7 +625,7 @@ void CPairwise::ComputeWorkingResponse
 #ifdef NOISY_DEBUG
 	// Check sorting
 	for (unsigned int i = iItemStart; i < iItemEnd-1; i++) {
-	  if (adY[i] < adY[i+1]) {
+	  if (pData-> y_ptr()[i] < pData-> y_ptr()[i+1]) {
 	    throw GBM::failure("sorting failed in pairwise?");
 	  }
 	}  
@@ -626,10 +638,10 @@ void CPairwise::ComputeWorkingResponse
 	    const int cNumItems = iItemEnd - iItemStart;
 	    
 	    // If offset given, add up current scores
-	    const double* adFPlusOffset = OffsetVector(adF, adOffset, iItemStart, iItemEnd, vecdFPlusOffset);
+	    const double* adFPlusOffset = OffsetVector(adF, pData->offset_ptr(false), iItemStart, iItemEnd, vecdFPlusOffset);
 	    
 	    // Accumulate gradients
-	    ComputeLambdas((int)dGroup, cNumItems, adY + iItemStart, adFPlusOffset, adWeight + iItemStart, adZ + iItemStart, &vecdHessian[iItemStart]);
+	    ComputeLambdas((int)dGroup, cNumItems, pData->y_ptr() + iItemStart, adFPlusOffset, pData->weight_ptr() + iItemStart, adZ + iItemStart, &vecdHessian[iItemStart]);
 	  }
 	
 	// Next group
@@ -793,17 +805,12 @@ void CPairwise::ComputeLambdas(int iGroup, unsigned int cNumItems, const double*
 
 void CPairwise::Initialize
 (
-    const double *adY,
-    const double *adGroup,
-    const double *adOffset,
-    const double *adWeight,
-    unsigned long cLength
 )
 {
-  if (cLength <= 0) return;
+  if (pData->nrow() <= 0) return;
   
   // Allocate memory for derivative buffer
-  vecdHessian.resize(cLength);
+  vecdHessian.resize(pData->nrow());
 
   // Count the groups and number of items per group
   unsigned int cMaxItemsPerGroup = 0;
@@ -812,13 +819,13 @@ void CPairwise::Initialize
   unsigned int iItemStart        = 0;
   unsigned int iItemEnd          = 0;
   
-  while (iItemStart < cLength)
+  while (iItemStart < pData->nrow())
     {
       
       const double dGroup = adGroup[iItemStart];
       
       // Find end of current group
-      for (iItemEnd = iItemStart + 1; iItemEnd < cLength && adGroup[iItemEnd] == dGroup; iItemEnd++);
+      for (iItemEnd = iItemStart + 1; iItemEnd < pData->nrow() && adGroup[iItemEnd] == dGroup; iItemEnd++);
       
       const unsigned int cNumItems = iItemEnd - iItemStart;
       if (cNumItems > cMaxItemsPerGroup)
@@ -845,22 +852,18 @@ void CPairwise::Initialize
   // The last element of adGroup specifies the cutoff
   // (zero means no cutoff)
   unsigned int cRankCutoff = cMaxItemsPerGroup;
-  if (adGroup[cLength] > 0)
+  if (adGroup[pData->nrow()] > 0)
     {
-      cRankCutoff = (unsigned int)adGroup[cLength];
+      cRankCutoff = (unsigned int)adGroup[pData->nrow()];
     }
   pirm->Init((unsigned long)dMaxGroup, cMaxItemsPerGroup, cRankCutoff);
 #ifdef NOISY_DEBUG
-  Rprintf("Initialization: instances=%ld, groups=%u, max items per group=%u, rank cutoff=%u, offset specified: %d\n", cLength, (unsigned long)dMaxGroup, cMaxItemsPerGroup, cRankCutoff, (adOffset != NULL));
+  Rprintf("Initialization: instances=%ld, groups=%u, max items per group=%u, rank cutoff=%u, offset specified: %d\n", cLength, (unsigned long)dMaxGroup, cMaxItemsPerGroup, cRankCutoff, (pData->offset_ptr(false) != NULL));
 #endif
 }
 
 void CPairwise::InitF
 (
-    const double *adY,
-    const double *adGroup,
-    const double *adOffset,
-    const double *adWeight,
     double &dInitF,
     unsigned long cLength
 )
@@ -871,15 +874,11 @@ void CPairwise::InitF
 
 double CPairwise::Deviance
 (
-   const double *adY,
-   const double *adGroup,
-   const double *adOffset,
-   const double *adWeight,
    const double *adF,
-   unsigned long cLength
+   unsigned long cLength,
+   bool isValidationSet
 )
 {
-
     if (cLength <= 0)
     {
         return 0;
@@ -892,35 +891,49 @@ double CPairwise::Deviance
     unsigned int iItemEnd    = iItemStart;
     const unsigned int cEnd = cLength;
 
+    // Shift adGroup to validation set if necessary
+    if(isValidationSet)
+    {
+    	pData->shift_to_validation();
+    	adGroup=shift_ptr(CDistribution::misc_ptr(false), pData->get_trainSize());
+    }
+
+
     while (iItemStart < cEnd)
     {
         const double dGroup = adGroup[iItemStart];
-        const double dWi    = adWeight[iItemStart];
+        const double dWi    = pData->weight_ptr()[iItemStart];
 
         // Find end of current group
         for (iItemEnd = iItemStart + 1; iItemEnd < cEnd && adGroup[iItemEnd] == dGroup; iItemEnd++) ;
 
         const int cNumItems = iItemEnd - iItemStart;
 
-        const double dMaxScore = pirm->MaxMeasure((int)dGroup, adY + iItemStart, cNumItems);
+        const double dMaxScore = pirm->MaxMeasure((int)dGroup, pData->y_ptr() + iItemStart, cNumItems);
 
         if (dMaxScore > 0.0)
         {
             // Rank items by current score
 
             // If offset given, add up current scores
-            const double* adFPlusOffset = OffsetVector(adF, adOffset, iItemStart, iItemEnd, vecdFPlusOffset);
+            const double* adFPlusOffset = OffsetVector(adF, pData->offset_ptr(false), iItemStart, iItemEnd, vecdFPlusOffset);
 
             ranker.SetGroupScores(adFPlusOffset, cNumItems);
             ranker.Rank();
 
-            dL += dWi * pirm->Measure(adY + iItemStart, ranker) / dMaxScore;
+            dL += dWi * pirm->Measure(pData->y_ptr() + iItemStart, ranker) / dMaxScore;
             dW += dWi;
         }
         // Next group
         iItemStart = iItemEnd;
     }
 
+    // Reset adGroup if required
+    if(isValidationSet)
+    {
+    	pData->shift_to_train();
+    	adGroup = CDistribution::misc_ptr(false);
+    }
    // Loss = 1 - utility
    return 1.0 - dL / dW;
 }
@@ -928,10 +941,6 @@ double CPairwise::Deviance
 
 void CPairwise::FitBestConstant
 (
-    const double *adY,
-    const double *adGroup,
-    const double *adOffset,
-    const double *adW,
     const double *adF,
     double *adZ,
     const std::vector<unsigned long> &aiNodeAssign,
@@ -965,15 +974,15 @@ void CPairwise::FitBestConstant
       if (afInBag[iObs])
         {
 #ifdef NOISY_DEBUG
-          if (!(isfinite(adW[iObs]) &&
+          if (!(isfinite(pData->weight_ptr()[iObs]) &&
 		isfinite(adZ[iObs]) &&
 		isfinite(vecdHessian[iObs]))) {
 	    throw GBM::failure("unanticipated infinities");
 	  };
 #endif
 
-            vecdNum[aiNodeAssign[iObs]]   += adW[iObs] * adZ[iObs];
-            vecdDenom[aiNodeAssign[iObs]] += adW[iObs] * vecdHessian[iObs];
+            vecdNum[aiNodeAssign[iObs]]   += pData->weight_ptr()[iObs] * adZ[iObs];
+            vecdDenom[aiNodeAssign[iObs]] += pData->weight_ptr()[iObs] * vecdHessian[iObs];
         }
     }
 
@@ -999,10 +1008,6 @@ void CPairwise::FitBestConstant
 
 double CPairwise::BagImprovement
 (
-    const double *adY,
-    const double *adGroup,
-    const double *adOffset,
-    const double *adWeight,
     const double *adF,
     const double *adFadj,
     const bag& afInBag,
@@ -1040,17 +1045,17 @@ double CPairwise::BagImprovement
 
             const unsigned int cNumItems = iItemEnd - iItemStart;
 
-            const double dMaxScore = pirm->MaxMeasure((int)dGroup, adY + iItemStart, cNumItems);
+            const double dMaxScore = pirm->MaxMeasure((int)dGroup, pData->y_ptr() + iItemStart, cNumItems);
 
             if (dMaxScore > 0.0)
             {
                 // If offset given, add up current scores
-                const double* adFPlusOffset = OffsetVector(adF, adOffset, iItemStart, iItemEnd, vecdFPlusOffset);
+                const double* adFPlusOffset = OffsetVector(adF, pData->offset_ptr(false), iItemStart, iItemEnd, vecdFPlusOffset);
 
                 // Compute score according to old score, adF
                 ranker.SetGroupScores(adFPlusOffset, cNumItems);
                 ranker.Rank();
-                const double dOldScore = pirm->Measure(adY + iItemStart, ranker);
+                const double dOldScore = pirm->Measure(pData->y_ptr() + iItemStart, ranker);
 
                 // Compute score according to new score: adF' =  adF + dStepSize * adFadj
                 for (unsigned int i = 0; i < cNumItems; i++)
@@ -1058,12 +1063,12 @@ double CPairwise::BagImprovement
                     ranker.AddToScore(i, adFadj[i+iItemStart] * dStepSize);
                 }
 
-                const double dWi = adWeight[iItemStart];
+                const double dWi = pData->weight_ptr()[iItemStart];
 
                 if (ranker.Rank())
                 {
                     // Ranking changed
-                    const double dNewScore = pirm->Measure(adY + iItemStart, ranker);
+                    const double dNewScore = pirm->Measure(pData->y_ptr() + iItemStart, ranker);
                     dL                    += dWi * (dNewScore - dOldScore) / dMaxScore;
                 }
                 dW += dWi;

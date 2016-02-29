@@ -1,39 +1,54 @@
-#ifndef GAMMA_H
-#define GAMMA_H
+//------------------------------------------------------------------------------
+//
+//  File:       gamma.h
+//
+//  Description: gamma distribution
+//
+//------------------------------------------------------------------------------
 
-#include <Rmath.h>
+#ifndef __gamma_h__
+#define __gamma_h__
+
+//------------------------------
+// Includes
+//------------------------------
 #include "distribution.h"
+#include "dataset.h"
+#include <Rmath.h>
+#include <memory>
 
+//------------------------------
+// Class definition
+//------------------------------
 class CGamma : public CDistribution
 {
 
 public:
 
-    CGamma();
+	//---------------------
+	// Factory Function
+	//---------------------
+	static std::auto_ptr<CDistribution> Create(SEXP radMisc, const CDataset& data,
+											const char* szIRMeasure,
+											int& cGroups, int& cTrain);
 
+    //---------------------
+    // Public destructor
+    //---------------------
     virtual ~CGamma();
 
-    void ComputeWorkingResponse(const double *adY,
-				const double *adMisc,
-				const double *adOffset,
-				const double *adF,
+    //---------------------
+    // Public Functions
+    //---------------------
+    void ComputeWorkingResponse(const double *adF,
 				double *adZ,
-				const double *adWeight,
 				const bag& afInBag,
 				unsigned long nTrain);
 
-    void InitF(const double *adY, 
-	       const double *adMisc,
-	       const double *adOffset,
-	       const double *adWeight,
-	       double &dInitF, 
+    void InitF(double &dInitF,
 	       unsigned long cLength);
     
-    void FitBestConstant(const double *adY,
-			 const double *adMisc,
-			 const double *adOffset,
-			 const double *adW,
-			 const double *adF,
+    void FitBestConstant(const double *adF,
 			 double *adZ,
 			 const std::vector<unsigned long>& aiNodeAssign,
 			 unsigned long nTrain,
@@ -43,30 +58,31 @@ public:
 			 const bag& afInBag,
 			 const double *adFadj);
     
-    double Deviance(const double *adY,
-                    const double *adMisc,
-                    const double *adOffset,
-                    const double *adWeight,
-                    const double *adF,
-                    unsigned long cLength);
+    double Deviance(const double *adF,
+                    unsigned long cLength,
+                    bool isValidationSet=false);
 
-    double BagImprovement(const double *adY,
-                          const double *adMisc,
-                          const double *adOffset,
-                          const double *adWeight,
-                          const double *adF,
+    double BagImprovement(const double *adF,
                           const double *adFadj,
                           const bag& afInBag,
                           double dStepSize,
                           unsigned long nTrain);
 private:
+    //----------------------
+    // Private Constructors
+    //----------------------
+    CGamma(SEXP radMisc, const CDataset& data);
+
+	//-------------------
+	// Private Variables
+	//-------------------
     vector<double> vecdNum;
     vector<double> vecdDen;
     vector<double> vecdMax;
     vector<double> vecdMin;
 };
 
-#endif // GAMMA_H
+#endif // __gamma_h__
 
 
 

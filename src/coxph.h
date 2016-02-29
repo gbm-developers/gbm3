@@ -1,56 +1,57 @@
 //------------------------------------------------------------------------------
-//  GBM by Greg Ridgeway  Copyright (C) 2003
 //
 //  File:       coxph.h
 //
-//  License:    GNU GPL (version 2 or later)
-//
-//  Contents:   Cox proportional hazard object
-//
-//  Owner:      gregr@rand.org
+//  Description:   Cox proportional hazard object
 //
 //  History:    3/26/2001   gregr created
 //              2/14/2003   gregr: adapted for R implementation
 //
 //------------------------------------------------------------------------------
 
+#ifndef __coxph_h__
+#define __coxph_h__
 
-#ifndef COXPH_H
-#define COXPH_H
+//------------------------------
+// Includes
+//------------------------------
 
 #include "distribution.h"
+#include "dataset.h"
 #include "matrix.h"
+#include <memory>
 
+//------------------------------
+// Class definition
+//------------------------------
 class CCoxPH : public CDistribution
 {
 
 public:
+	//---------------------
+	// Factory Function
+	//---------------------
+	static std::auto_ptr<CDistribution> Create(SEXP radMisc, const CDataset& data,
+											const char* szIRMeasure,
+											int& cGroups, int& cTrain);
 
-    CCoxPH();
-
+	//---------------------
+	// Public destructor
+	//---------------------
     virtual ~CCoxPH();
 
-    void ComputeWorkingResponse(const double *adT,
-				const double *adDelta,
-				const double *adOffset,
-				const double *adF,
+    //---------------------
+    // Public Functions
+    //---------------------
+    void ComputeWorkingResponse(const double *adF,
 				double *adZ,
-				const double *adWeight,
 				const bag& afInBag,
 				unsigned long nTrain);
 
-    void InitF(const double *adT,
-	       const double *adDelta,
-	       const double *adOffset,
-	       const double *adWeight,
-	       double &dInitF,
+    void InitF(double &dInitF,
 	       unsigned long cLength);
     
-    void FitBestConstant(const double *adT,
-			 const double *adDelta,
-			 const double *adOffset,
-			 const double *adW,
-			 const double *adF,
+    void FitBestConstant(const double *adF,
 			 double *adZ,
 			 const std::vector<unsigned long>& aiNodeAssign,
 			 unsigned long nTrain,
@@ -60,18 +61,11 @@ public:
 			 const bag& afInBag,
 			 const double *adFadj);
     
-    double Deviance(const double *adT,
-                    const double *adDelta,
-                    const double *adOffset,
-                    const double *adWeight,
-                    const double *adF,
-                    unsigned long cLength);
+    double Deviance(const double *adF,
+                    unsigned long cLength,
+                    bool isValidationSet=false);
 
-    double BagImprovement(const double *adT,
-                          const double *adDelta,
-                          const double *adOffset,
-                          const double *adWeight,
-                          const double *adF,
+    double BagImprovement(const double *adF,
                           const double *adFadj,
                           const bag& afInBag,
                           double dStepSize,
@@ -79,6 +73,14 @@ public:
 
 
 private:
+    //----------------------
+    // Private Constructors
+    //----------------------
+    CCoxPH(SEXP radMisc, const CDataset& data);
+
+    //-------------------
+    // Private Variables
+    //-------------------
     vector<double> vecdP;
     vector<double> vecdRiskTot;
     vector<double> vecdG;
@@ -87,9 +89,10 @@ private:
 
     matrix<double> matH;
     matrix<double> matHinv;
+    const double* adDelta;
 };
 
-#endif // COXPH_H
+#endif // __coxph_h__
 
 
 

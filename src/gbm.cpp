@@ -1,123 +1,45 @@
 //------------------------------------------------------------------------------
 //
-//  GBM by Greg Ridgeway  Copyright (C) 2003
 //  File:       gbm.cpp
 //
+//  Description: sets up distribution for GBM and tree conversion to R.
+//
+//  History: Greg Ridgeway 2003.
 //------------------------------------------------------------------------------
 
+//------------------------------
+// Includes
+//------------------------------
+#include "gbm.h"
+#include "distributionFactory.h"
 #include <algorithm>
 #include <vector>
-#include "gbm.h"
-
-// Count the number of distinct groups in the input data
-int num_groups(const double* adMisc, int cTrain)
-{
-    if (cTrain <= 0)
-    {
-        return 0;
-    }
-    double dLastGroup = adMisc[0];
-    int cGroups = 1;
-
-    for(int i=1; i<cTrain; i++)
-    {
-        const double dGroup = adMisc[i];
-        if (dGroup != dLastGroup)
-        {
-            dLastGroup = dGroup;
-            cGroups++;
-        }
-    }
-    return cGroups;
-}
 
 std::auto_ptr<CDistribution> gbm_setup
 (
  const CDataset& data,
+ SEXP radMisc,
  const std::string& family,
- int cTrees,
- int cDepth,
- int cMinObsInNode,
- double dShrinkage,
- double dBagFraction,
  int cTrain,
- int cFeatures,
  int& cGroups
  )
 {
-  std::auto_ptr<CDistribution> pDist;
-  cGroups = -1;
-  
-    // set the distribution
-  if (family == "gamma") {
-    pDist.reset(new CGamma());
-  } 
-  else if (family == "tweedie") {
-    pDist.reset(new CTweedie(data.misc_ptr()[0]));
-  }
-  else if (family == "bernoulli") 
-    {
-      pDist.reset(new CBernoulli());
-    }
-  else if (family == "gaussian") 
-    {
-      pDist.reset(new CGaussian());
-    }
-  else if (family == "poisson")
-    {
-      pDist.reset(new CPoisson());
-    }
-  else if (family == "adaboost")
-    {
-      pDist.reset(new CAdaBoost());
-    }
-  else if (family == "coxph")
-    {
-      pDist.reset(new CCoxPH());
-    }
-  else if (family == "laplace")
-    {
-      pDist.reset(new CLaplace());
-    }
-  else if (family == "quantile")
-    {
-      pDist.reset(new CQuantile(data.misc_ptr()[0]));
-    }
-  else if (family == "tdist")
-    {
-      pDist.reset(new CTDist(data.misc_ptr()[0]));
-    }
-  else if (family == "huberized")
-    {
-      pDist.reset(new CHuberized());
-    }
-  else if (family == "pairwise_conc")
-    {
-      pDist.reset(new CPairwise("conc"));
-    }
-  else if (family == "pairwise_ndcg")
-    {
-      pDist.reset(new CPairwise("ndcg"));
-    }
-  else if (family == "pairwise_map")
-    {
-      pDist.reset(new CPairwise("map"));
-    }
-  else if (family == "pairwise_mrr")
-    {
-      pDist.reset(new CPairwise("mrr"));
-    }
-  else
-    {
-      throw GBM::invalid_argument();
-    }
+	cGroups = -1;
+	DistributionFactory* factory = DistributionFactory::Get();
 
-  if (0==family.compare(0, 8, "pairwise")) 
-    {
-      cGroups = num_groups(data.misc_ptr(), cTrain);
-    }
-  
-  return pDist;
+	// Checks for pairwise distribution
+	// this should be removed later.
+	const char* szIRMeasure;
+	if(0 == family.compare(0, 8, "pairwise"))
+	{
+		szIRMeasure = family.substr(family.find("_")+1).c_str();
+		std::auto_ptr<CDistribution> pDist(factory -> CreateDist("pairwise", radMisc, data, szIRMeasure, cGroups, cTrain));
+		return pDist;
+	}else{
+		std::auto_ptr<CDistribution> pDist(factory -> CreateDist(family, radMisc, data, "", cGroups, cTrain));
+		return pDist;
+	}
+
 }
 
 
