@@ -29,10 +29,11 @@ std::auto_ptr<CDistribution> gbm_setup
 
 	// Checks for pairwise distribution
 	// this should be removed later.
-	const char* szIRMeasure;
 	if(0 == family.compare(0, 8, "pairwise"))
 	{
-		szIRMeasure = family.substr(family.find("_")+1).c_str();
+		std::string tempMeasure = family.substr(family.find("_")+1);
+		const char* szIRMeasure = tempMeasure.c_str();
+
 		std::auto_ptr<CDistribution> pDist(factory -> CreateDist("pairwise", radMisc, data, szIRMeasure, cGroups, cTrain));
 		return pDist;
 	}else{
