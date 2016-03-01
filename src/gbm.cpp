@@ -31,7 +31,8 @@ std::auto_ptr<CDistribution> gbm_setup
 	// this should be removed later.
 	if(0 == family.compare(0, 8, "pairwise"))
 	{
-		std::string tempMeasure = family.substr(family.find("_")+1);
+		std::size_t posStartOfMeasure = family.find("_");
+		std::string tempMeasure = family.substr(posStartOfMeasure + 1);
 		const char* szIRMeasure = tempMeasure.c_str();
 
 		std::auto_ptr<CDistribution> pDist(factory -> CreateDist("pairwise", radMisc, data, szIRMeasure, cGroups, cTrain));
