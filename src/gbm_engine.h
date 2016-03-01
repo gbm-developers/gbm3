@@ -1,11 +1,8 @@
 //------------------------------------------------------------------------------
-//  GBM by Greg Ridgeway  Copyright (C) 2003
 //
 //  File:       gbm_engine.h
 //
-//  License:    GNU GPL (version 2 or later)
-//
-//  Contents:   Generalized boosted model engine
+//  Description:   Header file for Gradient Boosting Engine.
 //
 //  Owner:      gregr@rand.org
 //
@@ -14,9 +11,12 @@
 //
 //------------------------------------------------------------------------------
 
-#ifndef GBM_ENGINGBM_H
-#define GBM_ENGINGBM_H
+#ifndef __gbm_enginegbm_h__
+#define __gbm_enginegbm_h__
 
+//------------------------------
+// Includes
+//------------------------------
 #include <vector>
 #include <memory>
 #include "buildinfo.h"
@@ -25,17 +25,26 @@
 #include "dataset.h"
 #include "node_factory.h"
 
-using namespace std;
-
+//------------------------------
+// Class definition
+//------------------------------
 class CGBM
 {
-
 public:
-
+	//----------------------
+	// Public Constructors
+	//----------------------
     CGBM();
+
+	//---------------------
+	// Public destructor
+	//---------------------
     ~CGBM();
-    void Initialize(const CDataset &pData,
-		    CDistribution *pDist,
+
+	//---------------------
+	// Public Functions
+	//---------------------
+    void Initialize(CDistribution *pDist,
 		    double dLambda,
 		    unsigned long nTrain,
 		    unsigned long cFeatures,
@@ -62,10 +71,12 @@ public:
 			     int cCatSplitsOld);
 
     bool IsPairwise() const { return (cGroups >= 0); }
- private:
 
-    const CDataset *pData;            // the data
-    CDistribution *pDist;       // the distribution
+private:
+	//-------------------
+	// Private Variables
+	//-------------------
+    CDistribution *pDist;       // the distribution - this contains the data
     bool fInitialized;          // indicates whether the GBM has been initialized
     std::auto_ptr<CNodeFactory> pNodeFactory;
 
@@ -90,7 +101,7 @@ public:
     int  cGroups;
 };
 
-#endif // GBM_ENGINGBM_H
+#endif //  __gbm_enginegbm_h__
 
 
 

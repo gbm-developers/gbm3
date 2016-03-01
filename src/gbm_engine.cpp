@@ -16,7 +16,6 @@ CGBM::CGBM()
     cValid = 0;
 
     pDist = NULL;
-    pData = NULL;
 }
 
 
@@ -27,7 +26,6 @@ CGBM::~CGBM()
 
 void CGBM::Initialize
 (
-    const CDataset& data,
     CDistribution *pDist,
     double dLambda,
     unsigned long cTrain,
@@ -44,7 +42,6 @@ void CGBM::Initialize
     throw GBM::invalid_argument();
   }
   
-  this->pData = &data;
   this->pDist = pDist;
   this->dLambda = dLambda;
   this->cTrain = cTrain;
@@ -57,9 +54,9 @@ void CGBM::Initialize
   // allocate the tree structure
   ptreeTemp.reset(new CCARTTree);
   
-  cValid = data.nrow() - cTrain;
+  cValid = pDist->data_ptr()->nrow() - cTrain;
 
-  if ((cTrain <= 0) || (data.nrow() < int(cTrain))) {
+  if ((cTrain <= 0) || (pDist->data_ptr()->nrow() < int(cTrain))) {
     throw GBM::invalid_argument("your training instances don't make sense");
   }
   
@@ -69,8 +66,8 @@ void CGBM::Initialize
     throw GBM::invalid_argument("you have an empty bag!");
   }
   
-  adZ.assign(data.nrow(), 0);
-  adFadj.assign(data.nrow(), 0);
+  adZ.assign(pDist->data_ptr()->nrow(), 0);
+  adFadj.assign(pDist->data_ptr()->nrow(), 0);
   
   pNodeFactory.reset(new CNodeFactory());
   pNodeFactory->Initialize(cDepth);
@@ -201,8 +198,8 @@ void CGBM::iterate
 #endif
 
   ptreeTemp->grow(&(adZ[0]), 
-                  *pData, 
-                  pData->weight_ptr() ,
+                  *(pDist->data_ptr()),
+                  pDist->data_ptr()->weight_ptr(),
                   &(adFadj[0]), 
                   cTrain, 
                   cFeatures, 
@@ -267,7 +264,7 @@ void CGBM::iterate
   dTrainError = pDist->Deviance(adF, cTrain);
 
   // update the validation predictions
-  ptreeTemp->PredictValid(*pData, cValid, &(adFadj[0]));
+  ptreeTemp->PredictValid(*(pDist->data_ptr()), cValid, &(adFadj[0]));
 
   for(i=cTrain; i < cTrain+cValid; i++)
   {
@@ -292,7 +289,7 @@ void CGBM::TransferTreeToRList
  int cCatSplitsOld
  )
 {
-  ptreeTemp->TransferTreeToRList(*pData,
+  ptreeTemp->TransferTreeToRList(*(pDist->data_ptr()),
 				 aiSplitVar,
 				 adSplitPoint,
 				 aiLeftNode,

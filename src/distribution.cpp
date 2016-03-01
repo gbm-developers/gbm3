@@ -43,6 +43,10 @@ double* CDistribution::misc_ptr(bool require)
  return const_cast<double*>(static_cast<const CDistribution*>(this)->misc_ptr(require));
 }
 
+const CDataset* CDistribution::data_ptr() const
+{
+	return pData;
+}
 
 
 

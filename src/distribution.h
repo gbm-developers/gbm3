@@ -47,7 +47,8 @@ public:
   	bool has_misc() const ;
   	const double* misc_ptr(bool require=false) const;
   	double* misc_ptr(bool require=false);
-  
+  	const CDataset* data_ptr() const;
+
   	// shifts the misc_ptr() as appropriate
   	template<typename T>
   	T* shift_ptr(T* x, std::ptrdiff_t y){

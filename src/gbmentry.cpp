@@ -87,7 +87,7 @@ SEXP gbm
     std::auto_ptr<CGBM> pGBM(new CGBM());
     
     // initialize the GBM
-    pGBM->Initialize(data,
+    pGBM->Initialize(
 		     pDist.get(),
 		     dShrinkage,
 		     cTrain,
