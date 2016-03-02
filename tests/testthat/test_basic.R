@@ -73,6 +73,23 @@ test_that("gaussian works", {
     # Base the validation tests on observed discrepancies
     expect_true(cor(data2$Y, f.predict) > 0.990)
     expect_true(sd(data2$Y-f.predict) < sigma)
+    
+    # No warning
+    expect_that(gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
+                data=data,                   # dataset
+                var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
+                distribution="gaussian",     # bernoulli, adaboost, gaussian, poisson, coxph, or
+                                            # list(name="quantile",alpha=0.05) for quantile regression
+                n.trees=2000,                 # number of trees
+                shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
+                interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc.
+                bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
+                train.fraction = 0.5,        # fraction of data for training, first train.fraction*N used for training
+                n.minobsinnode = 10,         # minimum number of obs needed in each node
+                keep.data=TRUE,
+                cv.folds=10, # do 10-fold cross-validation
+                n.cores=1)           
+      , not(gives_warning()))
 })
 
 test_that("coxph works", {
@@ -141,6 +158,22 @@ test_that("coxph works", {
     #plot(data2$f,f.predict)
     # Use observed sd
     expect_true(sd(data2$f - f.predict) < 0.4)
+    
+    # No warning
+    expect_that(gbm(Surv(tt,delta)~X1+X2+X3,       # formula
+                data=data,                 # dataset
+                weights=w,
+                var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
+                distribution="coxph",
+                n.trees=3000,              # number of trees
+                shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
+                interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc.
+                bag.fraction = 0.5,        # subsampling fraction, 0.5 is probably best
+                train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
+                cv.folds = 5,              # do 5-fold cross-validation
+                n.minobsinnode = 10,       # minimum total weight needed in each node
+                keep.data = TRUE, n.cores=1)           
+      , not(gives_warning()))
 })
 
 test_that("bernoulli works", {
@@ -203,6 +236,22 @@ test_that("bernoulli works", {
 
     # Base the validation tests on observed discrepancies
     expect_true(sd(f.new - f.1.predict) < 1.0)
+    
+    # No warning
+    expect_that(gbm(Y~X1+X2+X3,
+                data=data,
+                weights=w,
+                var.monotone=c(0,0,0),
+                distribution="bernoulli",
+                n.trees=3000,
+                shrinkage=0.001,
+                interaction.depth=3,
+                bag.fraction = 0.5,
+                train.fraction = 0.5,
+                cv.folds=5,
+                n.minobsinnode = 10,
+                n.cores=1)          
+      , not(gives_warning()))
 })
 
 
@@ -215,8 +264,8 @@ test_that("relative influence picks out true predictors", {
     cls <- rep(c(0, 1), ea=500) # Class
     X <- data.frame(cbind(X1, X2, cls))
     mod <- gbm(cls ~ ., data= X, n.trees=1000, cv.folds=5,
-               shrinkage=.01, interaction.depth=2, n.cores=1)
-    ri <- relative.influence(mod, sort.=TRUE, scale.=TRUE)
+               shrinkage=.01, interaction.depth=2, n.cores=1, distribution = 'bernoulli')
+    ri <- relative.influence(mod, sort.=TRUE, scale.=TRUE, n.trees = 1000)
     
     wh <- names(ri)[1:5]
     res <- sum(wh %in% paste("V", 51:55, sep = ""))
@@ -237,12 +286,14 @@ test_that("Conversion of 2 factor Y is successful", {
 
   set.seed(32479)
   g1 <- gbm(y ~ ., data = data.frame(y = NumY, PredX)
-            , distribution = 'bernoulli', verbose = FALSE)
+            , distribution = 'bernoulli', verbose = FALSE
+            , n.trees = 50)
   rig1 <- relative.influence(g1, n.trees=10)
   
   set.seed(32479)
   g2 <- gbm(y ~ ., data = data.frame(y = FactY, PredX)
-          , distribution = 'bernoulli', verbose = FALSE)
+          , distribution = 'bernoulli', verbose = FALSE
+          , n.trees = 50)
   rig2 <- relative.influence(g2, n.trees=10)
   
   expect_equal(rig1, rig2)
