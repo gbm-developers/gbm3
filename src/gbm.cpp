@@ -31,10 +31,13 @@ std::auto_ptr<CDistribution> gbm_setup
 	// this should be removed later.
 	if(0 == family.compare(0, 8, "pairwise"))
 	{
-		std::size_t posStartOfMeasure = family.find("_");
-		std::string tempMeasure = family.substr(posStartOfMeasure + 1);
-		const char* szIRMeasure = tempMeasure.c_str();
+		std::size_t offsetToMeasure = family.find("_");
+		if(offsetToMeasure == std::string::npos)
+		{
+			throw GBM::failure("Unable to locate IR metric required for pairwise");
+		}
 
+		const char* szIRMeasure = family.c_str() + offsetToMeasure + 1;
 		std::auto_ptr<CDistribution> pDist(factory -> CreateDist("pairwise", radMisc, data, szIRMeasure, cGroups, cTrain));
 		return pDist;
 	}else{

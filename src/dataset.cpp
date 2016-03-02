@@ -16,7 +16,7 @@
 //-----------------------------------
 // Struct Definition - Private Variable
 //-----------------------------------
-struct CDataset::CDImpl
+class CDataset::CDImpl
 {
 public:
 	//----------------------
