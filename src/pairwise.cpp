@@ -3,7 +3,7 @@
 // Author: Stefan Schroedl (schroedl@a9.com)
 
 #include "pairwise.h"
-#include "numGroups.h"
+#include "gbmFunc.h"
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -533,7 +533,7 @@ CPairwise::CPairwise(SEXP radMisc, const CDataset& data,
 	adGroup = CDistribution::misc_ptr(false);
 
 	// Set up the number of groups - this used externally
-	cGroups = GBM_Func::numGroups(CDistribution::misc_ptr(true), cTrain);
+	cGroups = GBM_FUNC::numGroups(CDistribution::misc_ptr(true), cTrain);
 
     // Construct the IR Measure
     if (!strcmp(szIRMeasure, "conc"))

@@ -4,7 +4,7 @@
 
 
 CDistribution::CDistribution(SEXP radMisc, const CDataset& data)
-: adMisc(radMisc), distHasMisc(has_value(adMisc))
+  : adMisc(radMisc), distHasMisc(GBM_FUNC::has_value(adMisc))
 {
 	pData = &data;
 }

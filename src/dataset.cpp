@@ -26,7 +26,7 @@ public:
 			SEXP radWeight, SEXP racVarClasses, SEXP ralMonotoneVar, const int cTrain):
 	adY(radY), adOffset(radOffset), adWeight(radWeight), adX(radX),
 	acVarClasses(racVarClasses), alMonotoneVar(ralMonotoneVar),
-	aiXOrder(raiXOrder), numOfTrainData(cTrain), fHasOffset(has_value(adOffset)) {};
+	aiXOrder(raiXOrder), numOfTrainData(cTrain), fHasOffset(GBM_FUNC::has_value(adOffset)) {};
 
 	//---------------------
 	// Public destructor
@@ -403,7 +403,7 @@ index_vector CDataset::random_order() const
 	}
 
 	// and now shuffle
-	std::random_shuffle(result.begin(), result.end(), shuffler);
+	std::random_shuffle(result.begin(), result.end(), GBM_FUNC::ptrShuffler);
 	// and return
 	return result;
 }

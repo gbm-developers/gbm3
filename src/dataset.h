@@ -20,22 +20,13 @@
 //------------------------------
 #include "buildinfo.h"
 #include "gbmexcept.h"
-#include<memory>
+#include "gbmFunc.h"
+#include <memory>
 #include <vector>
 #include <Rcpp.h>
 
 typedef std::vector<int> bag;
 
-namespace {
-  inline bool has_value(const Rcpp::NumericVector& x) {
-    return !( (x.size() == 1) && (ISNA(x[0])));
-  }
-
-  std::ptrdiff_t shuffler(std::ptrdiff_t n) {
-    return n * unif_rand();
-  }
-}
-  
 //------------------------------
 // Class definition
 //------------------------------
