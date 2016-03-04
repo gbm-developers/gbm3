@@ -65,13 +65,13 @@ void CCARTTree::grow
  const bag& afInBag,
  std::vector<unsigned long>& aiNodeAssign,
  CNodeSearch *aNodeSearch,
- VEC_P_NODETERMINAL &vecpTermNodes
+ VEC_P_NODETERMINAL& vecpTermNodes
 )
 {
 #ifdef NOISY_DEBUG
   Rprintf("Growing tree\n");
 #endif
-  
+
   if((adZ==NULL) || (adW==NULL) || (adF==NULL) ||
      (cMaxDepth < 1))
     {
@@ -85,10 +85,13 @@ void CCARTTree::grow
 #ifdef NOISY_DEBUG
   Rprintf("initial tree calcs\n");
 #endif
+
   for(iObs=0; iObs<nTrain; iObs++)
     {
       // aiNodeAssign tracks to which node each training obs belongs
+
       aiNodeAssign[iObs] = 0;
+
       if(afInBag[iObs])
         {
 	  // get the initial sums and sum of squares and total weight
@@ -98,14 +101,13 @@ void CCARTTree::grow
         }
     }
   dError = dSumZ2-dSumZ*dSumZ/dTotalW;
-  
+
   pInitialRootNode = pNodeFactory->GetNewNodeTerminal();
   pInitialRootNode->dPrediction = dSumZ/dTotalW;
   pInitialRootNode->dTrainW = dTotalW;
   vecpTermNodes.resize(2*cMaxDepth + 1,NULL); // accounts for missing nodes
   vecpTermNodes[0] = pInitialRootNode;
   pRootNode = pInitialRootNode;
-
   aNodeSearch[0].Set(dSumZ,dTotalW,nBagged,
 		     pInitialRootNode,
 		     &pRootNode,
@@ -326,10 +328,10 @@ void CCARTTree::Predict
 
 void CCARTTree::Adjust
 (
- std::vector<unsigned long>& aiNodeAssign,
+ const std::vector<unsigned long>& aiNodeAssign,
  double *adFadj,
  unsigned long cTrain,
- VEC_P_NODETERMINAL &vecpTermNodes,
+ const VEC_P_NODETERMINAL &vecpTermNodes,
  unsigned long cMinObsInNode
 )
 {

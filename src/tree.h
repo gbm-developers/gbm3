@@ -48,7 +48,7 @@ public:
 	      const bag& afInBag,
 	      std::vector<unsigned long>& aiNodeAssign,
 	      CNodeSearch *aNodeSearch,
-	      VEC_P_NODETERMINAL &vecpTermNodes);
+	      VEC_P_NODETERMINAL& vecpTermNodes);
     void Reset();
 
     void TransferTreeToRList(const CDataset &pData,
@@ -73,10 +73,10 @@ public:
 		 unsigned long cCol,
 		 unsigned long iRow,
 		 double &dFadj);
-    void Adjust(std::vector<unsigned long>& aiNodeAssign,
+    void Adjust(const std::vector<unsigned long>& aiNodeAssign,
 		double *adFadj,
 		unsigned long cTrain,
-		VEC_P_NODETERMINAL &vecpTermNodes,
+		const VEC_P_NODETERMINAL &vecpTermNodes,
 		unsigned long cMinObsInNode);
     
     void GetNodeCount(int &cNodes);

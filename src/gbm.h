@@ -26,6 +26,7 @@
 #include <Rcpp.h>
 #include "dataset.h"
 #include "distribution.h"
+#include "gbmTreeComps.h"
 #include "bernoulli.h"
 #include "adaboost.h"
 #include "poisson.h"

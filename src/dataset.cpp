@@ -2,8 +2,8 @@
 //
 // File: dataset.cpp
 //
-// Description: factory class that creates the relevant distributions
-//   given data and the family string.
+// Description: class that implements the public methods and pimpl
+//    of the dataset.
 //
 //-----------------------------------
 
@@ -14,7 +14,7 @@
 #include <Rcpp.h>
 
 //-----------------------------------
-// Struct Definition - Private Variable
+// Class Definition - Private Variable
 //-----------------------------------
 class CDataset::CDImpl
 {
@@ -155,9 +155,6 @@ CDataset::CDataset(SEXP radY, SEXP radOffset, SEXP radX, SEXP raiXOrder,
 //-----------------------------------
 CDataset::~CDataset()
 {
-	//delete dataImpl->adYPtr;
-	//delete dataImpl->adOffsetPtr;
-	//delete dataImpl->adWeightPtr;
 }
 
 //-----------------------------------

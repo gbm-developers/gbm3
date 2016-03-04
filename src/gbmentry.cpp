@@ -1,6 +1,7 @@
 // GBM by Greg Ridgeway  Copyright (C) 2003
 
 #include "gbm.h"
+#include "gbmTreeComps.h"
 #include <memory>
 #include <utility>
 #include <Rcpp.h>
@@ -80,22 +81,14 @@ SEXP gbm
                         radWeight, racVarClasses,
                         ralMonotoneVar, cTrain);
     
-    // initialize some things
+    // set up the distribution
     std::auto_ptr<CDistribution> pDist(gbm_setup(data, radMisc,
     					 family, cTrain, cGroups));
-    
-    std::auto_ptr<CGBM> pGBM(new CGBM());
+    std::auto_ptr<CGBM> pGBM(new CGBM(pDist.get(), dShrinkage, cTrain, cFeatures,
+				dBagFraction, cDepth, cMinObsInNode, cGroups));
     
     // initialize the GBM
-    pGBM->Initialize(
-		     pDist.get(),
-		     dShrinkage,
-		     cTrain,
-		     cFeatures,
-		     dBagFraction,
-		     cDepth,
-		     cMinObsInNode,
-		     cGroups);
+    pGBM->Initialize();
 
     double dInitF;
     Rcpp::NumericVector adF(data.nrow());
@@ -131,13 +124,15 @@ SEXP gbm
         // Update the parameters
         pDist->UpdateParams(adF.begin(), cTrain);
 
+        
         double dTrainError = 0;
         double dValidError = 0;
         double dOOBagImprove = 0;
+
         pGBM->iterate(adF.begin(),
                       dTrainError,dValidError,dOOBagImprove,
                       cNodes);
-          
+
         // store the performance measures
         adTrainError[iT] += dTrainError;
         adValidError[iT] += dValidError;
@@ -163,7 +158,7 @@ SEXP gbm
                           dWeight.begin(),
                           dPred.begin(),
                           cCatSplitsOld);
-        
+
         setOfTrees[iT] = 
           Rcpp::List::create(iSplitVar,
                              dSplitPoint,
@@ -181,12 +176,12 @@ SEXP gbm
 		  dShrinkage,
 		  adOOBagImprove[iT]);
         }
+        
       }
 
     if(verbose) Rprintf("\n");
 
     using Rcpp::_;
-
     return Rcpp::List::create(_["initF"]=dInitF,
                               _["fit"]=adF,
                               _["train.error"]=adTrainError,
@@ -194,6 +189,7 @@ SEXP gbm
                               _["oobag.improve"]=adOOBagImprove,
                               _["trees"]=setOfTrees,
                               _["c.splits"]=vecSplitCodes);
+
    END_RCPP
 }
 

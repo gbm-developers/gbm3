@@ -3,93 +3,38 @@
 #include <algorithm>
 #include "gbm_engine.h"
 
-CGBM::CGBM()
+CGBM::CGBM(CDistribution* DistPtr, double dLambda,
+	    unsigned long cTrain,
+	    unsigned long cFeatures,
+	    double dBagFraction,
+	    unsigned long cDepth,
+	    unsigned long cMinObsInNode,
+	    int cGroups )
 {
-    cDepth = 0;
-    cMinObsInNode = 0;
-    dBagFraction = 0.0;
-    dLambda = 0.0;
     fInitialized = false;
-    cTotalInBag = 0;
-    cTrain = 0;
-    cFeatures = 0;
-    cValid = 0;
-
-    pDist = NULL;
+    if(!DistPtr)
+    {
+       throw GBM::invalid_argument("GBM object could not be initialized - distribution is null");
+    }
+    pDist=DistPtr;
+    pTreeComp = new CTreeComps(dLambda, cTrain, cFeatures,dBagFraction,
+    	  cDepth, cMinObsInNode, cGroups);
 }
 
 
 CGBM::~CGBM()
 {
+	delete pTreeComp;
 }
 
 
-void CGBM::Initialize
-(
-    CDistribution *pDist,
-    double dLambda,
-    unsigned long cTrain,
-    unsigned long cFeatures,
-    double dBagFraction,
-    unsigned long cDepth,
-    unsigned long cMinObsInNode,
-    int cGroups
-)
+void CGBM::Initialize()
 {
-  unsigned long i=0;
-  
-  if(!pDist) {
-    throw GBM::invalid_argument();
-  }
-  
-  this->pDist = pDist;
-  this->dLambda = dLambda;
-  this->cTrain = cTrain;
-  this->cFeatures = cFeatures;
-  this->dBagFraction = dBagFraction;
-  this->cDepth = cDepth;
-  this->cMinObsInNode = cMinObsInNode;
-  this->cGroups = cGroups;
-
-  // allocate the tree structure
-  ptreeTemp.reset(new CCARTTree);
-  
-  cValid = pDist->data_ptr()->nrow() - cTrain;
-
-  if ((cTrain <= 0) || (pDist->data_ptr()->nrow() < int(cTrain))) {
-    throw GBM::invalid_argument("your training instances don't make sense");
-  }
-  
-  cTotalInBag = (unsigned long)(dBagFraction*cTrain);
-
-  if (cTotalInBag <= 0) {
-    throw GBM::invalid_argument("you have an empty bag!");
-  }
-  
-  adZ.assign(pDist->data_ptr()->nrow(), 0);
-  adFadj.assign(pDist->data_ptr()->nrow(), 0);
-  
   pNodeFactory.reset(new CNodeFactory());
-  pNodeFactory->Initialize(cDepth);
-  ptreeTemp->Initialize(pNodeFactory.get());
-  
-  // array for flagging those observations in the bag
-  afInBag.resize(cTrain);
-  
-  // aiNodeAssign tracks to which node each training obs belongs
-  aiNodeAssign.resize(cTrain);
-  // NodeSearch objects help decide which nodes to split
-  aNodeSearch.resize(2 * cDepth + 1);
-  
-  for(i=0; i<2*cDepth+1; i++)
-    {
-      aNodeSearch[i].Initialize(cMinObsInNode);
-    }
-  vecpTermNodes.resize(2*cDepth+1, NULL);
-  
+  pNodeFactory->Initialize(pTreeComp->GetDepth());
+  pTreeComp -> Initialize(pDist, pNodeFactory.get());
   fInitialized = true;
 }
-
 
 void CGBM::iterate
 (
@@ -100,126 +45,28 @@ void CGBM::iterate
   int &cNodes
 )
 {
-  unsigned long i = 0;
-  unsigned long cBagged = 0;
-
   if(!fInitialized)
   {
-    throw GBM::failure();
+    throw GBM::failure("GBM not initialized");
   }
 
   dTrainError = 0.0;
   dValidError = 0.0;
   dOOBagImprove = 0.0;
 
-  vecpTermNodes.assign(2*cDepth+1,NULL);
-
-  // randomly assign observations to the Bag
-  if (!IsPairwise())
-    {
-      // regular instance based training
-      for(i=0; i<cTrain && (cBagged < cTotalInBag); i++)
-      {
-        if(unif_rand() * (cTrain-i) < cTotalInBag - cBagged)
-        {
-          afInBag[i] = true;
-          cBagged++;
-        }
-        else
-        {
-          afInBag[i] = false;
-        }
-      }
-      std::fill(afInBag.begin() + i, afInBag.end(), false);
-    }
-    else
-    {
-      // for pairwise training, sampling is per group
-      // therefore, we will not have exactly cTotalInBag instances
-      double dLastGroup = -1;
-      bool fChosen = false;
-      unsigned int cBaggedGroups = 0;
-      unsigned int cSeenGroups   = 0;
-      unsigned int cTotalGroupsInBag = (unsigned long)(dBagFraction * cGroups);
-      if (cTotalGroupsInBag <= 0)
-      {
-        cTotalGroupsInBag = 1;
-      }
-      for(i=0; i<cTrain; i++)
-      {
-        const double dGroup = pDist->misc_ptr(true)[i];
-        if(dGroup != dLastGroup)
-        {
-          if (cBaggedGroups >= cTotalGroupsInBag)
-          {
-            break;
-          }
-                  
-          // Group changed, make a new decision
-          fChosen = (unif_rand()*(cGroups - cSeenGroups) < 
-                   cTotalGroupsInBag - cBaggedGroups);
-          if(fChosen)
-          {
-            cBaggedGroups++;
-          }
-          dLastGroup = dGroup;
-          cSeenGroups++;
-        }
-        if(fChosen)
-        {
-          afInBag[i] = true;
-          cBagged++;
-        }
-        else
-        {
-          afInBag[i] = false;
-        }
-      }
-      // the remainder is not in the bag
-      std::fill(afInBag.begin() + i, afInBag.end(), false);
-    }
-
+  pTreeComp->AssignTermNodes();
+  pTreeComp->BagData(IsPairwise(), pDist);
 
 #ifdef NOISY_DEBUG
   Rprintf("Compute working response\n");
 #endif
 
   pDist->ComputeWorkingResponse(adF,
-                                &adZ[0],
-                                afInBag,
-                                cTrain);
+                               	pTreeComp->GetGrad(),
+                                pTreeComp->GetBag(),
+                                pTreeComp->GetTrainNo());
 
-#ifdef NOISY_DEBUG
-  Rprintf("Reset tree\n");
-#endif
-  ptreeTemp->Reset();
-#ifdef NOISY_DEBUG
-  Rprintf("grow tree\n");
-#endif
-
-  ptreeTemp->grow(&(adZ[0]), 
-                  *(pDist->data_ptr()),
-                  pDist->data_ptr()->weight_ptr(),
-                  &(adFadj[0]), 
-                  cTrain, 
-                  cFeatures, 
-                  cTotalInBag, 
-                  dLambda, 
-                  cDepth,
-                  cMinObsInNode, 
-                  afInBag, 
-                  aiNodeAssign, 
-                  &aNodeSearch[0],
-                  vecpTermNodes);
-
-#ifdef NOISY_DEBUG
-  ptreeTemp->Print();
-#endif
-
-  ptreeTemp->GetNodeCount(cNodes);
-#ifdef NOISY_DEBUG
-  Rprintf("get node count=%d\n",cNodes);
-#endif
+  pTreeComp->GrowTrees(pDist, cNodes);
 
   // Now I have adF, adZ, and vecpTermNodes (new node assignments)
   // Fit the best constant within each terminal node
@@ -228,50 +75,45 @@ void CGBM::iterate
 #endif
 
   pDist->FitBestConstant(&adF[0],
-                         &adZ[0],
-                         aiNodeAssign,
-                         cTrain,
-                         vecpTermNodes,
+                         pTreeComp->GetGrad(),
+                         pTreeComp->GetNodeAssign(),
+                         pTreeComp->GetTrainNo(),
+                         pTreeComp->GetTermNodes(),
                          (2*cNodes+1)/3, // number of terminal nodes
-                         cMinObsInNode,
-                         afInBag,
-                         &adFadj[0]);
+                         pTreeComp->GetMinNodeObs(),
+                         pTreeComp->GetBag(),
+                         pTreeComp->GetRespAdj());
 
+  pTreeComp->AdjustAndShrink();
   // update training predictions
   // fill in missing nodes where N < cMinObsInNode
-  ptreeTemp->Adjust(aiNodeAssign,
-                    &(adFadj[0]),
-                    cTrain,
-                    vecpTermNodes,
-                    cMinObsInNode);
-  ptreeTemp->SetShrinkage(dLambda);
-#ifdef NOISY_DEBUG
-  ptreeTemp->Print();
-#endif
+
 
   dOOBagImprove = pDist->BagImprovement(&adF[0],
-                                        &adFadj[0],
-                                        afInBag,
-                                        dLambda,
-                                        cTrain);
+                                        pTreeComp->GetRespAdj(),
+                                        pTreeComp->GetBag(),
+                                        pTreeComp->GetLambda(),
+                                        pTreeComp->GetTrainNo());
     
   // update the training predictions
-  for(i=0; i < cTrain; i++)
+  unsigned long i = 0;
+  for(i=0; i < pTreeComp->GetTrainNo(); i++)
   {
-    adF[i] += dLambda * adFadj[i];
+    adF[i] += pTreeComp->GetLambda() * pTreeComp->RespAdjElem(i);
   }
-  
-  dTrainError = pDist->Deviance(adF, cTrain);
+
+  dTrainError = pDist->Deviance(adF, pTreeComp->GetTrainNo());
 
   // update the validation predictions
-  ptreeTemp->PredictValid(*(pDist->data_ptr()), cValid, &(adFadj[0]));
+  pTreeComp->PredictValid(pDist);
 
-  for(i=cTrain; i < cTrain+cValid; i++)
+  for(i=pTreeComp->GetTrainNo(); i < pTreeComp->GetTrainNo()+pTreeComp->GetValidNo(); i++)
   {
-    adF[i] += adFadj[i];
+    adF[i] += pTreeComp->RespAdjElem(i);
   }
 
-  dValidError = pDist->Deviance(adF + cTrain, cValid, true);
+  dValidError = pDist->Deviance(adF + pTreeComp->GetTrainNo(), pTreeComp->GetValidNo(), true);
+
 }
 
 
@@ -289,7 +131,7 @@ void CGBM::TransferTreeToRList
  int cCatSplitsOld
  )
 {
-  ptreeTemp->TransferTreeToRList(*(pDist->data_ptr()),
+	pTreeComp->TransferTreeToRList(*(pDist->data_ptr()),
 				 aiSplitVar,
 				 adSplitPoint,
 				 aiLeftNode,
@@ -299,8 +141,7 @@ void CGBM::TransferTreeToRList
 				 adWeight,
 				 adPred,
 				 vecSplitCodes,
-				 cCatSplitsOld,
-				 dLambda);
+				 cCatSplitsOld);
 }
 
 
