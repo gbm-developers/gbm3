@@ -3,22 +3,9 @@
 #include <algorithm>
 #include "gbm_engine.h"
 
-CGBM::CGBM(CDistribution* DistPtr, double dLambda,
-	    unsigned long cTrain,
-	    unsigned long cFeatures,
-	    double dBagFraction,
-	    unsigned long cDepth,
-	    unsigned long cMinObsInNode,
-	    int cGroups )
+CGBM::CGBM()
 {
     fInitialized = false;
-    if(!DistPtr)
-    {
-       throw GBM::invalid_argument("GBM object could not be initialized - distribution is null");
-    }
-    pDist=DistPtr;
-    pTreeComp = new CTreeComps(dLambda, cTrain, cFeatures,dBagFraction,
-    	  cDepth, cMinObsInNode, cGroups);
 }
 
 
@@ -27,6 +14,26 @@ CGBM::~CGBM()
 	delete pTreeComp;
 }
 
+void CGBM::SetDataAndDistribution(CDistribution* DistPtr)
+{
+	if(!DistPtr)
+	{
+	   throw GBM::invalid_argument("GBM object could not be initialized - distribution is null");
+	}
+	pDist=DistPtr;
+}
+
+void CGBM::SetTreeContainer(double dLambda,
+   	    unsigned long cTrain,
+   	    unsigned long cFeatures,
+   	    double dBagFraction,
+   	    unsigned long cDepth,
+   	    unsigned long cMinObsInNode,
+   	    int cGroups)
+{
+	pTreeComp = new CTreeComps(dLambda, cTrain, cFeatures,dBagFraction,
+	    	  cDepth, cMinObsInNode, cGroups);
+}
 
 void CGBM::Initialize()
 {

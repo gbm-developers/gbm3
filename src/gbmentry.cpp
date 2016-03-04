@@ -1,6 +1,7 @@
 // GBM by Greg Ridgeway  Copyright (C) 2003
 
 #include "gbm.h"
+#include "gbmBuilder.h"
 #include "gbmTreeComps.h"
 #include <memory>
 #include <utility>
@@ -76,6 +77,7 @@ SEXP gbm
     int cGroups = -1;
     Rcpp::RNGScope scope;
 
+    std::auto_ptr<CGBM> pGBM;
     // set up the dataset
     const CDataset data(radY, radOffset, radX, raiXOrder,
                         radWeight, racVarClasses,
@@ -84,8 +86,13 @@ SEXP gbm
     // set up the distribution
     std::auto_ptr<CDistribution> pDist(gbm_setup(data, radMisc,
     					 family, cTrain, cGroups));
-    std::auto_ptr<CGBM> pGBM(new CGBM(pDist.get(), dShrinkage, cTrain, cFeatures,
-				dBagFraction, cDepth, cMinObsInNode, cGroups));
+
+    // Build gbm piece-by-piece
+    CGBMBuilder gbmBuilder;
+    gbmBuilder.BuildDataAndDistribution(pDist.get());
+    gbmBuilder.BuildTreeContainer(dShrinkage, cTrain, cFeatures,
+    		dBagFraction, cDepth, cMinObsInNode, cGroups);
+    pGBM.reset(gbmBuilder.Build());
     
     // initialize the GBM
     pGBM->Initialize();

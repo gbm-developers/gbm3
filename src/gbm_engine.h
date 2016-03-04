@@ -35,14 +35,7 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-    CGBM(CDistribution* DistPtr, double dLambda,
-    	    unsigned long cTrain,
-    	    unsigned long cFeatures,
-    	    double dBagFraction,
-    	    unsigned long cDepth,
-    	    unsigned long cMinObsInNode,
-    	    int cGroups);
-
+    CGBM();
 
 	//---------------------
 	// Public destructor
@@ -53,6 +46,14 @@ public:
 	// Public Functions
 	//---------------------
     void Initialize();
+    void SetDataAndDistribution(CDistribution* DistPtr);
+    void SetTreeContainer(double dLambda,
+    	    unsigned long cTrain,
+    	    unsigned long cFeatures,
+    	    double dBagFraction,
+    	    unsigned long cDepth,
+    	    unsigned long cMinObsInNode,
+    	    int cGroups);
 
     void iterate(double *adF,
 		 double &dTrainError,
