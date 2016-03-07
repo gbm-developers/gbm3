@@ -15,7 +15,7 @@
 #include <algorithm>
 #include <vector>
 
-std::auto_ptr<CDistribution> gbm_setup
+CDistribution* gbm_setup
 (
  const CDataset& data,
  SEXP radMisc,
@@ -38,11 +38,11 @@ std::auto_ptr<CDistribution> gbm_setup
 		}
 
 		const char* szIRMeasure = family.c_str() + offsetToMeasure + 1;
-		std::auto_ptr<CDistribution> pTemp(factory -> CreateDist("pairwise", radMisc, data, szIRMeasure, cGroups, cTrain));
+		CDistribution* pTemp(factory -> CreateDist("pairwise", radMisc, data, szIRMeasure, cGroups, cTrain));
 		return pTemp;
 	}else
 	{
-		std::auto_ptr<CDistribution> pTemp(factory -> CreateDist(family, radMisc, data, "", cGroups, cTrain));
+		CDistribution* pTemp(factory -> CreateDist(family, radMisc, data, "", cGroups, cTrain));
 		return pTemp;
 	}
 

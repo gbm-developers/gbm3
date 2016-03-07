@@ -22,11 +22,11 @@ CHuberized::CHuberized(SEXP radMisc, const CDataset& data): CDistribution(radMis
 // Function Members - Public
 //----------------------------------------
 
-std::auto_ptr<CDistribution> CHuberized::Create(SEXP radMisc, const CDataset& data,
+CDistribution* CHuberized::Create(SEXP radMisc, const CDataset& data,
 										const char* szIRMeasure,
 										int& cGroups, int& cTrain)
 {
-	return std::auto_ptr<CDistribution>(new CHuberized(radMisc, data));
+	return new CHuberized(radMisc, data);
 }
 
 CHuberized::~CHuberized()

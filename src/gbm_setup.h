@@ -42,7 +42,7 @@
 #include "gamma.h"
 #include "tweedie.h"
 
-std::auto_ptr<CDistribution> gbm_setup
+CDistribution* gbm_setup
 (
     const CDataset& data,
     SEXP radMisc,

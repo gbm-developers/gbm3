@@ -26,11 +26,11 @@ CTDist::CTDist(SEXP radMisc, const CDataset& data):
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-std::auto_ptr<CDistribution> CTDist::Create(SEXP radMisc, const CDataset& data,
+CDistribution* CTDist::Create(SEXP radMisc, const CDataset& data,
 									const char* szIRMeasure,
 									int& cGroups, int& cTrain)
 {
-	return std::auto_ptr<CDistribution>(new CTDist(radMisc, data));
+	return new CTDist(radMisc, data);
 }
 
 CTDist::~CTDist()

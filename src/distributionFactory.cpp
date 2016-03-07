@@ -96,7 +96,7 @@ void DistributionFactory::RegisterDist(const string& DistFamily, distCreate PtrD
 //
 //---------------------------------------------
 
-std::auto_ptr<CDistribution> DistributionFactory::CreateDist(const string& DistFamily,
+CDistribution* DistributionFactory::CreateDist(const string& DistFamily,
 															 SEXP radMisc,
 															 const CDataset& data,
 															 const char* szIRMeasure,

@@ -30,11 +30,11 @@ CTweedie:: CTweedie(SEXP radMisc, const CDataset& data): CDistribution(radMisc, 
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-std::auto_ptr<CDistribution> CTweedie::Create(SEXP radMisc, const CDataset& data,
+CDistribution* CTweedie::Create(SEXP radMisc, const CDataset& data,
 									const char* szIRMeasure,
 									int& cGroups, int& cTrain)
 {
-	return std::auto_ptr<CDistribution>(new CTweedie(radMisc, data));
+	return new CTweedie(radMisc, data);
 }
 
 CTweedie::~CTweedie()

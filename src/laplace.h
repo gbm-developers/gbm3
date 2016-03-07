@@ -30,7 +30,7 @@ public:
 	//---------------------
 	// Factory Function
 	//---------------------
-	static std::auto_ptr<CDistribution> Create(SEXP radMisc, const CDataset& data,
+	static CDistribution* Create(SEXP radMisc, const CDataset& data,
 										const char* szIRMeasure,
 										int& cGroups, int& cTrain);
 

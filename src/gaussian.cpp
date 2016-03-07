@@ -21,10 +21,10 @@ CGaussian::CGaussian(SEXP radMisc, const CDataset& data): CDistribution(radMisc,
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-std::auto_ptr<CDistribution> CGaussian::Create(SEXP radMisc, const CDataset& data,
+CDistribution* CGaussian::Create(SEXP radMisc, const CDataset& data,
 											const char* szIRMeasure, int& cGroups, int& cTrain)
 {
-	return std::auto_ptr<CDistribution>(new CGaussian(radMisc, data));
+	return new CGaussian(radMisc, data);
 }
 
 CGaussian::~CGaussian()

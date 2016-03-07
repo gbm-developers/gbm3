@@ -22,11 +22,11 @@ CLaplace::CLaplace(SEXP radMisc, const CDataset& data): CDistribution(radMisc, d
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-std::auto_ptr<CDistribution> CLaplace::Create(SEXP radMisc, const CDataset& data,
+CDistribution* CLaplace::Create(SEXP radMisc, const CDataset& data,
 										const char* szIRMeasure,
 										int& cGroups, int& cTrain)
 {
-	return std::auto_ptr<CDistribution>(new CLaplace(radMisc, data));
+	return new CLaplace(radMisc, data);
 }
 
 CLaplace::~CLaplace()

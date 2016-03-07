@@ -25,11 +25,11 @@ CBernoulli::CBernoulli(SEXP radMisc, const CDataset& data): CDistribution(radMis
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-std::auto_ptr<CDistribution> CBernoulli::Create(SEXP radMisc, const CDataset& data,
+CDistribution* CBernoulli::Create(SEXP radMisc, const CDataset& data,
 											const char* szIRMeasure,
 											int& cGroups, int& cTrain)
 {
-	return  std::auto_ptr<CDistribution>(new CBernoulli(radMisc, data));
+	return new CBernoulli(radMisc, data);
 }
 
 CBernoulli::~CBernoulli()

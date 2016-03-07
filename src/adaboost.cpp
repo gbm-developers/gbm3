@@ -22,11 +22,11 @@ CAdaBoost::CAdaBoost(SEXP radMisc, const CDataset& data): CDistribution(radMisc,
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-std::auto_ptr<CDistribution> CAdaBoost::Create(SEXP radMisc, const CDataset& data,
+CDistribution* CAdaBoost::Create(SEXP radMisc, const CDataset& data,
 		const char* szIRMeasure,
 		int& cGroups, int& cTrain)
 {
- 	return std::auto_ptr<CDistribution>(new CAdaBoost(radMisc, data));
+ 	return new CAdaBoost(radMisc, data);
 }
 
 CAdaBoost::~CAdaBoost()

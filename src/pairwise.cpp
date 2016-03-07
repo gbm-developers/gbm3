@@ -558,11 +558,11 @@ CPairwise::CPairwise(SEXP radMisc, const CDataset& data,
       }
 }
 
-std::auto_ptr<CDistribution> CPairwise::Create(SEXP radMisc, const CDataset& data,
+CDistribution* CPairwise::Create(SEXP radMisc, const CDataset& data,
 										const char* szIRMeasure, int& cGroups, int& cTrain)
 {
 
-	return std::auto_ptr<CDistribution>(new CPairwise(radMisc, data, szIRMeasure, cGroups, cTrain));
+	return new CPairwise(radMisc, data, szIRMeasure, cGroups, cTrain);
 }
 
 CPairwise::~CPairwise()

@@ -22,8 +22,7 @@ CGBM::~CGBM()
 void CGBM::SetDataAndDistribution(const CDataset& data, SEXP radMisc, const std::string& family,
 		const int cTrain, int& cGroups)
 {
-	std::auto_ptr<CDistribution>temp(gbm_setup(data, radMisc, family, cTrain, cGroups));
-	pDist=temp.release();
+	pDist=gbm_setup(data, radMisc, family, cTrain, cGroups);
 }
 
 void CGBM::SetTreeContainer(double dLambda,

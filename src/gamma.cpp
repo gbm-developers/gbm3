@@ -26,11 +26,11 @@ CGamma::CGamma(SEXP radMisc, const CDataset& data): CDistribution(radMisc, data)
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-std::auto_ptr<CDistribution> CGamma::Create(SEXP radMisc, const CDataset& data,
+CDistribution* CGamma::Create(SEXP radMisc, const CDataset& data,
 										const char* szIRMeasure, int& cGroups, int& cTrain)
 {
 
-	return std::auto_ptr<CDistribution>(new CGamma(radMisc, data));
+	return new CGamma(radMisc, data);
 }
 
 CGamma::~CGamma()

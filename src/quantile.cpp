@@ -24,11 +24,11 @@ mpLocM("Other")
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-std::auto_ptr<CDistribution> CQuantile::Create(SEXP radMisc, const CDataset& data,
+CDistribution* CQuantile::Create(SEXP radMisc, const CDataset& data,
 											const char* szIRMeasure,
 											int& cGroups, int& cTrain)
 {
-	return std::auto_ptr<CDistribution>(new CQuantile(radMisc, data));
+	return new CQuantile(radMisc, data);
 }
 
 CQuantile::~CQuantile()

@@ -22,11 +22,11 @@ CPoisson::CPoisson(SEXP radMisc, const CDataset& data): CDistribution(radMisc, d
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-std::auto_ptr<CDistribution> CPoisson::Create(SEXP radMisc, const CDataset& data,
+CDistribution* CPoisson::Create(SEXP radMisc, const CDataset& data,
 										const char* szIRMeasure,
 										int& cGroups, int& cTrain)
 {
-	return std::auto_ptr<CDistribution>(new CPoisson(radMisc, data));
+	return new CPoisson(radMisc, data);
 }
 
 

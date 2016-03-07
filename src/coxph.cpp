@@ -23,11 +23,11 @@ CCoxPH::CCoxPH(SEXP radMisc, const CDataset& data): CDistribution(radMisc, data)
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-std::auto_ptr<CDistribution> CCoxPH::Create(SEXP radMisc, const CDataset& data,
+CDistribution* CCoxPH::Create(SEXP radMisc, const CDataset& data,
 									const char* szIRMeasure,
 									int& cGroups, int& cTrain)
 {
-	return std::auto_ptr<CDistribution>(new CCoxPH(radMisc, data));
+	return new CCoxPH(radMisc, data);
 }
 
 CCoxPH::~CCoxPH()
