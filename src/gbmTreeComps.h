@@ -46,7 +46,7 @@ public:
     //---------------------
 	// Public Functions
 	//---------------------
-    void Initialize(CDistribution* pDist, CNodeFactory* pNodeFact);
+    void TreeInitialize(CDistribution* pDist, CNodeFactory* pNodeFact);
     void AssignTermNodes();
     void BagData(bool IsPairwise, CDistribution* pDist);
     void GrowTrees(CDistribution* pDist, int& cNodes);

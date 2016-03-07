@@ -24,3 +24,5 @@ Debug/
 .cproject
 
 
+src/gbmBuilder.h
+src/gbmBuilder.cpp

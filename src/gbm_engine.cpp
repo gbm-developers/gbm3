@@ -6,21 +6,24 @@
 CGBM::CGBM()
 {
     fInitialized = false;
+    pDist = NULL;
+    pTreeComp = NULL;
+    pNodeFactory = new CNodeFactory();
 }
 
 
 CGBM::~CGBM()
 {
+	delete pDist;
 	delete pTreeComp;
+	delete pNodeFactory;
 }
 
-void CGBM::SetDataAndDistribution(CDistribution* DistPtr)
+void CGBM::SetDataAndDistribution(const CDataset& data, SEXP radMisc, const std::string& family,
+		const int cTrain, int& cGroups)
 {
-	if(!DistPtr)
-	{
-	   throw GBM::invalid_argument("GBM object could not be initialized - distribution is null");
-	}
-	pDist=DistPtr;
+	std::auto_ptr<CDistribution>temp(gbm_setup(data, radMisc, family, cTrain, cGroups));
+	pDist=temp.release();
 }
 
 void CGBM::SetTreeContainer(double dLambda,
@@ -37,9 +40,9 @@ void CGBM::SetTreeContainer(double dLambda,
 
 void CGBM::Initialize()
 {
-  pNodeFactory.reset(new CNodeFactory());
-  pNodeFactory->Initialize(pTreeComp->GetDepth());
-  pTreeComp -> Initialize(pDist, pNodeFactory.get());
+  pNodeFactory->NodeFactoryInitialize(pTreeComp->GetDepth());
+  pDist-> Initialize();
+  pTreeComp -> TreeInitialize(pDist, pNodeFactory);
   fInitialized = true;
 }
 
@@ -124,7 +127,7 @@ void CGBM::iterate
 }
 
 
-void CGBM::TransferTreeToRList
+void CGBM::GBMTransferTreeToRList
 (
  int *aiSplitVar,
  double *adSplitPoint,
@@ -151,4 +154,13 @@ void CGBM::TransferTreeToRList
 				 cCatSplitsOld);
 }
 
+void CGBM::InitF(double &dInitF, unsigned long cLength)
+{
+	pDist->InitF(dInitF, cLength);
+}
 
+void CGBM::UpdateParams(const double *adF,
+        			      unsigned long cLength)
+{
+	pDist->UpdateParams(adF, cLength);
+}

@@ -87,7 +87,7 @@ CTreeComps::~CTreeComps()
 //    CNodeFactory* - ptr to the tree node factory
 //
 //-----------------------------------
-void CTreeComps::Initialize(CDistribution* pDist, CNodeFactory* pNodeFact)
+void CTreeComps::TreeInitialize(CDistribution* pDist, CNodeFactory* pNodeFact)
 {
 	cValid = pDist->data_ptr()->nrow() - cTrain;
 	if (pDist->data_ptr()->nrow() < int(cTrain))

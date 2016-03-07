@@ -22,9 +22,11 @@
 #include "tree.h"
 #include "dataset.h"
 #include "node_factory.h"
+#include "gbm_setup.h"
 #include "gbmTreeComps.h"
-#include <vector>
 #include <memory>
+#include <Rcpp.h>
+#include <vector>
 
 //------------------------------
 // Class definition
@@ -46,7 +48,8 @@ public:
 	// Public Functions
 	//---------------------
     void Initialize();
-    void SetDataAndDistribution(CDistribution* DistPtr);
+    void SetDataAndDistribution(const CDataset& data, SEXP radMisc, const std::string& family,
+    		const int cTrain, int& cGroups);
     void SetTreeContainer(double dLambda,
     	    unsigned long cTrain,
     	    unsigned long cFeatures,
@@ -61,7 +64,7 @@ public:
 		 double &dOOBagImprove,
 		 int &cNodes);
     
-    void TransferTreeToRList(int *aiSplitVar,
+    void GBMTransferTreeToRList(int *aiSplitVar,
 			     double *adSplitPoint,
 			     int *aiLeftNode,
 			     int *aiRightNode,
@@ -72,15 +75,23 @@ public:
 			     VEC_VEC_CATEGORIES &vecSplitCodes,
 			     int cCatSplitsOld);
 
+    void InitF(double &dInitF, unsigned long cLength);
+    void UpdateParams(const double *adF,
+            			      unsigned long cLength);
+
     bool IsPairwise() const { return (pTreeComp->GetNoGroups() >= 0); }
+
+    void printDist(){
+    	std::cout << pDist->data_ptr()->nrow() << endl;
+    }
 
 private:
 	//-------------------
 	// Private Variables
 	//-------------------
     CDistribution* pDist;       // the distribution - this contains the data
+    CNodeFactory* pNodeFactory;
     bool fInitialized;          // indicates whether the GBM has been initialized
-    std::auto_ptr<CNodeFactory> pNodeFactory;
 
     // these objects are for the tree growing
     // allocate them once here for all trees to use

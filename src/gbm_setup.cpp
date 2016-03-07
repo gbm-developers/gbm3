@@ -10,7 +10,7 @@
 //------------------------------
 // Includes
 //------------------------------
-#include "gbm.h"
+#include "gbm_setup.h"
 #include "distributionFactory.h"
 #include <algorithm>
 #include <vector>
@@ -38,41 +38,14 @@ std::auto_ptr<CDistribution> gbm_setup
 		}
 
 		const char* szIRMeasure = family.c_str() + offsetToMeasure + 1;
-		std::auto_ptr<CDistribution> pDist(factory -> CreateDist("pairwise", radMisc, data, szIRMeasure, cGroups, cTrain));
-		return pDist;
-	}else{
-		std::auto_ptr<CDistribution> pDist(factory -> CreateDist(family, radMisc, data, "", cGroups, cTrain));
-		return pDist;
+		std::auto_ptr<CDistribution> pTemp(factory -> CreateDist("pairwise", radMisc, data, szIRMeasure, cGroups, cTrain));
+		return pTemp;
+	}else
+	{
+		std::auto_ptr<CDistribution> pTemp(factory -> CreateDist(family, radMisc, data, "", cGroups, cTrain));
+		return pTemp;
 	}
 
-}
-
-
-void gbm_transfer_to_R
-(
- CGBM *pGBM,
- VEC_VEC_CATEGORIES &vecSplitCodes,
- int *aiSplitVar,
- double *adSplitPoint,
- int *aiLeftNode,
- int *aiRightNode,
- int *aiMissingNode,
- double *adErrorReduction,
- double *adWeight,
- double *adPred,
- int cCatSplitsOld
- )
-{
-    pGBM->TransferTreeToRList(aiSplitVar,
-			      adSplitPoint,
-			      aiLeftNode,
-			      aiRightNode,
-			      aiMissingNode,
-			      adErrorReduction,
-			      adWeight,
-			      adPred,
-			      vecSplitCodes,
-			      cCatSplitsOld);
 }
 
 

@@ -33,7 +33,7 @@ public:
     CNodeFactory();
     ~CNodeFactory();
 
-    void Initialize(unsigned long cDepth);
+    void NodeFactoryInitialize(unsigned long cDepth);
     CNodeTerminal* GetNewNodeTerminal();
     CNodeContinuous* GetNewNodeContinuous();
     CNodeCategorical* GetNewNodeCategorical();

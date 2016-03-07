@@ -1,7 +1,7 @@
 // GBM by Greg Ridgeway  Copyright (C) 2003
 
-#include "gbm.h"
-#include "gbmBuilder.h"
+#include "gbm_setup.h"
+#include "gbm_engine.h"
 #include "gbmTreeComps.h"
 #include <memory>
 #include <utility>
@@ -77,35 +77,25 @@ SEXP gbm
     int cGroups = -1;
     Rcpp::RNGScope scope;
 
-    std::auto_ptr<CGBM> pGBM;
-    // set up the dataset
-    const CDataset data(radY, radOffset, radX, raiXOrder,
-                        radWeight, racVarClasses,
-                        ralMonotoneVar, cTrain);
-    
-    // set up the distribution
-    std::auto_ptr<CDistribution> pDist(gbm_setup(data, radMisc,
-    					 family, cTrain, cGroups));
-
     // Build gbm piece-by-piece
-    CGBMBuilder gbmBuilder;
-    gbmBuilder.BuildDataAndDistribution(pDist.get());
-    gbmBuilder.BuildTreeContainer(dShrinkage, cTrain, cFeatures,
+	const CDataset data(radY, radOffset, radX, raiXOrder,
+	                        radWeight, racVarClasses,
+	                        ralMonotoneVar, cTrain);
+    CGBM GBM;
+    GBM.SetDataAndDistribution(data, radMisc, family, cTrain, cGroups);
+    GBM.SetTreeContainer(dShrinkage, cTrain, cFeatures,
     		dBagFraction, cDepth, cMinObsInNode, cGroups);
-    pGBM.reset(gbmBuilder.Build());
     
     // initialize the GBM
-    pGBM->Initialize();
-
+    GBM.Initialize();
     double dInitF;
-    Rcpp::NumericVector adF(data.nrow());
+    Rcpp::NumericMatrix tempX(radX);
+    Rcpp::NumericVector adF(tempX.nrow());
 
-    pDist->Initialize();
-    
     if(ISNA(adFold[0])) // check for old predictions
     {
       // set the initial value of F as a constant
-      pDist->InitF(dInitF, cTrain);
+      GBM.InitF(dInitF, cTrain);
       adF.fill(dInitF);
     }
     else
@@ -126,17 +116,17 @@ SEXP gbm
        Rprintf("Iter   TrainDeviance   ValidDeviance   StepSize   Improve\n");
     }
     for(iT=0; iT<cTrees; iT++)
-      {
+    {
 	Rcpp::checkUserInterrupt();
         // Update the parameters
-        pDist->UpdateParams(adF.begin(), cTrain);
+        GBM.UpdateParams(adF.begin(), cTrain);
 
         
         double dTrainError = 0;
         double dValidError = 0;
         double dOOBagImprove = 0;
 
-        pGBM->iterate(adF.begin(),
+        GBM.iterate(adF.begin(),
                       dTrainError,dValidError,dOOBagImprove,
                       cNodes);
 
@@ -154,9 +144,8 @@ SEXP gbm
         Rcpp::NumericVector dWeight(cNodes);
         Rcpp::NumericVector dPred(cNodes);
 
-        gbm_transfer_to_R(pGBM.get(),
-                          vecSplitCodes,
-                          iSplitVar.begin(),
+
+        GBM.GBMTransferTreeToRList(iSplitVar.begin(),
                           dSplitPoint.begin(),
                           iLeftNode.begin(),
                           iRightNode.begin(),
@@ -164,6 +153,7 @@ SEXP gbm
                           dErrorReduction.begin(),
                           dWeight.begin(),
                           dPred.begin(),
+                          vecSplitCodes,
                           cCatSplitsOld);
 
         setOfTrees[iT] = 

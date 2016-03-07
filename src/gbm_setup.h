@@ -52,19 +52,4 @@ std::auto_ptr<CDistribution> gbm_setup
 );
 
 
-void gbm_transfer_to_R
-(
- CGBM *pGBM,
- VEC_VEC_CATEGORIES &vecSplitCodes,
- int *aiSplitVar,
- double *adSplitPoint,
- int *aiLeftNode,
- int *aiRightNode,
- int *aiMissingNode,
- double *adErrorReduction,
- double *adWeight,
- double *adPred,
- int cCatSplitsOld
-);
-
 #endif // __gbm_h__

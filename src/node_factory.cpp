@@ -16,9 +16,8 @@ CNodeFactory::~CNodeFactory()
 }
 
 
-void CNodeFactory::Initialize(unsigned long cDepth) {
+void CNodeFactory::NodeFactoryInitialize(unsigned long cDepth) {
   unsigned long i = 0;
-  
   for(i=0; i<NODEFACTORY_NODGBM_RESERVE; i++) {
     TerminalStack.push(&(aBlockTerminal[i]));
     ContinuousStack.push(&(aBlockContinuous[i]));

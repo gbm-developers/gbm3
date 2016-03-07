@@ -70,10 +70,6 @@ public:
     virtual void UpdateParams(const double *adF,
     			      unsigned long cLength) { };
 
-
-    //---------------------
-    // Public Virtual Functions
-    //---------------------
     virtual void ComputeWorkingResponse(const double *adF,
 									double *adZ,
 									const bag& afInBag,

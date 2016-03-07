@@ -58,9 +58,8 @@ public:
 	}
 	void RegisterDist(const std::string& DistFamily, distCreate PtrDistCreateFn);
 	std::auto_ptr<CDistribution> CreateDist(const std::string& DistFamily,
-											SEXP radMisc, const CDataset& data,
-											const char* szIRMeasure,
-											int& cGroups, int& cTrain);
+					SEXP radMisc, const CDataset& data,
+					const char* szIRMeasure, int& cGroups, int& cTrain);
 };
 
 #endif // __distributionFactory_h__
