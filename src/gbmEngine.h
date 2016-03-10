@@ -26,11 +26,6 @@
 #include <vector>
 
 //------------------------------
-// Forward declaration
-//------------------------------
-class CGBMDataContainer;
-
-//------------------------------
 // Class definition
 //------------------------------
 class CGBM

@@ -78,8 +78,7 @@ SEXP gbm
     // Build gbm piece-by-piece
     CGBM GBM;
     GBM.SetDataAndDistribution(radY, radOffset, radX, raiXOrder,
-            radWeight, racVarClasses,
-            ralMonotoneVar, radMisc, family, cTrain, cGroups);
+            radWeight, racVarClasses, ralMonotoneVar, radMisc, family, cTrain, cGroups);
     GBM.SetTreeContainer(dShrinkage, cTrain, cFeatures,
     		dBagFraction, cDepth, cMinObsInNode, cGroups);
     
@@ -114,7 +113,7 @@ SEXP gbm
     }
     for(iT=0; iT<cTrees; iT++)
     {
-	Rcpp::checkUserInterrupt();
+    	Rcpp::checkUserInterrupt();
         // Update the parameters
         GBM.UpdateParams(adF.begin(), cTrain);
 
