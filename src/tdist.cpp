@@ -16,8 +16,8 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CTDist::CTDist(SEXP radMisc, const CDataset& data):
-  CDistribution(radMisc, data), mpLocM("tdist", CDistribution::misc_ptr(true)[0])
+CTDist::CTDist(SEXP radMisc):
+  CDistribution(radMisc), mpLocM("tdist", CDistribution::misc_ptr(true)[0])
 {
 	mdNu = CDistribution::misc_ptr(true)[0];
 }
@@ -26,11 +26,11 @@ CTDist::CTDist(SEXP radMisc, const CDataset& data):
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CTDist::Create(SEXP radMisc, const CDataset& data,
+CDistribution* CTDist::Create(SEXP radMisc,
 									const char* szIRMeasure,
 									int& cGroups, int& cTrain)
 {
-	return new CTDist(radMisc, data);
+	return new CTDist(radMisc);
 }
 
 CTDist::~CTDist()
@@ -40,6 +40,7 @@ CTDist::~CTDist()
 
 void CTDist::ComputeWorkingResponse
 (
+	const CDataset* pData,
     const double *adF,
     double *adZ,
     const bag& afInBag,
@@ -70,6 +71,7 @@ void CTDist::ComputeWorkingResponse
 
 void CTDist::InitF
 (
+	const CDataset* pData,
     double &dInitF,
     unsigned long cLength
 )
@@ -93,6 +95,7 @@ void CTDist::InitF
 
 double CTDist::Deviance
 (
+	const CDataset* pData,
     const double *adF,
     unsigned long cLength,
     bool isValidationSet
@@ -140,6 +143,7 @@ double CTDist::Deviance
 
 void CTDist::FitBestConstant
 (
+	const CDataset* pData,
     const double *adF,
     double *adZ,
     const std::vector<unsigned long>& aiNodeAssign,
@@ -184,6 +188,7 @@ void CTDist::FitBestConstant
 
 double CTDist::BagImprovement
 (
+	const CDataset* pData,
     const double *adF,
     const double *adFadj,
     const bag& afInBag,

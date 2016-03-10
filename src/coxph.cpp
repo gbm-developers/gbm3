@@ -14,7 +14,7 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CCoxPH::CCoxPH(SEXP radMisc, const CDataset& data): CDistribution(radMisc, data)
+CCoxPH::CCoxPH(SEXP radMisc): CDistribution(radMisc)
 {
 	adDelta = CDistribution::misc_ptr(false);
 }
@@ -23,11 +23,11 @@ CCoxPH::CCoxPH(SEXP radMisc, const CDataset& data): CDistribution(radMisc, data)
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CCoxPH::Create(SEXP radMisc, const CDataset& data,
+CDistribution* CCoxPH::Create(SEXP radMisc,
 									const char* szIRMeasure,
 									int& cGroups, int& cTrain)
 {
-	return new CCoxPH(radMisc, data);
+	return new CCoxPH(radMisc);
 }
 
 CCoxPH::~CCoxPH()
@@ -50,6 +50,7 @@ void CCoxPH::ComputeWorkingResponse
 // Returns :   Weighted quantile
 /////////////////////////////////////////////////ponse
 (
+	const CDataset* pData,
     const double *adF,
     double *adZ,
     const bag& afInBag,
@@ -93,6 +94,7 @@ void CCoxPH::ComputeWorkingResponse
 
 void CCoxPH::InitF
 (
+	const CDataset* pData,
     double &dInitF,
     unsigned long cLength
 )
@@ -103,6 +105,7 @@ void CCoxPH::InitF
 
 double CCoxPH::Deviance
 (
+	const CDataset* pData,
     const double *adF,
     unsigned long cLength,
     bool isValidationSet
@@ -144,6 +147,7 @@ double CCoxPH::Deviance
 
 void CCoxPH::FitBestConstant
 (
+	const CDataset* pData,
     const double *adF,
     double *adZ,
     const std::vector<unsigned long>& aiNodeAssign,
@@ -270,6 +274,7 @@ void CCoxPH::FitBestConstant
 
 double CCoxPH::BagImprovement
 (
+	const CDataset* pData,
     const double *adF,
     const double *adFadj,
     const bag& afInBag,

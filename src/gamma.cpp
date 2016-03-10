@@ -19,18 +19,18 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CGamma::CGamma(SEXP radMisc, const CDataset& data): CDistribution(radMisc, data)
+CGamma::CGamma(SEXP radMisc): CDistribution(radMisc)
 {
 }
 
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CGamma::Create(SEXP radMisc, const CDataset& data,
+CDistribution* CGamma::Create(SEXP radMisc,
 										const char* szIRMeasure, int& cGroups, int& cTrain)
 {
 
-	return new CGamma(radMisc, data);
+	return new CGamma(radMisc);
 }
 
 CGamma::~CGamma()
@@ -40,6 +40,7 @@ CGamma::~CGamma()
 
 void CGamma::ComputeWorkingResponse
 (
+	const CDataset* pData,
     const double *adF, 
     double *adZ, 
     const bag& afInBag,
@@ -64,6 +65,7 @@ void CGamma::ComputeWorkingResponse
 
 void CGamma::InitF
 (
+	const CDataset* pData,
     double &dInitF, 
     unsigned long cLength
 )
@@ -101,6 +103,7 @@ void CGamma::InitF
 
 double CGamma::Deviance
 (
+	const CDataset* pData,
     const double *adF,
     unsigned long cLength,
     bool isValidationSet
@@ -134,6 +137,7 @@ double CGamma::Deviance
 
 void CGamma::FitBestConstant
 (
+const CDataset* pData,
  const double *adF,
  double *adZ,
  const std::vector<unsigned long>& aiNodeAssign,
@@ -206,6 +210,7 @@ void CGamma::FitBestConstant
 
 double CGamma::BagImprovement
 (
+	const CDataset* pData,
 	const double *adF,
 	const double *adFadj,
 	const bag& afInBag,

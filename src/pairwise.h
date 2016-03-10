@@ -262,27 +262,31 @@ class CPairwise : public CDistribution
 {
 public:
 
-	static CDistribution* Create(SEXP radMisc, const CDataset& data,
+	static CDistribution* Create(SEXP radMisc,
 										const char* szIRMeasure,
 										int& cGroups, int& cTrain);
 
     virtual ~CPairwise();
 
-    void Initialize();
+    void Initialize(const CDataset* pData);
     
-    void ComputeWorkingResponse(const double *adF,
+    void ComputeWorkingResponse(const CDataset* pData,
+    			const double *adF,
 				double *adZ,
 				const bag& afInBag,
 				unsigned long nTrain);
     
-    double Deviance(const double *adF,
+    double Deviance(const CDataset* pData,
+    			const double *adF,
                     unsigned long cLength,
                     bool isValidationSet=false);
 
-    void InitF(double &dInitF,
+    void InitF(const CDataset* pData,
+    		double &dInitF,
 	       unsigned long cLength);
 
-    void FitBestConstant(const double *adF,
+    void FitBestConstant(const CDataset* pData,
+    		const double *adF,
 			 double *adZ,
 			 const std::vector<unsigned long>& aiNodeAssign,
 			 unsigned long nTrain,
@@ -292,7 +296,8 @@ public:
 			 const bag& afInBag,
 			 const double *adFadj);
 
-    double BagImprovement(const double *adF,
+    double BagImprovement(const CDataset* pData,
+    					  const double *adF,
                           const double *adFadj,
                           const bag& afInBag,
                           double dStepSize,
@@ -301,7 +306,7 @@ public:
 protected:
 
     // Constructor: determine IR measure as either "conc", "map", "mrr", or "ndcg"
-    CPairwise(SEXP radMisc, const CDataset& data, const char* szIRMeasure, int& cGroups, int& cTrain);
+    CPairwise(SEXP radMisc, const char* szIRMeasure, int& cGroups, int& cTrain);
 
     // Calculate and accumulate up the gradients and Hessians from all training pairs
     void ComputeLambdas(int iGroup, unsigned int cNumItems, const double* const adY, const double* const adF, const double* const adWeight, double* adZ, double* adDeriv);

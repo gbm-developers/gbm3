@@ -34,7 +34,7 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-    CDistribution(SEXP radMisc, const CDataset& data);
+    CDistribution(SEXP radMisc);
 
   	//---------------------
   	// Public destructor
@@ -47,7 +47,6 @@ public:
   	bool has_misc() const ;
   	const double* misc_ptr(bool require=false) const;
   	double* misc_ptr(bool require=false);
-  	const CDataset* data_ptr() const;
 
   	// shifts the misc_ptr() as appropriate
   	template<typename T>
@@ -65,24 +64,25 @@ public:
     //---------------------
     // Public Virtual Functions
     //---------------------
-    virtual void Initialize() { };
+    virtual void Initialize(const CDataset* pData) { };
 
-    virtual void UpdateParams(const double *adF,
+    virtual void UpdateParams(const CDataset* pData, const double *adF,
     			      unsigned long cLength) { };
 
-    virtual void ComputeWorkingResponse(const double *adF,
+    virtual void ComputeWorkingResponse(const CDataset* pData,
+    								const double *adF,
 									double *adZ,
 									const bag& afInBag,
 									unsigned long cLength) = 0;
 
-    virtual void InitF(double &dInitF,
+    virtual void InitF(const CDataset* pData, double &dInitF,
     		       unsigned long cLength) = 0;
 
-    virtual double Deviance(const double *adF,
+    virtual double Deviance(const CDataset* pData, const double *adF,
                             unsigned long cLength,
                             bool isValidationSet=false) = 0;
 
-    virtual void FitBestConstant(const double *adF,
+    virtual void FitBestConstant(const CDataset* pData, const double *adF,
 						  double *adZ,
 						  const std::vector<unsigned long>& aiNodeAssign,
 						  unsigned long cLength,
@@ -92,14 +92,12 @@ public:
 						  const bag& afInBag,
 						  const double *adFadj) = 0;
 
-    virtual double BagImprovement(const double *adF,
+    virtual double BagImprovement(const CDataset* pData,
+    							  const double *adF,
 								  const double *adFadj,
 								  const bag& afInBag,
 								  double dStepSize,
 								  unsigned long cLength) = 0;
-
-protected:
-    const CDataset* pData;
 
 private:
     Rcpp::NumericVector adMisc;

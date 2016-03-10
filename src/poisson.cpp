@@ -14,7 +14,7 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CPoisson::CPoisson(SEXP radMisc, const CDataset& data): CDistribution(radMisc, data)
+CPoisson::CPoisson(SEXP radMisc): CDistribution(radMisc)
 {
 }
 
@@ -22,11 +22,11 @@ CPoisson::CPoisson(SEXP radMisc, const CDataset& data): CDistribution(radMisc, d
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CPoisson::Create(SEXP radMisc, const CDataset& data,
+CDistribution* CPoisson::Create(SEXP radMisc,
 										const char* szIRMeasure,
 										int& cGroups, int& cTrain)
 {
-	return new CPoisson(radMisc, data);
+	return new CPoisson(radMisc);
 }
 
 
@@ -37,6 +37,7 @@ CPoisson::~CPoisson()
 
 void CPoisson::ComputeWorkingResponse
 (
+	const CDataset* pData,
     const double *adF,
     double *adZ,
     const bag& afInBag,
@@ -58,6 +59,7 @@ void CPoisson::ComputeWorkingResponse
 
 void CPoisson::InitF
 (
+	const CDataset* pData,
     double &dInitF,
     unsigned long cLength
 )
@@ -89,6 +91,7 @@ void CPoisson::InitF
 
 double CPoisson::Deviance
 (
+	const CDataset* pData,
     const double *adF,
     unsigned long cLength,
     bool isValidationSet
@@ -134,6 +137,7 @@ double CPoisson::Deviance
 
 void CPoisson::FitBestConstant
 (
+	const CDataset* pData,
     const double *adF,
     double *adZ,
     const std::vector<unsigned long>& aiNodeAssign,
@@ -218,6 +222,7 @@ void CPoisson::FitBestConstant
 
 double CPoisson::BagImprovement
 (
+	const CDataset* pData,
     const double *adF,
     const double *adFadj,
     const bag& afInBag,

@@ -87,16 +87,16 @@ CTreeComps::~CTreeComps()
 //    CNodeFactory* - ptr to the tree node factory
 //
 //-----------------------------------
-void CTreeComps::TreeInitialize(CDistribution* pDist, CNodeFactory* pNodeFact)
+void CTreeComps::TreeInitialize(const CDataset* pData, CNodeFactory* pNodeFact)
 {
-	cValid = pDist->data_ptr()->nrow() - cTrain;
-	if (pDist->data_ptr()->nrow() < int(cTrain))
+	cValid = pData->nrow() - cTrain;
+	if (pData->nrow() < int(cTrain))
 	{
 	    throw GBM::invalid_argument("your training instances don't make sense");
 	}
 
-	adZ.assign(pDist->data_ptr()->nrow(), 0);
-	adFadj.assign(pDist->data_ptr()->nrow(), 0);
+	adZ.assign(pData->nrow(), 0);
+	adFadj.assign(pData->nrow(), 0);
 
 	ptreeTemp->Initialize(pNodeFact);
 
@@ -105,6 +105,7 @@ void CTreeComps::TreeInitialize(CDistribution* pDist, CNodeFactory* pNodeFact)
 
 	// aiNodeAssign tracks to which node each training obs belongs
 	aiNodeAssign.resize(cTrain);
+
 	// NodeSearch objects help decide which nodes to split
 	aNodeSearch.resize(2 * cDepth + 1);
 
@@ -227,7 +228,7 @@ void CTreeComps::BagData(bool IsPairwise, CDistribution* pDist)
 //    int& - reference to  number of nodes in tree
 //
 //-----------------------------------
-void CTreeComps::GrowTrees(CDistribution* pDist, int& cNodes)
+void CTreeComps::GrowTrees(const CDataset* pData, int& cNodes)
 {
 	#ifdef NOISY_DEBUG
 	  Rprintf("Reset tree\n");
@@ -238,8 +239,8 @@ void CTreeComps::GrowTrees(CDistribution* pDist, int& cNodes)
 	#endif
 
 	ptreeTemp->grow(&(adZ[0]),
-	                *(pDist->data_ptr()),
-	                pDist->data_ptr()->weight_ptr(),
+	                *(pData),
+	                pData->weight_ptr(),
 	                &(adFadj[0]),
 	                cTrain,
 	                cFeatures,
@@ -331,9 +332,9 @@ void CTreeComps::TransferTreeToRList(const CDataset &pData,
 // Parameters: CDistribution ptr - ptr to data + dist
 //
 //-----------------------------------
-void CTreeComps::PredictValid(CDistribution* pDist)
+void CTreeComps::PredictValid(const CDataset* pData)
 {
-	ptreeTemp->PredictValid(*(pDist->data_ptr()), cValid, &(adFadj[0]));
+	ptreeTemp->PredictValid(*(pData), cValid, &(adFadj[0]));
 }
 
 //-----------------------------------

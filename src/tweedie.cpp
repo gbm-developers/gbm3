@@ -22,7 +22,7 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CTweedie:: CTweedie(SEXP radMisc, const CDataset& data): CDistribution(radMisc, data)
+CTweedie:: CTweedie(SEXP radMisc): CDistribution(radMisc)
 {
 	dPower = CDistribution::misc_ptr(true)[0];
 }
@@ -30,11 +30,11 @@ CTweedie:: CTweedie(SEXP radMisc, const CDataset& data): CDistribution(radMisc, 
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CTweedie::Create(SEXP radMisc, const CDataset& data,
+CDistribution* CTweedie::Create(SEXP radMisc,
 									const char* szIRMeasure,
 									int& cGroups, int& cTrain)
 {
-	return new CTweedie(radMisc, data);
+	return new CTweedie(radMisc);
 }
 
 CTweedie::~CTweedie()
@@ -43,6 +43,7 @@ CTweedie::~CTweedie()
 
 void CTweedie::ComputeWorkingResponse
 (
+ const CDataset* pData,
  const double *adF, 
  double *adZ, 
  const bag& afInBag,
@@ -68,6 +69,7 @@ void CTweedie::ComputeWorkingResponse
 
 void CTweedie::InitF
 (
+ const CDataset* pData,
  double &dInitF, 
  unsigned long cLength
 )
@@ -105,6 +107,7 @@ void CTweedie::InitF
 
 double CTweedie::Deviance
 (
+	const CDataset* pData,
     const double *adF,
     unsigned long cLength,
     bool isValidationSet
@@ -141,6 +144,7 @@ double CTweedie::Deviance
 
 void CTweedie::FitBestConstant
 (
+	const CDataset* pData,
     const double *adF,
     double *adZ,
     const std::vector<unsigned long>& aiNodeAssign,
@@ -213,6 +217,7 @@ void CTweedie::FitBestConstant
 
 double CTweedie::BagImprovement
 (
+	const CDataset* pData,
 	const double *adF,
 	const double *adFadj,
 	const bag& afInBag,

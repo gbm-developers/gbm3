@@ -1,8 +1,6 @@
 // GBM by Greg Ridgeway  Copyright (C) 2003
 
-#include "gbm_setup.h"
-#include "gbm_engine.h"
-#include "gbmTreeComps.h"
+#include "gbmEngine.h"
 #include <memory>
 #include <utility>
 #include <Rcpp.h>
@@ -78,11 +76,10 @@ SEXP gbm
     Rcpp::RNGScope scope;
 
     // Build gbm piece-by-piece
-	const CDataset data(radY, radOffset, radX, raiXOrder,
-	                        radWeight, racVarClasses,
-	                        ralMonotoneVar, cTrain);
     CGBM GBM;
-    GBM.SetDataAndDistribution(data, radMisc, family, cTrain, cGroups);
+    GBM.SetDataAndDistribution(radY, radOffset, radX, raiXOrder,
+            radWeight, racVarClasses,
+            ralMonotoneVar, radMisc, family, cTrain, cGroups);
     GBM.SetTreeContainer(dShrinkage, cTrain, cFeatures,
     		dBagFraction, cDepth, cMinObsInNode, cGroups);
     
@@ -125,8 +122,7 @@ SEXP gbm
         double dTrainError = 0;
         double dValidError = 0;
         double dOOBagImprove = 0;
-
-        GBM.iterate(adF.begin(),
+        GBM.Iterate(adF.begin(),
                       dTrainError,dValidError,dOOBagImprove,
                       cNodes);
 

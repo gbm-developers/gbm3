@@ -14,17 +14,17 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CGaussian::CGaussian(SEXP radMisc, const CDataset& data): CDistribution(radMisc, data)
+CGaussian::CGaussian(SEXP radMisc): CDistribution(radMisc)
 {
 }
 
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CGaussian::Create(SEXP radMisc, const CDataset& data,
+CDistribution* CGaussian::Create(SEXP radMisc,
 											const char* szIRMeasure, int& cGroups, int& cTrain)
 {
-	return new CGaussian(radMisc, data);
+	return new CGaussian(radMisc);
 }
 
 CGaussian::~CGaussian()
@@ -34,6 +34,7 @@ CGaussian::~CGaussian()
 
 void CGaussian::ComputeWorkingResponse
 (
+ const CDataset* pData,
  const double *adF,
  double *adZ,
  const bag& afInBag,
@@ -64,6 +65,7 @@ void CGaussian::ComputeWorkingResponse
 
 void CGaussian::InitF
 (
+	const CDataset* pData,
     double &dInitF,
     unsigned long cLength
 )
@@ -95,6 +97,7 @@ void CGaussian::InitF
 
 double CGaussian::Deviance
 (
+	const CDataset* pData,
     const double *adF,
     unsigned long cLength,
     bool isValidationSet
@@ -138,6 +141,7 @@ double CGaussian::Deviance
 
 void CGaussian::FitBestConstant
 (
+	const CDataset* pData,
     const double *adF,
     double *adZ,
     const std::vector<unsigned long>& aiNodeAssign,
@@ -155,6 +159,7 @@ void CGaussian::FitBestConstant
 
 double CGaussian::BagImprovement
 (
+	const CDataset* pData,
     const double *adF,
     const double *adFadj,
     const bag& afInBag,

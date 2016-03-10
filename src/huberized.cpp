@@ -14,7 +14,7 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CHuberized::CHuberized(SEXP radMisc, const CDataset& data): CDistribution(radMisc, data)
+CHuberized::CHuberized(SEXP radMisc): CDistribution(radMisc)
 {
 }
 
@@ -22,11 +22,11 @@ CHuberized::CHuberized(SEXP radMisc, const CDataset& data): CDistribution(radMis
 // Function Members - Public
 //----------------------------------------
 
-CDistribution* CHuberized::Create(SEXP radMisc, const CDataset& data,
+CDistribution* CHuberized::Create(SEXP radMisc,
 										const char* szIRMeasure,
 										int& cGroups, int& cTrain)
 {
-	return new CHuberized(radMisc, data);
+	return new CHuberized(radMisc);
 }
 
 CHuberized::~CHuberized()
@@ -36,6 +36,7 @@ CHuberized::~CHuberized()
 
 void CHuberized::ComputeWorkingResponse
 (
+	const CDataset* pData,
     const double *adF,
     double *adZ,
     const bag& afInBag,
@@ -65,6 +66,7 @@ void CHuberized::ComputeWorkingResponse
 
 void CHuberized::InitF
 (
+	const CDataset* pData,
     double &dInitF,
     unsigned long cLength
 )
@@ -93,6 +95,7 @@ void CHuberized::InitF
 
 double CHuberized::Deviance
 (
+	const CDataset* pData,
     const double *adF,
     unsigned long cLength,
     bool isValidationSet
@@ -162,6 +165,7 @@ double CHuberized::Deviance
 
 void CHuberized::FitBestConstant
 (
+	const CDataset* pData,
     const double *adF,
     double *adZ,
     const std::vector<unsigned long>& aiNodeAssign,
@@ -223,6 +227,7 @@ void CHuberized::FitBestConstant
 
 double CHuberized::BagImprovement
 (
+	const CDataset* pData,
     const double *adF,
     const double *adFadj,
     const bag& afInBag,

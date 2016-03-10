@@ -11,22 +11,24 @@
 //
 //------------------------------------------------------------------------------
 
-#ifndef __gbm_enginegbm_h__
-#define __gbm_enginegbm_h__
+#ifndef __gbmEnginegbm_h__
+#define __gbmEnginegbm_h__
 
 //------------------------------
 // Includes
 //------------------------------
 #include "buildinfo.h"
-#include "distribution.h"
-#include "tree.h"
-#include "dataset.h"
+#include "gbmDataContainer.h"
 #include "node_factory.h"
-#include "gbm_setup.h"
 #include "gbmTreeComps.h"
 #include <memory>
 #include <Rcpp.h>
 #include <vector>
+
+//------------------------------
+// Forward declaration
+//------------------------------
+class CGBMDataContainer;
 
 //------------------------------
 // Class definition
@@ -48,7 +50,9 @@ public:
 	// Public Functions
 	//---------------------
     void Initialize();
-    void SetDataAndDistribution(const CDataset& data, SEXP radMisc, const std::string& family,
+    void SetDataAndDistribution(SEXP radY, SEXP radOffset, SEXP radX, SEXP raiXOrder,
+            SEXP radWeight, SEXP racVarClasses,
+            SEXP ralMonotoneVar, SEXP radMisc, const std::string& family,
     		const int cTrain, int& cGroups);
     void SetTreeContainer(double dLambda,
     	    unsigned long cTrain,
@@ -58,7 +62,7 @@ public:
     	    unsigned long cMinObsInNode,
     	    int cGroups);
 
-    void iterate(double *adF,
+    void Iterate(double *adF,
 		 double &dTrainError,
 		 double &dValidError,
 		 double &dOOBagImprove,
@@ -78,27 +82,20 @@ public:
     void InitF(double &dInitF, unsigned long cLength);
     void UpdateParams(const double *adF,
             			      unsigned long cLength);
-
     bool IsPairwise() const { return (pTreeComp->GetNoGroups() >= 0); }
-
-    void printDist(){
-    	std::cout << pDist->data_ptr()->nrow() << endl;
-    }
 
 private:
 	//-------------------
 	// Private Variables
 	//-------------------
-    CDistribution* pDist;       // the distribution - this contains the data
+    CGBMDataContainer* pDataCont;
     CNodeFactory* pNodeFactory;
-    bool fInitialized;          // indicates whether the GBM has been initialized
-
-    // these objects are for the tree growing
-    // allocate them once here for all trees to use
     CTreeComps* pTreeComp;
+    bool fInitialized;          // indicates whether the GBM has been initialized
+    bool hasDataAndDist, hasTreeContainer;
 };
 
-#endif //  __gbm_enginegbm_h__
+#endif //  __gbmEnginegbm_h__
 
 
 

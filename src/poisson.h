@@ -16,7 +16,6 @@
 // Includes
 //------------------------------
 #include "distribution.h"
-#include "dataset.h"
 #include <Rmath.h>
 #include <memory>
 
@@ -30,7 +29,7 @@ public:
 	//---------------------
 	// Factory Function
 	//---------------------
-	static CDistribution* Create(SEXP radMisc, const CDataset& data,
+	static CDistribution* Create(SEXP radMisc,
 										const char* szIRMeasure,
 										int& cGroups, int& cTrain);
 
@@ -42,19 +41,23 @@ public:
     //---------------------
     // Public Functions
     //---------------------
-    void ComputeWorkingResponse(const double *adF,
+    void ComputeWorkingResponse(const CDataset* pData,
+    		const double *adF,
 				double *adZ,
 				const bag& afInBag,
 				unsigned long nTrain);
 
-    double Deviance(const double *adF,
+    double Deviance(const CDataset* pData,
+    				const double *adF,
                     unsigned long cLength,
                     bool isValidationSet=false);
 
-    void InitF(double &dInitF,
+    void InitF(const CDataset* pData,
+    		double &dInitF,
 	       unsigned long cLength);
 
-    void FitBestConstant(const double *adF,
+    void FitBestConstant(const CDataset* pData,
+    		const double *adF,
 			 double *adZ,
 			 const std::vector<unsigned long>& aiNodeAssign,
 			 unsigned long nTrain,
@@ -64,7 +67,8 @@ public:
 			 const bag& afInBag,
 			 const double *adFadj);
 
-    double BagImprovement(const double *adF,
+    double BagImprovement(const CDataset* pData,
+    					  const double *adF,
                           const double *adFadj,
                           const bag& afInBag,
                           double dStepSize,
@@ -74,7 +78,7 @@ private:
     //----------------------
     // Private Constructors
     //----------------------
-    CPoisson(SEXP radMisc, const CDataset& data);
+    CPoisson(SEXP radMisc);
 
 
 	//-------------------

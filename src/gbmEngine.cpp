@@ -1,12 +1,17 @@
 //  GBM by Greg Ridgeway  Copyright (C) 2003
 //#define NOISY_DEBUG
 #include <algorithm>
-#include "gbm_engine.h"
+#include "gbmEngine.h"
 
 CGBM::CGBM()
 {
+	// Set up checks for initialization
     fInitialized = false;
-    pDist = NULL;
+    hasDataAndDist = false;
+    hasTreeContainer = false;
+
+    // Containers
+    pDataCont = NULL;
     pTreeComp = NULL;
     pNodeFactory = new CNodeFactory();
 }
@@ -14,15 +19,20 @@ CGBM::CGBM()
 
 CGBM::~CGBM()
 {
-	delete pDist;
+	delete pDataCont;
 	delete pTreeComp;
 	delete pNodeFactory;
 }
 
-void CGBM::SetDataAndDistribution(const CDataset& data, SEXP radMisc, const std::string& family,
+void CGBM::SetDataAndDistribution(SEXP radY, SEXP radOffset, SEXP radX, SEXP raiXOrder,
+        SEXP radWeight, SEXP racVarClasses,
+        SEXP ralMonotoneVar, SEXP radMisc, const std::string& family,
 		const int cTrain, int& cGroups)
 {
-	pDist=gbm_setup(data, radMisc, family, cTrain, cGroups);
+
+	pDataCont=new CGBMDataContainer(radY, radOffset, radX, raiXOrder,
+        radWeight, racVarClasses, ralMonotoneVar, radMisc, family, cTrain, cGroups);
+	hasDataAndDist = true;
 }
 
 void CGBM::SetTreeContainer(double dLambda,
@@ -35,17 +45,24 @@ void CGBM::SetTreeContainer(double dLambda,
 {
 	pTreeComp = new CTreeComps(dLambda, cTrain, cFeatures,dBagFraction,
 	    	  cDepth, cMinObsInNode, cGroups);
+	hasTreeContainer = true;
 }
 
 void CGBM::Initialize()
 {
-  pNodeFactory->NodeFactoryInitialize(pTreeComp->GetDepth());
-  pDist-> Initialize();
-  pTreeComp -> TreeInitialize(pDist, pNodeFactory);
-  fInitialized = true;
+	// Throw error if initialization called incorrectly
+	if(!(hasDataAndDist && hasTreeContainer))
+	{
+		throw GBM::failure("GBM object could not be built - missing: "
+				"data or distribution or weak learner");
+	}
+	pNodeFactory->NodeFactoryInitialize(pTreeComp->GetDepth());
+	pDataCont-> Initialize();
+	pTreeComp -> TreeInitialize(pDataCont->getData(), pNodeFactory);
+	fInitialized = true;
 }
 
-void CGBM::iterate
+void CGBM::Iterate
 (
   double *adF,
   double &dTrainError,
@@ -64,18 +81,14 @@ void CGBM::iterate
   dOOBagImprove = 0.0;
 
   pTreeComp->AssignTermNodes();
-  pTreeComp->BagData(IsPairwise(), pDist);
+  pTreeComp->BagData(IsPairwise(), pDataCont->getDist());
 
 #ifdef NOISY_DEBUG
   Rprintf("Compute working response\n");
 #endif
 
-  pDist->ComputeWorkingResponse(adF,
-                               	pTreeComp->GetGrad(),
-                                pTreeComp->GetBag(),
-                                pTreeComp->GetTrainNo());
-
-  pTreeComp->GrowTrees(pDist, cNodes);
+  pDataCont->ComputeResiduals(&adF[0], pTreeComp);
+  pTreeComp->GrowTrees(pDataCont->getData(), cNodes);
 
   // Now I have adF, adZ, and vecpTermNodes (new node assignments)
   // Fit the best constant within each terminal node
@@ -83,45 +96,29 @@ void CGBM::iterate
   Rprintf("fit best constant\n");
 #endif
 
-  pDist->FitBestConstant(&adF[0],
-                         pTreeComp->GetGrad(),
-                         pTreeComp->GetNodeAssign(),
-                         pTreeComp->GetTrainNo(),
-                         pTreeComp->GetTermNodes(),
-                         (2*cNodes+1)/3, // number of terminal nodes
-                         pTreeComp->GetMinNodeObs(),
-                         pTreeComp->GetBag(),
-                         pTreeComp->GetRespAdj());
-
+  pDataCont->ComputeBestTermNodePreds(&adF[0], pTreeComp, cNodes);
   pTreeComp->AdjustAndShrink();
+
   // update training predictions
   // fill in missing nodes where N < cMinObsInNode
+  dOOBagImprove = pDataCont->ComputeBagImprovement(&adF[0], pTreeComp);
 
-
-  dOOBagImprove = pDist->BagImprovement(&adF[0],
-                                        pTreeComp->GetRespAdj(),
-                                        pTreeComp->GetBag(),
-                                        pTreeComp->GetLambda(),
-                                        pTreeComp->GetTrainNo());
-    
   // update the training predictions
   unsigned long i = 0;
   for(i=0; i < pTreeComp->GetTrainNo(); i++)
   {
     adF[i] += pTreeComp->GetLambda() * pTreeComp->RespAdjElem(i);
   }
-
-  dTrainError = pDist->Deviance(adF, pTreeComp->GetTrainNo());
+  dTrainError = pDataCont->ComputeDeviance(&adF[0], pTreeComp, false);
 
   // update the validation predictions
-  pTreeComp->PredictValid(pDist);
-
+  pTreeComp->PredictValid(pDataCont->getData());
   for(i=pTreeComp->GetTrainNo(); i < pTreeComp->GetTrainNo()+pTreeComp->GetValidNo(); i++)
   {
     adF[i] += pTreeComp->RespAdjElem(i);
   }
 
-  dValidError = pDist->Deviance(adF + pTreeComp->GetTrainNo(), pTreeComp->GetValidNo(), true);
+  dValidError = pDataCont->ComputeDeviance(&adF[0], pTreeComp, true);
 
 }
 
@@ -140,7 +137,7 @@ void CGBM::GBMTransferTreeToRList
  int cCatSplitsOld
  )
 {
-	pTreeComp->TransferTreeToRList(*(pDist->data_ptr()),
+	pTreeComp->TransferTreeToRList(*(pDataCont->getData()),
 				 aiSplitVar,
 				 adSplitPoint,
 				 aiLeftNode,
@@ -155,11 +152,11 @@ void CGBM::GBMTransferTreeToRList
 
 void CGBM::InitF(double &dInitF, unsigned long cLength)
 {
-	pDist->InitF(dInitF, cLength);
+	pDataCont->InitializeFunctionEstimate(dInitF, cLength);
 }
 
 void CGBM::UpdateParams(const double *adF,
         			      unsigned long cLength)
 {
-	pDist->UpdateParams(adF, cLength);
+	pDataCont->UpdateParams(adF, cLength);
 }

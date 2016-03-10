@@ -14,7 +14,7 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CQuantile::CQuantile(SEXP radMisc, const CDataset& data): CDistribution(radMisc, data),
+CQuantile::CQuantile(SEXP radMisc): CDistribution(radMisc),
 mpLocM("Other")
 {
 	dAlpha = CDistribution::misc_ptr(true)[0];
@@ -24,11 +24,11 @@ mpLocM("Other")
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CQuantile::Create(SEXP radMisc, const CDataset& data,
+CDistribution* CQuantile::Create(SEXP radMisc,
 											const char* szIRMeasure,
 											int& cGroups, int& cTrain)
 {
-	return new CQuantile(radMisc, data);
+	return new CQuantile(radMisc);
 }
 
 CQuantile::~CQuantile()
@@ -37,6 +37,7 @@ CQuantile::~CQuantile()
 
 void CQuantile::ComputeWorkingResponse
 (
+	const CDataset* pData,
     const double *adF,
     double *adZ,
     const bag& afInBag,
@@ -64,6 +65,7 @@ void CQuantile::ComputeWorkingResponse
 
 void CQuantile::InitF
 (
+	const CDataset* pData,
     double &dInitF,
     unsigned long cLength
 )
@@ -85,6 +87,7 @@ void CQuantile::InitF
 
 double CQuantile::Deviance
 (
+	const CDataset* pData,
     const double *adF,
     unsigned long cLength,
     bool isValidationSet
@@ -142,6 +145,7 @@ double CQuantile::Deviance
 
 void CQuantile::FitBestConstant
 (
+	const CDataset* pData,
     const double *adF,
     double *adZ,
     const std::vector<unsigned long> &aiNodeAssign,
@@ -187,6 +191,7 @@ void CQuantile::FitBestConstant
 
 double CQuantile::BagImprovement
 (
+	const CDataset* pData,
     const double *adF,
     const double *adFadj,
     const bag& afInBag,

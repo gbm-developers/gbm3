@@ -16,7 +16,7 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CBernoulli::CBernoulli(SEXP radMisc, const CDataset& data): CDistribution(radMisc, data)
+CBernoulli::CBernoulli(SEXP radMisc): CDistribution(radMisc)
 {
   // Used to issue warnings to user that at least one terminal node capped
   fCappedPred = false;
@@ -25,11 +25,11 @@ CBernoulli::CBernoulli(SEXP radMisc, const CDataset& data): CDistribution(radMis
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CBernoulli::Create(SEXP radMisc, const CDataset& data,
+CDistribution* CBernoulli::Create(SEXP radMisc,
 											const char* szIRMeasure,
 											int& cGroups, int& cTrain)
 {
-	return new CBernoulli(radMisc, data);
+	return new CBernoulli(radMisc);
 }
 
 CBernoulli::~CBernoulli()
@@ -38,6 +38,7 @@ CBernoulli::~CBernoulli()
 
 void CBernoulli::ComputeWorkingResponse
 (
+	const CDataset* pData,
     const double *adF,
     double *adZ,
     const bag& afInBag,
@@ -65,6 +66,7 @@ void CBernoulli::ComputeWorkingResponse
 
 void CBernoulli::InitF
 (
+	const CDataset* pData,
     double &dInitF,
     unsigned long cLength
 )
@@ -108,6 +110,7 @@ void CBernoulli::InitF
 
 double CBernoulli::Deviance
 (
+	const CDataset* pData,
     const double *adF,
     unsigned long cLength,
     bool isValidationSet
@@ -153,6 +156,7 @@ double CBernoulli::Deviance
 
 void CBernoulli::FitBestConstant
 (
+  const CDataset* pData,
   const double *adF,
   double *adZ,
   const std::vector<unsigned long>& aiNodeAssign,
@@ -223,6 +227,7 @@ void CBernoulli::FitBestConstant
 
 double CBernoulli::BagImprovement
 (
+	const CDataset* pData,
     const double *adF,
     const double *adFadj,
     const bag& afInBag,

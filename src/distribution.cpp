@@ -3,10 +3,9 @@
 #include "distribution.h"
 
 
-CDistribution::CDistribution(SEXP radMisc, const CDataset& data)
+CDistribution::CDistribution(SEXP radMisc)
   : adMisc(radMisc), distHasMisc(GBM_FUNC::has_value(adMisc))
 {
-	pData = &data;
 }
 
 CDistribution::~CDistribution()
@@ -41,11 +40,6 @@ const double* CDistribution::misc_ptr(bool require) const
 double* CDistribution::misc_ptr(bool require)
 {
  return const_cast<double*>(static_cast<const CDistribution*>(this)->misc_ptr(require));
-}
-
-const CDataset* CDistribution::data_ptr() const
-{
-	return pData;
 }
 
 

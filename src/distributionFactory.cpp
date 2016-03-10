@@ -98,7 +98,6 @@ void DistributionFactory::RegisterDist(const string& DistFamily, distCreate PtrD
 
 CDistribution* DistributionFactory::CreateDist(const string& DistFamily,
 															 SEXP radMisc,
-															 const CDataset& data,
 															 const char* szIRMeasure,
 															 int& cGroups,
 															 int& cTrain)
@@ -106,7 +105,7 @@ CDistribution* DistributionFactory::CreateDist(const string& DistFamily,
   std::map<std::string, distCreate>::iterator it = FactoryMap.find(DistFamily);
 	if( it != FactoryMap.end() )
 	{
-		return it -> second(radMisc, data, szIRMeasure, cGroups, cTrain);
+		return it -> second(radMisc, szIRMeasure, cGroups, cTrain);
 	}
 	else
 	{

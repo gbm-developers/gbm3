@@ -15,18 +15,18 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CLaplace::CLaplace(SEXP radMisc, const CDataset& data): CDistribution(radMisc, data), mpLocM("Other")
+CLaplace::CLaplace(SEXP radMisc): CDistribution(radMisc), mpLocM("Other")
 {
 }
 
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CLaplace::Create(SEXP radMisc, const CDataset& data,
+CDistribution* CLaplace::Create(SEXP radMisc,
 										const char* szIRMeasure,
 										int& cGroups, int& cTrain)
 {
-	return new CLaplace(radMisc, data);
+	return new CLaplace(radMisc);
 }
 
 CLaplace::~CLaplace()
@@ -36,6 +36,7 @@ CLaplace::~CLaplace()
 
 void CLaplace::ComputeWorkingResponse
 (
+ const CDataset* pData,
  const double *adF,
  double *adZ,
  const bag& afInBag,
@@ -64,6 +65,7 @@ void CLaplace::ComputeWorkingResponse
 
 void CLaplace::InitF
 (
+	const CDataset* pData,
     double &dInitF,
     unsigned long cLength
 )
@@ -86,6 +88,7 @@ void CLaplace::InitF
 
 double CLaplace::Deviance
 (
+	const CDataset* pData,
     const double *adF,
     unsigned long cLength,
     bool isValidationSet
@@ -129,6 +132,7 @@ double CLaplace::Deviance
 // DEBUG: needs weighted median
 void CLaplace::FitBestConstant
 (
+ const CDataset* pData,
  const double *adF,
  double *adZ,
  const std::vector<unsigned long>& aiNodeAssign,
@@ -177,6 +181,7 @@ void CLaplace::FitBestConstant
 
 double CLaplace::BagImprovement
 (
+	const CDataset* pData,
     const double *adF,
     const double *adFadj,
     const bag& afInBag,

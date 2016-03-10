@@ -15,18 +15,18 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CAdaBoost::CAdaBoost(SEXP radMisc, const CDataset& data): CDistribution(radMisc, data)
+CAdaBoost::CAdaBoost(SEXP radMisc): CDistribution(radMisc)
 {
 }
 
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CAdaBoost::Create(SEXP radMisc, const CDataset& data,
+CDistribution* CAdaBoost::Create(SEXP radMisc,
 		const char* szIRMeasure,
 		int& cGroups, int& cTrain)
 {
- 	return new CAdaBoost(radMisc, data);
+ 	return new CAdaBoost(radMisc);
 }
 
 CAdaBoost::~CAdaBoost()
@@ -35,6 +35,7 @@ CAdaBoost::~CAdaBoost()
 
 void CAdaBoost::ComputeWorkingResponse
 (
+ const CDataset* pData,
  const double *adF,
  double *adZ,
  const bag& afInBag,
@@ -63,6 +64,7 @@ void CAdaBoost::ComputeWorkingResponse
 
 void CAdaBoost::InitF
 (
+ const CDataset* pData,
  double &dInitF,
  unsigned long cLength
 )
@@ -108,6 +110,7 @@ void CAdaBoost::InitF
 
 double CAdaBoost::Deviance
 (
+	const CDataset* pData,
     const double *adF,
     unsigned long cLength,
     bool isValidationSet
@@ -121,12 +124,6 @@ double CAdaBoost::Deviance
     if(isValidationSet)
     {
     	pData->shift_to_validation();
-    }
-    else
-    {
-    	const double* adY = pData->y_ptr();
-    	const double* adW = pData->weight_ptr();
-    	const double* adOff = pData->offset_ptr(false);
     }
 
     if(pData->offset_ptr(false) == NULL)
@@ -158,6 +155,7 @@ double CAdaBoost::Deviance
 
 void CAdaBoost::FitBestConstant
 (
+	const CDataset* pData,
     const double *adF,
     double *adZ,
     const std::vector<unsigned long>& aiNodeAssign,
@@ -210,6 +208,7 @@ void CAdaBoost::FitBestConstant
 
 double CAdaBoost::BagImprovement
 (
+	const CDataset* pData,
     const double *adF,
     const double *adFadj,
     const bag& afInBag,

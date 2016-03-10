@@ -525,8 +525,8 @@ double CMAP::Measure(const double* const adY, const CRanker& ranker)
 }
 
 
-CPairwise::CPairwise(SEXP radMisc, const CDataset& data,
-					const char* szIRMeasure, int& cGroups, int& cTrain): CDistribution(radMisc, data)
+CPairwise::CPairwise(SEXP radMisc,
+					const char* szIRMeasure, int& cGroups, int& cTrain): CDistribution(radMisc)
 {
 
 	// Set up adGroup - this is not required
@@ -558,11 +558,11 @@ CPairwise::CPairwise(SEXP radMisc, const CDataset& data,
       }
 }
 
-CDistribution* CPairwise::Create(SEXP radMisc, const CDataset& data,
+CDistribution* CPairwise::Create(SEXP radMisc,
 										const char* szIRMeasure, int& cGroups, int& cTrain)
 {
 
-	return new CPairwise(radMisc, data, szIRMeasure, cGroups, cTrain);
+	return new CPairwise(radMisc, szIRMeasure, cGroups, cTrain);
 }
 
 CPairwise::~CPairwise()
@@ -590,6 +590,7 @@ inline const double* OffsetVector(const double* const adX, const double* const a
 
 void CPairwise::ComputeWorkingResponse
 (
+ const CDataset* pData,
  const double *adF,
  double *adZ,
  const bag& afInBag,
@@ -805,6 +806,7 @@ void CPairwise::ComputeLambdas(int iGroup, unsigned int cNumItems, const double*
 
 void CPairwise::Initialize
 (
+	const CDataset* pData
 )
 {
   if (pData->nrow() <= 0) return;
@@ -864,6 +866,7 @@ void CPairwise::Initialize
 
 void CPairwise::InitF
 (
+	const CDataset* pData,
     double &dInitF,
     unsigned long cLength
 )
@@ -874,6 +877,7 @@ void CPairwise::InitF
 
 double CPairwise::Deviance
 (
+   const CDataset* pData,
    const double *adF,
    unsigned long cLength,
    bool isValidationSet
@@ -941,6 +945,7 @@ double CPairwise::Deviance
 
 void CPairwise::FitBestConstant
 (
+	const CDataset* pData,
     const double *adF,
     double *adZ,
     const std::vector<unsigned long> &aiNodeAssign,
@@ -1008,6 +1013,7 @@ void CPairwise::FitBestConstant
 
 double CPairwise::BagImprovement
 (
+	const CDataset* pData,
     const double *adF,
     const double *adFadj,
     const bag& afInBag,

@@ -39,7 +39,7 @@ private:
 	//-------------------
 	// Private Variables
 	//-------------------
-	typedef CDistribution* (*distCreate)(SEXP, const CDataset&, const char*, int&, int&);
+	typedef CDistribution* (*distCreate)(SEXP, const char*, int&, int&);
 	std::map<std::string, distCreate> FactoryMap;
 
 public:
@@ -58,8 +58,7 @@ public:
 	}
 	void RegisterDist(const std::string& DistFamily, distCreate PtrDistCreateFn);
 	CDistribution* CreateDist(const std::string& DistFamily,
-					SEXP radMisc, const CDataset& data,
-					const char* szIRMeasure, int& cGroups, int& cTrain);
+					SEXP radMisc, const char* szIRMeasure, int& cGroups, int& cTrain);
 };
 
 #endif // __distributionFactory_h__

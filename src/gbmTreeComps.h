@@ -46,12 +46,12 @@ public:
     //---------------------
 	// Public Functions
 	//---------------------
-    void TreeInitialize(CDistribution* pDist, CNodeFactory* pNodeFact);
+    void TreeInitialize(const CDataset* pData, CNodeFactory* pNodeFact);
     void AssignTermNodes();
     void BagData(bool IsPairwise, CDistribution* pDist);
-    void GrowTrees(CDistribution* pDist, int& cNodes);
+    void GrowTrees(const CDataset* pData, int& cNodes);
     void AdjustAndShrink();
-    void PredictValid(CDistribution* pDist);
+    void PredictValid(const CDataset* pData);
     void TransferTreeToRList(const CDataset &pData,
 		     int *aiSplitVar,
 		     double *adSplitPoint,
