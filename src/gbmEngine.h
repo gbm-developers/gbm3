@@ -49,6 +49,7 @@ public:
             SEXP radWeight, SEXP racVarClasses,
             SEXP ralMonotoneVar, SEXP radMisc, const std::string& family,
     		const int cTrain, int& cGroups);
+
     void SetTreeContainer(double dLambda,
     	    unsigned long cTrain,
     	    unsigned long cFeatures,
@@ -62,7 +63,7 @@ public:
 		 double &dValidError,
 		 double &dOOBagImprove,
 		 int &cNodes);
-    
+
     void GBMTransferTreeToRList(int *aiSplitVar,
 			     double *adSplitPoint,
 			     int *aiLeftNode,
@@ -75,8 +76,6 @@ public:
 			     int cCatSplitsOld);
 
     void InitF(double &dInitF, unsigned long cLength);
-    void UpdateParams(const double *adF,
-            			      unsigned long cLength);
     bool IsPairwise() const { return (pTreeComp->GetNoGroups() >= 0); }
 
 private:

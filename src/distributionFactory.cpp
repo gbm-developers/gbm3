@@ -25,9 +25,9 @@
 #include "tweedie.h"
 #include <stdexcept>
 
-//-----------------------------------
-// Function Members - Private
-//-----------------------------------
+//----------------------------------------
+// Function Members - Public
+//----------------------------------------
 
 //-----------------------------------
 // Function: DistributionFactory
@@ -55,10 +55,6 @@ DistributionFactory::DistributionFactory()
 	RegisterDist("tdist", &CTDist::Create);
 	RegisterDist("tweedie", &CTweedie::Create);
 }
-
-//----------------------------------------
-// Function Members - Public
-//----------------------------------------
 
 //----------------------------------------
 // Function: RegisterDist

@@ -66,9 +66,6 @@ public:
     //---------------------
     virtual void Initialize(const CDataset* pData) { };
 
-    virtual void UpdateParams(const CDataset* pData, const double *adF,
-    			      unsigned long cLength) { };
-
     virtual void ComputeWorkingResponse(const CDataset* pData,
     								const double *adF,
 									double *adZ,

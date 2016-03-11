@@ -83,7 +83,7 @@ CTreeComps::~CTreeComps()
 //
 // Description: initializes the tree components
 //
-// Parameters: CDistribution* - ptr to the distribution object in GBM
+// Parameters: const CDataset* - ptr to the data object in GBM
 //    CNodeFactory* - ptr to the tree node factory
 //
 //-----------------------------------
@@ -224,7 +224,7 @@ void CTreeComps::BagData(bool IsPairwise, CDistribution* pDist)
 //
 // Description: grows the tree
 //
-// Parameters: CDistribution ptr - pointer to the distribution + data
+// Parameters: const CDataset ptr - pointer to the gbm data
 //    int& - reference to  number of nodes in tree
 //
 //-----------------------------------
@@ -329,7 +329,7 @@ void CTreeComps::TransferTreeToRList(const CDataset &pData,
 //
 // Description: makes predictions on validation set
 //
-// Parameters: CDistribution ptr - ptr to data + dist
+// Parameters: const CDataset ptr - ptr to gbm data
 //
 //-----------------------------------
 void CTreeComps::PredictValid(const CDataset* pData)

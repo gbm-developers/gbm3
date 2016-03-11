@@ -154,9 +154,3 @@ void CGBM::InitF(double &dInitF, unsigned long cLength)
 {
 	pDataCont->InitializeFunctionEstimate(dInitF, cLength);
 }
-
-void CGBM::UpdateParams(const double *adF,
-        			      unsigned long cLength)
-{
-	pDataCont->UpdateParams(adF, cLength);
-}

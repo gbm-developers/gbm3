@@ -21,7 +21,7 @@
 //
 // Description: Default constructor for gbm data container.
 //
-// Parameters: none
+// Parameters: ...
 //-----------------------------------
 CGBMDataContainer::CGBMDataContainer(SEXP radY, SEXP radOffset, SEXP radX, SEXP raiXOrder,
         SEXP radWeight, SEXP racVarClasses,
@@ -32,7 +32,7 @@ CGBMDataContainer::CGBMDataContainer(SEXP radY, SEXP radOffset, SEXP radX, SEXP 
 	cGroups = -1;
 
 	//Initialize the factory and then use to get the disribution
-	DistFactory = DistributionFactory::Get();
+	DistFactory = new DistributionFactory();
 
 	// Checks for pairwise distribution
 	// this should be removed later.
@@ -66,6 +66,7 @@ CGBMDataContainer::CGBMDataContainer(SEXP radY, SEXP radOffset, SEXP radX, SEXP 
 CGBMDataContainer::~CGBMDataContainer()
 {
 	delete pDist;
+	delete DistFactory;
 }
 
 //-----------------------------------
@@ -82,6 +83,17 @@ void CGBMDataContainer::Initialize()
 	pDist->Initialize(&data);
 }
 
+//-----------------------------------
+// Function: InitializeFunctionEstimate
+//
+// Returns: none
+//
+// Description: Initialize the function fit.
+//
+// Parameters: double& - reference to the initial function estimate (a constant)
+//    unsigned long - the number of predictors the fit must provide response estimates for
+//
+//-----------------------------------
 void CGBMDataContainer::InitializeFunctionEstimate(double& dInitF, unsigned long cLength)
 {
 	pDist->InitF(&data, dInitF, cLength);
@@ -92,9 +104,11 @@ void CGBMDataContainer::InitializeFunctionEstimate(double& dInitF, unsigned long
 //
 // Returns: none
 //
-// Description: Set up the distribution
+// Description: Compute the residuals associated with the distributions loss function.
 //
-// Parameters: none
+// Parameters: const double ptr - ptr to the function estimates for each predictor
+//    CTreeComps ptr - ptr to the tree components container in the gbm.
+//
 //-----------------------------------
 void CGBMDataContainer::ComputeResiduals(const double* adF, CTreeComps* pTreeComp)
 {
@@ -104,6 +118,17 @@ void CGBMDataContainer::ComputeResiduals(const double* adF, CTreeComps* pTreeCom
 	                                pTreeComp->GetTrainNo());
 }
 
+//-----------------------------------
+// Function: ComputeBestTermNodePreds
+//
+// Returns: none
+//
+// Description: Fit the best constants (predictions) to the terminal nodes.
+//
+// Parameters: const double ptr - ptr to function estimates for each predictor
+//    CTreeComps ptr - ptr to the tree components container in the gbm
+//    int& - reference to the number of nodes in the tree.
+//-----------------------------------
 void CGBMDataContainer::ComputeBestTermNodePreds(const double* adF, CTreeComps* pTreeComp, int& cNodes)
 {
 	pDist->FitBestConstant(&data, &adF[0],
@@ -117,7 +142,18 @@ void CGBMDataContainer::ComputeBestTermNodePreds(const double* adF, CTreeComps* 
 	                         pTreeComp->GetRespAdj());
 }
 
-
+//-----------------------------------
+// Function: ComputeDeviance
+//
+// Returns: double
+//
+// Description: Compute the deviance (error) of the fit on training/validation data.
+//
+// Parameters: const double ptr - ptr to function estimates for each predictor
+//    CTreeComps ptr - ptr to the tree components container in the gbm
+//    bool - bool which indicates whether it is the training or validation data used.
+//
+//-----------------------------------
 double CGBMDataContainer::ComputeDeviance(const double* adF, CTreeComps* pTreeComp, bool isValidationSet)
 {
 	if(!(isValidationSet))
@@ -130,7 +166,17 @@ double CGBMDataContainer::ComputeDeviance(const double* adF, CTreeComps* pTreeCo
 	}
 }
 
-
+//-----------------------------------
+// Function: ComputeBagImprovement
+//
+// Returns: double
+//
+// Description: Compute the improvement from combining decision trees
+//
+// Parameters: const double ptr - ptr to function estimates for each predictor
+//    CTreeComps ptr - ptr to the tree components container in the gbm
+//
+//-----------------------------------
 double CGBMDataContainer::ComputeBagImprovement(const double* adF, CTreeComps* pTreeComp)
 {
 	return pDist->BagImprovement(&data, &adF[0],
@@ -140,16 +186,29 @@ double CGBMDataContainer::ComputeBagImprovement(const double* adF, CTreeComps* p
             pTreeComp->GetTrainNo());
 }
 
-void CGBMDataContainer::UpdateParams(const double* adF, unsigned long cLength)
-{
-	pDist->UpdateParams(&data, adF, cLength);
-}
-
+//-----------------------------------
+// Function: getDist
+//
+// Returns: CDistribution ptr
+//
+// Description: Get pointer to the distribution in use.
+//
+// Parameters: none
+//-----------------------------------
 CDistribution* CGBMDataContainer::getDist()
 {
 	return pDist;
 }
 
+//-----------------------------------
+// Function: getData
+//
+// Returns: const Dataset ptr
+//
+// Description: Get const pointer to dataset.
+//
+// Parameters: none
+//-----------------------------------
 const CDataset* CGBMDataContainer::getData()
 {
 	return &data;

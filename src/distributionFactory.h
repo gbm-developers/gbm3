@@ -3,7 +3,7 @@
 // File: distributionFactory.h
 //
 // Description: factory class for distribution.h classes.
-//   Implemented in a singleton pattern fashion.
+//   The gbmDataContainer class is responsible for this.
 //
 //------------------------------
 
@@ -28,7 +28,6 @@ private:
 	//----------------------
 	// Private Constructors
 	//----------------------
-	DistributionFactory();
 	DistributionFactory(const DistributionFactory&);
 
 	//----------------------
@@ -44,6 +43,11 @@ private:
 
 public:
 	//---------------------
+    // Public Constructor
+	//---------------------
+	DistributionFactory();
+
+	//---------------------
 	// Public destructor
 	//---------------------
 	~DistributionFactory(){};
@@ -51,11 +55,6 @@ public:
 	//---------------------
 	// Public Functions
 	//---------------------
-	static DistributionFactory* Get()
-	{
-		static DistributionFactory Instance;
-		return &Instance;
-	}
 	void RegisterDist(const std::string& DistFamily, distCreate PtrDistCreateFn);
 	CDistribution* CreateDist(const std::string& DistFamily,
 					SEXP radMisc, const char* szIRMeasure, int& cGroups, int& cTrain);

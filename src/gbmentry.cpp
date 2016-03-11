@@ -114,10 +114,7 @@ SEXP gbm
     for(iT=0; iT<cTrees; iT++)
     {
     	Rcpp::checkUserInterrupt();
-        // Update the parameters
-        GBM.UpdateParams(adF.begin(), cTrain);
 
-        
         double dTrainError = 0;
         double dValidError = 0;
         double dOOBagImprove = 0;
