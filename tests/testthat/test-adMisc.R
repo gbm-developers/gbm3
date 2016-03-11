@@ -5,7 +5,7 @@
 # Help identify if the refactoring is changing the higher level behaviour.
 #
 ##############
-
+context("Testing adMisc:")
 test_that("The misc parameter does not impact gbm fitting with - Adaboost distribution", {
   # create some data
   set.seed(1)
