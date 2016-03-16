@@ -15,8 +15,8 @@
 #include "buildinfo.h"
 #include "distribution.h"
 #include "tree.h"
+#include "searcher.h"
 #include "dataset.h"
-#include "node_factory.h"
 #include <vector>
 #include <memory>
 
@@ -46,7 +46,7 @@ public:
     //---------------------
 	// Public Functions
 	//---------------------
-    void TreeInitialize(const CDataset* pData, CNodeFactory* pNodeFact);
+    void TreeInitialize(const CDataset* pData);
     void AssignTermNodes();
     void BagData(bool IsPairwise, CDistribution* pDist);
     void GrowTrees(const CDataset* pData, int& cNodes);
@@ -93,6 +93,8 @@ private:
     std::vector<unsigned long> aiNodeAssign;
     std::vector<CNodeSearch> aNodeSearch;
     std::auto_ptr<CCARTTree> ptreeTemp;
+    CSearcher splitSearcher;
+
     VEC_P_NODETERMINAL vecpTermNodes;
     std::vector<double> adZ;
     std::vector<double> adFadj;

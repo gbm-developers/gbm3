@@ -1,8 +1,6 @@
 //  GBM by Greg Ridgeway  Copyright (C) 2003
 
 #include "node_categorical.h"
-#include "node_factory.h"
-
 
 CNodeCategorical::~CNodeCategorical()
 {
@@ -110,15 +108,6 @@ signed char CNodeCategorical::WhichNode
     return ReturnValue;
 }
 
-
-
-
-void CNodeCategorical::RecycleSelf(CNodeFactory *pNodeFactory) {
-  pNodeFactory->RecycleNode(this);
-}
-
-
-
 void CNodeCategorical::TransferTreeToRList
 (
  int &iNodeID,
@@ -136,71 +125,86 @@ void CNodeCategorical::TransferTreeToRList
  double dShrinkage
 )
 {
-  
-  int iThisNodeID = iNodeID;
-  unsigned long cCatSplits = vecSplitCodes.size();
-  unsigned long i = 0;
-  int cLevels = data.varclass(iSplitVar);
-  const std::size_t cLeftCategory = aiLeftCategory.size();
-  
-  aiSplitVar[iThisNodeID] = iSplitVar;
-  adSplitPoint[iThisNodeID] = cCatSplits+cCatSplitsOld; // 0 based
-  adErrorReduction[iThisNodeID] = dImprovement;
-  adWeight[iThisNodeID] = dTrainW;
-  adPred[iThisNodeID] = dShrinkage*dPrediction;
-  
-  vecSplitCodes.push_back(VEC_CATEGORIES());
-  
-  vecSplitCodes[cCatSplits].resize(cLevels,1);
-  for(i=0; i<cLeftCategory; i++)
-    {
-      vecSplitCodes[cCatSplits][aiLeftCategory[i]] = -1;
-    }
+  if(isTerminal)
+  {
+	  aiSplitVar[iNodeID] = -1;
+	  adSplitPoint[iNodeID] = dShrinkage*dPrediction;
+	  aiLeftNode[iNodeID] = -1;
+	  aiRightNode[iNodeID] = -1;
+	  aiMissingNode[iNodeID] = -1;
+	  adErrorReduction[iNodeID] = 0.0;
+	  adWeight[iNodeID] = dTrainW;
+	  adPred[iNodeID] = dShrinkage*dPrediction;
 
-  iNodeID++;
-  aiLeftNode[iThisNodeID] = iNodeID;
-  pLeftNode->TransferTreeToRList(iNodeID,
-				 data,
-				 aiSplitVar,
-				 adSplitPoint,
-				 aiLeftNode,
-				 aiRightNode,
-				 aiMissingNode,
-				 adErrorReduction,
-				 adWeight,
-				 adPred,
-				 vecSplitCodes,
-				 cCatSplitsOld,
-				 dShrinkage);
-  aiRightNode[iThisNodeID] = iNodeID;
-  pRightNode->TransferTreeToRList(iNodeID,
-				  data,
-				  aiSplitVar,
-				  adSplitPoint,
-				  aiLeftNode,
-				  aiRightNode,
-				  aiMissingNode,
-				  adErrorReduction,
-				  adWeight,
-				  adPred,
-				  vecSplitCodes,
-				  cCatSplitsOld,
-				  dShrinkage);
-  
-  aiMissingNode[iThisNodeID] = iNodeID;
-  pMissingNode->TransferTreeToRList(iNodeID,
-				    data,
-				    aiSplitVar,
-				    adSplitPoint,
-				    aiLeftNode,
-				    aiRightNode,
-				    aiMissingNode,
-				    adErrorReduction,
-				    adWeight,
-				    adPred,
-				    vecSplitCodes,
-				    cCatSplitsOld,
-				    dShrinkage);
+	  iNodeID++;
+  }
+  else
+  {
+	  int iThisNodeID = iNodeID;
+	    unsigned long cCatSplits = vecSplitCodes.size();
+	    unsigned long i = 0;
+	    int cLevels = data.varclass(iSplitVar);
+	    const std::size_t cLeftCategory = aiLeftCategory.size();
+
+	    aiSplitVar[iThisNodeID] = iSplitVar;
+	    adSplitPoint[iThisNodeID] = cCatSplits+cCatSplitsOld; // 0 based
+	    adErrorReduction[iThisNodeID] = dImprovement;
+	    adWeight[iThisNodeID] = dTrainW;
+	    adPred[iThisNodeID] = dShrinkage*dPrediction;
+
+	    vecSplitCodes.push_back(VEC_CATEGORIES());
+
+	    vecSplitCodes[cCatSplits].resize(cLevels,1);
+	    for(i=0; i<cLeftCategory; i++)
+	      {
+	        vecSplitCodes[cCatSplits][aiLeftCategory[i]] = -1;
+	      }
+
+	    iNodeID++;
+	    aiLeftNode[iThisNodeID] = iNodeID;
+	    pLeftNode->TransferTreeToRList(iNodeID,
+	  				 data,
+	  				 aiSplitVar,
+	  				 adSplitPoint,
+	  				 aiLeftNode,
+	  				 aiRightNode,
+	  				 aiMissingNode,
+	  				 adErrorReduction,
+	  				 adWeight,
+	  				 adPred,
+	  				 vecSplitCodes,
+	  				 cCatSplitsOld,
+	  				 dShrinkage);
+	    aiRightNode[iThisNodeID] = iNodeID;
+	    pRightNode->TransferTreeToRList(iNodeID,
+	  				  data,
+	  				  aiSplitVar,
+	  				  adSplitPoint,
+	  				  aiLeftNode,
+	  				  aiRightNode,
+	  				  aiMissingNode,
+	  				  adErrorReduction,
+	  				  adWeight,
+	  				  adPred,
+	  				  vecSplitCodes,
+	  				  cCatSplitsOld,
+	  				  dShrinkage);
+
+	    aiMissingNode[iThisNodeID] = iNodeID;
+	    pMissingNode->TransferTreeToRList(iNodeID,
+	  				    data,
+	  				    aiSplitVar,
+	  				    adSplitPoint,
+	  				    aiLeftNode,
+	  				    aiRightNode,
+	  				    aiMissingNode,
+	  				    adErrorReduction,
+	  				    adWeight,
+	  				    adPred,
+	  				    vecSplitCodes,
+	  				    cCatSplitsOld,
+	  				    dShrinkage);
+  }
 }
 
 

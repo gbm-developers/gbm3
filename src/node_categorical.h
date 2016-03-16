@@ -11,25 +11,41 @@
 //
 //  History:    3/26/2001   gregr created
 //              2/14/2003   gregr: adapted for R implementation
+//			   16/03/2016  James Hickey: updated to incorporate terminal properties
 //
 //------------------------------------------------------------------------------
 
-#ifndef NODECATEGORICAL_H
-#define NODECATEGORICAL_H
-
+#ifndef __nodeCategorical_h__
+#define __nodeCategorical_h__
+//------------------------------
+// Includes
+//------------------------------
 #include <float.h>
 #include <algorithm>
-#include "node_nonterminal.h"
+#include "node.h"
 
-class CNodeCategorical : public CNodeNonterminal
+//------------------------------
+// Class definition
+//------------------------------
+class CNodeCategorical : public CNode
 {
 public:
 
- CNodeCategorical() : aiLeftCategory() {};
-  ~CNodeCategorical();
+	//----------------------
+	// Public Constructors
+	//----------------------
+	CNodeCategorical() : aiLeftCategory() {};
 
-  void PrintSubtree(unsigned long cIndent);
-  void TransferTreeToRList(int &iNodeID,
+	//---------------------
+	// Public destructor
+	//---------------------
+	~CNodeCategorical();
+
+	//---------------------
+	// Public Functions
+	//---------------------
+	void PrintSubtree(unsigned long cIndent);
+	void TransferTreeToRList(int &iNodeID,
 			   const CDataset &data,
 			   int *aiSplitVar,
 			   double *adSplitPoint,
@@ -43,26 +59,22 @@ public:
 			   int cCatSplitsOld,
 			   double dShrinkage);
 
-  signed char WhichNode(const CDataset &data,
+	signed char WhichNode(const CDataset &data,
 			unsigned long iObs);
-  signed char WhichNode(double *adX,
+	signed char WhichNode(double *adX,
 			unsigned long cRow,
 			unsigned long cCol,
 			unsigned long iRow);
-
-  void RecycleSelf(CNodeFactory *pNodeFactory);
-
-  void reset() {
-    CNodeNonterminal::reset();
-    aiLeftCategory.resize(0);
-  }
+	void reset()
+	{
+		CNode::reset();
+		aiLeftCategory.resize(0);
+	}
 
   std::vector<unsigned long> aiLeftCategory;
 };
 
-typedef CNodeCategorical *PCNodeCategorical;
-
-#endif // NODECATEGORICAL_H
+#endif // __nodeCategorical_h__
 
 
 

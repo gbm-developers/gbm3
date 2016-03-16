@@ -77,8 +77,8 @@ private:
 	//-------------------
 	// Private Variables
 	//-------------------
-    vector<double> vecdNum;
-    vector<double> vecdDen;
+   vector<double> vecdNum;
+   vector<double> vecdDen;
 };
 
 #endif // __adaboost_h__

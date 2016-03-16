@@ -18,9 +18,10 @@
 #define NODESEARCH_H
 
 #include <vector>
-
-#include "node_factory.h"
 #include "dataset.h"
+#include "node.h"
+#include "node_continuous.h"
+#include "node_categorical.h"
 
 using namespace std;
 
@@ -40,21 +41,52 @@ public:
     void Set(double dSumZ,
 	     double dTotalW,
 	     unsigned long cTotalN,
-	     CNodeTerminal *pThisNode,
-	     CNode **ppParentPointerToThisNode,
-	     CNodeFactory *pNodeFactory);
+	     CNode* pThisNode,
+	     CNode **ppParentPointerToThisNode);
     void ResetForNewVar(unsigned long iWhichVar,
 			long cVarClasses);
     
+    static double Improvement
+        (
+            double dLeftW,
+            double dRightW,
+            double dMissingW,
+            double dLeftSum,
+            double dRightSum,
+            double dMissingSum
+        )
+        {
+            double dTemp = 0.0;
+            double dResult = 0.0;
+
+            if(dMissingW == 0.0)
+            {
+                dTemp = dLeftSum/dLeftW - dRightSum/dRightW;
+                dResult = dLeftW*dRightW*dTemp*dTemp/(dLeftW+dRightW);
+            }
+            else
+            {
+                dTemp = dLeftSum/dLeftW - dRightSum/dRightW;
+                dResult += dLeftW*dRightW*dTemp*dTemp;
+                dTemp = dLeftSum/dLeftW - dMissingSum/dMissingW;
+                dResult += dLeftW*dMissingW*dTemp*dTemp;
+                dTemp = dRightSum/dRightW - dMissingSum/dMissingW;
+                dResult += dRightW*dMissingW*dTemp*dTemp;
+                dResult /= (dLeftW + dRightW + dMissingW);
+            }
+
+            return dResult;
+        }
+
     double BestImprovement() { return dBestImprovement; }
     void SetToSplit()
     {
         fIsSplit = true;
     };
-    void SetupNewNodes(PCNodeNonterminal &pNewSplitNode,
-		       PCNodeTerminal &pNewLeftNode,
-		       PCNodeTerminal &pNewRightNode,
-		       PCNodeTerminal &pNewMissingNode);
+    void SetupNewNodes(CNode* &pNewSplitNode,
+		       CNode* &pNewLeftNode,
+		       CNode* &pNewRightNode,
+		       CNode* &pNewMissingNode);
 
     void EvaluateCategoricalSplit();
     void WrapUpCurrentVariable();
@@ -82,7 +114,6 @@ public:
 
     long cCurrentVarClasses;
 
-    unsigned long iRank;
     double dInitTotalW;
     double dInitSumZ;
     unsigned long cInitN;
@@ -116,11 +147,8 @@ private:
     std::vector<int> aiCurrentCategory;
     std::vector<unsigned long> aiBestCategory;
 
-    CNodeTerminal *pThisNode;
+    CNode* pThisNode;
     CNode **ppParentPointerToThisNode;
-    CNodeFactory *pNodeFactory;
 };
-
-typedef CNodeSearch *PCNodeSearch;
 
 #endif // NODESEARCH_H

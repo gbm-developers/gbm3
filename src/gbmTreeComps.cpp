@@ -84,10 +84,9 @@ CTreeComps::~CTreeComps()
 // Description: initializes the tree components
 //
 // Parameters: const CDataset* - ptr to the data object in GBM
-//    CNodeFactory* - ptr to the tree node factory
 //
 //-----------------------------------
-void CTreeComps::TreeInitialize(const CDataset* pData, CNodeFactory* pNodeFact)
+void CTreeComps::TreeInitialize(const CDataset* pData)
 {
 	cValid = pData->nrow() - cTrain;
 	if (pData->nrow() < int(cTrain))
@@ -98,7 +97,7 @@ void CTreeComps::TreeInitialize(const CDataset* pData, CNodeFactory* pNodeFact)
 	adZ.assign(pData->nrow(), 0);
 	adFadj.assign(pData->nrow(), 0);
 
-	ptreeTemp->Initialize(pNodeFact);
+	ptreeTemp->Initialize();
 
 	// array for flagging those observations in the bag
 	afInBag.resize(cTrain);

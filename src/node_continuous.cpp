@@ -1,7 +1,7 @@
 //  GBM by Greg Ridgeway  Copyright (C) 2003
 
 #include "node_continuous.h"
-#include "node_factory.h"
+
 
 CNodeContinuous::CNodeContinuous()
 {
@@ -104,19 +104,6 @@ signed char CNodeContinuous::WhichNode
     return ReturnValue;
 }
 
-
-
-void CNodeContinuous::RecycleSelf
-(
- CNodeFactory *pNodeFactory
-)
-{
-  pNodeFactory->RecycleNode(this);
-    
-};
-
-
-
 void CNodeContinuous::TransferTreeToRList
 (
     int &iNodeID,
@@ -134,60 +121,76 @@ void CNodeContinuous::TransferTreeToRList
     double dShrinkage
 )
 {
-  int iThisNodeID = iNodeID;
-  
-  aiSplitVar[iThisNodeID] = iSplitVar;
-  adSplitPoint[iThisNodeID] = dSplitValue;
-  adErrorReduction[iThisNodeID] = dImprovement;
-  adWeight[iThisNodeID] = dTrainW;
-  adPred[iThisNodeID] = dShrinkage*dPrediction;
-  
-  
-  iNodeID++;
-  aiLeftNode[iThisNodeID] = iNodeID;
-  pLeftNode->TransferTreeToRList(iNodeID,
-				 data,
-				 aiSplitVar,
-				 adSplitPoint,
-				 aiLeftNode,
-				 aiRightNode,
-				 aiMissingNode,
-				 adErrorReduction,
-				 adWeight,
-				 adPred,
-				 vecSplitCodes,
-				 cCatSplitsOld,
-				 dShrinkage);
+	if(isTerminal)
+	{
+		aiSplitVar[iNodeID] = -1;
+		adSplitPoint[iNodeID] = dShrinkage*dPrediction;
+		aiLeftNode[iNodeID] = -1;
+		aiRightNode[iNodeID] = -1;
+		aiMissingNode[iNodeID] = -1;
+		adErrorReduction[iNodeID] = 0.0;
+		adWeight[iNodeID] = dTrainW;
+		adPred[iNodeID] = dShrinkage*dPrediction;
 
-  aiRightNode[iThisNodeID] = iNodeID;
-  pRightNode->TransferTreeToRList(iNodeID,
-				  data,
-				  aiSplitVar,
-				  adSplitPoint,
-				  aiLeftNode,
-				  aiRightNode,
-				  aiMissingNode,
-				  adErrorReduction,
-				  adWeight,
-				  adPred,
-				  vecSplitCodes,
-				  cCatSplitsOld,
-				  dShrinkage);
+		iNodeID++;
+	}
+	else
+	{
+		int iThisNodeID = iNodeID;
+		aiSplitVar[iThisNodeID] = iSplitVar;
+		adSplitPoint[iThisNodeID] = dSplitValue;
+		adErrorReduction[iThisNodeID] = dImprovement;
+		adWeight[iThisNodeID] = dTrainW;
+		adPred[iThisNodeID] = dShrinkage*dPrediction;
 
-  aiMissingNode[iThisNodeID] = iNodeID;
-  pMissingNode->TransferTreeToRList(iNodeID,
-				    data,
-				    aiSplitVar,
-				    adSplitPoint,
-				    aiLeftNode,
-				    aiRightNode,
-				    aiMissingNode,
-				    adErrorReduction,
-				    adWeight,
-				    adPred,
-				    vecSplitCodes,
-				    cCatSplitsOld,
-				    dShrinkage);
+
+		iNodeID++;
+		aiLeftNode[iThisNodeID] = iNodeID;
+		pLeftNode->TransferTreeToRList(iNodeID,
+					 data,
+					 aiSplitVar,
+					 adSplitPoint,
+					 aiLeftNode,
+					 aiRightNode,
+					 aiMissingNode,
+					 adErrorReduction,
+					 adWeight,
+					 adPred,
+					 vecSplitCodes,
+					 cCatSplitsOld,
+					 dShrinkage);
+
+		aiRightNode[iThisNodeID] = iNodeID;
+		pRightNode->TransferTreeToRList(iNodeID,
+					  data,
+					  aiSplitVar,
+					  adSplitPoint,
+					  aiLeftNode,
+					  aiRightNode,
+					  aiMissingNode,
+					  adErrorReduction,
+					  adWeight,
+					  adPred,
+					  vecSplitCodes,
+					  cCatSplitsOld,
+					  dShrinkage);
+
+		aiMissingNode[iThisNodeID] = iNodeID;
+		pMissingNode->TransferTreeToRList(iNodeID,
+						data,
+						aiSplitVar,
+						adSplitPoint,
+						aiLeftNode,
+						aiRightNode,
+						aiMissingNode,
+						adErrorReduction,
+						adWeight,
+						adPred,
+						vecSplitCodes,
+						cCatSplitsOld,
+						dShrinkage);
+	}
+  
 }
 
 

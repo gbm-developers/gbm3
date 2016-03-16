@@ -19,11 +19,13 @@
 //------------------------------
 // Includes
 //------------------------------
-#include "node_terminal.h"
+#include "node.h"
+#include "node_continuous.h"
 #include "dataset.h"
 #include <vector>
 #include <Rcpp.h>
 
+typedef vector<CNode*> VEC_P_NODETERMINAL;
 //------------------------------
 // Class definition
 //------------------------------
@@ -97,6 +99,9 @@ public:
 								  unsigned long cLength) = 0;
 
 private:
+    //---------------------
+    // Private Variables
+    //---------------------
     Rcpp::NumericVector adMisc;
     bool distHasMisc;
     bool distRequiresMisc;

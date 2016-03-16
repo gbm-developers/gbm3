@@ -13,7 +13,6 @@ CGBM::CGBM()
     // Containers
     pDataCont = NULL;
     pTreeComp = NULL;
-    pNodeFactory = new CNodeFactory();
 }
 
 
@@ -21,7 +20,6 @@ CGBM::~CGBM()
 {
 	delete pDataCont;
 	delete pTreeComp;
-	delete pNodeFactory;
 }
 
 void CGBM::SetDataAndDistribution(SEXP radY, SEXP radOffset, SEXP radX, SEXP raiXOrder,
@@ -56,9 +54,8 @@ void CGBM::Initialize()
 		throw GBM::failure("GBM object could not be built - missing: "
 				"data or distribution or weak learner");
 	}
-	pNodeFactory->NodeFactoryInitialize(pTreeComp->GetDepth());
 	pDataCont-> Initialize();
-	pTreeComp -> TreeInitialize(pDataCont->getData(), pNodeFactory);
+	pTreeComp -> TreeInitialize(pDataCont->getData());
 	fInitialized = true;
 }
 

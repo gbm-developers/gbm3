@@ -6,6 +6,8 @@
 src/*.o
 src/external
 src/tests
+src/searcher.h
+src/searcher.cpp
 
 .Rproj.user
 .travis.yml

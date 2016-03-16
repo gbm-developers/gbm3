@@ -11,22 +11,38 @@
 //
 //  History:    3/26/2001   gregr created
 //              2/14/2003   gregr: adapted for R implementation
+//			   16/03/2016  James Hickey: updated to incorporate terminal properties
 //
 //------------------------------------------------------------------------------
 
-#ifndef NODECONTINUOUS_H
-#define NODECONTINUOUS_H
-
+#ifndef __nodeContinuous_h__
+#define __nodeContinuous_h__
+//------------------------------
+// Includes
+//------------------------------
 #include <float.h>
-#include "node_nonterminal.h"
+#include "node.h"
 
-class CNodeContinuous : public CNodeNonterminal
+
+//------------------------------
+// Class definition
+//------------------------------
+class CNodeContinuous : public CNode
 {
 public:
-
+	//----------------------
+	// Public Constructors
+	//----------------------
     CNodeContinuous();
+
+	//---------------------
+	// Public destructor
+	//---------------------
     ~CNodeContinuous();
 
+	//---------------------
+	// Public Functions
+	//---------------------
     void PrintSubtree(unsigned long cIndent);
     void TransferTreeToRList(int &iNodeID,
 			     const CDataset &data,
@@ -48,15 +64,10 @@ public:
                           unsigned long cRow,
                           unsigned long cCol,
                           unsigned long iRow);
-
-    void RecycleSelf(CNodeFactory *pNodeFactory);
-
     double dSplitValue;
 };
 
-typedef CNodeContinuous *PCNodeContinuous;
-
-#endif // NODECONTINUOUS_H
+#endif // __nodeContinuous_h__
 
 
 

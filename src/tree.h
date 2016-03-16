@@ -22,7 +22,7 @@
 #include <algorithm>
 #include <vector>
 #include "dataset.h"
-#include "node_factory.h"
+#include "distribution.h"
 #include "node_search.h"
 #include <ctime>
 
@@ -34,7 +34,7 @@ public:
     CCARTTree();
     ~CCARTTree();
 
-    void Initialize(CNodeFactory *pNodeFactory);
+    void Initialize();
     void grow(double *adZ,
 	      const CDataset &pData,
 	      const double *adAlgW,
@@ -122,16 +122,12 @@ private:
     double dTotalW;
     signed char schWhichNode;
 
-    CNodeFactory *pNodeFactory;
-    CNodeNonterminal *pNewSplitNode;
-    CNodeTerminal *pNewLeftNode;
-    CNodeTerminal *pNewRightNode;
-    CNodeTerminal *pNewMissingNode;
-    CNodeTerminal *pInitialRootNode;
+    CNode* pNewSplitNode;
+    CNode* pNewLeftNode;
+    CNode* pNewRightNode;
+    CNode* pNewMissingNode;
+    CNode* pInitialRootNode;
 };
-
-typedef CCARTTree *PCCARTTree;
-
 
 #endif // TREGBM_H
 

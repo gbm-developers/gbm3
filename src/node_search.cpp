@@ -24,8 +24,6 @@ CNodeSearch::CNodeSearch()
     adGroupMean.resize(1024);
     aiCurrentCategory.resize(1024);
     aiBestCategory.resize(1024);
-
-    iRank = UINT_MAX;
 }
 
 
@@ -70,8 +68,8 @@ void CNodeSearch::IncorporateObs
     {
         if(dLastXValue > dX)
         {
-	  throw GBM::failure("Observations are not in order. gbm() was unable to build an index for the design matrix. Could be a bug in gbm or an unusual data type in data.");
-	}
+        	throw GBM::failure("Observations are not in order. gbm() was unable to build an index for the design matrix. Could be a bug in gbm or an unusual data type in data.");
+        }
 
         // Evaluate the current split
         // the newest observation is still in the right child
@@ -84,7 +82,7 @@ void CNodeSearch::IncorporateObs
                         dCurrentLeftSumZ*dCurrentRightTotalW) > 0)))
         {
             dCurrentImprovement =
-                CNode::Improvement(dCurrentLeftTotalW,dCurrentRightTotalW,
+              Improvement(dCurrentLeftTotalW,dCurrentRightTotalW,
                                     dCurrentMissingTotalW,
                                     dCurrentLeftSumZ,dCurrentRightSumZ,
                                     dCurrentMissingSumZ);
@@ -130,9 +128,8 @@ void CNodeSearch::Set
     double dSumZ,
     double dTotalW,
     unsigned long cTotalN,
-    CNodeTerminal *pThisNode,
-    CNode **ppParentPointerToThisNode,
-    CNodeFactory *pNodeFactory
+    CNode* pThisNode,
+    CNode** ppParentPointerToThisNode
 )
 {
     dInitSumZ = dSumZ;
@@ -171,7 +168,6 @@ void CNodeSearch::Set
 
     this->pThisNode = pThisNode;
     this->ppParentPointerToThisNode = ppParentPointerToThisNode;
-    this->pNodeFactory = pNodeFactory;
 }
 
 
@@ -275,7 +271,7 @@ void CNodeSearch::EvaluateCategoricalSplit()
       cCurrentRightN      -= acGroupN[aiCurrentCategory[i]];
       
       dCurrentImprovement =
-	CNode::Improvement(dCurrentLeftTotalW,dCurrentRightTotalW,
+	Improvement(dCurrentLeftTotalW,dCurrentRightTotalW,
 			   dCurrentMissingTotalW,
 			   dCurrentLeftSumZ,dCurrentRightSumZ,
 			   dCurrentMissingSumZ);
@@ -309,23 +305,27 @@ void CNodeSearch::EvaluateCategoricalSplit()
 
 void CNodeSearch::SetupNewNodes
 (
-    PCNodeNonterminal &pNewSplitNode,
-    PCNodeTerminal &pNewLeftNode,
-    PCNodeTerminal &pNewRightNode,
-    PCNodeTerminal &pNewMissingNode
+    CNode* &pNewSplitNode,
+    CNode* &pNewLeftNode,
+    CNode* &pNewRightNode,
+    CNode* &pNewMissingNode
 )
 {
     CNodeContinuous *pNewNodeContinuous = NULL;
     CNodeCategorical *pNewNodeCategorical = NULL;
 
-    pNewLeftNode    = pNodeFactory->GetNewNodeTerminal();
-    pNewRightNode   = pNodeFactory->GetNewNodeTerminal();
-    pNewMissingNode = pNodeFactory->GetNewNodeTerminal();
+    pNewLeftNode    = new CNodeContinuous();
+    pNewRightNode   = new CNodeContinuous();
+    pNewMissingNode = new CNodeContinuous();
+
+    pNewLeftNode->isTerminal = true;
+    pNewRightNode->isTerminal = true;
+    pNewMissingNode->isTerminal = true;
 
     // set up a continuous split
     if(cBestVarClasses==0)
     {
-        pNewNodeContinuous = pNodeFactory->GetNewNodeContinuous();
+        pNewNodeContinuous = new CNodeContinuous();
 
         pNewNodeContinuous->dSplitValue = dBestSplitValue;
         pNewNodeContinuous->iSplitVar = iBestSplitVar;
@@ -335,7 +335,7 @@ void CNodeSearch::SetupNewNodes
     else
     {
         // get a new categorical node and its branches
-        pNewNodeCategorical = pNodeFactory->GetNewNodeCategorical();
+        pNewNodeCategorical = new CNodeCategorical;
 
         // set up the categorical split
         pNewNodeCategorical->iSplitVar = iBestSplitVar;
@@ -348,7 +348,6 @@ void CNodeSearch::SetupNewNodes
     }
 
     *ppParentPointerToThisNode = pNewSplitNode;
-
     pNewSplitNode->dPrediction  = pThisNode->dPrediction;
     pNewSplitNode->dImprovement = dBestImprovement;
     pNewSplitNode->dTrainW      = pThisNode->dTrainW;
@@ -366,5 +365,4 @@ void CNodeSearch::SetupNewNodes
     pNewMissingNode->dTrainW     = dBestMissingTotalW;
     pNewMissingNode->cN          = cBestMissingN;
 
-    pThisNode->RecycleSelf(pNodeFactory);
 }

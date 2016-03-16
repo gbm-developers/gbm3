@@ -19,7 +19,6 @@
 //------------------------------
 #include "buildinfo.h"
 #include "gbmDataContainer.h"
-#include "node_factory.h"
 #include "gbmTreeComps.h"
 #include <memory>
 #include <Rcpp.h>
@@ -83,7 +82,6 @@ private:
 	// Private Variables
 	//-------------------
     CGBMDataContainer* pDataCont;
-    CNodeFactory* pNodeFactory;
     CTreeComps* pTreeComp;
     bool fInitialized;          // indicates whether the GBM has been initialized
     bool hasDataAndDist, hasTreeContainer;
