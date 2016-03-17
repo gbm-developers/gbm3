@@ -9,6 +9,7 @@ gbmDoFold <- function(X,
     
     # Handle the final model case separately
     if (X == 0){
+      if (lVerbose) message("Fitting Final Model \n")
       res <- gbm.fit(x,y,
                        offset = offset,
                        distribution = distribution,
