@@ -1,64 +1,74 @@
 //  GBM by Greg Ridgeway  Copyright (C) 2003
-
+//-----------------------------------
+// Includes
+//-----------------------------------
 #include "node.h"
+#include "terminalStrategy.h"
+#include "continuousStrategy.h"
+#include "categoricalStrategy.h"
 
-CNode::CNode()
+//----------------------------------------
+// Function Members - Public
+//----------------------------------------
+CNode::CNode(double nodePrediction,
+		double trainingWeight, long numObs):aiLeftCategory()
 {
-    dPrediction = 0.0;
-    dTrainW = 0.0;
-    isTerminal = false;
-    cN = 0;
+    dPrediction = nodePrediction;
+    dTrainW = trainingWeight;
+    cN = numObs;
 
+    dSplitValue = 0.0;
+    iSplitVar = 0;
+    dImprovement = 0.0;
+
+    // Set children to NULL
 	pLeftNode = NULL;
 	pRightNode = NULL;
-	iSplitVar = 0;
-	dImprovement = 0.0;
 	pMissingNode = NULL;
+
+	// Set up split type and strategy
+	splitType = none;
+	nodeStrategy = new TerminalStrategy(this);
+
 }
 
+void CNode::SetStrategy()
+{
+	delete nodeStrategy;
+	switch(splitType)
+	{
+	case none:
+		nodeStrategy = new TerminalStrategy(this);
+		break;
+	case continuous:
+		nodeStrategy = new ContinuousStrategy(this);
+		break;
+	case categorical:
+		nodeStrategy = new CategoricalStrategy(this);
+		break;
+	default:
+		throw GBM::failure("Node State not recognised.");
+		break;
+	}
+}
 
 CNode::~CNode()
 {
 	// Each node is responsible for deleting its
-	// children
+	// children and its strategy
     delete pLeftNode;
     delete pRightNode;
     delete pMissingNode;
+    delete nodeStrategy;
 }
-
 
 void CNode::Adjust
 (
     unsigned long cMinObsInNode
 )
 {
-	// Only adjust if node is not terminal
-	if(!isTerminal)
-	{
-		pLeftNode->Adjust(cMinObsInNode);
-		pRightNode->Adjust(cMinObsInNode);
-
-		if(pMissingNode->isTerminal && (pMissingNode->cN < cMinObsInNode))
-		{
-			dPrediction = ((pLeftNode->dTrainW)*(pLeftNode->dPrediction) +
-				 (pRightNode->dTrainW)*(pRightNode->dPrediction))/
-			(pLeftNode->dTrainW + pRightNode->dTrainW);
-			pMissingNode->dPrediction = dPrediction;
-		}
-		else
-		{
-			pMissingNode->Adjust(cMinObsInNode);
-			dPrediction =
-			((pLeftNode->dTrainW)*   (pLeftNode->dPrediction) +
-			(pRightNode->dTrainW)*  (pRightNode->dPrediction) +
-			(pMissingNode->dTrainW)*(pMissingNode->dPrediction))/
-			(pLeftNode->dTrainW + pRightNode->dTrainW + pMissingNode->dTrainW);
-		}
-	}
-
+	nodeStrategy->Adjust(cMinObsInNode);
 }
-
-
 
 void CNode::Predict
 (
@@ -67,64 +77,7 @@ void CNode::Predict
     double &dFadj
 )
 {
-	// If node is terminal set the function adjustment to the
-	// prediction.  Else move down the tree.
-	if(isTerminal)
-	{
-		dFadj = dPrediction;
-	}
-	else
-	{
-		signed char schWhichNode = WhichNode(data,iRow);
-		if(schWhichNode == -1)
-		{
-		  pLeftNode->Predict(data, iRow, dFadj);
-		}
-		else if(schWhichNode == 1)
-		{
-		  pRightNode->Predict(data, iRow, dFadj);
-		}
-		else
-		{
-		  pMissingNode->Predict(data, iRow, dFadj);
-		}
-	}
-
-}
-
-
-void CNode::Predict
-(
-    double *adX,
-    unsigned long cRow,
-    unsigned long cCol,
-    unsigned long iRow,
-    double &dFadj
-)
-{
-	// If node is terminal set the function adjustment to the
-	// prediction.  Else move down the tree.
-	if(isTerminal)
-	{
-		dFadj = dPrediction;
-	}
-	else
-	{
-		signed char schWhichNode = WhichNode(adX,cRow,cCol,iRow);
-		if(schWhichNode == -1)
-		{
-		  pLeftNode->Predict(adX,cRow,cCol,iRow,dFadj);
-		}
-		else if(schWhichNode == 1)
-		{
-		  pRightNode->Predict(adX,cRow,cCol,iRow,dFadj);
-		}
-		else
-		{
-		  pMissingNode->Predict(adX,cRow,cCol,iRow,dFadj);
-		}
-	}
-
+	nodeStrategy->Predict(data, iRow, dFadj);
 }
 
 
@@ -133,20 +86,92 @@ void CNode::GetVarRelativeInfluence
     double *adRelInf
 )
 {
-	// Relative influence of split variable only updated in non-terminal nodes
-	if(!isTerminal)
+	nodeStrategy->GetVarRelativeInfluence(adRelInf);
+}
+
+void CNode::PrintSubtree
+(
+ unsigned long cIndent
+)
+{
+  nodeStrategy->PrintSubTree(cIndent);
+}
+
+void CNode::SplitNode()
+{
+	// set up a continuous split
+	if(childrenParams.SplitClass==0)
 	{
-		adRelInf[iSplitVar] += dImprovement;
-		pLeftNode->GetVarRelativeInfluence(adRelInf);
-		pRightNode->GetVarRelativeInfluence(adRelInf);
+		splitType = continuous;
+		SetStrategy();
+	}
+	else
+	{
+		splitType = categorical;
+		SetStrategy();
+		aiLeftCategory.resize(1 + (ULONG)childrenParams.SplitValue);
+					  std::copy(childrenParams.aiBestCategory.begin(),
+								childrenParams.aiBestCategory.begin() + aiLeftCategory.size(),
+								 aiLeftCategory.begin());
 	}
 
+	iSplitVar = childrenParams.SplitVar;
+	dSplitValue = childrenParams.SplitValue;
+	dImprovement = childrenParams.ImprovedResiduals;
+
+	pLeftNode    = new CNode(childrenParams.LeftWeightResiduals/childrenParams.LeftTotalWeight, childrenParams.LeftTotalWeight,
+									childrenParams.LeftNumObs);
+	pRightNode   = new CNode(childrenParams.RightWeightResiduals/childrenParams.RightTotalWeight,
+							childrenParams.RightTotalWeight, childrenParams.RightNumObs);
+	pMissingNode = new CNode(childrenParams.MissingWeightResiduals/childrenParams.MissingTotalWeight,
+							childrenParams.MissingTotalWeight, childrenParams.MissingNumObs);
+
 }
 
-void CNode::ApplyShrinkage(double dLambda)
+signed char CNode::WhichNode
+(
+    const CDataset &data,
+    unsigned long iObs
+)
 {
-	dPrediction *= dLambda;
+	return nodeStrategy->WhichNode(data, iObs);
 }
+
+
+void CNode::TransferTreeToRList
+(
+    int &iNodeID,
+    const CDataset &data,
+    int *aiSplitVar,
+    double *adSplitPoint,
+    int *aiLeftNode,
+    int *aiRightNode,
+    int *aiMissingNode,
+    double *adErrorReduction,
+    double *adWeight,
+    double *adPred,
+    VEC_VEC_CATEGORIES &vecSplitCodes,
+    int cCatSplitsOld,
+    double dShrinkage
+)
+{
+	nodeStrategy->TransferTreeToRList(iNodeID,
+										data,
+									aiSplitVar,
+									adSplitPoint,
+									aiLeftNode,
+									aiRightNode,
+									aiMissingNode,
+									adErrorReduction,
+									adWeight,
+									adPred,
+									vecSplitCodes,
+									cCatSplitsOld,
+									dShrinkage);
+}
+
+
+
 
 
 

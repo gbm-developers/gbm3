@@ -14,122 +14,79 @@
 //
 //------------------------------------------------------------------------------
 
-#ifndef TREGBM_H
-#define TREGBM_H
+#ifndef __tree_h__
+#define __tree_h__
 
+//------------------------------
+// Includes
+//------------------------------
 #include <cstdio>
 #include <cfloat>
 #include <algorithm>
 #include <vector>
 #include "dataset.h"
-#include "distribution.h"
 #include "node_search.h"
 #include <ctime>
 
-
+//------------------------------
+// Class definition
+//------------------------------
 class CCARTTree
 {
 public:
+	//----------------------
+	// Public Constructors
+	//----------------------
+    CCARTTree(double shrinkage=1.0, long depth = 1);
 
-    CCARTTree();
+	//---------------------
+	// Public destructor
+	//---------------------
     ~CCARTTree();
 
-    void Initialize();
+	//---------------------
+	// Public Functions
+	//---------------------
     void grow(double *adZ,
-	      const CDataset &pData,
-	      const double *adAlgW,
+	      const CDataset& data,
 	      const double *adF,
-	      unsigned long nTrain,
-	      unsigned long nFeatures,
-	      unsigned long nBagged,
-	      double dLambda,
-	      unsigned long cMaxDepth,
 	      unsigned long cMinObsInNode,
-	      const bag& afInBag,
 	      std::vector<unsigned long>& aiNodeAssign,
-	      CNodeSearch *aNodeSearch,
-	      VEC_P_NODETERMINAL& vecpTermNodes);
+	      CNodeSearch& aNodeSearch);
     void Reset();
 
-    void TransferTreeToRList(const CDataset &pData,
-			     int *aiSplitVar,
-			     double *adSplitPoint,
-			     int *aiLeftNode,
-			     int *aiRightNode,
-			     int *aiMissingNode,
-			     double *adErrorReduction,
-			     double *adWeight,
-			     double *adPred,
-			     VEC_VEC_CATEGORIES &vecSplitCodes,
-			     int cCatSplitsOld,
-			     double dShrinkage);
+    CNode* GetRootNode();
+    const CNode* GetRootNode() const;
 
     void PredictValid(const CDataset &pData,
 		      unsigned long nValid,
 		      double *adFadj);
-    
-    void Predict(double *adX,
-		 unsigned long cRow,
-		 unsigned long cCol,
-		 unsigned long iRow,
-		 double &dFadj);
     void Adjust(const std::vector<unsigned long>& aiNodeAssign,
 		double *adFadj,
-		unsigned long cTrain,
-		const VEC_P_NODETERMINAL &vecpTermNodes,
 		unsigned long cMinObsInNode);
-    
-    void GetNodeCount(int &cNodes);
-    void SetShrinkage(double dShrink)
-    {
-        this->dShrink = dShrink;
-    }
-    double GetShrinkage() {return dShrink;}
 
+    long GetNodeCount();
+    const long GetNodeCount() const;
+
+    vector<CNode*> GetTermNodes(){return vecpTermNodes;}
+    const double GetShrinkageConst() const { return shrinkageConst;}
     void Print();
-    void GetVarRelativeInfluence(double *adRelInf);
 
-
-    double dError; // total squared error before carrying out the splits
 private:
-    void GetBestSplit(const CDataset &pData,
-		      unsigned long nTrain,
-		      unsigned long nFeatures,
-		      CNodeSearch *aNodeSearch,
-		      unsigned long cTerminalNodes,
-		      std::vector<unsigned long>& aiNodeAssign,
-		      const bag& afInBag,
-		      double *adZ,
-		      const double *adW,
-		      unsigned long &iBestNode,
-		      double &dBestNodeImprovement);
-    
-    CNode *pRootNode;
-    double dShrink;
+	//---------------------
+	// Private Variables
+	//---------------------
+    CNode* pRootNode;
+    vector<CNode*> vecpTermNodes;
 
-    // objects used repeatedly
-    unsigned long cDepth;
-    unsigned long cTerminalNodes;
-    unsigned long cTotalNodeCount;
-    unsigned long iObs;
-    unsigned long iWhichNode;
+    const long depthOfTree;
+    const double shrinkageConst;
+    double dError; // total squared error before carrying out the splits
+    long cTotalNodeCount;
 
-    unsigned long iBestNode;
-    double dBestNodeImprovement;
-
-    double dSumZ;
-    double dSumZ2;
-    double dTotalW;
-    signed char schWhichNode;
-
-    CNode* pNewSplitNode;
-    CNode* pNewLeftNode;
-    CNode* pNewRightNode;
-    CNode* pNewMissingNode;
-    CNode* pInitialRootNode;
 };
 
-#endif // TREGBM_H
+#endif // __tree_h__
 
 
 

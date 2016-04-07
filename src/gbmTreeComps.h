@@ -13,9 +13,7 @@
 // Includes
 //------------------------------
 #include "buildinfo.h"
-#include "distribution.h"
 #include "tree.h"
-#include "searcher.h"
 #include "dataset.h"
 #include <vector>
 #include <memory>
@@ -29,13 +27,7 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-    CTreeComps(double dLambda,
-    	    unsigned long cTrain,
-    	    unsigned long cFeatures,
-    	    double dBagFraction,
-    	    unsigned long cDepth,
-    	    unsigned long cMinObsInNode,
-    	    int cGroups);
+    CTreeComps(TreeParams treeConfig);
 
 
 	//---------------------
@@ -46,12 +38,9 @@ public:
     //---------------------
 	// Public Functions
 	//---------------------
-    void TreeInitialize(const CDataset* pData);
-    void AssignTermNodes();
-    void BagData(bool IsPairwise, CDistribution* pDist);
-    void GrowTrees(const CDataset* pData, int& cNodes);
-    void AdjustAndShrink();
-    void PredictValid(const CDataset* pData);
+    void GrowTrees(const CDataset* pData, double* adZ, const double* adFadj);
+    void AdjustAndShrink(double * adFadj);
+    void PredictValid(const CDataset* pData, double* adFadj);
     void TransferTreeToRList(const CDataset &pData,
 		     int *aiSplitVar,
 		     double *adSplitPoint,
@@ -65,49 +54,25 @@ public:
 		     int cCatSplitsOld);
 
     // getters
-	bag GetBag();
 	std::vector<unsigned long> GetNodeAssign();
-	VEC_P_NODETERMINAL GetTermNodes();
+	vector<CNode*> GetTermNodes();
 
-	double* GetGrad();
-	double* GetRespAdj();
-	const double* GetRespAdj() const;
-	const double  RespAdjElem(int ind);
-
-	double GetLambda();
-	unsigned long GetTrainNo();
-	unsigned long GetValidNo();
-
-	unsigned long GetDepth();
+	const double ShrinkageConstant() const;
 	unsigned long GetMinNodeObs();
-	int GetNoGroups();
+	long GetSizeOfTree();
+	const long GetSizeOfTree() const;
 
 private:
-	//-------------------
 	// Private Variables
 	//-------------------
 
     // these objects are for the tree growing
     // allocate them once here for all trees to use
-    bag afInBag;
     std::vector<unsigned long> aiNodeAssign;
-    std::vector<CNodeSearch> aNodeSearch;
-    std::auto_ptr<CCARTTree> ptreeTemp;
-    CSearcher splitSearcher;
+    CNodeSearch aNodeSearch;
+    CCARTTree* ptreeTemp;
 
-    VEC_P_NODETERMINAL vecpTermNodes;
-    std::vector<double> adZ;
-    std::vector<double> adFadj;
-
-    double dLambda;
-    unsigned long cTrain;
-    unsigned long cValid;
-    unsigned long cFeatures;
-    unsigned long cTotalInBag;
-    double dBagFraction;
-    unsigned long cDepth;
     unsigned long cMinObsInNode;
-    int  cGroups;
 };
 
 #endif //  __gbmTreeComps_h__

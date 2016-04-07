@@ -25,8 +25,8 @@ mpLocM("Other")
 // Function Members - Public
 //----------------------------------------
 CDistribution* CQuantile::Create(SEXP radMisc,
-											const char* szIRMeasure,
-											int& cGroups, int& cTrain)
+								 const char* szIRMeasure,
+								int& cTrain)
 {
 	return new CQuantile(radMisc);
 }
@@ -39,49 +39,32 @@ void CQuantile::ComputeWorkingResponse
 (
 	const CDataset* pData,
     const double *adF,
-    double *adZ,
-    const bag& afInBag,
-    unsigned long nTrain
+    double *adZ
 )
 {
     unsigned long i = 0;
+	for(i=0; i<pData->get_trainSize(); i++)
+	{
+		adZ[i] = (pData->y_ptr()[i] > adF[i]+pData->offset_ptr(false)[i]) ? dAlpha : -(1.0-dAlpha);
+	}
 
-    if(pData->offset_ptr(false) == NULL)
-    {
-        for(i=0; i<nTrain; i++)
-        {
-            adZ[i] = (pData->y_ptr()[i] > adF[i]) ? dAlpha : -(1.0-dAlpha);
-        }
-    }
-    else
-    {
-        for(i=0; i<nTrain; i++)
-        {
-            adZ[i] = (pData->y_ptr()[i] > adF[i]+pData->offset_ptr(false)[i]) ? dAlpha : -(1.0-dAlpha);
-        }
-    }
 }
 
 
-void CQuantile::InitF
+double CQuantile::InitF
 (
-	const CDataset* pData,
-    double &dInitF,
-    unsigned long cLength
+	const CDataset* pData
 )
 {
     double dOffset=0.0;
-    unsigned long i=0;
-    int nLength = int(cLength);
-
-    vecd.resize(cLength);
-    for(i=0; i<cLength; i++)
+    vecd.resize(pData->get_trainSize());
+    for(long i=0; i< pData->get_trainSize(); i++)
     {
-        dOffset = (pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[i];
+        dOffset = pData->offset_ptr(false)[i];
         vecd[i] = pData->y_ptr()[i] - dOffset;
     }
 
-    dInitF = mpLocM.weightedQuantile(nLength, &vecd[0], pData->weight_ptr(), dAlpha);
+    return mpLocM.weightedQuantile(pData->get_trainSize(), &vecd[0], pData->weight_ptr(), dAlpha);
 }
 
 
@@ -89,7 +72,6 @@ double CQuantile::Deviance
 (
 	const CDataset* pData,
     const double *adF,
-    unsigned long cLength,
     bool isValidationSet
 )
 {
@@ -98,41 +80,27 @@ double CQuantile::Deviance
     double dW = 0.0;
 
     // Switch to validation set if necessary
+    long cLength = pData->get_trainSize();
     if(isValidationSet)
     {
  	   pData->shift_to_validation();
+ 	   cLength = pData->GetValidSize();
     }
 
-    if(pData->offset_ptr(false) == NULL)
-    {
-        for(i=0; i<cLength; i++)
-        {
-            if(pData->y_ptr()[i] > adF[i])
-            {
-                dL += pData->weight_ptr()[i]*dAlpha*(pData->y_ptr()[i] - adF[i]);
-            }
-            else
-            {
-                dL += pData->weight_ptr()[i]*(1.0-dAlpha)*(adF[i] - pData->y_ptr()[i]);
-            }
-            dW += pData->weight_ptr()[i];
-        }
-    }
-    else
-    {
-        for(i=0; i<cLength; i++)
-        {
-            if(pData->y_ptr()[i] > adF[i] + pData->offset_ptr(false)[i])
-            {
-                dL += pData->weight_ptr()[i]*dAlpha      *(pData->y_ptr()[i] - adF[i]-pData->offset_ptr(false)[i]);
-            }
-            else
-            {
-                dL += pData->weight_ptr()[i]*(1.0-dAlpha)*(adF[i]+pData->offset_ptr(false)[i] - pData->y_ptr()[i]);
-            }
-            dW += pData->weight_ptr()[i];
-        }
-    }
+
+	for(i=0; i<cLength; i++)
+	{
+		if(pData->y_ptr()[i] > adF[i] + pData->offset_ptr(false)[i])
+		{
+			dL += pData->weight_ptr()[i]*dAlpha*(pData->y_ptr()[i] - adF[i]-pData->offset_ptr(false)[i]);
+		}
+		else
+		{
+			dL += pData->weight_ptr()[i]*(1.0-dAlpha)*(adF[i]+pData->offset_ptr(false)[i] - pData->y_ptr()[i]);
+		}
+		dW += pData->weight_ptr()[i];
+	}
+
 
     // Switch back to training set if necessary
     if(isValidationSet)
@@ -147,14 +115,9 @@ void CQuantile::FitBestConstant
 (
 	const CDataset* pData,
     const double *adF,
-    double *adZ,
-    const std::vector<unsigned long> &aiNodeAssign,
-    unsigned long nTrain,
-    VEC_P_NODETERMINAL vecpTermNodes,
     unsigned long cTermNodes,
-    unsigned long cMinObsInNode,
-    const bag& afInBag,
-    const double *adFadj
+    double* adZ,
+    CTreeComps* pTreeComps
 )
 {
   unsigned long iNode = 0;
@@ -162,17 +125,17 @@ void CQuantile::FitBestConstant
   unsigned long iVecd = 0;
   double dOffset;
 
-  vecd.resize(nTrain); // should already be this size from InitF
-  std::vector<double> adW2(nTrain);
+  vecd.resize(pData->get_trainSize()); // should already be this size from InitF
+  std::vector<double> adW2(pData->get_trainSize());
 
   for(iNode=0; iNode<cTermNodes; iNode++)
     {
-      if(vecpTermNodes[iNode]->cN >= cMinObsInNode)
+      if(pTreeComps->GetTermNodes()[iNode]->cN >= pTreeComps->GetMinNodeObs())
         {
 	  iVecd = 0;
-	  for(iObs=0; iObs<nTrain; iObs++)
+	  for(iObs=0; iObs< pData->get_trainSize(); iObs++)
             {
-	      if(afInBag[iObs] && (aiNodeAssign[iObs] == iNode))
+	      if(pData->GetBagElem(iObs) && (pTreeComps->GetNodeAssign()[iObs] == iNode))
                 {
 		  dOffset = (pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[iObs];
 		  
@@ -182,21 +145,19 @@ void CQuantile::FitBestConstant
                 }
             }
 	  
-	  vecpTermNodes[iNode]->dPrediction = mpLocM.weightedQuantile(iVecd, &vecd[0], &adW2[0], dAlpha);
+	 pTreeComps->GetTermNodes()[iNode]->dPrediction = mpLocM.weightedQuantile(iVecd, &vecd[0], &adW2[0], dAlpha);
 	}
     }
 }
 
 
-
 double CQuantile::BagImprovement
 (
-	const CDataset* pData,
+	const CDataset& data,
     const double *adF,
-    const double *adFadj,
     const bag& afInBag,
-    double dStepSize,
-    unsigned long nTrain
+    const double shrinkage,
+    const double* adFadj
 )
 {
     double dReturnValue = 0.0;
@@ -205,34 +166,34 @@ double CQuantile::BagImprovement
     double dW = 0.0;
     unsigned long i = 0;
 
-    for(i=0; i<nTrain; i++)
+    for(i=0; i <data.get_trainSize(); i++)
     {
-        if(!afInBag[i])
+        if(!data.GetBagElem(i))
         {
-            dF = adF[i] + ((pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[i]);
-            if(pData->y_ptr()[i] > dF)
+            dF = adF[i] + data.offset_ptr(false)[i];
+
+            if(data.y_ptr()[i] > dF)
             {
-                dReturnValue += pData->weight_ptr()[i]*dAlpha*(pData->y_ptr()[i]-dF);
+                dReturnValue += data.weight_ptr()[i]*dAlpha*(data.y_ptr()[i]-dF);
             }
             else
             {
-                dReturnValue += pData->weight_ptr()[i]*(1-dAlpha)*(dF-pData->y_ptr()[i]);
+                dReturnValue += data.weight_ptr()[i]*(1-dAlpha)*(dF-data.y_ptr()[i]);
             }
 
-            if(pData->y_ptr()[i] > dF+dStepSize*adFadj[i])
+            if(data.y_ptr()[i] > dF+shrinkage*adFadj[i])
             {
-                dReturnValue -= pData->weight_ptr()[i]*dAlpha*
-                                (pData->y_ptr()[i] - dF-dStepSize*adFadj[i]);
+                dReturnValue -= data.weight_ptr()[i]*dAlpha*
+                                (data.y_ptr()[i] - dF-shrinkage*adFadj[i]);
             }
             else
             {
-                dReturnValue -= pData->weight_ptr()[i]*(1-dAlpha)*
-                                (dF+dStepSize*adFadj[i] - pData->y_ptr()[i]);
+                dReturnValue -= data.weight_ptr()[i]*(1-dAlpha)*
+                                (dF+shrinkage*adFadj[i] - data.y_ptr()[i]);
             }
-            dW += pData->weight_ptr()[i];
+            dW += data.weight_ptr()[i];
         }
     }
-
     return dReturnValue/dW;
 }
 

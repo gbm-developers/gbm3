@@ -14,6 +14,7 @@
 // Includes
 //------------------------------
 #include "buildinfo.h"
+#include "configStructs.h"
 #include "dataset.h"
 #include "distribution.h"
 #include "distributionFactory.h"
@@ -31,9 +32,7 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-    CGBMDataContainer(SEXP radY, SEXP radOffset, SEXP radX, SEXP raiXOrder,
-            SEXP radWeight, SEXP racVarClasses,
-            SEXP ralMonotoneVar, SEXP radMisc, const std::string& family, int cTrain, int& cGroups);
+    CGBMDataContainer(DataDistParams dataDistConfig);
 
 	//---------------------
 	// Public destructor
@@ -44,22 +43,23 @@ public:
 	// Public Functions
 	//---------------------
     void Initialize();
-    void InitializeFunctionEstimate(double &dInitF, unsigned long cLength);
-    void ComputeResiduals(const double* adF, CTreeComps* pTreeComp);
-    void ComputeBestTermNodePreds(const double* adF, CTreeComps* pTreeComp, int& cNodes);
-    double ComputeDeviance(const double *adF, CTreeComps* pTreeComp,  bool isValidationSet=false);
-    double ComputeBagImprovement(const double* adF, CTreeComps* pTreeComp);
+    double InitialFunctionEstimate();
+    void ComputeResiduals(const double* adF, double* adZ);
+    void ComputeBestTermNodePreds(const double* adF, double* adZ, CTreeComps* pTreeComp);
+    double ComputeDeviance(const double *adF, bool isValidationSet=false);
+    double ComputeBagImprovement(const double* adF, const double shrinkage, const double* adFadj);
+    void BagData();
     CDistribution* getDist();
-    const CDataset* getData();
+    CDataset* getData();
 
 
 private:
 	//-------------------
 	// Private Variables
 	//-------------------
-    const CDataset data;
+    CDataset data;
     CDistribution* pDist;
-    DistributionFactory* DistFactory; // currently a singleton - does not need to be now - TODO:remove property.
+    DistributionFactory* DistFactory;
 
 };
 

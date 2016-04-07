@@ -23,10 +23,42 @@ public:
 	// Public Constructors
 	//----------------------
 	CDImpl(SEXP radY, SEXP radOffset, SEXP radX, SEXP raiXOrder,
-			SEXP radWeight, SEXP racVarClasses, SEXP ralMonotoneVar, const int cTrain):
-	adY(radY), adOffset(radOffset), adWeight(radWeight), adX(radX),
-	acVarClasses(racVarClasses), alMonotoneVar(ralMonotoneVar),
-	aiXOrder(raiXOrder), numOfTrainData(cTrain), fHasOffset(GBM_FUNC::has_value(adOffset)) {};
+		SEXP radWeight, SEXP racVarClasses, SEXP ralMonotoneVar,
+		const int cTrain, const int cFeatures, const double fractionInBag):
+		adY(radY), adOffset(radOffset), adWeight(radWeight), adX(radX),
+		acVarClasses(racVarClasses), alMonotoneVar(ralMonotoneVar),
+		aiXOrder(raiXOrder), numOfTrainData(cTrain), numOfFeatures(cFeatures),
+		fHasOffset(GBM_FUNC::has_value(adOffset))
+	{
+
+
+		// If you've no offset set to 0
+		if(!fHasOffset)
+		{
+			std::fill(adOffset.begin(), adOffset.begin() + adX.nrow(), 0.0);
+		}
+
+		// Set other stuff
+		bagFraction = fractionInBag;
+		totalInBag = (long) (fractionInBag * cTrain);
+		cValid = adX.nrow() - cTrain;
+		pointAtTrainSet = true;
+		adYPtr = adY.begin();
+		adWeightPtr = adWeight.begin();
+		adOffsetPtr = adOffset.begin();
+		afInBag.assign(cTrain, false);
+
+		// Ensure initialization makes sense
+		if (totalInBag <= 0)
+		{
+			throw GBM::invalid_argument("you have an empty bag!");
+		}
+		if (cTrain <= 0)
+		{
+			throw GBM::invalid_argument("you've <= 0 training instances");
+		}
+
+	};
 
 	//---------------------
 	// Public destructor
@@ -37,64 +69,73 @@ public:
 	// Public Functions
 	//---------------------
 	//-----------------------------------
-	// Function: shift_ptr_to_validation
-	//
-	// Returns:  shifts the ptr to the validation set.
-	//
-	// Parameters: none
-	//
-	//-----------------------------------
-	template<typename T>
-	T* shift_ptr_to_validation(T* x) const
-	{
-		if(x)
+		// Function: shift_ptr_to_validation
+		//
+		// Returns:  shifts the ptr to the validation set.
+		//
+		// Parameters: none
+		//
+		//-----------------------------------
+		template<typename T>
+		T* shift_ptr_to_validation(T* x) const
 		{
-			return x + numOfTrainData;
+			if(x)
+			{
+				return x + numOfTrainData;
+			}
+			else
+			{
+				return x;
+			}
 		}
-		else
+
+		//-----------------------------------
+		// Function: shift_ptr_to_train
+		//
+		// Returns:  shifts the ptr to the training set.
+		//
+		// Parameters: none
+		//
+		//-----------------------------------
+		template<typename T>
+		T* shift_ptr_to_train(T* x) const
 		{
-			return x;
+			if(x)
+			{
+				return x - numOfTrainData;
+			}
+			else
+			{
+				return x;
+			}
 		}
-	}
 
-	//-----------------------------------
-	// Function: shift_ptr_to_train
-	//
-	// Returns:  shifts the ptr to the training set.
-	//
-	// Parameters: none
-	//
-	//-----------------------------------
-	template<typename T>
-	T* shift_ptr_to_train(T* x) const
-	{
-		if(x)
-		{
-			return x - numOfTrainData;
-		}
-		else
-		{
-			return x;
-		}
-	}
+		//-------------------
+		// Public Variables
+		//-------------------
+		// Numeric vectors storing data
+		Rcpp::NumericVector adY, adOffset, adWeight;
+		Rcpp::NumericMatrix adX;
+		Rcpp::IntegerVector acVarClasses, alMonotoneVar, aiXOrder;
 
-	//-------------------
-	// Public Variables
-	//-------------------
-	// Numeric vectors storing data
-	Rcpp::NumericVector adY, adOffset, adWeight;
-	Rcpp::NumericMatrix adX;
-	Rcpp::IntegerVector acVarClasses, alMonotoneVar, aiXOrder;
+		// Ptrs to numeric vectors - these must be mutable
+		mutable double* adYPtr;
+		mutable double* adOffsetPtr;
+		mutable double* adWeightPtr;
 
-	// Ptrs to numeric vectors - these must be mutable
-	mutable double* adYPtr;
-	mutable double* adOffsetPtr;
-	mutable double* adWeightPtr;
+		// Properties of the data
+		unsigned long numOfTrainData;
+		unsigned long cValid;
+		long numOfFeatures;
+		bool fHasOffset;
+		bool pointAtTrainSet;
 
-	// Properties of the data
-	unsigned long numOfTrainData;
-	bool fHasOffset;
-	bool pointAtTrainSet;
+		// Bagged  data
+		bag afInBag;
+		double bagFraction;
+		long totalInBag;
+
+
 };
 
 //----------------------------------------
@@ -120,12 +161,15 @@ public:
 //	cTrain		   - int specifiy the number of data points in training set
 //
 //-----------------------------------
-CDataset::CDataset(SEXP radY, SEXP radOffset, SEXP radX, SEXP raiXOrder,
-			SEXP radWeight, SEXP racVarClasses, SEXP ralMonotoneVar, const int cTrain):
-					dataImpl(new CDImpl(radY, radOffset, radX, raiXOrder,
-							radWeight, racVarClasses, ralMonotoneVar, cTrain))
+CDataset::CDataset(DataDistParams dataParams)
 {
+	// Set up the pimpl
+	dataImpl = new CDImpl(dataParams.respY, dataParams.offset, dataParams.xValues,
+							dataParams.xOrder,	dataParams.varWeight, dataParams.varClasses,
+							dataParams.monotoneVar, dataParams.cTrain,
+								dataParams.cFeatures, dataParams.dBagFraction);
 
+	// Check for errors on initialization
 	if (dataImpl-> adX.ncol() != dataImpl-> alMonotoneVar.size())
 	{
 		throw GBM::invalid_argument("shape mismatch (monotone does not match data)");
@@ -136,11 +180,10 @@ CDataset::CDataset(SEXP radY, SEXP radOffset, SEXP radX, SEXP raiXOrder,
 		throw GBM::invalid_argument("shape mismatch (var classes does not match data)");
 	}
 
-	// Initialize to the training set
-	dataImpl-> pointAtTrainSet = true;
-	dataImpl->adYPtr = dataImpl->adY.begin();
-	dataImpl->adOffsetPtr = dataImpl->adOffset.begin();
-	dataImpl->adWeightPtr = dataImpl->adWeight.begin();
+	if (dataImpl->adX.nrow() < int(dataParams.cTrain))
+	{
+		throw GBM::invalid_argument("your training instances don't make sense");
+	}
  };
 
 //-----------------------------------
@@ -155,6 +198,7 @@ CDataset::CDataset(SEXP radY, SEXP radOffset, SEXP radX, SEXP raiXOrder,
 //-----------------------------------
 CDataset::~CDataset()
 {
+	delete dataImpl;
 }
 
 //-----------------------------------
@@ -235,7 +279,7 @@ double* CDataset::offset_ptr(bool require)
 //-----------------------------------
 // Function: weight_ptr
 //
-// Returns: get ptr to weights container
+// Returns: get ptr to weights conta	unsigned long GetValidSize();iner
 //
 // Parameters: none
 //
@@ -325,7 +369,7 @@ double CDataset::x_value(const int row, const int col) const
 //-----------------------------------
 // Function: get_trainSize
 //
-// Returns: unsigned long - the number of
+// Returns: unsigned long - the number of training instances
 //
 // Parameters: none
 //
@@ -334,6 +378,20 @@ unsigned long CDataset::get_trainSize() const
 {
 	return dataImpl->numOfTrainData;
 }
+
+//-----------------------------------
+// Function: get_numFeatures
+//
+// Returns: long - the number of features
+//
+// Parameters: none
+//
+//-----------------------------------
+long CDataset::get_numFeatures() const
+{
+	return dataImpl->numOfFeatures;
+}
+
 //-----------------------------------
 // Function: shift_to_validation
 //
@@ -404,6 +462,119 @@ index_vector CDataset::random_order() const
 	// and return
 	return result;
 }
+
+//-----------------------------------
+// Function: GetBagFraction
+//
+// Returns: double
+//
+// Description: get fraction of data in bag
+//
+// Parameters: none
+//
+//-----------------------------------
+double CDataset::GetBagFraction() const
+{
+	return dataImpl->bagFraction;
+}
+
+//-----------------------------------
+// Function: GetValidSize
+//
+// Returns: unsigned long
+//
+// Description: get size of validation set.
+//
+// Parameters: none
+//
+//-----------------------------------
+unsigned long CDataset::GetValidSize() const
+{
+	return dataImpl->cValid;
+}
+
+//-----------------------------------
+// Function: GetTotalInBag
+//
+// Returns: long
+//
+// Description: get total amount of data in bag
+//
+// Parameters: none
+//
+//-----------------------------------
+long CDataset::GetTotalInBag() const
+{
+	return dataImpl->totalInBag;
+}
+
+//-----------------------------------
+// Function: SetBagElem
+//
+// Returns: none
+//
+// Description: setter for bag elements
+//
+// Parameters: long - index of element to set
+//    bool - value to set index bag to.
+//
+//-----------------------------------
+void CDataset::SetBagElem(long index, bool value)
+{
+	dataImpl->afInBag[index] = value;
+}
+
+//-----------------------------------
+// Function: GetBag
+//
+// Returns: bag
+//
+// Description: getter for bag
+//
+// Parameters: none
+//
+//-----------------------------------
+bag CDataset::GetBag()
+{
+	return dataImpl->afInBag;
+}
+
+bag CDataset::GetBag() const
+{
+	return dataImpl->afInBag;
+}
+
+//-----------------------------------
+// Function: GetBagElem
+//
+// Returns: const bool
+//
+// Description: getter for bag element
+//
+// Parameters: long - index of element to get
+//
+//-----------------------------------
+bool CDataset::GetBagElem(long index) const
+{
+	return dataImpl->afInBag[index];
+}
+
+//-----------------------------------
+// Function: FillRemainderOfBag
+//
+// Returns: void
+//
+// Description: once data put in bag set all other elems to False
+//
+// Parameters: long - sets where to start filling the bag
+//
+//-----------------------------------
+void CDataset::FillRemainderOfBag(long offset)
+{
+	std::fill((dataImpl->afInBag).begin() + offset, (dataImpl->afInBag).end(), false);
+}
+
+
 
 
 

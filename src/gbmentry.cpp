@@ -1,6 +1,7 @@
 // GBM by Greg Ridgeway  Copyright (C) 2003
 
 #include "gbmEngine.h"
+#include "configStructs.h"
 #include <memory>
 #include <utility>
 #include <Rcpp.h>
@@ -55,43 +56,38 @@ SEXP gbm
 {
   BEGIN_RCPP
     
-    VEC_VEC_CATEGORIES vecSplitCodes;
-
-    int iT = 0;
+  	// Set up consts for tree fitting and transfer to R API
+  	VEC_VEC_CATEGORIES vecSplitCodes;
     const int cTrees = Rcpp::as<int>(rcTrees);
-    const int cTrain = Rcpp::as<int>(rcTrain);
-    const int cFeatures = Rcpp::as<int>(rcFeatures);
-    const int cDepth = Rcpp::as<int>(rcDepth);
-    const int cMinObsInNode = Rcpp::as<int>(rcMinObsInNode);
     const int cCatSplitsOld = Rcpp::as<int>(rcCatSplitsOld);
     const int cTreesOld = Rcpp::as<int>(rcTreesOld);
-    const double dShrinkage = Rcpp::as<double>(rdShrinkage);
-    const double dBagFraction = Rcpp::as<double>(rdBagFraction);
     const bool verbose = Rcpp::as<bool>(rfVerbose);
     const Rcpp::NumericVector adFold(radFOld);
-    const std::string family = Rcpp::as<std::string>(rszFamily);
 
-    int cNodes = 0;
-    int cGroups = -1;
-    Rcpp::RNGScope scope;
+
+    // Set up parameters for initialization
+    configStructs GBMParams (radY, radOffset, radX,
+				raiXOrder, radWeight, radMisc,
+				racVarClasses, ralMonotoneVar,
+				rszFamily, rcTrees, rcDepth,
+				rcMinObsInNode, rdShrinkage,
+				rdBagFraction, rcTrain, rcFeatures);
+
+     Rcpp::RNGScope scope;
+
+
 
     // Build gbm piece-by-piece
-    CGBM GBM;
-    GBM.SetDataAndDistribution(radY, radOffset, radX, raiXOrder,
-            radWeight, racVarClasses, ralMonotoneVar, radMisc, family, cTrain, cGroups);
-    GBM.SetTreeContainer(dShrinkage, cTrain, cFeatures,
-    		dBagFraction, cDepth, cMinObsInNode, cGroups);
-    
-    // initialize the GBM
-    GBM.Initialize();
-    double dInitF;
+    CGBM GBM(GBMParams);
+
+    // Set up the function estimate
+    double dInitF = GBM.InitF();
     Rcpp::NumericMatrix tempX(radX);
     Rcpp::NumericVector adF(tempX.nrow());
 
     if(ISNA(adFold[0])) // check for old predictions
     {
       // set the initial value of F as a constant
-      GBM.InitF(dInitF, cTrain);
       adF.fill(dInitF);
     }
     else
@@ -111,30 +107,28 @@ SEXP gbm
     {
        Rprintf("Iter   TrainDeviance   ValidDeviance   StepSize   Improve\n");
     }
-    for(iT=0; iT<cTrees; iT++)
+    for(int iT=0; iT<cTrees; iT++)
     {
     	Rcpp::checkUserInterrupt();
 
         double dTrainError = 0;
         double dValidError = 0;
         double dOOBagImprove = 0;
-        GBM.Iterate(adF.begin(),
-                      dTrainError,dValidError,dOOBagImprove,
-                      cNodes);
-
+        GBM.FitLearner(adF.begin(),
+                      dTrainError,dValidError,dOOBagImprove);
         // store the performance measures
         adTrainError[iT] += dTrainError;
         adValidError[iT] += dValidError;
         adOOBagImprove[iT] += dOOBagImprove;
 
-        Rcpp::IntegerVector iSplitVar(cNodes);
-        Rcpp::NumericVector dSplitPoint(cNodes);
-        Rcpp::IntegerVector iLeftNode(cNodes);
-        Rcpp::IntegerVector iRightNode(cNodes);
-        Rcpp::IntegerVector iMissingNode(cNodes);
-        Rcpp::NumericVector dErrorReduction(cNodes);
-        Rcpp::NumericVector dWeight(cNodes);
-        Rcpp::NumericVector dPred(cNodes);
+        Rcpp::IntegerVector iSplitVar(GBM.SizeOfFittedTree());
+        Rcpp::NumericVector dSplitPoint(GBM.SizeOfFittedTree());
+        Rcpp::IntegerVector iLeftNode(GBM.SizeOfFittedTree());
+        Rcpp::IntegerVector iRightNode(GBM.SizeOfFittedTree());
+        Rcpp::IntegerVector iMissingNode(GBM.SizeOfFittedTree());
+        Rcpp::NumericVector dErrorReduction(GBM.SizeOfFittedTree());
+        Rcpp::NumericVector dWeight(GBM.SizeOfFittedTree());
+        Rcpp::NumericVector dPred(GBM.SizeOfFittedTree());
 
 
         GBM.GBMTransferTreeToRList(iSplitVar.begin(),
@@ -162,14 +156,13 @@ SEXP gbm
 		  iT+1+cTreesOld,
 		  adTrainError[iT],
 		  adValidError[iT],
-		  dShrinkage,
+		  GBMParams.GetTreeConfig().dShrinkage,
 		  adOOBagImprove[iT]);
         }
-        
+
       }
 
     if(verbose) Rprintf("\n");
-
     using Rcpp::_;
     return Rcpp::List::create(_["initF"]=dInitF,
                               _["fit"]=adF,

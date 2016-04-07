@@ -526,14 +526,14 @@ double CMAP::Measure(const double* const adY, const CRanker& ranker)
 
 
 CPairwise::CPairwise(SEXP radMisc,
-					const char* szIRMeasure, int& cGroups, int& cTrain): CDistribution(radMisc)
+					const char* szIRMeasure, int& cTrain): CDistribution(radMisc)
 {
 
 	// Set up adGroup - this is not required
 	adGroup = CDistribution::misc_ptr(false);
 
 	// Set up the number of groups - this used externally
-	cGroups = GBM_FUNC::numGroups(CDistribution::misc_ptr(true), cTrain);
+	SetNumGroups(GBM_FUNC::numGroups(CDistribution::misc_ptr(true), cTrain));
 
     // Construct the IR Measure
     if (!strcmp(szIRMeasure, "conc"))
@@ -559,10 +559,10 @@ CPairwise::CPairwise(SEXP radMisc,
 }
 
 CDistribution* CPairwise::Create(SEXP radMisc,
-										const char* szIRMeasure, int& cGroups, int& cTrain)
+										const char* szIRMeasure, int& cTrain)
 {
 
-	return new CPairwise(radMisc, szIRMeasure, cGroups, cTrain);
+	return new CPairwise(radMisc, szIRMeasure, cTrain);
 }
 
 CPairwise::~CPairwise()
@@ -592,23 +592,21 @@ void CPairwise::ComputeWorkingResponse
 (
  const CDataset* pData,
  const double *adF,
- double *adZ,
- const bag& afInBag,
- unsigned long nTrain
+ double *adZ
 )
 {
 #ifdef NOISY_DEBUG
     Rprintf("compute working response, nTrain = %u\n", nTrain);
 #endif
     
-    if (nTrain <= 0) return;
+    if (pData->get_trainSize() <= 0) return;
     
     // Iterate through all groups, compute gradients
     
     unsigned int iItemStart = 0;
     unsigned int iItemEnd   = 0;
     
-    while (iItemStart < nTrain)
+    while (iItemStart < pData->get_trainSize())
       {
 	adZ[iItemEnd]           = 0;
 	vecdHessian[iItemEnd]   = 0;
@@ -616,7 +614,7 @@ void CPairwise::ComputeWorkingResponse
 	const double dGroup = adGroup[iItemStart];
 	
 	// Find end of current group, initialize working response
-	for (iItemEnd = iItemStart + 1; iItemEnd < nTrain && adGroup[iItemEnd] == dGroup; iItemEnd++)
+	for (iItemEnd = iItemStart + 1; iItemEnd < pData->get_trainSize() && adGroup[iItemEnd] == dGroup; iItemEnd++)
 	  {
 	    // Clear gradients from last iteration
 	    adZ[iItemEnd]         = 0;
@@ -632,7 +630,7 @@ void CPairwise::ComputeWorkingResponse
 	}  
 #endif
 
-	if (afInBag[iItemStart])
+	if (pData->GetBag()[iItemStart])
 	  {
 	    // Group is part of the training set
 	    
@@ -864,14 +862,12 @@ void CPairwise::Initialize
 #endif
 }
 
-void CPairwise::InitF
+double CPairwise::InitF
 (
-	const CDataset* pData,
-    double &dInitF,
-    unsigned long cLength
+	const CDataset* pData
 )
 {
-    dInitF = 0.0;
+    return 0.0;
 }
 
 
@@ -879,14 +875,24 @@ double CPairwise::Deviance
 (
    const CDataset* pData,
    const double *adF,
-   unsigned long cLength,
    bool isValidationSet
 )
 {
-    if (cLength <= 0)
+
+    // Shift adGroup to validation set if necessary
+	long cLength = pData->get_trainSize();
+	if (cLength <= 0)
+	{
+	        return 0;
+	}
+
+    if(isValidationSet)
     {
-        return 0;
+    	pData->shift_to_validation();
+    	adGroup=shift_ptr(CDistribution::misc_ptr(false), pData->get_trainSize());
+    	cLength = pData->GetValidSize();
     }
+
 
     double dL = 0.0;
     double dW = 0.0;
@@ -895,12 +901,7 @@ double CPairwise::Deviance
     unsigned int iItemEnd    = iItemStart;
     const unsigned int cEnd = cLength;
 
-    // Shift adGroup to validation set if necessary
-    if(isValidationSet)
-    {
-    	pData->shift_to_validation();
-    	adGroup=shift_ptr(CDistribution::misc_ptr(false), pData->get_trainSize());
-    }
+
 
 
     while (iItemStart < cEnd)
@@ -947,14 +948,9 @@ void CPairwise::FitBestConstant
 (
 	const CDataset* pData,
     const double *adF,
-    double *adZ,
-    const std::vector<unsigned long> &aiNodeAssign,
-    unsigned long nTrain,
-    VEC_P_NODETERMINAL vecpTermNodes,
     unsigned long cTermNodes,
-    unsigned long cMinObsInNode,
-    const bag& afInBag,
-    const double *adFadj
+    double* adZ,
+    CTreeComps* pTreeComps
 )
 {
 
@@ -974,9 +970,9 @@ void CPairwise::FitBestConstant
 	vecdDenom[i] = 0.0;
       }
 
-    for (unsigned int iObs = 0; iObs < nTrain; iObs++)
+    for (unsigned int iObs = 0; iObs < pData->get_trainSize(); iObs++)
     {
-      if (afInBag[iObs])
+      if (pData->GetBagElem(iObs))
         {
 #ifdef NOISY_DEBUG
           if (!(isfinite(pData->weight_ptr()[iObs]) &&
@@ -986,24 +982,24 @@ void CPairwise::FitBestConstant
 	  };
 #endif
 
-            vecdNum[aiNodeAssign[iObs]]   += pData->weight_ptr()[iObs] * adZ[iObs];
-            vecdDenom[aiNodeAssign[iObs]] += pData->weight_ptr()[iObs] * vecdHessian[iObs];
+            vecdNum[pTreeComps->GetNodeAssign()[iObs]]   += pData->weight_ptr()[iObs] * adZ[iObs];
+            vecdDenom[pTreeComps->GetNodeAssign()[iObs]] += pData->weight_ptr()[iObs] * vecdHessian[iObs];
         }
     }
 
     for (unsigned int iNode = 0; iNode < cTermNodes; iNode++)
     {
-        if (vecpTermNodes[iNode] != NULL)
+        if (pTreeComps->GetTermNodes()[iNode] != NULL)
         {
-            vecpTermNodes[iNode]->dPrediction =
+        	pTreeComps->GetTermNodes()[iNode]->dPrediction =
                 vecdNum[iNode];
             if (vecdDenom[iNode] <= 0.0)
             {
-                vecpTermNodes[iNode]->dPrediction = 0.0;
+            	pTreeComps->GetTermNodes()[iNode]->dPrediction = 0.0;
             }
             else
             {
-                vecpTermNodes[iNode]->dPrediction =
+            	pTreeComps->GetTermNodes()[iNode]->dPrediction =
                     vecdNum[iNode]/vecdDenom[iNode];
             }
         }
@@ -1013,12 +1009,11 @@ void CPairwise::FitBestConstant
 
 double CPairwise::BagImprovement
 (
-	const CDataset* pData,
+	const CDataset& data,
     const double *adF,
-    const double *adFadj,
     const bag& afInBag,
-    double dStepSize,
-    unsigned long nTrain
+    const double shrinkage,
+    const double* adFadj
 )
 {
 
@@ -1026,7 +1021,7 @@ double CPairwise::BagImprovement
     Rprintf("BagImprovement, nTrain = %u\n", nTrain);
 #endif
 
-    if (nTrain <= 0)
+    if (data.get_trainSize() <= 0)
     {
         return 0;
     }
@@ -1038,43 +1033,43 @@ double CPairwise::BagImprovement
     unsigned int iItemEnd   = 0;
 
 
-    while (iItemStart < nTrain)
+    while (iItemStart < data.get_trainSize())
     {
         const double dGroup = adGroup[iItemStart];
 
         // Find end of current group
-        for (iItemEnd = iItemStart + 1; iItemEnd < nTrain && adGroup[iItemEnd] == dGroup; iItemEnd++) ;
+        for (iItemEnd = iItemStart + 1; iItemEnd < data.get_trainSize() && adGroup[iItemEnd] == dGroup; iItemEnd++) ;
 
-        if (!afInBag[iItemStart])
+        if (!data.GetBagElem(iItemStart))
         {
             // Group was held out of training set
 
             const unsigned int cNumItems = iItemEnd - iItemStart;
 
-            const double dMaxScore = pirm->MaxMeasure((int)dGroup, pData->y_ptr() + iItemStart, cNumItems);
+            const double dMaxScore = pirm->MaxMeasure((int)dGroup, data.y_ptr() + iItemStart, cNumItems);
 
             if (dMaxScore > 0.0)
             {
                 // If offset given, add up current scores
-                const double* adFPlusOffset = OffsetVector(adF, pData->offset_ptr(false), iItemStart, iItemEnd, vecdFPlusOffset);
+                const double* adFPlusOffset = OffsetVector(adF, data.offset_ptr(false), iItemStart, iItemEnd, vecdFPlusOffset);
 
                 // Compute score according to old score, adF
                 ranker.SetGroupScores(adFPlusOffset, cNumItems);
                 ranker.Rank();
-                const double dOldScore = pirm->Measure(pData->y_ptr() + iItemStart, ranker);
+                const double dOldScore = pirm->Measure(data.y_ptr() + iItemStart, ranker);
 
                 // Compute score according to new score: adF' =  adF + dStepSize * adFadj
                 for (unsigned int i = 0; i < cNumItems; i++)
                 {
-                    ranker.AddToScore(i, adFadj[i+iItemStart] * dStepSize);
+                    ranker.AddToScore(i, adFadj[i+iItemStart] * shrinkage);
                 }
 
-                const double dWi = pData->weight_ptr()[iItemStart];
+                const double dWi = data.weight_ptr()[iItemStart];
 
                 if (ranker.Rank())
                 {
                     // Ranking changed
-                    const double dNewScore = pirm->Measure(pData->y_ptr() + iItemStart, ranker);
+                    const double dNewScore = pirm->Measure(data.y_ptr() + iItemStart, ranker);
                     dL                    += dWi * (dNewScore - dOldScore) / dMaxScore;
                 }
                 dW += dWi;

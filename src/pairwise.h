@@ -263,8 +263,8 @@ class CPairwise : public CDistribution
 public:
 
 	static CDistribution* Create(SEXP radMisc,
-										const char* szIRMeasure,
-										int& cGroups, int& cTrain);
+								const char* szIRMeasure,
+								int& cTrain);
 
     virtual ~CPairwise();
 
@@ -272,41 +272,29 @@ public:
     
     void ComputeWorkingResponse(const CDataset* pData,
     			const double *adF,
-				double *adZ,
-				const bag& afInBag,
-				unsigned long nTrain);
+				double *adZ);
     
     double Deviance(const CDataset* pData,
     			const double *adF,
-                    unsigned long cLength,
                     bool isValidationSet=false);
 
-    void InitF(const CDataset* pData,
-    		double &dInitF,
-	       unsigned long cLength);
+    double InitF(const CDataset* pData);
 
     void FitBestConstant(const CDataset* pData,
     		const double *adF,
-			 double *adZ,
-			 const std::vector<unsigned long>& aiNodeAssign,
-			 unsigned long nTrain,
-			 VEC_P_NODETERMINAL vecpTermNodes,
 			 unsigned long cTermNodes,
-			 unsigned long cMinObsInNode,
-			 const bag& afInBag,
-			 const double *adFadj);
+			 double* adZ,
+			 CTreeComps* pTreeComps);
 
-    double BagImprovement(const CDataset* pData,
+    double BagImprovement(const CDataset& data,
     					  const double *adF,
-                          const double *adFadj,
-                          const bag& afInBag,
-                          double dStepSize,
-                          unsigned long nTrain);
+    					  const bag& afInBag,
+                          const double shrinkage, const double* adFadj);
 
 protected:
 
     // Constructor: determine IR measure as either "conc", "map", "mrr", or "ndcg"
-    CPairwise(SEXP radMisc, const char* szIRMeasure, int& cGroups, int& cTrain);
+    CPairwise(SEXP radMisc, const char* szIRMeasure, int& cTrain);
 
     // Calculate and accumulate up the gradients and Hessians from all training pairs
     void ComputeLambdas(int iGroup, unsigned int cNumItems, const double* const adY, const double* const adF, const double* const adWeight, double* adZ, double* adDeriv);

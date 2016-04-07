@@ -18,6 +18,7 @@
 // Includes
 //------------------------------
 #include "buildinfo.h"
+#include "configStructs.h"
 #include "gbmDataContainer.h"
 #include "gbmTreeComps.h"
 #include <memory>
@@ -33,7 +34,7 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-    CGBM();
+    CGBM(configStructs GBMParams);
 
 	//---------------------
 	// Public destructor
@@ -43,25 +44,10 @@ public:
 	//---------------------
 	// Public Functions
 	//---------------------
-    void Initialize();
-    void SetDataAndDistribution(SEXP radY, SEXP radOffset, SEXP radX, SEXP raiXOrder,
-            SEXP radWeight, SEXP racVarClasses,
-            SEXP ralMonotoneVar, SEXP radMisc, const std::string& family,
-    		const int cTrain, int& cGroups);
-
-    void SetTreeContainer(double dLambda,
-    	    unsigned long cTrain,
-    	    unsigned long cFeatures,
-    	    double dBagFraction,
-    	    unsigned long cDepth,
-    	    unsigned long cMinObsInNode,
-    	    int cGroups);
-
-    void Iterate(double *adF,
+    void FitLearner(double *adF,
 		 double &dTrainError,
 		 double &dValidError,
-		 double &dOOBagImprove,
-		 int &cNodes);
+		 double &dOOBagImprove);
 
     void GBMTransferTreeToRList(int *aiSplitVar,
 			     double *adSplitPoint,
@@ -74,17 +60,20 @@ public:
 			     VEC_VEC_CATEGORIES &vecSplitCodes,
 			     int cCatSplitsOld);
 
-    void InitF(double &dInitF, unsigned long cLength);
-    bool IsPairwise() const { return (pTreeComp->GetNoGroups() >= 0); }
+    const long SizeOfFittedTree() const;
+    double InitF();
 
 private:
 	//-------------------
 	// Private Variables
 	//-------------------
     CGBMDataContainer* pDataCont;
-    CTreeComps* pTreeComp;
+	CTreeComps* pTreeComp;
     bool fInitialized;          // indicates whether the GBM has been initialized
-    bool hasDataAndDist, hasTreeContainer;
+
+    // Residuals and adjustments to function estimate
+    std::vector<double> adZ;
+
 };
 
 #endif //  __gbmEnginegbm_h__

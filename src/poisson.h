@@ -30,8 +30,8 @@ public:
 	// Factory Function
 	//---------------------
 	static CDistribution* Create(SEXP radMisc,
-										const char* szIRMeasure,
-										int& cGroups, int& cTrain);
+								 const char* szIRMeasure,
+								 int& cTrain);
 
 	//---------------------
 	// Public destructor
@@ -43,51 +43,31 @@ public:
     //---------------------
     void ComputeWorkingResponse(const CDataset* pData,
     		const double *adF,
-				double *adZ,
-				const bag& afInBag,
-				unsigned long nTrain);
+				double *adZ);
 
     double Deviance(const CDataset* pData,
     				const double *adF,
-                    unsigned long cLength,
                     bool isValidationSet=false);
 
-    void InitF(const CDataset* pData,
-    		double &dInitF,
-	       unsigned long cLength);
+    double InitF(const CDataset* pData);
 
     void FitBestConstant(const CDataset* pData,
     		const double *adF,
-			 double *adZ,
-			 const std::vector<unsigned long>& aiNodeAssign,
-			 unsigned long nTrain,
-			 VEC_P_NODETERMINAL vecpTermNodes,
 			 unsigned long cTermNodes,
-			 unsigned long cMinObsInNode,
-			 const bag& afInBag,
-			 const double *adFadj);
+			 double* adZ,
+			 CTreeComps* pTreeComps);
 
-    double BagImprovement(const CDataset* pData,
+    double BagImprovement(const CDataset& data,
     					  const double *adF,
-                          const double *adFadj,
-                          const bag& afInBag,
-                          double dStepSize,
-                          unsigned long nTrain);
+    					  const bag& afInBag,
+                         const double shrinkage,
+                         const double* adFadj);
 
 private:
     //----------------------
     // Private Constructors
     //----------------------
     CPoisson(SEXP radMisc);
-
-
-	//-------------------
-	// Private Variables
-	//-------------------
-    vector<double> vecdNum;
-    vector<double> vecdDen;
-    vector<double> vecdMax;
-    vector<double> vecdMin;
 };
 
 #endif // __poisson_h__

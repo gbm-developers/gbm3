@@ -23,34 +23,30 @@
 //
 // Parameters: ...
 //-----------------------------------
-CGBMDataContainer::CGBMDataContainer(SEXP radY, SEXP radOffset, SEXP radX, SEXP raiXOrder,
-        SEXP radWeight, SEXP racVarClasses,
-        SEXP ralMonotoneVar, SEXP radMisc, const std::string& family, int cTrain, int& cGroups):
-        data(radY, radOffset, radX, raiXOrder,
-    			radWeight, racVarClasses, ralMonotoneVar, cTrain)
+CGBMDataContainer::CGBMDataContainer(DataDistParams dataDistConfig):
+        data(dataDistConfig)
 {
-	cGroups = -1;
 
 	//Initialize the factory and then use to get the disribution
 	DistFactory = new DistributionFactory();
 
 	// Checks for pairwise distribution
 	// this should be removed later.
-	if(0 == family.compare(0, 8, "pairwise"))
+	if(0 == dataDistConfig.family.compare(0, 8, "pairwise"))
 	{
-		std::size_t offsetToMeasure = family.find("_");
+		std::size_t offsetToMeasure = dataDistConfig.family.find("_");
 		if(offsetToMeasure == std::string::npos)
 		{
 			throw GBM::failure("Unable to locate IR metric required for pairwise");
 		}
 
-		const char* szIRMeasure = family.c_str() + offsetToMeasure + 1;
-		pDist = DistFactory -> CreateDist("pairwise", radMisc, szIRMeasure, cGroups, cTrain);
+		const char* szIRMeasure = dataDistConfig.family.c_str() + offsetToMeasure + 1;
+		pDist = DistFactory -> CreateDist("pairwise", dataDistConfig.misc, szIRMeasure, dataDistConfig.cTrain);
 
 	}
 	else
 	{
-		pDist = DistFactory -> CreateDist(family, radMisc, "", cGroups, cTrain);
+		pDist = DistFactory -> CreateDist(dataDistConfig.family, dataDistConfig.misc, "", dataDistConfig.cTrain);
 	}
 }
 
@@ -94,9 +90,9 @@ void CGBMDataContainer::Initialize()
 //    unsigned long - the number of predictors the fit must provide response estimates for
 //
 //-----------------------------------
-void CGBMDataContainer::InitializeFunctionEstimate(double& dInitF, unsigned long cLength)
+double CGBMDataContainer::InitialFunctionEstimate()
 {
-	pDist->InitF(&data, dInitF, cLength);
+	return pDist->InitF(&data);
 }
 
 //-----------------------------------
@@ -110,12 +106,9 @@ void CGBMDataContainer::InitializeFunctionEstimate(double& dInitF, unsigned long
 //    CTreeComps ptr - ptr to the tree components container in the gbm.
 //
 //-----------------------------------
-void CGBMDataContainer::ComputeResiduals(const double* adF, CTreeComps* pTreeComp)
+void CGBMDataContainer::ComputeResiduals(const double* adF, double* adZ)
 {
-	pDist->ComputeWorkingResponse(&data, adF,
-	                               	pTreeComp->GetGrad(),
-	                                pTreeComp->GetBag(),
-	                                pTreeComp->GetTrainNo());
+	pDist->ComputeWorkingResponse(&data, adF, adZ);
 }
 
 //-----------------------------------
@@ -129,17 +122,11 @@ void CGBMDataContainer::ComputeResiduals(const double* adF, CTreeComps* pTreeCom
 //    CTreeComps ptr - ptr to the tree components container in the gbm
 //    int& - reference to the number of nodes in the tree.
 //-----------------------------------
-void CGBMDataContainer::ComputeBestTermNodePreds(const double* adF, CTreeComps* pTreeComp, int& cNodes)
+void CGBMDataContainer::ComputeBestTermNodePreds(const double* adF, double* adZ, CTreeComps* pTreeComp)
 {
 	pDist->FitBestConstant(&data, &adF[0],
-	                         pTreeComp->GetGrad(),
-	                         pTreeComp->GetNodeAssign(),
-	                         pTreeComp->GetTrainNo(),
-	                         pTreeComp->GetTermNodes(),
-	                         (2*cNodes+1)/3, // number of terminal nodes
-	                         pTreeComp->GetMinNodeObs(),
-	                         pTreeComp->GetBag(),
-	                         pTreeComp->GetRespAdj());
+	                         (2*pTreeComp->GetSizeOfTree()+1)/3, // number of terminal nodes
+	                         &adZ[0], pTreeComp);
 }
 
 //-----------------------------------
@@ -154,15 +141,15 @@ void CGBMDataContainer::ComputeBestTermNodePreds(const double* adF, CTreeComps* 
 //    bool - bool which indicates whether it is the training or validation data used.
 //
 //-----------------------------------
-double CGBMDataContainer::ComputeDeviance(const double* adF, CTreeComps* pTreeComp, bool isValidationSet)
+double CGBMDataContainer::ComputeDeviance(const double* adF, bool isValidationSet)
 {
 	if(!(isValidationSet))
 	{
-		return pDist->Deviance(&data, adF, pTreeComp->GetTrainNo());
+		return pDist->Deviance(&data, adF);
 	}
 	else
 	{
-		return pDist->Deviance(&data, adF + pTreeComp->GetTrainNo(), pTreeComp->GetValidNo(), true);
+		return pDist->Deviance(&data, adF + data.get_trainSize(), true);
 	}
 }
 
@@ -177,13 +164,9 @@ double CGBMDataContainer::ComputeDeviance(const double* adF, CTreeComps* pTreeCo
 //    CTreeComps ptr - ptr to the tree components container in the gbm
 //
 //-----------------------------------
-double CGBMDataContainer::ComputeBagImprovement(const double* adF, CTreeComps* pTreeComp)
+double CGBMDataContainer::ComputeBagImprovement(const double* adF, const double shrinkage, const double* adFadj)
 {
-	return pDist->BagImprovement(&data, &adF[0],
-            pTreeComp->GetRespAdj(),
-            pTreeComp->GetBag(),
-            pTreeComp->GetLambda(),
-            pTreeComp->GetTrainNo());
+	return pDist->BagImprovement(data, &adF[0], data.GetBag(),  shrinkage, adFadj);
 }
 
 //-----------------------------------
@@ -209,7 +192,96 @@ CDistribution* CGBMDataContainer::getDist()
 //
 // Parameters: none
 //-----------------------------------
-const CDataset* CGBMDataContainer::getData()
+CDataset* CGBMDataContainer::getData()
 {
 	return &data;
+}
+
+
+//-----------------------------------
+// Function: BagData
+//
+// Returns: none
+//
+// Description: put data into bags.
+//
+// Parameters: bool - determines if distribution is pairwise
+//    CDistribution ptr - pointer to the distribution + data
+//
+//-----------------------------------
+void CGBMDataContainer::BagData()
+{
+	unsigned long i = 0;
+	unsigned long cBagged = 0;
+
+	// randomly assign observations to the Bag
+	if (pDist->GetNumGroups() < 0)
+	{
+		// regular instance based training
+		for(i=0; i<data.get_trainSize() && (cBagged < data.GetTotalInBag()); i++)
+		{
+			if(unif_rand() * (data.get_trainSize()-i) < data.GetTotalInBag() - cBagged)
+			{
+				data.SetBagElem(i, true);
+				cBagged++;
+			}
+			else
+			{
+				 data.SetBagElem(i, false);
+			}
+		}
+
+		data.FillRemainderOfBag(i);
+	}
+	else
+	{
+		// for pairwise training, sampling is per group
+		// therefore, we will not have exactly cTotalInBag instances
+
+		double dLastGroup = -1;
+		bool fChosen = false;
+		unsigned int cBaggedGroups = 0;
+		unsigned int cSeenGroups   = 0;
+		unsigned int cTotalGroupsInBag = (unsigned long)(data.GetBagFraction() * pDist->GetNumGroups());
+		if (cTotalGroupsInBag <= 0)
+		{
+			cTotalGroupsInBag = 1;
+		}
+
+		for(i=0; i< data.get_trainSize(); i++)
+		{
+
+			const double dGroup = pDist->misc_ptr(true)[i];
+
+			if(dGroup != dLastGroup)
+			{
+				if (cBaggedGroups >= cTotalGroupsInBag)
+				{
+					break;
+				}
+
+				// Group changed, make a new decision
+				fChosen = (unif_rand()*(pDist->GetNumGroups() - cSeenGroups) <
+			   cTotalGroupsInBag - cBaggedGroups);
+				if(fChosen)
+				{
+					cBaggedGroups++;
+				}
+				dLastGroup = dGroup;
+				cSeenGroups++;
+			}
+			if(fChosen)
+			{
+				data.SetBagElem(i, true);
+				cBagged++;
+			}
+			else
+			{
+				data.SetBagElem(i, false);
+			}
+		}
+
+		// the remainder is not in the bag
+		data.FillRemainderOfBag(i);
+	}
 }

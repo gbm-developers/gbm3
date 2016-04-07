@@ -12,7 +12,7 @@
 //  History:    3/26/2001   gregr created
 //              2/14/2003   gregr: adapted for R implementation
 //			   16/03/2016   James Hickey: updated to remove terminal and non-terminal nodes
-//
+//			   30/03/2016   James Hickey: templated to deal with continuous and categorical splits.
 //------------------------------------------------------------------------------
 
 #ifndef __node_h__
@@ -22,8 +22,14 @@
 //------------------------------
 #include <vector>
 #include "dataset.h"
+#include "nodeParameters.h"
 #include "buildinfo.h"
 
+//------------------------------
+// Class Forwards and Enums
+//------------------------------
+class GenericNodeStrategy;
+enum SplitType {categorical, continuous, none};
 
 using namespace std;
 typedef vector<int> VEC_CATEGORIES;
@@ -38,7 +44,8 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-    CNode();
+    CNode(double nodePrediction,
+    		double trainingWeight, long numObs);
 
 	//---------------------
 	// Public destructor
@@ -52,29 +59,12 @@ public:
     void Predict(const CDataset &data,
 			 unsigned long iRow,
 			 double &dFadj);
-    void Predict(double *adX,
-			 unsigned long cRow,
-			 unsigned long cCol,
-			 unsigned long iRow,
-			 double &dFadj);
-    void GetVarRelativeInfluence(double *adRelInf);
-    void ApplyShrinkage(double dLambda);
-    virtual void reset()
-    {
-    	dPrediction = 0;
-    	if(!isTerminal)
-    	{
-    		pLeftNode = pRightNode = pMissingNode = 0;
-    		iSplitVar = 0;
-    		dImprovement = 0;
-    	}
-    }
 
-	//---------------------
-	// Public Functions - Pure Virtual
-	//---------------------
-    virtual void PrintSubtree(unsigned long cIndent) = 0;
-    virtual void TransferTreeToRList(int &iNodeID,
+    void GetVarRelativeInfluence(double *adRelInf);
+    void SplitNode();
+    void PrintSubtree(unsigned long cIndent);
+    double SplitImprovement(){ return childrenParams.ImprovedResiduals;}
+    void TransferTreeToRList(int &iNodeID,
 				     const CDataset &data,
 				     int *aiSplitVar,
 				     double *adSplitPoint,
@@ -86,28 +76,49 @@ public:
 				     double *adPred,
 				     VEC_VEC_CATEGORIES &vecSplitCodes,
 				     int cCatSplitsOld,
-				     double dShrinkage)=0;
-    virtual signed char WhichNode(const CDataset &data,
-                             unsigned long iObs)=0;
-    virtual signed char WhichNode(double *adX,
-                             unsigned long cRow,
-                             unsigned long cCol,
-                             unsigned long iRow)=0;
+				     double dShrinkage);
+	signed char WhichNode(const CDataset &data,
+							unsigned long iObs);
 
 	//---------------------
 	// Public Variables
 	//---------------------
-	CNode *pLeftNode;
-	CNode *pRightNode;
-	CNode *pMissingNode;
+	// Pointers to the Node's children
+	CNode* pLeftNode;
+	CNode* pRightNode;
+	CNode* pMissingNode;
 
+	// Parameters
+	NodeParams nodeParams;
+	NodeParams childrenParams;
+
+	// This nodes parameters
 	unsigned long iSplitVar;
 	double dImprovement;
-	double dPrediction;
 
+	// Properties defining the node
+	double dPrediction;
 	double dTrainW;   // total training weight in node
-	unsigned long cN; // number of training observations in node
-	bool isTerminal;
+	long cN; // number of training observations in node
+
+	// ENUM FOR strategy
+	SplitType splitType;
+
+	// VARIABLES USED IN NODE SPLITTING
+	std::vector<unsigned long> aiLeftCategory;
+    double dSplitValue;
+
+private:
+	//---------------------
+	// Private Functions
+	//---------------------
+    void SetStrategy();
+
+	//---------------------
+	// Private Variables
+	//---------------------
+    GenericNodeStrategy* nodeStrategy;
+
 };
 
 #endif // __node_h__

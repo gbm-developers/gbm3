@@ -6,6 +6,7 @@
 CDistribution::CDistribution(SEXP radMisc)
   : adMisc(radMisc), distHasMisc(GBM_FUNC::has_value(adMisc))
 {
+	cGroups = -1;
 }
 
 CDistribution::~CDistribution()
@@ -40,6 +41,16 @@ const double* CDistribution::misc_ptr(bool require) const
 double* CDistribution::misc_ptr(bool require)
 {
  return const_cast<double*>(static_cast<const CDistribution*>(this)->misc_ptr(require));
+}
+
+int CDistribution::GetNumGroups() const
+{
+	return cGroups;
+}
+
+void CDistribution::SetNumGroups(int GroupVal)
+{
+	cGroups = GroupVal;
 }
 
 
