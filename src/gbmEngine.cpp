@@ -87,6 +87,7 @@ void CGBM::FitLearner
   {
     adF[i] += adFadj[i];
   }
+
   dValidError = pDataCont->ComputeDeviance(&adF[0], true);
 
 }

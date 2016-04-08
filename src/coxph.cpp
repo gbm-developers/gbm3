@@ -52,14 +52,13 @@ void CCoxPH::ComputeWorkingResponse
     {
         if(pData->GetBag()[i])
         {
-            dF = adF[i] + pData->offset_ptr(false)[i];
+            dF = adF[i] +  pData->offset_ptr(false)[i];
             dRiskTot += pData->weight_ptr()[i]*std::exp(dF);
             vecdRiskTot[i] = dRiskTot;
         }
     }
-
     dTot = 0.0;
-    for(long i=pData->get_trainSize()-1; i < 0; i--) // i is unsigned so wraps to ULONG_MAX
+    for(long i= pData->get_trainSize()-1; i != -1; i--)
     {
         if(pData->GetBag()[i])
         {
@@ -71,7 +70,6 @@ void CCoxPH::ComputeWorkingResponse
             adZ[i] = adDelta[i] - std::exp(dF)*dTot;
         }
     }
-
 }
 
 
@@ -124,6 +122,7 @@ double CCoxPH::Deviance
     	pData->shift_to_train();
     	adDelta = CDistribution::misc_ptr(false);
     }
+
     return -2*dL/dW;
 }
 

@@ -4,12 +4,19 @@
 //  File:       node_search.cpp
 //
 //------------------------------------------------------------------------------
+//-----------------------------------
+// Includes
+//-----------------------------------
 #include "node_search.h"
 
+//----------------------------------------
+// Function Members - Public
+//----------------------------------------
 CNodeSearch::CNodeSearch(int numColData, unsigned long minObs):
 variableSplitters(numColData, VarSplitter(minObs))
 {
     cTerminalNodes = 1;
+    minNumObs = minObs;
 
 }
 
@@ -39,11 +46,15 @@ void CNodeSearch::GenerateAllSplits
 	// Loop over terminal nodes
 	for(long iNode = 0; iNode < cTerminalNodes; iNode++)
 	{
+	  // Reset variable splitters
+	  ResetVarSplitter();
+
 	  // Loop over variables - Generate splits
 	  for(CDataset::index_vector::const_iterator it=colNumbers.begin();
 			  it != final;
 			  it++)
 	  {
+		  //std::cout << "Var Explored: " << *it << endl;
 		  variableSplitters[*it].SetForNode(*vecpTermNodes[iNode]);
 		  variableSplitters[*it].SetForVariable(*it, data.varclass(*it));
 
@@ -66,6 +77,10 @@ void CNodeSearch::GenerateAllSplits
 		  {
 			  variableSplitters[*it].EvaluateCategoricalSplit();
 		  }
+		 /* if(iNode == 0)
+		  {
+			 std::cout << variableSplitters[2].GetBestSplit().GetImprovement() << endl;
+		  }*/
 	  }
 	  // Assign best split to node
 	  AssignToNode(*vecpTermNodes[iNode]);
@@ -91,7 +106,6 @@ double CNodeSearch::SplitAndCalcImprovement
 			dBestNodeImprovement = vecpTermNodes[iNode]->SplitImprovement();
 		}
 	}
-
 	// Split Node if improvement is non-zero
 	if(dBestNodeImprovement != 0.0)
 	{
@@ -107,9 +121,19 @@ double CNodeSearch::SplitAndCalcImprovement
 		vecpTermNodes[cTerminalNodes-1] = vecpTermNodes[iBestNode]->pMissingNode;
 		vecpTermNodes[iBestNode] = vecpTermNodes[iBestNode]->pLeftNode;
 	}
+	/*std::cout << dBestNodeImprovement << endl;
+	std::cout << iBestNode << endl;*/
+/*	std::cout << vecpTermNodes[cTerminalNodes-2]->dPrediction << " " << vecpTermNodes[cTerminalNodes-2]->dTrainW << endl;
+	std::cout << vecpTermNodes[cTerminalNodes-1]->dPrediction << " " << vecpTermNodes[cTerminalNodes-1]->dTrainW << endl;
+	std::cout << vecpTermNodes[iBestNode]->dPrediction << " " << vecpTermNodes[iBestNode]->dTrainW << endl;*/
+
+	//std::cout << "Best Improv Left-Most Node: " << vecpTermNodes[0]->dImprovement << endl;
 	return dBestNodeImprovement;
 }
 
+//----------------------------------------
+// Function Members - Private
+//----------------------------------------
 void CNodeSearch::ReAssignData
 (
 		long splittedNodeIndex,
@@ -143,6 +167,7 @@ void CNodeSearch::AssignToNode(CNode& terminalNode)
 	long bestSplitInd = 0;
 	double bestErrImprovement = 0.0;
 	double currErrImprovement = 0.0;
+
 	for(long it = 0; it < variableSplitters.size(); it++)
 	{
 		currErrImprovement = variableSplitters[it].GetBestImprovement();
@@ -153,6 +178,21 @@ void CNodeSearch::AssignToNode(CNode& terminalNode)
 		}
 	}
 
-	// Wrap up variable
-	terminalNode.childrenParams =  variableSplitters[bestSplitInd].GetBestSplit();
+	// Check if variables explored have better improvement than previous searches
+	if(bestErrImprovement > terminalNode.childrenParams.GetImprovement())
+	{
+		terminalNode.childrenParams =  variableSplitters[bestSplitInd].GetBestSplit();
+	}
+
+}
+
+
+void CNodeSearch::ResetVarSplitter()
+{
+	// Reset each variable splitter
+	for(long it = 0; it < variableSplitters.size(); it++)
+	{
+		variableSplitters[it].Reset();
+	}
+
 }

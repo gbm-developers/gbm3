@@ -13,7 +13,9 @@ depthOfTree(depth)
 {
     pRootNode = NULL;
     cTotalNodeCount = 1;
+    dError = 0.0;
 
+    // Calculate original
 }
 
 
@@ -62,7 +64,7 @@ void CCARTTree::grow
   Rprintf("initial tree calcs\n");
 #endif
 
-  // Move to data -- FOR TIME BEING
+  	  // Move to data -- FOR TIME BEING
 	for(long iObs=0; iObs<data.get_trainSize(); iObs++)
 	{
 		// aiNodeAssign tracks to which node each training obs belongs
@@ -94,13 +96,13 @@ void CCARTTree::grow
       
     // Generate all splits
     aNodeSearch.GenerateAllSplits(vecpTermNodes, data, &(adZ[0]), aiNodeAssign);
+    double bestImprov = aNodeSearch.SplitAndCalcImprovement(vecpTermNodes, data, aiNodeAssign);
 
     // Make the best split if possible
-	if(aNodeSearch.SplitAndCalcImprovement(vecpTermNodes, data, aiNodeAssign) == 0.0)
+	if(bestImprov == 0.0)
 	{
 	  break;
 	}
-
 	// setup the new nodes and add them to the tree
 	cTotalNodeCount += 3;
 

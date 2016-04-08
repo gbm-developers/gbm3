@@ -72,10 +72,7 @@ SEXP gbm
 				rszFamily, rcTrees, rcDepth,
 				rcMinObsInNode, rdShrinkage,
 				rdBagFraction, rcTrain, rcFeatures);
-
      Rcpp::RNGScope scope;
-
-
 
     // Build gbm piece-by-piece
     CGBM GBM(GBMParams);
@@ -111,11 +108,13 @@ SEXP gbm
     {
     	Rcpp::checkUserInterrupt();
 
-        double dTrainError = 0;
-        double dValidError = 0;
-        double dOOBagImprove = 0;
+        double dTrainError = 0.0;
+        double dValidError = 0.0;
+        double dOOBagImprove = 0.0;
+
         GBM.FitLearner(adF.begin(),
                       dTrainError,dValidError,dOOBagImprove);
+
         // store the performance measures
         adTrainError[iT] += dTrainError;
         adValidError[iT] += dValidError;

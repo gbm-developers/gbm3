@@ -17,21 +17,36 @@
 #ifndef NODESEARCH_H
 #define NODESEARCH_H
 
+//------------------------------
+// Includes
+//------------------------------
 #include <vector>
 #include "dataset.h"
 #include "node.h"
 #include "varsplitter.h"
 #include "nodeParameters.h"
 
-
 using namespace std;
 
+//------------------------------
+// Class Definition
+//------------------------------
 class CNodeSearch
 {
 public:
-
+	//----------------------
+	// Public Constructors
+	//----------------------
     CNodeSearch(int numColData, unsigned long minObs);
+
+	//---------------------
+	// Public destructor
+	//---------------------
     ~CNodeSearch();
+
+	//---------------------
+	// Public Functions
+	//---------------------
     void GenerateAllSplits(vector<CNode*>& vecpTermNodes, const CDataset& data,
     						double* residuals, vector<unsigned long>& aiNodeAssign);
     double SplitAndCalcImprovement(vector<CNode*>& vecpTermNodes,
@@ -39,18 +54,24 @@ public:
     					vector<unsigned long>& aiNodeAssign);
     void Reset();
 
-
 private:
-    //Private methods
+	//---------------------
+	// Private Functions
+	//---------------------
     void ReAssignData(long splittedNodeIndex, vector<CNode*>& vecpTermNodes,
     					const CDataset& data, vector<unsigned long>& aiNodeAssign);
     void AssignToNode(CNode& terminalNode);
+    void ResetVarSplitter();
 
-    // Split Parameters -
+	//---------------------
+	// Private Variables
+	//---------------------
+    // Splitters for variable sets
     std::vector<VarSplitter> variableSplitters;
 
     // Number of terminal nodes
     long cTerminalNodes;
+    unsigned long minNumObs;
 };
 
 #endif // NODESEARCH_H

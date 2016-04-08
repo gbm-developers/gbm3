@@ -17,9 +17,6 @@
 VarSplitter::VarSplitter(unsigned long minNumObs):bestSplit(), proposedSplit()
 {
 
-	hasBestSplit = false;
-	setForNode = false;
-
 	InitTotalWeight = 0.0;
 	InitWeightResiduals = 0.0;
 	InitNumObs = 0;
@@ -40,7 +37,6 @@ void VarSplitter::IncorporateObs
     long lMonotone
 )
 {
-	if(hasBestSplit) return;
 	if(ISNA(dX))
 	{
 		proposedSplit.UpdateMissingNode(dW*dZ, dW);
@@ -89,9 +85,6 @@ void VarSplitter::EvaluateCategoricalSplit()
   long i=0;
   unsigned long cFiniteMeans = 0;
 
-  // Check if already evaluated
-  if(hasBestSplit) return;
-
   if(proposedSplit.SplitClass == 0)
 	{
 	  throw GBM::invalid_argument();
@@ -121,25 +114,34 @@ void VarSplitter::EvaluateCategoricalSplit()
 
 void VarSplitter::SetForNode(CNode& nodeToSplit)
 {
-	// If not set for this node then
-	if(!setForNode)
-	{
-		InitWeightResiduals = nodeToSplit.dPrediction * nodeToSplit.dTrainW;
-		InitTotalWeight = nodeToSplit.dTrainW;
-		InitNumObs = nodeToSplit.cN;
-	}
-	hasBestSplit = !(nodeToSplit.splitType == none);
+	InitWeightResiduals = nodeToSplit.dPrediction * nodeToSplit.dTrainW;
+	InitTotalWeight = nodeToSplit.dTrainW;
+	InitNumObs = nodeToSplit.cN;
 }
 
 void VarSplitter::SetForVariable(unsigned long iWhichVar, long cVarClasses)
 {
 
-	if(hasBestSplit) return;
 	bestSplit.ResetSplitProperties(InitWeightResiduals, InitTotalWeight, InitNumObs);
 	proposedSplit.ResetSplitProperties(InitWeightResiduals, InitTotalWeight, InitNumObs,
 		  proposedSplit.SplitValue,	cVarClasses, iWhichVar);
 
 	dLastXValue = -HUGE_VAL;
+
+}
+
+void VarSplitter::Reset()
+{
+	// Reset the splitter for new searching
+	InitTotalWeight = 0.0;
+	InitWeightResiduals = 0.0;
+	InitNumObs = 0;
+
+	dLastXValue = -HUGE_VAL;
+
+	// Reset best split
+	bestSplit.ResetSplitProperties(0.0, 0.0, 0);
+	proposedSplit.ResetSplitProperties(0.0, 0.0, 0);
 
 }
 
@@ -162,3 +164,5 @@ void VarSplitter::WrapUpSplit()
 
 	}
 }
+
+

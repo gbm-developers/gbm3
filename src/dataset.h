@@ -68,7 +68,7 @@ public:
 	bool has_offset() const;
 	double x_value(const int row, const int col) const; // retrieve predictor value
 
-	unsigned long get_trainSize() const; // get size of training set
+	long get_trainSize() const; // get size of training set
 	long get_numFeatures() const; // get the number of features in data
 
 	void shift_to_validation() const; // shift all of the ptrs to validation set

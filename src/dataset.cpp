@@ -31,7 +31,6 @@ public:
 		fHasOffset(GBM_FUNC::has_value(adOffset))
 	{
 
-
 		// If you've no offset set to 0
 		if(!fHasOffset)
 		{
@@ -124,7 +123,7 @@ public:
 		mutable double* adWeightPtr;
 
 		// Properties of the data
-		unsigned long numOfTrainData;
+		long numOfTrainData;
 		unsigned long cValid;
 		long numOfFeatures;
 		bool fHasOffset;
@@ -369,12 +368,12 @@ double CDataset::x_value(const int row, const int col) const
 //-----------------------------------
 // Function: get_trainSize
 //
-// Returns: unsigned long - the number of training instances
+// Returns: long - the number of training instances
 //
 // Parameters: none
 //
 //-----------------------------------
-unsigned long CDataset::get_trainSize() const
+long CDataset::get_trainSize() const
 {
 	return dataImpl->numOfTrainData;
 }

@@ -45,21 +45,20 @@ public:
 			long lMonotone);
 	void EvaluateCategoricalSplit();
 	NodeParams GetBestSplit() { return bestSplit;};
-
+	void Reset();
 
 private:
 	//---------------------
 	// Private Functions
 	//---------------------
 	void WrapUpSplit();
-
+	
 	//---------------------
 	// Private Variables
 	//---------------------
-	bool hasBestSplit, setForNode;
-	unsigned long minObsInNode;
 	double InitTotalWeight, InitWeightResiduals, dLastXValue;
 	unsigned long InitNumObs;
+	unsigned long minObsInNode;
 	NodeParams bestSplit, proposedSplit;
 
 

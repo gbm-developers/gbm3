@@ -89,9 +89,10 @@ public:
 	CNode* pMissingNode;
 
 	// Parameters
-	NodeParams nodeParams;
+	NodeParams nodeParams; // TODO: Not yet used - connect to R API
 	NodeParams childrenParams;
 
+	//TODO: Currently most useful in printing out tree
 	// This nodes parameters
 	unsigned long iSplitVar;
 	double dImprovement;

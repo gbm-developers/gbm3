@@ -447,7 +447,7 @@ double CMAP::SwapCost(int iItemPos, int iItemNeg, const double* const adY, const
     const vector<int>::iterator itItemNeg = upper_bound(veccRankPos.begin(), veccRankPos.begin() + cPos, iRankItemNeg);
 
     // The number of positive items up to and including iItemPos
-    const unsigned int cNumPosNotBelowItemPos = (unsigned int)(itItemPos - veccRankPos.begin());
+    const int cNumPosNotBelowItemPos = (int)(itItemPos - veccRankPos.begin());
 
     // The number of positive items up to iItemNeg (Note: Cannot include iItemNeg itself)
     const unsigned int cNumPosAboveItemNeg    = (unsigned int)(itItemNeg  - veccRankPos.begin());
@@ -881,18 +881,21 @@ double CPairwise::Deviance
 
     // Shift adGroup to validation set if necessary
 	long cLength = pData->get_trainSize();
-	if (cLength <= 0)
-	{
-	        return 0;
-	}
-
     if(isValidationSet)
     {
+    	cLength = pData->GetValidSize();
     	pData->shift_to_validation();
     	adGroup=shift_ptr(CDistribution::misc_ptr(false), pData->get_trainSize());
-    	cLength = pData->GetValidSize();
+
     }
 
+    if (cLength <= 0)
+	{
+    	// NB: SWITCH BACK TO TRAIN BEFORE LEAVING
+    	pData->shift_to_train();
+		adGroup = CDistribution::misc_ptr(false);
+		return 0;
+	}
 
     double dL = 0.0;
     double dW = 0.0;
@@ -900,9 +903,6 @@ double CPairwise::Deviance
     unsigned int iItemStart  = 0;
     unsigned int iItemEnd    = iItemStart;
     const unsigned int cEnd = cLength;
-
-
-
 
     while (iItemStart < cEnd)
     {
@@ -939,6 +939,7 @@ double CPairwise::Deviance
     	pData->shift_to_train();
     	adGroup = CDistribution::misc_ptr(false);
     }
+
    // Loss = 1 - utility
    return 1.0 - dL / dW;
 }

@@ -28,7 +28,11 @@ NodeParams::NodeParams()
 	MissingTotalWeight = 0.0;
 	MissingNumObs     = 0;
 
+	ImprovedResiduals = 0.0;
 	SplitValue = 0.0;
+	SplitClass = 0;
+	SplitVar = 0;
+
 	adGroupSumZ.resize(1024);
 	adGroupW.resize(1024);
 	acGroupN.resize(1024);
