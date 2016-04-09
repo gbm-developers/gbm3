@@ -54,11 +54,8 @@ void CNodeSearch::GenerateAllSplits
 			  it != final;
 			  it++)
 	  {
-		  //std::cout << "Var Explored: " << *it << endl;
 		  variableSplitters[*it].SetForNode(*vecpTermNodes[iNode]);
 		  variableSplitters[*it].SetForVariable(*it, data.varclass(*it));
-
-		  bool varIsCategorical = (bool) data.varclass(*it);
 		  for(long iOrderObs=0; iOrderObs < data.get_trainSize(); iOrderObs++)
 		  {
 			  //Get Observation and add to split if needed
@@ -77,10 +74,7 @@ void CNodeSearch::GenerateAllSplits
 		  {
 			  variableSplitters[*it].EvaluateCategoricalSplit();
 		  }
-		 /* if(iNode == 0)
-		  {
-			 std::cout << variableSplitters[2].GetBestSplit().GetImprovement() << endl;
-		  }*/
+
 	  }
 	  // Assign best split to node
 	  AssignToNode(*vecpTermNodes[iNode]);
@@ -121,13 +115,7 @@ double CNodeSearch::SplitAndCalcImprovement
 		vecpTermNodes[cTerminalNodes-1] = vecpTermNodes[iBestNode]->pMissingNode;
 		vecpTermNodes[iBestNode] = vecpTermNodes[iBestNode]->pLeftNode;
 	}
-	/*std::cout << dBestNodeImprovement << endl;
-	std::cout << iBestNode << endl;*/
-/*	std::cout << vecpTermNodes[cTerminalNodes-2]->dPrediction << " " << vecpTermNodes[cTerminalNodes-2]->dTrainW << endl;
-	std::cout << vecpTermNodes[cTerminalNodes-1]->dPrediction << " " << vecpTermNodes[cTerminalNodes-1]->dTrainW << endl;
-	std::cout << vecpTermNodes[iBestNode]->dPrediction << " " << vecpTermNodes[iBestNode]->dTrainW << endl;*/
 
-	//std::cout << "Best Improv Left-Most Node: " << vecpTermNodes[0]->dImprovement << endl;
 	return dBestNodeImprovement;
 }
 

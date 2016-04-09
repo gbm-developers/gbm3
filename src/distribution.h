@@ -94,7 +94,6 @@ private:
     Rcpp::NumericVector adMisc;
     int cGroups;
     bool distHasMisc;
-    bool distRequiresMisc;
 
 };
 

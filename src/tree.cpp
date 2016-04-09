@@ -8,8 +8,8 @@
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CCARTTree::CCARTTree(double shrinkage, long depth):shrinkageConst(shrinkage),
-depthOfTree(depth)
+CCARTTree::CCARTTree(double shrinkage, long depth):
+depthOfTree(depth), shrinkageConst(shrinkage)
 {
     pRootNode = NULL;
     cTotalNodeCount = 1;
@@ -27,6 +27,7 @@ CCARTTree::~CCARTTree()
 void CCARTTree::Reset()
 {
   delete pRootNode;
+  pRootNode = NULL;
   vecpTermNodes.resize(2*depthOfTree + 1, NULL);
   cTotalNodeCount = 1;
 }

@@ -480,14 +480,14 @@ double CDataset::GetBagFraction() const
 //-----------------------------------
 // Function: GetValidSize
 //
-// Returns: unsigned long
+// Returns: long
 //
 // Description: get size of validation set.
 //
 // Parameters: none
 //
 //-----------------------------------
-unsigned long CDataset::GetValidSize() const
+long CDataset::GetValidSize() const
 {
 	return dataImpl->cValid;
 }

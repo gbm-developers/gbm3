@@ -50,7 +50,8 @@ void CCoxPH::ComputeWorkingResponse
     dRiskTot = 0.0;
     for(unsigned long i=0; i<pData->get_trainSize(); i++)
     {
-        if(pData->GetBag()[i])
+        if(pData->GetBagElem(i))
+
         {
             dF = adF[i] +  pData->offset_ptr(false)[i];
             dRiskTot += pData->weight_ptr()[i]*std::exp(dF);
@@ -60,7 +61,7 @@ void CCoxPH::ComputeWorkingResponse
     dTot = 0.0;
     for(long i= pData->get_trainSize()-1; i != -1; i--)
     {
-        if(pData->GetBag()[i])
+        if(pData->GetBagElem(i))
         {
             if(adDelta[i]==1.0)
             {
@@ -101,7 +102,7 @@ double CCoxPH::Deviance
     {
     	pData->shift_to_validation();
     	adDelta = shift_ptr(CDistribution::misc_ptr(false), pData->get_trainSize());
-    	cLength = pData->get_trainSize();
+    	cLength = pData->GetValidSize();
     }
 
     dTotalAtRisk = 0.0; 

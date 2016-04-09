@@ -79,7 +79,7 @@ public:
   
 	double GetBagFraction() const;
 
-	unsigned long GetValidSize() const;
+	long GetValidSize() const;
 	long GetTotalInBag() const;
 	bag GetBag();
 	bag GetBag() const;
