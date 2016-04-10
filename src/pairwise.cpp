@@ -4,6 +4,7 @@
 
 #include "pairwise.h"
 #include "gbmFunc.h"
+#include <limits>
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -640,7 +641,18 @@ void CPairwise::ComputeWorkingResponse
 	    const double* adFPlusOffset = OffsetVector(adF, pData->offset_ptr(false), iItemStart, iItemEnd, vecdFPlusOffset);
 	    
 	    // Accumulate gradients
-	    ComputeLambdas((int)dGroup, cNumItems, pData->y_ptr() + iItemStart, adFPlusOffset, pData->weight_ptr() + iItemStart, adZ + iItemStart, &vecdHessian[iItemStart]);
+	    // TODO: Implement better way to ensure casting robust to overflow
+	    int intGroup = 0;
+	    if(fabs(dGroup) > nextafter(INT_MAX, 0) || isnan(dGroup))
+	    {
+	    	intGroup = copysign(INT_MAX, dGroup);
+	    }
+	    else
+	    {
+	    	intGroup = (int) dGroup;
+	    }
+
+	    ComputeLambdas(intGroup, cNumItems, pData->y_ptr() + iItemStart, adFPlusOffset, pData->weight_ptr() + iItemStart, adZ + iItemStart, &vecdHessian[iItemStart]);
 	  }
 	
 	// Next group
@@ -856,7 +868,18 @@ void CPairwise::Initialize
     {
       cRankCutoff = (unsigned int)adGroup[pData->nrow()];
     }
-  pirm->Init((unsigned long)dMaxGroup, cMaxItemsPerGroup, cRankCutoff);
+
+  	// TODO: Make More robust against overflow
+  	unsigned long ulMaxGroup = 0;
+	if(fabs(dMaxGroup) > nextafter(ULONG_MAX, 0) || isnan(dMaxGroup))
+	{
+		ulMaxGroup = copysign(ULONG_MAX, dMaxGroup);
+	}
+	else
+	{
+		ulMaxGroup = (unsigned long) dMaxGroup;
+	}
+  pirm->Init(ulMaxGroup, cMaxItemsPerGroup, cRankCutoff);
 #ifdef NOISY_DEBUG
   Rprintf("Initialization: instances=%ld, groups=%u, max items per group=%u, rank cutoff=%u, offset specified: %d\n", cLength, (unsigned long)dMaxGroup, cMaxItemsPerGroup, cRankCutoff, (pData->offset_ptr(false) != NULL));
 #endif
@@ -913,8 +936,17 @@ double CPairwise::Deviance
         for (iItemEnd = iItemStart + 1; iItemEnd < cEnd && adGroup[iItemEnd] == dGroup; iItemEnd++) ;
 
         const int cNumItems = iItemEnd - iItemStart;
-
-        const double dMaxScore = pirm->MaxMeasure((int)dGroup, pData->y_ptr() + iItemStart, cNumItems);
+        // TODO: Implement better way to ensure casting robust to overflow
+		int intGroup = 0;
+		if(fabs(dGroup) > nextafter(INT_MAX, 0) || isnan(dGroup))
+		{
+			intGroup = copysign(INT_MAX, dGroup);
+		}
+		else
+		{
+			intGroup = (int) dGroup;
+		}
+        const double dMaxScore = pirm->MaxMeasure(intGroup, pData->y_ptr() + iItemStart, cNumItems);
 
         if (dMaxScore > 0.0)
         {
@@ -1046,8 +1078,17 @@ double CPairwise::BagImprovement
             // Group was held out of training set
 
             const unsigned int cNumItems = iItemEnd - iItemStart;
-
-            const double dMaxScore = pirm->MaxMeasure((int)dGroup, data.y_ptr() + iItemStart, cNumItems);
+            // TODO: Implement better way to ensure casting robust to overflow
+			int intGroup = 0;
+			if(fabs(dGroup) > nextafter(INT_MAX, 0) || isnan(dGroup))
+			{
+				intGroup = copysign(INT_MAX, dGroup);
+			}
+			else
+			{
+				intGroup = (int) dGroup;
+			}
+            const double dMaxScore = pirm->MaxMeasure(intGroup, data.y_ptr() + iItemStart, cNumItems);
 
             if (dMaxScore > 0.0)
             {

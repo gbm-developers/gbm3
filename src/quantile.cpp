@@ -108,6 +108,15 @@ double CQuantile::Deviance
  	   pData->shift_to_train();
     }
 
+    //TODO: Check if weights are all zero for validation set
+   if((dW == 0.0) && (dL == 0.0))
+   {
+	   return nan("");
+   }
+   else if(dW == 0.0)
+   {
+	   return copysign(HUGE_VAL, dL);
+   }
     return dL/dW;
 }
 

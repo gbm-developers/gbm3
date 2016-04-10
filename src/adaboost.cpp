@@ -111,7 +111,17 @@ double CAdaBoost::Deviance
 	   pData->shift_to_train();
    }
 
-    return dL/dW;
+   //TODO: Check if weights are all zero for validation set
+   if((dW == 0.0) && (dL == 0.0))
+   {
+	   return nan("");
+   }
+   else if(dW == 0.0)
+   {
+	   return HUGE_VAL;
+   }
+
+   return dL/dW;
 }
 
 

@@ -134,6 +134,16 @@ double CHuberized::Deviance
 	   pData->shift_to_train();
    }
 
+   //TODO: Check if weights are all zero for validation set
+	if((dW == 0.0) && (dL == 0.0))
+	{
+		return nan("");
+	}
+	else if(dW == 0.0)
+	{
+		return copysign(HUGE_VAL, dL);
+	}
+
    return dL/dW;
 }
 
@@ -230,9 +240,21 @@ double CHuberized::BagImprovement
                   ( ( 1 - (2*data.y_ptr()[i]-1)*dF )*( 1 - (2*data.y_ptr()[i]-1)*dF ) -
                     ( 1 - (2*data.y_ptr()[i]-1)*(dF+shrinkage*adFadj[i]) )*( 1 - (2*data.y_ptr()[i]-1)*(dF+shrinkage*adFadj[i]) )
                   );
+               //TODO: Does this require an dW+= ?
             }
         }
     }
+
+    //TODO: Check if weights are all zero for validation set
+   if((dW == 0.0) && (dReturnValue == 0.0))
+   {
+	   return nan("");
+   }
+   else if(dW == 0.0)
+   {
+
+	   return copysign(HUGE_VAL, dReturnValue);
+   }
 
     return dReturnValue/dW;
 }
