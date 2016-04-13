@@ -22,10 +22,9 @@ CGaussian::CGaussian(SEXP radMisc): CDistribution(radMisc)
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CGaussian::Create(SEXP radMisc,
-											const char* szIRMeasure, int& cTrain)
+CDistribution* CGaussian::Create(const DataDistParams& distParams)
 {
-	return new CGaussian(radMisc);
+	return new CGaussian(distParams.misc);
 }
 
 CGaussian::~CGaussian()

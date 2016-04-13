@@ -22,11 +22,9 @@ CPoisson::CPoisson(SEXP radMisc): CDistribution(radMisc)
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CPoisson::Create(SEXP radMisc,
-								const char* szIRMeasure,
-								int& cTrain)
+CDistribution* CPoisson::Create(const DataDistParams& distParams)
 {
-	return new CPoisson(radMisc);
+	return new CPoisson(distParams.misc);
 }
 
 

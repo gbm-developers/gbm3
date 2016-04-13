@@ -22,11 +22,9 @@ CLaplace::CLaplace(SEXP radMisc): CDistribution(radMisc), mpLocM("Other")
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CLaplace::Create(SEXP radMisc,
-								const char* szIRMeasure,
-								int& cTrain)
+CDistribution* CLaplace::Create(const DataDistParams& distParams)
 {
-	return new CLaplace(radMisc);
+	return new CLaplace(distParams.misc);
 }
 
 CLaplace::~CLaplace()

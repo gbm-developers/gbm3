@@ -22,11 +22,9 @@ CHuberized::CHuberized(SEXP radMisc): CDistribution(radMisc)
 // Function Members - Public
 //----------------------------------------
 
-CDistribution* CHuberized::Create(SEXP radMisc,
-								 const char* szIRMeasure,
-								 int& cTrain)
+CDistribution* CHuberized::Create(const DataDistParams& distParams)
 {
-	return new CHuberized(radMisc);
+	return new CHuberized(distParams.misc);
 }
 
 CHuberized::~CHuberized()

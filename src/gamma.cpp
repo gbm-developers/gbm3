@@ -26,11 +26,10 @@ CGamma::CGamma(SEXP radMisc): CDistribution(radMisc)
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CGamma::Create(SEXP radMisc,
-							  const char* szIRMeasure,  int& cTrain)
+CDistribution* CGamma::Create(const DataDistParams& distParams)
 {
 
-	return new CGamma(radMisc);
+	return new CGamma(distParams.misc);
 }
 
 CGamma::~CGamma()

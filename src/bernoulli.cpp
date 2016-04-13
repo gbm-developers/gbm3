@@ -25,11 +25,9 @@ CBernoulli::CBernoulli(SEXP radMisc): CDistribution(radMisc)
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CBernoulli::Create(SEXP radMisc,
-								  const char* szIRMeasure,
-								  int& cTrain)
+CDistribution* CBernoulli::Create(const DataDistParams& distParams)
 {
-	return new CBernoulli(radMisc);
+	return new CBernoulli(distParams.misc);
 }
 
 CBernoulli::~CBernoulli()

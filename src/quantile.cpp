@@ -24,11 +24,9 @@ mpLocM("Other")
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CQuantile::Create(SEXP radMisc,
-								 const char* szIRMeasure,
-								int& cTrain)
+CDistribution* CQuantile::Create(const DataDistParams& distParams)
 {
-	return new CQuantile(radMisc);
+	return new CQuantile(distParams.misc);
 }
 
 CQuantile::~CQuantile()

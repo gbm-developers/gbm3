@@ -23,11 +23,9 @@ CCoxPH::CCoxPH(SEXP radMisc): CDistribution(radMisc)
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CCoxPH::Create(SEXP radMisc,
-							  const char* szIRMeasure,
-							  int& cTrain)
+CDistribution* CCoxPH::Create(const DataDistParams& distParams)
 {
-	return new CCoxPH(radMisc);
+	return new CCoxPH(distParams.misc);
 }
 
 CCoxPH::~CCoxPH()

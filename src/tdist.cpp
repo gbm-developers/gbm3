@@ -26,11 +26,9 @@ CTDist::CTDist(SEXP radMisc):
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CTDist::Create(SEXP radMisc,
-							  const char* szIRMeasure,
-							  int& cTrain)
+CDistribution* CTDist::Create(const DataDistParams& distParams)
 {
-	return new CTDist(radMisc);
+	return new CTDist(distParams.misc);
 }
 
 CTDist::~CTDist()

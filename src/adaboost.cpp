@@ -22,10 +22,9 @@ CAdaBoost::CAdaBoost(SEXP radMisc): CDistribution(radMisc)
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CAdaBoost::Create(SEXP radMisc,
-		const char* szIRMeasure, int& cTrain)
+CDistribution* CAdaBoost::Create(const DataDistParams& distParams)
 {
- 	return new CAdaBoost(radMisc);
+ 	return new CAdaBoost(distParams.misc);
 }
 
 CAdaBoost::~CAdaBoost()

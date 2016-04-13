@@ -30,10 +30,9 @@ CTweedie:: CTweedie(SEXP radMisc): CDistribution(radMisc)
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CTweedie::Create(SEXP radMisc,
-								const char* szIRMeasure, int& cTrain)
+CDistribution* CTweedie::Create(const DataDistParams& distParams)
 {
-	return new CTweedie(radMisc);
+	return new CTweedie(distParams.misc);
 }
 
 CTweedie::~CTweedie()

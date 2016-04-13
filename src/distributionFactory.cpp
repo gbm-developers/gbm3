@@ -78,29 +78,21 @@ void DistributionFactory::RegisterDist(const string& DistFamily, distCreate PtrD
 //------------------------------------------
 // Function: CreateDist
 //
-// Returns: auto_ptr<CDistribution>
+// Returns: ptr CDistribution
 //
 // Description: given a string looks up and creates the appropriate
 //              distribution.
 //
 // Parameters:
-//   DistFamily - string identifying the distribution to create, IN, const string.
-//   radMisc - adMisc object passed in from R interface, IN, SEXP.
-//   szIRMeasure - IR Measure used by the Pairwise distribution, IN, const char *.
-//   cGroups  - number of groups (Pairwise) in data, IN, int&.
-//   cTrain  - number of data points in training set, IN, int&.
-//
+//   distParams - configuration struct containing parameters for distribution set-up.
 //---------------------------------------------
 
-CDistribution* DistributionFactory::CreateDist(const string& DistFamily,
-															 SEXP radMisc,
-															 const char* szIRMeasure,
-															 int& cTrain)
+CDistribution* DistributionFactory::CreateDist(const DataDistParams& distParams)
 {
-  std::map<std::string, distCreate>::iterator it = FactoryMap.find(DistFamily);
+  std::map<std::string, distCreate>::iterator it = FactoryMap.find(distParams.family);
 	if( it != FactoryMap.end() )
 	{
-		return it -> second(radMisc, szIRMeasure, cTrain);
+		return it -> second(distParams);
 	}
 	else
 	{

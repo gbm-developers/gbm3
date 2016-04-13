@@ -29,25 +29,7 @@ CGBMDataContainer::CGBMDataContainer(DataDistParams dataDistConfig):
 
 	//Initialize the factory and then use to get the disribution
 	DistFactory = new DistributionFactory();
-
-	// Checks for pairwise distribution
-	// this should be removed later.
-	if(0 == dataDistConfig.family.compare(0, 8, "pairwise"))
-	{
-		std::size_t offsetToMeasure = dataDistConfig.family.find("_");
-		if(offsetToMeasure == std::string::npos)
-		{
-			throw GBM::failure("Unable to locate IR metric required for pairwise");
-		}
-
-		const char* szIRMeasure = dataDistConfig.family.c_str() + offsetToMeasure + 1;
-		pDist = DistFactory -> CreateDist("pairwise", dataDistConfig.misc, szIRMeasure, dataDistConfig.cTrain);
-
-	}
-	else
-	{
-		pDist = DistFactory -> CreateDist(dataDistConfig.family, dataDistConfig.misc, "", dataDistConfig.cTrain);
-	}
+	pDist = DistFactory -> CreateDist(dataDistConfig);
 }
 
 //-----------------------------------

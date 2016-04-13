@@ -527,7 +527,7 @@ double CMAP::Measure(const double* const adY, const CRanker& ranker)
 
 
 CPairwise::CPairwise(SEXP radMisc,
-					const char* szIRMeasure, int& cTrain): CDistribution(radMisc)
+					const char* szIRMeasure, int cTrain): CDistribution(radMisc)
 {
 
 	// Set up adGroup - this is not required
@@ -559,11 +559,10 @@ CPairwise::CPairwise(SEXP radMisc,
       }
 }
 
-CDistribution* CPairwise::Create(SEXP radMisc,
-										const char* szIRMeasure, int& cTrain)
+CDistribution* CPairwise::Create(const DataDistParams& distParams)
 {
 
-	return new CPairwise(radMisc, szIRMeasure, cTrain);
+	return new CPairwise(distParams.misc, distParams.szIRMeasure, distParams.cTrain);
 }
 
 CPairwise::~CPairwise()

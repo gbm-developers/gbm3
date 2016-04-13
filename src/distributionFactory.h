@@ -13,6 +13,7 @@
 //------------------------------
 // Includes
 //------------------------------
+#include "configStructs.h"
 #include "distribution.h"
 #include "dataset.h"
 #include <map>
@@ -38,7 +39,7 @@ private:
 	//-------------------
 	// Private Variables
 	//-------------------
-	typedef CDistribution* (*distCreate)(SEXP, const char*, int&);
+	typedef CDistribution* (*distCreate)(const DataDistParams&);
 	std::map<std::string, distCreate> FactoryMap;
 
 public:
@@ -56,8 +57,7 @@ public:
 	// Public Functions
 	//---------------------
 	void RegisterDist(const std::string& DistFamily, distCreate PtrDistCreateFn);
-	CDistribution* CreateDist(const std::string& DistFamily,
-					SEXP radMisc, const char* szIRMeasure, int& cTrain);
+	CDistribution* CreateDist(const DataDistParams& distParams);
 };
 
 #endif // __distributionFactory_h__
