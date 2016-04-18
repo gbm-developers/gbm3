@@ -24,6 +24,9 @@ gbm.fit <- function(x,y,
    cRows <- nrow(x)
    cCols <- ncol(x)
    
+   cRowsY <- nrow(y)
+   cColsY <- ncol(y)
+   
    checkSanity(x, y)
    ch <- checkMissing(x, y)
    checkVarType(x, y)
@@ -183,15 +186,18 @@ gbm.fit <- function(x,y,
       {
          stop("gbm() currently only handles right censored observations")
       }
+     
+      # Misc no longer passes in this - make y a matrix now
+      #Misc <- NA
       Misc <- y[,2]
-      y <- y[,1]
+      #y <- y[,1]
 
       # reverse sort the failure times to compute risk sets on the fly
-      i.train <- order(-y[1:nTrain])
+      i.train <- order(-y[1:nTrain, 1])
       n.test <- cRows - nTrain
       if(n.test > 0)
       {
-         i.test <- order(-y[(nTrain+1):cRows]) + nTrain
+         i.test <- order(-y[(nTrain+1):cRows, 1]) + nTrain
       }
       else
       {
@@ -282,7 +288,7 @@ gbm.fit <- function(x,y,
    }
 
    gbm.obj <- .Call("gbm",
-                    Y=as.double(y),
+                    Y=matrix(y, cRowsY, cCols),
                     Offset=as.double(offset),
                     X=matrix(x, cRows, cCols),
                     X.order=as.integer(x.order),

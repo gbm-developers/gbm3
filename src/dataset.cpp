@@ -25,7 +25,7 @@ public:
 	CDImpl(SEXP radY, SEXP radOffset, SEXP radX, SEXP raiXOrder,
 		SEXP radWeight, SEXP racVarClasses, SEXP ralMonotoneVar,
 		const int cTrain, const int cFeatures, const double fractionInBag):
-		adY(radY), adOffset(radOffset), adWeight(radWeight), adX(radX),
+		adOffset(radOffset), adWeight(radWeight), adX(radX),
 		acVarClasses(racVarClasses), alMonotoneVar(ralMonotoneVar),
 		aiXOrder(raiXOrder), numOfTrainData(cTrain), numOfFeatures(cFeatures),
 		fHasOffset(GBM_FUNC::has_value(adOffset))
@@ -36,6 +36,10 @@ public:
 		{
 			std::fill(adOffset.begin(), adOffset.begin() + adX.nrow(), 0.0);
 		}
+
+		//
+		Rcpp::NumericMatrix tempY(radY);
+		adY = tempY(Rcpp::_, 1);
 
 		// Set other stuff
 		bagFraction = fractionInBag;
