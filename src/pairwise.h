@@ -292,7 +292,7 @@ public:
 protected:
 
     // Constructor: determine IR measure as either "conc", "map", "mrr", or "ndcg"
-    CPairwise(SEXP radMisc, const char* szIRMeasure, int cTrain);
+    CPairwise(SEXP radMisc, double* adgroups, const char* szIRMeasure, int cTrain);
 
     // Calculate and accumulate up the gradients and Hessians from all training pairs
     void ComputeLambdas(int iGroup, unsigned int cNumItems, const double* const adY, const double* const adF, const double* const adWeight, double* adZ, double* adDeriv);

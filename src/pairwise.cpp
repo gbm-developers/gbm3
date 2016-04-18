@@ -526,15 +526,15 @@ double CMAP::Measure(const double* const adY, const CRanker& ranker)
 }
 
 
-CPairwise::CPairwise(SEXP radMisc,
+CPairwise::CPairwise(SEXP radMisc, double* adgroups,
 					const char* szIRMeasure, int cTrain): CDistribution(radMisc)
 {
 
 	// Set up adGroup - this is not required
-	adGroup = CDistribution::misc_ptr(false);
+	adGroup = adgroups;
 
 	// Set up the number of groups - this used externally
-	SetNumGroups(GBM_FUNC::numGroups(CDistribution::misc_ptr(true), cTrain));
+	SetNumGroups(GBM_FUNC::numGroups(adgroups, cTrain));
 
     // Construct the IR Measure
     if (!strcmp(szIRMeasure, "conc"))
@@ -561,8 +561,19 @@ CPairwise::CPairwise(SEXP radMisc,
 
 CDistribution* CPairwise::Create(const DataDistParams& distParams)
 {
+	// Create pointers to pairwise
+	Rcpp::NumericVector miscVec(distParams.misc);
+	double* adgroup = 0;
+	if(!GBM_FUNC::has_value(miscVec))
+	{
+		throw GBM::failure("Pairwise requires misc to initialize");
+	}
+	else
+	{
+		adgroup = miscVec.begin();
+	}
 
-	return new CPairwise(distParams.misc, distParams.szIRMeasure, distParams.cTrain);
+	return new CPairwise(distParams.misc, adgroup, distParams.szIRMeasure, distParams.cTrain);
 }
 
 CPairwise::~CPairwise()
