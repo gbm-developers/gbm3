@@ -65,7 +65,7 @@ private:
     //----------------------
     // Private Constructors
     //----------------------
-    CTDist(SEXP radMisc);
+    CTDist(SEXP radMisc, double nu);
 
 	//-------------------
 	// Private Variables

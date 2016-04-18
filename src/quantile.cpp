@@ -14,10 +14,10 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CQuantile::CQuantile(SEXP radMisc): CDistribution(radMisc),
+CQuantile::CQuantile(SEXP radMisc, double alpha): CDistribution(radMisc),
 mpLocM("Other")
 {
-	dAlpha = CDistribution::misc_ptr(true)[0];
+	dAlpha = alpha;
 }
 
 
@@ -26,7 +26,13 @@ mpLocM("Other")
 //----------------------------------------
 CDistribution* CQuantile::Create(const DataDistParams& distParams)
 {
-	return new CQuantile(distParams.misc);
+	// Check that misc exists
+	double alpha = Rcpp::as<double>(distParams.misc);
+	if(!GBM_FUNC::has_value(alpha))
+	{
+		throw GBM::failure("Quantile dist requires misc to initialization.");
+	}
+	return new CQuantile(distParams.misc, alpha);
 }
 
 CQuantile::~CQuantile()

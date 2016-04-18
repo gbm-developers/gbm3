@@ -65,7 +65,7 @@ private:
     //----------------------
     // Private Constructors
     //----------------------
-  	CQuantile(SEXP radMisc);
+  	CQuantile(SEXP radMisc, double alpha);
 
 	//-------------------
 	// Private Variables

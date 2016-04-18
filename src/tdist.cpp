@@ -16,10 +16,10 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CTDist::CTDist(SEXP radMisc):
-  CDistribution(radMisc), mpLocM("tdist", CDistribution::misc_ptr(true)[0])
+CTDist::CTDist(SEXP radMisc, double nu):
+  CDistribution(radMisc), mpLocM("tdist", nu)
 {
-	mdNu = CDistribution::misc_ptr(true)[0];
+	mdNu = nu;
 }
 
 
@@ -28,7 +28,13 @@ CTDist::CTDist(SEXP radMisc):
 //----------------------------------------
 CDistribution* CTDist::Create(const DataDistParams& distParams)
 {
-	return new CTDist(distParams.misc);
+	// Check that misc exists
+	double nu = Rcpp::as<double>(distParams.misc);
+	if(!GBM_FUNC::has_value(nu))
+	{
+		throw GBM::failure("T Dist requires misc to initialization.");
+	}
+	return new CTDist(distParams.misc, nu);
 }
 
 CTDist::~CTDist()
