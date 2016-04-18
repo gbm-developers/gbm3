@@ -14,7 +14,7 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CHuberized::CHuberized(SEXP radMisc): CDistribution(radMisc)
+CHuberized::CHuberized()
 {
 }
 
@@ -24,7 +24,7 @@ CHuberized::CHuberized(SEXP radMisc): CDistribution(radMisc)
 
 CDistribution* CHuberized::Create(const DataDistParams& distParams)
 {
-	return new CHuberized(distParams.misc);
+	return new CHuberized();
 }
 
 CHuberized::~CHuberized()

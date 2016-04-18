@@ -15,7 +15,7 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CAdaBoost::CAdaBoost(SEXP radMisc): CDistribution(radMisc)
+CAdaBoost::CAdaBoost()
 {
 }
 
@@ -24,7 +24,7 @@ CAdaBoost::CAdaBoost(SEXP radMisc): CDistribution(radMisc)
 //----------------------------------------
 CDistribution* CAdaBoost::Create(const DataDistParams& distParams)
 {
- 	return new CAdaBoost(distParams.misc);
+ 	return new CAdaBoost();
 }
 
 CAdaBoost::~CAdaBoost()

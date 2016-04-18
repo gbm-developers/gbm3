@@ -22,7 +22,7 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CTweedie:: CTweedie(SEXP radMisc, double power): CDistribution(radMisc)
+CTweedie:: CTweedie(double power)
 {
 	dPower = power;
 }
@@ -38,7 +38,7 @@ CDistribution* CTweedie::Create(const DataDistParams& distParams)
 	{
 		throw GBM::failure("Tweedie distribution requires misc to initialization.");
 	}
-	return new CTweedie(distParams.misc, power);
+	return new CTweedie(power);
 }
 
 CTweedie::~CTweedie()

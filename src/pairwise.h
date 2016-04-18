@@ -288,11 +288,12 @@ public:
     					  const double *adF,
     					  const bag& afInBag,
                           const double shrinkage, const double* adFadj);
+    const double* adGroup;
 
 protected:
 
     // Constructor: determine IR measure as either "conc", "map", "mrr", or "ndcg"
-    CPairwise(SEXP radMisc, double* adgroups, const char* szIRMeasure, int cTrain);
+    CPairwise(double* adgroups, const char* szIRMeasure, int cTrain);
 
     // Calculate and accumulate up the gradients and Hessians from all training pairs
     void ComputeLambdas(int iGroup, unsigned int cNumItems, const double* const adY, const double* const adF, const double* const adWeight, double* adZ, double* adDeriv);
@@ -306,7 +307,6 @@ protected:
     vector<double> vecdDenom;         // Buffer used for denominator in FitBestConstant(), for each node
 
     vector<double> vecdFPlusOffset;   // Temporary buffer for (adF + adOffset), if the latter is not null
-    const double* adGroup;
 };
 
 #endif // PAIRWISE_H

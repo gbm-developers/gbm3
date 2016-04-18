@@ -64,7 +64,7 @@ private:
     //----------------------
     // Private Constructors
     //----------------------
-    CHuberized(SEXP radMisc);
+    CHuberized();
 };
 
 #endif // __huberized_h__

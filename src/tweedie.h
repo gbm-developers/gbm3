@@ -62,7 +62,7 @@ private:
     //----------------------
     // Private Constructors
     //----------------------
-    CTweedie(SEXP radMisc, double power);
+    CTweedie(double power);
 
 	//-------------------
 	// Private Variables

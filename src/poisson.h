@@ -65,7 +65,7 @@ private:
     //----------------------
     // Private Constructors
     //----------------------
-    CPoisson(SEXP radMisc);
+    CPoisson();
 };
 
 #endif // __poisson_h__

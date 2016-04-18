@@ -60,7 +60,7 @@ private:
     //----------------------
     // Private Constructors
     //----------------------
-    CGamma(SEXP radMisc);
+    CGamma();
 
 };
 

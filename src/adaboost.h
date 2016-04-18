@@ -57,7 +57,7 @@ private:
     //----------------------
     // Private Constructors
     //----------------------
-    CAdaBoost(SEXP radMisc);
+    CAdaBoost();
 
 	//-------------------
 	// Private Variables

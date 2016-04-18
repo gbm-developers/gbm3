@@ -14,7 +14,7 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CCoxPH::CCoxPH(SEXP radMisc, double* delta): CDistribution(radMisc)
+CCoxPH::CCoxPH(double* delta)
 {
 	adDelta = delta;
 }
@@ -33,7 +33,7 @@ CDistribution* CCoxPH::Create(const DataDistParams& distParams)
 		delta = deltas.begin();
 	}
 
-	return new CCoxPH(distParams.misc, delta);
+	return new CCoxPH(delta);
 }
 
 CCoxPH::~CCoxPH()
@@ -107,7 +107,7 @@ double CCoxPH::Deviance
     if(isValidationSet)
     {
     	pData->shift_to_validation();
-    	adDelta = shift_ptr(CDistribution::misc_ptr(false), pData->get_trainSize());
+    	adDelta = shift_ptr(adDelta, pData->get_trainSize());
     	cLength = pData->GetValidSize();
     }
 
@@ -127,7 +127,7 @@ double CCoxPH::Deviance
     if(isValidationSet)
     {
     	pData->shift_to_train();
-    	adDelta = CDistribution::misc_ptr(false);
+    	adDelta = shift_ptr(adDelta, -(pData->get_trainSize()));
     }
 
     //TODO: Check if weights are all zero for validation set

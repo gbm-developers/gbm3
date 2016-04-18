@@ -36,7 +36,7 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-    CDistribution(SEXP radMisc);
+    CDistribution();
 
   	//---------------------
   	// Public destructor
@@ -46,13 +46,10 @@ public:
     //---------------------
     // Public Functions
     //---------------------
-  	bool has_misc() const ;
-  	const double* misc_ptr(bool require=false) const;
-  	double* misc_ptr(bool require=false);
   	int GetNumGroups() const;
   	void SetNumGroups(int GroupVal);
 
-  	// shifts the misc_ptr() as appropriate
+  	// shifts the ptrs() as appropriate
   	template<typename T>
   	T* shift_ptr(T* x, std::ptrdiff_t y){
   		if(x)
@@ -92,10 +89,7 @@ private:
     //---------------------
     // Private Variables
     //---------------------
-    Rcpp::NumericVector adMisc;
     int cGroups;
-    bool distHasMisc;
-
 };
 
 #endif // __distribution_h__

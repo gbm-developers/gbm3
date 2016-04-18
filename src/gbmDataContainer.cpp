@@ -10,6 +10,7 @@
 // Includes
 //------------------------------
 #include "gbmDataContainer.h"
+#include "pairwise.h"
 
 //----------------------------------------
 // Function Members - Public
@@ -233,8 +234,7 @@ void CGBMDataContainer::BagData()
 		for(i=0; i< data.get_trainSize(); i++)
 		{
 
-			const double dGroup = pDist->misc_ptr(true)[i];
-
+			const double dGroup = static_cast<CPairwise*>(pDist)->adGroup[i];
 			if(dGroup != dLastGroup)
 			{
 				if (cBaggedGroups >= cTotalGroupsInBag)

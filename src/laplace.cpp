@@ -15,7 +15,7 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CLaplace::CLaplace(SEXP radMisc): CDistribution(radMisc), mpLocM("Other")
+CLaplace::CLaplace(): mpLocM("Other")
 {
 }
 
@@ -24,7 +24,7 @@ CLaplace::CLaplace(SEXP radMisc): CDistribution(radMisc), mpLocM("Other")
 //----------------------------------------
 CDistribution* CLaplace::Create(const DataDistParams& distParams)
 {
-	return new CLaplace(distParams.misc);
+	return new CLaplace();
 }
 
 CLaplace::~CLaplace()

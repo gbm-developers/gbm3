@@ -526,8 +526,7 @@ double CMAP::Measure(const double* const adY, const CRanker& ranker)
 }
 
 
-CPairwise::CPairwise(SEXP radMisc, double* adgroups,
-					const char* szIRMeasure, int cTrain): CDistribution(radMisc)
+CPairwise::CPairwise(double* adgroups, const char* szIRMeasure, int cTrain)
 {
 
 	// Set up adGroup - this is not required
@@ -573,7 +572,7 @@ CDistribution* CPairwise::Create(const DataDistParams& distParams)
 		adgroup = miscVec.begin();
 	}
 
-	return new CPairwise(distParams.misc, adgroup, distParams.szIRMeasure, distParams.cTrain);
+	return new CPairwise(adgroup, distParams.szIRMeasure, distParams.cTrain);
 }
 
 CPairwise::~CPairwise()
@@ -918,7 +917,7 @@ double CPairwise::Deviance
     {
     	cLength = pData->GetValidSize();
     	pData->shift_to_validation();
-    	adGroup=shift_ptr(CDistribution::misc_ptr(false), pData->get_trainSize());
+    	adGroup=shift_ptr(adGroup, pData->get_trainSize());
 
     }
 
@@ -926,8 +925,8 @@ double CPairwise::Deviance
 	{
     	// NB: SWITCH BACK TO TRAIN BEFORE LEAVING
     	pData->shift_to_train();
-		adGroup = CDistribution::misc_ptr(false);
-		return 0;
+    	adGroup=shift_ptr(adGroup, -(pData->get_trainSize()));
+    	return 0;
 	}
 
     double dL = 0.0;
@@ -979,7 +978,8 @@ double CPairwise::Deviance
     if(isValidationSet)
     {
     	pData->shift_to_train();
-    	adGroup = CDistribution::misc_ptr(false);
+    	adGroup=shift_ptr(adGroup, -(pData->get_trainSize()));
+
     }
 
    // Loss = 1 - utility

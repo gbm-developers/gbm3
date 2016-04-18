@@ -14,7 +14,7 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CPoisson::CPoisson(SEXP radMisc): CDistribution(radMisc)
+CPoisson::CPoisson()
 {
 }
 
@@ -24,7 +24,7 @@ CPoisson::CPoisson(SEXP radMisc): CDistribution(radMisc)
 //----------------------------------------
 CDistribution* CPoisson::Create(const DataDistParams& distParams)
 {
-	return new CPoisson(distParams.misc);
+	return new CPoisson();
 }
 
 

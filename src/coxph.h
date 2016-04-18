@@ -65,7 +65,7 @@ private:
     //----------------------
     // Private Constructors
     //----------------------
-    CCoxPH(SEXP radMisc, double* delta);
+    CCoxPH(double* delta);
 
     //-------------------
     // Private Variables

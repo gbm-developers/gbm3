@@ -62,7 +62,7 @@ private:
     //----------------------
     // Private Constructors
     //----------------------
-    CGaussian(SEXP radMisc);
+    CGaussian();
 };
 
 #endif // __gaussian_h__

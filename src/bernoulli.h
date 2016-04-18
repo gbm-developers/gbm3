@@ -64,7 +64,7 @@ private:
     //----------------------
     // Private Constructors
     //----------------------
-    CBernoulli(SEXP radMisc);
+    CBernoulli();
 
     //-------------------
     // Private Variables

@@ -19,7 +19,7 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CGamma::CGamma(SEXP radMisc): CDistribution(radMisc)
+CGamma::CGamma()
 {
 }
 
@@ -29,7 +29,7 @@ CGamma::CGamma(SEXP radMisc): CDistribution(radMisc)
 CDistribution* CGamma::Create(const DataDistParams& distParams)
 {
 
-	return new CGamma(distParams.misc);
+	return new CGamma();
 }
 
 CGamma::~CGamma()

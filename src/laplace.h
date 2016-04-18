@@ -65,7 +65,7 @@ private:
 	//----------------------
 	// Private Constructors
 	//----------------------
-	CLaplace(SEXP radMisc);
+	CLaplace();
 
 	//-------------------
 	// Private Variables

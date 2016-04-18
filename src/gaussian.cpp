@@ -14,7 +14,7 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CGaussian::CGaussian(SEXP radMisc): CDistribution(radMisc)
+CGaussian::CGaussian()
 {
 
 }
@@ -24,7 +24,7 @@ CGaussian::CGaussian(SEXP radMisc): CDistribution(radMisc)
 //----------------------------------------
 CDistribution* CGaussian::Create(const DataDistParams& distParams)
 {
-	return new CGaussian(distParams.misc);
+	return new CGaussian();
 }
 
 CGaussian::~CGaussian()

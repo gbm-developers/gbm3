@@ -16,7 +16,7 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CBernoulli::CBernoulli(SEXP radMisc): CDistribution(radMisc)
+CBernoulli::CBernoulli()
 {
   // Used to issue warnings to user that at least one terminal node capped
   fCappedPred = false;
@@ -27,7 +27,7 @@ CBernoulli::CBernoulli(SEXP radMisc): CDistribution(radMisc)
 //----------------------------------------
 CDistribution* CBernoulli::Create(const DataDistParams& distParams)
 {
-	return new CBernoulli(distParams.misc);
+	return new CBernoulli();
 }
 
 CBernoulli::~CBernoulli()
