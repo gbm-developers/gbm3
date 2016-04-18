@@ -14,9 +14,9 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CCoxPH::CCoxPH(SEXP radMisc): CDistribution(radMisc)
+CCoxPH::CCoxPH(SEXP radMisc, double* delta): CDistribution(radMisc)
 {
-	adDelta = CDistribution::misc_ptr(false);
+	adDelta = delta;
 }
 
 
@@ -25,7 +25,15 @@ CCoxPH::CCoxPH(SEXP radMisc): CDistribution(radMisc)
 //----------------------------------------
 CDistribution* CCoxPH::Create(const DataDistParams& distParams)
 {
-	return new CCoxPH(distParams.misc);
+	// Check that misc exists
+	Rcpp::NumericVector deltas(distParams.misc);
+	double* delta = 0;
+	if(GBM_FUNC::has_value(deltas))
+	{
+		delta = deltas.begin();
+	}
+
+	return new CCoxPH(distParams.misc, delta);
 }
 
 CCoxPH::~CCoxPH()
@@ -291,7 +299,6 @@ double CCoxPH::BagImprovement
         }
     }
 
-    //std::cout << dReturnValue/dW << endl;
     return dReturnValue/dW;
 }
 
