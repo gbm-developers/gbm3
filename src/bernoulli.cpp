@@ -75,7 +75,7 @@ void CBernoulli::InitF
         double dDen=0.0;         // denominator
         double dNewtonStep=1.0;  // change
         dInitF = 0.0;
-        while(dNewtonStep > 0.0001)
+        while(std::abs(dNewtonStep) > 0.0001)
         {
             dNum=0.0;
             dDen=0.0;
