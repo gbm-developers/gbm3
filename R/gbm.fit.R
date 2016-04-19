@@ -23,10 +23,7 @@ gbm.fit <- function(x,y,
 
    cRows <- nrow(x)
    cCols <- ncol(x)
-   
-   cRowsY <- nrow(y)
-   cColsY <- ncol(y)
-   
+
    checkSanity(x, y)
    ch <- checkMissing(x, y)
    checkVarType(x, y)
@@ -154,7 +151,10 @@ gbm.fit <- function(x,y,
       {
          distribution$power = 1.5
       }
+     # Bind power to second column of response
       Misc <- c(power=distribution$power)
+      y <- cbind(y, rep(distribution$power, length(y)))
+      
    }
    if((distribution$name == "poisson") && any(y != trunc(y)))
    {
@@ -174,6 +174,8 @@ gbm.fit <- function(x,y,
       {
          stop("alpha must be between 0 and 1.")
       }
+     # Bind alpha as second column to y
+     y <- cbind(y, rep(distribution$alpha , length(y)))
       Misc <- c(alpha=distribution$alpha)
    }
    if(distribution$name == "coxph")
@@ -205,7 +207,8 @@ gbm.fit <- function(x,y,
       }
       i.timeorder <- c(i.train,i.test)
 
-      y <- y[i.timeorder]
+      y[,1] <- y[i.timeorder,1]
+      y[,2] <- y[i.timeorder,2]
       Misc <- Misc[i.timeorder]
       x <- x[i.timeorder,,drop=FALSE]
       w <- w[i.timeorder]
@@ -213,11 +216,18 @@ gbm.fit <- function(x,y,
    }
    if(distribution$name == "tdist")
    {
-      if (is.null(distribution$df) || !is.numeric(distribution$df)){
-         Misc <- 4
+     
+      if (is.null(distribution$df) || !is.numeric(distribution$df))
+      {
+        # Bind number of degrees of freedom to second column of y
+        y <- cbind(y, rep(4, length(y)))
+        Misc <- 4
       }
-      else {
-         Misc <- distribution$df[1]
+      else
+      {
+        # Bind number of degrees of freedom to second column of y
+        y <- cbind(y, rep(distribution$df[1], length(y)))
+        Misc <- distribution$df[1]
       }
    }
    if(distribution$name == "pairwise")
@@ -268,7 +278,9 @@ gbm.fit <- function(x,y,
 
       # We pass the cut-off rank to the C function as the last element in the Misc vector
       Misc <- c(group, max.rank)
-
+      y[length(y)+1] <- 0
+      y <- cbind(y, c(group, max.rank))
+      
       distribution.call.name <- sprintf("pairwise_%s", metric)
    } # close if (dist... == "pairwise"
 
@@ -286,9 +298,20 @@ gbm.fit <- function(x,y,
    {
       stop("var.monotone must be -1, 0, or 1")
    }
-
+   
+   # Get size of Response frame
+   cRowsY <- nrow(y)
+   cColsY <- ncol(y)
+   if(is.null(cRowsY))
+   {
+     cRowsY <- length(y)
+     cColsY <- 1
+   }
+   
+   
+   # Call GBM fit from C++
    gbm.obj <- .Call("gbm",
-                    Y=matrix(y, cRowsY, cCols),
+                    Y=matrix(y, cRowsY, cColsY),
                     Offset=as.double(offset),
                     X=matrix(x, cRows, cCols),
                     X.order=as.integer(x.order),

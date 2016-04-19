@@ -32,8 +32,8 @@ CTweedie:: CTweedie(double power)
 //----------------------------------------
 CDistribution* CTweedie::Create(const DataDistParams& distParams)
 {
-	// Check that misc exists
-	double power = Rcpp::as<double>(distParams.misc);
+	// Extract misc from second column of response
+	double power = distParams.respY(0, 1);
 	if(!GBM_FUNC::has_value(power))
 	{
 		throw GBM::failure("Tweedie distribution requires misc to initialization.");

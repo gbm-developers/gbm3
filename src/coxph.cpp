@@ -14,7 +14,7 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CCoxPH::CCoxPH(double* delta)
+CCoxPH::CCoxPH(const double* delta)
 {
 	adDelta = delta;
 }
@@ -26,11 +26,14 @@ CCoxPH::CCoxPH(double* delta)
 CDistribution* CCoxPH::Create(const DataDistParams& distParams)
 {
 	// Check that misc exists
-	Rcpp::NumericVector deltas(distParams.misc);
-	double* delta = 0;
-	if(GBM_FUNC::has_value(deltas))
+	const double* delta = 0;
+	if(GBM_FUNC::has_value(distParams.respY(Rcpp::_, 1)))
 	{
-		delta = deltas.begin();
+		delta = distParams.respY(Rcpp::_, 1).begin();
+	}
+	else
+	{
+		throw GBM::failure("No status found - CoxPh");
 	}
 
 	return new CCoxPH(delta);

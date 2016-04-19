@@ -25,7 +25,7 @@ public:
 	CDImpl(SEXP radY, SEXP radOffset, SEXP radX, SEXP raiXOrder,
 		SEXP radWeight, SEXP racVarClasses, SEXP ralMonotoneVar,
 		const int cTrain, const int cFeatures, const double fractionInBag):
-		adOffset(radOffset), adWeight(radWeight), adX(radX),
+		adY(radY), adOffset(radOffset), adWeight(radWeight), adX(radX),
 		acVarClasses(racVarClasses), alMonotoneVar(ralMonotoneVar),
 		aiXOrder(raiXOrder), numOfTrainData(cTrain), numOfFeatures(cFeatures),
 		fHasOffset(GBM_FUNC::has_value(adOffset))
@@ -37,16 +37,12 @@ public:
 			std::fill(adOffset.begin(), adOffset.begin() + adX.nrow(), 0.0);
 		}
 
-		//
-		Rcpp::NumericMatrix tempY(radY);
-		adY = tempY(Rcpp::_, 1);
-
 		// Set other stuff
 		bagFraction = fractionInBag;
 		totalInBag = (long) (fractionInBag * cTrain);
 		cValid = adX.nrow() - cTrain;
 		pointAtTrainSet = true;
-		adYPtr = adY.begin();
+		adYPtr = adY(Rcpp::_, 0).begin();
 		adWeightPtr = adWeight.begin();
 		adOffsetPtr = adOffset.begin();
 		afInBag.assign(cTrain, false);
@@ -117,8 +113,8 @@ public:
 		// Public Variables
 		//-------------------
 		// Numeric vectors storing data
-		Rcpp::NumericVector adY, adOffset, adWeight;
-		Rcpp::NumericMatrix adX;
+		Rcpp::NumericVector adOffset, adWeight;
+		Rcpp::NumericMatrix adX, adY;
 		Rcpp::IntegerVector acVarClasses, alMonotoneVar, aiXOrder;
 
 		// Ptrs to numeric vectors - these must be mutable

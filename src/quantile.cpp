@@ -26,7 +26,7 @@ CQuantile::CQuantile(double alpha): mpLocM("Other")
 CDistribution* CQuantile::Create(const DataDistParams& distParams)
 {
 	// Check that misc exists
-	double alpha = Rcpp::as<double>(distParams.misc);
+	double alpha = distParams.respY(0, 1);
 	if(!GBM_FUNC::has_value(alpha))
 	{
 		throw GBM::failure("Quantile dist requires misc to initialization.");

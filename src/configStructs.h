@@ -23,9 +23,36 @@
 //------------------------------
 // Struct definitions
 //------------------------------
-struct DataDistParams
+class DataDistParams
 {
-	SEXP respY;
+public:
+	DataDistParams(SEXP radY,
+		    SEXP radOffset,
+		    SEXP radX,
+		    SEXP raiXOrder,
+		    SEXP radWeight,
+		    SEXP radMisc,
+		    SEXP racVarClasses,
+		    SEXP ralMonotoneVar,
+		    SEXP rszFamily,
+		    SEXP rdBagFraction,
+		    SEXP rcTrain,
+		    SEXP rcFeatures): respY(radY)
+{
+		offset = radOffset;
+		xValues = radX;
+		xOrder = raiXOrder;
+		varWeight =	radWeight;
+		varClasses = racVarClasses;
+		misc = radMisc;
+		monotoneVar = ralMonotoneVar;
+		cTrain = Rcpp::as<int>(rcTrain);
+		cFeatures = Rcpp::as<int>(rcFeatures);
+		dBagFraction = Rcpp::as<double>(rdBagFraction);
+		family = Rcpp::as<std::string>(rszFamily);
+		szIRMeasure = NULL;
+}
+	Rcpp::NumericMatrix respY;
 	SEXP offset;
 	SEXP xValues;
 	SEXP xOrder;
@@ -73,24 +100,22 @@ public:
 		    SEXP rdShrinkage,
 		    SEXP rdBagFraction,
 		    SEXP rcTrain,
-		    SEXP rcFeatures)
+		    SEXP rcFeatures):
+		    dataConfig(radY,
+		    radOffset,
+		    radX,
+		    raiXOrder,
+		    radWeight,
+		    radMisc,
+		    racVarClasses,
+		    ralMonotoneVar,
+		    rszFamily,
+		    rdBagFraction,
+		    rcTrain,
+		    rcFeatures)
 	{
 		// Initialize DataDistParams
-		dataConfig.respY = radY;
-		dataConfig.offset = radOffset;
-		dataConfig.xValues = radX;
-		dataConfig.xOrder = raiXOrder;
-		dataConfig.varWeight =	radWeight;
-		dataConfig.varClasses = racVarClasses;
-		dataConfig.misc = radMisc;
-		dataConfig.monotoneVar = ralMonotoneVar;
-		dataConfig.cTrain = Rcpp::as<int>(rcTrain);
-		dataConfig.cFeatures = Rcpp::as<int>(rcFeatures);
-		dataConfig.dBagFraction = Rcpp::as<double>(rdBagFraction);
-		dataConfig.family = Rcpp::as<std::string>(rszFamily);
 		InitszIRMeasure();
-
-
 
 		// Initialize Tree Parameters
 		treeConfig.cDepth = Rcpp::as<int>(rcDepth);

@@ -65,7 +65,7 @@ private:
     //----------------------
     // Private Constructors
     //----------------------
-    CCoxPH(double* delta);
+    CCoxPH(const double* delta);
 
     //-------------------
     // Private Variables
