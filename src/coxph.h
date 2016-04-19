@@ -67,6 +67,17 @@ private:
     //----------------------
     CCoxPH(const double* delta);
 
+    //----------------------
+    // Private Functions
+    //----------------------
+    double LogLikelihood(int n, double* time2, double* status,
+						double* weight, double* eta, int* strata,
+						int* sort2, double* resid, int method);
+
+    double LogLikelihoodTiedTimes(int n, double *time1, double *time2,
+			  	  	  	  	  	  double* status, double* weight, double* eta,
+			  	  	  	  	  	  int* strata, int* sort1, int* sort2, double* resid, int method=0);
+
     //-------------------
     // Private Variables
     //-------------------

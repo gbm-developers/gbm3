@@ -7,9 +7,16 @@
 //-----------------------------------
 
 //-----------------------------------
+// Definitions
+//-----------------------------------
+#define frac .00000001
+#define recenter 50
+
+//-----------------------------------
 // Includes
 //-----------------------------------
 #include "coxph.h"
+#include <math.h>
 
 //----------------------------------------
 // Function Members - Private
@@ -51,6 +58,7 @@ void CCoxPH::ComputeWorkingResponse
     double *adZ
 )
 {
+
     double dF = 0.0;
     double dTot = 0.0;
     double dRiskTot = 0.0;
@@ -303,6 +311,313 @@ double CCoxPH::BagImprovement
     }
 
     return dReturnValue/dW;
+}
+
+double CCoxPH::LogLikelihood(int n, double* time2, double* status,
+							double* weight, double* eta,    int* strata,
+							int* sort2,     double* resid, int method)
+{
+	int i, j, k, ksave;
+	int person, p2;
+	int istrat, indx1;   /* this counts up over the strata */
+	double cumhaz, hazard;
+	int nrisk, ndeath;
+	double deathwt, denom, temp, center;
+	double esum, dtime, e_hazard;
+	double loglik, d_denom;
+
+	/*
+	**  'person' walks through the the data from 1 to n, p2= sort2[person].
+	**     sort2[0] points to the largest stop time, sort2[1] the next, ...
+	**  'dtime' is a scratch variable holding the time of current interest
+	*/
+	istrat=0; indx1=0;
+	denom =0;  /* S in the math explanation */
+	cumhaz =0;
+	nrisk =0;   /* number at risk */
+	esum =0;  /*cumulative eta, used for rescaling */
+	loglik =0;
+	center = eta[sort2[0]];
+
+	for (person=0; person<n;)
+	{
+		p2 = sort2[person];
+
+		if (status[p2] ==0)
+		{
+			/* add the subject to the risk set */
+			resid[p2] = exp(eta[p2] - center) * cumhaz;
+			nrisk++;
+			denom  += weight[p2]* exp(eta[p2] - center);
+			esum += eta[p2];
+			person++;
+		}
+		else
+		{
+			dtime = time2[p2];  /* found a new, unique death time */
+			/*
+			**        Add up over this death time, for all subjects
+			*/
+			ndeath =0;
+			deathwt =0;
+			d_denom =0;  /*contribution to denominator by death at dtime */
+			for (k=person; k<strata[istrat]; k++)
+			{
+				 p2 = sort2[k];
+				 if (time2[p2]  < dtime) break;  /* only tied times */
+				 nrisk++;
+				 denom += weight[p2] * exp(eta[p2] - center);
+				 esum += eta[p2];
+			 if (status[p2] ==1)
+			 {
+				 ndeath ++;
+				 deathwt += weight[p2];
+				 d_denom += weight[p2] * exp(eta[p2] - center);
+				 loglik  += weight[p2]*(eta[p2] - center);
+			  }
+			}
+			ksave = k;
+
+			/* compute the increment in hazard
+			** hazard = usual increment
+			** e_hazard = efron increment, for tied deaths only
+			*/
+			if (method==0 || ndeath==1)
+			{ /* Breslow */
+				loglik -= deathwt* log(denom);
+				hazard = deathwt /denom;
+				e_hazard = hazard;
+			}
+			else
+			{ /* Efron */
+				hazard =0;
+				e_hazard =0;  /* hazard experienced by a tied death */
+				deathwt /= ndeath;   /* average weight of each death */
+				for (k=0; k <ndeath; k++)
+				{
+					temp = (double)k /ndeath;    /* don't do integer division*/
+					loglik -= deathwt * log(denom - temp*d_denom);
+					hazard += deathwt/(denom - temp*d_denom);
+					e_hazard += (1-temp) *deathwt/(denom - temp*d_denom);
+				}
+			}
+
+			/* Give initial value to all intervals ending at this time
+			** If tied censors are sorted before deaths (which at least some
+			**  callers of this routine do), then the else below will never
+			**  occur.
+			*/
+			temp = cumhaz + (hazard -e_hazard);
+			for (; person < ksave; person++)
+			{
+				 p2 = sort2[person];
+				 if (status[p2] ==1) resid[p2] = 1 + temp*exp(eta[p2] - center);
+				 else resid[p2] = cumhaz * exp(eta[p2] - center);
+			}
+			cumhaz += hazard;
+
+			/* see if we need to shift the centering (a rare case) */
+			if (fabs(esum/nrisk - center) > recenter)
+			{
+			 temp = esum/nrisk - center;
+			 center += temp;
+			 denom /=  exp(temp);
+			}
+		} // END OF ELSE PART
+
+		/* clean up at the end of a strata */
+		if (person == strata[istrat])
+		{
+			for (; indx1<strata[istrat]; indx1++)
+			{
+				 p2 = sort2[indx1];
+				 resid[p2] -= cumhaz * exp(eta[p2] - center);
+			}
+			cumhaz =0;
+			denom = 0;
+			istrat++;
+		}
+	} // END OF LOOP OVER PERSON
+
+	return(loglik);
+}
+
+double CCoxPH::LogLikelihoodTiedTimes(int n, double *time1, double *time2,
+									  double* status, double* weight, double* eta,
+									  int* strata, int* sort1, int* sort2, double* resid, int method)
+{
+	int i, j, k, ksave;
+	int person, p2, indx1, p1;
+	int istrat;
+	double cumhaz, hazard;
+	int nrisk, ndeath;
+	double deathwt, denom, temp, center;
+	double esum, dtime, e_hazard;
+	double loglik, d_denom;
+	/*
+	**  'person' walks through the the data from 1 to n, p2= sort2[person].
+	**     sort2[0] points to the largest stop time, sort2[1] the next, ...
+	**  'dtime' is a scratch variable holding the time of current interest
+	**  'indx1' walks through the start times.  It will be smaller than
+	**    'person': if person=27 that means that 27 subjects have time2 >=dtime,
+	**    and are thus potential members of the risk set.  If 'indx1' =9,
+	**    that means that 9 subjects have start >=time and thus are NOT part
+	**    of the risk set.  (stop > start for each subject guarrantees that
+	**    the 9 are a subset of the 27). p1 = sort1[indx1]
+	**  Basic algorithm: move 'person' forward, adding the new subject into
+	**    the risk set.  If this is a new, unique death time, take selected
+	**    old obs out of the sums, add in obs tied at this time, then update
+	**    the cumulative hazard. Everything resets at the end of a stratum.
+	**  The sort order is from large time to small, so we encounter a subjects
+	**    ending time first, then their start time.
+	**  The martingale residual for a subject is
+	**     status - (cumhaz at end of their interval - cumhaz at start)*score
+	*/
+
+	istrat=0;
+	indx1 =0;
+	denom =0;  /* S in the math explanation */
+	cumhaz =0;
+	nrisk =0;   /* number at risk */
+	esum =0;  /*cumulative eta, used for rescaling */
+	center = eta[sort2[0]];
+
+	for (person=0; person<n;)
+	{
+		p2 = sort2[person];
+
+		if (status[p2] ==0)
+		{
+			 /* add the subject to the risk set */
+			 resid[p2] = exp(eta[p2] - center) * cumhaz;
+			 nrisk++;
+			 denom  += weight[p2]* exp(eta[p2] - center);
+			 esum += eta[p2];
+			 person++;
+		}
+		else
+		{
+			dtime = time2[p2];  /* found a new, unique death time */
+			 /*
+			 ** Remove those subjects whose start time is to the right
+			 **  from the risk set, and finish computation of their residual
+			 */
+			temp = denom;
+			for (;  indx1 <person; indx1++)
+			{
+				 p1 = sort1[indx1];
+				 if (time1[p1] < dtime) break; /* still in the risk set */
+				 nrisk--;
+				 resid[p1] -= cumhaz* exp(eta[p1] - center);
+				 denom  -= weight[p1] * exp(eta[p1] - center);
+				 esum -= eta[p1];
+			}
+			if (nrisk==0)
+			{  /*everyone was removed! */
+				denom =0;  /* remove any accumulated round off error */
+				esum =0;
+			}
+			else if (denom/temp < frac)
+			{
+				 denom =0;
+				 esum  =0;
+				 for (; j>indx1 && j< person; j++)
+				 {
+					 esum += eta[sort2[j]];
+				 }
+
+				 center = esum/nrisk;
+				 for (; j>indx1 && j< person; j++)
+				 {
+					 p2 = sort2[j];
+					 denom += weight[p2] * exp(eta[p2] - center);
+				 }
+			}
+
+			 /*
+			 **        Add up over this death time, for all subjects
+			 */
+			 ndeath =0;   /* total number of deaths at this time point */
+			 deathwt =0;  /* sum(wt) for the deaths */
+			 d_denom =0;  /*contribution to denominator for the deaths*/
+			 for (k=person; k<strata[istrat]; k++)
+			 {
+				 p2 = sort2[k];
+				 if (time2[p2]  < dtime) break;  /* only tied times */
+				 nrisk++;
+				 denom += weight[p2] * exp(eta[p2] - center);
+				 esum += eta[p2];
+				 if (status[p2] ==1)
+				 {
+					 ndeath ++;
+					 deathwt += weight[p2];
+					 d_denom += weight[p2] * exp(eta[p2] - center);
+					 loglik  += weight[p2] *(eta[p2] - center);
+				 }
+			 }
+			 ksave = k;
+			 /* compute the increment in hazard
+			 ** hazard = usual increment
+			 ** e_hazard = efron increment, for tied deaths only
+			 */
+			 if (method==0 || ndeath==1)
+			 { /* Breslow */
+				 loglik -= deathwt*log(denom);
+				 hazard = deathwt /denom;
+				 e_hazard = hazard;
+			 }
+			 else
+			 { /* Efron */
+				 hazard =0;
+				 e_hazard =0;  /* hazard experienced by a tied death */
+				 deathwt /= ndeath;   /* average weight of each death */
+				 for (k=0; k <ndeath; k++)
+				 {
+					 temp = (double)k /ndeath;    /* don't do integer division*/
+					 loglik -= deathwt *log(denom - temp*d_denom);
+					 hazard += deathwt/(denom - temp*d_denom);
+					 e_hazard += (1-temp) *deathwt/(denom - temp*d_denom);
+				 }
+			 }
+
+			 /* Give initial value to all intervals ending at this time
+			 ** If tied censors are sorted before deaths (which at least some
+			 **  callers of this routine do), then the else below will never
+			 **  occur.
+			 */
+			 temp = cumhaz + (hazard -e_hazard);
+			 for (; person < ksave; person++)
+			 {
+				 p2 = sort2[person];
+				 if (status[p2] ==1) resid[p2] = 1 + temp*exp(eta[p2] - center);
+				 else resid[p2] = cumhaz * exp(eta[p2] - center);
+			 }
+			 cumhaz += hazard;
+
+			 /* see if we need to shift the centering (very rare case) */
+			 if (fabs(esum/nrisk - center) > recenter)
+			 {
+				 temp = esum/nrisk - center;
+				 center += temp;
+				 denom /=  exp(temp);
+			 }
+		} // END OF ELSE OVER PERSON
+
+		/* clean up at the end of a strata */
+		if (person == strata[istrat])
+		{
+			 for (; indx1<strata[istrat]; indx1++)
+			 {
+				 p1 = sort1[indx1];
+				 resid[p1] -= cumhaz * exp(eta[p1] - center);
+			 }
+		 cumhaz =0;
+		 denom = 0;
+		 istrat++;
+		}
+	} // END OF FOR LOOP OVER PERSON
+
+	return(loglik);
 }
 
 

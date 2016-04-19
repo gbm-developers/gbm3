@@ -182,19 +182,32 @@ gbm.fit <- function(x,y,
    {
       if(class(y)!="Surv")
       {
-         stop("Outcome must be a survival object Surv(time,failure)")
+         stop("Outcome must be a survival object Surv(time1, failure) or Surv(time1, time2, failure)")
       }
-      if(attr(y,"type")!="right")
-      {
-         stop("gbm() currently only handles right censored observations")
-      }
-     
-      # Misc no longer passes in this - make y a matrix now
-      #Misc <- NA
-      Misc <- y[,2]
-      #y <- y[,1]
 
+      # Misc no longer passes in this - make y a matrix now
+      Misc <- y[,2]
+
+      # TODO: this needs to merge in with the sorted part
       # reverse sort the failure times to compute risk sets on the fly
+      n.test <- cRows - nTrain
+      
+      if (attr(y, "type") == "right")
+      {
+        sorted <- c(order(-y[1:nTrain, 1]), order(-y[(nTrain+1):cRows, 1]) + nTrain)
+        nstrat <- nrow(y)
+      }
+      else if (attr(y, "type") == "counting") 
+      {
+        sorted <- cbind(c(order(-y[1:nTrain, 1]), order(-y[(nTrain+1):cRows, 1]) + nTrain), 
+                        c(order(-y[1:nTrain, 2]), order(-y[(nTrain+1):cRows, 2]) + nTrain)) 
+        nstrat <- nrow(y)
+      }
+      else
+      {
+        stop("Survival object must be either right or counting type.")
+      }
+      
       i.train <- order(-y[1:nTrain, 1])
       n.test <- cRows - nTrain
       if(n.test > 0)
@@ -207,12 +220,17 @@ gbm.fit <- function(x,y,
       }
       i.timeorder <- c(i.train,i.test)
 
-      y[,1] <- y[i.timeorder,1]
-      y[,2] <- y[i.timeorder,2]
-      Misc <- Misc[i.timeorder]
+      y <- y[i.timeorder]
       x <- x[i.timeorder,,drop=FALSE]
       w <- w[i.timeorder]
+      Misc <- Misc[i.timeorder]
+      
       if(!is.null(offset)) offset <- offset[i.timeorder]
+      
+      # Add in sorted column and strata
+      y <- cbind(y, sorted-1L)
+      y <- cbind(y, rep(cumsum(nstrat), nstrat))
+      
    }
    if(distribution$name == "tdist")
    {
