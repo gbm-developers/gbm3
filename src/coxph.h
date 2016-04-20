@@ -65,18 +65,16 @@ private:
     //----------------------
     // Private Constructors
     //----------------------
-    CCoxPH(double* stats, int* sortedEnd, int* sortedSt, int* strats, bool tiedTimes);
+    CCoxPH(double* stats, int* sortedEnd, int* sortedSt, int* strats, bool isStartStop, int tiedMethod);
 
     //----------------------
     // Private Functions
     //----------------------
-    double LogLikelihood(const int n, const double* time2, const double* status,
-						const double* weight, const double* eta, const int* strata,
-						const int* sort2, double* resid, int method=0);
+    double LogLikelihood(const int n, const CDataset* pData,
+    					const double* eta, double* resid);
 
-    double LogLikelihoodTiedTimes(const int n, const double *time1, const double *time2,
-			  	  	  	  	  	  const double* status, const double* weight, const double* eta,
-			  	  	  	  	  	  const int* strata, const int* sort1, const int* sort2, double* resid, int method=0);
+    double LogLikelihoodTiedTimes(const int n, const CDataset* pData,
+    							const double* eta, double* resid);
 
     //-------------------
     // Private Variables
@@ -93,8 +91,9 @@ private:
     int* sortedEndTimes;
     int* sortedStartTimes;
     int* strata;
+    int tiedTimesMethod;
     bool isUpdatedCoxPh;
-    const bool areTiedTimes;
+    const bool startStopCase;
 };
 
 #endif // __coxph_h__

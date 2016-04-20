@@ -22,12 +22,12 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CCoxPH::CCoxPH(double* stats, int* sortedEnd, int* sortedSt, int* strats, bool tiedTimes):
-areTiedTimes(tiedTimes), sortedEndTimes(sortedEnd), sortedStartTimes(sortedSt), strata(strats)
+CCoxPH::CCoxPH(double* stats, int* sortedEnd, int* sortedSt, int* strats, bool isStartStop, int tiedMethod):
+startStopCase(isStartStop), sortedEndTimes(sortedEnd), sortedStartTimes(sortedSt), strata(strats)
 {
 	status = stats;
-	isUpdatedCoxPh = true;
-
+	isUpdatedCoxPh = false;
+	tiedTimesMethod = tiedMethod;
 }
 
 
@@ -41,7 +41,7 @@ CDistribution* CCoxPH::Create(DataDistParams& distParams)
 	double* stat = 0;
 	int* sortedSt = NULL;
 	int* sortedEnd = NULL;
-	bool tiedTimes = false;
+	bool isStartStop = false;
 
 	// Check that sorted arrays can be initialized
 	Rcpp::NumericMatrix checkMatrix(distParams.sorted);
@@ -50,14 +50,17 @@ CDistribution* CCoxPH::Create(DataDistParams& distParams)
 		throw GBM::failure("CoxPh - sort arrays have no values");
 	}
 
-	// Check if tied times or not
+	// Check if start/stop case or not
 	Rcpp::IntegerMatrix sortMatrix(distParams.sorted);
 	if(distParams.respY.ncol() > 2)
 	{
-		tiedTimes=true;
+		isStartStop=true;
 		stat = distParams.respY(Rcpp::_, 2).begin();
 		sortedEnd = sortMatrix(Rcpp::_, 1).begin();
 		sortedSt = sortMatrix(Rcpp::_, 0).begin();
+
+		// Set ties method
+
 	}
 	else
 	{
@@ -67,7 +70,7 @@ CDistribution* CCoxPH::Create(DataDistParams& distParams)
 	// Set up strata
 	Rcpp::IntegerVector strats(distParams.strata);
 
-	return new CCoxPH(stat, sortedEnd, sortedSt, strats.begin(), tiedTimes);
+	return new CCoxPH(stat, sortedEnd, sortedSt, strats.begin(), isStartStop, Rf_asInteger(distParams.tiesMethod));
 }
 
 CCoxPH::~CCoxPH()
@@ -89,7 +92,7 @@ void CCoxPH::ComputeWorkingResponse
 
 
     // Implement first set of equations
-    if(areTiedTimes)
+    if(startStopCase)
     {
     }
     else
@@ -162,9 +165,13 @@ double CCoxPH::Deviance
 	if(isUpdatedCoxPh)
 	{
 		Rcpp::NumericVector martingaleResid(cLength, 0.0);
+		double loglik;
 		// Check if there are tied times
-		if(areTiedTimes)
+		if(startStopCase)
 		{
+
+			loglik= LogLikelihoodTiedTimes(cLength, pData, adF,
+					 	 	 	 	 	  martingaleResid.begin());
 
 			 // Shift back for future calculations if required
 			if(isValidationSet)
@@ -176,17 +183,14 @@ double CCoxPH::Deviance
 				strata = shift_ptr(strata, -(pData->get_trainSize()));
 			}
 
-			return LogLikelihoodTiedTimes(cLength, pData->y_ptr(), pData->y_ptr(1),
-					 	 	 	 	 	  status, pData->weight_ptr(), adF,
-					 	 	 	 	 	  strata, sortedStartTimes, sortedEndTimes, martingaleResid.begin());
+			return loglik;
 		}
 		else
 		{
 
-			double loglik;
-			loglik=  LogLikelihood(cLength, pData->y_ptr(), status,
-								   pData->weight_ptr(), adF, strata,
-								   sortedEndTimes, martingaleResid.begin());
+
+			loglik=  LogLikelihood(cLength, pData, adF,
+								   martingaleResid.begin());
 
 			 // Shift back for future calculations if required
 			if(isValidationSet)
@@ -397,9 +401,8 @@ double CCoxPH::BagImprovement
     return dReturnValue/dW;
 }
 
-double CCoxPH::LogLikelihood(const int n, const double* time2, const double* status,
-							const double* weight, const double* eta, const int* strata,
-							const int* sort2,     double* resid, int method)
+double CCoxPH::LogLikelihood(const int n, const CDataset* pData, const double* eta,
+							double* resid)
 {
 	int i, j, k, ksave;
 	int person, p2;
@@ -421,23 +424,23 @@ double CCoxPH::LogLikelihood(const int n, const double* time2, const double* sta
 	nrisk =0;   /* number at risk */
 	esum =0;  /*cumulative eta, used for rescaling */
 	loglik =0;
-	center = eta[sort2[0]];
+	center = eta[sortedEndTimes[0]];
 
 	for (person=0; person<n;)
 	{
-		p2 = sort2[person];
+		p2 = sortedEndTimes[person];
 		if (status[p2] ==0)
 		{
 			/* add the subject to the risk set */
 			resid[p2] = exp(eta[p2] - center) * cumhaz;
 			nrisk++;
-			denom  += weight[p2]* exp(eta[p2] - center);
+			denom  += pData->weight_ptr()[p2]* exp(eta[p2] - center);
 			esum += eta[p2];
 			person++;
 		}
 		else
 		{
-			dtime = time2[p2];  /* found a new, unique death time */
+			dtime = pData->y_ptr()[p2];  /* found a new, unique death time */
 			/*
 			**        Add up over this death time, for all subjects
 			*/
@@ -446,17 +449,17 @@ double CCoxPH::LogLikelihood(const int n, const double* time2, const double* sta
 			d_denom =0;  /*contribution to denominator by death at dtime */
 			for (k=person; k<strata[istrat]; k++)
 			{
-				 p2 = sort2[k];
-				 if (time2[p2]  < dtime) break;  /* only tied times */
+				 p2 = sortedEndTimes[k];
+				 if (pData->y_ptr()[p2]  < dtime) break;  /* only tied times */
 				 nrisk++;
-				 denom += weight[p2] * exp(eta[p2] - center);
+				 denom += pData->weight_ptr()[p2] * exp(eta[p2] - center);
 				 esum += eta[p2];
 			 if (status[p2] ==1)
 			 {
 				 ndeath ++;
-				 deathwt += weight[p2];
-				 d_denom += weight[p2] * exp(eta[p2] - center);
-				 loglik  += weight[p2]*(eta[p2] - center);
+				 deathwt += pData->weight_ptr()[p2];
+				 d_denom += pData->weight_ptr()[p2] * exp(eta[p2] - center);
+				 loglik  += pData->weight_ptr()[p2]*(eta[p2] - center);
 			  }
 			}
 			ksave = k;
@@ -465,7 +468,7 @@ double CCoxPH::LogLikelihood(const int n, const double* time2, const double* sta
 			** hazard = usual increment
 			** e_hazard = efron increment, for tied deaths only
 			*/
-			if (method==0 || ndeath==1)
+			if (tiedTimesMethod==0 || ndeath==1)
 			{ /* Breslow */
 				loglik -= deathwt* log(denom);
 				hazard = deathwt /denom;
@@ -493,7 +496,7 @@ double CCoxPH::LogLikelihood(const int n, const double* time2, const double* sta
 			temp = cumhaz + (hazard -e_hazard);
 			for (; person < ksave; person++)
 			{
-				 p2 = sort2[person];
+				 p2 = sortedEndTimes[person];
 				 if (status[p2] ==1) resid[p2] = 1 + temp*exp(eta[p2] - center);
 				 else resid[p2] = cumhaz * exp(eta[p2] - center);
 			}
@@ -512,7 +515,7 @@ double CCoxPH::LogLikelihood(const int n, const double* time2, const double* sta
 		{
 			for (; indx1<strata[istrat]; indx1++)
 			{
-				 p2 = sort2[indx1];
+				 p2 = sortedEndTimes[indx1];
 				 resid[p2] -= cumhaz * exp(eta[p2] - center);
 			}
 			cumhaz =0;
@@ -524,9 +527,8 @@ double CCoxPH::LogLikelihood(const int n, const double* time2, const double* sta
 	return(loglik);
 }
 
-double CCoxPH::LogLikelihoodTiedTimes(const int n, const double *time1, const double *time2,
-									  const double* status, const double* weight, const double* eta,
-									  const int* strata, const int* sort1, const int* sort2, double* resid, int method)
+double CCoxPH::LogLikelihoodTiedTimes(const int n, const CDataset* pData, const double* eta,
+									  double* resid)
 {
 	int i, j, k, ksave;
 	int person, p2, indx1, p1;
@@ -562,24 +564,24 @@ double CCoxPH::LogLikelihoodTiedTimes(const int n, const double *time1, const do
 	cumhaz =0;
 	nrisk =0;   /* number at risk */
 	esum =0;  /*cumulative eta, used for rescaling */
-	center = eta[sort2[0]];
+	center = eta[sortedEndTimes[0]];
 
 	for (person=0; person<n;)
 	{
-		p2 = sort2[person];
+		p2 = sortedEndTimes[person];
 
 		if (status[p2] ==0)
 		{
 			 /* add the subject to the risk set */
 			 resid[p2] = exp(eta[p2] - center) * cumhaz;
 			 nrisk++;
-			 denom  += weight[p2]* exp(eta[p2] - center);
+			 denom  += pData->weight_ptr()[p2]* exp(eta[p2] - center);
 			 esum += eta[p2];
 			 person++;
 		}
 		else
 		{
-			dtime = time2[p2];  /* found a new, unique death time */
+			dtime = pData->y_ptr(1)[p2];  /* found a new, unique death time */
 			 /*
 			 ** Remove those subjects whose start time is to the right
 			 **  from the risk set, and finish computation of their residual
@@ -587,11 +589,11 @@ double CCoxPH::LogLikelihoodTiedTimes(const int n, const double *time1, const do
 			temp = denom;
 			for (;  indx1 <person; indx1++)
 			{
-				 p1 = sort1[indx1];
-				 if (time1[p1] < dtime) break; /* still in the risk set */
+				 p1 = sortedStartTimes[indx1];
+				 if (pData->y_ptr(0)[p1] < dtime) break; /* still in the risk set */
 				 nrisk--;
 				 resid[p1] -= cumhaz* exp(eta[p1] - center);
-				 denom  -= weight[p1] * exp(eta[p1] - center);
+				 denom  -= pData->weight_ptr()[p1] * exp(eta[p1] - center);
 				 esum -= eta[p1];
 			}
 			if (nrisk==0)
@@ -605,14 +607,14 @@ double CCoxPH::LogLikelihoodTiedTimes(const int n, const double *time1, const do
 				 esum  =0;
 				 for (; j>indx1 && j< person; j++)
 				 {
-					 esum += eta[sort2[j]];
+					 esum += eta[sortedEndTimes[j]];
 				 }
 
 				 center = esum/nrisk;
 				 for (; j>indx1 && j< person; j++)
 				 {
-					 p2 = sort2[j];
-					 denom += weight[p2] * exp(eta[p2] - center);
+					 p2 = sortedEndTimes[j];
+					 denom += pData->weight_ptr()[p2] * exp(eta[p2] - center);
 				 }
 			}
 
@@ -624,17 +626,17 @@ double CCoxPH::LogLikelihoodTiedTimes(const int n, const double *time1, const do
 			 d_denom =0;  /*contribution to denominator for the deaths*/
 			 for (k=person; k<strata[istrat]; k++)
 			 {
-				 p2 = sort2[k];
-				 if (time2[p2]  < dtime) break;  /* only tied times */
+				 p2 = sortedEndTimes[k];
+				 if (pData->y_ptr(1)[p2]  < dtime) break;  /* only tied times */
 				 nrisk++;
-				 denom += weight[p2] * exp(eta[p2] - center);
+				 denom += pData->weight_ptr()[p2] * exp(eta[p2] - center);
 				 esum += eta[p2];
 				 if (status[p2] ==1)
 				 {
 					 ndeath ++;
-					 deathwt += weight[p2];
-					 d_denom += weight[p2] * exp(eta[p2] - center);
-					 loglik  += weight[p2] *(eta[p2] - center);
+					 deathwt += pData->weight_ptr()[p2];
+					 d_denom += pData->weight_ptr()[p2] * exp(eta[p2] - center);
+					 loglik  += pData->weight_ptr()[p2] *(eta[p2] - center);
 				 }
 			 }
 			 ksave = k;
@@ -642,7 +644,7 @@ double CCoxPH::LogLikelihoodTiedTimes(const int n, const double *time1, const do
 			 ** hazard = usual increment
 			 ** e_hazard = efron increment, for tied deaths only
 			 */
-			 if (method==0 || ndeath==1)
+			 if (tiedTimesMethod==0 || ndeath==1)
 			 { /* Breslow */
 				 loglik -= deathwt*log(denom);
 				 hazard = deathwt /denom;
@@ -670,7 +672,7 @@ double CCoxPH::LogLikelihoodTiedTimes(const int n, const double *time1, const do
 			 temp = cumhaz + (hazard -e_hazard);
 			 for (; person < ksave; person++)
 			 {
-				 p2 = sort2[person];
+				 p2 = sortedEndTimes[person];
 				 if (status[p2] ==1) resid[p2] = 1 + temp*exp(eta[p2] - center);
 				 else resid[p2] = cumhaz * exp(eta[p2] - center);
 			 }
@@ -690,7 +692,7 @@ double CCoxPH::LogLikelihoodTiedTimes(const int n, const double *time1, const do
 		{
 			 for (; indx1<strata[istrat]; indx1++)
 			 {
-				 p1 = sort1[indx1];
+				 p1 = sortedStartTimes[indx1];
 				 resid[p1] -= cumhaz * exp(eta[p1] - center);
 			 }
 		 cumhaz =0;

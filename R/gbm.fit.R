@@ -31,9 +31,10 @@ gbm.fit <- function(x,y,
    oldy <- y
    y <- checkY(oldy)
    
-   # Only strata and sorted vecs for CoxPh
+   # Only strata, ties and sorted vecs for CoxPh
    StrataVec <- NA
    sortedVec <- NA
+   ties <- NA
 
    # the preferred way to specify the number of training instances is via parameter 'nTrain'.
    # parameter 'train.fraction' is only maintained for backward compatibility.
@@ -234,6 +235,9 @@ gbm.fit <- function(x,y,
       # Add in sorted column and strata
       StrataVec <-  nstrat
       sortedVec <- sorted-1L
+      
+      # SET TIES HERE FOR THE MOMENT
+      ties <- "effron"
 
    }
    if(distribution$name == "tdist")
@@ -339,6 +343,7 @@ gbm.fit <- function(x,y,
                     X.order=as.integer(x.order),
                     sorted=matrix(sortedVec),
                     Strata=as.integer(StrataVec),
+                    tiesMethod=as.integer(ties=="effron"), 
                     weights=as.double(w),
                     Misc=as.double(Misc),
                     var.type=as.integer(var.type),
