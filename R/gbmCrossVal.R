@@ -16,7 +16,7 @@ gbmCrossVal <- function(cv.folds, nTrain, n.cores,
                         var.names, response.name, group, lVerbose, keep.data,
                         fold.id) {
   i.train <- 1:nTrain
-  cv.group <- getCVgroup(distribution, class.stratify.cv, y,
+  cv.group <- getCVgroup(distribution$name, class.stratify.cv, y,
                          i.train, cv.folds, group, fold.id)
   ## build the models
   cv.models <- gbmCrossValModelBuild(cv.folds, cv.group, n.cores,
