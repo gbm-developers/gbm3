@@ -16,34 +16,58 @@
 // Includes
 //-----------------------------------
 #include "coxph.h"
+#include <Rinternals.h>
 #include <math.h>
 
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CCoxPH::CCoxPH(const double* delta)
+CCoxPH::CCoxPH(double* stats, int* sortedEnd, int* sortedSt, int* strats, bool tiedTimes):
+areTiedTimes(tiedTimes), sortedEndTimes(sortedEnd), sortedStartTimes(sortedSt), strata(strats)
 {
-	adDelta = delta;
+	status = stats;
+	isUpdatedCoxPh = true;
+
 }
 
 
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CCoxPH::Create(const DataDistParams& distParams)
+CDistribution* CCoxPH::Create(DataDistParams& distParams)
 {
-	// Check that misc exists
-	const double* delta = 0;
-	if(GBM_FUNC::has_value(distParams.respY(Rcpp::_, 1)))
+
+	// Initialize variables to pass to constructor
+	double* stat = 0;
+	int* sortedSt = NULL;
+	int* sortedEnd = NULL;
+	bool tiedTimes = false;
+
+	// Check that sorted arrays can be initialized
+	Rcpp::NumericMatrix checkMatrix(distParams.sorted);
+	if(!GBM_FUNC::has_value(checkMatrix(Rcpp::_, 0)))
 	{
-		delta = distParams.respY(Rcpp::_, 1).begin();
+		throw GBM::failure("CoxPh - sort arrays have no values");
+	}
+
+	// Check if tied times or not
+	Rcpp::IntegerMatrix sortMatrix(distParams.sorted);
+	if(distParams.respY.ncol() > 2)
+	{
+		tiedTimes=true;
+		stat = distParams.respY(Rcpp::_, 2).begin();
+		sortedEnd = sortMatrix(Rcpp::_, 1).begin();
+		sortedSt = sortMatrix(Rcpp::_, 0).begin();
 	}
 	else
 	{
-		throw GBM::failure("No status found - CoxPh");
+		stat = distParams.respY(Rcpp::_, 1).begin();
+		sortedEnd = sortMatrix(Rcpp::_, 0).begin();
 	}
+	// Set up strata
+	Rcpp::IntegerVector strats(distParams.strata);
 
-	return new CCoxPH(delta);
+	return new CCoxPH(stat, sortedEnd, sortedSt, strats.begin(), tiedTimes);
 }
 
 CCoxPH::~CCoxPH()
@@ -63,31 +87,39 @@ void CCoxPH::ComputeWorkingResponse
     double dTot = 0.0;
     double dRiskTot = 0.0;
 
-    vecdRiskTot.resize(pData->get_trainSize());
-    dRiskTot = 0.0;
-    for(unsigned long i=0; i<pData->get_trainSize(); i++)
-    {
-        if(pData->GetBagElem(i))
 
-        {
-            dF = adF[i] +  pData->offset_ptr(false)[i];
-            dRiskTot += pData->weight_ptr()[i]*std::exp(dF);
-            vecdRiskTot[i] = dRiskTot;
-        }
-    }
-    dTot = 0.0;
-    for(long i= pData->get_trainSize()-1; i != -1; i--)
+    // Implement first set of equations
+    if(areTiedTimes)
     {
-        if(pData->GetBagElem(i))
-        {
-            if(adDelta[i]==1.0)
-            {
-                dTot += pData->weight_ptr()[i]/vecdRiskTot[i];
-            }
-            dF = adF[i] +  pData->offset_ptr(false)[i];
-            adZ[i] = adDelta[i] - std::exp(dF)*dTot;
-        }
     }
+    else
+    {
+    	vecdRiskTot.resize(pData->get_trainSize());
+		dRiskTot = 0.0;
+		for(unsigned long i=0; i<pData->get_trainSize(); i++)
+		{
+			if(pData->GetBagElem(i))
+			{
+				dF = adF[i] +  pData->offset_ptr(false)[i];
+				dRiskTot += pData->weight_ptr()[i]*std::exp(dF);
+				vecdRiskTot[i] = dRiskTot;
+			}
+		}
+		dTot = 0.0;
+		for(long i= pData->get_trainSize()-1; i != -1; i--)
+		{
+			if(pData->GetBagElem(i))
+			{
+				if(status[i]==1.0)
+				{
+					dTot += pData->weight_ptr()[i]/vecdRiskTot[i];
+				}
+				dF = adF[i] +  pData->offset_ptr(false)[i];
+				adZ[i] = status[i] - std::exp(dF)*dTot;
+			}
+		}
+    }
+
 }
 
 
@@ -114,20 +146,69 @@ double CCoxPH::Deviance
     double dW = 0.0;
     double dTotalAtRisk = 0.0;
 
+    // Set size and move to validation set if necessary
     long cLength = pData->get_trainSize();
-    if(isValidationSet)
-    {
-    	pData->shift_to_validation();
-    	adDelta = shift_ptr(adDelta, pData->get_trainSize());
-    	cLength = pData->GetValidSize();
-    }
+	if(isValidationSet)
+	{
+		pData->shift_to_validation();
+		status = shift_ptr(status, pData->get_trainSize());
+		sortedEndTimes = shift_ptr(sortedEndTimes, pData->get_trainSize());
+		sortedStartTimes = shift_ptr(sortedStartTimes, pData->get_trainSize());
+		strata = shift_ptr(strata, pData->get_trainSize());
+		cLength = pData->GetValidSize();
+	}
 
+	// Check if using Updated CoxPH or not
+	if(isUpdatedCoxPh)
+	{
+		Rcpp::NumericVector martingaleResid(cLength, 0.0);
+		// Check if there are tied times
+		if(areTiedTimes)
+		{
+
+			 // Shift back for future calculations if required
+			if(isValidationSet)
+			{
+				pData->shift_to_train();
+				status = shift_ptr(status, -(pData->get_trainSize()));
+				sortedEndTimes = shift_ptr(sortedEndTimes, -(pData->get_trainSize()));
+				sortedStartTimes = shift_ptr(sortedStartTimes, -(pData->get_trainSize()));
+				strata = shift_ptr(strata, -(pData->get_trainSize()));
+			}
+
+			return LogLikelihoodTiedTimes(cLength, pData->y_ptr(), pData->y_ptr(1),
+					 	 	 	 	 	  status, pData->weight_ptr(), adF,
+					 	 	 	 	 	  strata, sortedStartTimes, sortedEndTimes, martingaleResid.begin());
+		}
+		else
+		{
+
+			double loglik;
+			loglik=  LogLikelihood(cLength, pData->y_ptr(), status,
+								   pData->weight_ptr(), adF, strata,
+								   sortedEndTimes, martingaleResid.begin());
+
+			 // Shift back for future calculations if required
+			if(isValidationSet)
+			{
+				pData->shift_to_train();
+				status = shift_ptr(status, -(pData->get_trainSize()));
+				sortedEndTimes = shift_ptr(sortedEndTimes, -(pData->get_trainSize()));
+				sortedStartTimes = shift_ptr(sortedStartTimes, -(pData->get_trainSize()));
+				strata = shift_ptr(strata, -(pData->get_trainSize()));
+			}
+
+			return loglik;
+		}
+	}
+
+	// Original CoxPH implementation
     dTotalAtRisk = 0.0; 
     for(i=0; i!=cLength; i++)
     {
         dF = adF[i] +  pData->offset_ptr(false)[i];
         dTotalAtRisk += pData->weight_ptr()[i]*std::exp(dF);
-        if(adDelta[i]==1.0)
+        if(status[i]==1.0)
         {
             dL += pData->weight_ptr()[i]*(dF - std::log(dTotalAtRisk));
             dW += pData->weight_ptr()[i];
@@ -138,7 +219,10 @@ double CCoxPH::Deviance
     if(isValidationSet)
     {
     	pData->shift_to_train();
-    	adDelta = shift_ptr(adDelta, -(pData->get_trainSize()));
+    	status = shift_ptr(status, -(pData->get_trainSize()));
+		sortedEndTimes = shift_ptr(sortedEndTimes, -(pData->get_trainSize()));
+		sortedStartTimes = shift_ptr(sortedStartTimes, -(pData->get_trainSize()));
+		strata = shift_ptr(strata, -(pData->get_trainSize()));
     }
 
     //TODO: Check if weights are all zero for validation set
@@ -215,7 +299,7 @@ void CCoxPH::FitBestConstant
             vecdP[veciNode2K[pTreeComps->GetNodeAssign()[i]]] += pData->weight_ptr()[i]*std::exp(dF);
             dRiskTot += pData->weight_ptr()[i]*std::exp(dF);
 
-            if(adDelta[i]==1.0)
+            if(status[i]==1.0)
             {
                 // compute g and H
                 for(k=0; k<K-1; k++)
@@ -301,7 +385,7 @@ double CCoxPH::BagImprovement
         {
             dNum += data.weight_ptr()[i]*std::exp(dF + shrinkage*adFadj[i]);
             dDen += data.weight_ptr()[i]*std::exp(dF);
-            if(adDelta[i]==1.0)
+            if(status[i]==1.0)
             {
                 dReturnValue +=
                     data.weight_ptr()[i]*(shrinkage*adFadj[i] - std::log(dNum) + log(dDen));
@@ -313,9 +397,9 @@ double CCoxPH::BagImprovement
     return dReturnValue/dW;
 }
 
-double CCoxPH::LogLikelihood(int n, double* time2, double* status,
-							double* weight, double* eta,    int* strata,
-							int* sort2,     double* resid, int method)
+double CCoxPH::LogLikelihood(const int n, const double* time2, const double* status,
+							const double* weight, const double* eta, const int* strata,
+							const int* sort2,     double* resid, int method)
 {
 	int i, j, k, ksave;
 	int person, p2;
@@ -342,7 +426,6 @@ double CCoxPH::LogLikelihood(int n, double* time2, double* status,
 	for (person=0; person<n;)
 	{
 		p2 = sort2[person];
-
 		if (status[p2] ==0)
 		{
 			/* add the subject to the risk set */
@@ -424,7 +507,6 @@ double CCoxPH::LogLikelihood(int n, double* time2, double* status,
 			 denom /=  exp(temp);
 			}
 		} // END OF ELSE PART
-
 		/* clean up at the end of a strata */
 		if (person == strata[istrat])
 		{
@@ -437,14 +519,14 @@ double CCoxPH::LogLikelihood(int n, double* time2, double* status,
 			denom = 0;
 			istrat++;
 		}
-	} // END OF LOOP OVER PERSON
 
+	} // END OF LOOP OVER PERSON
 	return(loglik);
 }
 
-double CCoxPH::LogLikelihoodTiedTimes(int n, double *time1, double *time2,
-									  double* status, double* weight, double* eta,
-									  int* strata, int* sort1, int* sort2, double* resid, int method)
+double CCoxPH::LogLikelihoodTiedTimes(const int n, const double *time1, const double *time2,
+									  const double* status, const double* weight, const double* eta,
+									  const int* strata, const int* sort1, const int* sort2, double* resid, int method)
 {
 	int i, j, k, ksave;
 	int person, p2, indx1, p1;

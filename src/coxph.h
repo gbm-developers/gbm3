@@ -30,7 +30,7 @@ public:
 	//---------------------
 	// Factory Function
 	//---------------------
-	static CDistribution* Create(const DataDistParams& distParams);
+	static CDistribution* Create(DataDistParams& distParams);
 
 	//---------------------
 	// Public destructor
@@ -65,18 +65,18 @@ private:
     //----------------------
     // Private Constructors
     //----------------------
-    CCoxPH(const double* delta);
+    CCoxPH(double* stats, int* sortedEnd, int* sortedSt, int* strats, bool tiedTimes);
 
     //----------------------
     // Private Functions
     //----------------------
-    double LogLikelihood(int n, double* time2, double* status,
-						double* weight, double* eta, int* strata,
-						int* sort2, double* resid, int method);
+    double LogLikelihood(const int n, const double* time2, const double* status,
+						const double* weight, const double* eta, const int* strata,
+						const int* sort2, double* resid, int method=0);
 
-    double LogLikelihoodTiedTimes(int n, double *time1, double *time2,
-			  	  	  	  	  	  double* status, double* weight, double* eta,
-			  	  	  	  	  	  int* strata, int* sort1, int* sort2, double* resid, int method=0);
+    double LogLikelihoodTiedTimes(const int n, const double *time1, const double *time2,
+			  	  	  	  	  	  const double* status, const double* weight, const double* eta,
+			  	  	  	  	  	  const int* strata, const int* sort1, const int* sort2, double* resid, int method=0);
 
     //-------------------
     // Private Variables
@@ -89,7 +89,12 @@ private:
 
     matrix<double> matH;
     matrix<double> matHinv;
-    const double* adDelta;
+    double* status;
+    int* sortedEndTimes;
+    int* sortedStartTimes;
+    int* strata;
+    bool isUpdatedCoxPh;
+    const bool areTiedTimes;
 };
 
 #endif // __coxph_h__

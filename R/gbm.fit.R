@@ -30,6 +30,10 @@ gbm.fit <- function(x,y,
    
    oldy <- y
    y <- checkY(oldy)
+   
+   # Only strata and sorted vecs for CoxPh
+   StrataVec <- NA
+   sortedVec <- NA
 
    # the preferred way to specify the number of training instances is via parameter 'nTrain'.
    # parameter 'train.fraction' is only maintained for backward compatibility.
@@ -194,14 +198,14 @@ gbm.fit <- function(x,y,
       
       if (attr(y, "type") == "right")
       {
-        sorted <- c(order(-y[1:nTrain, 1]), order(-y[(nTrain+1):cRows, 1]) + nTrain)
-        nstrat <- nrow(y)
+        sorted <- c(order(-y[1:nTrain, 1]), order(-y[(nTrain+1):cRows, 1]))
+        nstrat <- c(rep(nTrain, nTrain), c(n.test, n.test))
       }
       else if (attr(y, "type") == "counting") 
       {
-        sorted <- cbind(c(order(-y[1:nTrain, 1]), order(-y[(nTrain+1):cRows, 1]) + nTrain), 
-                        c(order(-y[1:nTrain, 2]), order(-y[(nTrain+1):cRows, 2]) + nTrain)) 
-        nstrat <- nrow(y)
+        sorted <- cbind(c(order(-y[1:nTrain, 1]), order(-y[(nTrain+1):cRows, 1])), 
+                        c(order(-y[1:nTrain, 2]), order(-y[(nTrain+1):cRows, 2]))) 
+        nstrat <- c(rep(nTrain, nTrain), rep(n.test, n.test))
       }
       else
       {
@@ -228,9 +232,9 @@ gbm.fit <- function(x,y,
       if(!is.null(offset)) offset <- offset[i.timeorder]
       
       # Add in sorted column and strata
-      y <- cbind(y, sorted-1L)
-      y <- cbind(y, rep(cumsum(nstrat), nstrat))
-      
+      StrataVec <-  nstrat
+      sortedVec <- sorted-1L
+
    }
    if(distribution$name == "tdist")
    {
@@ -333,6 +337,8 @@ gbm.fit <- function(x,y,
                     Offset=as.double(offset),
                     X=matrix(x, cRows, cCols),
                     X.order=as.integer(x.order),
+                    sorted=matrix(sortedVec),
+                    Strata=as.integer(StrataVec),
                     weights=as.double(w),
                     Misc=as.double(Misc),
                     var.type=as.integer(var.type),

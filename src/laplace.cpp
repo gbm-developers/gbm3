@@ -22,7 +22,7 @@ CLaplace::CLaplace(): mpLocM("Other")
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CLaplace::Create(const DataDistParams& distParams)
+CDistribution* CLaplace::Create(DataDistParams& distParams)
 {
 	return new CLaplace();
 }

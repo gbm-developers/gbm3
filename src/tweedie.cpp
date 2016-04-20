@@ -30,7 +30,7 @@ CTweedie:: CTweedie(double power)
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CTweedie::Create(const DataDistParams& distParams)
+CDistribution* CTweedie::Create(DataDistParams& distParams)
 {
 	// Extract misc from second column of response
 	double power = distParams.respY(0, 1);

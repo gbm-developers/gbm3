@@ -22,7 +22,7 @@ CPoisson::CPoisson()
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CPoisson::Create(const DataDistParams& distParams)
+CDistribution* CPoisson::Create(DataDistParams& distParams)
 {
 	return new CPoisson();
 }

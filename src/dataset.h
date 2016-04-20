@@ -50,8 +50,8 @@ public:
 	int nrow() const;
 	int ncol() const;
 
-	double* y_ptr(); //get iterator to class labels
-	const double* y_ptr() const; //const overloaded version
+	double* y_ptr(long colIndex=0); //get iterator to class labels
+	const double* y_ptr(long colIndex=0) const; //const overloaded version
 
 	double* offset_ptr(bool require=true); //get iterator to fit offset
 	const double* offset_ptr(bool require=true) const; //const overloaded version

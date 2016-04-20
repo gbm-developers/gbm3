@@ -23,7 +23,7 @@ CQuantile::CQuantile(double alpha): mpLocM("Other")
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CQuantile::Create(const DataDistParams& distParams)
+CDistribution* CQuantile::Create(DataDistParams& distParams)
 {
 	// Check that misc exists
 	double alpha = distParams.respY(0, 1);

@@ -27,7 +27,7 @@ public:
 	//---------------------
 	// Factory Function
 	//---------------------
-	static CDistribution* Create(const DataDistParams& distParams);
+	static CDistribution* Create(DataDistParams& distParams);
 
     //---------------------
     // Public destructor

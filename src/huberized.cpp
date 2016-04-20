@@ -22,7 +22,7 @@ CHuberized::CHuberized()
 // Function Members - Public
 //----------------------------------------
 
-CDistribution* CHuberized::Create(const DataDistParams& distParams)
+CDistribution* CHuberized::Create(DataDistParams& distParams)
 {
 	return new CHuberized();
 }

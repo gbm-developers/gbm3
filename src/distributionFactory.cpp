@@ -87,7 +87,7 @@ void DistributionFactory::RegisterDist(const string& DistFamily, distCreate PtrD
 //   distParams - configuration struct containing parameters for distribution set-up.
 //---------------------------------------------
 
-CDistribution* DistributionFactory::CreateDist(const DataDistParams& distParams)
+CDistribution* DistributionFactory::CreateDist(DataDistParams& distParams)
 {
   std::map<std::string, distCreate>::iterator it = FactoryMap.find(distParams.family);
 	if( it != FactoryMap.end() )

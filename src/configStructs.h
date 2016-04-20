@@ -30,6 +30,8 @@ public:
 		    SEXP radOffset,
 		    SEXP radX,
 		    SEXP raiXOrder,
+		    SEXP rSorted,
+		    SEXP rStrata,
 		    SEXP radWeight,
 		    SEXP radMisc,
 		    SEXP racVarClasses,
@@ -44,6 +46,8 @@ public:
 		xOrder = raiXOrder;
 		varWeight =	radWeight;
 		varClasses = racVarClasses;
+		sorted = rSorted;
+		strata = rStrata;
 		misc = radMisc;
 		monotoneVar = ralMonotoneVar;
 		cTrain = Rcpp::as<int>(rcTrain);
@@ -53,6 +57,8 @@ public:
 		szIRMeasure = NULL;
 }
 	Rcpp::NumericMatrix respY;
+	SEXP sorted;
+	SEXP strata;
 	SEXP offset;
 	SEXP xValues;
 	SEXP xOrder;
@@ -89,6 +95,8 @@ public:
 		    SEXP radOffset,
 		    SEXP radX,
 		    SEXP raiXOrder,
+		    SEXP rSorted,
+		    SEXP rStrata,
 		    SEXP radWeight,
 		    SEXP radMisc,
 		    SEXP racVarClasses,
@@ -101,10 +109,13 @@ public:
 		    SEXP rdBagFraction,
 		    SEXP rcTrain,
 		    SEXP rcFeatures):
+
 		    dataConfig(radY,
 		    radOffset,
 		    radX,
 		    raiXOrder,
+		    rSorted,
+		    rStrata,
 		    radWeight,
 		    radMisc,
 		    racVarClasses,

@@ -39,7 +39,7 @@ private:
 	//-------------------
 	// Private Variables
 	//-------------------
-	typedef CDistribution* (*distCreate)(const DataDistParams&);
+	typedef CDistribution* (*distCreate)(DataDistParams&);
 	std::map<std::string, distCreate> FactoryMap;
 
 public:
@@ -57,7 +57,7 @@ public:
 	// Public Functions
 	//---------------------
 	void RegisterDist(const std::string& DistFamily, distCreate PtrDistCreateFn);
-	CDistribution* CreateDist(const DataDistParams& distParams);
+	CDistribution* CreateDist(DataDistParams& distParams);
 };
 
 #endif // __distributionFactory_h__

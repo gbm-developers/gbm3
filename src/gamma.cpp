@@ -26,7 +26,7 @@ CGamma::CGamma()
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CGamma::Create(const DataDistParams& distParams)
+CDistribution* CGamma::Create(DataDistParams& distParams)
 {
 
 	return new CGamma();

@@ -25,7 +25,7 @@ CTDist::CTDist(double nu):mpLocM("tdist", nu)
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CTDist::Create(const DataDistParams& distParams)
+CDistribution* CTDist::Create(DataDistParams& distParams)
 {
 	// Check that misc exists
 	double nu = distParams.respY(0, 1);

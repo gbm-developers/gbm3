@@ -262,7 +262,7 @@ class CPairwise : public CDistribution
 {
 public:
 
-	static CDistribution* Create(const DataDistParams& distParams);
+	static CDistribution* Create(DataDistParams& distParams);
 
     virtual ~CPairwise();
 

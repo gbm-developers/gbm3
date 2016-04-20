@@ -558,7 +558,7 @@ CPairwise::CPairwise(const double* adgroups, const char* szIRMeasure, int cTrain
       }
 }
 
-CDistribution* CPairwise::Create(const DataDistParams& distParams)
+CDistribution* CPairwise::Create(DataDistParams& distParams)
 {
 	// Create pointers to pairwise
 	//Rcpp::NumericVector miscVec(distParams.misc);

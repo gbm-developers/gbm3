@@ -25,7 +25,7 @@ CBernoulli::CBernoulli()
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CBernoulli::Create(const DataDistParams& distParams)
+CDistribution* CBernoulli::Create(DataDistParams& distParams)
 {
 	return new CBernoulli();
 }

@@ -22,7 +22,7 @@ CGaussian::CGaussian()
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CGaussian::Create(const DataDistParams& distParams)
+CDistribution* CGaussian::Create(DataDistParams& distParams)
 {
 	return new CGaussian();
 }

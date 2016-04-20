@@ -37,15 +37,18 @@ public:
 			std::fill(adOffset.begin(), adOffset.begin() + adX.nrow(), 0.0);
 		}
 
-		// Set other stuff
+		// Set variables
 		bagFraction = fractionInBag;
 		totalInBag = (long) (fractionInBag * cTrain);
 		cValid = adX.nrow() - cTrain;
 		pointAtTrainSet = true;
+
+		// Set up pointers
 		adYPtr = adY(Rcpp::_, 0).begin();
 		adWeightPtr = adWeight.begin();
 		adOffsetPtr = adOffset.begin();
 		afInBag.assign(cTrain, false);
+		SetUpYPtrs();
 
 		// Ensure initialization makes sense
 		if (totalInBag <= 0)
@@ -109,6 +112,22 @@ public:
 			}
 		}
 
+		//-----------------------------------
+		// Function: SetUpYPtrs
+		//
+		// Returns:  sets up the ptrs to each column of response mat.
+		//
+		// Parameters: none
+		//
+		//-----------------------------------
+		void SetUpYPtrs()
+		{
+			for(long i = 0; i < adY.ncol(); i++)
+			{
+				yptrs.push_back(adY(Rcpp::_, i).begin());
+			}
+		}
+
 		//-------------------
 		// Public Variables
 		//-------------------
@@ -118,6 +137,7 @@ public:
 		Rcpp::IntegerVector acVarClasses, alMonotoneVar, aiXOrder;
 
 		// Ptrs to numeric vectors - these must be mutable
+		mutable std::vector<double*> yptrs;
 		mutable double* adYPtr;
 		mutable double* adOffsetPtr;
 		mutable double* adWeightPtr;
@@ -234,13 +254,13 @@ int CDataset::ncol() const
 // Parameters: none
 //
 //-----------------------------------
-double* CDataset::y_ptr()
+double* CDataset::y_ptr(long colIndex)
 {
-	return dataImpl->adYPtr;
+	return dataImpl->yptrs[colIndex];
 }
-const double* CDataset::y_ptr() const
+const double* CDataset::y_ptr(long colIndex) const
 {
-	return dataImpl->adYPtr;
+	return dataImpl->yptrs[colIndex];
 }
 
 //-----------------------------------
@@ -403,7 +423,10 @@ void CDataset::shift_to_validation() const
 {
 	if(dataImpl->pointAtTrainSet)
 	{
-		dataImpl->adYPtr= dataImpl->shift_ptr_to_validation(dataImpl->adYPtr);
+		for(int i = 0; i < dataImpl->yptrs.size(); i++)
+		{
+			dataImpl->yptrs[i] = dataImpl->shift_ptr_to_validation(dataImpl->yptrs[i]);
+		}
 		dataImpl->adOffsetPtr = dataImpl->shift_ptr_to_validation(dataImpl->adOffsetPtr);
 		dataImpl->adWeightPtr = dataImpl->shift_ptr_to_validation(dataImpl->adWeightPtr);
 		dataImpl->pointAtTrainSet = false;
@@ -426,7 +449,10 @@ void CDataset::shift_to_train() const
 {
 	if(!(dataImpl->pointAtTrainSet))
 	{
-		dataImpl->adYPtr = dataImpl->shift_ptr_to_train(dataImpl->adYPtr);
+		for(int i = 0; i < dataImpl->yptrs.size(); i++)
+		{
+			dataImpl->yptrs[i] = dataImpl->shift_ptr_to_train(dataImpl->yptrs[i]);
+		}
 		dataImpl->adOffsetPtr = dataImpl->shift_ptr_to_train(dataImpl->adOffsetPtr);
 		dataImpl->adWeightPtr = dataImpl->shift_ptr_to_train(dataImpl->adWeightPtr);
 		dataImpl->pointAtTrainSet = true;

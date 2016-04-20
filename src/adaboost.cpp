@@ -22,7 +22,7 @@ CAdaBoost::CAdaBoost()
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CAdaBoost::Create(const DataDistParams& distParams)
+CDistribution* CAdaBoost::Create(DataDistParams& distParams)
 {
  	return new CAdaBoost();
 }
