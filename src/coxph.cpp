@@ -42,13 +42,7 @@ CDistribution* CCoxPH::Create(DataDistParams& distParams)
 	int* sortedSt = NULL;
 	int* sortedEnd = NULL;
 	bool isStartStop = false;
-
-	// Check that sorted arrays can be initialized
-	Rcpp::NumericMatrix checkMatrix(distParams.sorted);
-	if(!GBM_FUNC::has_value(checkMatrix(Rcpp::_, 0)))
-	{
-		throw GBM::failure("CoxPh - sort arrays have no values");
-	}
+	int tiesMethod = (Rcpp::as<std::string>(distParams.misc[0]) == "effron") ? 1 : 0;
 
 	// Check if start/stop case or not
 	Rcpp::IntegerMatrix sortMatrix(distParams.sorted);
@@ -58,18 +52,21 @@ CDistribution* CCoxPH::Create(DataDistParams& distParams)
 		stat = distParams.respY(Rcpp::_, 2).begin();
 		sortedEnd = sortMatrix(Rcpp::_, 1).begin();
 		sortedSt = sortMatrix(Rcpp::_, 0).begin();
-		// Set ties method
 
+		// Set ties method
+		Rcpp::IntegerVector strats(sortMatrix(Rcpp::_, 2));
 	}
 	else
 	{
 		stat = distParams.respY(Rcpp::_, 1).begin();
 		sortedEnd = sortMatrix(Rcpp::_, 0).begin();
 	}
+
 	// Set up strata
 	Rcpp::IntegerVector strats(distParams.strata);
 
-	return new CCoxPH(stat, sortedEnd, sortedSt, strats.begin(), isStartStop, Rf_asInteger(distParams.tiesMethod));
+
+	return new CCoxPH(stat, sortedEnd, sortedSt, strats.begin(), isStartStop, tiesMethod);
 }
 
 CCoxPH::~CCoxPH()

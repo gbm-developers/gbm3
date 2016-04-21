@@ -32,7 +32,6 @@ public:
 		    SEXP raiXOrder,
 		    SEXP rSorted,
 		    SEXP rStrata,
-		    SEXP rTiesMethod,
 		    SEXP radWeight,
 		    SEXP radMisc,
 		    SEXP racVarClasses,
@@ -40,16 +39,17 @@ public:
 		    SEXP rszFamily,
 		    SEXP rdBagFraction,
 		    SEXP rcTrain,
-		    SEXP rcFeatures): respY(radY)
+		    SEXP rcFeatures):
+		    respY(radY),
+		    misc(radMisc)
 {
+		sorted = rSorted;
+		strata = rStrata;
 		offset = radOffset;
 		xValues = radX;
 		xOrder = raiXOrder;
 		varWeight =	radWeight;
 		varClasses = racVarClasses;
-		sorted = rSorted;
-		strata = rStrata;
-		tiesMethod = rTiesMethod;
 		misc = radMisc;
 		monotoneVar = ralMonotoneVar;
 		cTrain = Rcpp::as<int>(rcTrain);
@@ -61,14 +61,13 @@ public:
 	Rcpp::NumericMatrix respY;
 	SEXP sorted;
 	SEXP strata;
-	SEXP tiesMethod;
 	SEXP offset;
 	SEXP xValues;
 	SEXP xOrder;
 	SEXP varWeight;
 	SEXP varClasses;
 	SEXP monotoneVar;
-	SEXP misc;
+	Rcpp::List misc;
 	int cTrain;
 	int cFeatures;
 	double dBagFraction;
@@ -100,7 +99,6 @@ public:
 		    SEXP raiXOrder,
 		    SEXP rSorted,
 		    SEXP rStrata,
-		    SEXP rTiesMethod,
 		    SEXP radWeight,
 		    SEXP radMisc,
 		    SEXP racVarClasses,
@@ -120,7 +118,6 @@ public:
 		    raiXOrder,
 		    rSorted,
 		    rStrata,
-		    rTiesMethod,
 		    radWeight,
 		    radMisc,
 		    racVarClasses,

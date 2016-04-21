@@ -28,7 +28,7 @@ CTDist::CTDist(double nu):mpLocM("tdist", nu)
 CDistribution* CTDist::Create(DataDistParams& distParams)
 {
 	// Check that misc exists
-	double nu = distParams.respY(0, 1);
+	double nu = Rcpp::as<double>(distParams.misc[0]);
 	if(!GBM_FUNC::has_value(nu))
 	{
 		throw GBM::failure("T Dist requires misc to initialization.");

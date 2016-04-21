@@ -34,7 +34,7 @@ gbm.fit <- function(x,y,
    # Only strata, ties and sorted vecs for CoxPh
    StrataVec <- NA
    sortedVec <- NA
-   ties <- NA
+   ties <- as.double(NA)
 
    # the preferred way to specify the number of training instances is via parameter 'nTrain'.
    # parameter 'train.fraction' is only maintained for backward compatibility.
@@ -158,8 +158,6 @@ gbm.fit <- function(x,y,
       }
      # Bind power to second column of response
       Misc <- c(power=distribution$power)
-      y <- cbind(y, rep(distribution$power, length(y)))
-      
    }
    if((distribution$name == "poisson") && any(y != trunc(y)))
    {
@@ -179,9 +177,7 @@ gbm.fit <- function(x,y,
       {
          stop("alpha must be between 0 and 1.")
       }
-     # Bind alpha as second column to y
-     y <- cbind(y, rep(distribution$alpha , length(y)))
-      Misc <- c(alpha=distribution$alpha)
+     Misc <- c(alpha=distribution$alpha)
    }
    if(distribution$name == "coxph")
    {
@@ -190,9 +186,6 @@ gbm.fit <- function(x,y,
          stop("Outcome must be a survival object Surv(time1, failure) or Surv(time1, time2, failure)")
       }
 
-      # Misc no longer passes in this - make y a matrix now
-      Misc <- y[,2]
-
       # TODO: this needs to merge in with the sorted part
       # reverse sort the failure times to compute risk sets on the fly
       n.test <- cRows - nTrain
@@ -200,7 +193,7 @@ gbm.fit <- function(x,y,
       if (attr(y, "type") == "right")
       {
         sorted <- c(order(-y[1:nTrain, 1]), order(-y[(nTrain+1):cRows, 1]))
-        nstrat <- c(rep(nTrain, nTrain), c(n.test, n.test))
+        nstrat <- c(rep(nTrain, nTrain), rep(n.test, n.test))
       }
       else if (attr(y, "type") == "counting") 
       {
@@ -228,16 +221,19 @@ gbm.fit <- function(x,y,
       y <- y[i.timeorder]
       x <- x[i.timeorder,,drop=FALSE]
       w <- w[i.timeorder]
-      Misc <- Misc[i.timeorder]
       
       if(!is.null(offset)) offset <- offset[i.timeorder]
       
       # Add in sorted column and strata
       StrataVec <-  nstrat
       sortedVec <- sorted-1L
+      strataAndSorting <- cbind(sortedVec, StrataVec)
       
       # SET TIES HERE FOR THE MOMENT
       ties <- "effron"
+      Misc <- list("ties"= ties)
+      
+      #
 
    }
    if(distribution$name == "tdist")
@@ -245,14 +241,10 @@ gbm.fit <- function(x,y,
      
       if (is.null(distribution$df) || !is.numeric(distribution$df))
       {
-        # Bind number of degrees of freedom to second column of y
-        y <- cbind(y, rep(4, length(y)))
         Misc <- 4
       }
       else
       {
-        # Bind number of degrees of freedom to second column of y
-        y <- cbind(y, rep(distribution$df[1], length(y)))
         Misc <- distribution$df[1]
       }
    }
@@ -303,10 +295,7 @@ gbm.fit <- function(x,y,
       }
 
       # We pass the cut-off rank to the C function as the last element in the Misc vector
-      Misc <- c(group, max.rank)
-      y[length(y)+1] <- 0
-      y <- cbind(y, c(group, max.rank))
-      
+      Misc <- list("GroupsAndRanks"=c(group, max.rank))
       distribution.call.name <- sprintf("pairwise_%s", metric)
    } # close if (dist... == "pairwise"
 
@@ -334,27 +323,16 @@ gbm.fit <- function(x,y,
      cColsY <- 1
    }
    
-   # Get size of sort Frame
-   cRowsSort <- nrow(sortedVec)
-   cColsSort <- ncol(sortedVec)
-   if(is.null(cRowsSort))
-   {
-     cRowsSort <- length(sortedVec)
-     cColsSort <- 1
-   }
-   
-   
    # Call GBM fit from C++
    gbm.obj <- .Call("gbm",
                     Y=matrix(y, cRowsY, cColsY),
                     Offset=as.double(offset),
                     X=matrix(x, cRows, cCols),
                     X.order=as.integer(x.order),
-                    sorted=matrix(sortedVec, cRowsSort, cColsSort),
-                    Strata=as.integer(StrataVec),
-                    tiesMethod=as.integer(ties=="effron"), 
+                    sorted=matrix(sortedVec),
+                    Strata = as.integer(StrataVec),
                     weights=as.double(w),
-                    Misc=as.double(Misc),
+                    Misc=as.list(Misc),
                     var.type=as.integer(var.type),
                     var.monotone=as.integer(var.monotone),
                     distribution=as.character(distribution.call.name),

@@ -561,15 +561,16 @@ CPairwise::CPairwise(const double* adgroups, const char* szIRMeasure, int cTrain
 CDistribution* CPairwise::Create(DataDistParams& distParams)
 {
 	// Create pointers to pairwise
-	//Rcpp::NumericVector miscVec(distParams.misc);
+	Rcpp::NumericVector miscVec(distParams.misc[0]);
 	const double* adgroup = 0;
-	if(!GBM_FUNC::has_value(distParams.respY(Rcpp::_, 1)))
+
+	if(!GBM_FUNC::has_value(miscVec))
 	{
 		throw GBM::failure("Pairwise requires misc to initialize");
 	}
 	else
 	{
-		adgroup = distParams.respY(Rcpp::_, 1).begin();
+		adgroup = miscVec.begin();
 	}
 	return new CPairwise(adgroup, distParams.szIRMeasure, distParams.cTrain);
 }

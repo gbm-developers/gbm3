@@ -38,7 +38,6 @@ SEXP gbm
     SEXP raiXOrder,
     SEXP rSorted,
     SEXP rStrata,
-    SEXP rTiesMethod,
     SEXP radWeight,
     SEXP radMisc,   // other row specific data (eg failure time), NA=no Misc
     SEXP racVarClasses,
@@ -70,7 +69,7 @@ SEXP gbm
 
     // Set up parameters for initialization
     configStructs GBMParams (radY, radOffset, radX,
-				raiXOrder, rSorted, rStrata, rTiesMethod, radWeight, radMisc,
+				raiXOrder, rSorted, rStrata, radWeight, radMisc,
 				racVarClasses, ralMonotoneVar,
 				rszFamily, rcTrees, rcDepth,
 				rcMinObsInNode, rdShrinkage,
