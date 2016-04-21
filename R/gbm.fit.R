@@ -334,6 +334,15 @@ gbm.fit <- function(x,y,
      cColsY <- 1
    }
    
+   # Get size of sort Frame
+   cRowsSort <- nrow(sortedVec)
+   cColsSort <- ncol(sortedVec)
+   if(is.null(cRowsSort))
+   {
+     cRowsSort <- length(sortedVec)
+     cColsSort <- 1
+   }
+   
    
    # Call GBM fit from C++
    gbm.obj <- .Call("gbm",
@@ -341,7 +350,7 @@ gbm.fit <- function(x,y,
                     Offset=as.double(offset),
                     X=matrix(x, cRows, cCols),
                     X.order=as.integer(x.order),
-                    sorted=matrix(sortedVec),
+                    sorted=matrix(sortedVec, cRowsSort, cColsSort),
                     Strata=as.integer(StrataVec),
                     tiesMethod=as.integer(ties=="effron"), 
                     weights=as.double(w),
