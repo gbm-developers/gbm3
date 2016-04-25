@@ -17,7 +17,8 @@ gbm.fit <- function(x,y,
                     verbose = TRUE,
                     var.names = NULL,
                     response.name = "y",
-                    group = NULL){
+                    group = NULL,
+                    tied.times.method=NA){
 
    if(is.character(distribution)) { distribution <- list(name=distribution) }
 
@@ -34,7 +35,6 @@ gbm.fit <- function(x,y,
    # Only strata, ties and sorted vecs for CoxPh
    StrataVec <- NA
    sortedVec <- NA
-   ties <- as.double(NA)
 
    # the preferred way to specify the number of training instances is via parameter 'nTrain'.
    # parameter 'train.fraction' is only maintained for backward compatibility.
@@ -229,11 +229,16 @@ gbm.fit <- function(x,y,
       sortedVec <- sorted-1L
       strataAndSorting <- cbind(sortedVec, StrataVec)
       
-      # SET TIES HERE FOR THE MOMENT
-      ties <- "effron"
-      Misc <- list("ties"= ties)
+      # Set ties here for the moment
+      Misc <- list("ties"= tied.times.method)
       
-      #
+      # Throw warning about deprecated method
+      if( !((tied.times.method == "effron") || (tied.times.method == "breslow")) || is.na(tied.times.method) )
+      {
+        warning("Depreciated CoxPh - invalid method for dealing with ties, revert to default.
+                Select effron or breslow for updated method")   
+        Misc$ties <- "default"
+      }
 
    }
    if(distribution$name == "tdist")

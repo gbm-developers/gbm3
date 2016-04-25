@@ -56,6 +56,8 @@ void CGBM::FitLearner
   pDataCont->ComputeResiduals(&adF[0], &adZ[0]);
   pTreeComp->GrowTrees(pDataCont->getData(), &adZ[0], &adFadj[0]);
 
+
+
   // Now I have adF, adZ, and vecpTermNodes (new node assignments)
   // Fit the best constant within each terminal node
 #ifdef NOISY_DEBUG

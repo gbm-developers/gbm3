@@ -12,7 +12,7 @@
 //  History:    3/26/2001   gregr created
 //              2/14/2003   gregr: adapted for R implementation
 //			   16/03/2016   James Hickey: updated to remove terminal and non-terminal nodes
-//			   30/03/2016   James Hickey: templated to deal with continuous and categorical splits.
+//			   30/03/2016   James Hickey: state pattern to deal with continuous and categorical splits.
 //------------------------------------------------------------------------------
 
 #ifndef __node_h__

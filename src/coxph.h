@@ -21,6 +21,11 @@
 #include <memory>
 
 //------------------------------
+// Class Forwards and Enums
+//------------------------------
+class GenericCoxState;
+
+//------------------------------
 // Class definition
 //------------------------------
 class CCoxPH : public CDistribution
@@ -60,6 +65,23 @@ public:
     					  const double *adF,
     					  const bag& afInBag, const double shrinkage, const double* adFadj);
 
+    // Getters for the internal variables
+    double* StatusVec();
+    const double* StatusVec() const;
+
+    int* EndTimeIndices();
+    const int* EndTimeIndices() const;
+
+    int* StartTimeIndices();
+    const int* StartTimeIndices() const;
+
+    int* StrataVec();
+    const int* StrataVec() const;
+
+    int TieApproxMethod();
+    int TieApproxMethod() const;
+
+
 
 private:
     //----------------------
@@ -79,21 +101,14 @@ private:
     //-------------------
     // Private Variables
     //-------------------
-    vector<double> vecdP;
-    vector<double> vecdRiskTot;
-    vector<double> vecdG;
-    vector<unsigned long> veciK2Node;
-    vector<unsigned long> veciNode2K;
-
-    matrix<double> matH;
-    matrix<double> matHinv;
-    double* status;
-    int* sortedEndTimes;
-    int* sortedStartTimes;
-    int* strata;
-    int tiedTimesMethod;
-    bool isUpdatedCoxPh;
     const bool startStopCase;
+    GenericCoxState* coxStateMethods;
+
+    double* status;
+	int* sortedEndTimes;
+	int* sortedStartTimes;
+	int* strata;
+	int tiedTimesMethod;
 };
 
 #endif // __coxph_h__

@@ -226,13 +226,18 @@
 #' @param fold.id An optional vector of values identifying what fold
 #' each observation is in. If supplied, cv.folds can be missing.
 #' 
+#' @param tied.times.method An optional string used with \code{CoxPH}
+#' distribution specifying what method to employ when dealing with tied
+#' times.  Currently only "effron" and "breslow" are available; this
+#' string defaults to NA.
+#' 
 #' @usage
 #' gbm(formula = formula(data), distribution = "bernoulli",
 #' data = list(), weights, subset = NULL, offset = NULL, var.monotone
 #' = NULL, n.trees = 100, interaction.depth = 1, n.minobsinnode = 10,
 #' shrinkage = 0.001, bag.fraction = 0.5, train.fraction = 1,
 #' mFeatures = NULL, cv.folds = 0, keep.data = TRUE, verbose = "CV",
-#' class.stratify.cv = NULL, n.cores = NULL, fold.id=NULL)
+#' class.stratify.cv = NULL, n.cores = NULL, fold.id=NULL, tied.times.method=NA)
 #' 
 #' gbm.fit(x, y, offset = NULL, misc = NULL, distribution = "bernoulli", 
 #' w = NULL, var.monotone = NULL, n.trees = 100, interaction.depth = 1, 
@@ -417,7 +422,8 @@ gbm <- function(formula = formula(data),
                 verbose = 'CV',
                 class.stratify.cv=NULL,
                 n.cores=NULL,
-                fold.id = NULL){
+                fold.id = NULL,
+                tied.times.method=NA){
    theCall <- match.call()
 
 
@@ -461,6 +467,16 @@ gbm <- function(formula = formula(data),
    group      <- NULL
    num.groups <- 0
 
+   # Set up tied.times.method for CoxPh
+   if(distribution$name != "coxph")
+   {
+     tied.times.method <- NA
+   }
+   else
+   {
+     tied.times.method <- tied.times.method
+   }
+   
    # determine number of training instances
    if (distribution$name != "pairwise"){
       nTrain <- floor(train.fraction * nrow(x))
@@ -556,7 +572,7 @@ gbm <- function(formula = formula(data),
                                n.trees, interaction.depth, n.minobsinnode,
                                shrinkage, bag.fraction, mFeatures,
                                var.names, response.name, group, lVerbose,
-                               keep.data, fold.id)
+                               keep.data, fold.id, tied.times.method)
      cv.error <- cv.results$error
      p        <- cv.results$predictions
      gbm.obj  <- cv.results$all.model
@@ -579,7 +595,8 @@ gbm <- function(formula = formula(data),
                       verbose = lVerbose,
                       var.names = var.names,
                       response.name = response.name,
-                      group = group)
+                      group = group,
+                      tied.times.method = tied.times.method)
    }
 
    gbm.obj$train.fraction <- train.fraction
