@@ -11,7 +11,7 @@ data = list(), weights, subset = NULL, offset = NULL, var.monotone
 = NULL, n.trees = 100, interaction.depth = 1, n.minobsinnode = 10,
 shrinkage = 0.001, bag.fraction = 0.5, train.fraction = 1,
 mFeatures = NULL, cv.folds = 0, keep.data = TRUE, verbose = "CV",
-class.stratify.cv = NULL, n.cores = NULL, fold.id=NULL)
+class.stratify.cv = NULL, n.cores = NULL, fold.id=NULL, tied.times.method = "breslow")
 
 gbm.fit(x, y, offset = NULL, misc = NULL, distribution = "bernoulli", 
 w = NULL, var.monotone = NULL, n.trees = 100, interaction.depth = 1, 
@@ -43,7 +43,7 @@ Available distributions are "gaussian" (squared error), "laplace"
 (logistic regression for 0-1 outcomes), "huberized" (Huberized
 hinge loss for 0-1 outcomes), "adaboost" (the AdaBoost
 exponential loss for 0-1 outcomes), "poisson" (count outcomes),
-"coxph" (right censored observations), "quantile", or "pairwise"
+"coxph" (right censored or counting observations), "quantile", or "pairwise"
 (ranking measure using the LambdaMART algorithm).
 
 If quantile regression is specified, \code{distribution} must be a
@@ -196,18 +196,18 @@ data is used for training.}
 \code{object} using \code{gbm.more}.}
 
 \item{x, y}{For \code{gbm.fit}: \code{x} is a data frame or data
-matrix containing the predictor variables and \code{y} is the
-vector of outcomes.  The number of rows in \code{x} must be the
-same as the length of \code{y}.}
+matrix containing the predictor variables and \code{y} is a matrix of outcomes.  Excluding \code{CoxPH} this matrix of outcomes
+collapses to a vector, in the case of \code{CoxPH} it is a survival object where the event times fill the first one (or two columns) and the status fills the final column. The number of rows in \code{x} must be the
+same as the length of the 1st dimension of \code{y}.}
 
 \item{misc}{For \code{gbm.fit}: \code{misc} is an R object that is
 simply passed on to the gbm engine. It can be used for additional
 data for the specific distribution. Currently it is only used for
-passing the censoring indicator for the Cox proportional hazards
-model.}
+with the Cox proportional hazards
+model to set the tied times method.}
 
 \item{w}{For \code{gbm.fit}: \code{w} is a vector of weights of the same
-length as the \code{y}.}
+length as the 1st dimension of \code{y}.}
 
 \item{var.names}{For \code{gbm.fit}: A vector of strings of length
 equal to the number of columns of \code{x} containing the names of
@@ -218,7 +218,16 @@ for the response variable.}
 
 \item{group}{\code{group} used when \code{distribution =
 'pairwise'.}}
+
+\item{tied.times.method}{This is an optional string used with \code{CoxPH}
+distribution specifying what method to employ when dealing with tied
+times.  Currently only "effron" and "breslow" are available; the default value is "breslow". Setting the string to any other value reverts the method
+to the original CoxPH model implementation where ties are not explicitly dealt with.}
+
 }
+
+
+
 \value{
 \code{gbm}, \code{gbm.fit}, and \code{gbm.more} return a
 \code{\link{gbm.object}}.

@@ -52,10 +52,7 @@ public:
 		// Fill up response
 		for(long i = 0; i < pData->get_trainSize(); i++)
 		{
-			if(pData->GetBagElem(i))
-			{
-				adZ[i] = -martingaleResid[i]; // From chain rule
-			}
+			adZ[i] = martingaleResid[i]; // From chain rule
 		}
 	}
 
@@ -85,7 +82,7 @@ public:
 		// Calculate Deviance
 		loglik = LogLikelihoodTiedTimes(cLength, pData, adF, &martingaleResid[0]);
 
-		return loglik;
+		return -loglik;
 	}
 
 	double BagImprovement
@@ -107,15 +104,19 @@ public:
 		// Fill up the adjusted and shrunk eta
 		for(long i = 0; i < data.get_trainSize(); i++)
 		{
-			if(data.GetBagElem(i))
+			if(!data.GetBagElem(i))
 			{
 				etaAdj[i] = adF[i] + shrinkage * adFadj[i];
 
 			}
+			else
+			{
+				etaAdj[i] = adF[i];
+			}
 		}
 
-		// Calculate likelihoods
-		loglikeNoAdj = LogLikelihoodTiedTimes(data.get_trainSize(), &data, adF, &martingaleResidNoAdj[0], false);
+		// Calculate likelihoods - data not in bags
+		loglikeNoAdj = LogLikelihoodTiedTimes(data.get_trainSize(), &data, adF, &martingaleResidNoAdj[0], false, false);
 		loglikeWithAdj = LogLikelihoodTiedTimes(data.get_trainSize(), &data, &etaAdj[0], &martingaleResidWithAdj[0], false, false);
 
 		return (loglikeWithAdj - loglikeNoAdj);
@@ -191,13 +192,17 @@ private:
 					temp = denom;
 					for (;  indx1 <person; indx1++)
 					{
-						p1 = coxPh->StartTimeIndices()[indx1];
-						if (pData->y_ptr(0)[p1] < dtime) break; /* still in the risk set */
+						if(skipBag || (pData->GetBagElem(indx1)==checkInBag))
+						{
+							p1 = coxPh->StartTimeIndices()[indx1];
+							if (pData->y_ptr(0)[p1] < dtime) break; /* still in the risk set */
 
-						nrisk--;
-						resid[p1] -= cumhaz* exp(eta[p1] + pData->offset_ptr(false)[p1] - center);
-						denom  -= pData->weight_ptr()[p1] * exp(eta[p1] + pData->offset_ptr(false)[p1] - center);
-						esum -= eta[p1] + pData->offset_ptr(false)[p1];
+							nrisk--;
+							resid[p1] -= cumhaz* exp(eta[p1] + pData->offset_ptr(false)[p1] - center);
+							denom  -= pData->weight_ptr()[p1] * exp(eta[p1] + pData->offset_ptr(false)[p1] - center);
+							esum -= eta[p1] + pData->offset_ptr(false)[p1];
+						}
+
 					}
 					if (nrisk==0)
 					{
@@ -218,19 +223,23 @@ private:
 					d_denom =0;  /*contribution to denominator for the deaths*/
 					for (k=person; k< coxPh->StrataVec()[istrat]; k++)
 					{
-						p2 = coxPh->EndTimeIndices()[k];
-						if (pData->y_ptr(1)[p2]  < dtime) break;  /* only tied times */
-
-						nrisk++;
-						denom += pData->weight_ptr()[p2] * exp(eta[p2] + pData->offset_ptr(false)[p2] - center);
-						esum += eta[p2];
-						if (coxPh->StatusVec()[p2] ==1)
+						if(skipBag || (pData->GetBagElem(k)==checkInBag))
 						{
-							ndeath ++;
-							deathwt += pData->weight_ptr()[p2];
-							d_denom += pData->weight_ptr()[p2] * exp(eta[p2] + pData->offset_ptr(false)[p2] - center);
-							loglik  += pData->weight_ptr()[p2] *(eta[p2] + pData->offset_ptr(false)[p2] - center);
+							p2 = coxPh->EndTimeIndices()[k];
+							if (pData->y_ptr(1)[p2]  < dtime) break;  /* only tied times */
+
+							nrisk++;
+							denom += pData->weight_ptr()[p2] * exp(eta[p2] + pData->offset_ptr(false)[p2] - center);
+							esum += eta[p2];
+							if (coxPh->StatusVec()[p2] ==1)
+							{
+								ndeath ++;
+								deathwt += pData->weight_ptr()[p2];
+								d_denom += pData->weight_ptr()[p2] * exp(eta[p2] + pData->offset_ptr(false)[p2] - center);
+								loglik  += pData->weight_ptr()[p2] *(eta[p2] + pData->offset_ptr(false)[p2] - center);
+							}
 						}
+
 					}
 					ksave = k;
 
@@ -251,10 +260,14 @@ private:
 						deathwt /= ndeath;   /* average weight of each death */
 						for (k=0; k <ndeath; k++)
 						{
-							temp = (double)k /ndeath;    /* don't do integer division*/
-							loglik -= deathwt *log(denom - temp*d_denom);
-							hazard += deathwt/(denom - temp*d_denom);
-							e_hazard += (1-temp) *deathwt/(denom - temp*d_denom);
+							if(skipBag || (pData->GetBagElem(k)==checkInBag))
+							{
+								temp = (double)k /ndeath;    /* don't do integer division*/
+								loglik -= deathwt *log(denom - temp*d_denom);
+								hazard += deathwt/(denom - temp*d_denom);
+								e_hazard += (1-temp) *deathwt/(denom - temp*d_denom);
+							}
+
 						}
 					}
 
@@ -266,9 +279,13 @@ private:
 					temp = cumhaz + (hazard -e_hazard);
 					for (; person < ksave; person++)
 					{
-						p2 = coxPh->EndTimeIndices()[person];
-						if (coxPh->StatusVec()[p2] ==1) resid[p2] = 1 + temp*exp(eta[p2] + pData->offset_ptr(false)[p2] - center);
-						else resid[p2] = cumhaz * exp(eta[p2] + pData->offset_ptr(false)[p2] - center);
+						if(skipBag || (pData->GetBagElem(person)==checkInBag))
+						{
+							p2 = coxPh->EndTimeIndices()[person];
+							if (coxPh->StatusVec()[p2] ==1) resid[p2] = 1 + temp*exp(eta[p2] + pData->offset_ptr(false)[p2] - center);
+							else resid[p2] = cumhaz * exp(eta[p2] + pData->offset_ptr(false)[p2] - center);
+						}
+
 					}
 					cumhaz += hazard;
 
@@ -287,8 +304,12 @@ private:
 					stratastart = person;
 					for (; indx1< coxPh->StrataVec()[istrat]; indx1++)
 					{
-						p1 = coxPh->StartTimeIndices()[indx1];
-						resid[p1] -= cumhaz * exp(eta[p1] + pData->offset_ptr(false)[p1] - center);
+						if(skipBag || (pData->GetBagElem(indx1)==checkInBag))
+						{
+							p1 = coxPh->StartTimeIndices()[indx1];
+							resid[p1] -= cumhaz * exp(eta[p1] + pData->offset_ptr(false)[p1] - center);
+						}
+
 					}
 					cumhaz =0;
 					denom = 0;

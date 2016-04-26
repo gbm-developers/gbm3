@@ -79,6 +79,9 @@ CDistribution* CCoxPH::Create(DataDistParams& distParams)
 	  tiesMethod = -1; 
 	}
 	
+	// Set up strata
+	Rcpp::IntegerVector strats(distParams.strata);
+
 	// Check if start/stop case or not
 	Rcpp::IntegerMatrix sortMatrix(distParams.sorted);
 	if(distParams.respY.ncol() > 2)
@@ -87,7 +90,6 @@ CDistribution* CCoxPH::Create(DataDistParams& distParams)
 		stat = distParams.respY(Rcpp::_, 2).begin();
 		sortedEnd = sortMatrix(Rcpp::_, 1).begin();
 		sortedSt = sortMatrix(Rcpp::_, 0).begin();
-		Rcpp::IntegerVector strats(sortMatrix(Rcpp::_, 2));
 
 		return new CCoxPH(stat, sortedEnd, sortedSt, strats.begin(), isStartStop, tiesMethod);
 
@@ -97,8 +99,6 @@ CDistribution* CCoxPH::Create(DataDistParams& distParams)
 	stat = distParams.respY(Rcpp::_, 1).begin();
 	sortedEnd = sortMatrix(Rcpp::_, 0).begin();
 
-	// Set up strata
-	Rcpp::IntegerVector strats(distParams.strata);
 
 	return new CCoxPH(stat, sortedEnd, sortedSt, strats.begin(), isStartStop, tiesMethod);
 

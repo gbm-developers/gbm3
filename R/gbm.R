@@ -192,18 +192,18 @@
 #' training sets do not contain all classes.
 #'
 #' @param x,y For \code{gbm.fit}: \code{x} is a data frame or data
-#' matrix containing the predictor variables and \code{y} is the
-#' vector of outcomes.  The number of rows in \code{x} must be the
-#' same as the length of \code{y}.
+#' matrix containing the predictor variables and \code{y} is a matrix of outcomes.
+#' Excluding \code{CoxPH} this matrix of outcomes collapses to a vector, in the case of \code{CoxPH} it is a survival object 
+#' where the event times fill the first one (or two columns) and the status fills the final column. 
+#' The number of rows in \code{x} must be the same as the length of the 1st dimension of \code{y}.
 #'
 #' @param misc For \code{gbm.fit}: \code{misc} is an R object that is
 #' simply passed on to the gbm engine. It can be used for additional
-#' data for the specific distribution. Currently it is only used for
-#' passing the censoring indicator for the Cox proportional hazards
-#' model.
+#' data for the specific distribution.  Currently it is only used for
+#' with the Cox proportional hazards model to set the tied times method. 
 #'
 #' @param w For \code{gbm.fit}: \code{w} is a vector of weights of the same
-#' length as the \code{y}.
+#' length as the 1st dimension of \code{y}.
 #'
 #' @param var.names For \code{gbm.fit}: A vector of strings of length
 #' equal to the number of columns of \code{x} containing the names of
@@ -214,6 +214,12 @@
 #'
 #' @param group \code{group} used when \code{distribution =
 #' 'pairwise'.}
+#' 
+#' @param tied.times.method For \code{gbm}: This is an optional string used with
+#' \code{CoxPH} distribution specifying what method to employ when dealing with tied times. 
+#' Currently only "effron" and "breslow" are available; the default value is "breslow". 
+#' Setting the string to any other value reverts the method to the original CoxPH model
+#' implementation where ties are not explicitly dealt with.
 #'
 #' @param n.cores The number of CPU cores to use. The cross-validation
 #' loop will attempt to send different CV folds off to different
@@ -226,10 +232,6 @@
 #' @param fold.id An optional vector of values identifying what fold
 #' each observation is in. If supplied, cv.folds can be missing.
 #' 
-#' @param tied.times.method An optional string used with \code{CoxPH}
-#' distribution specifying what method to employ when dealing with tied
-#' times.  Currently only "effron" and "breslow" are available; this
-#' string defaults to NA.
 #' 
 #' @usage
 #' gbm(formula = formula(data), distribution = "bernoulli",
@@ -237,7 +239,7 @@
 #' = NULL, n.trees = 100, interaction.depth = 1, n.minobsinnode = 10,
 #' shrinkage = 0.001, bag.fraction = 0.5, train.fraction = 1,
 #' mFeatures = NULL, cv.folds = 0, keep.data = TRUE, verbose = "CV",
-#' class.stratify.cv = NULL, n.cores = NULL, fold.id=NULL, tied.times.method=NA)
+#' class.stratify.cv = NULL, n.cores = NULL, fold.id=NULL)
 #' 
 #' gbm.fit(x, y, offset = NULL, misc = NULL, distribution = "bernoulli", 
 #' w = NULL, var.monotone = NULL, n.trees = 100, interaction.depth = 1, 
@@ -423,7 +425,7 @@ gbm <- function(formula = formula(data),
                 class.stratify.cv=NULL,
                 n.cores=NULL,
                 fold.id = NULL,
-                tied.times.method=NA){
+                tied.times.method="breslow"){
    theCall <- match.call()
 
 
@@ -470,7 +472,7 @@ gbm <- function(formula = formula(data),
    # Set up tied.times.method for CoxPh
    if(distribution$name != "coxph")
    {
-     tied.times.method <- NA
+     tied.times.method <- NULL
    }
    else
    {
@@ -595,8 +597,7 @@ gbm <- function(formula = formula(data),
                       verbose = lVerbose,
                       var.names = var.names,
                       response.name = response.name,
-                      group = group,
-                      tied.times.method = tied.times.method)
+                      group = group)
    }
 
    gbm.obj$train.fraction <- train.fraction

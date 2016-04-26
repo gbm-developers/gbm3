@@ -17,8 +17,7 @@ gbm.fit <- function(x,y,
                     verbose = TRUE,
                     var.names = NULL,
                     response.name = "y",
-                    group = NULL,
-                    tied.times.method=NA){
+                    group = NULL){
 
    if(is.character(distribution)) { distribution <- list(name=distribution) }
 
@@ -227,13 +226,19 @@ gbm.fit <- function(x,y,
       # Add in sorted column and strata
       StrataVec <-  nstrat
       sortedVec <- sorted-1L
-      strataAndSorting <- cbind(sortedVec, StrataVec)
-      
+
       # Set ties here for the moment
-      Misc <- list("ties"= tied.times.method)
-      
+      if(is.null(misc))
+      {
+        Misc <- list("ties" = "breslow")
+      }
+      else
+      {
+        Misc <- list("ties"= misc)
+      }
+
       # Throw warning about deprecated method
-      if( !((tied.times.method == "effron") || (tied.times.method == "breslow")) || is.na(tied.times.method) )
+      if( !((misc == "effron") || (misc == "breslow")) || is.na(misc))
       {
         warning("Depreciated CoxPh - invalid method for dealing with ties, revert to default.
                 Select effron or breslow for updated method")   

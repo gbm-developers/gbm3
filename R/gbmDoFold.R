@@ -27,7 +27,7 @@ gbmDoFold <- function(X,
                        var.names = var.names,
                        response.name = response.name,
                        group = group,
-                      tied.times.method = tied.times.method)
+                      misc = tied.times.method)
     } else {
       if (lVerbose) message("CV:", X, "\n")
       set.seed(s[[X]])
