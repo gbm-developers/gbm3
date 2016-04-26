@@ -232,13 +232,17 @@ gbm.fit <- function(x,y,
       {
         Misc <- list("ties" = "breslow")
       }
+      else if(  !((misc == "effron") || (misc == "breslow")) && (dim(y)[2] > 2))
+      {
+        Misc <- list("ties" = "breslow")
+      }
       else
       {
         Misc <- list("ties"= misc)
       }
 
       # Throw warning about deprecated method
-      if( !((misc == "effron") || (misc == "breslow")) || is.na(misc))
+      if( !((misc == "effron") || (misc == "breslow")) )
       {
         warning("Depreciated CoxPh - invalid method for dealing with ties, revert to default.
                 Select effron or breslow for updated method")   
