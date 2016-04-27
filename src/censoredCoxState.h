@@ -333,14 +333,10 @@ private:
 						deathwt /= ndeath;   /* average weight of each death */
 						for (k=0; k <ndeath; k++)
 						{
-							if(skipBag || (pData->GetBagElem(k) == checkInBag))
-							{
-								temp = (double)k /ndeath;    /* don't do integer division*/
-								loglik -= deathwt * log(denom - temp*d_denom);
-								hazard += deathwt/(denom - temp*d_denom);
-								e_hazard += (1-temp) *deathwt/(denom - temp*d_denom);
-							}
-
+							temp = (double)k /ndeath;    /* don't do integer division*/
+							loglik -= deathwt * log(denom - temp*d_denom);
+							hazard += deathwt/(denom - temp*d_denom);
+							e_hazard += (1-temp) *deathwt/(denom - temp*d_denom);
 						}
 					}
 
