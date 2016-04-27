@@ -234,6 +234,7 @@ gbm.fit <- function(x,y,
       }
       else if(  !((misc == "effron") || (misc == "breslow")) && (dim(y)[2] > 2))
       {
+        message("Require tie breaking method for counting survival object - set to Breslow")
         Misc <- list("ties" = "breslow")
       }
       else
@@ -242,9 +243,9 @@ gbm.fit <- function(x,y,
       }
 
       # Throw warning about deprecated method
-      if( !((misc == "effron") || (misc == "breslow")) )
+      if( !((Misc$ties == "effron") || (Misc$ties == "breslow")) )
       {
-        warning("Depreciated CoxPh - invalid method for dealing with ties, revert to default.
+        warning("Deprecated CoxPh - invalid method for dealing with ties, revert to default.
                 Select effron or breslow for updated method")   
         Misc$ties <- "default"
       }
@@ -337,13 +338,25 @@ gbm.fit <- function(x,y,
      cColsY <- 1
    }
    
+   # Make sorted vec into a matrix
+   if(cColsY > 2)
+   {
+     cRowsSort <- dim(sortedVec)[1]
+     cColsSort <- dim(sortedVec)[2]
+   }
+   else
+   {
+     cRowsSort <- length(sortedVec)
+     cColsSort <- 1
+   }
+   
    # Call GBM fit from C++
    gbm.obj <- .Call("gbm",
                     Y=matrix(y, cRowsY, cColsY),
                     Offset=as.double(offset),
                     X=matrix(x, cRows, cCols),
                     X.order=as.integer(x.order),
-                    sorted=matrix(sortedVec),
+                    sorted=matrix(sortedVec, cRowsSort, cColsSort),
                     Strata = as.integer(StrataVec),
                     weights=as.double(w),
                     Misc=as.list(Misc),

@@ -51,7 +51,10 @@ public:
 		// Fill up response
 		for(long i = 0; i < pData->get_trainSize(); i++)
 		{
-			adZ[i] = martingaleResid[i]; // From chain rule
+			if(pData->GetBagElem(i))
+			{
+				adZ[i] = martingaleResid[i]; // From chain rule
+			}
 		}
 	}
 
