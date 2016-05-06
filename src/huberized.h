@@ -1,87 +1,73 @@
 //------------------------------------------------------------------------------
-//  GBM by Greg Ridgeway  Copyright (C) 2003
 //
-//  File:       bernoulli.h
+//  File:       huberized.h
 //
-//  License:    GNU GPL (version 2 or later)
-//
-//  Contents:   bernoulli object
-//
-//  Owner:      gregr@rand.org
+//  Description:   huberized hinge loss object for GBM.
 //
 //  History:    3/26/2001   gregr created
 //              2/14/2003   gregr: adapted for R implementation
-//
 //------------------------------------------------------------------------------
 
-#ifndef HUBERIZED_H
-#define HUBERIZED_H
+#ifndef __huberized_h__
+#define __huberized_h__
 
+//------------------------------
+// Includes
+//------------------------------
 #include "distribution.h"
 #include "buildinfo.h"
+#include <memory>
 
+//------------------------------
+// Class definition
+//------------------------------
 class CHuberized : public CDistribution
 {
 
 public:
+	//---------------------
+	// Factory Function
+	//---------------------
+	static CDistribution* Create(DataDistParams& distParams);
 
-    CHuberized();
-
+	//---------------------
+	// Public destructor
+	//---------------------
     virtual ~CHuberized();
 
-    void ComputeWorkingResponse(const double *adY,
-				const double *adMisc,
-				const double *adOffset,
-				const double *adF,
-				double *adZ,
-				const double *adWeight,
-				const bag& afInBag,
-				unsigned long nTrain);
+    //---------------------
+    // Public Functions
+    //---------------------
+    void ComputeWorkingResponse(const CDataset* pData,
+    			const double *adF,
+				double *adZ);
 
-    double Deviance(const double *adY,
-                    const double *adMisc,
-                    const double *adOffset,
-                    const double *adWeight,
-                    const double *adF,
-                    unsigned long cLength);
+    double Deviance(const CDataset* pData,
+    				const double *adF,
+                    bool isValidationSet=false);
 
-    void InitF(const double *adY,
-	       const double *adMisc,
-	       const double *adOffset,
-	       const double *adWeight,
-	       double &dInitF,
-	       unsigned long cLength);
+    double InitF(const CDataset* pData);
 
-    void FitBestConstant(const double *adY,
-			 const double *adMisc,
-			 const double *adOffset,
-			 const double *adW,
-			 const double *adF,
-			 double *adZ,
-			 const std::vector<unsigned long>& aiNodeAssign,
-			 unsigned long nTrain,
-			 VEC_P_NODETERMINAL vecpTermNodes,
+    void FitBestConstant(const CDataset* pData,
+    		const double *adF,
 			 unsigned long cTermNodes,
-			 unsigned long cMinObsInNode,
-			 const bag& afInBag,
-			 const double *adFadj);
+			 double* adZ,
+			 CTreeComps* pTreeComps);
 
-    double BagImprovement(const double *adY,
-                          const double *adMisc,
-                          const double *adOffset,
-                          const double *adWeight,
-                          const double *adF,
-                          const double *adFadj,
-                          const bag& afInBag,
-                          double dStepSize,
-                          unsigned long nTrain);
+    double BagImprovement(const CDataset& data,
+    					  const double *adF,
+    					  const bag& afInBag,
+                          const double shrinkage,
+                          const double* adFadj);
 
 private:
-    vector<double> vecdNum;
-    vector<double> vecdDen;
+    //----------------------
+    // Private Constructors
+    //----------------------
+    CHuberized();
 };
 
-#endif // HUBERIZED_H
+#endif // __huberized_h__
 
 
 

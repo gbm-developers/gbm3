@@ -4,16 +4,24 @@ Date: 2014-04-19
 Title: Generalized Boosted Regression Models
 Author: Greg Ridgeway <gregridgeway@gmail.com> with contributions from others
 Maintainer: Harry Southworth <harry.southworth@gmail.com>
-Imports: survival, lattice, splines, parallel, Rcpp
-Suggests: testthat, knitr
+Imports:
+    survival,
+    lattice,
+    splines,
+    parallel,
+    Rcpp
+Suggests:
+    testthat,
+    knitr
 VignetteBuilder: knitr
 Description: Extensions
-  to Freund and Schapire's AdaBoost algorithm and Friedman's
-  gradient boosting machine. Includes regression methods for least
-  squares, absolute loss, t-distribution loss,
-  quantile regression, logistic, Poisson,
-  Cox proportional hazards partial likelihood, AdaBoost
-  exponential loss, Huberized hinge loss,
-  and Learning to Rank measures (LambdaMART).
+    to Freund and Schapire's AdaBoost algorithm and Friedman's
+    gradient boosting machine. Includes regression methods for least
+    squares, absolute loss, t-distribution loss,
+    quantile regression, logistic, Poisson,
+    Cox proportional hazards partial likelihood, AdaBoost
+    exponential loss, Huberized hinge loss,
+    and Learning to Rank measures (LambdaMART).
 License: GPL (>= 2) | file LICENSE
 URL: https://github.com/gbm-developers/gbm
+RoxygenNote: 5.0.1

@@ -11,75 +11,60 @@
 //
 //  History:    3/26/2001   gregr created
 //              2/14/2003   gregr: adapted for R implementation
-//
+//			   16/03/2016   James Hickey: updated to remove terminal and non-terminal nodes
+//			   30/03/2016   James Hickey: state pattern to deal with continuous and categorical splits.
 //------------------------------------------------------------------------------
 
-#ifndef NODGBM_H
-#define NODGBM_H
-
+#ifndef __node_h__
+#define __node_h__
+//------------------------------
+// Includes
+//------------------------------
 #include <vector>
 #include "dataset.h"
+#include "nodeParameters.h"
 #include "buildinfo.h"
 
-
-class CNodeFactory;
+//------------------------------
+// Class Forwards and Enums
+//------------------------------
+class GenericNodeStrategy;
+enum SplitType {categorical, continuous, none};
 
 using namespace std;
-
 typedef vector<int> VEC_CATEGORIES;
 typedef vector<VEC_CATEGORIES> VEC_VEC_CATEGORIES;
 
-
+//------------------------------
+// Class definition
+//------------------------------
 class CNode
 {
 public:
+	//----------------------
+	// Public Constructors
+	//----------------------
+    CNode(double nodePrediction,
+    		double trainingWeight, long numObs);
 
-    CNode();
+	//---------------------
+	// Public destructor
+	//---------------------
     virtual ~CNode();
-    virtual void Adjust(unsigned long cMinObsInNode) = 0;
-    virtual void Predict(const CDataset &data,
+
+	//---------------------
+	// Public Functions
+	//---------------------
+    void Adjust(unsigned long cMinObsInNode);
+    void Predict(const CDataset &data,
 			 unsigned long iRow,
-			 double &dFadj) = 0;
-    virtual void Predict(double *adX,
-			 unsigned long cRow,
-			 unsigned long cCol,
-			 unsigned long iRow,
-			 double &dFadj) = 0;
-    static double Improvement
-    (
-        double dLeftW,
-        double dRightW,
-        double dMissingW,
-        double dLeftSum,
-        double dRightSum,
-        double dMissingSum
-    )
-    {
-        double dTemp = 0.0;
-        double dResult = 0.0;
+			 double &dFadj);
 
-        if(dMissingW == 0.0)
-        {
-            dTemp = dLeftSum/dLeftW - dRightSum/dRightW;
-            dResult = dLeftW*dRightW*dTemp*dTemp/(dLeftW+dRightW);
-        }
-        else
-        {
-            dTemp = dLeftSum/dLeftW - dRightSum/dRightW;
-            dResult += dLeftW*dRightW*dTemp*dTemp;
-            dTemp = dLeftSum/dLeftW - dMissingSum/dMissingW;
-            dResult += dLeftW*dMissingW*dTemp*dTemp;
-            dTemp = dRightSum/dRightW - dMissingSum/dMissingW;
-            dResult += dRightW*dMissingW*dTemp*dTemp;
-            dResult /= (dLeftW + dRightW + dMissingW);
-        }
-
-        return dResult;
-    }
-
-
-    virtual void PrintSubtree(unsigned long cIndent) = 0;
-    virtual void TransferTreeToRList(int &iNodeID,
+    void GetVarRelativeInfluence(double *adRelInf);
+    void SplitNode();
+    void PrintSubtree(unsigned long cIndent);
+    double SplitImprovement(){ return childrenParams.ImprovedResiduals;}
+    void TransferTreeToRList(int &iNodeID,
 				     const CDataset &data,
 				     int *aiSplitVar,
 				     double *adSplitPoint,
@@ -91,21 +76,53 @@ public:
 				     double *adPred,
 				     VEC_VEC_CATEGORIES &vecSplitCodes,
 				     int cCatSplitsOld,
-				     double dShrinkage) = 0;
+				     double dShrinkage);
+	signed char WhichNode(const CDataset &data,
+							unsigned long iObs);
 
-    virtual void GetVarRelativeInfluence(double *adRelInf) = 0;
-    virtual void RecycleSelf(CNodeFactory *pNodeFactory) = 0;
-    
-    virtual void reset() { dPrediction = 0; }
-    double dPrediction;
-    double dTrainW;   // total training weight in node
-    unsigned long cN; // number of training observations in node
-    bool isTerminal;
+	//---------------------
+	// Public Variables
+	//---------------------
+	// Pointers to the Node's children
+	CNode* pLeftNode;
+	CNode* pRightNode;
+	CNode* pMissingNode;
+
+	// Parameters
+	NodeParams nodeParams; // TODO: Not yet used - connect to R API
+	NodeParams childrenParams;
+
+	//TODO: Currently most useful in printing out tree
+	// This nodes parameters
+	unsigned long iSplitVar;
+	double dImprovement;
+
+	// Properties defining the node
+	double dPrediction;
+	double dTrainW;   // total training weight in node
+	long cN; // number of training observations in node
+
+	// ENUM FOR strategy
+	SplitType splitType;
+
+	// VARIABLES USED IN NODE SPLITTING
+	std::vector<unsigned long> aiLeftCategory;
+    double dSplitValue;
+
+private:
+	//---------------------
+	// Private Functions
+	//---------------------
+    void SetStrategy();
+
+	//---------------------
+	// Private Variables
+	//---------------------
+    GenericNodeStrategy* nodeStrategy;
+
 };
 
-typedef CNode *PCNode;
-
-#endif // NODGBM_H
+#endif // __node_h__
 
 
 

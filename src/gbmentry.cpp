@@ -1,6 +1,7 @@
 // GBM by Greg Ridgeway  Copyright (C) 2003
 
-#include "gbm.h"
+#include "gbmEngine.h"
+#include "configStructs.h"
 #include <memory>
 #include <utility>
 #include <Rcpp.h>
@@ -35,6 +36,8 @@ SEXP gbm
     SEXP radOffset,  // offset for f(x), NA for no offset
     SEXP radX,
     SEXP raiXOrder,
+    SEXP rSorted,
+    SEXP rStrata,
     SEXP radWeight,
     SEXP radMisc,   // other row specific data (eg failure time), NA=no Misc
     SEXP racVarClasses,
@@ -55,86 +58,44 @@ SEXP gbm
 {
   BEGIN_RCPP
     
-    VEC_VEC_CATEGORIES vecSplitCodes;
-
-    int iT = 0;
+  	// Set up consts for tree fitting and transfer to R API
+  	VEC_VEC_CATEGORIES vecSplitCodes;
     const int cTrees = Rcpp::as<int>(rcTrees);
-    const int cTrain = Rcpp::as<int>(rcTrain);
-    const int cFeatures = Rcpp::as<int>(rcFeatures);
-    const int cDepth = Rcpp::as<int>(rcDepth);
-    const int cMinObsInNode = Rcpp::as<int>(rcMinObsInNode);
     const int cCatSplitsOld = Rcpp::as<int>(rcCatSplitsOld);
     const int cTreesOld = Rcpp::as<int>(rcTreesOld);
-    const double dShrinkage = Rcpp::as<double>(rdShrinkage);
-    const double dBagFraction = Rcpp::as<double>(rdBagFraction);
     const bool verbose = Rcpp::as<bool>(rfVerbose);
     const Rcpp::NumericVector adFold(radFOld);
-    const std::string family = Rcpp::as<std::string>(rszFamily);
 
-    int cNodes = 0;
 
-    int cGroups = -1;
+    // Set up parameters for initialization
+    configStructs GBMParams (radY, radOffset, radX,
+				raiXOrder, rSorted, rStrata, radWeight, radMisc,
+				racVarClasses, ralMonotoneVar,
+				rszFamily, rcTrees, rcDepth,
+				rcMinObsInNode, rdShrinkage,
+				rdBagFraction, rcTrain, rcFeatures);
+     Rcpp::RNGScope scope;
 
-    Rcpp::RNGScope scope;
+    // Build gbm piece-by-piece
+    CGBM GBM(GBMParams);
 
-    // set up the dataset
-    const CDataset data(radY, radOffset, radX, raiXOrder,
-                        radWeight, radMisc, racVarClasses,
-                        ralMonotoneVar);
-    
-    // initialize some things
-    std::auto_ptr<CDistribution> pDist(gbm_setup(data, family,
-						 cTrees,
-						 cDepth,
-						 cMinObsInNode,
-						 dShrinkage,
-						 dBagFraction,
-						 cTrain,
-						 cFeatures,
-						 cGroups));
-    
-    std::auto_ptr<CGBM> pGBM(new CGBM());
-    
-    // initialize the GBM
-    pGBM->Initialize(data,
-		     pDist.get(),
-		     dShrinkage,
-		     cTrain,
-		     cFeatures,
-		     dBagFraction,
-		     cDepth,
-		     cMinObsInNode,
-		     cGroups);
+    // Set up the function estimate
+    double dInitF = GBM.InitF();
+    Rcpp::NumericMatrix tempX(radX);
+    Rcpp::NumericVector adF(tempX.nrow());
 
-    double dInitF;
-    Rcpp::NumericVector adF(data.nrow());
-
-    pDist->Initialize(data.y_ptr(),
-		      data.misc_ptr(false),
-		      data.offset_ptr(false),
-		      data.weight_ptr(),
-		      data.nrow());
-    
     if(ISNA(adFold[0])) // check for old predictions
     {
       // set the initial value of F as a constant
-      pDist->InitF(data.y_ptr(),
-                   data.misc_ptr(false),
-                   data.offset_ptr(false),
-                   data.weight_ptr(),
-		   dInitF,
-		   cTrain);
-
       adF.fill(dInitF);
     }
     else
-      {
-	if (adFold.size() != adF.size()) {
-	  throw GBM::invalid_argument("old predictions are the wrong shape");
-	}
-
-	std::copy(adFold.begin(), adFold.end(), adF.begin());
-      }
+    {
+		if (adFold.size() != adF.size()) {
+		  throw GBM::invalid_argument("old predictions are the wrong shape");
+		}
+		std::copy(adFold.begin(), adFold.end(), adF.begin());
+     }
 
     Rcpp::NumericVector adTrainError(cTrees, 0.0);
     Rcpp::NumericVector adValidError(cTrees, 0.0);
@@ -145,39 +106,33 @@ SEXP gbm
     {
        Rprintf("Iter   TrainDeviance   ValidDeviance   StepSize   Improve\n");
     }
-    for(iT=0; iT<cTrees; iT++)
-      {
-	Rcpp::checkUserInterrupt();
-        // Update the parameters
-        pDist->UpdateParams(adF.begin(),
-			    data.offset_ptr(false),
-			    data.weight_ptr(),
-			    cTrain);
+    for(int iT=0; iT<cTrees; iT++)
+    {
+    	Rcpp::checkUserInterrupt();
 
-        double dTrainError = 0;
-        double dValidError = 0;
-        double dOOBagImprove = 0;
-        pGBM->iterate(adF.begin(),
-                      dTrainError,dValidError,dOOBagImprove,
-                      cNodes);
-          
+        double dTrainError = 0.0;
+        double dValidError = 0.0;
+        double dOOBagImprove = 0.0;
+
+        GBM.FitLearner(adF.begin(),
+                      dTrainError,dValidError,dOOBagImprove);
+
         // store the performance measures
         adTrainError[iT] += dTrainError;
         adValidError[iT] += dValidError;
         adOOBagImprove[iT] += dOOBagImprove;
 
-        Rcpp::IntegerVector iSplitVar(cNodes);
-        Rcpp::NumericVector dSplitPoint(cNodes);
-        Rcpp::IntegerVector iLeftNode(cNodes);
-        Rcpp::IntegerVector iRightNode(cNodes);
-        Rcpp::IntegerVector iMissingNode(cNodes);
-        Rcpp::NumericVector dErrorReduction(cNodes);
-        Rcpp::NumericVector dWeight(cNodes);
-        Rcpp::NumericVector dPred(cNodes);
+        Rcpp::IntegerVector iSplitVar(GBM.SizeOfFittedTree());
+        Rcpp::NumericVector dSplitPoint(GBM.SizeOfFittedTree());
+        Rcpp::IntegerVector iLeftNode(GBM.SizeOfFittedTree());
+        Rcpp::IntegerVector iRightNode(GBM.SizeOfFittedTree());
+        Rcpp::IntegerVector iMissingNode(GBM.SizeOfFittedTree());
+        Rcpp::NumericVector dErrorReduction(GBM.SizeOfFittedTree());
+        Rcpp::NumericVector dWeight(GBM.SizeOfFittedTree());
+        Rcpp::NumericVector dPred(GBM.SizeOfFittedTree());
 
-        gbm_transfer_to_R(pGBM.get(),
-                          vecSplitCodes,
-                          iSplitVar.begin(),
+
+        GBM.GBMTransferTreeToRList(iSplitVar.begin(),
                           dSplitPoint.begin(),
                           iLeftNode.begin(),
                           iRightNode.begin(),
@@ -185,8 +140,9 @@ SEXP gbm
                           dErrorReduction.begin(),
                           dWeight.begin(),
                           dPred.begin(),
+                          vecSplitCodes,
                           cCatSplitsOld);
-        
+
         setOfTrees[iT] = 
           Rcpp::List::create(iSplitVar,
                              dSplitPoint,
@@ -201,15 +157,14 @@ SEXP gbm
 		  iT+1+cTreesOld,
 		  adTrainError[iT],
 		  adValidError[iT],
-		  dShrinkage,
+		  GBMParams.GetTreeConfig().dShrinkage,
 		  adOOBagImprove[iT]);
         }
+
       }
 
     if(verbose) Rprintf("\n");
-
     using Rcpp::_;
-
     return Rcpp::List::create(_["initF"]=dInitF,
                               _["fit"]=adF,
                               _["train.error"]=adTrainError,
@@ -217,6 +172,7 @@ SEXP gbm
                               _["oobag.improve"]=adOOBagImprove,
                               _["trees"]=setOfTrees,
                               _["c.splits"]=vecSplitCodes);
+
    END_RCPP
 }
 

@@ -1,10 +1,32 @@
-//  GBM by Greg Ridgeway  Copyright (C) 2003
+//-----------------------------------
+//
+// File: poisson.cpp
+//
+// Description: poisson distribution for GBM.
+//
+//-----------------------------------
 
+//-----------------------------------
+// Includes
+//-----------------------------------
 #include "poisson.h"
 
+//----------------------------------------
+// Function Members - Private
+//----------------------------------------
 CPoisson::CPoisson()
 {
 }
+
+
+//----------------------------------------
+// Function Members - Public
+//----------------------------------------
+CDistribution* CPoisson::Create(DataDistParams& distParams)
+{
+	return new CPoisson();
+}
+
 
 CPoisson::~CPoisson()
 {
@@ -13,159 +35,120 @@ CPoisson::~CPoisson()
 
 void CPoisson::ComputeWorkingResponse
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
+	const CDataset* pData,
     const double *adF,
-    double *adZ,
-    const double *adWeight,
-    const bag& afInBag,
-    unsigned long nTrain
+    double *adZ
 )
 {
     unsigned long i = 0;
     double dF = 0.0;
 
     // compute working response
-    for(i=0; i < nTrain; i++)
+    for(i=0; i < pData->get_trainSize(); i++)
     {
-        dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
-        adZ[i] = adY[i] - std::exp(dF);
+        dF = adF[i] +  pData->offset_ptr(false)[i];
+        adZ[i] = pData->y_ptr()[i] - std::exp(dF);
     }
 }
 
 
 
-void CPoisson::InitF
+double CPoisson::InitF
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adWeight,
-    double &dInitF,
-    unsigned long cLength
+	const CDataset* pData
 )
 {
     double dSum = 0.0;
     double dDenom = 0.0;
     unsigned long i = 0;
 
-    if(adOffset == NULL)
-    {
-        for(i=0; i<cLength; i++)
-        {
-            dSum += adWeight[i]*adY[i];
-            dDenom += adWeight[i];
-        }
-    }
-    else
-    {
-        for(i=0; i<cLength; i++)
-        {
-            dSum += adWeight[i]*adY[i];
-            dDenom += adWeight[i]*std::exp(adOffset[i]);
-        }
-    }
 
-    dInitF = std::log(dSum/dDenom);
+	for(i=0; i<pData->get_trainSize(); i++)
+	{
+		dSum += pData->weight_ptr()[i]*pData->y_ptr()[i];
+		dDenom += pData->weight_ptr()[i]*std::exp(pData->offset_ptr(false)[i]);
+	}
+
+    return std::log(dSum/dDenom);
 }
 
 
 double CPoisson::Deviance
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adWeight,
+	const CDataset* pData,
     const double *adF,
-    unsigned long cLength
+    bool isValidationSet
 )
 {
     unsigned long i=0;
     double dL = 0.0;
     double dW = 0.0;
 
-    if(adOffset == NULL)
+    // Switch to validation set if necessary
+    long cLength = pData->get_trainSize();
+    if(isValidationSet)
     {
-        for(i=0; i<cLength; i++)
-        {
-            dL += adWeight[i]*(adY[i]*adF[i] - std::exp(adF[i]));
-            dW += adWeight[i];
-        }
-    }
-    else
-    {
-        for(i=0; i<cLength; i++)
-        {
-            dL += adWeight[i]*(adY[i]*(adOffset[i]+adF[i]) -
-                               std::exp(adOffset[i]+adF[i]));
-            dW += adWeight[i];
-       }
+ 	   pData->shift_to_validation();
+ 	   cLength = pData->GetValidSize();
     }
 
+
+	for(i=0; i<cLength; i++)
+	{
+		dL += pData->weight_ptr()[i]*(pData->y_ptr()[i]*(pData->offset_ptr(false)[i]+adF[i]) -
+						   std::exp(pData->offset_ptr(false)[i]+adF[i]));
+		dW += pData->weight_ptr()[i];
+   }
+
+
+    // Switch back to training set if necessary
+    if(isValidationSet)
+    {
+ 	   pData->shift_to_train();
+    }
+
+    //TODO: Check if weights are all zero for validation set
+   if((dW == 0.0) && (dL == 0.0))
+   {
+	   return nan("");
+   }
+   else if(dW == 0.0)
+   {
+	   return copysign(HUGE_VAL, -dL);
+   }
     return -2*dL/dW;
 }
 
 
 void CPoisson::FitBestConstant
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adW,
+	const CDataset* pData,
     const double *adF,
-    double *adZ,
-    const std::vector<unsigned long>& aiNodeAssign,
-    unsigned long nTrain,
-    VEC_P_NODETERMINAL vecpTermNodes,
     unsigned long cTermNodes,
-    unsigned long cMinObsInNode,
-    const bag& afInBag,
-    const double *adFadj
+    double* adZ,
+    CTreeComps* pTreeComps
 )
 {
     unsigned long iObs = 0;
     unsigned long iNode = 0;
-    vecdNum.resize(cTermNodes);
-    vecdNum.assign(vecdNum.size(),0.0);
-    vecdDen.resize(cTermNodes);
-    vecdDen.assign(vecdDen.size(),0.0);
+    vector<double> vecdNum(cTermNodes, 0.0);
+    vector<double> vecdDen(cTermNodes, 0.0);
+    vector<double> vecdMax(cTermNodes, -HUGE_VAL);
+    vector<double> vecdMin(cTermNodes, HUGE_VAL);
 
-    vecdMax.resize(cTermNodes);
-    vecdMax.assign(vecdMax.size(),-HUGE_VAL);
-    vecdMin.resize(cTermNodes);
-    vecdMin.assign(vecdMin.size(),HUGE_VAL);
+	for(iObs=0; iObs<pData->get_trainSize(); iObs++)
+	{
+		if(pData->GetBagElem(iObs))
+		{
+			vecdNum[pTreeComps->GetNodeAssign()[iObs]] += pData->weight_ptr()[iObs]*pData->y_ptr()[iObs];
+			vecdDen[pTreeComps->GetNodeAssign()[iObs]] +=
+				pData->weight_ptr()[iObs]*std::exp(pData->offset_ptr(false)[iObs]+adF[iObs]);
+		}
+	}
 
-    if(adOffset == NULL)
-    {
-        for(iObs=0; iObs<nTrain; iObs++)
-        {
-            if(afInBag[iObs])
-            {
-                vecdNum[aiNodeAssign[iObs]] += adW[iObs]*adY[iObs];
-                vecdDen[aiNodeAssign[iObs]] += adW[iObs]*std::exp(adF[iObs]);
-            }
-            vecdMax[aiNodeAssign[iObs]] =
-               R::fmax2(adF[iObs],vecdMax[aiNodeAssign[iObs]]);
-            vecdMin[aiNodeAssign[iObs]] =
-               R::fmin2(adF[iObs],vecdMin[aiNodeAssign[iObs]]);
-        }
-    }
-    else
-    {
-        for(iObs=0; iObs<nTrain; iObs++)
-        {
-            if(afInBag[iObs])
-            {
-                vecdNum[aiNodeAssign[iObs]] += adW[iObs]*adY[iObs];
-                vecdDen[aiNodeAssign[iObs]] +=
-                    adW[iObs]*std::exp(adOffset[iObs]+adF[iObs]);
-            }
-        }
-    }
     for(iNode=0; iNode<cTermNodes; iNode++)
     {
-        if(vecpTermNodes[iNode]!=NULL)
+        if(pTreeComps->GetTermNodes()[iNode]!=NULL)
         {
             if(vecdNum[iNode] == 0.0)
             {
@@ -173,22 +156,22 @@ void CPoisson::FitBestConstant
                 // Not sure what else to do except plug in an arbitrary
                 //   negative number, -1? -10? Let's use -1, then make
                 //   sure |adF| < 19 always.
-                vecpTermNodes[iNode]->dPrediction = -19.0;
+            	pTreeComps->GetTermNodes()[iNode]->dPrediction = -19.0;
             }
             else if(vecdDen[iNode] == 0.0)
             {
-                vecpTermNodes[iNode]->dPrediction = 0.0;
+            	pTreeComps->GetTermNodes()[iNode]->dPrediction = 0.0;
             }
             else
             {
-                vecpTermNodes[iNode]->dPrediction =
+            	pTreeComps->GetTermNodes()[iNode]->dPrediction =
                     std::log(vecdNum[iNode]/vecdDen[iNode]);
             }
-            vecpTermNodes[iNode]->dPrediction =
-               R::fmin2(vecpTermNodes[iNode]->dPrediction,
+            pTreeComps->GetTermNodes()[iNode]->dPrediction =
+               R::fmin2(pTreeComps->GetTermNodes()[iNode]->dPrediction,
                      19-vecdMax[iNode]);
-            vecpTermNodes[iNode]->dPrediction =
-               R::fmax2(vecpTermNodes[iNode]->dPrediction,
+            pTreeComps->GetTermNodes()[iNode]->dPrediction =
+               R::fmax2(pTreeComps->GetTermNodes()[iNode]->dPrediction,
                      -19-vecdMin[iNode]);
         }
     }
@@ -197,15 +180,11 @@ void CPoisson::FitBestConstant
 
 double CPoisson::BagImprovement
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adWeight,
+	const CDataset& data,
     const double *adF,
-    const double *adFadj,
     const bag& afInBag,
-    double dStepSize,
-    unsigned long nTrain
+    const double shrinkage,
+    const double* adFadj
 )
 {
     double dReturnValue = 0.0;
@@ -213,17 +192,17 @@ double CPoisson::BagImprovement
     double dW = 0.0;
     unsigned long i = 0;
 
-    for(i=0; i<nTrain; i++)
+    for(i=0; i<data.get_trainSize(); i++)
     {
-        if(!afInBag[i])
+        if(!data.GetBagElem(i))
         {
-            dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
+            dF = adF[i] + data.offset_ptr(false)[i];
 
-            dReturnValue += adWeight[i]*
-                            (adY[i]*dStepSize*adFadj[i] -
-                             std::exp(dF+dStepSize*adFadj[i]) +
+            dReturnValue += data.weight_ptr()[i]*
+                            (data.y_ptr()[i]*shrinkage*adFadj[i] -
+                             std::exp(dF+shrinkage*adFadj[i]) +
                              std::exp(dF));
-            dW += adWeight[i];
+            dW += data.weight_ptr()[i];
         }
     }
 

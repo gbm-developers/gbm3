@@ -1,278 +1,299 @@
-//  GBM by Greg Ridgeway  Copyright (C) 2003
+//-----------------------------------
+//
+// File: coxph.cpp
+//
+// Description: Cox partial hazards model.
+//
+//-----------------------------------
 
+//-----------------------------------
+// Definitions
+//-----------------------------------
+#define frac .00000001
+#define recenter 50
+
+//-----------------------------------
+// Includes
+//-----------------------------------
 #include "coxph.h"
+#include "origCoxState.h"
+#include "censoredCoxState.h"
+#include "countingCoxState.h"
+#include <Rinternals.h>
+#include <math.h>
 
-CCoxPH::CCoxPH()
+//----------------------------------------
+// Function Members - Private
+//----------------------------------------
+CCoxPH::CCoxPH(double* stats, int* sortedEnd, int* sortedSt, int* strats, bool isStartStop, int tiedMethod):
+startStopCase(isStartStop), sortedEndTimes(sortedEnd), sortedStartTimes(sortedSt), strata(strats)
 {
+	status = stats;
+	tiedTimesMethod = tiedMethod;
+
+	// Set up which methods CoxPh will use
+	if(tiedMethod >= 0)
+	{
+		if(startStopCase)
+		{
+			coxStateMethods = new CountingCoxState(this);
+		}
+		else
+		{
+			coxStateMethods = new CensoredCoxState(this);
+		}
+	}
+	else
+	{
+		coxStateMethods = new OrigCoxState(this);
+	}
+
+}
+
+
+//----------------------------------------
+// Function Members - Public
+//----------------------------------------
+CDistribution* CCoxPH::Create(DataDistParams& distParams)
+{
+
+	// Initialize variables to pass to constructor
+	double* stat = 0;
+	int* sortedSt = NULL;
+	int* sortedEnd = NULL;
+	bool isStartStop = false;
+	int tiesMethod;
+
+	// Switch on misc to set up ties method
+	std::string miscString = Rcpp::as<std::string>(distParams.misc[0]);
+	if(miscString == "effron") 
+	{
+		tiesMethod = 1;
+	}
+	else if(miscString == "breslow")
+	{
+	  tiesMethod = 0;
+	}
+	else
+	{
+	  tiesMethod = -1; 
+	}
+	
+	// Set up strata
+	Rcpp::IntegerVector strats(distParams.strata);
+
+	// Check if start/stop case or not
+	Rcpp::IntegerMatrix sortMatrix(distParams.sorted);
+	if(distParams.respY.ncol() > 2)
+	{
+		isStartStop=true;
+		stat = distParams.respY(Rcpp::_, 2).begin();
+		sortedEnd = sortMatrix(Rcpp::_, 1).begin();
+		sortedSt = sortMatrix(Rcpp::_, 0).begin();
+
+		return new CCoxPH(stat, sortedEnd, sortedSt, strats.begin(), isStartStop, tiesMethod);
+
+	}
+
+	// If not start/stop
+	stat = distParams.respY(Rcpp::_, 1).begin();
+	sortedEnd = sortMatrix(Rcpp::_, 0).begin();
+
+
+	return new CCoxPH(stat, sortedEnd, sortedSt, strats.begin(), isStartStop, tiesMethod);
+
+
 }
 
 CCoxPH::~CCoxPH()
 {
+	delete coxStateMethods;
 }
-
 
 void CCoxPH::ComputeWorkingResponse
 (
-    const double *adT,
-    const double *adDelta,
-    const double *adOffset,
+	const CDataset* pData,
     const double *adF,
-    double *adZ,
-    const double *adWeight,
-    const bag& afInBag,
-    unsigned long nTrain
+    double *adZ
 )
 {
-    unsigned long i = 0;
-    double dF = 0.0;
-    double dTot = 0.0;
-    double dRiskTot = 0.0;
-
-    vecdRiskTot.resize(nTrain);
-    dRiskTot = 0.0;
-    for(i=0; i<nTrain; i++)
-    {
-        if(afInBag[i])
-        {
-            dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
-            dRiskTot += adWeight[i]*std::exp(dF);
-            vecdRiskTot[i] = dRiskTot;
-        }
-    }
-
-    dTot = 0.0;
-    for(i=nTrain-1; i<nTrain; i--) // i is unsigned so wraps to ULONG_MAX
-    {
-        if(afInBag[i])
-        {
-            if(adDelta[i]==1.0)
-            {
-                dTot += adWeight[i]/vecdRiskTot[i];
-            }
-            dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
-            adZ[i] = adDelta[i] - std::exp(dF)*dTot;
-        }
-    }
-
+    coxStateMethods->ComputeWorkingResponse(pData, adF, adZ);
 }
 
-
-
-void CCoxPH::InitF
+double CCoxPH::InitF
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adWeight,
-    double &dInitF,
-    unsigned long cLength
+	const CDataset* pData
 )
 {
-    dInitF = 0.0;
+    return 0.0;
 }
 
 
 double CCoxPH::Deviance
 (
-    const double *adT,
-    const double *adDelta,
-    const double *adOffset,
-    const double *adWeight,
+	const CDataset* pData,
     const double *adF,
-    unsigned long cLength
+    bool isValidationSet
 )
 {
-    unsigned long i=0;
-    double dL = 0.0;
-    double dF = 0.0;
-    double dW = 0.0;
-    double dTotalAtRisk = 0.0;
+    // Set size and move to validation set if necessary
+    long cLength = pData->get_trainSize();
+	if(isValidationSet)
+	{
+		pData->shift_to_validation();
+		status = shift_ptr(status, pData->get_trainSize());
+		sortedEndTimes = shift_ptr(sortedEndTimes, pData->get_trainSize());
+		sortedStartTimes = shift_ptr(sortedStartTimes, pData->get_trainSize());
+		strata = shift_ptr(strata, pData->get_trainSize());
+		cLength = pData->GetValidSize();
+	}
 
-    dTotalAtRisk = 0.0;
-    for(i=0; i!=cLength; i++)
-    {
-        dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
-        dTotalAtRisk += adWeight[i]*std::exp(dF);
-        if(adDelta[i]==1.0)
-        {
-            dL += adWeight[i]*(dF - std::log(dTotalAtRisk));
-            dW += adWeight[i];
-        }
-    }
+	double returnValue = 0.0;
+	returnValue = coxStateMethods->Deviance(cLength, pData, adF);
 
-    return -2*dL/dW;
+	// Shift back for future calculations if required
+	if(isValidationSet)
+	{
+		pData->shift_to_train();
+		status = shift_ptr(status, -(pData->get_trainSize()));
+		sortedEndTimes = shift_ptr(sortedEndTimes, -(pData->get_trainSize()));
+		sortedStartTimes = shift_ptr(sortedStartTimes, -(pData->get_trainSize()));
+		strata = shift_ptr(strata, -(pData->get_trainSize()));
+	}
+
+
+	return returnValue;
+
 }
-
 
 void CCoxPH::FitBestConstant
 (
-    const double *adT,
-    const double *adDelta,
-    const double *adOffset,
-    const double *adW,
+	const CDataset* pData,
     const double *adF,
-    double *adZ,
-    const std::vector<unsigned long>& aiNodeAssign,
-    unsigned long nTrain,
-    VEC_P_NODETERMINAL vecpTermNodes,
     unsigned long cTermNodes,
-    unsigned long cMinObsInNode,
-    const bag& afInBag,
-    const double *adFadj
+    double* adZ,
+    CTreeComps* pTreeComps
 )
 {
-    double dF = 0.0;
-    double dRiskTot = 0.0;
-    unsigned long i = 0;
-    unsigned long k = 0;
-    unsigned long m = 0;
-
-    double dTemp = 0.0;
-    bool fTemp = false;
-    unsigned long K = 0;
-    veciK2Node.resize(cTermNodes);
-    veciNode2K.resize(cTermNodes);
-
-    for(i=0; i<cTermNodes; i++)
-    {
-        veciNode2K[i] = 0;
-        if(vecpTermNodes[i]->cN >= cMinObsInNode)
-        {
-            veciK2Node[K] = i;
-            veciNode2K[i] = K;
-            K++;
-        }
-    }
-
-    vecdP.resize(K);
-
-    matH.setactualsize(K-1);
-    vecdG.resize(K-1);
-    vecdG.assign(K-1,0.0);
-
-    // zero the Hessian
-    for(k=0; k<K-1; k++)
-    {
-        for(m=0; m<K-1; m++)
-        {
-            matH.setvalue(k,m,0.0);
-        }
-    }
-
-    // get the gradient & Hessian, Ridgeway (1999) pp. 100-101
-    // correction from Ridgeway (1999): fix terminal node K-1 prediction to 0.0
-    //      for identifiability
-    dRiskTot = 0.0;
-    vecdP.assign(K,0.0);
-    for(i=0; i<nTrain; i++)
-    {
-        if(afInBag[i] && (vecpTermNodes[aiNodeAssign[i]]->cN >= cMinObsInNode))
-        {
-            dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
-            vecdP[veciNode2K[aiNodeAssign[i]]] += adW[i]*std::exp(dF);
-            dRiskTot += adW[i]*std::exp(dF);
-
-            if(adDelta[i]==1.0)
-            {
-                // compute g and H
-                for(k=0; k<K-1; k++)
-                {
-                    vecdG[k] +=
-                        adW[i]*((aiNodeAssign[i]==veciK2Node[k]) - vecdP[k]/dRiskTot);
-
-                    matH.getvalue(k,k,dTemp,fTemp);
-                    matH.setvalue(k,k,dTemp -
-                        adW[i]*vecdP[k]/dRiskTot*(1-vecdP[k]/dRiskTot));
-                    for(m=0; m<k; m++)
-                    {
-                        matH.getvalue(k,m,dTemp,fTemp);
-                        dTemp += adW[i]*vecdP[k]/dRiskTot*vecdP[m]/dRiskTot;
-                        matH.setvalue(k,m,dTemp);
-                        matH.setvalue(m,k,dTemp);
-                    }
-                }
-            }
-        }
-    }
-
-    /*
-    for(k=0; k<K-1; k++)
-    {
-        for(m=0; m<K-1; m++)
-        {
-            matH.getvalue(k,m,dTemp,fTemp);
-            Rprintf("%f ",dTemp);
-        }
-        Rprintf("\n");
-    }
-    */
-
-    // one step to get leaf predictions
-    matH.invert();
-
-    for(k=0; k<cTermNodes; k++)
-    {
-        vecpTermNodes[k]->dPrediction = 0.0;
-    }
-    for(m=0; m<K-1; m++)
-    {
-        for(k=0; k<K-1; k++)
-        {
-            matH.getvalue(k,m,dTemp,fTemp);
-            if(!R_FINITE(dTemp)) // occurs if matH was not invertible
-            {
-                vecpTermNodes[veciK2Node[k]]->dPrediction = 0.0;
-                break;
-            }
-            else
-            {
-                vecpTermNodes[veciK2Node[k]]->dPrediction -= dTemp*vecdG[m];
-            }
-          }
-    }
-    // vecpTermNodes[veciK2Node[K-1]]->dPrediction = 0.0; // already set to 0.0
+   coxStateMethods->FitBestConstant(pData, adF, cTermNodes, adZ, pTreeComps);
 }
-
 
 double CCoxPH::BagImprovement
 (
-    const double *adT,
-    const double *adDelta,
-    const double *adOffset,
-    const double *adWeight,
+	const CDataset& data,
     const double *adF,
-    const double *adFadj,
     const bag& afInBag,
-    double dStepSize,
-    unsigned long nTrain
+  const double shrinkage,
+  const double* adFadj
 )
 {
-    double dReturnValue = 0.0;
-    double dNum = 0.0;
-    double dDen = 0.0;
-    double dF = 0.0;
-    double dW = 0.0;
-    unsigned long i = 0;
-
-    dNum = 0.0;
-    dDen = 0.0;
-    for(i=0; i<nTrain; i++)
-    {
-        if(!afInBag[i])
-        {
-            dNum += adWeight[i]*std::exp(dF + dStepSize*adFadj[i]);
-            dDen += adWeight[i]*std::exp(dF);
-            if(adDelta[i]==1.0)
-            {
-                dReturnValue +=
-                    adWeight[i]*(dStepSize*adFadj[i] - std::log(dNum) + log(dDen));
-                dW += adWeight[i];
-            }
-        }
-    }
-
-    return dReturnValue/dW;
+    return coxStateMethods->BagImprovement(data, adF, afInBag, shrinkage, adFadj);
 }
+
+//-----------------------------------
+// Function: GetStatusVec
+//
+// Returns: ptr to double vector
+//
+// Description: gets pointer to first element of status vector
+//
+// Parameters: none
+//
+//-----------------------------------
+double* CCoxPH::StatusVec()
+{
+	return &status[0];
+}
+const double* CCoxPH::StatusVec() const
+{
+	return &status[0];
+}
+
+//-----------------------------------
+// Function: EndTimeIndices
+//
+// Returns: ptr to int vector
+//
+// Description: gets pointer to first element of
+//	the vector containing the indices which sort
+//  the patient's end times.
+//
+// Parameters: none
+//
+//-----------------------------------
+int* CCoxPH::EndTimeIndices()
+{
+	return &sortedEndTimes[0];
+}
+const int* CCoxPH::EndTimeIndices() const
+{
+	return &sortedEndTimes[0];
+}
+
+//-----------------------------------
+// Function: StartTimeIndices
+//
+// Returns: ptr to int vector
+//
+// Description: gets pointer to first element of
+//	the vector containing the indices which sort
+//  the patient's start times.
+//
+// Parameters: none
+//
+//-----------------------------------
+int* CCoxPH::StartTimeIndices()
+{
+	return &sortedStartTimes[0];
+}
+const int* CCoxPH::StartTimeIndices() const
+{
+	return &sortedStartTimes[0];
+}
+
+//-----------------------------------
+// Function: StrataVec
+//
+// Returns: ptr to int vector
+//
+// Description: gets pointer to first element of
+//	the vector containing the number of patients
+//  in each strata.
+//
+// Parameters: none
+//
+//-----------------------------------
+int* CCoxPH::StrataVec()
+{
+	return &strata[0];
+}
+const int* CCoxPH::StrataVec() const
+{
+	return &strata[0];
+}
+
+
+//-----------------------------------
+// Function: TieApproxMethod
+//
+// Returns: ptr to int vector
+//
+// Description: gets int defining which approx method
+//  to use in event of tied times.
+//
+// Parameters: none
+//
+//-----------------------------------
+int CCoxPH::TieApproxMethod()
+{
+	return tiedTimesMethod;
+}
+int CCoxPH::TieApproxMethod() const
+{
+	return tiedTimesMethod;
+}
+
+
 
 
 
