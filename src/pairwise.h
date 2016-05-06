@@ -57,6 +57,7 @@
 
 #include <memory>
 #include "distribution.h"
+#include "dataset.h"
 #include "buildinfo.h"
 
 // A class to rerank groups based on (intermediate) scores
@@ -261,65 +262,38 @@ class CPairwise : public CDistribution
 {
 public:
 
-    // Constructor: determine IR measure as either "conc", "map", "mrr", or "ndcg"
-    CPairwise(const char* szIRMeasure);
+	static CDistribution* Create(DataDistParams& distParams);
 
     virtual ~CPairwise();
 
-    void Initialize(const double *adY,
-		    const double *adGroup,
-		    const double *adOffset,
-		    const double *adWeight,
-		    unsigned long cLength);
+    void Initialize(const CDataset* pData);
     
-    void ComputeWorkingResponse(const double *adY,
-				const double *adGroup,
-				const double *adOffset,
-				const double *adF,
-				double *adZ,
-				const double *adWeight,
-				const bag& afInBag,
-				unsigned long nTrain);
+    void ComputeWorkingResponse(const CDataset* pData,
+    			const double *adF,
+				double *adZ);
     
-    double Deviance(const double *adY,
-                    const double *adGroup,
-                    const double *adOffset,
-                    const double *adWeight,
-                    const double *adF,
-                    unsigned long cLength);
+    double Deviance(const CDataset* pData,
+    			const double *adF,
+                    bool isValidationSet=false);
 
-    void InitF(const double *adY,
-	       const double *adGroup,
-	       const double *adOffset,
-	       const double *adWeight,
-	       double &dInitF,
-	       unsigned long cLength);
+    double InitF(const CDataset* pData);
 
-    void FitBestConstant(const double *adY,
-			 const double *adGroup,
-			 const double *adOffset,
-			 const double *adW,
-			 const double *adF,
-			 double *adZ,
-			 const std::vector<unsigned long>& aiNodeAssign,
-			 unsigned long nTrain,
-			 VEC_P_NODETERMINAL vecpTermNodes,
+    void FitBestConstant(const CDataset* pData,
+    		const double *adF,
 			 unsigned long cTermNodes,
-			 unsigned long cMinObsInNode,
-			 const bag& afInBag,
-			 const double *adFadj);
+			 double* adZ,
+			 CTreeComps* pTreeComps);
 
-    double BagImprovement(const double *adY,
-                          const double *adGroup,
-                          const double *adOffset,
-                          const double *adWeight,
-                          const double *adF,
-                          const double *adFadj,
-                          const bag& afInBag,
-                          double dStepSize,
-                          unsigned long nTrain);
+    double BagImprovement(const CDataset& data,
+    					  const double *adF,
+    					  const bag& afInBag,
+                          const double shrinkage, const double* adFadj);
+    const double* adGroup;
 
 protected:
+
+    // Constructor: determine IR measure as either "conc", "map", "mrr", or "ndcg"
+    CPairwise(const double* adgroups, const char* szIRMeasure, int cTrain);
 
     // Calculate and accumulate up the gradients and Hessians from all training pairs
     void ComputeLambdas(int iGroup, unsigned int cNumItems, const double* const adY, const double* const adF, const double* const adWeight, double* adZ, double* adDeriv);

@@ -1,42 +1,57 @@
-// GBM by Greg Ridgeway  Copyright (C) 2003
+//-----------------------------------
+//
+// File: bernoulli.cpp
+//
+// Description: bernoulli distribution.
+//
+//-----------------------------------
+
+//-----------------------------------
+// Includes
+//-----------------------------------
 
 #include "bernoulli.h"
+#include <memory>
 
+//----------------------------------------
+// Function Members - Private
+//----------------------------------------
 CBernoulli::CBernoulli()
 {
   // Used to issue warnings to user that at least one terminal node capped
   fCappedPred = false;
 }
 
+//----------------------------------------
+// Function Members - Public
+//----------------------------------------
+CDistribution* CBernoulli::Create(DataDistParams& distParams)
+{
+	return new CBernoulli();
+}
+
 CBernoulli::~CBernoulli()
 {
 }
 
-
 void CBernoulli::ComputeWorkingResponse
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
+	const CDataset* pData,
     const double *adF,
-    double *adZ,
-    const double *adWeight,
-    const bag& afInBag,
-    unsigned long nTrain
+    double *adZ
 )
 {
-  unsigned long i = 0;
   double dProb = 0.0;
   double dF = 0.0;
 
-  for(i=0; i<nTrain; i++)
+  for(unsigned long i=0; i<pData->get_trainSize(); i++)
   {
-    dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
+    dF = adF[i] +  pData->offset_ptr(false)[i];
     dProb = 1.0/(1.0+std::exp(-dF));
 
-    adZ[i] = adY[i] - dProb;
+    adZ[i] = pData->y_ptr()[i] - dProb;
 #ifdef NOISY_DEBUG
-//  Rprintf("dF=%f, dProb=%f, adZ=%f, adY=%f\n", dF, dProb, adZ[i], adY[i]);
+//  Rprintf("dF=%f, dProb=%f, adZ=%f, pData->y_ptr()=%f\n", dF, dProb, adZ[i], pData->y_ptr()[i]);
     if(dProb<  0.0001) Rprintf("Small prob(i=%d)=%f Z=%f\n",i,dProb,adZ[i]);
     if(dProb>1-0.0001) Rprintf("Large prob(i=%d)=%f Z=%f\n",i,dProb,adZ[i]);
 #endif
@@ -44,63 +59,45 @@ void CBernoulli::ComputeWorkingResponse
 }
 
 
-void CBernoulli::InitF
+double CBernoulli::InitF
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adWeight,
-    double &dInitF,
-    unsigned long cLength
+	const CDataset* pData
 )
 {
-    unsigned long i=0;
     double dTemp=0.0;
+    double dInitF = 0.0;
 
-    if(adOffset==NULL)
-    {
-        double dSum=0.0;
-        for(i=0; i<cLength; i++)
-        {
-            dSum += adWeight[i]*adY[i];
-            dTemp += adWeight[i];
-        }
-        dInitF = std::log(dSum/(dTemp-dSum));
-    }
-    else
-    {
-        // Newton method for solving for F
-        // should take about 3-6 iterations.
-        double dNum=0.0;         // numerator
-        double dDen=0.0;         // denominator
-        double dNewtonStep=1.0;  // change
-        dInitF = 0.0;
-        while(std::abs(dNewtonStep) > 0.0001)
-        {
-            dNum=0.0;
-            dDen=0.0;
-            for(i=0; i<cLength; i++)
-            {
-                dTemp = 1.0/(1.0+std::exp(-(adOffset[i] + dInitF)));
-                dNum += adWeight[i]*(adY[i]-dTemp);
-                dDen += adWeight[i]*dTemp*(1.0-dTemp);
-            }
-            dNewtonStep = dNum/dDen;
-            dInitF += dNewtonStep;
-        }
-    }
+
+
+	// Newton method for solving for F
+	// should take about 3-6 iterations.
+	double dNum=0.0;         // numerator
+	double dDen=0.0;         // denominator
+	double dNewtonStep=1.0;  // change
+	dInitF = 0.0;
+	while(std::abs(dNewtonStep) > 0.0001)
+	{
+		dNum=0.0;
+		dDen=0.0;
+		for(unsigned long i=0; i<pData->get_trainSize(); i++)
+		{
+			dTemp = 1.0/(1.0+std::exp(-(pData->offset_ptr(false)[i] + dInitF)));
+			dNum += pData->weight_ptr()[i]*(pData->y_ptr()[i]-dTemp);
+			dDen += pData->weight_ptr()[i]*dTemp*(1.0-dTemp);
+		}
+		dNewtonStep = dNum/dDen;
+		dInitF += dNewtonStep;
+	}
+
+
+    return dInitF;
 }
-
-
 
 double CBernoulli::Deviance
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adWeight,
+	const CDataset* pData,
     const double *adF,
-    unsigned long cLength
+    bool isValidationSet
 )
 {
    unsigned long i=0;
@@ -108,23 +105,37 @@ double CBernoulli::Deviance
    double dF = 0.0;
    double dW = 0.0;
 
-   if(adOffset==NULL)
+   // Switch to validation set if necessary
+   long cLength = pData->get_trainSize();
+   if(isValidationSet)
    {
-      for(i=0; i!=cLength; i++)
-      {
-         dL += adWeight[i]*(adY[i]*adF[i] - std::log(1.0+std::exp(adF[i])));
-         dW += adWeight[i];
-      }
+	   pData->shift_to_validation();
+	   cLength = pData->GetValidSize();
    }
-   else
+
+
+	for(i=0; i!=cLength; i++)
+	{
+	 dF = adF[i] + pData->offset_ptr(false)[i];
+	 dL += pData->weight_ptr()[i]*(pData->y_ptr()[i]*dF - std::log(1.0+std::exp(dF)));
+	 dW += pData->weight_ptr()[i];
+	}
+
+   // Switch back to trainig set if necessary
+   if(isValidationSet)
    {
-      for(i=0; i!=cLength; i++)
-      {
-         dF = adF[i] + adOffset[i];
-         dL += adWeight[i]*(adY[i]*dF - std::log(1.0+std::exp(dF)));
-         dW += adWeight[i];
-      }
+	   pData->shift_to_train();
    }
+
+   //TODO: Check if weights are all zero for validation set
+	if((dW == 0.0) && (dL == 0.0))
+	{
+		return nan("");
+	}
+	else if(dW == 0.0)
+	{
+		return copysign(HUGE_VAL, -dL);
+	}
 
    return -2*dL/dW;
 }
@@ -132,37 +143,26 @@ double CBernoulli::Deviance
 
 void CBernoulli::FitBestConstant
 (
-  const double *adY,
-  const double *adMisc,
-  const double *adOffset,
-  const double *adW,
+  const CDataset* pData,
   const double *adF,
-  double *adZ,
-  const std::vector<unsigned long>& aiNodeAssign,
-  unsigned long nTrain,
-  VEC_P_NODETERMINAL vecpTermNodes,
   unsigned long cTermNodes,
-  unsigned long cMinObsInNode,
-  const bag& afInBag,
-  const double *adFadj
+  double* adZ,
+  CTreeComps* pTreeComps
 )
 {
   unsigned long iObs = 0;
   unsigned long iNode = 0;
   double dTemp = 0.0;
-  
-  vecdNum.resize(cTermNodes);
-  vecdNum.assign(vecdNum.size(),0.0);
-  vecdDen.resize(cTermNodes);
-  vecdDen.assign(vecdDen.size(),0.0);
+  vector<double> vecdNum(cTermNodes, 0.0);
+  vector<double> vecdDen(cTermNodes, 0.0);
 
-  for(iObs=0; iObs<nTrain; iObs++)
+  for(iObs=0; iObs<pData->get_trainSize(); iObs++)
   {
-    if(afInBag[iObs])
+    if(pData->GetBagElem(iObs))
     {
-      vecdNum[aiNodeAssign[iObs]] += adW[iObs]*adZ[iObs];
-      vecdDen[aiNodeAssign[iObs]] +=
-          adW[iObs]*(adY[iObs]-adZ[iObs])*(1-adY[iObs]+adZ[iObs]);
+      vecdNum[pTreeComps->GetNodeAssign()[iObs]] += pData->weight_ptr()[iObs]*adZ[iObs];
+      vecdDen[pTreeComps->GetNodeAssign()[iObs]] +=
+          pData->weight_ptr()[iObs]*(pData->y_ptr()[iObs]-adZ[iObs])*(1-pData->y_ptr()[iObs]+adZ[iObs]);
 #ifdef NOISY_DEBUG
 /*
       Rprintf("iNode=%d, dNum(%d)=%f, dDen(%d)=%f\n",
@@ -176,11 +176,11 @@ void CBernoulli::FitBestConstant
 
   for(iNode=0; iNode<cTermNodes; iNode++)
   {
-    if(vecpTermNodes[iNode]!=NULL)
+    if(pTreeComps->GetTermNodes()[iNode]!=NULL)
     {
       if(vecdDen[iNode] == 0)
       {
-          vecpTermNodes[iNode]->dPrediction = 0.0;
+          pTreeComps->GetTermNodes()[iNode]->dPrediction = 0.0;
       }
       else
       {
@@ -197,7 +197,7 @@ void CBernoulli::FitBestConstant
           if(dTemp>1.0) dTemp = 1.0;
           else if(dTemp<-1.0) dTemp = -1.0;
         }
-        vecpTermNodes[iNode]->dPrediction = dTemp;              
+        pTreeComps->GetTermNodes()[iNode]->dPrediction = dTemp;
       }
     }
   }
@@ -206,15 +206,11 @@ void CBernoulli::FitBestConstant
 
 double CBernoulli::BagImprovement
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adWeight,
+	const CDataset& data,
     const double *adF,
-    const double *adFadj,
     const bag& afInBag,
-    double dStepSize,
-    unsigned long nTrain
+    const double shrinkage,
+    const double* adFadj
 )
 {
     double dReturnValue = 0.0;
@@ -222,20 +218,20 @@ double CBernoulli::BagImprovement
     double dW = 0.0;
     unsigned long i = 0;
 
-    for(i=0; i<nTrain; i++)
+    for(i=0; i<data.get_trainSize(); i++)
     {
-        if(!afInBag[i])
+        if(!data.GetBagElem(i))
         {
-            dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
+            dF = adF[i] +  data.offset_ptr(false)[i];
 
-            if(adY[i]==1.0)
+            if(data.y_ptr()[i]==1.0)
             {
-                dReturnValue += adWeight[i]*dStepSize*adFadj[i];
+                dReturnValue += data.weight_ptr()[i]*shrinkage*adFadj[i];
             }
-            dReturnValue += adWeight[i]*
+            dReturnValue += data.weight_ptr()[i]*
                             (std::log(1.0+std::exp(dF)) -
-                             std::log(1.0+std::exp(dF+dStepSize*adFadj[i])));
-            dW += adWeight[i];
+                             std::log(1.0+std::exp(dF+shrinkage*adFadj[i])));
+            dW += data.weight_ptr()[i];
         }
     }
 

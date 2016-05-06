@@ -23,13 +23,17 @@ gbm.fit <- function(x,y,
 
    cRows <- nrow(x)
    cCols <- ncol(x)
-   
+
    checkSanity(x, y)
    ch <- checkMissing(x, y)
    checkVarType(x, y)
    
    oldy <- y
    y <- checkY(oldy)
+   
+   # Only strata, ties and sorted vecs for CoxPh
+   StrataVec <- NA
+   sortedVec <- NA
 
    # the preferred way to specify the number of training instances is via parameter 'nTrain'.
    # parameter 'train.fraction' is only maintained for backward compatibility.
@@ -151,6 +155,7 @@ gbm.fit <- function(x,y,
       {
          distribution$power = 1.5
       }
+     # Bind power to second column of response
       Misc <- c(power=distribution$power)
    }
    if((distribution$name == "poisson") && any(y != trunc(y)))
@@ -171,27 +176,40 @@ gbm.fit <- function(x,y,
       {
          stop("alpha must be between 0 and 1.")
       }
-      Misc <- c(alpha=distribution$alpha)
+     Misc <- c(alpha=distribution$alpha)
    }
    if(distribution$name == "coxph")
    {
       if(class(y)!="Surv")
       {
-         stop("Outcome must be a survival object Surv(time,failure)")
+         stop("Outcome must be a survival object Surv(time1, failure) or Surv(time1, time2, failure)")
       }
-      if(attr(y,"type")!="right")
-      {
-         stop("gbm() currently only handles right censored observations")
-      }
-      Misc <- y[,2]
-      y <- y[,1]
 
+      # TODO: this needs to merge in with the sorted part
       # reverse sort the failure times to compute risk sets on the fly
-      i.train <- order(-y[1:nTrain])
+      n.test <- cRows - nTrain
+      
+      if (attr(y, "type") == "right")
+      {
+        sorted <- c(order(-y[1:nTrain, 1]), order(-y[(nTrain+1):cRows, 1]))
+        nstrat <- c(rep(nTrain, nTrain), rep(n.test, n.test))
+      }
+      else if (attr(y, "type") == "counting") 
+      {
+        sorted <- cbind(c(order(-y[1:nTrain, 1]), order(-y[(nTrain+1):cRows, 1])), 
+                        c(order(-y[1:nTrain, 2]), order(-y[(nTrain+1):cRows, 2]))) 
+        nstrat <- c(rep(nTrain, nTrain), rep(n.test, n.test))
+      }
+      else
+      {
+        stop("Survival object must be either right or counting type.")
+      }
+      
+      i.train <- order(-y[1:nTrain, 1])
       n.test <- cRows - nTrain
       if(n.test > 0)
       {
-         i.test <- order(-y[(nTrain+1):cRows]) + nTrain
+         i.test <- order(-y[(nTrain+1):cRows, 1]) + nTrain
       }
       else
       {
@@ -200,18 +218,49 @@ gbm.fit <- function(x,y,
       i.timeorder <- c(i.train,i.test)
 
       y <- y[i.timeorder]
-      Misc <- Misc[i.timeorder]
       x <- x[i.timeorder,,drop=FALSE]
       w <- w[i.timeorder]
+      
       if(!is.null(offset)) offset <- offset[i.timeorder]
+      
+      # Add in sorted column and strata
+      StrataVec <-  nstrat
+      sortedVec <- sorted-1L
+
+      # Set ties here for the moment
+      if(is.null(misc))
+      {
+        Misc <- list("ties" = "breslow")
+      }
+      else if(  !((misc == "effron") || (misc == "breslow")) && (dim(y)[2] > 2))
+      {
+        message("Require tie breaking method for counting survival object - set to Breslow")
+        Misc <- list("ties" = "breslow")
+      }
+      else
+      {
+        Misc <- list("ties"= misc)
+      }
+
+      # Throw warning about deprecated method
+      if( !((Misc$ties == "effron") || (Misc$ties == "breslow")) )
+      {
+        warning("Deprecated CoxPh - invalid method for dealing with ties, revert to default.
+                Select effron or breslow for updated method")   
+        Misc$ties <- "default"
+      }
+
    }
    if(distribution$name == "tdist")
    {
-      if (is.null(distribution$df) || !is.numeric(distribution$df)){
-         Misc <- 4
+     
+      if (is.null(distribution$df) || !is.numeric(distribution$df))
+      {
+        Misc <- 4
       }
-      else {
-         Misc <- distribution$df[1]
+      else
+      {
+        Misc <- distribution$df[1]
       }
    }
    if(distribution$name == "pairwise")
@@ -261,8 +310,7 @@ gbm.fit <- function(x,y,
       }
 
       # We pass the cut-off rank to the C function as the last element in the Misc vector
-      Misc <- c(group, max.rank)
-
+      Misc <- list("GroupsAndRanks"=c(group, max.rank))
       distribution.call.name <- sprintf("pairwise_%s", metric)
    } # close if (dist... == "pairwise"
 
@@ -280,14 +328,38 @@ gbm.fit <- function(x,y,
    {
       stop("var.monotone must be -1, 0, or 1")
    }
-
+   
+   # Get size of Response frame
+   cRowsY <- nrow(y)
+   cColsY <- ncol(y)
+   if(is.null(cRowsY))
+   {
+     cRowsY <- length(y)
+     cColsY <- 1
+   }
+   
+   # Make sorted vec into a matrix
+   if(cColsY > 2)
+   {
+     cRowsSort <- dim(sortedVec)[1]
+     cColsSort <- dim(sortedVec)[2]
+   }
+   else
+   {
+     cRowsSort <- length(sortedVec)
+     cColsSort <- 1
+   }
+   
+   # Call GBM fit from C++
    gbm.obj <- .Call("gbm",
-                    Y=as.double(y),
+                    Y=matrix(y, cRowsY, cColsY),
                     Offset=as.double(offset),
                     X=matrix(x, cRows, cCols),
                     X.order=as.integer(x.order),
+                    sorted=matrix(sortedVec, cRowsSort, cColsSort),
+                    Strata = as.integer(StrataVec),
                     weights=as.double(w),
-                    Misc=as.double(Misc),
+                    Misc=as.list(Misc),
                     var.type=as.integer(var.type),
                     var.monotone=as.integer(var.monotone),
                     distribution=as.character(distribution.call.name),

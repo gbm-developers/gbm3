@@ -1,78 +1,88 @@
-//  GBM by Greg Ridgeway  Copyright (C) 2003
+//-----------------------------------
+//
+// File: tdist.cpp
+//
+// Description: t distribution implementation for GBM.
+//
+//-----------------------------------
 
+//-----------------------------------
+// Includes
+//-----------------------------------
+#include "locationm.h"
+#include "tdist.h"
 #include <vector>
 
-#include "tdist.h"
+//----------------------------------------
+// Function Members - Private
+//----------------------------------------
+CTDist::CTDist(double nu):mpLocM("tdist", nu)
+{
+	mdNu = nu;
+}
+
+
+//----------------------------------------
+// Function Members - Public
+//----------------------------------------
+CDistribution* CTDist::Create(DataDistParams& distParams)
+{
+	// Check that misc exists
+	double nu = Rcpp::as<double>(distParams.misc[0]);
+	if(!GBM_FUNC::has_value(nu))
+	{
+		throw GBM::failure("T Dist requires misc to initialization.");
+	}
+	return new CTDist(nu);
+}
+
+CTDist::~CTDist()
+{
+
+}
 
 void CTDist::ComputeWorkingResponse
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
+	const CDataset* pData,
     const double *adF,
-    double *adZ,
-    const double *adWeight,
-    const bag& afInBag,
-    unsigned long nTrain
+    double *adZ
 )
 {
     unsigned long i = 0;
     double dU = 0.0;
 
-    if(adOffset == NULL)
-    {
-        for(i=0; i<nTrain; i++)
-        {
-	  dU = adY[i] - adF[i];
-	  adZ[i] = (2 * dU) / (mdNu + (dU * dU));
-        }
-    }
-    else
-    {
-        for(i=0; i<nTrain; i++)
-        {
- 		    dU = adY[i] - adOffset[i] - adF[i];
-			adZ[i] = (2 * dU) / (mdNu + (dU * dU));
-        }
-    }
+	for(i=0; i<pData->get_trainSize(); i++)
+	{
+		dU = pData->y_ptr()[i] - pData->offset_ptr(false)[i] - adF[i];
+		adZ[i] = (2 * dU) / (mdNu + (dU * dU));
+	}
+
 }
 
 
-void CTDist::InitF
+double CTDist::InitF
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adWeight,
-    double &dInitF,
-    unsigned long cLength
+	const CDataset* pData
 )
 {
 
-	// Local variables
-	int ii;
-
 	// Get objects to pass into the LocM function
-	int iN = int(cLength);
-	std::vector<double> adArr(cLength);
+	std::vector<double> adArr(pData->get_trainSize());
 
-	for (ii = 0; ii < iN; ii++)
+	for (long ii = 0; ii < pData->get_trainSize(); ii++)
 	{
-		double dOffset = (adOffset==NULL) ? 0.0 : adOffset[ii];
-		adArr[ii] = adY[ii] - dOffset;
+		double dOffset = (pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[ii];
+		adArr[ii] = pData->y_ptr()[ii] - dOffset;
 	}
 
-	dInitF = mpLocM.LocationM(iN, &adArr[0], adWeight, 0.5);
+	return mpLocM.LocationM(pData->get_trainSize(), &adArr[0], pData->weight_ptr(), 0.5);
 }
 
 double CTDist::Deviance
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adWeight,
+	const CDataset* pData,
     const double *adF,
-    unsigned long cLength
+    bool isValidationSet
 )
 {
     unsigned long i=0;
@@ -80,24 +90,38 @@ double CTDist::Deviance
     double dW = 0.0;
 	double dU = 0.0;
 
-    if(adOffset == NULL)
+	// Switch to validation set if necessary
+	long cLength = pData->get_trainSize();
+	if(isValidationSet)
+	{
+	   pData->shift_to_validation();
+	   cLength = pData->GetValidSize();
+	}
+
+
+	for(i=0; i<cLength; i++)
+	{
+		dU = pData->y_ptr()[i] - pData->offset_ptr(false)[i] - adF[i];
+		dL += pData->weight_ptr()[i] * std::log(mdNu + (dU * dU));
+		dW += pData->weight_ptr()[i];
+	}
+
+
+    // Switch back to training set if necessary
+    if(isValidationSet)
     {
-        for(i=0; i<cLength; i++)
-        {
-			dU = adY[i] - adF[i];
-			dL += adWeight[i] * std::log(mdNu + (dU * dU));
-            dW += adWeight[i];
-        }
+ 	   pData->shift_to_train();
     }
-    else
-    {
-        for(i=0; i<cLength; i++)
-        {
-			dU = adY[i] - adOffset[i] - adF[i];
-		    dL += adWeight[i] * std::log(mdNu + (dU * dU));
-            dW += adWeight[i];
-        }
-    }
+
+    //TODO: Check if weights are all zero for validation set
+   if((dW == 0.0) && (dL == 0.0))
+   {
+	   return nan("");
+   }
+   else if(dW == 0.0)
+   {
+	   return copysign(HUGE_VAL, dL);
+   }
 
     return dL/dW;
 }
@@ -105,19 +129,11 @@ double CTDist::Deviance
 
 void CTDist::FitBestConstant
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adW,
+	const CDataset* pData,
     const double *adF,
-    double *adZ,
-    const std::vector<unsigned long>& aiNodeAssign,
-    unsigned long nTrain,
-    VEC_P_NODETERMINAL vecpTermNodes,
     unsigned long cTermNodes,
-    unsigned long cMinObsInNode,
-    const bag& afInBag,
-    const double *adFadj
+    double* adZ,
+    CTreeComps* pTreeComps
 )
 {
    	// Local variables
@@ -125,27 +141,27 @@ void CTDist::FitBestConstant
     unsigned long iObs = 0;
 
 
-    std::vector<double> adArr, adWeight;
+    std::vector<double> adArr, adW;
 	// Call LocM for the array of values on each node
     for(iNode=0; iNode<cTermNodes; iNode++)
     {
-      if(vecpTermNodes[iNode]->cN >= cMinObsInNode)
+      if(pTreeComps->GetTermNodes()[iNode]->cN >= pTreeComps->GetMinNodeObs())
         {
 	  adArr.clear();
-	  adWeight.clear();
+	  adW.clear();
 
-	  for (iObs = 0; iObs < nTrain; iObs++)
+	  for (iObs = 0; iObs < pData->get_trainSize(); iObs++)
 	    {
-	      if(afInBag[iObs] && (aiNodeAssign[iObs] == iNode))
+	      if(pData->GetBagElem(iObs) && (pTreeComps->GetNodeAssign()[iObs] == iNode))
                 {
-		  const double dOffset = (adOffset==NULL) ? 0.0 : adOffset[iObs];
-		  adArr.push_back(adY[iObs] - dOffset - adF[iObs]);
-		  adWeight.push_back(adW[iObs]);
+		  const double dOffset = pData->offset_ptr(false)[iObs];
+		  adArr.push_back(pData->y_ptr()[iObs] - dOffset - adF[iObs]);
+		  adW.push_back(pData->weight_ptr()[iObs]);
                 }
 	    }
 
-	  vecpTermNodes[iNode]->dPrediction = mpLocM.LocationM(adArr.size(), &adArr[0],
-							       &adWeight[0], 0.5);
+	  pTreeComps->GetTermNodes()[iNode]->dPrediction = mpLocM.LocationM(adArr.size(), &adArr[0],
+							       &adW[0], 0.5);
 
         }
     }
@@ -153,31 +169,27 @@ void CTDist::FitBestConstant
 
 double CTDist::BagImprovement
 (
-    const double *adY,
-    const double *adMisc,
-    const double *adOffset,
-    const double *adWeight,
+	const CDataset& data,
     const double *adF,
-    const double *adFadj,
     const bag& afInBag,
-    double dStepSize,
-    unsigned long nTrain
+    const double shrinkage,
+    const double* adFadj
 )
 {
     double dReturnValue = 0.0;
     unsigned long i = 0;
     double dW = 0.0;
 
-    for(i=0; i<nTrain; i++)
+    for(i=0; i<data.get_trainSize(); i++)
     {
-        if(!afInBag[i])
+        if(!data.GetBagElem(i))
         {
-            const double dF = adF[i] + ((adOffset==NULL) ? 0.0 : adOffset[i]);
-	    const double dU = (adY[i] - dF);
-	    const double dV = (adY[i] - dF - dStepSize * adFadj[i]) ;
+            const double dF = adF[i] + data.offset_ptr(false)[i];
+	    const double dU = (data.y_ptr()[i] - dF);
+	    const double dV = (data.y_ptr()[i] - dF - shrinkage * adFadj[i]) ;
 
-            dReturnValue += adWeight[i] * (std::log(mdNu + (dU * dU)) - log(mdNu + (dV * dV)));
-            dW += adWeight[i];
+            dReturnValue += data.weight_ptr()[i] * (std::log(mdNu + (dU * dU)) - log(mdNu + (dV * dV)));
+            dW += data.weight_ptr()[i];
         }
     }
 

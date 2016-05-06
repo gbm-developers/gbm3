@@ -1,83 +1,71 @@
 //------------------------------------------------------------------------------
-//  GBM by Greg Ridgeway  Copyright (C) 2003
 //
 //  File:       gaussian.h
 //
-//  License:    GNU GPL (version 2 or later)
-//
-//  Contents:   gaussian object
-//
-//  Owner:      gregr@rand.org
+//  Contents:   gaussian distribution for GBM.
 //
 //  History:    3/26/2001   gregr created
 //              2/14/2003   gregr: adapted for R implementation
-//
 //------------------------------------------------------------------------------
 
-#ifndef GAUSSIAN_H
-#define GAUSSIAN_H
+#ifndef __gaussian_h__
+#define __gaussian_h__
 
+//------------------------------
+// Includes
+//------------------------------
 #include "distribution.h"
+#include <memory>
 
+//------------------------------
+// Class definition
+//------------------------------
 class CGaussian : public CDistribution
 {
 
 public:
+	//---------------------
+	// Factory Function
+	//---------------------
+	static CDistribution* Create(DataDistParams& distParams);
 
-    CGaussian();
-
+	//---------------------
+	// Public destructor
+	//---------------------
     virtual ~CGaussian();
 
+    //---------------------
+    // Public Functions
+    //---------------------
+    void ComputeWorkingResponse(const CDataset* pData,
+    			const double *adF,
+				double *adZ);
 
-    void ComputeWorkingResponse(const double *adY,
-				const double *adMisc,
-				const double *adOffset,
-				const double *adF,
-				double *adZ,
-				const double *adWeight,
-				const bag& afInBag,
-				unsigned long nTrain);
-
-    void InitF(const double *adY,
-	       const double *adMisc,
-	       const double *adOffset,
-	       const double *adWeight,
-	       double &dInitF,
-	       unsigned long cLength);
+    double InitF(const CDataset* pData);
     
-    void FitBestConstant(const double *adY,
-			 const double *adMisc,
-			 const double *adOffset,
-			 const double *adW,
-			 const double *adF,
-			 double *adZ,
-			 const std::vector<unsigned long>& aiNodeAssign,
-			 unsigned long nTrain,
-			 VEC_P_NODETERMINAL vecpTermNodes,
-			 unsigned long cTermNodes,
-			 unsigned long cMinObsInNode,
-			 const bag& afInBag,
-			 const double *adFadj);
+    void FitBestConstant(const CDataset* pData,
+    				const double *adF,
+					 unsigned long cTermNodes,
+					 double* adZ,
+					 CTreeComps* pTreeComps);
 
-    double Deviance(const double *adY,
-                    const double *adMisc,
-                    const double *adOffset,
-                    const double *adWeight,
-                    const double *adF,
-                    unsigned long cLength);
+    double Deviance(const CDataset* pData,
+    				const double *adF,
+                    bool isValidationSet=false);
 
-    double BagImprovement(const double *adY,
-                          const double *adMisc,
-                          const double *adOffset,
-                          const double *adWeight,
-                          const double *adF,
-                          const double *adFadj,
-                          const bag& afInBag,
-                          double dStepSize,
-                          unsigned long nTrain);
+    double BagImprovement(const CDataset& data,
+    					  const double *adF,
+    					  const bag& afInBag,
+                          const double shrinkage,
+                          const double* adFadj);
+private:
+    //----------------------
+    // Private Constructors
+    //----------------------
+    CGaussian();
 };
 
-#endif // GAUSSIAN_H
+#endif // __gaussian_h__
 
 
 

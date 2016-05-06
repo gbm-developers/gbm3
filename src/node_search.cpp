@@ -4,28 +4,20 @@
 //  File:       node_search.cpp
 //
 //------------------------------------------------------------------------------
+//-----------------------------------
+// Includes
+//-----------------------------------
 #include "node_search.h"
 
-CNodeSearch::CNodeSearch()
+//----------------------------------------
+// Function Members - Public
+//----------------------------------------
+CNodeSearch::CNodeSearch(int numColData, unsigned long minObs):
+variableSplitters(numColData, VarSplitter(minObs))
 {
-    iBestSplitVar = 0;
+    cTerminalNodes = 1;
+    minNumObs = minObs;
 
-    dBestSplitValue = 0.0;
-    fIsSplit = false;
-
-    dBestMissingTotalW = 0.0;
-    dCurrentMissingTotalW = 0.0;
-    dBestMissingSumZ = 0.0;
-    dCurrentMissingSumZ = 0.0;
-
-    adGroupSumZ.resize(1024);
-    adGroupW.resize(1024);
-    acGroupN.resize(1024);
-    adGroupMean.resize(1024);
-    aiCurrentCategory.resize(1024);
-    aiBestCategory.resize(1024);
-
-    iRank = UINT_MAX;
 }
 
 
@@ -34,337 +26,161 @@ CNodeSearch::~CNodeSearch()
 }
 
 
-void CNodeSearch::Initialize
+void CNodeSearch::Reset()
+{
+	cTerminalNodes = 1;
+}
+
+void CNodeSearch::GenerateAllSplits
 (
-    unsigned long cMinObsInNode
+		vector<CNode*>& vecpTermNodes,
+		const CDataset& data,
+		double* adZ,
+		vector<unsigned long>& aiNodeAssign
 )
 {
-    this->cMinObsInNode = cMinObsInNode;
+	unsigned long iWhichObs = 0;
+	const CDataset::index_vector colNumbers(data.random_order());
+	const CDataset::index_vector::const_iterator final = colNumbers.begin() + data.get_numFeatures();
+
+	// Loop over terminal nodes
+	for(long iNode = 0; iNode < cTerminalNodes; iNode++)
+	{
+	  // Reset variable splitters
+	  ResetVarSplitter();
+
+	  // Loop over variables - Generate splits
+	  for(CDataset::index_vector::const_iterator it=colNumbers.begin();
+			  it != final;
+			  it++)
+	  {
+		  variableSplitters[*it].SetForNode(*vecpTermNodes[iNode]);
+		  variableSplitters[*it].SetForVariable(*it, data.varclass(*it));
+		  for(long iOrderObs=0; iOrderObs < data.get_trainSize(); iOrderObs++)
+		  {
+			  //Get Observation and add to split if needed
+			  iWhichObs = data.order_ptr()[(*it)*data.get_trainSize() + iOrderObs];
+			  if((aiNodeAssign[iWhichObs] == iNode) && data.GetBag()[iWhichObs])
+			  {
+				  const double dX = data.x_value(iWhichObs, *it);
+				  variableSplitters[*it].IncorporateObs(dX,
+									adZ[iWhichObs],
+									data.weight_ptr()[iWhichObs],
+									data.monotone(*it));
+			  }
+
+		  }
+		  if(data.varclass(*it) != 0) // evaluate if categorical split
+		  {
+			  variableSplitters[*it].EvaluateCategoricalSplit();
+		  }
+
+	  }
+	  // Assign best split to node
+	  AssignToNode(*vecpTermNodes[iNode]);
+	}
 }
 
 
-void CNodeSearch::IncorporateObs
+double CNodeSearch::SplitAndCalcImprovement
 (
-    double dX,
-    double dZ,
-    double dW,
-    long lMonotone
+		vector<CNode*>& vecpTermNodes,
+		const CDataset& data,
+		vector<unsigned long>& aiNodeAssign
 )
 {
-    static double dWZ = 0.0;
+	// search for the best split
+	long iBestNode = 0;
+	double dBestNodeImprovement = 0.0;
+	for(long iNode=0; iNode < cTerminalNodes; iNode++)
+	{
+		if(vecpTermNodes[iNode]->SplitImprovement() > dBestNodeImprovement)
+		{
+			iBestNode = iNode;
+			dBestNodeImprovement = vecpTermNodes[iNode]->SplitImprovement();
+		}
+	}
+	// Split Node if improvement is non-zero
+	if(dBestNodeImprovement != 0.0)
+	{
+		//Split Node
+		vecpTermNodes[iBestNode]->SplitNode();
+		cTerminalNodes += 2;
 
-    if(fIsSplit) return;
+		// Move data to children nodes
+		ReAssignData(iBestNode, vecpTermNodes, data, aiNodeAssign);
 
-    dWZ = dW*dZ;
-
-    if(ISNA(dX))
-    {
-        dCurrentMissingSumZ += dWZ;
-        dCurrentMissingTotalW += dW;
-        cCurrentMissingN++;
-        dCurrentRightSumZ -= dWZ;
-        dCurrentRightTotalW -= dW;
-        cCurrentRightN--;
-    }
-    else if(cCurrentVarClasses == 0)   // variable is continuous
-    {
-        if(dLastXValue > dX)
-        {
-	  throw GBM::failure("Observations are not in order. gbm() was unable to build an index for the design matrix. Could be a bug in gbm or an unusual data type in data.");
+		// Add children to terminal node list
+		vecpTermNodes[cTerminalNodes-2] = vecpTermNodes[iBestNode]->pRightNode;
+		vecpTermNodes[cTerminalNodes-1] = vecpTermNodes[iBestNode]->pMissingNode;
+		vecpTermNodes[iBestNode] = vecpTermNodes[iBestNode]->pLeftNode;
 	}
 
-        // Evaluate the current split
-        // the newest observation is still in the right child
-        dCurrentSplitValue = 0.5*(dLastXValue + dX);
-        if((dLastXValue != dX) &&
-            (cCurrentLeftN >= cMinObsInNode) &&
-            (cCurrentRightN >= cMinObsInNode) &&
-            ((lMonotone==0) ||
-            (lMonotone*(dCurrentRightSumZ*dCurrentLeftTotalW -
-                        dCurrentLeftSumZ*dCurrentRightTotalW) > 0)))
-        {
-            dCurrentImprovement =
-                CNode::Improvement(dCurrentLeftTotalW,dCurrentRightTotalW,
-                                    dCurrentMissingTotalW,
-                                    dCurrentLeftSumZ,dCurrentRightSumZ,
-                                    dCurrentMissingSumZ);
-            if(dCurrentImprovement > dBestImprovement)
-            {
-                iBestSplitVar = iCurrentSplitVar;
-                dBestSplitValue = dCurrentSplitValue;
-                cBestVarClasses = 0;
-
-                dBestLeftSumZ    = dCurrentLeftSumZ;
-                dBestLeftTotalW  = dCurrentLeftTotalW;
-                cBestLeftN       = cCurrentLeftN;
-                dBestRightSumZ   = dCurrentRightSumZ;
-                dBestRightTotalW = dCurrentRightTotalW;
-                cBestRightN      = cCurrentRightN;
-                dBestImprovement = dCurrentImprovement;
-            }
-        }
-
-        // now move the new observation to the left
-        // if another observation arrives we will evaluate this
-        dCurrentLeftSumZ += dWZ;
-        dCurrentLeftTotalW += dW;
-        cCurrentLeftN++;
-        dCurrentRightSumZ -= dWZ;
-        dCurrentRightTotalW -= dW;
-        cCurrentRightN--;
-
-        dLastXValue = dX;
-    }
-    else // variable is categorical, evaluates later
-    {
-        adGroupSumZ[(unsigned long)dX] += dWZ;
-        adGroupW[(unsigned long)dX] += dW;
-        acGroupN[(unsigned long)dX] ++;
-    }
+	return dBestNodeImprovement;
 }
 
-
-
-void CNodeSearch::Set
+//----------------------------------------
+// Function Members - Private
+//----------------------------------------
+void CNodeSearch::ReAssignData
 (
-    double dSumZ,
-    double dTotalW,
-    unsigned long cTotalN,
-    CNodeTerminal *pThisNode,
-    CNode **ppParentPointerToThisNode,
-    CNodeFactory *pNodeFactory
+		long splittedNodeIndex,
+		vector<CNode*>& vecpTermNodes,
+		const CDataset& data,
+		vector<unsigned long>& aiNodeAssign
 )
 {
-    dInitSumZ = dSumZ;
-    dInitTotalW = dTotalW;
-    cInitN = cTotalN;
+	// assign observations to the correct node
+	for(long iObs=0; iObs < data.get_trainSize(); iObs++)
+	{
+		if(aiNodeAssign[iObs]==splittedNodeIndex)
+		{
+		  signed char schWhichNode = vecpTermNodes[splittedNodeIndex]->WhichNode(data,iObs);
+		  if(schWhichNode == 1) // goes right
+		  {
+			  aiNodeAssign[iObs] = cTerminalNodes-2;
+		  }
+		  else if(schWhichNode == 0) // is missing
+		  {
+			  aiNodeAssign[iObs] = cTerminalNodes-1;
+		  }
+		  // those to the left stay with the same node assignment
+		  }
+	}
+}
 
-    dBestLeftSumZ       = 0.0;
-    dBestLeftTotalW     = 0.0;
-    cBestLeftN          = 0;
-    dCurrentLeftSumZ    = 0.0;
-    dCurrentLeftTotalW  = 0.0;
-    cCurrentLeftN       = 0;
+void CNodeSearch::AssignToNode(CNode& terminalNode)
+{
+	// Find the best split
+	long bestSplitInd = 0;
+	double bestErrImprovement = 0.0;
+	double currErrImprovement = 0.0;
 
-    dBestRightSumZ      = dSumZ;
-    dBestRightTotalW    = dTotalW;
-    cBestRightN         = cTotalN;
-    dCurrentRightSumZ   = 0.0;
-    dCurrentRightTotalW = dTotalW;
-    cCurrentRightN      = cTotalN;
+	for(long it = 0; it < variableSplitters.size(); it++)
+	{
+		currErrImprovement = variableSplitters[it].GetBestImprovement();
+		if(currErrImprovement > bestErrImprovement)
+		{
+			bestErrImprovement = currErrImprovement;
+			bestSplitInd = it;
+		}
+	}
 
-    dBestMissingSumZ      = 0.0;
-    dBestMissingTotalW    = 0.0;
-    cBestMissingN         = 0;
-    dCurrentMissingSumZ   = 0.0;
-    dCurrentMissingTotalW = 0.0;
-    cCurrentMissingN      = 0;
+	// Check if variables explored have better improvement than previous searches
+	if(bestErrImprovement > terminalNode.childrenParams.GetImprovement())
+	{
+		terminalNode.childrenParams =  variableSplitters[bestSplitInd].GetBestSplit();
+	}
 
-    dBestImprovement    = 0.0;
-    iBestSplitVar       = UINT_MAX;
-
-    dCurrentImprovement = 0.0;
-    iCurrentSplitVar    = UINT_MAX;
-    dCurrentSplitValue  = -HUGE_VAL;
-
-    fIsSplit = false;
-
-    this->pThisNode = pThisNode;
-    this->ppParentPointerToThisNode = ppParentPointerToThisNode;
-    this->pNodeFactory = pNodeFactory;
 }
 
 
-void CNodeSearch::ResetForNewVar
-(
-    unsigned long iWhichVar,
-    long cCurrentVarClasses
-)
+void CNodeSearch::ResetVarSplitter()
 {
-  if(fIsSplit) return;
+	// Reset each variable splitter
+	for(long it = 0; it < variableSplitters.size(); it++)
+	{
+		variableSplitters[it].Reset();
+	}
 
-  if (int(cCurrentVarClasses) > adGroupSumZ.size()) {
-    throw GBM::failure("too many variable classes");
-  }
-
-  std::fill(adGroupSumZ.begin(), adGroupSumZ.begin() + cCurrentVarClasses, 0);
-  std::fill(adGroupW.begin(), adGroupW.begin() + cCurrentVarClasses, 0);
-  std::fill(acGroupN.begin(), acGroupN.begin() + cCurrentVarClasses, 0);
-  
-  iCurrentSplitVar = iWhichVar;
-  this->cCurrentVarClasses = cCurrentVarClasses;
-
-  dCurrentLeftSumZ      = 0.0;
-  dCurrentLeftTotalW    = 0.0;
-  cCurrentLeftN         = 0;
-  dCurrentRightSumZ     = dInitSumZ;
-  dCurrentRightTotalW   = dInitTotalW;
-  cCurrentRightN        = cInitN;
-  dCurrentMissingSumZ   = 0.0;
-  dCurrentMissingTotalW = 0.0;
-  cCurrentMissingN      = 0;
-  
-  dCurrentImprovement = 0.0;
-  
-  dLastXValue = -HUGE_VAL;
-}
-
-
-
-void CNodeSearch::WrapUpCurrentVariable()
-{
-  if(iCurrentSplitVar == iBestSplitVar)
-    {
-      if(cCurrentMissingN > 0)
-        {
-	  dBestMissingSumZ   = dCurrentMissingSumZ;
-	  dBestMissingTotalW = dCurrentMissingTotalW;
-	  cBestMissingN      = cCurrentMissingN;
-        }
-      else // DEBUG: consider a weighted average with parent node?
-        {
-	  dBestMissingSumZ   = dInitSumZ;
-	  dBestMissingTotalW = dInitTotalW;
-	  cBestMissingN      = 0;
-        }
-    }
-}
-
-
-
-void CNodeSearch::EvaluateCategoricalSplit()
-{
-  long i=0;
-  unsigned long cFiniteMeans = 0;
-  
-  if(fIsSplit) return;
-  
-  if(cCurrentVarClasses == 0)
-    {
-      throw GBM::invalid_argument();
-    }
-
-  cFiniteMeans = 0;
-  for(i=0; i<cCurrentVarClasses; i++)
-    {
-      aiCurrentCategory[i] = i;
-      if(adGroupW[i] != 0.0)
-        {
-	  adGroupMean[i] = adGroupSumZ[i]/adGroupW[i];
-	  cFiniteMeans++;
-        }
-      else
-        {
-	  adGroupMean[i] = HUGE_VAL;
-        }
-    }
-  
-  rsort_with_index(&adGroupMean[0],&aiCurrentCategory[0],cCurrentVarClasses);
-    
-  // if only one group has a finite mean it will not consider
-  // might be all are missing so no categories enter here
-  for(i=0; (cFiniteMeans>1) && ((ULONG)i<cFiniteMeans-1); i++)
-    {
-      dCurrentSplitValue = (double)i;
-      
-      dCurrentLeftSumZ    += adGroupSumZ[aiCurrentCategory[i]];
-      dCurrentLeftTotalW  += adGroupW[aiCurrentCategory[i]];
-      cCurrentLeftN       += acGroupN[aiCurrentCategory[i]];
-      dCurrentRightSumZ   -= adGroupSumZ[aiCurrentCategory[i]];
-      dCurrentRightTotalW -= adGroupW[aiCurrentCategory[i]];
-      cCurrentRightN      -= acGroupN[aiCurrentCategory[i]];
-      
-      dCurrentImprovement =
-	CNode::Improvement(dCurrentLeftTotalW,dCurrentRightTotalW,
-			   dCurrentMissingTotalW,
-			   dCurrentLeftSumZ,dCurrentRightSumZ,
-			   dCurrentMissingSumZ);
-      if((cCurrentLeftN >= cMinObsInNode) &&
-	 (cCurrentRightN >= cMinObsInNode) &&
-	 (dCurrentImprovement > dBestImprovement))
-        {
-	  dBestSplitValue = dCurrentSplitValue;
-	  if(iBestSplitVar != iCurrentSplitVar)
-            {
-	      iBestSplitVar = iCurrentSplitVar;
-	      cBestVarClasses = cCurrentVarClasses;
-	      std::copy(aiCurrentCategory.begin(),
-			aiCurrentCategory.end(),
-			aiBestCategory.begin());
-            }
-	  
-	  dBestLeftSumZ      = dCurrentLeftSumZ;
-	  dBestLeftTotalW    = dCurrentLeftTotalW;
-	  cBestLeftN         = cCurrentLeftN;
-	  dBestRightSumZ     = dCurrentRightSumZ;
-	  dBestRightTotalW   = dCurrentRightTotalW;
-	  cBestRightN        = cCurrentRightN;
-	  dBestImprovement   = dCurrentImprovement;
-        }
-    }
-}
-
-
-
-
-void CNodeSearch::SetupNewNodes
-(
-    PCNodeNonterminal &pNewSplitNode,
-    PCNodeTerminal &pNewLeftNode,
-    PCNodeTerminal &pNewRightNode,
-    PCNodeTerminal &pNewMissingNode
-)
-{
-    CNodeContinuous *pNewNodeContinuous = NULL;
-    CNodeCategorical *pNewNodeCategorical = NULL;
-
-    pNewLeftNode    = pNodeFactory->GetNewNodeTerminal();
-    pNewRightNode   = pNodeFactory->GetNewNodeTerminal();
-    pNewMissingNode = pNodeFactory->GetNewNodeTerminal();
-
-    // set up a continuous split
-    if(cBestVarClasses==0)
-    {
-        pNewNodeContinuous = pNodeFactory->GetNewNodeContinuous();
-
-        pNewNodeContinuous->dSplitValue = dBestSplitValue;
-        pNewNodeContinuous->iSplitVar = iBestSplitVar;
-
-        pNewSplitNode = pNewNodeContinuous;
-    }
-    else
-    {
-        // get a new categorical node and its branches
-        pNewNodeCategorical = pNodeFactory->GetNewNodeCategorical();
-
-        // set up the categorical split
-        pNewNodeCategorical->iSplitVar = iBestSplitVar;
-        pNewNodeCategorical->aiLeftCategory.resize(1 + (ULONG)dBestSplitValue);
-	std::copy(aiBestCategory.begin(),
-		  aiBestCategory.begin() + pNewNodeCategorical->aiLeftCategory.size(),
-		  pNewNodeCategorical->aiLeftCategory.begin());
-
-        pNewSplitNode = pNewNodeCategorical;
-    }
-
-    *ppParentPointerToThisNode = pNewSplitNode;
-
-    pNewSplitNode->dPrediction  = pThisNode->dPrediction;
-    pNewSplitNode->dImprovement = dBestImprovement;
-    pNewSplitNode->dTrainW      = pThisNode->dTrainW;
-    pNewSplitNode->pLeftNode    = pNewLeftNode;
-    pNewSplitNode->pRightNode   = pNewRightNode;
-    pNewSplitNode->pMissingNode = pNewMissingNode;
-
-    pNewLeftNode->dPrediction    = dBestLeftSumZ/dBestLeftTotalW;
-    pNewLeftNode->dTrainW        = dBestLeftTotalW;
-    pNewLeftNode->cN             = cBestLeftN;
-    pNewRightNode->dPrediction   = dBestRightSumZ/dBestRightTotalW;
-    pNewRightNode->dTrainW       = dBestRightTotalW;
-    pNewRightNode->cN            = cBestRightN;
-    pNewMissingNode->dPrediction = dBestMissingSumZ/dBestMissingTotalW;
-    pNewMissingNode->dTrainW     = dBestMissingTotalW;
-    pNewMissingNode->cN          = cBestMissingN;
-
-    pThisNode->RecycleSelf(pNodeFactory);
 }

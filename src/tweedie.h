@@ -1,71 +1,74 @@
-#ifndef TWEEDIE_H
-#define TWEEDIE_H
+//------------------------------------------------------------------------------
+//
+//  File:       tweedie.h
+//
+//  Description: tweedie distribution for .
+//
+//------------------------------------------------------------------------------
 
-#include <Rmath.h>
+#ifndef __tweedie_h__
+#define __tweedie_h__
+
+//------------------------------
+// Includes
+//------------------------------
 #include "distribution.h"
+#include <Rmath.h>
+#include <Rcpp.h>
+#include <memory>
 
+//------------------------------
+// Class definition
+//------------------------------
 class CTweedie : public CDistribution
 {
 
 public:
+	//---------------------
+	// Factory Function
+	//---------------------
+	static CDistribution* Create(DataDistParams& distParams);
 
-    CTweedie(double dPower) : dPower(dPower) {};
-
+	//---------------------
+	// Public destructor
+	//---------------------
     virtual ~CTweedie();
 
-    void ComputeWorkingResponse(const double *adY,
-				const double *adMisc,
-				const double *adOffset,
-				const double *adF,
-				double *adZ,
-				const double *adWeight,
-				const bag& afInBag,
-				unsigned long nTrain);
+    //---------------------
+    // Public Functions
+    //---------------------
+    void ComputeWorkingResponse(const CDataset* pData,
+    		const double *adF,
+				double *adZ);
 
-    void InitF(const double *adY, 
-	       const double *adMisc,
-	       const double *adOffset,
-	       const double *adWeight,
-	       double &dInitF, 
-	       unsigned long cLength);
+    double InitF(const CDataset* pData);
     
-    void FitBestConstant(const double *adY,
-			 const double *adMisc,
-			 const double *adOffset,
-			 const double *adW,
-			 const double *adF,
-			 double *adZ,
-			 const std::vector<unsigned long>& aiNodeAssign,
-			 unsigned long nTrain,
-			 VEC_P_NODETERMINAL vecpTermNodes,
+    void FitBestConstant(const CDataset* pData,
+    		const double *adF,
 			 unsigned long cTermNodes,
-			 unsigned long cMinObsInNode,
-			 const bag& afInBag,
-			 const double *adFadj);
+			 double* adZ,
+			 CTreeComps* pTreeComps);
 
-    double Deviance(const double *adY,
-                    const double *adMisc,
-                    const double *adOffset,
-                    const double *adWeight,
-                    const double *adF,
-                    unsigned long cLength);
+    double Deviance(const CDataset* pData,
+    				const double *adF,
+                    bool isValidationSet=false);
     
-    double BagImprovement(const double *adY,
-                          const double *adMisc,
-                          const double *adOffset,
-                          const double *adWeight,
-                          const double *adF,
-                          const double *adFadj,
-                          const bag& afInBag,
-                          double dStepSize,
-                          unsigned long nTrain);
+    double BagImprovement(const CDataset& data,
+    					  const double *adF,
+    					  const bag& afInBag,
+                          const double shrinkage,
+                          const double* adFadj);
 private:
-    vector<double> vecdNum;
-    vector<double> vecdDen;
-    vector<double> vecdMax;
-    vector<double> vecdMin;
+    //----------------------
+    // Private Constructors
+    //----------------------
+    CTweedie(double power);
+
+	//-------------------
+	// Private Variables
+	//-------------------
     double dPower;
 };
 
-#endif // TWEEDIE_H
+#endif // _tweedie_h__
 

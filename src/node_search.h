@@ -17,110 +17,61 @@
 #ifndef NODESEARCH_H
 #define NODESEARCH_H
 
+//------------------------------
+// Includes
+//------------------------------
 #include <vector>
-
-#include "node_factory.h"
 #include "dataset.h"
+#include "node.h"
+#include "varsplitter.h"
+#include "nodeParameters.h"
 
 using namespace std;
 
+//------------------------------
+// Class Definition
+//------------------------------
 class CNodeSearch
 {
 public:
+	//----------------------
+	// Public Constructors
+	//----------------------
+    CNodeSearch(int numColData, unsigned long minObs);
 
-    CNodeSearch();
+	//---------------------
+	// Public destructor
+	//---------------------
     ~CNodeSearch();
-    void Initialize(unsigned long cMinObsInNode);
 
-    void IncorporateObs(double dX,
-			double dZ,
-			double dW,
-			long lMonotone);
-
-    void Set(double dSumZ,
-	     double dTotalW,
-	     unsigned long cTotalN,
-	     CNodeTerminal *pThisNode,
-	     CNode **ppParentPointerToThisNode,
-	     CNodeFactory *pNodeFactory);
-    void ResetForNewVar(unsigned long iWhichVar,
-			long cVarClasses);
-    
-    double BestImprovement() { return dBestImprovement; }
-    void SetToSplit()
-    {
-        fIsSplit = true;
-    };
-    void SetupNewNodes(PCNodeNonterminal &pNewSplitNode,
-		       PCNodeTerminal &pNewLeftNode,
-		       PCNodeTerminal &pNewRightNode,
-		       PCNodeTerminal &pNewMissingNode);
-
-    void EvaluateCategoricalSplit();
-    void WrapUpCurrentVariable();
-    double ThisNodePrediction() {return pThisNode->dPrediction;}
-    bool operator<(const CNodeSearch &ns) {return dBestImprovement<ns.dBestImprovement;}
-
-    unsigned long iBestSplitVar;
-    double dBestSplitValue;
-
-    double dBestLeftSumZ;
-    double dBestLeftTotalW;
-    unsigned long cBestLeftN;
-
-    double dBestRightSumZ;
-    double dBestRightTotalW;
-    unsigned long cBestRightN;
-
-    double dBestMissingSumZ;
-    double dBestMissingTotalW;
-    unsigned long cBestMissingN;
-
-    double dCurrentMissingSumZ;
-    double dCurrentMissingTotalW;
-    unsigned long cCurrentMissingN;
-
-    long cCurrentVarClasses;
-
-    unsigned long iRank;
-    double dInitTotalW;
-    double dInitSumZ;
-    unsigned long cInitN;
-    double dBestImprovement;
+	//---------------------
+	// Public Functions
+	//---------------------
+    void GenerateAllSplits(vector<CNode*>& vecpTermNodes, const CDataset& data,
+    						double* residuals, vector<unsigned long>& aiNodeAssign);
+    double SplitAndCalcImprovement(vector<CNode*>& vecpTermNodes,
+    					const CDataset& data,
+    					vector<unsigned long>& aiNodeAssign);
+    void Reset();
 
 private:
-    bool fIsSplit;
+	//---------------------
+	// Private Functions
+	//---------------------
+    void ReAssignData(long splittedNodeIndex, vector<CNode*>& vecpTermNodes,
+    					const CDataset& data, vector<unsigned long>& aiNodeAssign);
+    void AssignToNode(CNode& terminalNode);
+    void ResetVarSplitter();
 
-    unsigned long cMinObsInNode;
+	//---------------------
+	// Private Variables
+	//---------------------
+    // Splitters for variable sets
+    std::vector<VarSplitter> variableSplitters;
 
-    long cBestVarClasses;
-
-    double dCurrentLeftSumZ;
-    double dCurrentLeftTotalW;
-    unsigned long cCurrentLeftN;
-    double dCurrentRightSumZ;
-    double dCurrentRightTotalW;
-    unsigned long cCurrentRightN;
-    double dCurrentImprovement;
-    unsigned long iCurrentSplitVar;
-    double dCurrentSplitValue;
-
-    double dLastXValue;
-
-    std::vector<double> adGroupSumZ;
-    std::vector<double> adGroupW;
-    std::vector<unsigned long> acGroupN;
-    std::vector<double> adGroupMean;
-    // this is an int to fit in with R API
-    // it's probably best not to ask.
-    std::vector<int> aiCurrentCategory;
-    std::vector<unsigned long> aiBestCategory;
-
-    CNodeTerminal *pThisNode;
-    CNode **ppParentPointerToThisNode;
-    CNodeFactory *pNodeFactory;
+    // Number of terminal nodes
+    long cTerminalNodes;
+    unsigned long minNumObs;
 };
-
-typedef CNodeSearch *PCNodeSearch;
 
 #endif // NODESEARCH_H

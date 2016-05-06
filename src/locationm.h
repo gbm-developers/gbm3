@@ -22,6 +22,7 @@ class CLocationM
 
 public:
 
+ CLocationM(){};
  CLocationM(const std::string& sType) : msType(sType), mdEps(1e-8) {};
 
  CLocationM(const std::string& sType, const double& singleParam) :
