@@ -750,14 +750,13 @@ void CPairwise::ComputeLambdas(int iGroup, unsigned int cNumItems, const double*
             ranker.SetRank(j, cRankj);
             ranker.SetRank(i, cRanki);
 	    
+#endif
 	    if (!isfinite(dSwapCost)) {
 	      throw GBM::failure("infinite swap cost");
 	    }
-#endif
 
             if (dSwapCost > 0.0)
             {
-#ifdef NOISY_DEBUG
                 cPairs++;
                 const double dRhoij    = 1.0 / (1.0 + std::exp(adF[i]- adF[j])) ;
                 if (!isfinite(dRhoij)) {
@@ -773,7 +772,6 @@ void CPairwise::ComputeLambdas(int iGroup, unsigned int cNumItems, const double*
 		}
                 adDeriv[i] += dDerivij;
                 adDeriv[j] += dDerivij;
-#endif
             }
         }
     }
@@ -981,8 +979,6 @@ void CPairwise::FitBestConstant
     {
         if (vecpTermNodes[iNode] != NULL)
         {
-            vecpTermNodes[iNode]->dPrediction =
-                vecdNum[iNode];
             if (vecdDenom[iNode] <= 0.0)
             {
                 vecpTermNodes[iNode]->dPrediction = 0.0;
