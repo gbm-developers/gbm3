@@ -18,7 +18,7 @@ gbm.fit <- function(x,y,
                     var.names = NULL,
                     response.name = "y",
                     group = NULL,
-                    prior.node.coeff.var = NULL,
+                    prior.node.coeff.var = 1000,
                     strata = NULL){
 
    if(is.character(distribution)) { distribution <- list(name=distribution) }

@@ -220,7 +220,16 @@
 #' Currently only "effron" and "breslow" are available; the default value is "breslow". 
 #' Setting the string to any other value reverts the method to the original CoxPH model
 #' implementation where ties are not explicitly dealt with.
+#' 
+#' @param prior.node.coeff.var Optional double only used with the \code{CoxPH} distribution.
+#' It is a prior on the coefficient of variation associated with the hazard 
+#' rate assigned to each terminal node when fitting a tree.Increasing its value emphasises the importance of the training data
+#' in the node when assigning a prediction to said node.
 #'
+#' @param strata Optional vector of integers only used with the \code{CoxPH} distributions.
+#' Each integer in this vector represents the stratum the corresponding row in the data belongs to,
+#' e. g. if the 10th element is 3 then the 10th data row belongs to the 3rd strata.
+#' 
 #' @param n.cores The number of CPU cores to use. The cross-validation
 #' loop will attempt to send different CV folds off to different
 #' cores. If \code{n.cores} is not specified by the user, it is
@@ -239,13 +248,15 @@
 #' = NULL, n.trees = 100, interaction.depth = 1, n.minobsinnode = 10,
 #' shrinkage = 0.001, bag.fraction = 0.5, train.fraction = 1,
 #' mFeatures = NULL, cv.folds = 0, keep.data = TRUE, verbose = "CV",
-#' class.stratify.cv = NULL, n.cores = NULL, fold.id=NULL, tied.times).methd = "breslow")
+#' class.stratify.cv = NULL, n.cores = NULL, fold.id=NULL,
+#' tied.times.method = "breslow", prior.node.coeff.var = 1000, strata = NULL)
 #' 
 #' gbm.fit(x, y, offset = NULL, misc = NULL, distribution = "bernoulli", 
 #' w = NULL, var.monotone = NULL, n.trees = 100, interaction.depth = 1, 
 #' n.minobsinnode = 10, shrinkage = 0.001, bag.fraction = 0.5, 
 #' nTrain = NULL, train.fraction = NULL, mFeatures = NULL, keep.data = TRUE, 
-#' verbose = TRUE, var.names = NULL, response.name = "y", group = NULL)
+#' verbose = TRUE, var.names = NULL, response.name = "y", group = NULL,
+#' prior.node.coeff.var = 1000, strata = NULL)
 #'
 #' gbm.more(object, n.new.trees = 100, data = NULL, weights = NULL, 
 #' offset = NULL, verbose = NULL)
