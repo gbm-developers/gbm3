@@ -18,7 +18,8 @@ gbm.fit <- function(x,y,
                     var.names = NULL,
                     response.name = "y",
                     group = NULL,
-                    prior.node.coeff.var = NULL){
+                    prior.node.coeff.var = NULL,
+                    strata = NULL){
 
    if(is.character(distribution)) { distribution <- list(name=distribution) }
   
@@ -198,19 +199,17 @@ gbm.fit <- function(x,y,
       if (attr(y, "type") == "right")
       {
         sorted <- c(order(-y[1:nTrain, 1]), order(-y[(nTrain+1):cRows, 1]))
-        nstrat <- c(rep(nTrain, nTrain), rep(n.test, n.test))
       }
       else if (attr(y, "type") == "counting") 
       {
         sorted <- cbind(c(order(-y[1:nTrain, 1]), order(-y[(nTrain+1):cRows, 1])), 
                         c(order(-y[1:nTrain, 2]), order(-y[(nTrain+1):cRows, 2]))) 
-        nstrat <- c(rep(nTrain, nTrain), rep(n.test, n.test))
       }
       else
       {
         stop("Survival object must be either right or counting type.")
       }
-      
+
       i.train <- order(-y[1:nTrain, 1])
       n.test <- cRows - nTrain
       if(n.test > 0)
@@ -228,6 +227,35 @@ gbm.fit <- function(x,y,
       w <- w[i.timeorder]
       
       if(!is.null(offset)) offset <- offset[i.timeorder]
+      
+      # Set up strata
+      if(!is.null(strata))
+      {
+        # Order strata and split into train/test
+        strata <- strata[i.timeorder]
+        strataVecTrain <- strata[1:nTrain]
+        strataVecTest <- strataVec[(nTrain+1): cRows]
+        
+        # Cum sum the number in each stratum and pad with NAs
+        # between train and test strata
+        strataVecTrain <- as.vector(cumsum(table(strataVecTrain)))
+        strataVecTest <- as.vector(cumsum(table(strataVecTest)))
+        
+        strataVecTrain <- c(strataVecTrain, rep(NA, nTrain-length(strataVecTrain)))
+        strataVecTest <- c(strataVecTest, rep(NA, n.test-length(strataVecTest)))
+        
+        # Recreate Strata Vec to Pass In
+        nstrat <- c(strataVecTrain, strataVecTest)
+        
+      }
+      else
+      {
+        # Put all the train and test data in a single stratum
+        trainStrat <- c(nTrain, rep(NA, nTrain-1))
+        testStrat <- c(n.test, rep(NA, n.test-1))
+        #nstrat <- c(rep(nTrain, nTrain), rep(n.test, n.test))
+        nstrat <- c(trainStrat, testStrat)
+      }
       
       # Add in sorted column and strata
       StrataVec <-  nstrat

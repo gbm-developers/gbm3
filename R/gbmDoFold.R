@@ -1,7 +1,8 @@
 gbmDoFold <- function(X,
          i.train, x, y, offset, distribution, w, var.monotone, n.trees,
          interaction.depth, n.minobsinnode, shrinkage, bag.fraction, mFeatures,
-         cv.group, var.names, response.name, group, s, lVerbose, keep.data, nTrain, tied.times.method, prior.node.coeff.var){
+         cv.group, var.names, response.name, group, s, lVerbose, keep.data, nTrain, tied.times.method, prior.node.coeff.var,
+         strata){
     # Do specified cross-validation fold - a self-contained function for
     # passing to individual cores.
 
@@ -28,7 +29,8 @@ gbmDoFold <- function(X,
                        response.name = response.name,
                        group = group,
                       misc = tied.times.method,
-                     prior.node.coeff.var = prior.node.coeff.var)
+                     prior.node.coeff.var = prior.node.coeff.var,
+                     strata = strata)
     } else {
       if (lVerbose) message("CV:", X, "\n")
       set.seed(s[[X]])
@@ -48,7 +50,8 @@ gbmDoFold <- function(X,
                      bag.fraction=bag.fraction,
                      nTrain=nTrain, mFeatures=mFeatures, keep.data=FALSE,
                      verbose=FALSE, response.name=response.name,
-                     group=group, misc=tied.times.method, prior.node.coeff.var=prior.node.coeff.var)
+                     group=group, misc=tied.times.method, prior.node.coeff.var=prior.node.coeff.var,
+                     strata = strata)
   }
   res
 }

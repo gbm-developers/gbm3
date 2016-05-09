@@ -239,7 +239,7 @@
 #' = NULL, n.trees = 100, interaction.depth = 1, n.minobsinnode = 10,
 #' shrinkage = 0.001, bag.fraction = 0.5, train.fraction = 1,
 #' mFeatures = NULL, cv.folds = 0, keep.data = TRUE, verbose = "CV",
-#' class.stratify.cv = NULL, n.cores = NULL, fold.id=NULL)
+#' class.stratify.cv = NULL, n.cores = NULL, fold.id=NULL, tied.times).methd = "breslow")
 #' 
 #' gbm.fit(x, y, offset = NULL, misc = NULL, distribution = "bernoulli", 
 #' w = NULL, var.monotone = NULL, n.trees = 100, interaction.depth = 1, 
@@ -426,7 +426,8 @@ gbm <- function(formula = formula(data),
                 n.cores=NULL,
                 fold.id = NULL,
                 tied.times.method="breslow",
-                prior.node.coeff.var=1000){
+                prior.node.coeff.var=1000,
+                strata=NULL){
    theCall <- match.call()
 
 
@@ -470,13 +471,30 @@ gbm <- function(formula = formula(data),
    group      <- NULL
    num.groups <- 0
 
-   # Check prior coeff var
+   # Check prior coeff var and strata
    if(distribution$name == "coxph")
    {
      if(!is.double(prior.node.coeff.var) || (as.double(prior.node.coeff.var) < 0.0))
      {
        stop("Prior on node predictions must be a double and non-negative")
      }
+     
+     if(!is.null(strata))
+     {
+       
+       # Check if integers
+       if((all.equal(strata, as.integer(strata))==FALSE))
+       {
+         stop("Strata must be a vector of integers")
+       }
+       
+       # Check length
+       if(length(strata) != nrow(y))
+       {
+         stop("Strata indices must be provided for every data point")
+       }
+     }
+     
    }
    
    # Set up tied.times.method for CoxPh
@@ -593,7 +611,7 @@ gbm <- function(formula = formula(data),
                                n.trees, interaction.depth, n.minobsinnode,
                                shrinkage, bag.fraction, mFeatures,
                                var.names, response.name, group, lVerbose,
-                               keep.data, fold.id, tied.times.method, prior.node.coeff.var)
+                               keep.data, fold.id, tied.times.method, prior.node.coeff.var, strata)
      cv.error <- cv.results$error
      p        <- cv.results$predictions
      gbm.obj  <- cv.results$all.model
@@ -617,7 +635,8 @@ gbm <- function(formula = formula(data),
                       var.names = var.names,
                       response.name = response.name,
                       group = group,
-                      prior.node.coeff.var = prior.node.coeff.var)
+                      prior.node.coeff.var = prior.node.coeff.var, 
+                      strata = strata)
    }
 
    gbm.obj$train.fraction <- train.fraction
