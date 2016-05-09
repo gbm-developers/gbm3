@@ -25,8 +25,9 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CCoxPH::CCoxPH(double* stats, int* sortedEnd, int* sortedSt, int* strats, bool isStartStop, int tiedMethod):
-startStopCase(isStartStop), sortedEndTimes(sortedEnd), sortedStartTimes(sortedSt), strata(strats)
+CCoxPH::CCoxPH(double* stats, int* sortedEnd, int* sortedSt, int* strats,
+		bool isStartStop, int tiedMethod, double priorCoeff):
+startStopCase(isStartStop), sortedEndTimes(sortedEnd), sortedStartTimes(sortedSt), strata(strats), priorCoeffVar(priorCoeff)
 {
 	status = stats;
 	tiedTimesMethod = tiedMethod;
@@ -91,7 +92,7 @@ CDistribution* CCoxPH::Create(DataDistParams& distParams)
 		sortedEnd = sortMatrix(Rcpp::_, 1).begin();
 		sortedSt = sortMatrix(Rcpp::_, 0).begin();
 
-		return new CCoxPH(stat, sortedEnd, sortedSt, strats.begin(), isStartStop, tiesMethod);
+		return new CCoxPH(stat, sortedEnd, sortedSt, strats.begin(), isStartStop, tiesMethod, distParams.priorCoeffVar);
 
 	}
 
@@ -100,7 +101,7 @@ CDistribution* CCoxPH::Create(DataDistParams& distParams)
 	sortedEnd = sortMatrix(Rcpp::_, 0).begin();
 
 
-	return new CCoxPH(stat, sortedEnd, sortedSt, strats.begin(), isStartStop, tiesMethod);
+	return new CCoxPH(stat, sortedEnd, sortedSt, strats.begin(), isStartStop, tiesMethod, distParams.priorCoeffVar);
 
 
 }
@@ -276,7 +277,7 @@ const int* CCoxPH::StrataVec() const
 //-----------------------------------
 // Function: TieApproxMethod
 //
-// Returns: ptr to int vector
+// Returns: int
 //
 // Description: gets int defining which approx method
 //  to use in event of tied times.
@@ -293,6 +294,25 @@ int CCoxPH::TieApproxMethod() const
 	return tiedTimesMethod;
 }
 
+//-----------------------------------
+// Function: PriorCoeffVar
+//
+// Returns: double
+//
+// Description: gets double defining the expected hazard
+//   of a node with 0 events and expected events.
+//
+// Parameters: none
+//
+//-----------------------------------
+double CCoxPH::PriorCoeffVar()
+{
+	return priorCoeffVar;
+}
+double CCoxPH::PriorCoeffVar() const
+{
+	return priorCoeffVar;
+}
 
 
 

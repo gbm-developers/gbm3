@@ -14,7 +14,7 @@ gbmCrossVal <- function(cv.folds, nTrain, n.cores,
                         n.trees, interaction.depth, n.minobsinnode,
                         shrinkage, bag.fraction, mFeatures,
                         var.names, response.name, group, lVerbose, keep.data,
-                        fold.id, tied.times.method) {
+                        fold.id, tied.times.method, prior.node.coeff.var) {
   i.train <- 1:nTrain
   cv.group <- getCVgroup(distribution$name, class.stratify.cv, y,
                          i.train, cv.folds, group, fold.id)
@@ -26,7 +26,7 @@ gbmCrossVal <- function(cv.folds, nTrain, n.cores,
                                      n.minobsinnode, shrinkage,
                                      bag.fraction, mFeatures, var.names,
                                      response.name, group, lVerbose, keep.data, 
-                                     nTrain, tied.times.method)
+                                     nTrain, tied.times.method, prior.node.coeff.var)
 
   # First element is final model
   all.model <- cv.models[[1]]
@@ -99,7 +99,7 @@ gbmCrossValModelBuild <- function(cv.folds, cv.group, n.cores, i.train,
                                   interaction.depth, n.minobsinnode,
                                   shrinkage, bag.fraction, mFeatures,
                                   var.names, response.name,
-                                  group, lVerbose, keep.data, nTrain, tied.times.method) {
+                                  group, lVerbose, keep.data, nTrain, tied.times.method, prior.node.coeff.var) {
   ## set up the cluster and add a finalizer
   cluster <- gbmCluster(n.cores)
   on.exit(if (!is.null(cluster)){ parallel::stopCluster(cluster) })
@@ -114,7 +114,8 @@ gbmCrossValModelBuild <- function(cv.folds, cv.group, n.cores, i.train,
             w, var.monotone, n.trees,
             interaction.depth, n.minobsinnode, shrinkage,
             bag.fraction, mFeatures,
-            cv.group, var.names, response.name, group, seeds, lVerbose, keep.data, nTrain, tied.times.method)
+            cv.group, var.names, response.name, group, seeds, lVerbose, keep.data,
+            nTrain, tied.times.method, prior.node.coeff.var)
   }
   else {
     lapply(X=0:cv.folds,
@@ -122,6 +123,7 @@ gbmCrossValModelBuild <- function(cv.folds, cv.group, n.cores, i.train,
             w, var.monotone, n.trees,
             interaction.depth, n.minobsinnode, shrinkage,
             bag.fraction, mFeatures,
-            cv.group, var.names, response.name, group, seeds, lVerbose, keep.data, nTrain, tied.times.method)
+            cv.group, var.names, response.name, group, seeds, lVerbose, keep.data,
+           nTrain, tied.times.method, prior.node.coeff.var)
   }
 }

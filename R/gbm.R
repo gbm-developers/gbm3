@@ -425,7 +425,8 @@ gbm <- function(formula = formula(data),
                 class.stratify.cv=NULL,
                 n.cores=NULL,
                 fold.id = NULL,
-                tied.times.method="breslow"){
+                tied.times.method="breslow",
+                prior.node.coeff.var=1000){
    theCall <- match.call()
 
 
@@ -469,6 +470,15 @@ gbm <- function(formula = formula(data),
    group      <- NULL
    num.groups <- 0
 
+   # Check prior coeff var
+   if(distribution$name == "coxph")
+   {
+     if(!is.double(prior.node.coeff.var) || (as.double(prior.node.coeff.var) < 0.0))
+     {
+       stop("Prior on node predictions must be a double and non-negative")
+     }
+   }
+   
    # Set up tied.times.method for CoxPh
    if(distribution$name != "coxph")
    {
@@ -476,7 +486,16 @@ gbm <- function(formula = formula(data),
    }
    else
    {
-     tied.times.method <- tied.times.method
+     # Check if string
+     if(is.character(tied.times.method))
+     {
+       tied.times.method <- tied.times.method
+     }
+     else
+     {
+       warning("Tied times method must be a string - has been set to NULL")
+       tied.times.method <- NULL
+     }
    }
    
    # determine number of training instances
@@ -574,7 +593,7 @@ gbm <- function(formula = formula(data),
                                n.trees, interaction.depth, n.minobsinnode,
                                shrinkage, bag.fraction, mFeatures,
                                var.names, response.name, group, lVerbose,
-                               keep.data, fold.id, tied.times.method)
+                               keep.data, fold.id, tied.times.method, prior.node.coeff.var)
      cv.error <- cv.results$error
      p        <- cv.results$predictions
      gbm.obj  <- cv.results$all.model
@@ -597,7 +616,8 @@ gbm <- function(formula = formula(data),
                       verbose = lVerbose,
                       var.names = var.names,
                       response.name = response.name,
-                      group = group)
+                      group = group,
+                      prior.node.coeff.var = prior.node.coeff.var)
    }
 
    gbm.obj$train.fraction <- train.fraction

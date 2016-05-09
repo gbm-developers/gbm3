@@ -81,13 +81,15 @@ public:
     int TieApproxMethod();
     int TieApproxMethod() const;
 
-
+    double PriorCoeffVar();
+    double PriorCoeffVar() const;
 
 private:
     //----------------------
     // Private Constructors
     //----------------------
-    CCoxPH(double* stats, int* sortedEnd, int* sortedSt, int* strats, bool isStartStop, int tiedMethod);
+    CCoxPH(double* stats, int* sortedEnd, int* sortedSt, int* strats,
+    		bool isStartStop, int tiedMethod, double priorCoeff);
 
     //----------------------
     // Private Functions
@@ -102,6 +104,7 @@ private:
     // Private Variables
     //-------------------
     const bool startStopCase;
+    const double priorCoeffVar;
     GenericCoxState* coxStateMethods;
 
     double* status;

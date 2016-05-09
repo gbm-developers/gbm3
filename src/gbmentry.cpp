@@ -40,6 +40,7 @@ SEXP gbm
     SEXP rStrata,
     SEXP radWeight,
     SEXP radMisc,   // other row specific data (eg failure time), NA=no Misc
+    SEXP rPriorCoeff, // Prior coefficient of variation in Cox PH fit.
     SEXP racVarClasses,
     SEXP ralMonotoneVar,
     SEXP rszFamily,
@@ -70,7 +71,7 @@ SEXP gbm
     // Set up parameters for initialization
     configStructs GBMParams (radY, radOffset, radX,
 				raiXOrder, rSorted, rStrata, radWeight, radMisc,
-				racVarClasses, ralMonotoneVar,
+				rPriorCoeff, racVarClasses, ralMonotoneVar,
 				rszFamily, rcTrees, rcDepth,
 				rcMinObsInNode, rdShrinkage,
 				rdBagFraction, rcTrain, rcFeatures);

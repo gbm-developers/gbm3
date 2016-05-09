@@ -34,6 +34,7 @@ public:
 		    SEXP rStrata,
 		    SEXP radWeight,
 		    SEXP radMisc,
+		    SEXP rPriorCoeff,
 		    SEXP racVarClasses,
 		    SEXP ralMonotoneVar,
 		    SEXP rszFamily,
@@ -55,6 +56,7 @@ public:
 		cTrain = Rcpp::as<int>(rcTrain);
 		cFeatures = Rcpp::as<int>(rcFeatures);
 		dBagFraction = Rcpp::as<double>(rdBagFraction);
+		priorCoeffVar = Rcpp::as<double>(rPriorCoeff);
 		family = Rcpp::as<std::string>(rszFamily);
 		szIRMeasure = NULL;
 }
@@ -71,6 +73,7 @@ public:
 	int cTrain;
 	int cFeatures;
 	double dBagFraction;
+	double priorCoeffVar;
 	std::string family;
 	const char* szIRMeasure;
 };
@@ -101,6 +104,7 @@ public:
 		    SEXP rStrata,
 		    SEXP radWeight,
 		    SEXP radMisc,
+		    SEXP rPriorCoeff,
 		    SEXP racVarClasses,
 		    SEXP ralMonotoneVar,
 		    SEXP rszFamily,
@@ -120,6 +124,7 @@ public:
 		    rStrata,
 		    radWeight,
 		    radMisc,
+		    rPriorCoeff,
 		    racVarClasses,
 		    ralMonotoneVar,
 		    rszFamily,

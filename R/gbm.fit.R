@@ -17,10 +17,11 @@ gbm.fit <- function(x,y,
                     verbose = TRUE,
                     var.names = NULL,
                     response.name = "y",
-                    group = NULL){
+                    group = NULL,
+                    prior.node.coeff.var = NULL){
 
    if(is.character(distribution)) { distribution <- list(name=distribution) }
-
+  
    cRows <- nrow(x)
    cCols <- ncol(x)
 
@@ -49,7 +50,12 @@ gbm.fit <- function(x,y,
      # both undefined, use all training data
      nTrain <- cRows
    }
-
+  
+   if(!is.double(prior.node.coeff.var))
+   {
+     stop("Prior on coefficient of variation must be a double")
+   }
+   
    if (is.null(train.fraction)){
       train.fraction <- nTrain / cRows
    }
@@ -360,6 +366,7 @@ gbm.fit <- function(x,y,
                     Strata = as.integer(StrataVec),
                     weights=as.double(w),
                     Misc=as.list(Misc),
+                    prior.node.coeff.var = as.double(prior.node.coeff.var),
                     var.type=as.integer(var.type),
                     var.monotone=as.integer(var.monotone),
                     distribution=as.character(distribution.call.name),

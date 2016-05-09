@@ -1,12 +1,12 @@
 gbmDoFold <- function(X,
          i.train, x, y, offset, distribution, w, var.monotone, n.trees,
          interaction.depth, n.minobsinnode, shrinkage, bag.fraction, mFeatures,
-         cv.group, var.names, response.name, group, s, lVerbose, keep.data, nTrain, tied.times.method){
+         cv.group, var.names, response.name, group, s, lVerbose, keep.data, nTrain, tied.times.method, prior.node.coeff.var){
     # Do specified cross-validation fold - a self-contained function for
     # passing to individual cores.
 
     library(gbm, quietly=TRUE)
-    
+   
     # Handle the final model case separately
     if (X == 0){
       if (lVerbose) message("Fitting Final Model \n")
@@ -27,7 +27,8 @@ gbmDoFold <- function(X,
                        var.names = var.names,
                        response.name = response.name,
                        group = group,
-                      misc = tied.times.method)
+                      misc = tied.times.method,
+                     prior.node.coeff.var = prior.node.coeff.var)
     } else {
       if (lVerbose) message("CV:", X, "\n")
       set.seed(s[[X]])
@@ -37,7 +38,7 @@ gbmDoFold <- function(X,
       offset <- offset[i.train][i]
       nTrain <- length(which(cv.group != X))
       group <- group[i.train][i]
-
+      
       res <- gbm.fit(x, y,
                      offset=offset, distribution=distribution,
                      w=w, var.monotone=var.monotone, n.trees=n.trees,
@@ -47,7 +48,7 @@ gbmDoFold <- function(X,
                      bag.fraction=bag.fraction,
                      nTrain=nTrain, mFeatures=mFeatures, keep.data=FALSE,
                      verbose=FALSE, response.name=response.name,
-                     group=group, tied.times.method)
+                     group=group, misc=tied.times.method, prior.node.coeff.var=prior.node.coeff.var)
   }
   res
 }

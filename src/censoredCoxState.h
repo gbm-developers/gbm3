@@ -53,7 +53,7 @@ public:
 		{
 			if(pData->GetBagElem(i))
 			{
-				adZ[i] = martingaleResid[i]; // From chain rule
+				adZ[i] = pData->weight_ptr()[i] * martingaleResid[i]; // From chain rule
 			}
 		}
 	}
@@ -67,122 +67,29 @@ public:
 	    CTreeComps* pTreeComps
 	)
 	{
-		double dF = 0.0;
-		double dRiskTot = 0.0;
-		unsigned long i = 0;
-		unsigned long k = 0;
-		unsigned long m = 0;
+		// Calculate the expected number of events and actual number of events in
+		// terminal nodes
+		std::vector<double> martingaleResid(pData->get_trainSize(), 0.0);
+		std::vector<double> expNoEventsInNodes(cTermNodes, 1.0/coxPh->PriorCoeffVar());
+		std::vector<double> numEventsInNodes(cTermNodes, 1.0/coxPh->PriorCoeffVar());
+		double loglik = LogLikelihood(pData->get_trainSize(), pData, adF, &martingaleResid[0], false);
 
-		double dTemp = 0.0;
-		bool fTemp = false;
-		unsigned long K = 0;
-
-		vector<double> vecdP;
-		vector<double> vecdG;
-		vector<unsigned long> veciK2Node(cTermNodes, 0);
-		vector<unsigned long> veciNode2K(cTermNodes, 0);
-
-		matrix<double> matH;
-		matrix<double> matHinv;
-
-		for(i=0; i<cTermNodes; i++)
+		for(long i = 0; i < pData->get_trainSize(); i++)
 		{
-			veciNode2K[i] = 0;
-			if(pTreeComps->GetTermNodes()[i]->cN >= pTreeComps->GetMinNodeObs())
+			if(pData->GetBagElem(i) &&
+					(pTreeComps->GetTermNodes()[pTreeComps->GetNodeAssign()[i]]->cN >= pTreeComps->GetMinNodeObs()) )
 			{
-				veciK2Node[K] = i;
-				veciNode2K[i] = K;
-				K++;
+				expNoEventsInNodes[pTreeComps->GetNodeAssign()[i]] += coxPh->StatusVec()[i] - martingaleResid[i];
+				numEventsInNodes[pTreeComps->GetNodeAssign()[i]] += coxPh->StatusVec()[i];
 			}
 		}
 
-		vecdP.resize(K);
-
-		matH.setactualsize(K-1);
-		vecdG.resize(K-1);
-		vecdG.assign(K-1,0.0);
-
-		// zero the Hessian
-		for(k=0; k<K-1; k++)
+		// Update Node predictions
+		for(long nodeNum = 0; nodeNum < cTermNodes; nodeNum++)
 		{
-			for(m=0; m<K-1; m++)
-			{
-				matH.setvalue(k,m,0.0);
-			}
+			// If there are no data points in node this is 0.0
+			pTreeComps->GetTermNodes()[nodeNum]->dPrediction = log(numEventsInNodes[nodeNum]/expNoEventsInNodes[nodeNum]);
 		}
-
-		// get the gradient & Hessian, Ridgeway (1999) pp. 100-101
-		// correction from Ridgeway (1999): fix terminal node K-1 prediction to 0.0
-		//      for identifiability
-		dRiskTot = 0.0;
-		vecdP.assign(K,0.0);
-		for(i=0; i<pData->get_trainSize(); i++)
-		{
-			if(pData->GetBagElem(i) && (pTreeComps->GetTermNodes()[pTreeComps->GetNodeAssign()[i]]->cN >= pTreeComps->GetMinNodeObs()))
-			{
-				dF = adF[i] + ((pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[i]);
-				vecdP[veciNode2K[pTreeComps->GetNodeAssign()[i]]] += pData->weight_ptr()[i]*std::exp(dF);
-				dRiskTot += pData->weight_ptr()[i]*std::exp(dF);
-
-				if(coxPh->StatusVec()[i]==1.0)
-				{
-					// compute g and H
-					for(k=0; k<K-1; k++)
-					{
-						vecdG[k] +=
-							pData->weight_ptr()[i]*((pTreeComps->GetNodeAssign()[i]==veciK2Node[k]) - vecdP[k]/dRiskTot);
-
-						matH.getvalue(k,k,dTemp,fTemp);
-						matH.setvalue(k,k,dTemp -
-							pData->weight_ptr()[i]*vecdP[k]/dRiskTot*(1-vecdP[k]/dRiskTot));
-						for(m=0; m<k; m++)
-						{
-							matH.getvalue(k,m,dTemp,fTemp);
-							dTemp += pData->weight_ptr()[i]*vecdP[k]/dRiskTot*vecdP[m]/dRiskTot;
-							matH.setvalue(k,m,dTemp);
-							matH.setvalue(m,k,dTemp);
-						}
-					}
-				}
-			}
-		}
-
-		/*
-		for(k=0; k<K-1; k++)
-		{
-			for(m=0; m<K-1; m++)
-			{
-				matH.getvalue(k,m,dTemp,fTemp);
-				Rprintf("%f ",dTemp);
-			}
-			Rprintf("\n");
-		}
-		*/
-
-		// one step to get leaf predictions
-		matH.invert();
-
-		for(k=0; k<cTermNodes; k++)
-		{
-			pTreeComps->GetTermNodes()[k]->dPrediction = 0.0;
-		}
-		for(m=0; m<K-1; m++)
-		{
-			for(k=0; k<K-1; k++)
-			{
-				matH.getvalue(k,m,dTemp,fTemp);
-				if(!R_FINITE(dTemp)) // occurs if matH was not invertible
-				{
-					pTreeComps->GetTermNodes()[veciK2Node[k]]->dPrediction = 0.0;
-					break;
-				}
-				else
-				{
-					pTreeComps->GetTermNodes()[veciK2Node[k]]->dPrediction -= dTemp*vecdG[m];
-				}
-			  }
-		}
-		// vecpTermNodes[veciK2Node[K-1]]->dPrediction = 0.0; // already set to 0.0
 
 	}
 
@@ -197,7 +104,7 @@ public:
 	    double loglik = 0.0;
 	    std::vector<double> martingaleResid(cLength, 0.0);
 
-	    // Calculate Deviance
+	    // Calculate Deviance - skip bag as pointing at validation set
 	    loglik = LogLikelihood(cLength, pData, adF, &martingaleResid[0]);
 
 	    return -loglik;
