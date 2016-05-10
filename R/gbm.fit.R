@@ -195,7 +195,8 @@ gbm.fit <- function(x,y,
      
       # Patients are split into train and test, and are ordered by
       # strata
-
+      n.test <- cRows - nTrain 
+     
       # Set up strata 
       if(!is.null(strata))
       {
@@ -445,7 +446,7 @@ gbm.fit <- function(x,y,
       {
          # put the observations back in order
          gbm.obj$data <- list(y=oldy,x=x,x.order=x.order,offset=offset,Misc=Misc,w=w,
-                              i.timeorder=i.timeorder)
+                              i.order=i.order)
      } else
       {
          gbm.obj$data <- list(y=oldy,x=x,x.order=x.order,offset=offset,Misc=Misc,w=w)

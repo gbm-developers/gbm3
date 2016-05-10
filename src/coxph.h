@@ -17,7 +17,6 @@
 //------------------------------
 
 #include "distribution.h"
-#include "matrix.h"
 #include <memory>
 
 //------------------------------

@@ -10,7 +10,6 @@
 // Includes
 //-----------------------------------
 #include "coxph.h"
-#include "origCoxState.h"
 #include "censoredCoxState.h"
 #include "countingCoxState.h"
 #include <Rinternals.h>
@@ -27,20 +26,13 @@ startStopCase(isStartStop), sortedEndTimes(sortedEnd), sortedStartTimes(sortedSt
 	tiedTimesMethod = tiedMethod;
 
 	// Set up which methods CoxPh will use
-	if(tiedMethod >= 0)
+	if(startStopCase)
 	{
-		if(startStopCase)
-		{
-			coxStateMethods = new CountingCoxState(this);
-		}
-		else
-		{
-			coxStateMethods = new CensoredCoxState(this);
-		}
+		coxStateMethods = new CountingCoxState(this);
 	}
 	else
 	{
-		coxStateMethods = new OrigCoxState(this);
+		coxStateMethods = new CensoredCoxState(this);
 	}
 
 }
@@ -68,10 +60,6 @@ CDistribution* CCoxPH::Create(DataDistParams& distParams)
 	else if(miscString == "breslow")
 	{
 	  tiesMethod = 0;
-	}
-	else
-	{
-	  tiesMethod = -1; 
 	}
 	
 	// Set up strata
