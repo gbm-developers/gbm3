@@ -67,7 +67,7 @@ CDistribution* CCoxPH::Create(DataDistParams& distParams)
 
 	// Switch on misc to set up ties method
 	std::string miscString = Rcpp::as<std::string>(distParams.misc[0]);
-	if(miscString == "effron") 
+	if(miscString == "efron")
 	{
 		tiesMethod = 1;
 	}

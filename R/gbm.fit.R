@@ -253,7 +253,6 @@ gbm.fit <- function(x,y,
         # Put all the train and test data in a single stratum
         trainStrat <- c(nTrain, rep(NA, nTrain-1))
         testStrat <- c(n.test, rep(NA, n.test-1))
-        #nstrat <- c(rep(nTrain, nTrain), rep(n.test, n.test))
         nstrat <- c(trainStrat, testStrat)
       }
       
@@ -264,12 +263,12 @@ gbm.fit <- function(x,y,
       # Set ties here for the moment
       if(is.null(misc))
       {
-        Misc <- list("ties" = "breslow")
+        Misc <- list("ties" = "efron")
       }
-      else if(  !((misc == "effron") || (misc == "breslow")) && (dim(y)[2] > 2))
+      else if(  !((misc == "efron") || (misc == "breslow")) && (dim(y)[2] > 2))
       {
-        message("Require tie breaking method for counting survival object - set to Breslow")
-        Misc <- list("ties" = "breslow")
+        message("Require tie breaking method for counting survival object - set to Efron")
+        Misc <- list("ties" = "efron")
       }
       else
       {
@@ -277,7 +276,7 @@ gbm.fit <- function(x,y,
       }
 
       # Throw warning about deprecated method
-      if( !((Misc$ties == "effron") || (Misc$ties == "breslow")) )
+      if( !((Misc$ties == "efron") || (Misc$ties == "breslow")) )
       {
         warning("Deprecated CoxPh - invalid method for dealing with ties, revert to default.
                 Select effron or breslow for updated method")   

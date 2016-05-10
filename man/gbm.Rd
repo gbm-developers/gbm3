@@ -12,7 +12,7 @@ data = list(), weights, subset = NULL, offset = NULL, var.monotone
 shrinkage = 0.001, bag.fraction = 0.5, train.fraction = 1,
 mFeatures = NULL, cv.folds = 0, keep.data = TRUE, verbose = "CV",
 class.stratify.cv = NULL, n.cores = NULL, fold.id=NULL,
-tied.times.method = "breslow", prior.node.coeff.var = 1000, strata = NULL)
+tied.times.method = "efron", prior.node.coeff.var = 1000, strata = NULL)
 
 gbm.fit(x, y, offset = NULL, misc = NULL, distribution = "bernoulli", 
 w = NULL, var.monotone = NULL, n.trees = 100, interaction.depth = 1, 
@@ -186,7 +186,7 @@ each observation is in. If supplied, cv.folds can be missing.}
 
 \item{tied.times.method}{For \code{gbm}: This is an optional string used with
 \code{CoxPH} distribution specifying what method to employ when dealing with tied times. 
-Currently only "effron" and "breslow" are available; the default value is "breslow". 
+Currently only "efron" and "breslow" are available; the default value is "efron". 
 Setting the string to any other value reverts the method to the original CoxPH model
 implementation where ties are not explicitly dealt with.}
 

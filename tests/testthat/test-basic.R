@@ -145,7 +145,7 @@ test_that("coxph works - none", {
   expect_true(sd(data2$f - f.predict) < 0.4)
 })
 
-test_that("coxph works - effron", {
+test_that("coxph works - efron", {
   # Require Surv to be available
   require(survival)
   
@@ -185,7 +185,7 @@ test_that("coxph works - effron", {
               train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
               cv.folds = 5,              # do 5-fold cross-validation
               n.minobsinnode = 10,       # minimum total weight needed in each node
-              keep.data = TRUE, n.cores=1, tied.times.method = "effron", prior.node.coeff.var = 10)
+              keep.data = TRUE, n.cores=1, tied.times.method = "efron", prior.node.coeff.var = 10)
   
   best.iter <- gbm.perf(gbm1,method="test") # returns test set estimate of best number of trees
   
