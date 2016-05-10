@@ -192,24 +192,14 @@ gbm.fit <- function(x,y,
          stop("Outcome must be a survival object Surv(time1, failure) or Surv(time1, time2, failure)")
       }
 
+     
+      # Patients are split into train and test, and are ordered by
+      # strata
+     
       # TODO: this needs to merge in with the sorted part
       # reverse sort the failure times to compute risk sets on the fly
       n.test <- cRows - nTrain
-      
-      if (attr(y, "type") == "right")
-      {
-        sorted <- c(order(-y[1:nTrain, 1]), order(-y[(nTrain+1):cRows, 1]))
-      }
-      else if (attr(y, "type") == "counting") 
-      {
-        sorted <- cbind(c(order(-y[1:nTrain, 1]), order(-y[(nTrain+1):cRows, 1])), 
-                        c(order(-y[1:nTrain, 2]), order(-y[(nTrain+1):cRows, 2]))) 
-      }
-      else
-      {
-        stop("Survival object must be either right or counting type.")
-      }
-
+  
       i.train <- order(-y[1:nTrain, 1])
       n.test <- cRows - nTrain
       if(n.test > 0)
@@ -256,6 +246,20 @@ gbm.fit <- function(x,y,
         nstrat <- c(trainStrat, testStrat)
       }
       
+      #
+      if (attr(y, "type") == "right")
+      {
+        sorted <- c(order(-y[1:nTrain, 1]), order(-y[(nTrain+1):cRows, 1]))
+      }
+      else if (attr(y, "type") == "counting") 
+      {
+        sorted <- cbind(c(order(-y[1:nTrain, 1]), order(-y[(nTrain+1):cRows, 1])), 
+                        c(order(-y[1:nTrain, 2]), order(-y[(nTrain+1):cRows, 2]))) 
+      }
+      else
+      {
+        stop("Survival object must be either right or counting type.")
+      }
       # Add in sorted column and strata
       StrataVec <-  nstrat
       sortedVec <- sorted-1L

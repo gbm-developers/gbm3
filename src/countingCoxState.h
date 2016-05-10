@@ -81,7 +81,8 @@ public:
 			if(pData->GetBagElem(i) &&
 					(pTreeComps->GetTermNodes()[pTreeComps->GetNodeAssign()[i]]->cN >= pTreeComps->GetMinNodeObs()) )
 			{
-				expNoEventsInNodes[pTreeComps->GetNodeAssign()[i]] += coxPh->StatusVec()[i] - martingaleResid[i];
+				// Cap expected number of events to be at least 0
+				expNoEventsInNodes[pTreeComps->GetNodeAssign()[i]] += max(0.0, coxPh->StatusVec()[i] - martingaleResid[i]);
 				numEventsInNodes[pTreeComps->GetNodeAssign()[i]] += coxPh->StatusVec()[i];
 			}
 		}
@@ -190,8 +191,23 @@ private:
 	    cumhaz =0;
 	    nrisk =0;   /* number at risk */
 	    esum =0;  /*cumulative eta, used for rescaling */
-	    center = eta[coxPh->EndTimeIndices()[0]] + pData->offset_ptr(false)[coxPh->EndTimeIndices()[0]];
+	    // Center based on last person in the set of interest
+	    double newCenter = 0.0;
+	    center = -10.0E16;
+
+	    for(person = 0; person < n; person++)
+	    {
+	    	if(skipBag || (pData->GetBagElem(person)==checkInBag))
+	    	{
+	    		newCenter = eta[coxPh->EndTimeIndices()[person]] + pData->offset_ptr(false)[coxPh->EndTimeIndices()[person]];
+	    		if(newCenter > center)
+	    		{
+	    			center = newCenter;
+	    		}
+	    	}
+	    }
 	    stratastart =0;   /* first strata starts at index 0 */
+
 	    for (person=0; person<n; )
 	    {
 	    	// Check if bagging is required

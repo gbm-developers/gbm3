@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //
-//  File:       gbmDataContainer.h
+ //  File:       gbmDataContainer.h
 //
 //  Description:   Header file for a class that stores the data and dist for gbm.
 //

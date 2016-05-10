@@ -79,7 +79,8 @@ public:
 			if(pData->GetBagElem(i) &&
 					(pTreeComps->GetTermNodes()[pTreeComps->GetNodeAssign()[i]]->cN >= pTreeComps->GetMinNodeObs()) )
 			{
-				expNoEventsInNodes[pTreeComps->GetNodeAssign()[i]] += coxPh->StatusVec()[i] - martingaleResid[i];
+				// Cap expected number of events to be at least 0
+				expNoEventsInNodes[pTreeComps->GetNodeAssign()[i]] += max(0.0, coxPh->StatusVec()[i] - martingaleResid[i]);
 				numEventsInNodes[pTreeComps->GetNodeAssign()[i]] += coxPh->StatusVec()[i];
 			}
 		}
@@ -173,13 +174,28 @@ private:
 	    nrisk =0;   /* number at risk */
 	    esum =0;  /*cumulative eta, used for rescaling */
 	    loglik =0;
-	    center = eta[coxPh->EndTimeIndices()[0]] + pData->offset_ptr(false)[coxPh->EndTimeIndices()[0]];
-		//throw GBM::failure("Test CoxPH");
 
+	    // Center based on last person in the set of interest
+	    double newCenter = 0.0;
+	    center = -10.0E16;
+
+	    for(person = 0; person < n; person++)
+	    {
+	    	if(skipBag || (pData->GetBagElem(person)==checkInBag))
+	    	{
+	    		newCenter = eta[coxPh->EndTimeIndices()[person]] + pData->offset_ptr(false)[coxPh->EndTimeIndices()[person]];
+	    		if(newCenter > center)
+	    		{
+	    			center = newCenter;
+	    		}
+	    	}
+	    }
+
+	    // Loop over patients
 	    for (person=0; person<n; )
 	    {
 
-	    	// Check if bagging is required
+	    	// Check if bagging is required - person is p2!
 	    	if(skipBag || (pData->GetBagElem(person)==checkInBag))
 	    	{
 	    		p2 = coxPh->EndTimeIndices()[person];

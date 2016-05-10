@@ -10,6 +10,12 @@
 #ifndef __genericCoxState_h__
 #define __genericCoxState_h__
 
+//-----------------------------------
+// Definitions
+//-----------------------------------
+#define frac .00000001
+#define recenter 50
+
 //------------------------------
 // Includes
 //------------------------------
