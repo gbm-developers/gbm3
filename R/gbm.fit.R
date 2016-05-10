@@ -195,11 +195,7 @@ gbm.fit <- function(x,y,
      
       # Patients are split into train and test, and are ordered by
       # strata
-     
-      # TODO: this needs to merge in with the sorted part
-      # reverse sort the failure times to compute risk sets on the fly
-      n.test <- cRows - nTrain
-  
+
       # Set up strata 
       if(!is.null(strata))
       {
@@ -226,30 +222,7 @@ gbm.fit <- function(x,y,
         testStrat <- c(n.test, rep(NA, n.test-1))
         nstrat <- c(trainStrat, testStrat)
       }
-      
-      # Sort according
-      
-      
-#       i.train <- order(-y[1:nTrain, 1])
-#       n.test <- cRows - nTrain
-#       if(n.test > 0)
-#       {
-#          i.test <- order(-y[(nTrain+1):cRows, 1]) + nTrain
-#       }
-#       else
-#       {
-#          i.test <- NULL
-#       }
-#       i.timeorder <- c(i.train,i.test)
-
-      #y <- y[i.timeorder]
-      #x <- x[i.timeorder,,drop=FALSE]
-      #w <- w[i.timeorder]
-      
-      #if(!is.null(offset)) offset <- offset[i.timeorder]
-      
      
-      
       # Sort response according to strata
       if (attr(y, "type") == "right")
       {
