@@ -197,9 +197,10 @@ private:
 
 	    for(person = 0; person < n; person++)
 	    {
-	    	if(skipBag || (pData->GetBagElem(person)==checkInBag))
+	    	p2 = coxPh->EndTimeIndices()[person];
+	    	if(skipBag || (pData->GetBagElem(p2)==checkInBag))
 	    	{
-	    		newCenter = eta[coxPh->EndTimeIndices()[person]] + pData->offset_ptr(false)[coxPh->EndTimeIndices()[person]];
+	    		newCenter = eta[coxPh->EndTimeIndices()[p2]] + pData->offset_ptr(false)[coxPh->EndTimeIndices()[p2]];
 	    		if(newCenter > center)
 	    		{
 	    			center = newCenter;
@@ -210,10 +211,11 @@ private:
 
 	    for (person=0; person<n; )
 	    {
+			p2 = coxPh->EndTimeIndices()[person];
+
 	    	// Check if bagging is required
-			if(skipBag || (pData->GetBagElem(person)==checkInBag))
+			if(skipBag || (pData->GetBagElem(p2)==checkInBag))
 			{
-				p2 = coxPh->EndTimeIndices()[person];
 
 				if (coxPh->StatusVec()[p2] ==0)
 				{
@@ -235,9 +237,9 @@ private:
 					temp = denom;
 					for (;  indx1 <person; indx1++)
 					{
-						if(skipBag || (pData->GetBagElem(indx1)==checkInBag))
+						p1 = coxPh->StartTimeIndices()[indx1];
+						if(skipBag || (pData->GetBagElem(p1)==checkInBag))
 						{
-							p1 = coxPh->StartTimeIndices()[indx1];
 							if (pData->y_ptr(0)[p1] < dtime) break; /* still in the risk set */
 
 							nrisk--;
@@ -266,9 +268,9 @@ private:
 					d_denom =0;  /*contribution to denominator for the deaths*/
 					for (k=person; k< coxPh->StrataVec()[istrat]; k++)
 					{
-						if(skipBag || (pData->GetBagElem(k)==checkInBag))
+						p2 = coxPh->EndTimeIndices()[k];
+						if(skipBag || (pData->GetBagElem(p2)==checkInBag))
 						{
-							p2 = coxPh->EndTimeIndices()[k];
 							if (pData->y_ptr(1)[p2]  < dtime) break;  /* only tied times */
 
 							nrisk++;
@@ -319,9 +321,9 @@ private:
 					temp = cumhaz + (hazard -e_hazard);
 					for (; person < ksave; person++)
 					{
-						if(skipBag || (pData->GetBagElem(person)==checkInBag))
+						p2 = coxPh->EndTimeIndices()[person];
+						if(skipBag || (pData->GetBagElem(p2)==checkInBag))
 						{
-							p2 = coxPh->EndTimeIndices()[person];
 							if (coxPh->StatusVec()[p2] ==1) resid[p2] = 1 + temp*exp(eta[p2] + pData->offset_ptr(false)[p2] - center);
 							else resid[p2] = cumhaz * exp(eta[p2] + pData->offset_ptr(false)[p2] - center);
 						}
@@ -344,9 +346,9 @@ private:
 					stratastart = person;
 					for (; indx1< coxPh->StrataVec()[istrat]; indx1++)
 					{
-						if(skipBag || (pData->GetBagElem(indx1)==checkInBag))
+						p1 = coxPh->StartTimeIndices()[indx1];
+						if(skipBag || (pData->GetBagElem(p1)==checkInBag))
 						{
-							p1 = coxPh->StartTimeIndices()[indx1];
 							resid[p1] -= cumhaz * exp(eta[p1] + pData->offset_ptr(false)[p1] - center);
 						}
 

@@ -200,31 +200,12 @@ gbm.fit <- function(x,y,
       # reverse sort the failure times to compute risk sets on the fly
       n.test <- cRows - nTrain
   
-      i.train <- order(-y[1:nTrain, 1])
-      n.test <- cRows - nTrain
-      if(n.test > 0)
-      {
-         i.test <- order(-y[(nTrain+1):cRows, 1]) + nTrain
-      }
-      else
-      {
-         i.test <- NULL
-      }
-      i.timeorder <- c(i.train,i.test)
-
-      y <- y[i.timeorder]
-      x <- x[i.timeorder,,drop=FALSE]
-      w <- w[i.timeorder]
-      
-      if(!is.null(offset)) offset <- offset[i.timeorder]
-      
-      # Set up strata
+      # Set up strata 
       if(!is.null(strata))
       {
         # Order strata and split into train/test
-        strata <- strata[i.timeorder]
         strataVecTrain <- strata[1:nTrain]
-        strataVecTest <- strataVec[(nTrain+1): cRows]
+        strataVecTest <- strata[(nTrain+1): cRows]
         
         # Cum sum the number in each stratum and pad with NAs
         # between train and test strata
@@ -246,20 +227,68 @@ gbm.fit <- function(x,y,
         nstrat <- c(trainStrat, testStrat)
       }
       
-      #
+      # Sort according
+      
+      
+#       i.train <- order(-y[1:nTrain, 1])
+#       n.test <- cRows - nTrain
+#       if(n.test > 0)
+#       {
+#          i.test <- order(-y[(nTrain+1):cRows, 1]) + nTrain
+#       }
+#       else
+#       {
+#          i.test <- NULL
+#       }
+#       i.timeorder <- c(i.train,i.test)
+
+      #y <- y[i.timeorder]
+      #x <- x[i.timeorder,,drop=FALSE]
+      #w <- w[i.timeorder]
+      
+      #if(!is.null(offset)) offset <- offset[i.timeorder]
+      
+     
+      
+      # Sort response according to strata
       if (attr(y, "type") == "right")
       {
-        sorted <- c(order(-y[1:nTrain, 1]), order(-y[(nTrain+1):cRows, 1]))
+        if(!is.null(strata))
+        {
+          sorted <- c(order(strata[1:nTrain], -y[1:nTrain, 1]), order(strata[(nTrain+1):cRows], -y[(nTrain+1):cRows, 1])) 
+          i.order <- c(order(strata[1:nTrain], -y[1:nTrain, 1]), order(strata[(nTrain+1):cRows], -y[(nTrain+1):cRows, 1]) + nTrain)
+        }
+        else
+        {
+          sorted <- c(order(-y[1:nTrain, 1]), order(-y[(nTrain+1):cRows, 1]))
+          i.order <- c(order(-y[1:nTrain, 1]), order(-y[(nTrain+1):cRows, 1]) + nTrain)
+        }
+        
       }
       else if (attr(y, "type") == "counting") 
       {
-        sorted <- cbind(c(order(-y[1:nTrain, 1]), order(-y[(nTrain+1):cRows, 1])), 
-                        c(order(-y[1:nTrain, 2]), order(-y[(nTrain+1):cRows, 2]))) 
+        if(!is.null(strata))
+        {
+          sorted <- cbind(c(order(strata[1:nTrain], -y[1:nTrain, 1]), order(strata[(nTrain+1):cRows], -y[(nTrain+1):cRows, 1])),
+                          c(order(strata[1:nTrain], -y[1:nTrain, 2]), order(strata[(nTrain+1):cRows], -y[(nTrain+1):cRows, 2])))
+          i.order <- c(order(strata[1:nTrain], -y[1:nTrain, 1]), order(strata[(nTrain+1):cRows], -y[(nTrain+1):cRows, 1]) + nTrain)
+        }
+        else
+        {
+          sorted <- cbind(c(order(-y[1:nTrain, 1]), order(-y[(nTrain+1):cRows, 1])), 
+                          c(order(-y[1:nTrain, 2]), order(-y[(nTrain+1):cRows, 2]))) 
+          i.order <- c(order(-y[1:nTrain, 1]), order(-y[(nTrain+1):cRows, 1]) + nTrain)
+        }
+       
       }
       else
       {
         stop("Survival object must be either right or counting type.")
       }
+      
+      # Sort the Covariates according to strata
+      x <- x[i.order,,drop=FALSE]
+      
       # Add in sorted column and strata
       StrataVec <-  nstrat
       sortedVec <- sorted-1L
@@ -433,7 +462,7 @@ gbm.fit <- function(x,y,
 
    if(distribution$name == "coxph")
    {
-      gbm.obj$fit[i.timeorder] <- gbm.obj$fit
+      gbm.obj$fit[i.order] <- gbm.obj$fit
    }
    
 
