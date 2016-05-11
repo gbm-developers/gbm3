@@ -29,6 +29,7 @@ CNode::CNode(double nodePrediction,
 
 	// Set up split type and strategy
 	splitType = none;
+	splitAssigned = false;
 	nodeStrategy = new TerminalStrategy(this);
 
 }
@@ -96,6 +97,11 @@ void CNode::PrintSubtree
 )
 {
   nodeStrategy->PrintSubTree(cIndent);
+}
+
+void CNode::SplitAssign()
+{
+	splitAssigned = true;
 }
 
 void CNode::SplitNode()

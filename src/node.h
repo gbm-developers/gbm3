@@ -61,6 +61,7 @@ public:
 			 double &dFadj);
 
     void GetVarRelativeInfluence(double *adRelInf);
+    void SplitAssign();
     void SplitNode();
     void PrintSubtree(unsigned long cIndent);
     double SplitImprovement(){ return childrenParams.ImprovedResiduals;}
@@ -108,6 +109,7 @@ public:
 	// VARIABLES USED IN NODE SPLITTING
 	std::vector<unsigned long> aiLeftCategory;
     double dSplitValue;
+    bool splitAssigned;
 
 private:
 	//---------------------

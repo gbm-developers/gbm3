@@ -46,6 +46,9 @@ void CNodeSearch::GenerateAllSplits
 	// Loop over terminal nodes
 	for(long iNode = 0; iNode < cTerminalNodes; iNode++)
 	{
+	  // If node already has a split assigned then skip
+	  if(vecpTermNodes[iNode]->splitAssigned) continue;
+
 	  // Reset variable splitters
 	  ResetVarSplitter();
 
@@ -172,6 +175,8 @@ void CNodeSearch::AssignToNode(CNode& terminalNode)
 		terminalNode.childrenParams =  variableSplitters[bestSplitInd].GetBestSplit();
 	}
 
+	// Set the nodes flag to indicate it is now split
+	terminalNode.SplitAssign();
 }
 
 
