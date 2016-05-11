@@ -195,74 +195,58 @@ gbm.fit <- function(x,y,
      
       # Patients are split into train and test, and are ordered by
       # strata
-      n.test <- cRows - nTrain 
-     
-      # Set up strata 
-      if(!is.null(strata))
-      {
-        # Order strata and split into train/test
-        strataVecTrain <- strata[1:nTrain]
-        strataVecTest <- strata[(nTrain+1): cRows]
-        
-        # Cum sum the number in each stratum and pad with NAs
-        # between train and test strata
-        strataVecTrain <- as.vector(cumsum(table(strataVecTrain)))
-        strataVecTest <- as.vector(cumsum(table(strataVecTest)))
-        
-        strataVecTrain <- c(strataVecTrain, rep(NA, nTrain-length(strataVecTrain)))
-        strataVecTest <- c(strataVecTest, rep(NA, n.test-length(strataVecTest)))
-        
-        # Recreate Strata Vec to Pass In
-        nstrat <- c(strataVecTrain, strataVecTest)
-        
-      }
-      else
-      {
-        # Put all the train and test data in a single stratum
-        trainStrat <- c(nTrain, rep(NA, nTrain-1))
-        testStrat <- c(n.test, rep(NA, n.test-1))
-        nstrat <- c(trainStrat, testStrat)
-      }
-     
-      # Sort response according to strata
-      if (attr(y, "type") == "right")
-      {
-        if(!is.null(strata))
-        {
-          sorted <- c(order(strata[1:nTrain], -y[1:nTrain, 1]), order(strata[(nTrain+1):cRows], -y[(nTrain+1):cRows, 1])) 
-          i.order <- c(order(strata[1:nTrain], -y[1:nTrain, 1]), order(strata[(nTrain+1):cRows], -y[(nTrain+1):cRows, 1]) + nTrain)
-        }
-        else
-        {
-          sorted <- c(order(-y[1:nTrain, 1]), order(-y[(nTrain+1):cRows, 1]))
-          i.order <- c(order(-y[1:nTrain, 1]), order(-y[(nTrain+1):cRows, 1]) + nTrain)
-        }
-        
-      }
-      else if (attr(y, "type") == "counting") 
-      {
-        if(!is.null(strata))
-        {
-          sorted <- cbind(c(order(strata[1:nTrain], -y[1:nTrain, 1]), order(strata[(nTrain+1):cRows], -y[(nTrain+1):cRows, 1])),
-                          c(order(strata[1:nTrain], -y[1:nTrain, 2]), order(strata[(nTrain+1):cRows], -y[(nTrain+1):cRows, 2])))
-          i.order <- c(order(strata[1:nTrain], -y[1:nTrain, 1]), order(strata[(nTrain+1):cRows], -y[(nTrain+1):cRows, 1]) + nTrain)
-        }
-        else
-        {
-          sorted <- cbind(c(order(-y[1:nTrain, 1]), order(-y[(nTrain+1):cRows, 1])), 
-                          c(order(-y[1:nTrain, 2]), order(-y[(nTrain+1):cRows, 2]))) 
-          i.order <- c(order(-y[1:nTrain, 1]), order(-y[(nTrain+1):cRows, 1]) + nTrain)
-        }
+       # Define number of tests
+       n.test <- cRows - nTrain
        
-      }
-      else
-      {
-        stop("Survival object must be either right or counting type.")
-      }
-      
-      # Sort the Covariates according to strata
-      x <- x[i.order,,drop=FALSE]
-      
+       
+       # Set up strata 
+       if(!is.null(strata))
+       {
+         # Order strata and split into train/test
+         strataVecTrain <- strata[1:nTrain]
+         strataVecTest <- strata[(nTrain+1): cRows]
+         
+         # Cum sum the number in each stratum and pad with NAs
+         # between train and test strata
+         strataVecTrain <- as.vector(cumsum(table(strataVecTrain)))
+         strataVecTest <- as.vector(cumsum(table(strataVecTest)))
+         
+         strataVecTrain <- c(strataVecTrain, rep(NA, nTrain-length(strataVecTrain)))
+         strataVecTest <- c(strataVecTest, rep(NA, n.test-length(strataVecTest)))
+         
+         # Recreate Strata Vec to Pass In
+         nstrat <- c(strataVecTrain, strataVecTest)
+         
+       }
+       else
+       {
+         # Put all the train and test data in a single stratum
+         strata <- rep(1, cRows)
+         trainStrat <- c(nTrain, rep(NA, nTrain-1))
+         testStrat <- c(n.test, rep(NA, n.test-1))
+         nstrat <- c(trainStrat, testStrat)
+       }
+       
+       # Sort response according to strata
+       # i.order sets order of outputs
+       if (attr(y, "type") == "right")
+       {
+         
+         sorted <- c(order(strata[1:nTrain], -y[1:nTrain, 1]), order(strata[(nTrain+1):cRows], -y[(nTrain+1):cRows, 1])) 
+         i.order <- c(order(strata[1:nTrain], -y[1:nTrain, 1]), order(strata[(nTrain+1):cRows], -y[(nTrain+1):cRows, 1]) + nTrain)
+       }
+       else if (attr(y, "type") == "counting") 
+       {
+         
+         sorted <- cbind(c(order(strata[1:nTrain], -y[1:nTrain, 1]), order(strata[(nTrain+1):cRows], -y[(nTrain+1):cRows, 1])),
+                         c(order(strata[1:nTrain], -y[1:nTrain, 2]), order(strata[(nTrain+1):cRows], -y[(nTrain+1):cRows, 2])))
+         i.order <- c(order(strata[1:nTrain], -y[1:nTrain, 1]), order(strata[(nTrain+1):cRows], -y[(nTrain+1):cRows, 1]) + nTrain)
+       }
+       else
+       {
+         stop("Survival object must be either right or counting type.")
+       }
+
       # Add in sorted column and strata
       StrataVec <-  nstrat
       sortedVec <- sorted-1L
@@ -280,14 +264,6 @@ gbm.fit <- function(x,y,
       else
       {
         Misc <- list("ties"= misc)
-      }
-
-      # Throw warning about deprecated method
-      if( !((Misc$ties == "efron") || (Misc$ties == "breslow")) )
-      {
-        warning("Deprecated CoxPh - invalid method for dealing with ties, revert to default.
-                Select effron or breslow for updated method")   
-        Misc$ties <- "default"
       }
 
    }
@@ -436,7 +412,7 @@ gbm.fit <- function(x,y,
 
    if(distribution$name == "coxph")
    {
-      gbm.obj$fit[i.order] <- gbm.obj$fit
+      gbm.obj$fit[i.timeorder] <- gbm.obj$fit
    }
    
 
@@ -446,7 +422,7 @@ gbm.fit <- function(x,y,
       {
          # put the observations back in order
          gbm.obj$data <- list(y=oldy,x=x,x.order=x.order,offset=offset,Misc=Misc,w=w,
-                              i.order=i.order)
+                              i.timeorder=i.timeorder)
      } else
       {
          gbm.obj$data <- list(y=oldy,x=x,x.order=x.order,offset=offset,Misc=Misc,w=w)
