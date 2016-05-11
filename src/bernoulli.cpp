@@ -64,30 +64,27 @@ double CBernoulli::InitF
 	const CDataset* pData
 )
 {
-    double dTemp=0.0;
+    // Newton method for solving for F
+    // should take about 3-6 iterations.
+
     double dInitF = 0.0;
+    double dNewtonStep=1.0; // set to 1 initially
 
+    for (int itCount=0;
+	 (itCount < 6) && (std::abs(dNewtonStep) > 0.001);
+	 ++itCount) {
 
-
-	// Newton method for solving for F
-	// should take about 3-6 iterations.
-	double dNum=0.0;         // numerator
-	double dDen=0.0;         // denominator
-	double dNewtonStep=1.0;  // change
-	dInitF = 0.0;
-	while(std::abs(dNewtonStep) > 0.0001)
+      double dNum=0.0;
+      double dDen=0.0;
+      for(unsigned long i=0; i<pData->get_trainSize(); i++)
 	{
-		dNum=0.0;
-		dDen=0.0;
-		for(unsigned long i=0; i<pData->get_trainSize(); i++)
-		{
-			dTemp = 1.0/(1.0+std::exp(-(pData->offset_ptr(false)[i] + dInitF)));
-			dNum += pData->weight_ptr()[i]*(pData->y_ptr()[i]-dTemp);
-			dDen += pData->weight_ptr()[i]*dTemp*(1.0-dTemp);
-		}
-		dNewtonStep = dNum/dDen;
-		dInitF += dNewtonStep;
+	  const double dTemp = 1.0/(1.0+std::exp(-(pData->offset_ptr(false)[i] + dInitF)));
+	  dNum += pData->weight_ptr()[i]*(pData->y_ptr()[i]-dTemp);
+	  dDen += pData->weight_ptr()[i]*dTemp*(1.0-dTemp);
 	}
+      dNewtonStep = dNum/dDen;
+      dInitF += dNewtonStep;
+    }
 
 
     return dInitF;
