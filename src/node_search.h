@@ -37,7 +37,7 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-    CNodeSearch(int numColData, unsigned long minObs);
+    CNodeSearch(int treeDepth, int numColData, unsigned long minObs);
 
 	//---------------------
 	// Public destructor
@@ -72,6 +72,7 @@ private:
     // Number of terminal nodes
     long cTerminalNodes;
     unsigned long minNumObs;
+    long totalCache;
 };
 
 #endif // NODESEARCH_H

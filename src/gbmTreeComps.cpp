@@ -32,7 +32,7 @@
 //
 //-----------------------------------
 CTreeComps::CTreeComps(TreeParams treeConfig):
-aNodeSearch(treeConfig.numColData, treeConfig.cMinObsInNode)
+aNodeSearch(treeConfig.cDepth, treeConfig.numColData, treeConfig.cMinObsInNode)
 {
 	this-> cMinObsInNode = treeConfig.cMinObsInNode;
 	ptreeTemp = new CCARTTree(treeConfig.dShrinkage, treeConfig.cDepth);

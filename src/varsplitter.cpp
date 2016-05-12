@@ -87,7 +87,7 @@ void VarSplitter::EvaluateCategoricalSplit()
 
   if(proposedSplit.SplitClass == 0)
 	{
-	  throw GBM::invalid_argument();
+	  throw GBM::invalid_argument("Evaluate Categorical Split - Split variable is not categorical");
 	}
 
   cFiniteMeans = proposedSplit.SetAndReturnNumGroupMeans();
@@ -122,7 +122,7 @@ void VarSplitter::SetForNode(CNode& nodeToSplit)
 void VarSplitter::SetForVariable(unsigned long iWhichVar, long cVarClasses)
 {
 
-	bestSplit.ResetSplitProperties(InitWeightResiduals, InitTotalWeight, InitNumObs);
+	//bestSplit.ResetSplitProperties(InitWeightResiduals, InitTotalWeight, InitNumObs);
 	proposedSplit.ResetSplitProperties(InitWeightResiduals, InitTotalWeight, InitNumObs,
 		  proposedSplit.SplitValue,	cVarClasses, iWhichVar);
 

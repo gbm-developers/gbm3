@@ -1,0 +1,6 @@
+   user  system elapsed 
+  2.160   0.060   2.264 
+   user  system elapsed 
+  2.188   0.148   2.374 
+   user  system elapsed 
+  2.132   0.004   2.157 

@@ -12,11 +12,12 @@
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CNodeSearch::CNodeSearch(int numColData, unsigned long minObs):
-variableSplitters(numColData, VarSplitter(minObs))
+CNodeSearch::CNodeSearch(int treeDepth, int numColData, unsigned long minObs):
+variableSplitters(2*treeDepth+1, VarSplitter(minObs))//variableSplitters(numColData, VarSplitter(minObs))
 {
     cTerminalNodes = 1;
     minNumObs = minObs;
+    totalCache = 0;
 
 }
 
@@ -43,11 +44,72 @@ void CNodeSearch::GenerateAllSplits
 	const CDataset::index_vector colNumbers(data.random_order());
 	const CDataset::index_vector::const_iterator final = colNumbers.begin() + data.get_numFeatures();
 
+	for(long iNode = 0; iNode < cTerminalNodes; iNode++)
+	{
+		// If node has split then skip
+		if(vecpTermNodes[iNode]->splitAssigned) continue;
+		variableSplitters[iNode].Reset();
+		variableSplitters[iNode].SetForNode(*vecpTermNodes[iNode]);
+
+	}
+
+	// Loop over all variables
+	for(CDataset::index_vector::const_iterator it=colNumbers.begin();
+			it != final;
+			it++)
+	{
+
+		// ALL OF THIS IS F??
+		// Set each splitter for node??
+		for(long iNode =0; iNode < cTerminalNodes; iNode++)
+		{
+			if(vecpTermNodes[iNode]->splitAssigned) continue;
+			variableSplitters[iNode].SetForVariable(*it, data.varclass(*it));
+		}
+
+		// Get observation and add to split if needed
+		for(long iOrderObs = 0; iOrderObs < data.get_trainSize(); iOrderObs++)
+		{
+			iWhichObs = data.order_ptr()[(*it)*data.get_trainSize() + iOrderObs];
+			const int iNode = aiNodeAssign[iWhichObs];
+
+			// Check if node already has split cached or not
+			if(vecpTermNodes[iNode]->splitAssigned) continue;
+			if(data.GetBag()[iWhichObs])
+			{
+				const double dX = data.x_value(iWhichObs, *it);
+				variableSplitters[iNode].IncorporateObs(dX,
+						adZ[iWhichObs],
+						data.weight_ptr()[iWhichObs],
+						data.monotone(*it));
+			}
+		}
+		for(long iNode = 0; iNode < cTerminalNodes; iNode++)
+		{
+			if(vecpTermNodes[iNode]->splitAssigned) continue;
+			if(data.varclass(*it) != 0) // evaluate if categorical split
+			{
+			  variableSplitters[iNode].EvaluateCategoricalSplit();
+			}
+		}
+
+	}
+
+	for(long iNode = 0; iNode < cTerminalNodes; iNode++)
+	{
+		if(vecpTermNodes[iNode]->splitAssigned) continue;
+		vecpTermNodes[iNode]->SplitAssign();
+		if(variableSplitters[iNode].GetBestImprovement() > vecpTermNodes[iNode]->SplitImprovement())
+		{
+			vecpTermNodes[iNode]->childrenParams =  variableSplitters[iNode].GetBestSplit();
+		}
+
+	}
+
+/*
 	// Loop over terminal nodes
 	for(long iNode = 0; iNode < cTerminalNodes; iNode++)
 	{
-	  // If node already has a split assigned then skip
-	  if(vecpTermNodes[iNode]->splitAssigned) continue;
 
 	  // Reset variable splitters
 	  ResetVarSplitter();
@@ -81,7 +143,7 @@ void CNodeSearch::GenerateAllSplits
 	  }
 	  // Assign best split to node
 	  AssignToNode(*vecpTermNodes[iNode]);
-	}
+  }*/
 }
 
 
