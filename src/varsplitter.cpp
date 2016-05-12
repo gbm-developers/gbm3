@@ -16,13 +16,14 @@
 //---------------------
 VarSplitter::VarSplitter(unsigned long minNumObs):bestSplit(), proposedSplit()
 {
+	cMinObsInNode = minNumObs;
 
-	InitTotalWeight = 0.0;
+	/*InitTotalWeight = 0.0;
 	InitWeightResiduals = 0.0;
 	InitNumObs = 0;
-
+	fIsSplit = false;
 	dLastXValue = -HUGE_VAL;
-	minObsInNode = minNumObs;
+	*/
 }
 
 VarSplitter::~VarSplitter()
@@ -37,11 +38,19 @@ void VarSplitter::IncorporateObs
     long lMonotone
 )
 {
+
+	static double dWZ = 0.0;
+
+	//if(fIsSplit) return;
+
+	dWZ = dW*dZ;
+
 	if(ISNA(dX))
 	{
-		proposedSplit.UpdateMissingNode(dW*dZ, dW);
+		proposedSplit.UpdateMissingNode(dWZ, dW);
+
 	}
-	else if(proposedSplit.SplitClass == 0)
+	else if(proposedSplit.SplitClass == 0)   // variable is continuous
 	{
 		if(dLastXValue > dX)
 		{
@@ -53,24 +62,20 @@ void VarSplitter::IncorporateObs
 		proposedSplit.SplitValue = 0.5*(dLastXValue + dX);
 
 		if((dLastXValue != dX) &&
-			proposedSplit.HasMinNumOfObs(minObsInNode) &&
+			proposedSplit.HasMinNumOfObs(cMinObsInNode) &&
 			proposedSplit.SplitIsCorrMonotonic(lMonotone))
 		{
 			proposedSplit.NodeGradResiduals();
-
-			if(proposedSplit.HasMinNumOfObs(minObsInNode) &&
-					(proposedSplit.ImprovedResiduals > bestSplit.ImprovedResiduals))
+			if(proposedSplit.HasMinNumOfObs(cMinObsInNode) &&
+								(proposedSplit.ImprovedResiduals > bestSplit.ImprovedResiduals))
 			{
 				bestSplit = proposedSplit;
-				WrapUpSplit();
-
 			}
-
 		}
 
 		// now move the new observation to the left
 		// if another observation arrives we will evaluate this
-		proposedSplit.UpdateLeftNode(dW*dZ, dW);
+		proposedSplit.UpdateLeftNode(dWZ, dW);
 		dLastXValue = dX;
 	}
 	else // variable is categorical, evaluates later
@@ -82,55 +87,85 @@ void VarSplitter::IncorporateObs
 
 void VarSplitter::EvaluateCategoricalSplit()
 {
-  long i=0;
-  unsigned long cFiniteMeans = 0;
+	 long i=0;
+	  unsigned long cFiniteMeans = 0;
 
-  if(proposedSplit.SplitClass == 0)
-	{
-	  throw GBM::invalid_argument("Evaluate Categorical Split - Split variable is not categorical");
-	}
+	  cFiniteMeans = proposedSplit.SetAndReturnNumGroupMeans();
 
-  cFiniteMeans = proposedSplit.SetAndReturnNumGroupMeans();
+	  // if only one group has a finite mean it will not consider
+	  // might be all are missing so no categories enter here
+	  for(i=0; (cFiniteMeans>1) && ((ULONG)i<cFiniteMeans-1); i++)
+	    {
 
-  // if only one group has a finite mean it will not consider
-  // might be all are missing so no categories enter here
-  for(i=0; (cFiniteMeans>1) && ((ULONG)i<cFiniteMeans-1); i++)
-    {
-      proposedSplit.SplitValue = (double)i;
-      proposedSplit.UpdateLeftNodeWithCat(i);
-      proposedSplit.NodeGradResiduals();
-      proposedSplit.setBestCategory();
 
-      if(proposedSplit.HasMinNumOfObs(minObsInNode)
-    		  && (proposedSplit.ImprovedResiduals > bestSplit.ImprovedResiduals))
-      {
-    	  bestSplit = proposedSplit;
-		  WrapUpSplit();
+	      proposedSplit.SplitValue = (double) i;
+	      proposedSplit.UpdateLeftNodeWithCat(i);
+	      proposedSplit.setBestCategory();
+	      proposedSplit.NodeGradResiduals();
 
-      }
+		  if(proposedSplit.HasMinNumOfObs(cMinObsInNode)
+		      		  && (proposedSplit.ImprovedResiduals > bestSplit.ImprovedResiduals))
+		{
 
-    }
+		  bestSplit = proposedSplit;
+	        }
+	    }
 }
 
-void VarSplitter::SetForNode(CNode& nodeToSplit)
+void VarSplitter::Set(CNode& nodeToSplit)
 {
-	InitWeightResiduals = nodeToSplit.dPrediction * nodeToSplit.dTrainW;
-	InitTotalWeight = nodeToSplit.dTrainW;
-	InitNumObs = nodeToSplit.cN;
+	dInitSumZ = nodeToSplit.dPrediction * nodeToSplit.dTrainW;
+	dInitTotalW = nodeToSplit.dTrainW;
+	cInitN = nodeToSplit.cN;
+
+	bestSplit.ResetSplitProperties(dInitSumZ, dInitTotalW, cInitN);
 }
 
-void VarSplitter::SetForVariable(unsigned long iWhichVar, long cVarClasses)
+/*void VarSplitter::SetForVariable(unsigned long iWhichVar, long cVarClasses)
 {
-
+	if(fIsSplit) return;
 	//bestSplit.ResetSplitProperties(InitWeightResiduals, InitTotalWeight, InitNumObs);
 	proposedSplit.ResetSplitProperties(InitWeightResiduals, InitTotalWeight, InitNumObs,
 		  proposedSplit.SplitValue,	cVarClasses, iWhichVar);
 
-	dLastXValue = -HUGE_VAL;
 
+
+}*/
+
+void VarSplitter::ResetForNewVar
+(
+    unsigned long iWhichVar,
+    long cCurrentVarClasses
+)
+{
+  //if(fIsSplit) return;
+
+  proposedSplit.ResetSplitProperties(dInitSumZ, dInitTotalW, cInitN,
+  		  proposedSplit.SplitValue,	cCurrentVarClasses, iWhichVar);
+  dLastXValue = -HUGE_VAL;
 }
 
-void VarSplitter::Reset()
+void VarSplitter::WrapUpCurrentVariable()
+{
+  if(proposedSplit.SplitVar == bestSplit.SplitVar)
+    {
+      if(proposedSplit.MissingNumObs > 0)
+        {
+    	  bestSplit.MissingWeightResiduals = proposedSplit.MissingWeightResiduals;
+		bestSplit.MissingTotalWeight = proposedSplit.MissingTotalWeight;
+		bestSplit.MissingNumObs = proposedSplit.MissingNumObs;
+
+        }
+      else // DEBUG: consider a weighted average with parent node?
+        {
+		bestSplit.MissingWeightResiduals   = dInitSumZ;
+		bestSplit.MissingTotalWeight = dInitTotalW;
+		bestSplit.MissingNumObs      = 0;
+        }
+    }
+}
+
+/*void VarSplitter::Reset()
 {
 	// Reset the splitter for new searching
 	InitTotalWeight = 0.0;
@@ -143,11 +178,13 @@ void VarSplitter::Reset()
 	bestSplit.ResetSplitProperties(0.0, 0.0, 0);
 	proposedSplit.ResetSplitProperties(0.0, 0.0, 0);
 
-}
+}*/
 
 //---------------------
 // Private Functions
 //---------------------
+
+/*
 void VarSplitter::WrapUpSplit()
 {
 	if(proposedSplit.MissingNumObs <= 0)
@@ -164,5 +201,7 @@ void VarSplitter::WrapUpSplit()
 
 	}
 }
+
+*/
 
 

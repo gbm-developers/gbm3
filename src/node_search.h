@@ -49,10 +49,11 @@ public:
 	//---------------------
     void GenerateAllSplits(vector<CNode*>& vecpTermNodes, const CDataset& data,
     						double* residuals, vector<unsigned long>& aiNodeAssign);
-    double SplitAndCalcImprovement(vector<CNode*>& vecpTermNodes,
-    					const CDataset& data,
-    					vector<unsigned long>& aiNodeAssign);
-    void Reset();
+    double CalcImprovementAndSplit(vector<CNode*>& vecpTermNodes, const CDataset& data,
+    		vector<unsigned long>& aiNodeAssign);
+
+    inline void Reset(){ cTerminalNodes = 1; }
+
 
 private:
 	//---------------------
@@ -60,8 +61,6 @@ private:
 	//---------------------
     void ReAssignData(long splittedNodeIndex, vector<CNode*>& vecpTermNodes,
     					const CDataset& data, vector<unsigned long>& aiNodeAssign);
-    void AssignToNode(CNode& terminalNode);
-    void ResetVarSplitter();
 
 	//---------------------
 	// Private Variables
@@ -76,3 +75,4 @@ private:
 };
 
 #endif // NODESEARCH_H
+

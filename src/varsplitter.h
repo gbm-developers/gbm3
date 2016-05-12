@@ -35,31 +35,68 @@ public:
 	//---------------------
 	// Public Functions
 	//---------------------
-	void SetForNode(CNode& nodeToSet);
+	/*void SetForNode(CNode& nodeToSet);
 	void SetForVariable(unsigned long iWhichVar, long cVarClasses);
 
-	double GetBestImprovement() { return bestSplit.GetImprovement(); };
+	inline double GetBestImprovement() { return bestSplit.GetImprovement(); };
 	void IncorporateObs(double dX,
 			double dZ,
 			double dW,
 			long lMonotone);
 	void EvaluateCategoricalSplit();
-	NodeParams GetBestSplit() { return bestSplit;};
-	void Reset();
+	void SetToSplit()
+	{
+		fIsSplit = true;
+	};
+
+	void Reset();*/
+	 void IncorporateObs(double dX,
+				double dZ,
+				double dW,
+				long lMonotone);
+
+	void Set(CNode& nodeToSplit);
+	void ResetForNewVar(unsigned long iWhichVar,
+			long cVarClasses);
+
+
+	inline double BestImprovement() { return bestSplit.ImprovedResiduals; }
+	inline NodeParams GetBestSplit() { return bestSplit;}
+	void SetupNewNodes(CNode& nodeToSplit)
+	{
+		nodeToSplit.SplitNode();
+	}
+
+	void EvaluateCategoricalSplit();
+	void WrapUpCurrentVariable();
+
+	double dInitTotalW;
+	double dInitSumZ;
+	unsigned long cInitN;
+
 
 private:
-	//---------------------
+
+	unsigned long cMinObsInNode;
+
+	double dLastXValue;
+
+	NodeParams bestSplit, proposedSplit;
+	//void WrapUpSplit();
+
+	/*//---------------------
 	// Private Functions
 	//---------------------
-	void WrapUpSplit();
 	
+
 	//---------------------
 	// Private Variables
 	//---------------------
 	double InitTotalWeight, InitWeightResiduals, dLastXValue;
 	unsigned long InitNumObs;
 	unsigned long minObsInNode;
-	NodeParams bestSplit, proposedSplit;
+
+	bool fIsSplit;*/
 
 
 

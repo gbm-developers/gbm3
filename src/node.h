@@ -90,7 +90,6 @@ public:
 	CNode* pMissingNode;
 
 	// Parameters
-	NodeParams nodeParams; // TODO: Not yet used - connect to R API
 	NodeParams childrenParams;
 
 	//TODO: Currently most useful in printing out tree

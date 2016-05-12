@@ -45,7 +45,7 @@ NodeParams::~NodeParams()
 
 }
 
-void NodeParams::ResetSplitProperties(double weightedResiduals, double trainingWeight,
+/*void NodeParams::ResetSplitProperties(double weightedResiduals, double trainingWeight,
 									   unsigned long numObs, double splitValue, unsigned long variableClasses, unsigned long splitVar)
 {
 
@@ -69,7 +69,7 @@ void NodeParams::ResetSplitProperties(double weightedResiduals, double trainingW
 		ImprovedResiduals = 0.0;
 		SplitClass = variableClasses;
 
-
+		//std::cout << variableClasses << "\n";
 		std::fill(adGroupSumZ.begin(), adGroupSumZ.begin() + variableClasses, 0);
 		std::fill(adGroupW.begin(), adGroupW.begin() + variableClasses, 0);
 		std::fill(acGroupN.begin(), acGroupN.begin() + variableClasses, 0);
@@ -185,4 +185,4 @@ void NodeParams::UpdateLeftNodeWithCat(long catIndex)
 	UpdateLeftNode(adGroupSumZ[groupMeanAndCat[catIndex].second],
 			adGroupW[groupMeanAndCat[catIndex].second],
 			acGroupN[groupMeanAndCat[catIndex].second]);
-}
+}*/
