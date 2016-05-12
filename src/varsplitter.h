@@ -38,13 +38,13 @@ public:
 	void SetForNode(CNode& nodeToSet);
 	void SetForVariable(unsigned long iWhichVar, long cVarClasses);
 
-	double GetBestImprovement() { return bestSplit.GetImprovement(); };
+	inline double GetBestImprovement() { return bestSplit.GetImprovement(); };
 	void IncorporateObs(double dX,
 			double dZ,
 			double dW,
 			long lMonotone);
 	void EvaluateCategoricalSplit();
-	NodeParams GetBestSplit() { return bestSplit;};
+	inline NodeParams GetBestSplit() { return bestSplit;};
 	void Reset();
 
 private:

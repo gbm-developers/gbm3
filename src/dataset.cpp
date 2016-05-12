@@ -79,7 +79,7 @@ public:
 		//
 		//-----------------------------------
 		template<typename T>
-		T* shift_ptr_to_validation(T* x) const
+		inline T* shift_ptr_to_validation(T* x) const
 		{
 			if(x)
 			{
@@ -100,7 +100,7 @@ public:
 		//
 		//-----------------------------------
 		template<typename T>
-		T* shift_ptr_to_train(T* x) const
+		inline T* shift_ptr_to_train(T* x) const
 		{
 			if(x)
 			{
@@ -120,7 +120,7 @@ public:
 		// Parameters: none
 		//
 		//-----------------------------------
-		void SetUpYPtrs()
+		inline void SetUpYPtrs()
 		{
 			for(long i = 0; i < adY.ncol(); i++)
 			{

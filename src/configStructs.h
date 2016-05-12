@@ -167,7 +167,7 @@ private:
 	//-------------------
 	// Private Methods
 	//-------------------
-	void InitszIRMeasure()
+	inline void InitszIRMeasure()
 	{
 		// Check family specified
 		if(dataConfig.family.empty())

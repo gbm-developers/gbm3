@@ -26,12 +26,6 @@ CNodeSearch::~CNodeSearch()
 {
 }
 
-
-void CNodeSearch::Reset()
-{
-	cTerminalNodes = 1;
-}
-
 void CNodeSearch::GenerateAllSplits
 (
 		vector<CNode*>& vecpTermNodes,
@@ -59,8 +53,6 @@ void CNodeSearch::GenerateAllSplits
 			it++)
 	{
 
-		// ALL OF THIS IS F??
-		// Set each splitter for node??
 		for(long iNode =0; iNode < cTerminalNodes; iNode++)
 		{
 			if(vecpTermNodes[iNode]->splitAssigned) continue;
@@ -84,6 +76,7 @@ void CNodeSearch::GenerateAllSplits
 						data.monotone(*it));
 			}
 		}
+
 		for(long iNode = 0; iNode < cTerminalNodes; iNode++)
 		{
 			if(vecpTermNodes[iNode]->splitAssigned) continue;
@@ -95,55 +88,6 @@ void CNodeSearch::GenerateAllSplits
 
 	}
 
-	for(long iNode = 0; iNode < cTerminalNodes; iNode++)
-	{
-		if(vecpTermNodes[iNode]->splitAssigned) continue;
-		vecpTermNodes[iNode]->SplitAssign();
-		if(variableSplitters[iNode].GetBestImprovement() > vecpTermNodes[iNode]->SplitImprovement())
-		{
-			vecpTermNodes[iNode]->childrenParams =  variableSplitters[iNode].GetBestSplit();
-		}
-
-	}
-
-/*
-	// Loop over terminal nodes
-	for(long iNode = 0; iNode < cTerminalNodes; iNode++)
-	{
-
-	  // Reset variable splitters
-	  ResetVarSplitter();
-
-	  // Loop over variables - Generate splits
-	  for(CDataset::index_vector::const_iterator it=colNumbers.begin();
-			  it != final;
-			  it++)
-	  {
-		  variableSplitters[*it].SetForNode(*vecpTermNodes[iNode]);
-		  variableSplitters[*it].SetForVariable(*it, data.varclass(*it));
-		  for(long iOrderObs=0; iOrderObs < data.get_trainSize(); iOrderObs++)
-		  {
-			  //Get Observation and add to split if needed
-			  iWhichObs = data.order_ptr()[(*it)*data.get_trainSize() + iOrderObs];
-			  if((aiNodeAssign[iWhichObs] == iNode) && data.GetBag()[iWhichObs])
-			  {
-				  const double dX = data.x_value(iWhichObs, *it);
-				  variableSplitters[*it].IncorporateObs(dX,
-									adZ[iWhichObs],
-									data.weight_ptr()[iWhichObs],
-									data.monotone(*it));
-			  }
-
-		  }
-		  if(data.varclass(*it) != 0) // evaluate if categorical split
-		  {
-			  variableSplitters[*it].EvaluateCategoricalSplit();
-		  }
-
-	  }
-	  // Assign best split to node
-	  AssignToNode(*vecpTermNodes[iNode]);
-  }*/
 }
 
 
@@ -159,11 +103,17 @@ double CNodeSearch::SplitAndCalcImprovement
 	double dBestNodeImprovement = 0.0;
 	for(long iNode=0; iNode < cTerminalNodes; iNode++)
 	{
-		if(vecpTermNodes[iNode]->SplitImprovement() > dBestNodeImprovement)
+
+		if(variableSplitters[iNode].GetBestImprovement() > dBestNodeImprovement)//vecpTermNodes[iNode]->SplitImprovement())
 		{
 			iBestNode = iNode;
-			dBestNodeImprovement = vecpTermNodes[iNode]->SplitImprovement();
+			dBestNodeImprovement = variableSplitters[iNode].GetBestImprovement();//vecpTermNodes[iNode]->SplitImprovement();
+			vecpTermNodes[iNode]->childrenParams =  variableSplitters[iNode].GetBestSplit();
 		}
+
+		if(vecpTermNodes[iNode]->splitAssigned) continue;
+		vecpTermNodes[iNode]->SplitAssign();
+
 	}
 	// Split Node if improvement is non-zero
 	if(dBestNodeImprovement != 0.0)
@@ -214,40 +164,3 @@ void CNodeSearch::ReAssignData
 	}
 }
 
-void CNodeSearch::AssignToNode(CNode& terminalNode)
-{
-	// Find the best split
-	long bestSplitInd = 0;
-	double bestErrImprovement = 0.0;
-	double currErrImprovement = 0.0;
-
-	for(long it = 0; it < variableSplitters.size(); it++)
-	{
-		currErrImprovement = variableSplitters[it].GetBestImprovement();
-		if(currErrImprovement > bestErrImprovement)
-		{
-			bestErrImprovement = currErrImprovement;
-			bestSplitInd = it;
-		}
-	}
-
-	// Check if variables explored have better improvement than previous searches
-	if(bestErrImprovement > terminalNode.childrenParams.GetImprovement())
-	{
-		terminalNode.childrenParams =  variableSplitters[bestSplitInd].GetBestSplit();
-	}
-
-	// Set the nodes flag to indicate it is now split
-	terminalNode.SplitAssign();
-}
-
-
-void CNodeSearch::ResetVarSplitter()
-{
-	// Reset each variable splitter
-	for(long it = 0; it < variableSplitters.size(); it++)
-	{
-		variableSplitters[it].Reset();
-	}
-
-}

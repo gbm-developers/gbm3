@@ -52,7 +52,7 @@ public:
     double SplitAndCalcImprovement(vector<CNode*>& vecpTermNodes,
     					const CDataset& data,
     					vector<unsigned long>& aiNodeAssign);
-    void Reset();
+    inline void Reset(){ cTerminalNodes = 1; }
 
 private:
 	//---------------------
@@ -60,8 +60,6 @@ private:
 	//---------------------
     void ReAssignData(long splittedNodeIndex, vector<CNode*>& vecpTermNodes,
     					const CDataset& data, vector<unsigned long>& aiNodeAssign);
-    void AssignToNode(CNode& terminalNode);
-    void ResetVarSplitter();
 
 	//---------------------
 	// Private Variables
