@@ -36,7 +36,7 @@
 //	cTrain		   - int specifiy the number of data points in training set
 //
 //-----------------------------------
-CDataset::CDataset(DataDistParams dataParams) :
+CDataset::CDataset(const DataDistParams& dataParams) :
   dataImpl(dataParams.respY, dataParams.offset,
 	   dataParams.xValues,
 	   dataParams.xOrder, dataParams.varWeight,
@@ -60,6 +60,21 @@ CDataset::CDataset(DataDistParams dataParams) :
       throw GBM::invalid_argument("your training instances don't make sense");
     }
 };
+
+//-----------------------------------
+// Function: ~CDataset()
+//
+// Returns: none
+//
+// Description: default destructor for the dataset
+//
+// Parameters: none
+//
+//-----------------------------------
+CDataset::~CDataset()
+{
+}
+
 
 //-----------------------------------
 // Function: get_trainSize

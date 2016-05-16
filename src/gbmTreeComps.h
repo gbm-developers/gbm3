@@ -15,6 +15,7 @@
 #include "buildinfo.h"
 #include "tree.h"
 #include "dataset.h"
+#include "node_search.h"
 #include <vector>
 #include <memory>
 

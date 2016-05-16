@@ -139,7 +139,6 @@ void VarSplitter::ResetForNewVar
 )
 {
   //if(fIsSplit) return;
-
   proposedSplit.ResetSplitProperties(dInitSumZ, dInitTotalW, cInitN,
   		  proposedSplit.SplitValue,	cCurrentVarClasses, iWhichVar);
   dLastXValue = -HUGE_VAL;
@@ -149,18 +148,18 @@ void VarSplitter::WrapUpCurrentVariable()
 {
   if(proposedSplit.SplitVar == bestSplit.SplitVar)
     {
-      if(proposedSplit.MissingNumObs > 0)
+      if(proposedSplit.missing.numObs > 0)
         {
-    	  bestSplit.MissingWeightResiduals = proposedSplit.MissingWeightResiduals;
-		bestSplit.MissingTotalWeight = proposedSplit.MissingTotalWeight;
-		bestSplit.MissingNumObs = proposedSplit.MissingNumObs;
+    	  bestSplit.missing.weightResid = proposedSplit.missing.weightResid;
+		bestSplit.missing.totalWeight = proposedSplit.missing.totalWeight;
+		bestSplit.missing.numObs = proposedSplit.missing.numObs;
 
         }
       else // DEBUG: consider a weighted average with parent node?
         {
-		bestSplit.MissingWeightResiduals   = dInitSumZ;
-		bestSplit.MissingTotalWeight = dInitTotalW;
-		bestSplit.MissingNumObs      = 0;
+		bestSplit.missing.weightResid  = dInitSumZ;
+		bestSplit.missing.totalWeight = dInitTotalW;
+		bestSplit.missing.numObs      = 0;
         }
     }
 }
