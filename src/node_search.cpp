@@ -93,7 +93,6 @@ double CNodeSearch::CalcImprovementAndSplit
 		{
 			iBestNode = iNode;
 			dBestNodeImprovement = variableSplitters[iNode].BestImprovement();
-			vecpTermNodes[iNode]->childrenParams =  variableSplitters[iNode].GetBestSplit();
 		}
 	}
 

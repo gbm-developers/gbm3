@@ -20,7 +20,6 @@ NodeParams::~NodeParams()
 
 }
 
-
 void NodeParams::ResetSplitProperties(double weightedResiduals, double trainingWeight,
 				      unsigned long numObs, double splitValue, unsigned long variableClasses, unsigned long splitVar)
 
@@ -42,56 +41,6 @@ void NodeParams::ResetSplitProperties(double weightedResiduals, double trainingW
   std::fill(adGroupSumZ.begin(), adGroupSumZ.begin() + variableClasses, 0);
   std::fill(adGroupW.begin(), adGroupW.begin() + variableClasses, 0);
   std::fill(acGroupN.begin(), acGroupN.begin() + variableClasses, 0);
-}
-
-
-void NodeParams::UpdateMissingNode(double predIncrement, double trainWIncrement, long numIncrement)
-{
-  // Move data point from right node to missing
-  missing.increment(predIncrement, trainWIncrement, numIncrement);
-  right.increment(-predIncrement, -trainWIncrement, -numIncrement);
-}
-
-void NodeParams::UpdateLeftNode(double predIncrement, double trainWIncrement, long numIncrement)
-{
-  // Move data point from right node to left node
-  left.increment(predIncrement, trainWIncrement, numIncrement);
-  right.increment(-predIncrement, -trainWIncrement, -numIncrement);
-}
-
-void NodeParams::NodeGradResiduals()
-{
-  // Returns weighted
-  
-  // Only need to look at left and right
-  if(missing.numObs == 0)
-    {
-      ImprovedResiduals = left.unweightedGradient(right) /
-	(left.totalWeight + right.totalWeight);
-    }
-  else
-    {
-      // Grad - left/right
-      
-      ImprovedResiduals =
-	(left.unweightedGradient(right) +
-	 left.unweightedGradient(missing) +
-	 right.unweightedGradient(missing)) /
-	(left.totalWeight + right.totalWeight + missing.totalWeight);
-    }
-}
-
-bool NodeParams::SplitIsCorrMonotonic(long specifyMonotone)
-{
-  double weightedGrad = right.weightResid * left.totalWeight -
-    left.weightResid * right.totalWeight;
-  return (specifyMonotone == 0 || specifyMonotone * weightedGrad > 0);
-}
-
-bool NodeParams::HasMinNumOfObs(long minObsInNode)
-{
-  return (left.hasMinObs(minObsInNode) &&
-	  right.hasMinObs(minObsInNode));
 }
 
 void NodeParams::IncrementCategories(unsigned long cat, double predIncrement, double trainWIncrement)

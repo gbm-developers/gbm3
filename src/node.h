@@ -61,9 +61,8 @@ public:
 
     void GetVarRelativeInfluence(double *adRelInf);
     void SplitAssign();
-    void SplitNode();
+    void SplitNode(NodeParams& childrenParams);
     void PrintSubtree(unsigned long cIndent);
-    double SplitImprovement(){ return childrenParams.ImprovedResiduals;}
     void TransferTreeToRList(int &iNodeID,
 				     const CDataset &data,
 				     int *aiSplitVar,
@@ -87,9 +86,6 @@ public:
 	CNode* pLeftNode;
 	CNode* pRightNode;
 	CNode* pMissingNode;
-
-	// Parameters
-	NodeParams childrenParams;
 
 	//TODO: Currently most useful in printing out tree
 	// This nodes parameters

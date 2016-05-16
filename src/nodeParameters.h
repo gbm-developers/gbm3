@@ -89,15 +89,51 @@ public:
 	//---------------------
 	void ResetSplitProperties(double weightedResiduals, double trainingWeight, unsigned long numObs,
 				  double splitValue = -HUGE_VAL, unsigned long variableClasses=1, unsigned long splitVar = UINT_MAX);
-	void UpdateMissingNode(double predIncrement, double trainWIncrement, long numIncrement = 1);
-	void UpdateLeftNode(double predIncrement, double trainWIncrement, long numIncrement = 1);
+	void UpdateMissingNode(double predIncrement, double trainWIncrement, long numIncrement = 1)
+	{
+	  // Move data point from right node to missing
+	  missing.increment(predIncrement, trainWIncrement, numIncrement);
+	  right.increment(-predIncrement, -trainWIncrement, -numIncrement);
+	}
+	void UpdateLeftNode(double predIncrement, double trainWIncrement, long numIncrement = 1)
+	{
+		// Move data point from right node to left node
+		left.increment(predIncrement, trainWIncrement, numIncrement);
+		right.increment(-predIncrement, -trainWIncrement, -numIncrement);
+	}
 	void UpdateLeftNodeWithCat(long catIndex);
 	void IncrementCategories(unsigned long cat, double predIncrement, double trainWIncrement);
 	unsigned long SetAndReturnNumGroupMeans();
 	inline double GetImprovement() { return ImprovedResiduals;};
-	bool SplitIsCorrMonotonic(long specifyMonotone);
-	void NodeGradResiduals();
-	bool HasMinNumOfObs(long minObsInNode);
+	bool SplitIsCorrMonotonic(long specifyMonotone)
+	{
+		double weightedGrad = right.weightResid * left.totalWeight -
+		left.weightResid * right.totalWeight;
+		return (specifyMonotone == 0 || specifyMonotone * weightedGrad > 0);
+	}
+	void NodeGradResiduals()
+	{
+	  // Only need to look at left and right
+	  if(missing.numObs == 0)
+	    {
+	      ImprovedResiduals = left.unweightedGradient(right) /
+		(left.totalWeight + right.totalWeight);
+	    }
+	  else
+	    {
+	      // Grad - left/right
+	      ImprovedResiduals =
+		(left.unweightedGradient(right) +
+		 left.unweightedGradient(missing) +
+		 right.unweightedGradient(missing)) /
+		(left.totalWeight + right.totalWeight + missing.totalWeight);
+	    }
+	};
+	bool HasMinNumOfObs(long minObsInNode)
+	{
+		return (left.hasMinObs(minObsInNode) &&
+			  right.hasMinObs(minObsInNode));
+	}
 	inline void setBestCategory()
 	{
 		int count = 0;

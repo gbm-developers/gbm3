@@ -130,22 +130,21 @@ void VarSplitter::ResetForNewVar
 
 void VarSplitter::WrapUpCurrentVariable()
 {
+	if(proposedSplit.SplitVar == bestSplit.SplitVar)
+	{
+		if(proposedSplit.missing.numObs > 0)
+		{
+			bestSplit.missing.weightResid = proposedSplit.missing.weightResid;
+			bestSplit.missing.totalWeight = proposedSplit.missing.totalWeight;
+			bestSplit.missing.numObs = proposedSplit.missing.numObs;
 
-  if(proposedSplit.SplitVar == bestSplit.SplitVar)
-    {
-      if(proposedSplit.missing.numObs > 0)
-        {
-    	  bestSplit.missing.weightResid = proposedSplit.missing.weightResid;
-		bestSplit.missing.totalWeight = proposedSplit.missing.totalWeight;
-		bestSplit.missing.numObs = proposedSplit.missing.numObs;
-
-        }
-      else // DEBUG: consider a weighted average with parent node?
-        {
-		bestSplit.missing.weightResid  = dInitSumZ;
-		bestSplit.missing.totalWeight = dInitTotalW;
-		bestSplit.missing.numObs      = 0;
-        }
+		}
+		else // DEBUG: consider a weighted average with parent node?
+		{
+			bestSplit.missing.weightResid  = dInitSumZ;
+			bestSplit.missing.totalWeight = dInitTotalW;
+			bestSplit.missing.numObs      = 0;
+		}
     }
 }
 

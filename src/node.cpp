@@ -292,7 +292,7 @@ void CNode::SplitAssign()
 	splitAssigned = true;
 }
 
-void CNode::SplitNode()
+void CNode::SplitNode(NodeParams& childrenParams)
 {
 
 	// set up a continuous split

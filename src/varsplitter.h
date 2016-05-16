@@ -54,7 +54,7 @@ public:
 	inline NodeParams GetBestSplit() { return bestSplit;}
 	void SetupNewNodes(CNode& nodeToSplit)
 	{
-		nodeToSplit.SplitNode();
+		nodeToSplit.SplitNode(bestSplit);
 	}
 
 	void EvaluateCategoricalSplit();
