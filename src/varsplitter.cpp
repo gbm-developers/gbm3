@@ -14,7 +14,8 @@
 //---------------------
 // Public Functions
 //---------------------
-VarSplitter::VarSplitter(unsigned long minNumObs):bestSplit(), proposedSplit()
+VarSplitter::VarSplitter(unsigned long minNumObs):bestSplit(), proposedSplit(),
+adGroupSumZ(1024), adGroupW(1024), acGroupN(1024), groupMeanAndCat(1024)
 {
 	cMinObsInNode = minNumObs;
 	fIsSplit = false;
@@ -26,22 +27,17 @@ VarSplitter::~VarSplitter()
 
 void VarSplitter::IncorporateObs
 (
-    double dX,
-    double dZ,
-    double dW,
-    long lMonotone
+    const double& dX,
+    const double& dZ,
+    const double& dW,
+    const long& lMonotone
 )
 {
-
-	double dWZ = 0.0;
-
 	if(fIsSplit) return;
-
-	dWZ = dW*dZ;
 
 	if(ISNA(dX))
 	{
-		proposedSplit.UpdateMissingNode(dWZ, dW);
+		proposedSplit.UpdateMissingNode(dW*dZ, dW);
 
 	}
 	else if(proposedSplit.SplitClass == 0)   // variable is continuous
@@ -68,12 +64,12 @@ void VarSplitter::IncorporateObs
 
 		// now move the new observation to the left
 		// if another observation arrives we will evaluate this
-		proposedSplit.UpdateLeftNode(dWZ, dW);
+		proposedSplit.UpdateLeftNode(dW*dZ, dW);
 		dLastXValue = dX;
 	}
 	else // variable is categorical, evaluates later
 	{
-		proposedSplit.IncrementCategories((unsigned long) dX, dW*dZ, dW);
+		IncrementCategories((unsigned long) dX, dW*dZ, dW);
 	}
 }
 
@@ -84,7 +80,7 @@ void VarSplitter::EvaluateCategoricalSplit()
 	  unsigned long cFiniteMeans = 0;
 
 	  if(fIsSplit) return;
-	  cFiniteMeans = proposedSplit.SetAndReturnNumGroupMeans();
+	  cFiniteMeans = SetAndReturnNumGroupMeans();
 
 	  // if only one group has a finite mean it will not consider
 	  // might be all are missing so no categories enter here
@@ -93,8 +89,8 @@ void VarSplitter::EvaluateCategoricalSplit()
 
 
 	      proposedSplit.SplitValue = (double) i;
-	      proposedSplit.UpdateLeftNodeWithCat(i);
-	      proposedSplit.setBestCategory();
+	      UpdateLeftNodeWithCat(i);
+	      proposedSplit.setBestCategory(groupMeanAndCat);
 	      proposedSplit.NodeGradResiduals();
 
 		  if(proposedSplit.HasMinNumOfObs(cMinObsInNode)
@@ -125,6 +121,11 @@ void VarSplitter::ResetForNewVar
   if(fIsSplit) return;
   proposedSplit.ResetSplitProperties(dInitSumZ, dInitTotalW, cInitN,
   		  proposedSplit.SplitValue,	cCurrentVarClasses, iWhichVar);
+
+  std::fill(adGroupSumZ.begin(), adGroupSumZ.begin() + cCurrentVarClasses, 0);
+  std::fill(adGroupW.begin(), adGroupW.begin() + cCurrentVarClasses, 0);
+  std::fill(acGroupN.begin(), acGroupN.begin() + cCurrentVarClasses, 0);
+
   dLastXValue = -HUGE_VAL;
 }
 

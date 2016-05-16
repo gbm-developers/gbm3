@@ -40,14 +40,14 @@ public:
 		fIsSplit = true;
 	};
 
-	 void IncorporateObs(double dX,
-				double dZ,
-				double dW,
-				long lMonotone);
+	 void IncorporateObs(const double& dX,
+				const double& dZ,
+				const double& dW,
+				const long& lMonotone);
 
 	void Set(CNode& nodeToSplit);
 	void ResetForNewVar(unsigned long iWhichVar,
-			long cVarClasses);
+						long cVarClasses);
 
 
 	inline double BestImprovement() { return bestSplit.ImprovedResiduals; }
@@ -55,6 +55,44 @@ public:
 	void SetupNewNodes(CNode& nodeToSplit)
 	{
 		nodeToSplit.SplitNode(bestSplit);
+	}
+
+	unsigned long SetAndReturnNumGroupMeans()
+	{
+		unsigned long cFiniteMeans = 0;
+
+		for(long i=0; i < proposedSplit.SplitClass; i++)
+		{
+		  groupMeanAndCat[i].second = i;
+
+		  if(adGroupW[i] != 0.0)
+		  {
+			  groupMeanAndCat[i].first = adGroupSumZ[i]/adGroupW[i];
+			  cFiniteMeans++;
+		  }
+		  else
+		  {
+			  groupMeanAndCat[i].first = HUGE_VAL;
+		  }
+		}
+
+	  std::sort(groupMeanAndCat.begin(), groupMeanAndCat.begin() + proposedSplit.SplitClass);
+
+	  return cFiniteMeans;
+	}
+
+	void IncrementCategories(unsigned long cat, double predIncrement, double trainWIncrement)
+	{
+		adGroupSumZ[cat] += predIncrement;
+		adGroupW[cat] += trainWIncrement;
+		acGroupN[cat]++;
+	}
+	void UpdateLeftNodeWithCat(long catIndex)
+	{
+
+		proposedSplit.UpdateLeftNode(adGroupSumZ[groupMeanAndCat[catIndex].second],
+				adGroupW[groupMeanAndCat[catIndex].second],
+				acGroupN[groupMeanAndCat[catIndex].second]);
 	}
 
 	void EvaluateCategoricalSplit();
@@ -67,12 +105,6 @@ public:
 
 private:
 
-	unsigned long cMinObsInNode;
-
-	double dLastXValue;
-
-	NodeParams bestSplit, proposedSplit;
-
 	//---------------------
 	// Private Functions
 	//---------------------
@@ -82,8 +114,14 @@ private:
 	// Private Variables
 	//---------------------
 	bool fIsSplit;
+	unsigned long cMinObsInNode;
+	double dLastXValue;
+	NodeParams bestSplit, proposedSplit;
+	std::vector<double> adGroupSumZ;
+	std::vector<double> adGroupW;
+	std::vector<unsigned long> acGroupN;
 
-
-
+	// Splitting arrays for Categorical variable
+	std::vector<std::pair<double, int> > groupMeanAndCat;
 };
 #endif // __varplitter_h__

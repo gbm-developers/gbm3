@@ -77,7 +77,7 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-	NodeParams() : adGroupSumZ(1024), adGroupW(1024), acGroupN(1024), groupMeanAndCat(1024), aiBestCategory(1024) {};
+	NodeParams() : aiBestCategory(1024) {};
 
 	//---------------------
 	// Public destructor
@@ -101,9 +101,6 @@ public:
 		left.increment(predIncrement, trainWIncrement, numIncrement);
 		right.increment(-predIncrement, -trainWIncrement, -numIncrement);
 	}
-	void UpdateLeftNodeWithCat(long catIndex);
-	void IncrementCategories(unsigned long cat, double predIncrement, double trainWIncrement);
-	unsigned long SetAndReturnNumGroupMeans();
 	inline double GetImprovement() { return ImprovedResiduals;};
 	bool SplitIsCorrMonotonic(long specifyMonotone)
 	{
@@ -134,7 +131,7 @@ public:
 		return (left.hasMinObs(minObsInNode) &&
 			  right.hasMinObs(minObsInNode));
 	}
-	inline void setBestCategory()
+	inline void setBestCategory(std::vector<std::pair<double, int> >& groupMeanAndCat)
 	{
 		int count = 0;
 		aiBestCategory.resize(groupMeanAndCat.size());
@@ -178,13 +175,6 @@ public:
 	unsigned long SplitClass; // Categorical Split Value
 	std::vector<int> aiBestCategory; // Vector of levels ordering
 	double ImprovedResiduals;
-
-	// Splitting arrays for Categorical variable
-	std::vector<double> adGroupSumZ;
-	std::vector<double> adGroupW;
-	std::vector<unsigned long> acGroupN;
-	std::vector<std::pair<double, int> > groupMeanAndCat;
-
 };
 
 #endif // __nodeParameters_h__
