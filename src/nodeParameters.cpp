@@ -14,21 +14,6 @@
 //---------------------
 // Public Functions
 //---------------------
-NodeParams::NodeParams()
-{
-
-  ImprovedResiduals = 0.0;
-  SplitValue = 0.0;
-  SplitClass = 0;
-  SplitVar = 0;
-
-  adGroupSumZ.resize(1024);
-  adGroupW.resize(1024);
-  acGroupN.resize(1024);
-  groupMeanAndCat.resize(1024);
-  aiBestCategory.resize(1024);
-}
-
 NodeParams::~NodeParams()
 >>>>>>> Merge remote-tracking branch 'pdmOrigin/speed' into trial_stuff
 {

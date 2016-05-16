@@ -65,7 +65,7 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-	NodeParams();
+	NodeParams() : adGroupSumZ(1024), adGroupW(1024), acGroupN(1024), groupMeanAndCat(1024), aiBestCategory(1024) {};
 
 	//---------------------
 	// Public destructor
