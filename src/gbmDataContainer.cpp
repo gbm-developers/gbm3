@@ -24,7 +24,7 @@
 //
 // Parameters: ...
 //-----------------------------------
-CGBMDataContainer::CGBMDataContainer(DataDistParams dataDistConfig):
+CGBMDataContainer::CGBMDataContainer(DataDistParams& dataDistConfig):
         data(dataDistConfig)
 {
 

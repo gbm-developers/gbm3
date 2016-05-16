@@ -55,13 +55,26 @@ public:
 		     int cCatSplitsOld);
 
     // getters
-	std::vector<unsigned long> GetNodeAssign();
-	vector<CNode*> GetTermNodes();
-
-	const double ShrinkageConstant() const;
-	unsigned long GetMinNodeObs();
-	long GetSizeOfTree();
-	const long GetSizeOfTree() const;
+	std::vector<unsigned long>& GetNodeAssign()
+	{
+		return aiNodeAssign;
+	}
+	vector<CNode*>& GetTermNodes()
+	{
+		return tree.GetTermNodes();
+	}
+	const double& ShrinkageConstant() const
+	{
+		return tree.GetShrinkageConst();
+	}
+	const unsigned long& GetMinNodeObs() const
+	{
+		return cMinObsInNode;
+	}
+	const long& GetSizeOfTree() const
+	{
+		return tree.GetNodeCount();
+	}
 
 private:
 	// Private Variables
@@ -71,7 +84,7 @@ private:
     // allocate them once here for all trees to use
     std::vector<unsigned long> aiNodeAssign;
     CNodeSearch aNodeSearch;
-    CCARTTree* ptreeTemp;
+    CCARTTree tree;
 
     unsigned long cMinObsInNode;
 };

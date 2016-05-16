@@ -32,7 +32,7 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-    CGBMDataContainer(DataDistParams dataDistConfig);
+    CGBMDataContainer(DataDistParams& dataDistConfig);
 
 	//---------------------
 	// Public destructor

@@ -65,11 +65,9 @@ public:
 		double *adFadj,
 		unsigned long cMinObsInNode);
 
-    long GetNodeCount();
-    const long GetNodeCount() const;
-
-    vector<CNode*> GetTermNodes(){return vecpTermNodes;}
-    const double GetShrinkageConst() const { return shrinkageConst;}
+    const long& GetNodeCount() const { return cTotalNodeCount; }
+    vector<CNode*>& GetTermNodes() { return vecpTermNodes; }
+    const double& GetShrinkageConst() const { return shrinkageConst; }
     void Print();
 
 private:

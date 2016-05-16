@@ -288,7 +288,7 @@ public:
   
   long GetValidSize() const;
   long GetTotalInBag() const;
-  //bag GetBag();
+
   const bag& GetBag() const
   {
     return dataImpl.afInBag;

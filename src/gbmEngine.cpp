@@ -3,7 +3,7 @@
 #include <algorithm>
 #include "gbmEngine.h"
 
-CGBM::CGBM(configStructs GBMParams) :
+CGBM::CGBM(configStructs& GBMParams) :
   dataCont(GBMParams.GetDataConfig()),
   treeComp(GBMParams.GetTreeConfig()),
   adZ(dataCont.getData().nrow(), 0) {}

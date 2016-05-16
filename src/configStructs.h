@@ -154,8 +154,8 @@ public:
 	//---------------------
 	// Public Methods
 	//---------------------
-	DataDistParams GetDataConfig() const { return dataConfig;};
-	TreeParams GetTreeConfig() const { return treeConfig;};
+	DataDistParams& GetDataConfig() { return dataConfig;};
+	TreeParams& GetTreeConfig() { return treeConfig;};
 
 private:
 	//-------------------

@@ -115,15 +115,6 @@ void CCARTTree::grow
     // Print();
 }
 
-long CCARTTree::GetNodeCount()
-{
-	return cTotalNodeCount;
-}
-const long CCARTTree::GetNodeCount() const
-{
-    return cTotalNodeCount;
-}
-
 void CCARTTree::PredictValid
 (
  const CDataset &data,

@@ -34,7 +34,7 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-    CGBM(configStructs GBMParams);
+    CGBM(configStructs& GBMParams);
 
 	//---------------------
 	// Public destructor

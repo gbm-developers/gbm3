@@ -39,7 +39,7 @@ void VarSplitter::IncorporateObs
 )
 {
 
-	static double dWZ = 0.0;
+	double dWZ = 0.0;
 
 	//if(fIsSplit) return;
 
@@ -66,8 +66,7 @@ void VarSplitter::IncorporateObs
 			proposedSplit.SplitIsCorrMonotonic(lMonotone))
 		{
 			proposedSplit.NodeGradResiduals();
-			if(proposedSplit.HasMinNumOfObs(cMinObsInNode) &&
-								(proposedSplit.ImprovedResiduals > bestSplit.ImprovedResiduals))
+			if(proposedSplit.ImprovedResiduals > bestSplit.ImprovedResiduals)
 			{
 				bestSplit = proposedSplit;
 			}
