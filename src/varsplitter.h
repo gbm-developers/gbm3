@@ -35,21 +35,11 @@ public:
 	//---------------------
 	// Public Functions
 	//---------------------
-	/*void SetForNode(CNode& nodeToSet);
-	void SetForVariable(unsigned long iWhichVar, long cVarClasses);
-
-	inline double GetBestImprovement() { return bestSplit.GetImprovement(); };
-	void IncorporateObs(double dX,
-			double dZ,
-			double dW,
-			long lMonotone);
-	void EvaluateCategoricalSplit();
 	void SetToSplit()
 	{
 		fIsSplit = true;
 	};
 
-	void Reset();*/
 	 void IncorporateObs(double dX,
 				double dZ,
 				double dW,
@@ -82,9 +72,8 @@ private:
 	double dLastXValue;
 
 	NodeParams bestSplit, proposedSplit;
-	//void WrapUpSplit();
 
-	/*//---------------------
+	//---------------------
 	// Private Functions
 	//---------------------
 	
@@ -92,11 +81,7 @@ private:
 	//---------------------
 	// Private Variables
 	//---------------------
-	double InitTotalWeight, InitWeightResiduals, dLastXValue;
-	unsigned long InitNumObs;
-	unsigned long minObsInNode;
-
-	bool fIsSplit;*/
+	bool fIsSplit;
 
 
 

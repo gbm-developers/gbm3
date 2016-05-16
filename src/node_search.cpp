@@ -38,53 +38,42 @@ void CNodeSearch::GenerateAllSplits
 	const CDataset::index_vector colNumbers(data.random_order());
 	const CDataset::index_vector::const_iterator final = colNumbers.begin() + data.get_numFeatures();
 
-	for(long iNode = 0; iNode < cTerminalNodes; iNode++)
+	for(CDataset::index_vector::const_iterator it=colNumbers.begin();
+	  it != final;
+	  it++)
 	{
-		// If node has split then skip
-		if(vecpTermNodes[iNode]->splitAssigned) continue;
-		variableSplitters[iNode].Set(*vecpTermNodes[iNode]);
+	  const int iVar = *it;
+	  const int cVarClasses = data.varclass(iVar);
 
-	}
+	  for(long iNode=0; iNode < cTerminalNodes; iNode++)
+	  {
+		variableSplitters[iNode].ResetForNewVar(iVar, cVarClasses);
+	  }
 
-	  for(CDataset::index_vector::const_iterator it=colNumbers.begin();
-	      it != final;
-	      it++)
-	    {
-	      const int iVar = *it;
-	      const int cVarClasses = data.varclass(iVar);
-
-	      for(long iNode=0; iNode < cTerminalNodes; iNode++)
-	        {
-	    	  if(vecpTermNodes[iNode]->splitAssigned) continue;
-	    	  variableSplitters[iNode].ResetForNewVar(iVar, cVarClasses);
-	        }
-
-	      // distribute the observations in order to the correct node search
-	      for(long iOrderObs=0; iOrderObs < data.get_trainSize(); iOrderObs++)
-	        {
+	  // distribute the observations in order to the correct node search
+	  for(long iOrderObs=0; iOrderObs < data.get_trainSize(); iOrderObs++)
+	  {
 		  iWhichObs = data.order_ptr()[iVar*data.get_trainSize() + iOrderObs];
-
-		  if(vecpTermNodes[aiNodeAssign[iWhichObs]]->splitAssigned) continue;
 		  if(data.GetBagElem(iWhichObs))
-	            {
-		      const int iNode = aiNodeAssign[iWhichObs];
-		      const double dX = data.x_value(iWhichObs, iVar);
-		      variableSplitters[iNode].IncorporateObs(dX,
+		  {
+			  const int iNode = aiNodeAssign[iWhichObs];
+			  const double dX = data.x_value(iWhichObs, iVar);
+			  variableSplitters[iNode].IncorporateObs(dX,
 							adZ[iWhichObs],
 							data.weight_ptr()[iWhichObs],
 							data.monotone(iVar));
-	            }
-	        }
-	        for(long iNode=0; iNode<cTerminalNodes; iNode++)
-	        {
-	        	if(vecpTermNodes[iNode]->splitAssigned) continue;
-	            if(cVarClasses != 0) // evaluate if categorical split
-	            {
-		      variableSplitters[iNode].EvaluateCategoricalSplit();
-	            }
-	            variableSplitters[iNode].WrapUpCurrentVariable();
-	        }
-	    }
+		  }
+		}
+
+		for(long iNode=0; iNode<cTerminalNodes; iNode++)
+		{
+			if(cVarClasses != 0) // evaluate if categorical split
+			{
+				variableSplitters[iNode].EvaluateCategoricalSplit();
+			}
+				variableSplitters[iNode].WrapUpCurrentVariable();
+		}
+	}
 }
 
 
@@ -99,23 +88,20 @@ double CNodeSearch::CalcImprovementAndSplit
 	double dBestNodeImprovement = 0.0;
 	for(long iNode=0; iNode < cTerminalNodes; iNode++)
 	{
-
+		variableSplitters[iNode].SetToSplit();
 		if(variableSplitters[iNode].BestImprovement() > dBestNodeImprovement)
 		{
 			iBestNode = iNode;
 			dBestNodeImprovement = variableSplitters[iNode].BestImprovement();
 			vecpTermNodes[iNode]->childrenParams =  variableSplitters[iNode].GetBestSplit();
 		}
-
-		if(vecpTermNodes[iNode]->splitAssigned) continue;
-		vecpTermNodes[iNode]->SplitAssign();
-
 	}
+
+
 	// Split Node if improvement is non-zero
 	if(dBestNodeImprovement != 0.0)
 	{
 		//Split Node
-		//vecpTermNodes[iBestNode]->SplitNode();
 		variableSplitters[iBestNode].SetupNewNodes(*vecpTermNodes[iBestNode]);
 		cTerminalNodes += 2;
 
@@ -126,6 +112,10 @@ double CNodeSearch::CalcImprovementAndSplit
 		vecpTermNodes[cTerminalNodes-2] = vecpTermNodes[iBestNode]->pRightNode;
 		vecpTermNodes[cTerminalNodes-1] = vecpTermNodes[iBestNode]->pMissingNode;
 		vecpTermNodes[iBestNode] = vecpTermNodes[iBestNode]->pLeftNode;
+
+		variableSplitters[cTerminalNodes-2].Set(*vecpTermNodes[cTerminalNodes-2]);
+		variableSplitters[cTerminalNodes-1].Set(*vecpTermNodes[cTerminalNodes-1]);
+		variableSplitters[iBestNode].Set(*vecpTermNodes[iBestNode]);
 
 	}
 
@@ -159,7 +149,7 @@ void CNodeSearch::ReAssignData
 			  aiNodeAssign[iObs] = cTerminalNodes-1;
 		  }
 		  // those to the left stay with the same node assignment
-		  }
+		}
 	}
 }
 

@@ -17,13 +17,7 @@
 VarSplitter::VarSplitter(unsigned long minNumObs):bestSplit(), proposedSplit()
 {
 	cMinObsInNode = minNumObs;
-
-	/*InitTotalWeight = 0.0;
-	InitWeightResiduals = 0.0;
-	InitNumObs = 0;
 	fIsSplit = false;
-	dLastXValue = -HUGE_VAL;
-	*/
 }
 
 VarSplitter::~VarSplitter()
@@ -41,7 +35,7 @@ void VarSplitter::IncorporateObs
 
 	double dWZ = 0.0;
 
-	//if(fIsSplit) return;
+	if(fIsSplit) return;
 
 	dWZ = dW*dZ;
 
@@ -89,6 +83,7 @@ void VarSplitter::EvaluateCategoricalSplit()
 	 long i=0;
 	  unsigned long cFiniteMeans = 0;
 
+	  if(fIsSplit) return;
 	  cFiniteMeans = proposedSplit.SetAndReturnNumGroupMeans();
 
 	  // if only one group has a finite mean it will not consider
@@ -118,18 +113,8 @@ void VarSplitter::Set(CNode& nodeToSplit)
 	cInitN = nodeToSplit.cN;
 
 	bestSplit.ResetSplitProperties(dInitSumZ, dInitTotalW, cInitN);
+	fIsSplit=false;
 }
-
-/*void VarSplitter::SetForVariable(unsigned long iWhichVar, long cVarClasses)
-{
-	if(fIsSplit) return;
-	//bestSplit.ResetSplitProperties(InitWeightResiduals, InitTotalWeight, InitNumObs);
-	proposedSplit.ResetSplitProperties(InitWeightResiduals, InitTotalWeight, InitNumObs,
-		  proposedSplit.SplitValue,	cVarClasses, iWhichVar);
-
-
-
-}*/
 
 void VarSplitter::ResetForNewVar
 (
@@ -137,7 +122,7 @@ void VarSplitter::ResetForNewVar
     long cCurrentVarClasses
 )
 {
-  //if(fIsSplit) return;
+  if(fIsSplit) return;
   proposedSplit.ResetSplitProperties(dInitSumZ, dInitTotalW, cInitN,
   		  proposedSplit.SplitValue,	cCurrentVarClasses, iWhichVar);
   dLastXValue = -HUGE_VAL;
@@ -145,6 +130,7 @@ void VarSplitter::ResetForNewVar
 
 void VarSplitter::WrapUpCurrentVariable()
 {
+
   if(proposedSplit.SplitVar == bestSplit.SplitVar)
     {
       if(proposedSplit.missing.numObs > 0)
@@ -162,41 +148,5 @@ void VarSplitter::WrapUpCurrentVariable()
         }
     }
 }
-
-/*void VarSplitter::Reset()
-{
-	// Reset the splitter for new searching
-	InitTotalWeight = 0.0;
-	InitWeightResiduals = 0.0;
-	InitNumObs = 0;
-
-	dLastXValue = -HUGE_VAL;
-
-	// Reset best split
-	bestSplit.ResetSplitProperties(0.0, 0.0, 0);
-	proposedSplit.ResetSplitProperties(0.0, 0.0, 0);
-
-}*/
-
-//---------------------
-// Private Functions
-//---------------------
-
-/*
-void VarSplitter::WrapUpSplit()
-{
-  if (!proposedSplit.hasMissing())
-	{
-		bestSplit.missing.weightResid = InitWeightResiduals;
-		bestSplit.missing.totalWeight = InitTotalWeight;
-		bestSplit.missing.numObs      = 0;
-	}
-	else
-	{
-	  bestSplit.missing = proposedSplit.missing;
-	}
-}
-
-*/
 
 

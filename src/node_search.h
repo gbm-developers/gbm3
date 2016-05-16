@@ -53,7 +53,7 @@ public:
     		vector<unsigned long>& aiNodeAssign);
 
     inline void Reset(){ cTerminalNodes = 1; }
-
+    void SetRootNode(CNode& rootNode){ variableSplitters[0].Set(rootNode); }
 
 private:
 	//---------------------

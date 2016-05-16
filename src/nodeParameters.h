@@ -14,45 +14,57 @@
 //------------------------------
 #include <Rcpp.h>
 
+//------------------------------
+// Struct Definition
+//------------------------------
 struct NodeDef
 {
-  NodeDef() : numObs(0), weightResid(0), totalWeight(0) {};
+	//----------------------
+	// Public Constructors
+	//----------------------
+	NodeDef() : numObs(0), weightResid(0), totalWeight(0) {};
 
-  NodeDef(double weightResid, double totalWeight, long numObs) :
-    weightResid(weightResid), totalWeight(totalWeight), numObs(numObs) {};
+	NodeDef(double weightResid, double totalWeight, long numObs) :
+	weightResid(weightResid), totalWeight(totalWeight), numObs(numObs) {};
   
-  void clear()
-  {
-    numObs = 0;
-    weightResid = totalWeight = 0;
-  };
+	//---------------------
+	// Public Functions
+	//---------------------
+	void clear()
+	{
+		numObs = 0;
+		weightResid = totalWeight = 0;
+	};
 
-  void increment(const double pred, const double trainWeight, long num)
-  {
-    weightResid += pred;
-    totalWeight += trainWeight;
-    numObs += num;
-  };
+	void increment(const double pred, const double trainWeight, long num)
+	{
+		weightResid += pred;
+		totalWeight += trainWeight;
+		numObs += num;
+	};
 
-  double prediction() const
-  {
-    return weightResid / totalWeight;
-  };
-  
-  double unweightedGradient(const NodeDef& other) const
-  {
-    const double tmp = prediction() - other.prediction();
-    return totalWeight * other.totalWeight * tmp * tmp;
-  };
+	double prediction() const
+	{
+		return weightResid / totalWeight;
+	};
 
-  bool hasMinObs(long minObsInNode) const
-  {
-    return (numObs >= minObsInNode);
-  }
-  
-  long numObs;
-  double weightResid;
-  double totalWeight;
+	double unweightedGradient(const NodeDef& other) const
+	{
+		const double tmp = prediction() - other.prediction();
+		return totalWeight * other.totalWeight * tmp * tmp;
+	};
+
+	bool hasMinObs(long minObsInNode) const
+	{
+		return (numObs >= minObsInNode);
+	}
+
+	//---------------------
+	// Public Variables
+	//---------------------
+	long numObs;
+	double weightResid;
+	double totalWeight;
 
 };
 
@@ -128,7 +140,7 @@ public:
 	double SplitValue; // Continuous Split Value
 	unsigned long SplitVar; // Which feature to split on
 	unsigned long SplitClass; // Categorical Split Value
-        std::vector<int> aiBestCategory; // Vector of levels ordering
+	std::vector<int> aiBestCategory; // Vector of levels ordering
 	double ImprovedResiduals;
 
 	// Splitting arrays for Categorical variable

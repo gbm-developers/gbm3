@@ -83,7 +83,7 @@ void CCARTTree::grow
   dError = dSumZ2-dSumZ*dSumZ/dTotalW;
   pRootNode = new CNode(NodeDef(dSumZ, dTotalW, data.GetTotalInBag()));
   vecpTermNodes[0] = pRootNode;
-
+  aNodeSearch.SetRootNode(*pRootNode);
 
   // build the tree structure
 #ifdef NOISY_DEBUG
