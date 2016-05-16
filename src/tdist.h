@@ -39,19 +39,19 @@ public:
     //---------------------
     // Public Functions
     //---------------------
-	void ComputeWorkingResponse(const CDataset* pData,
+	void ComputeWorkingResponse(const CDataset& data,
 			const double *adF,
 			      	  double *adZ);
 
-    double InitF(const CDataset* pData);
+    double InitF(const CDataset& data);
     
-    void FitBestConstant(const CDataset* pData,
+    void FitBestConstant(const CDataset& data,
     		const double *adF,
 			 unsigned long cTermNodes,
 			 double* adZ,
-			 CTreeComps* pTreeComps);
+			 CTreeComps& treeComps);
 
-    double Deviance(const CDataset* pData,
+    double Deviance(const CDataset& data,
     				const double *adF,
                     bool isValidationSet=false);
 

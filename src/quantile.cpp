@@ -40,15 +40,15 @@ CQuantile::~CQuantile()
 
 void CQuantile::ComputeWorkingResponse
 (
-	const CDataset* pData,
+	const CDataset& data,
     const double *adF,
     double *adZ
 )
 {
     unsigned long i = 0;
-	for(i=0; i<pData->get_trainSize(); i++)
+	for(i=0; i<data.get_trainSize(); i++)
 	{
-		adZ[i] = (pData->y_ptr()[i] > adF[i]+pData->offset_ptr(false)[i]) ? dAlpha : -(1.0-dAlpha);
+		adZ[i] = (data.y_ptr()[i] > adF[i]+data.offset_ptr()[i]) ? dAlpha : -(1.0-dAlpha);
 	}
 
 }
@@ -56,24 +56,24 @@ void CQuantile::ComputeWorkingResponse
 
 double CQuantile::InitF
 (
-	const CDataset* pData
+	const CDataset& data
 )
 {
     double dOffset=0.0;
-    vecd.resize(pData->get_trainSize());
-    for(long i=0; i< pData->get_trainSize(); i++)
+    vecd.resize(data.get_trainSize());
+    for(long i=0; i< data.get_trainSize(); i++)
     {
-        dOffset = pData->offset_ptr(false)[i];
-        vecd[i] = pData->y_ptr()[i] - dOffset;
+        dOffset = data.offset_ptr()[i];
+        vecd[i] = data.y_ptr()[i] - dOffset;
     }
 
-    return mpLocM.weightedQuantile(pData->get_trainSize(), &vecd[0], pData->weight_ptr(), dAlpha);
+    return mpLocM.weightedQuantile(data.get_trainSize(), &vecd[0], data.weight_ptr(), dAlpha);
 }
 
 
 double CQuantile::Deviance
 (
-	const CDataset* pData,
+	const CDataset& data,
     const double *adF,
     bool isValidationSet
 )
@@ -83,32 +83,32 @@ double CQuantile::Deviance
     double dW = 0.0;
 
     // Switch to validation set if necessary
-    long cLength = pData->get_trainSize();
+    long cLength = data.get_trainSize();
     if(isValidationSet)
     {
- 	   pData->shift_to_validation();
- 	   cLength = pData->GetValidSize();
+ 	   data.shift_to_validation();
+ 	   cLength = data.GetValidSize();
     }
 
 
 	for(i=0; i<cLength; i++)
 	{
-		if(pData->y_ptr()[i] > adF[i] + pData->offset_ptr(false)[i])
+		if(data.y_ptr()[i] > adF[i] + data.offset_ptr()[i])
 		{
-			dL += pData->weight_ptr()[i]*dAlpha*(pData->y_ptr()[i] - adF[i]-pData->offset_ptr(false)[i]);
+			dL += data.weight_ptr()[i]*dAlpha*(data.y_ptr()[i] - adF[i]-data.offset_ptr()[i]);
 		}
 		else
 		{
-			dL += pData->weight_ptr()[i]*(1.0-dAlpha)*(adF[i]+pData->offset_ptr(false)[i] - pData->y_ptr()[i]);
+			dL += data.weight_ptr()[i]*(1.0-dAlpha)*(adF[i]+data.offset_ptr()[i] - data.y_ptr()[i]);
 		}
-		dW += pData->weight_ptr()[i];
+		dW += data.weight_ptr()[i];
 	}
 
 
     // Switch back to training set if necessary
     if(isValidationSet)
     {
- 	   pData->shift_to_train();
+ 	   data.shift_to_train();
     }
 
     //TODO: Check if weights are all zero for validation set
@@ -125,11 +125,11 @@ double CQuantile::Deviance
 
 void CQuantile::FitBestConstant
 (
-	const CDataset* pData,
+	const CDataset& data,
     const double *adF,
     unsigned long cTermNodes,
     double* adZ,
-    CTreeComps* pTreeComps
+    CTreeComps& treeComps
 )
 {
   unsigned long iNode = 0;
@@ -137,27 +137,27 @@ void CQuantile::FitBestConstant
   unsigned long iVecd = 0;
   double dOffset;
 
-  vecd.resize(pData->get_trainSize()); // should already be this size from InitF
-  std::vector<double> adW2(pData->get_trainSize());
+  vecd.resize(data.get_trainSize()); // should already be this size from InitF
+  std::vector<double> adW2(data.get_trainSize());
 
   for(iNode=0; iNode<cTermNodes; iNode++)
     {
-      if(pTreeComps->GetTermNodes()[iNode]->cN >= pTreeComps->GetMinNodeObs())
+      if(treeComps.GetTermNodes()[iNode]->cN >= treeComps.GetMinNodeObs())
         {
 	  iVecd = 0;
-	  for(iObs=0; iObs< pData->get_trainSize(); iObs++)
+	  for(iObs=0; iObs< data.get_trainSize(); iObs++)
             {
-	      if(pData->GetBagElem(iObs) && (pTreeComps->GetNodeAssign()[iObs] == iNode))
+	      if(data.GetBagElem(iObs) && (treeComps.GetNodeAssign()[iObs] == iNode))
                 {
-		  dOffset = (pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[iObs];
+		  dOffset = data.offset_ptr()[iObs];
 		  
-		  vecd[iVecd] = pData->y_ptr()[iObs] - dOffset - adF[iObs];
-		  adW2[iVecd] = pData->weight_ptr()[iObs];
+		  vecd[iVecd] = data.y_ptr()[iObs] - dOffset - adF[iObs];
+		  adW2[iVecd] = data.weight_ptr()[iObs];
 		  iVecd++;
                 }
             }
 	  
-	 pTreeComps->GetTermNodes()[iNode]->dPrediction = mpLocM.weightedQuantile(iVecd, &vecd[0], &adW2[0], dAlpha);
+	 treeComps.GetTermNodes()[iNode]->dPrediction = mpLocM.weightedQuantile(iVecd, &vecd[0], &adW2[0], dAlpha);
 	}
     }
 }
@@ -182,7 +182,7 @@ double CQuantile::BagImprovement
     {
         if(!data.GetBagElem(i))
         {
-            dF = adF[i] + data.offset_ptr(false)[i];
+            dF = adF[i] + data.offset_ptr()[i];
 
             if(data.y_ptr()[i] > dF)
             {

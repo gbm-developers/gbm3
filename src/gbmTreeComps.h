@@ -38,9 +38,9 @@ public:
     //---------------------
 	// Public Functions
 	//---------------------
-    void GrowTrees(const CDataset* pData, double* adZ, const double* adFadj);
+    void GrowTrees(const CDataset& data, double* adZ, const double* adFadj);
     void AdjustAndShrink(double * adFadj);
-    void PredictValid(const CDataset* pData, double* adFadj);
+    void PredictValid(const CDataset& data, double* adFadj);
     void TransferTreeToRList(const CDataset &pData,
 		     int *aiSplitVar,
 		     double *adSplitPoint,

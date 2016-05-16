@@ -41,17 +41,17 @@ public:
 	//---------------------
 	// Public Functions
 	//---------------------
-    virtual void ComputeWorkingResponse(const CDataset* pData,
+    virtual void ComputeWorkingResponse(const CDataset& data,
     		const double *adF,
 				double *adZ)=0;
 
-    virtual void FitBestConstant(const CDataset* pData,
+    virtual void FitBestConstant(const CDataset& data,
     		const double *adF,
 			 unsigned long cTermNodes,
 			 double* adZ,
-			 CTreeComps* pTreeComps)=0;
+			 CTreeComps& treeComps)=0;
 
-    virtual double Deviance(const long cLength, const CDataset* pData,
+    virtual double Deviance(const long cLength, const CDataset& data,
     				const double *adF)=0;
 
     virtual double BagImprovement(const CDataset& data,

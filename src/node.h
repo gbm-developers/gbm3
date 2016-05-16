@@ -44,8 +44,7 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-    CNode(double nodePrediction,
-    		double trainingWeight, long numObs);
+  CNode(const NodeDef& defn);
 
 	//---------------------
 	// Public destructor

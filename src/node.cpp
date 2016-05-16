@@ -11,12 +11,11 @@
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CNode::CNode(double nodePrediction,
-		double trainingWeight, long numObs):aiLeftCategory()
-{
-    dPrediction = nodePrediction;
-    dTrainW = trainingWeight;
-    cN = numObs;
+CNode::CNode(const NodeDef& defn) :
+  dPrediction(defn.prediction()),
+  dTrainW(defn.totalWeight),
+  cN(defn.numObs),
+  aiLeftCategory() {
 
     dSplitValue = 0.0;
     iSplitVar = 0;
@@ -306,10 +305,12 @@ void CNode::SplitNode()
 	{
 		splitType = categorical;
 		SetStrategy();
+		// the types are confused here
 		aiLeftCategory.resize(1 + (ULONG)childrenParams.SplitValue);
-					  std::copy(childrenParams.aiBestCategory.begin(),
-								childrenParams.aiBestCategory.begin() + aiLeftCategory.size(),
-								 aiLeftCategory.begin());
+		std::copy(childrenParams.aiBestCategory.begin(),
+			  childrenParams.aiBestCategory.begin() +
+			  aiLeftCategory.size(),
+			  aiLeftCategory.begin());
 	}
 
 
@@ -317,12 +318,10 @@ void CNode::SplitNode()
 		dSplitValue = childrenParams.SplitValue;
 		dImprovement = childrenParams.ImprovedResiduals;
 
-		pLeftNode    = new CNode(childrenParams.LeftWeightResiduals/childrenParams.LeftTotalWeight, childrenParams.LeftTotalWeight,
-										childrenParams.LeftNumObs);
-		pRightNode    = new CNode(childrenParams.RightWeightResiduals/childrenParams.RightTotalWeight, childrenParams.RightTotalWeight,
-												childrenParams.RightNumObs);
-		pMissingNode    = new CNode(childrenParams.MissingWeightResiduals/childrenParams.MissingTotalWeight, childrenParams.MissingTotalWeight,
-												childrenParams.MissingNumObs);
+	pLeftNode    = new CNode(childrenParams.left);
+	pRightNode   = new CNode(childrenParams.right);
+	pMissingNode = new CNode(childrenParams.missing);
+
 
 
 }

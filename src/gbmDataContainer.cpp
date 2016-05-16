@@ -30,7 +30,8 @@ CGBMDataContainer::CGBMDataContainer(DataDistParams dataDistConfig):
 
 	//Initialize the factory and then use to get the disribution
 	DistFactory = new DistributionFactory();
-	pDist = DistFactory -> CreateDist(dataDistConfig);
+	pDist = DistFactory->CreateDist(dataDistConfig);
+	pDist->Initialize(data);
 }
 
 //-----------------------------------
@@ -49,20 +50,6 @@ CGBMDataContainer::~CGBMDataContainer()
 }
 
 //-----------------------------------
-// Function: Initialize
-//
-// Returns: none
-//
-// Description: Set up the distribution
-//
-// Parameters: none
-//-----------------------------------
-void CGBMDataContainer::Initialize()
-{
-	pDist->Initialize(&data);
-}
-
-//-----------------------------------
 // Function: InitializeFunctionEstimate
 //
 // Returns: none
@@ -75,7 +62,7 @@ void CGBMDataContainer::Initialize()
 //-----------------------------------
 double CGBMDataContainer::InitialFunctionEstimate()
 {
-	return pDist->InitF(&data);
+	return pDist->InitF(data);
 }
 
 //-----------------------------------
@@ -91,7 +78,7 @@ double CGBMDataContainer::InitialFunctionEstimate()
 //-----------------------------------
 void CGBMDataContainer::ComputeResiduals(const double* adF, double* adZ)
 {
-	pDist->ComputeWorkingResponse(&data, adF, adZ);
+	pDist->ComputeWorkingResponse(data, adF, adZ);
 }
 
 //-----------------------------------
@@ -105,11 +92,12 @@ void CGBMDataContainer::ComputeResiduals(const double* adF, double* adZ)
 //    CTreeComps ptr - ptr to the tree components container in the gbm
 //    int& - reference to the number of nodes in the tree.
 //-----------------------------------
-void CGBMDataContainer::ComputeBestTermNodePreds(const double* adF, double* adZ, CTreeComps* pTreeComp)
+void CGBMDataContainer::ComputeBestTermNodePreds(const double* adF, double* adZ, CTreeComps& treeComp)
 {
-	pDist->FitBestConstant(&data, &adF[0],
-	                         (2*pTreeComp->GetSizeOfTree()+1)/3, // number of terminal nodes
-	                         &adZ[0], pTreeComp);
+	pDist->FitBestConstant(data, &adF[0],
+			       (2*treeComp.GetSizeOfTree()+1)/3, // number of terminal nodes
+			       &adZ[0],
+			       treeComp);
 }
 
 //-----------------------------------
@@ -128,11 +116,11 @@ double CGBMDataContainer::ComputeDeviance(const double* adF, bool isValidationSe
 {
 	if(!(isValidationSet))
 	{
-		return pDist->Deviance(&data, adF);
+		return pDist->Deviance(data, adF);
 	}
 	else
 	{
-		return pDist->Deviance(&data, adF + data.get_trainSize(), true);
+		return pDist->Deviance(data, adF + data.get_trainSize(), true);
 	}
 }
 
@@ -175,9 +163,9 @@ CDistribution* CGBMDataContainer::getDist()
 //
 // Parameters: none
 //-----------------------------------
-CDataset* CGBMDataContainer::getData()
+const CDataset& CGBMDataContainer::getData()
 {
-	return &data;
+	return data;
 }
 
 

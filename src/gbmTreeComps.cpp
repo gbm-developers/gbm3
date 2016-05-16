@@ -31,8 +31,8 @@
 //    int - number of groups in data
 //
 //-----------------------------------
-CTreeComps::CTreeComps(TreeParams treeConfig):
-aNodeSearch(treeConfig.cDepth, treeConfig.numColData, treeConfig.cMinObsInNode)
+CTreeComps::CTreeComps(TreeParams treeConfig) :
+  aNodeSearch(treeConfig.numColData, treeConfig.cMinObsInNode)
 {
 	this-> cMinObsInNode = treeConfig.cMinObsInNode;
 	ptreeTemp = new CCARTTree(treeConfig.dShrinkage, treeConfig.cDepth);
@@ -65,7 +65,7 @@ CTreeComps::~CTreeComps()
 //    int& - reference to  number of nodes in tree
 //
 //-----------------------------------
-void CTreeComps::GrowTrees(const CDataset* pData, double* adZ, const double* adFadj)
+void CTreeComps::GrowTrees(const CDataset& data, double* adZ, const double* adFadj)
 {
 	#ifdef NOISY_DEBUG
 	  Rprintf("Reset tree\n");
@@ -80,7 +80,7 @@ void CTreeComps::GrowTrees(const CDataset* pData, double* adZ, const double* adF
 	#endif
 
 	ptreeTemp->grow(&(adZ[0]),
-	                *(pData),
+	                data,
 	                &(adFadj[0]),
 	                cMinObsInNode,
 	                aiNodeAssign,
@@ -126,7 +126,7 @@ void CTreeComps::AdjustAndShrink(double * adFadj)
 // Parameters:
 //
 //-----------------------------------
-void CTreeComps::TransferTreeToRList(const CDataset &pData,
+void CTreeComps::TransferTreeToRList(const CDataset &data,
 	     int *aiSplitVar,
 	     double *adSplitPoint,
 	     int *aiLeftNode,
@@ -143,7 +143,7 @@ void CTreeComps::TransferTreeToRList(const CDataset &pData,
 	if(ptreeTemp->GetRootNode())
 	{
 		ptreeTemp->GetRootNode()->TransferTreeToRList(iNodeID,
-													   pData,
+													   data,
 													   aiSplitVar,
 													   adSplitPoint,
 													   aiLeftNode,
@@ -171,9 +171,9 @@ void CTreeComps::TransferTreeToRList(const CDataset &pData,
 //
 // Parameters: const CDataset ptr - ptr to gbm data
 //
-void CTreeComps::PredictValid(const CDataset* pData, double* adFadj)
+void CTreeComps::PredictValid(const CDataset& data, double* adFadj)
 {
-	ptreeTemp->PredictValid(*(pData), pData->GetValidSize(), &(adFadj[0]));
+	ptreeTemp->PredictValid(data, data.GetValidSize(), &(adFadj[0]));
 }
 
 //-----------------------------------

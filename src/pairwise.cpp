@@ -600,7 +600,7 @@ inline const double* OffsetVector(const double* const adX, const double* const a
 
 void CPairwise::ComputeWorkingResponse
 (
- const CDataset* pData,
+ const CDataset& data,
  const double *adF,
  double *adZ
 )
@@ -609,14 +609,14 @@ void CPairwise::ComputeWorkingResponse
     Rprintf("compute working response, nTrain = %u\n", nTrain);
 #endif
     
-    if (pData->get_trainSize() <= 0) return;
+    if (data.get_trainSize() <= 0) return;
     
     // Iterate through all groups, compute gradients
     
     unsigned int iItemStart = 0;
     unsigned int iItemEnd   = 0;
     
-    while (iItemStart < pData->get_trainSize())
+    while (iItemStart < data.get_trainSize())
       {
 	adZ[iItemEnd]           = 0;
 	vecdHessian[iItemEnd]   = 0;
@@ -624,7 +624,7 @@ void CPairwise::ComputeWorkingResponse
 	const double dGroup = adGroup[iItemStart];
 	
 	// Find end of current group, initialize working response
-	for (iItemEnd = iItemStart + 1; iItemEnd < pData->get_trainSize() && adGroup[iItemEnd] == dGroup; iItemEnd++)
+	for (iItemEnd = iItemStart + 1; iItemEnd < data.get_trainSize() && adGroup[iItemEnd] == dGroup; iItemEnd++)
 	  {
 	    // Clear gradients from last iteration
 	    adZ[iItemEnd]         = 0;
@@ -634,20 +634,20 @@ void CPairwise::ComputeWorkingResponse
 #ifdef NOISY_DEBUG
 	// Check sorting
 	for (unsigned int i = iItemStart; i < iItemEnd-1; i++) {
-	  if (pData-> y_ptr()[i] < pData-> y_ptr()[i+1]) {
+	  if (data. y_ptr()[i] < data. y_ptr()[i+1]) {
 	    throw GBM::failure("sorting failed in pairwise?");
 	  }
 	}  
 #endif
 
-	if (pData->GetBag()[iItemStart])
+	if (data.GetBag()[iItemStart])
 	  {
 	    // Group is part of the training set
 	    
 	    const int cNumItems = iItemEnd - iItemStart;
 	    
 	    // If offset given, add up current scores
-	    const double* adFPlusOffset = OffsetVector(adF, pData->offset_ptr(false), iItemStart, iItemEnd, vecdFPlusOffset);
+	    const double* adFPlusOffset = OffsetVector(adF, data.offset_ptr(), iItemStart, iItemEnd, vecdFPlusOffset);
 	    
 	    // Accumulate gradients
 	    // TODO: Implement better way to ensure casting robust to overflow
@@ -661,7 +661,7 @@ void CPairwise::ComputeWorkingResponse
 	    	intGroup = (int) dGroup;
 	    }
 
-	    ComputeLambdas(intGroup, cNumItems, pData->y_ptr() + iItemStart, adFPlusOffset, pData->weight_ptr() + iItemStart, adZ + iItemStart, &vecdHessian[iItemStart]);
+	    ComputeLambdas(intGroup, cNumItems, data.y_ptr() + iItemStart, adFPlusOffset, data.weight_ptr() + iItemStart, adZ + iItemStart, &vecdHessian[iItemStart]);
 	  }
 	
 	// Next group
@@ -782,14 +782,13 @@ void CPairwise::ComputeLambdas(int iGroup, unsigned int cNumItems, const double*
             ranker.SetRank(j, cRankj);
             ranker.SetRank(i, cRanki);
 	    
+#endif
 	    if (!isfinite(dSwapCost)) {
 	      throw GBM::failure("infinite swap cost");
 	    }
-#endif
 
             if (dSwapCost > 0.0)
             {
-#ifdef NOISY_DEBUG
                 cPairs++;
                 const double dRhoij    = 1.0 / (1.0 + std::exp(adF[i]- adF[j])) ;
                 if (!isfinite(dRhoij)) {
@@ -805,7 +804,6 @@ void CPairwise::ComputeLambdas(int iGroup, unsigned int cNumItems, const double*
 		}
                 adDeriv[i] += dDerivij;
                 adDeriv[j] += dDerivij;
-#endif
             }
         }
     }
@@ -825,13 +823,13 @@ void CPairwise::ComputeLambdas(int iGroup, unsigned int cNumItems, const double*
 
 void CPairwise::Initialize
 (
-	const CDataset* pData
+	const CDataset& data
 )
 {
-  if (pData->nrow() <= 0) return;
+  if (data.nrow() <= 0) return;
   
   // Allocate memory for derivative buffer
-  vecdHessian.resize(pData->nrow());
+  vecdHessian.resize(data.nrow());
 
   // Count the groups and number of items per group
   unsigned int cMaxItemsPerGroup = 0;
@@ -840,13 +838,13 @@ void CPairwise::Initialize
   unsigned int iItemStart        = 0;
   unsigned int iItemEnd          = 0;
   
-  while (iItemStart < pData->nrow())
+  while (iItemStart < data.nrow())
     {
       
       const double dGroup = adGroup[iItemStart];
       
       // Find end of current group
-      for (iItemEnd = iItemStart + 1; iItemEnd < pData->nrow() && adGroup[iItemEnd] == dGroup; iItemEnd++);
+      for (iItemEnd = iItemStart + 1; iItemEnd < data.nrow() && adGroup[iItemEnd] == dGroup; iItemEnd++);
       
       const unsigned int cNumItems = iItemEnd - iItemStart;
       if (cNumItems > cMaxItemsPerGroup)
@@ -873,9 +871,9 @@ void CPairwise::Initialize
   // The last element of adGroup specifies the cutoff
   // (zero means no cutoff)
   unsigned int cRankCutoff = cMaxItemsPerGroup;
-  if (adGroup[pData->nrow()] > 0)
+  if (adGroup[data.nrow()] > 0)
     {
-      cRankCutoff = (unsigned int)adGroup[pData->nrow()];
+      cRankCutoff = (unsigned int)adGroup[data.nrow()];
     }
 
   	// TODO: Make More robust against overflow
@@ -890,13 +888,13 @@ void CPairwise::Initialize
 	}
   pirm->Init(ulMaxGroup, cMaxItemsPerGroup, cRankCutoff);
 #ifdef NOISY_DEBUG
-  Rprintf("Initialization: instances=%ld, groups=%u, max items per group=%u, rank cutoff=%u, offset specified: %d\n", cLength, (unsigned long)dMaxGroup, cMaxItemsPerGroup, cRankCutoff, (pData->offset_ptr(false) != NULL));
+  Rprintf("Initialization: instances=%ld, groups=%u, max items per group=%u, rank cutoff=%u, offset specified: %d\n", cLength, (unsigned long)dMaxGroup, cMaxItemsPerGroup, cRankCutoff, (data.offset_ptr() != NULL));
 #endif
 }
 
 double CPairwise::InitF
 (
-	const CDataset* pData
+	const CDataset& data
 )
 {
     return 0.0;
@@ -905,27 +903,27 @@ double CPairwise::InitF
 
 double CPairwise::Deviance
 (
-   const CDataset* pData,
+   const CDataset& data,
    const double *adF,
    bool isValidationSet
 )
 {
 
     // Shift adGroup to validation set if necessary
-	long cLength = pData->get_trainSize();
+	long cLength = data.get_trainSize();
     if(isValidationSet)
     {
-    	cLength = pData->GetValidSize();
-    	pData->shift_to_validation();
-    	adGroup=shift_ptr(adGroup, pData->get_trainSize());
+    	cLength = data.GetValidSize();
+    	data.shift_to_validation();
+    	adGroup=shift_ptr(adGroup, data.get_trainSize());
 
     }
 
     if (cLength <= 0)
 	{
     	// NB: SWITCH BACK TO TRAIN BEFORE LEAVING
-    	pData->shift_to_train();
-    	adGroup=shift_ptr(adGroup, -(pData->get_trainSize()));
+    	data.shift_to_train();
+    	adGroup=shift_ptr(adGroup, -(data.get_trainSize()));
     	return 0;
 	}
 
@@ -939,7 +937,7 @@ double CPairwise::Deviance
     while (iItemStart < cEnd)
     {
         const double dGroup = adGroup[iItemStart];
-        const double dWi    = pData->weight_ptr()[iItemStart];
+        const double dWi    = data.weight_ptr()[iItemStart];
 
         // Find end of current group
         for (iItemEnd = iItemStart + 1; iItemEnd < cEnd && adGroup[iItemEnd] == dGroup; iItemEnd++) ;
@@ -955,19 +953,19 @@ double CPairwise::Deviance
 		{
 			intGroup = (int) dGroup;
 		}
-        const double dMaxScore = pirm->MaxMeasure(intGroup, pData->y_ptr() + iItemStart, cNumItems);
+        const double dMaxScore = pirm->MaxMeasure(intGroup, data.y_ptr() + iItemStart, cNumItems);
 
         if (dMaxScore > 0.0)
         {
             // Rank items by current score
 
             // If offset given, add up current scores
-            const double* adFPlusOffset = OffsetVector(adF, pData->offset_ptr(false), iItemStart, iItemEnd, vecdFPlusOffset);
+            const double* adFPlusOffset = OffsetVector(adF, data.offset_ptr(), iItemStart, iItemEnd, vecdFPlusOffset);
 
             ranker.SetGroupScores(adFPlusOffset, cNumItems);
             ranker.Rank();
 
-            dL += dWi * pirm->Measure(pData->y_ptr() + iItemStart, ranker) / dMaxScore;
+            dL += dWi * pirm->Measure(data.y_ptr() + iItemStart, ranker) / dMaxScore;
             dW += dWi;
         }
         // Next group
@@ -977,8 +975,8 @@ double CPairwise::Deviance
     // Reset adGroup if required
     if(isValidationSet)
     {
-    	pData->shift_to_train();
-    	adGroup=shift_ptr(adGroup, -(pData->get_trainSize()));
+    	data.shift_to_train();
+    	adGroup=shift_ptr(adGroup, -(data.get_trainSize()));
 
     }
 
@@ -989,11 +987,11 @@ double CPairwise::Deviance
 
 void CPairwise::FitBestConstant
 (
-	const CDataset* pData,
+	const CDataset& data,
     const double *adF,
     unsigned long cTermNodes,
     double* adZ,
-    CTreeComps* pTreeComps
+    CTreeComps& treeComps
 )
 {
 
@@ -1013,36 +1011,34 @@ void CPairwise::FitBestConstant
 	vecdDenom[i] = 0.0;
       }
 
-    for (unsigned int iObs = 0; iObs < pData->get_trainSize(); iObs++)
+    for (unsigned int iObs = 0; iObs < data.get_trainSize(); iObs++)
     {
-      if (pData->GetBagElem(iObs))
+      if (data.GetBagElem(iObs))
         {
 #ifdef NOISY_DEBUG
-          if (!(isfinite(pData->weight_ptr()[iObs]) &&
+          if (!(isfinite(data.weight_ptr()[iObs]) &&
 		isfinite(adZ[iObs]) &&
 		isfinite(vecdHessian[iObs]))) {
 	    throw GBM::failure("unanticipated infinities");
 	  };
 #endif
 
-            vecdNum[pTreeComps->GetNodeAssign()[iObs]]   += pData->weight_ptr()[iObs] * adZ[iObs];
-            vecdDenom[pTreeComps->GetNodeAssign()[iObs]] += pData->weight_ptr()[iObs] * vecdHessian[iObs];
+            vecdNum[treeComps.GetNodeAssign()[iObs]]   += data.weight_ptr()[iObs] * adZ[iObs];
+            vecdDenom[treeComps.GetNodeAssign()[iObs]] += data.weight_ptr()[iObs] * vecdHessian[iObs];
         }
     }
 
     for (unsigned int iNode = 0; iNode < cTermNodes; iNode++)
     {
-        if (pTreeComps->GetTermNodes()[iNode] != NULL)
+        if (treeComps.GetTermNodes()[iNode] != NULL)
         {
-        	pTreeComps->GetTermNodes()[iNode]->dPrediction =
-                vecdNum[iNode];
             if (vecdDenom[iNode] <= 0.0)
             {
-            	pTreeComps->GetTermNodes()[iNode]->dPrediction = 0.0;
+            	treeComps.GetTermNodes()[iNode]->dPrediction = 0.0;
             }
             else
             {
-            	pTreeComps->GetTermNodes()[iNode]->dPrediction =
+            	treeComps.GetTermNodes()[iNode]->dPrediction =
                     vecdNum[iNode]/vecdDenom[iNode];
             }
         }
@@ -1103,7 +1099,7 @@ double CPairwise::BagImprovement
             if (dMaxScore > 0.0)
             {
                 // If offset given, add up current scores
-                const double* adFPlusOffset = OffsetVector(adF, data.offset_ptr(false), iItemStart, iItemEnd, vecdFPlusOffset);
+                const double* adFPlusOffset = OffsetVector(adF, data.offset_ptr(), iItemStart, iItemEnd, vecdFPlusOffset);
 
                 // Compute score according to old score, adF
                 ranker.SetGroupScores(adFPlusOffset, cNumItems);

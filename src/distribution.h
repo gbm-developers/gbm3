@@ -62,30 +62,30 @@ public:
   		}
   	}
 
-    //---------------------
-    // Public Virtual Functions
-    //---------------------
-    virtual void Initialize(const CDataset* pData) { };
+     //---------------------
+     // Public Virtual Functions
+     //---------------------
+     virtual void Initialize(const CDataset& data) { };
+     virtual void ComputeWorkingResponse(const CDataset& data,
+					const double *adF,
+					double *adZ) = 0;
 
-    virtual void ComputeWorkingResponse(const CDataset* pData,
-    								const double *adF,
-									double *adZ) = 0;
+    virtual double InitF(const CDataset& data) = 0;
 
-    virtual double InitF(const CDataset* pData) = 0;
-
-    virtual double Deviance(const CDataset* pData, const double *adF,
+    virtual double Deviance(const CDataset& data, const double *adF,
                             bool isValidationSet=false) = 0;
 
-    virtual void FitBestConstant(const CDataset* pData, const double *adF,
+    virtual void FitBestConstant(const CDataset& data, const double *adF,
 						  unsigned long cTermNodes,
-						  double* adZ, CTreeComps* pTreeComps) = 0;
+						  double* adZ, CTreeComps& treeComps) = 0;
 
     virtual double BagImprovement(const CDataset& data,
     							  const double *adF,
 								  const bag& afInBag,
 								  const double shrinkage, const double* adFadj) = 0;
 
-private:
+ private:
+
     //---------------------
     // Private Variables
     //---------------------

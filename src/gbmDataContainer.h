@@ -45,12 +45,12 @@ public:
     void Initialize();
     double InitialFunctionEstimate();
     void ComputeResiduals(const double* adF, double* adZ);
-    void ComputeBestTermNodePreds(const double* adF, double* adZ, CTreeComps* pTreeComp);
+    void ComputeBestTermNodePreds(const double* adF, double* adZ, CTreeComps& pTreeComp);
     double ComputeDeviance(const double *adF, bool isValidationSet=false);
     double ComputeBagImprovement(const double* adF, const double shrinkage, const double* adFadj);
     void BagData();
     CDistribution* getDist();
-    CDataset* getData();
+    const CDataset& getData();
 
 
 private:

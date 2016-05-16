@@ -34,7 +34,7 @@ CHuberized::~CHuberized()
 
 void CHuberized::ComputeWorkingResponse
 (
-	const CDataset* pData,
+	const CDataset& data,
     const double *adF,
     double *adZ
 )
@@ -42,42 +42,42 @@ void CHuberized::ComputeWorkingResponse
    unsigned long i = 0;
    double dF = 0.0;
 
-   for(i=0; i<pData->get_trainSize(); i++)
+   for(i=0; i<data.get_trainSize(); i++)
    {
-      dF = adF[i] + pData->offset_ptr(false)[i];
-      if( (2*pData->y_ptr()[i]-1)*dF < -1)
+      dF = adF[i] + data.offset_ptr()[i];
+      if( (2*data.y_ptr()[i]-1)*dF < -1)
       {
-         adZ[i] = -4 * (2*pData->y_ptr()[i]-1);
+         adZ[i] = -4 * (2*data.y_ptr()[i]-1);
       }
-      else if ( 1 - (2*pData->y_ptr()[i]-1)*dF < 0 )
+      else if ( 1 - (2*data.y_ptr()[i]-1)*dF < 0 )
       {
          adZ[i] = 0;
       }
       else
       {
-         adZ[i] = -2 * (2*pData->y_ptr()[i]-1) * ( 1 - (2*pData->y_ptr()[i]-1)*dF );
+         adZ[i] = -2 * (2*data.y_ptr()[i]-1) * ( 1 - (2*data.y_ptr()[i]-1)*dF );
       }
    }
 }
 
 double CHuberized::InitF
 (
-	const CDataset* pData
+	const CDataset& data
 )
 {
     unsigned long i=0;
     double dNum = 0.0;
     double dDen = 0.0;
 
-    for(i=0; i<pData->get_trainSize(); i++)
+    for(i=0; i<data.get_trainSize(); i++)
     {
-        if(pData->y_ptr()[i]==1.0)
+        if(data.y_ptr()[i]==1.0)
         {
-            dNum += pData->weight_ptr()[i];
+            dNum += data.weight_ptr()[i];
         }
         else
         {
-            dDen += pData->weight_ptr()[i];
+            dDen += data.weight_ptr()[i];
         }
     }
 
@@ -87,7 +87,7 @@ double CHuberized::InitF
 
 double CHuberized::Deviance
 (
-	const CDataset* pData,
+	const CDataset& data,
     const double *adF,
     bool isValidationSet
 )
@@ -97,39 +97,39 @@ double CHuberized::Deviance
    double dF = 0.0;
    double dW = 0.0;
 
-   long cLength = pData->get_trainSize();
+   long cLength = data.get_trainSize();
    if(isValidationSet)
    {
-	   pData->shift_to_validation();
-	   cLength = pData->GetValidSize();
+	   data.shift_to_validation();
+	   cLength = data.GetValidSize();
    }
 
 
   for(i=0; i<cLength; i++)
   {
-	 dF = pData->offset_ptr(false)[i]+adF[i];
-	 if ( (2*pData->y_ptr()[i]-1)*adF[i] < -1 )
+	 dF = data.offset_ptr()[i]+adF[i];
+	 if ( (2*data.y_ptr()[i]-1)*adF[i] < -1 )
 	 {
-		dL += -pData->weight_ptr()[i]*4*(2*pData->y_ptr()[i]-1)*dF;
-		dW += pData->weight_ptr()[i];
+		dL += -data.weight_ptr()[i]*4*(2*data.y_ptr()[i]-1)*dF;
+		dW += data.weight_ptr()[i];
 	 }
-	 else if ( 1 - (2*pData->y_ptr()[i]-1)*dF < 0 )
+	 else if ( 1 - (2*data.y_ptr()[i]-1)*dF < 0 )
 	 {
 		dL += 0;
-		dW += pData->weight_ptr()[i];
+		dW += data.weight_ptr()[i];
 	 }
 	 else
 	 {
-		dL += pData->weight_ptr()[i] * ( 1 - (2*pData->y_ptr()[i]-1)*dF ) *
-							( 1 - (2*pData->y_ptr()[i]-1)*dF );
-		dW += pData->weight_ptr()[i];
+		dL += data.weight_ptr()[i] * ( 1 - (2*data.y_ptr()[i]-1)*dF ) *
+							( 1 - (2*data.y_ptr()[i]-1)*dF );
+		dW += data.weight_ptr()[i];
 	 }
   } // close for(
 
 
    if(isValidationSet)
    {
-	   pData->shift_to_train();
+	   data.shift_to_train();
    }
 
    //TODO: Check if weights are all zero for validation set
@@ -148,11 +148,11 @@ double CHuberized::Deviance
 
 void CHuberized::FitBestConstant
 (
-	const CDataset* pData,
+	const CDataset& data,
     const double *adF,
     unsigned long cTermNodes,
     double* adZ,
-    CTreeComps* pTreeComps
+    CTreeComps& treeComps
 )
 {
   double dF = 0.0;
@@ -162,40 +162,40 @@ void CHuberized::FitBestConstant
   vector<double> vecdNum(cTermNodes, 0.0);
   vector<double> vecdDen(cTermNodes, 0.0);
 
-  for(iObs=0; iObs<pData->get_trainSize(); iObs++)
+  for(iObs=0; iObs<data.get_trainSize(); iObs++)
     {
-      if(pData->GetBagElem(iObs))
+      if(data.GetBagElem(iObs))
         {
-	  dF = adF[iObs] +  pData->offset_ptr(false)[iObs];
-	  if( (2*pData->y_ptr()[iObs]-1)*adF[iObs] < -1 )
+	  dF = adF[iObs] +  data.offset_ptr()[iObs];
+	  if( (2*data.y_ptr()[iObs]-1)*adF[iObs] < -1 )
 	  {
-	    vecdNum[pTreeComps->GetNodeAssign()[iObs]] +=
-	      pData->weight_ptr()[iObs]*4*(2*pData->y_ptr()[iObs]-1);
-	    vecdDen[pTreeComps->GetNodeAssign()[iObs]] +=
-	      -pData->weight_ptr()[iObs]*4*(2*pData->y_ptr()[iObs]-1)*dF;
+	    vecdNum[treeComps.GetNodeAssign()[iObs]] +=
+	      data.weight_ptr()[iObs]*4*(2*data.y_ptr()[iObs]-1);
+	    vecdDen[treeComps.GetNodeAssign()[iObs]] +=
+	      -data.weight_ptr()[iObs]*4*(2*data.y_ptr()[iObs]-1)*dF;
 	  }
-	  else if ( 1 - (2*pData->y_ptr()[iObs]-1)*adF[iObs] < 0 ){
-	    vecdNum[pTreeComps->GetNodeAssign()[iObs]] += 0;
-	    vecdDen[pTreeComps->GetNodeAssign()[iObs]] += 0;
+	  else if ( 1 - (2*data.y_ptr()[iObs]-1)*adF[iObs] < 0 ){
+	    vecdNum[treeComps.GetNodeAssign()[iObs]] += 0;
+	    vecdDen[treeComps.GetNodeAssign()[iObs]] += 0;
 	  }
 	  else{
-	    vecdNum[pTreeComps->GetNodeAssign()[iObs]] += pData->weight_ptr()[iObs]*2*(2*pData->y_ptr()[iObs]-1)*( 1 - (2*pData->y_ptr()[iObs]-1)*adF[iObs] );
-	    vecdDen[pTreeComps->GetNodeAssign()[iObs]] += pData->weight_ptr()[iObs]*( 1 - (2*pData->y_ptr()[iObs]-1)*adF[iObs])*( 1 - (2*pData->y_ptr()[iObs]-1)*adF[iObs]);
+	    vecdNum[treeComps.GetNodeAssign()[iObs]] += data.weight_ptr()[iObs]*2*(2*data.y_ptr()[iObs]-1)*( 1 - (2*data.y_ptr()[iObs]-1)*adF[iObs] );
+	    vecdDen[treeComps.GetNodeAssign()[iObs]] += data.weight_ptr()[iObs]*( 1 - (2*data.y_ptr()[iObs]-1)*adF[iObs])*( 1 - (2*data.y_ptr()[iObs]-1)*adF[iObs]);
 	  }
         } // close if(afInBag[iObs
     }
   
   for(iNode=0; iNode<cTermNodes; iNode++)
     {
-      if(pTreeComps->GetTermNodes()[iNode]!=NULL)
+      if(treeComps.GetTermNodes()[iNode]!=NULL)
         {
 	  if(vecdDen[iNode] == 0)
             {
-	      pTreeComps->GetTermNodes()[iNode]->dPrediction = 0.0;
+	      treeComps.GetTermNodes()[iNode]->dPrediction = 0.0;
             }
 	  else
             {
-	      pTreeComps->GetTermNodes()[iNode]->dPrediction =
+	      treeComps.GetTermNodes()[iNode]->dPrediction =
 		vecdNum[iNode]/vecdDen[iNode];
             }
         }
@@ -221,7 +221,7 @@ double CHuberized::BagImprovement
     {
         if(!data.GetBagElem(i))
         {
-            dF = adF[i] +  data.offset_ptr(false)[i];
+            dF = adF[i] +  data.offset_ptr()[i];
 
             if( (2*data.y_ptr()[i]-1)*dF < -1 ){
                dReturnValue += data.weight_ptr()[i]*

@@ -187,18 +187,15 @@ void VarSplitter::WrapUpCurrentVariable()
 /*
 void VarSplitter::WrapUpSplit()
 {
-	if(proposedSplit.MissingNumObs <= 0)
+  if (!proposedSplit.hasMissing())
 	{
-		bestSplit.MissingWeightResiduals   = InitWeightResiduals;
-		bestSplit.MissingTotalWeight = InitTotalWeight;
-		bestSplit.MissingNumObs      = 0;
+		bestSplit.missing.weightResid = InitWeightResiduals;
+		bestSplit.missing.totalWeight = InitTotalWeight;
+		bestSplit.missing.numObs      = 0;
 	}
 	else
 	{
-		bestSplit.MissingWeightResiduals = proposedSplit.MissingWeightResiduals;
-		bestSplit.MissingTotalWeight = proposedSplit.MissingTotalWeight;
-		bestSplit.MissingNumObs = proposedSplit.MissingNumObs;
-
+	  bestSplit.missing = proposedSplit.missing;
 	}
 }
 

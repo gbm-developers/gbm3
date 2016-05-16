@@ -95,17 +95,17 @@ CCoxPH::~CCoxPH()
 
 void CCoxPH::ComputeWorkingResponse
 (
-	const CDataset* pData,
+	const CDataset& data,
     const double *adF,
     double *adZ
 )
 {
-    coxStateMethods->ComputeWorkingResponse(pData, adF, adZ);
+    coxStateMethods->ComputeWorkingResponse(data, adF, adZ);
 }
 
 double CCoxPH::InitF
 (
-	const CDataset* pData
+	const CDataset& data
 )
 {
     return 0.0;
@@ -114,34 +114,34 @@ double CCoxPH::InitF
 
 double CCoxPH::Deviance
 (
-	const CDataset* pData,
+	const CDataset& data,
     const double *adF,
     bool isValidationSet
 )
 {
     // Set size and move to validation set if necessary
-    long cLength = pData->get_trainSize();
+    long cLength = data.get_trainSize();
 	if(isValidationSet)
 	{
-		pData->shift_to_validation();
-		status = shift_ptr(status, pData->get_trainSize());
-		sortedEndTimes = shift_ptr(sortedEndTimes, pData->get_trainSize());
-		sortedStartTimes = shift_ptr(sortedStartTimes, pData->get_trainSize());
-		strata = shift_ptr(strata, pData->get_trainSize());
-		cLength = pData->GetValidSize();
+		data.shift_to_validation();
+		status = shift_ptr(status, data.get_trainSize());
+		sortedEndTimes = shift_ptr(sortedEndTimes, data.get_trainSize());
+		sortedStartTimes = shift_ptr(sortedStartTimes, data.get_trainSize());
+		strata = shift_ptr(strata, data.get_trainSize());
+		cLength = data.GetValidSize();
 	}
 
 	double returnValue = 0.0;
-	returnValue = coxStateMethods->Deviance(cLength, pData, adF);
+	returnValue = coxStateMethods->Deviance(cLength, data, adF);
 
 	// Shift back for future calculations if required
 	if(isValidationSet)
 	{
-		pData->shift_to_train();
-		status = shift_ptr(status, -(pData->get_trainSize()));
-		sortedEndTimes = shift_ptr(sortedEndTimes, -(pData->get_trainSize()));
-		sortedStartTimes = shift_ptr(sortedStartTimes, -(pData->get_trainSize()));
-		strata = shift_ptr(strata, -(pData->get_trainSize()));
+		data.shift_to_train();
+		status = shift_ptr(status, -(data.get_trainSize()));
+		sortedEndTimes = shift_ptr(sortedEndTimes, -(data.get_trainSize()));
+		sortedStartTimes = shift_ptr(sortedStartTimes, -(data.get_trainSize()));
+		strata = shift_ptr(strata, -(data.get_trainSize()));
 	}
 
 
@@ -151,14 +151,14 @@ double CCoxPH::Deviance
 
 void CCoxPH::FitBestConstant
 (
-	const CDataset* pData,
+	const CDataset& data,
     const double *adF,
     unsigned long cTermNodes,
     double* adZ,
-    CTreeComps* pTreeComps
+    CTreeComps& treeComps
 )
 {
-   coxStateMethods->FitBestConstant(pData, adF, cTermNodes, adZ, pTreeComps);
+   coxStateMethods->FitBestConstant(data, adF, cTermNodes, adZ, treeComps);
 }
 
 double CCoxPH::BagImprovement
