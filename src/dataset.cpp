@@ -224,10 +224,10 @@ void CDataset::SetBagElem(long index, bool value)
 // Parameters: none
 //
 //-----------------------------------
-bag CDataset::GetBag()
+/*bag CDataset::GetBag()
 {
 	return dataImpl.afInBag;
-}
+}*/
 
 //-----------------------------------
 // Function: FillRemainderOfBag

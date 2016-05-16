@@ -188,7 +188,7 @@ double CAdaBoost::BagImprovement
 
     for(i=0; i<data.get_trainSize(); i++)
     {
-        if(!data.GetBag()[i])
+        if(!data.GetBagElem(i))
         {
             dF = adF[i] + data.offset_ptr()[i];
 

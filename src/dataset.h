@@ -288,11 +288,13 @@ public:
   
   long GetValidSize() const;
   long GetTotalInBag() const;
-  bag GetBag();
-  const bag& GetBag() const {
+  //bag GetBag();
+  const bag& GetBag() const
+  {
     return dataImpl.afInBag;
   };
-  bool GetBagElem(long index) const { 
+  bool GetBagElem(long index) const
+  {
 	return dataImpl.afInBag[index];
   }
   void FillRemainderOfBag(long offset);

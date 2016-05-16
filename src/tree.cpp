@@ -71,7 +71,7 @@ void CCARTTree::grow
 		// aiNodeAssign tracks to which node each training obs belongs
 		aiNodeAssign[iObs] = 0;
 
-		if(data.GetBag()[iObs])
+		if(data.GetBagElem(iObs))
 		{
 			// get the initial sums and sum of squares and total weight
 			dSumZ += data.weight_ptr()[iObs]*adZ[iObs];

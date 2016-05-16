@@ -640,7 +640,7 @@ void CPairwise::ComputeWorkingResponse
 	}  
 #endif
 
-	if (data.GetBag()[iItemStart])
+	if (data.GetBagElem(iItemStart))
 	  {
 	    // Group is part of the training set
 	    
