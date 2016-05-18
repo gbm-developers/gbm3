@@ -59,6 +59,10 @@ struct NodeDef
 		return (numObs >= minObsInNode);
 	}
 
+  bool hasObs() const {
+    return numObs;
+  }
+
 	//---------------------
 	// Public Variables
 	//---------------------
@@ -111,7 +115,7 @@ public:
 	void NodeGradResiduals()
 	{
 	  // Only need to look at left and right
-	  if(missing.numObs == 0)
+	  if(!missing.hasObs())
 	    {
 	      ImprovedResiduals = left.unweightedGradient(right) /
 		(left.totalWeight + right.totalWeight);
@@ -126,6 +130,7 @@ public:
 		(left.totalWeight + right.totalWeight + missing.totalWeight);
 	    }
 	};
+	
 	bool HasMinNumOfObs(long minObsInNode)
 	{
 		return (left.hasMinObs(minObsInNode) &&
@@ -133,15 +138,16 @@ public:
 	}
 	inline void setBestCategory(std::vector<std::pair<double, int> >& groupMeanAndCat)
 	{
-		int count = 0;
-		aiBestCategory.resize(groupMeanAndCat.size());
-		for(std::vector<std::pair<double, int> >::const_iterator it = groupMeanAndCat.begin();
-				it != groupMeanAndCat.end();
-				++it)
-		{
-			aiBestCategory[count] = it->second;
-			count++;
-		}
+
+	  int count = 0;
+	  aiBestCategory.resize(groupMeanAndCat.size());
+	  for(std::vector<std::pair<double, int> >::const_iterator it = groupMeanAndCat.begin();
+	      it != groupMeanAndCat.end();
+	      ++it)
+	    {
+	      aiBestCategory[count] = it->second;
+	      count++;
+	    }
 	};
 
 	NodeParams& operator=(const NodeParams& rhs)
@@ -161,7 +167,7 @@ public:
 	}
 	bool hasMissing() const
 	{
-		return missing.numObs >= 0;
+	  return missing.hasObs();
 	};
 	//---------------------
 	// Public Variables
