@@ -77,19 +77,6 @@ CDataset::~CDataset()
 
 
 //-----------------------------------
-// Function: get_trainSize
-//
-// Returns: long - the number of training instances
-//
-// Parameters: none
-//
-//-----------------------------------
-long CDataset::get_trainSize() const
-{
-	return dataImpl.numOfTrainData;
-}
-
-//-----------------------------------
 // Function: get_numFeatures
 //
 // Returns: long - the number of features

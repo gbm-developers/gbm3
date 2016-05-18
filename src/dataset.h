@@ -275,7 +275,7 @@ public:
     return dataImpl.adX(row, col);
   }; // retrieve predictor value
   
-  long get_trainSize() const; // get size of training set
+  long get_trainSize() const { return dataImpl.numOfTrainData; }; // get size of training set
   long get_numFeatures() const; // get the number of features in data
   
   void shift_to_validation() const; // shift all of the ptrs to validation set
