@@ -246,7 +246,7 @@ void CGBMDataContainer::BagData()
 			i += 1;
 		}
 
-		data.FillRemainderOfBag(finalRowBeforeStopBagging);
+		data.FillRemainderOfBag(finalRowBeforeStopBagging+1);
 
 	}
 	else
