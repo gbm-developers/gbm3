@@ -64,12 +64,27 @@ struct NodeDef
     return numObs;
   }
 
-	//---------------------
-	// Public Variables
-	//---------------------
-	long numObs;
-	double weightResid;
-	double totalWeight;
+  double weightSum(const NodeDef& a) const {
+    return totalWeight + a.totalWeight;
+  }
+  
+  double weightSum(const NodeDef& a, const NodeDef& b) const {
+    return totalWeight + a.weightSum(b);
+  }
+
+  double getTotalWeight() const {
+    return totalWeight;
+  }
+
+  long getNumObs() const {
+    return numObs;
+  }
+  
+private:
+  
+  long numObs;
+  double weightResid;
+  double totalWeight;
 
 };
 
@@ -109,9 +124,10 @@ public:
 	inline double GetImprovement() { return ImprovedResiduals;};
 	bool SplitIsCorrMonotonic(long specifyMonotone)
 	{
-		double weightedGrad = right.weightResid * left.totalWeight -
-		left.weightResid * right.totalWeight;
-		return (specifyMonotone == 0 || specifyMonotone * weightedGrad > 0);
+		return (
+			(specifyMonotone == 0) ||
+			((specifyMonotone * right.unweightedGradient(left)) > 0)
+			);
 	}
 	void NodeGradResiduals()
 	{
@@ -119,7 +135,7 @@ public:
 	  if(!missing.hasObs())
 	    {
 	      ImprovedResiduals = left.unweightedGradient(right) /
-		(left.totalWeight + right.totalWeight);
+		left.weightSum(right);
 	    }
 	  else
 	    {
@@ -128,7 +144,7 @@ public:
 		(left.unweightedGradient(right) +
 		 left.unweightedGradient(missing) +
 		 right.unweightedGradient(missing)) /
-		(left.totalWeight + right.totalWeight + missing.totalWeight);
+		left.weightSum(right, missing);
 	    }
 	};
 	
