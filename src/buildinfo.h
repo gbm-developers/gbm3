@@ -7,7 +7,6 @@
 #include <Rcpp.h>
 
     typedef unsigned long ULONG;
-    typedef char *PCHAR;
 
     // #define NOISY_DEBUG
 

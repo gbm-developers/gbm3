@@ -9,8 +9,8 @@
 //
 //------------------------------------------------------------------------------
 
-#ifndef __poisson_h__
-#define __poisson_h__
+#ifndef POISSON_H
+#define POISSON_H
 
 //------------------------------
 // Includes
@@ -67,7 +67,7 @@ private:
     CPoisson();
 };
 
-#endif // __poisson_h__
+#endif // POISSON_H
 
 
 

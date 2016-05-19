@@ -7,8 +7,8 @@
 //	Author: 	James Hickey
 //------------------------------------------------------------------------------
 
-#ifndef __countingCoxState_h__
-#define __countingCoxState_h__
+#ifndef COUNTINGCOXSTATE_H
+#define COUNTINGCOXSTATE_H
 
 //------------------------------
 // Includes
@@ -47,7 +47,7 @@ public:
 	{
 		// Initialize parameters
 		std::vector<double> martingaleResid(data.get_trainSize(), 0.0);
-		double loglik = LogLikelihoodTiedTimes(data.get_trainSize(), data, adF, &martingaleResid[0], false);
+		LogLikelihoodTiedTimes(data.get_trainSize(), data, adF, &martingaleResid[0], false);
 
 		// Fill up response
 		for(long i = 0; i < data.get_trainSize(); i++)
@@ -74,7 +74,7 @@ public:
 		std::vector<double> martingaleResid(data.get_trainSize(), 0.0);
 		std::vector<double> expNoEventsInNodes(cTermNodes, 1.0/coxPh->PriorCoeffVar());
 		std::vector<double> numEventsInNodes(cTermNodes, 1.0/coxPh->PriorCoeffVar());
-		double loglik = LogLikelihoodTiedTimes(data.get_trainSize(), data, adF, &martingaleResid[0], false);
+		LogLikelihoodTiedTimes(data.get_trainSize(), data, adF, &martingaleResid[0], false);
 
 
 		for(long i = 0; i < data.get_trainSize(); i++)
@@ -155,7 +155,7 @@ private:
 	double LogLikelihoodTiedTimes(const int n, const CDataset& data, const double* eta,
 										  double* resid, bool skipBag=true, bool checkInBag=true)
 	{
-	    int i, j, k, ksave;
+	    int k, ksave;
 	    int person, p2, indx1, p1;
 	    int istrat;
 	    double cumhaz, hazard;
@@ -367,4 +367,4 @@ private:
 	    return(loglik);
 	}
 };
-#endif //__countingCoxState_h__
+#endif // COUNTINGCOXSTATE_H

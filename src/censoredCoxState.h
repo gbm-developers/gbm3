@@ -7,8 +7,8 @@
 //	Author: 	James Hickey
 //------------------------------------------------------------------------------
 
-#ifndef __censoredCoxState_h__
-#define __censoredCoxState_h__
+#ifndef CENSOREDCOXSTATE_H
+#define CENSOREDCOXSTATE_H
 
 //------------------------------
 // Includes
@@ -72,12 +72,13 @@ public:
 		std::vector<double> martingaleResid(data.get_trainSize(), 0.0);
 		std::vector<double> expNoEventsInNodes(cTermNodes, 1.0/coxPh->PriorCoeffVar());
 		std::vector<double> numEventsInNodes(cTermNodes, 1.0/coxPh->PriorCoeffVar());
-		double loglik = LogLikelihood(data.get_trainSize(), data, adF, &martingaleResid[0], false);
+		LogLikelihood(data.get_trainSize(), data, adF,
+			      &martingaleResid[0], false);
 
 		for(long i = 0; i < data.get_trainSize(); i++)
 		{
 			if(data.GetBagElem(i) &&
-					(treeComps.GetTermNodes()[treeComps.GetNodeAssign()[i]]->cN >= treeComps.GetMinNodeObs()) )
+			   (treeComps.GetTermNodes()[treeComps.GetNodeAssign()[i]]->cN >= treeComps.GetMinNodeObs()) )
 			{
 				// Cap expected number of events to be at least 0
 				expNoEventsInNodes[treeComps.GetNodeAssign()[i]] += max(0.0, coxPh->StatusVec()[i] - martingaleResid[i]);
@@ -153,7 +154,7 @@ private:
 	double LogLikelihood(const int n, const CDataset& data, const double* eta,
 								double* resid, bool skipBag=true, bool checkInBag=true)
 	{
-	    int i, j, k, ksave;
+	    int k, ksave;
 	    int person, p2;
 	    int istrat, indx1;   /* this counts up over the strata */
 	    double cumhaz, hazard;
@@ -322,4 +323,4 @@ private:
 	}
 
 };
-#endif //__censoredCoxState_h__
+#endif // CENSOREDCOXSTATE_H

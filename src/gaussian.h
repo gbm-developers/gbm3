@@ -8,8 +8,8 @@
 //              2/14/2003   gregr: adapted for R implementation
 //------------------------------------------------------------------------------
 
-#ifndef __gaussian_h__
-#define __gaussian_h__
+#ifndef GAUSSIAN_H
+#define GAUSSIAN_H
 
 //------------------------------
 // Includes
@@ -64,7 +64,7 @@ private:
     CGaussian();
 };
 
-#endif // __gaussian_h__
+#endif // GAUSSIAN_H
 
 
 

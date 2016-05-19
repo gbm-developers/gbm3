@@ -13,8 +13,8 @@
 //				22/02/2016  jhickey: modified to implement factory pattern
 //------------------------------------------------------------------------------
 
-#ifndef __distribution_h__
-#define __distribution_h__
+#ifndef DISTRIBUTION_H
+#define DISTRIBUTION_H
 
 //------------------------------
 // Includes
@@ -93,7 +93,4 @@ public:
     int cGroups;
 };
 
-#endif // __distribution_h__
-
-
-
+#endif // DISTRIBUTION_H

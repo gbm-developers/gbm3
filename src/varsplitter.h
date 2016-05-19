@@ -6,8 +6,8 @@
 //
 //------------------------------------------------------------------------------
 
-#ifndef __varsplitter_h__
-#define __varsplitter_h__
+#ifndef VARSPLITTER_H
+#define VARSPLITTER_H
 
 //------------------------------
 // Includes
@@ -124,4 +124,4 @@ private:
 	// Splitting arrays for Categorical variable
 	std::vector<std::pair<double, int> > groupMeanAndCat;
 };
-#endif // __varplitter_h__
+#endif // VARSPLITTER_H

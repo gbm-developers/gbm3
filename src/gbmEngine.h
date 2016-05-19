@@ -11,8 +11,8 @@
 //
 //------------------------------------------------------------------------------
 
-#ifndef __gbmEnginegbm_h__
-#define __gbmEnginegbm_h__
+#ifndef GBMENGINE_H
+#define GBMENGINE_H
 
 //------------------------------
 // Includes
@@ -75,7 +75,7 @@ private:
 
 };
 
-#endif //  __gbmEnginegbm_h__
+#endif // GBMENGINE_H
 
 
 

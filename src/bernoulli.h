@@ -9,8 +9,8 @@
 //
 //------------------------------------------------------------------------------
 
-#ifndef __bernoulli_h__
-#define __bernoulli_h__
+#ifndef BERNOULLI_H
+#define BERNOULLI_H
 
 //------------------------------
 // Includes
@@ -72,6 +72,3 @@ private:
 };
 
 #endif // BERNOULLI_H
-
-
-

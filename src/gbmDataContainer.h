@@ -7,8 +7,8 @@
 //------------------------------------------------------------------------------
 
 
-#ifndef __gbmDataContainer_h__
-#define __gbmDataContainer_h__
+#ifndef GBMDATACONTAINER_H
+#define GBMDATACONTAINER_H
 
 //------------------------------
 // Includes
@@ -67,4 +67,4 @@ private:
 
 };
 
-#endif //  __gbmDataContainer_h__
+#endif // GBMDATACONTAINER_H

@@ -25,4 +25,4 @@ namespace GBM {
 
 }
 
-#endif
+#endif // GBMEXCEPT_H

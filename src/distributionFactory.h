@@ -7,8 +7,8 @@
 //
 //------------------------------
 
-#ifndef __distributionFactory_h__
-#define __distributionFactory_h__
+#ifndef DISTRIBUTIONFACTORY_H
+#define DISTRIBUTIONFACTORY_H
 
 //------------------------------
 // Includes
@@ -60,4 +60,4 @@ public:
 	CDistribution* CreateDist(DataDistParams& distParams);
 };
 
-#endif // __distributionFactory_h__
+#endif // DISTRIBUTIONFACTORY_H

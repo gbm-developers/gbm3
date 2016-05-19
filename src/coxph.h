@@ -9,8 +9,8 @@
 //
 //------------------------------------------------------------------------------
 
-#ifndef __coxph_h__
-#define __coxph_h__
+#ifndef COXPH_H
+#define COXPH_H
 
 //------------------------------
 // Includes
@@ -113,7 +113,7 @@ private:
 	int tiedTimesMethod;
 };
 
-#endif // __coxph_h__
+#endif // COXPH_H
 
 
 

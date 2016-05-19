@@ -15,8 +15,8 @@
 //			   30/03/2016   James Hickey: state pattern to deal with continuous and categorical splits.
 //------------------------------------------------------------------------------
 
-#ifndef __node_h__
-#define __node_h__
+#ifndef NODE_H
+#define NODE_H
 //------------------------------
 // Includes
 //------------------------------
@@ -118,7 +118,5 @@ private:
 
 };
 
-#endif // __node_h__
-
-
+#endif // NODE_H
 

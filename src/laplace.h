@@ -8,8 +8,8 @@
 //              2/14/2003   gregr: adapted for R implementation
 //------------------------------------------------------------------------------
 
-#ifndef __laplaceGBM_h__
-#define __laplaceGBM_h__
+#ifndef LAPLACE_H
+#define LAPLACE_H
 
 //------------------------------
 // Includes
@@ -72,7 +72,7 @@ private:
 	CLocationM mpLocM;
 };
 
-#endif // __laplaceGBM_h__
+#endif // LAPLACE_H
 
 
 

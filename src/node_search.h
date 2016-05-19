@@ -75,4 +75,3 @@ private:
 };
 
 #endif // NODESEARCH_H
-

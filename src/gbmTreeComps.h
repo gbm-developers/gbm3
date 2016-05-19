@@ -7,8 +7,8 @@
 //
 //------------------------------------------------------------------------------
 
-#ifndef __gbmTreeComps_h__
-#define __gbmTreeComps_h__
+#ifndef GBMTREECOMPS_H
+#define GBMTREECOMPS_H
 //------------------------------
 // Includes
 //------------------------------
@@ -89,4 +89,4 @@ private:
     unsigned long cMinObsInNode;
 };
 
-#endif //  __gbmTreeComps_h__
+#endif // GBMTREECOMPS_H

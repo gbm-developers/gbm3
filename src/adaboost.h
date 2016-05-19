@@ -9,8 +9,8 @@
 //
 //------------------------------------------------------------------------------
 
-#ifndef __adaboost_h__
-#define __adaboost_h__
+#ifndef ADABOOST_H
+#define ADABOOST_H
 
 //------------------------------
 // Includes
@@ -44,7 +44,7 @@ public:
     double InitF(const CDataset& data);
 
     void FitBestConstant(const CDataset& data, const double *adF,
-					 unsigned long cTermNodes, double* adZ, CTreeComps& treeComps);
+			 unsigned long cTermNodes, double* adZ, CTreeComps& treeComps);
     
     double Deviance(const CDataset& data, const double *adF,
 				bool isValidationSet=false);
@@ -65,6 +65,6 @@ private:
    vector<double> vecdDen;
 };
 
-#endif // __adaboost_h__
+#endif // ADABOOST_H
 
 

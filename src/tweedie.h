@@ -6,8 +6,8 @@
 //
 //------------------------------------------------------------------------------
 
-#ifndef __tweedie_h__
-#define __tweedie_h__
+#ifndef TWEEDIE_H
+#define TWEEDIE_H
 
 //------------------------------
 // Includes
@@ -69,5 +69,5 @@ private:
     double dPower;
 };
 
-#endif // _tweedie_h__
+#endif // TWEEDIE_H
 

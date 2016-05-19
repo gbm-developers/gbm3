@@ -6,8 +6,8 @@
 //
 //------------------------------------------------------------------------------
 
-#ifndef __nodeParameters_h__
-#define __nodeParameters_h__
+#ifndef NODEPARAMETERS_H
+#define NODEPARAMETERS_H
 
 //------------------------------
 // Includes
@@ -200,4 +200,4 @@ public:
 	double ImprovedResiduals;
 };
 
-#endif // __nodeParameters_h__
+#endif // NODEPARAMETERS_H

@@ -7,8 +7,8 @@
 //	Author: 	James Hickey
 //------------------------------------------------------------------------------
 
-#ifndef __continuousStrategy_h__
-#define __continuousStrategy_h__
+#ifndef CONTINUOUSSTRATEGY_H
+#define CONTINUOUSSTRATEGY_H
 
 //------------------------------
 // Includes
@@ -211,4 +211,5 @@ public:
 private:
 	CNode* nodeContext;
 };
-#endif //__continuousStrategy_h__
+#endif // CONTINUOUSSTRATEGY_H
+

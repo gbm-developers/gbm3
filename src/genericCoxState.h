@@ -7,8 +7,8 @@
 //	Author: 	James Hickey
 //------------------------------------------------------------------------------
 
-#ifndef __genericCoxState_h__
-#define __genericCoxState_h__
+#ifndef GENERICCOXSTATE_H
+#define GENERICCOXSTATE_H
 
 //-----------------------------------
 // Definitions
@@ -60,4 +60,4 @@ public:
 				  const double* adFadj)=0;
 
 };
-#endif // __genericCoxState_h__
+#endif // GENERICCOXSTATE_H

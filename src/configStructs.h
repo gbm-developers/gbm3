@@ -11,8 +11,8 @@
 //
 //------------------------------------------------------------------------------
 
-#ifndef __configStructs_h__
-#define __configStructs_h__
+#ifndef CONFIGSTRUCTS_H
+#define CONFIGSTRUCTS_H
 
 //------------------------------
 // Includes
@@ -195,4 +195,4 @@ private:
 	}
 
 };
-#endif // __configStructs_h__*/
+#endif // CONFIGSTRUCTS_H

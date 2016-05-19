@@ -8,8 +8,8 @@
 //
 //------------------------------------------------------------------------------
 
-#ifndef __quantile_h__
-#define __quantile_h__
+#ifndef QUANTILE_H
+#define QUANTILE_H
 
 //------------------------------
 // Includes
@@ -74,7 +74,7 @@ private:
     CLocationM mpLocM;
 };
 
-#endif // __quantile_h__
+#endif // QUANTILE_H
 
 
 

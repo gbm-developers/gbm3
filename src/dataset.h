@@ -12,8 +12,8 @@
 //				31/03/2016  James Hickey: RAII and Pimpled
 //------------------------------------------------------------------------------
 
-#ifndef __dataset_h__
-#define __dataset_h__
+#ifndef DATASET_H
+#define DATASET_H
 
 //------------------------------
 // Includes
@@ -311,7 +311,6 @@ private:
   //-------------------
   CDImpl dataImpl;
 };
-
-#endif // __dataset_h__
+#endif // DATASET_H
 
 

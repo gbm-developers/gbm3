@@ -8,8 +8,8 @@
 //
 //------------------------------------------------------------------------------
 
-#ifndef __tdistGBM_h__
-#define __tdistGBM_h__
+#ifndef TDIST_H
+#define TDIST_H
 
 //------------------------------
 // Includes
@@ -73,7 +73,7 @@ private:
     CLocationM mpLocM;
 };
 
-#endif // __tdistGBM_h__
+#endif // TDIST_H
 
 
 

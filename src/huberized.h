@@ -8,8 +8,8 @@
 //              2/14/2003   gregr: adapted for R implementation
 //------------------------------------------------------------------------------
 
-#ifndef __huberized_h__
-#define __huberized_h__
+#ifndef HUBERIZED_H
+#define HUBERIZED_H
 
 //------------------------------
 // Includes
@@ -66,7 +66,7 @@ private:
     CHuberized();
 };
 
-#endif // __huberized_h__
+#endif // HUBERIZED_H
 
 
 

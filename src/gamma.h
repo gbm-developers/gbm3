@@ -6,8 +6,8 @@
 //
 //------------------------------------------------------------------------------
 
-#ifndef __gamma_h__
-#define __gamma_h__
+#ifndef GAMMA_H
+#define GAMMA_H
 
 //------------------------------
 // Includes
@@ -63,7 +63,7 @@ private:
 
 };
 
-#endif // __gamma_h__
+#endif // GAMMA_H
 
 
 

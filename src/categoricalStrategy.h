@@ -7,8 +7,8 @@
 //	Author: 	James Hickey
 //------------------------------------------------------------------------------
 
-#ifndef __categoricalStrategy_h__
-#define __categoricalStrategy_h__
+#ifndef CATEGORICALSTRATEGY_H
+#define CATEGORICALSTRATEGY_H
 
 //------------------------------
 // Includes
@@ -227,4 +227,4 @@ public:
 private:
 	CNode* nodeContext;
 };
-#endif //__categoricalStrategy_h__
+#endif // CATEGORICALSTRATEGY_H
