@@ -270,10 +270,6 @@ const int* CCoxPH::StrataVec() const
 // Parameters: none
 //
 //-----------------------------------
-int CCoxPH::TieApproxMethod()
-{
-	return tiedTimesMethod;
-}
 int CCoxPH::TieApproxMethod() const
 {
 	return tiedTimesMethod;
@@ -290,15 +286,9 @@ int CCoxPH::TieApproxMethod() const
 // Parameters: none
 //
 //-----------------------------------
-double CCoxPH::PriorCoeffVar()
-{
-	return priorCoeffVar;
-}
 double CCoxPH::PriorCoeffVar() const
 {
 	return priorCoeffVar;
 }
-
-
 
 

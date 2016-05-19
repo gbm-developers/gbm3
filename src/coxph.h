@@ -77,10 +77,8 @@ public:
     int* StrataVec();
     const int* StrataVec() const;
 
-    int TieApproxMethod();
     int TieApproxMethod() const;
 
-    double PriorCoeffVar();
     double PriorCoeffVar() const;
 
 private:
@@ -88,16 +86,16 @@ private:
     // Private Constructors
     //----------------------
     CCoxPH(double* stats, int* sortedEnd, int* sortedSt, int* strats,
-    		bool isStartStop, int tiedMethod, double priorCoeff);
+	   bool isStartStop, int tiedMethod, double priorCoeff);
 
     //----------------------
     // Private Functions
     //----------------------
     double LogLikelihood(const int n, const CDataset& data,
-    					const double* eta, double* resid);
+			 const double* eta, double* resid);
 
     double LogLikelihoodTiedTimes(const int n, const CDataset& data,
-    							const double* eta, double* resid);
+				  const double* eta, double* resid);
 
     //-------------------
     // Private Variables
