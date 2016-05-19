@@ -60,7 +60,6 @@ public:
     pointAtTrainSet = true;
     
     // Set up pointers
-    adYPtr = adY(Rcpp::_, 0).begin();
     adWeightPtr = adWeight.begin();
     adOffsetPtr = adOffset.begin();
     afInBag.assign(cTrain, false);
@@ -190,7 +189,6 @@ public:
   
   // Ptrs to numeric vectors - these must be mutable
   mutable std::vector<double*> yptrs;
-  mutable double* adYPtr;
   mutable double* adOffsetPtr;
   mutable double* adWeightPtr;
   
