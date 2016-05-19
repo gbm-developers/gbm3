@@ -674,6 +674,7 @@ gbm <- function(formula = formula(data),
                       strata = strata, patient.id = patient.id)
    }
 
+   gbm.obj$patient.id <- patient.id
    gbm.obj$train.fraction <- train.fraction
    gbm.obj$Terms <- Terms
    gbm.obj$cv.error <- cv.error
@@ -689,6 +690,8 @@ gbm <- function(formula = formula(data),
       # to the original order.
       gbm.obj$ord.group <- ord.group
       gbm.obj$fit <- gbm.obj$fit[order(ord.group)]
+   }else if(distribution$name == "coxph"){
+     gbm.obj$tied.times.method <- tied.times.method
    }
 
    return(gbm.obj)

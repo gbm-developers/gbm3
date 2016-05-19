@@ -7,8 +7,15 @@ gbm.more <- function(object,
                      verbose = NULL)
 {
    theCall <- match.call()
-   nTrain  <- object$nTrain
-
+   
+   # Get 
+   nTrainRows  <- object$nTrain
+   nTrainPats <- object$nTrainPats
+   patient.id <- object$patient.id
+   StrataVec <- as.vector(object$strata)
+   sortedVec <- as.vector(object$sorted)
+   prior.node.coeff.var <- as.double(object$prior.node.coeff.var)
+   
    if (object$distribution$name != "pairwise") {
       distribution.call.name <- object$distribution$name
    } else {
@@ -20,6 +27,7 @@ gbm.more <- function(object,
    } else if(is.null(object$data) && is.null(data)) {
      stop("keep.data was set to FALSE on original gbm call and argument 'data' is NULL")
    }  else if(is.null(object$data)) {
+     
       m <- eval(object$m, parent.frame())
 
       Terms <- attr(m, "terms")
@@ -45,21 +53,44 @@ gbm.more <- function(object,
       }
       Misc <- NA
 
-      if(object$distribution$name == "coxph") {
-         Misc <- as.numeric(y)[-(1:cRows)]
-         y <- as.numeric(y)[1:cRows]
-
-         # reverse sort the failure times to compute risk sets on the fly
-         i.train <- order(-y[1:nTrain])
-         i.test <- order(-y[(nTrain+1):cRows]) + nTrain
-         i.timeorder <- c(i.train,i.test)
-
-         y <- y[i.timeorder]
-         Misc <- Misc[i.timeorder]
-         x <- x[i.timeorder,,drop=FALSE]
-         w <- w[i.timeorder]
-         if(!is.na(offset)) offset <- offset[i.timeorder]
-         object$fit <- object$fit[i.timeorder]
+      if(object$distribution$name == "coxph") 
+      {
+        if(class(y)!="Surv")
+        {
+          stop("Outcome must be a survival object Surv(time1, failure) or Surv(time1, time2, failure)")
+        }
+        
+        
+        # Patients are split into train and test, and are ordered by
+        # strata
+        # Define number of tests
+        n.test <- cRows - nTrainRows
+        y <- as.numeric(y)[1:cRows]
+        
+        # Sort response according to strata
+        # i.order sets order of outputs
+        if (attr(y, "type") == "right")
+        {
+          sorted <- c(order(StrataVec[1:nTrainRows], -y[1:nTrainRows, 1]), order(StrataVec[(nTrainRows+1):cRows], -y[(nTrainRows+1):cRows, 1])) 
+          i.order <- c(order(StrataVec[1:nTrainRows], -y[1:nTrainRows, 1]), order(StrataVec[(nTrainRows+1):cRows], -y[(nTrainRows+1):cRows, 1]) + nTrainRows)
+        }
+        else if (attr(y, "type") == "counting") 
+        {
+          sorted <- cbind(c(order(StrataVec[1:nTrainRows], -y[1:nTrainRows, 1]), order(StrataVec[(nTrainRows+1):cRows], -y[(nTrainRows+1):cRows, 1])),
+                          c(order(StrataVec[1:nTrainRows], -y[1:nTrainRows, 2]), order(StrataVec[(nTrainRows+1):cRows], -y[(nTrainRows+1):cRows, 2])))
+          i.order <- c(order(StrataVec[1:nTrainRows], -y[1:nTrainRows, 1]), order(StrataVec[(nTrainRows+1):cRows], -y[(nTrainRows+1):cRows, 1]) + nTrainRows)
+        }
+        else
+        {
+          stop("Survival object must be either right or counting type.")
+        }
+        
+        # Add in sorted column and strata
+        sortedVec <- sorted-1L
+        
+        # Set ties here for the moment
+        Misc <- list("ties" = "efron")
+        
       } else if(object$distribution$name == "tdist" ){
         Misc <- object$distribution$df
       } else if (object$distribution$name == "pairwise"){
@@ -104,7 +135,7 @@ gbm.more <- function(object,
          num.groups.train <- max(1, round(object$train.fraction * nlevels(group)))
 
          # include all groups up to the num.groups.train
-         nTrain           <- max(which(group==levels(group)[num.groups.train]))
+         nTrainRows           <- max(which(group==levels(group)[num.groups.train]))
 
          metric <- object$distribution[["metric"]]
 
@@ -130,7 +161,7 @@ gbm.more <- function(object,
       }
 
       # create index upfront... subtract one for 0 based order
-      x.order <- apply(x[1:nTrain,,drop=FALSE],2,order,na.last=FALSE)-1
+      x.order <- apply(x[1:nTrainRows,,drop=FALSE],2,order,na.last=FALSE)-1
       x <- data.matrix(x)
       cRows <- nrow(x)
       cCols <- ncol(x)
@@ -141,30 +172,59 @@ gbm.more <- function(object,
       offset  <- object$data$offset
       Misc    <- object$data$Misc
       w       <- object$data$w
-      nTrain  <- object$nTrain
+      nTrainRows  <- object$nTrain
+      nTrainPats <- object$nTrainPats
       cRows   <- length(y)
       cCols   <- length(x)/cRows
-      if(object$distribution$name == "coxph") {
-         i.timeorder <- object$data$i.timeorder
-         object$fit  <- object$fit[i.timeorder]
-      }
-      if (object$distribution$name == "pairwise") {
+      
+     
+      if (object$distribution$name == "pairwise") 
+      {
          object$fit   <- object$fit[object$ord.group] # object$fit is stored in the original order
       }
    }
 
+   # Get size of Response frame
+   y <- as.vector(y)
+   cRowsY <- nrow(y)
+   cColsY <- ncol(y)
+   
+   if(is.null(cRowsY))
+   {
+     cRowsY <- length(y)
+     cColsY <- 1
+   }
+   
+   # Make sorted vec into a matrix
+   if(cColsY > 2)
+   {
+     cRowsSort <- dim(sortedVec)[1]
+     cColsSort <- dim(sortedVec)[2]
+   }
+   else
+   {
+     cRowsSort <- length(sortedVec)
+     cColsSort <- 1
+   }
+   
+
+   
    if(is.null(verbose)) {
       verbose <- object$verbose
    }
    x <- as.vector(x)
 
    gbm.obj <- .Call("gbm",
-                    Y = as.double(y),
+                    Y = matrix(y, cRowsY, cColsY),
                     Offset = as.double(offset),
                     X = matrix(x, cRows, cCols),
                     X.order = as.integer(x.order),
+                    sorted=matrix(sortedVec, cRowsSort, cColsSort),
+                    Strata = as.integer(StrataVec),
                     weights = as.double(w),
                     Misc = as.double(Misc),
+                    prior.node.coeff.var = as.double(prior.node.coeff.var),
+                    patient.id = as.integer(patient.id),
                     var.type = as.integer(object$var.type),
                     var.monotone = as.integer(object$var.monotone),
                     distribution = as.character(distribution.call.name),
@@ -173,14 +233,15 @@ gbm.more <- function(object,
                     n.minobsinnode = as.integer(object$n.minobsinnode),
                     shrinkage = as.double(object$shrinkage),
                     bag.fraction = as.double(object$bag.fraction),
-                    train.fraction = as.integer(nTrain), #Should this be as.double(train.fraction)
+                    nTrain = as.integer(nTrainRows), #Should this be as.double(train.fraction) ? 
+                    nTrainPats = as.integer(nTrainPats),
                     mFeatures = as.integer(object$mFeatures),
                     fit.old = as.double(object$fit),
                     n.cat.splits.old = as.integer(length(object$c.splits)),
                     n.trees.old = as.integer(object$n.trees),
                     verbose = as.integer(verbose),
                     PACKAGE = "gbm")
-
+   
    gbm.obj$initF         <- object$initF
    gbm.obj$train.error   <- c(object$train.error, gbm.obj$train.error)
    gbm.obj$valid.error   <- c(object$valid.error, gbm.obj$valid.error)
@@ -204,14 +265,20 @@ gbm.more <- function(object,
    gbm.obj$n.minobsinnode    <- object$n.minobsinnode
    gbm.obj$num.classes       <- object$num.classes
    gbm.obj$nTrain            <- object$nTrain
+   gbm.obj$nTrainPats <- object$nTrainPats
    gbm.obj$mFeatures         <- object$mFeatures
    gbm.obj$response.name     <- object$response.name
    gbm.obj$Terms             <- object$Terms
    gbm.obj$var.levels        <- object$var.levels
    gbm.obj$verbose           <- verbose
+   gbm.obj$prior.node.coeff.var <- object$prior.node.coeff.var
+   gbm.obj$patient.id <- object$patient.id
+   gbm.obj$strata <- object$strata
+   gbm.obj$sorted <- object$sorted
 
-   if(object$distribution$name == "coxph") {
-      gbm.obj$fit[i.timeorder] <- gbm.obj$fit
+   if(object$distribution$name == "coxph")
+   {
+      gbm.obj$fit[i.order] <- gbm.obj$fit
    }
 
    if (object$distribution$name == "pairwise") {

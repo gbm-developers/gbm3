@@ -410,6 +410,8 @@ gbm.fit <- function(x,y,
    gbm.obj$n.minobsinnode <- n.minobsinnode
    gbm.obj$n.trees <- length(gbm.obj$trees)
    gbm.obj$nTrain <- nTrainRows
+   gbm.obj$nTrainPats <- nTrain
+   gbm.obj$patient.id <- patient.id
    gbm.obj$mFeatures <- mFeatures
    gbm.obj$train.fraction <- train.fraction
    gbm.obj$response.name <- response.name
@@ -420,6 +422,9 @@ gbm.fit <- function(x,y,
    gbm.obj$var.type <- var.type
    gbm.obj$verbose <- verbose
    gbm.obj$Terms <- NULL
+   gbm.obj$strata <- StrataVec
+   gbm.obj$sorted <- sortedVec
+   gbm.obj$prior.node.coeff.var <- prior.node.coeff.var
 
    if(distribution$name == "coxph")
    {
