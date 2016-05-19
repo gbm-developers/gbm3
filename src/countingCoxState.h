@@ -191,6 +191,8 @@ private:
 	    cumhaz =0;
 	    nrisk =0;   /* number at risk */
 	    esum =0;  /*cumulative eta, used for rescaling */
+	    loglik = 0;
+
 	    // Center based on last person in the set of interest
 	    double newCenter = 0.0;
 	    center = -10.0E16;
