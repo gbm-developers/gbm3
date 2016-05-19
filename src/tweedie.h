@@ -54,9 +54,8 @@ public:
                     bool isValidationSet=false);
     
     double BagImprovement(const CDataset& data,
-    					  const double *adF,
-    					  const bag& afInBag,
-                          const double shrinkage,
+			  const double *adF,
+			  const double shrinkage,
                           const double* adFadj);
 private:
     //----------------------

@@ -41,24 +41,23 @@ public:
     // Public Functions
     //---------------------
     void ComputeWorkingResponse(const CDataset& data,
-    		const double *adF,
+				const double *adF,
 				double *adZ);
 
     double Deviance(const CDataset& data,
-    				const double *adF,
+		    const double *adF,
                     bool isValidationSet=false);
 
     double InitF(const CDataset& data);
 
     void FitBestConstant(const CDataset& data,
-    		const double *adF,
+			 const double *adF,
 			 unsigned long cTermNodes,
-				double* adZ, CTreeComps& treeComps);
+			 double* adZ, CTreeComps& treeComps);
     
     double BagImprovement(const CDataset& data,
-    					  const double *adF,
-    					  const bag& afInBag,
-                          const double shrinkage, const double* adFadj);
+			  const double *adF,
+			  const double shrinkage, const double* adFadj);
 
 private:
     //----------------------

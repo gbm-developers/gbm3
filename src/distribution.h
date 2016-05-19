@@ -76,12 +76,11 @@ public:
                             bool isValidationSet=false) = 0;
 
     virtual void FitBestConstant(const CDataset& data, const double *adF,
-						  unsigned long cTermNodes,
-						  double* adZ, CTreeComps& treeComps) = 0;
+				 unsigned long cTermNodes,
+				 double* adZ, CTreeComps& treeComps) = 0;
 
     virtual double BagImprovement(const CDataset& data,
 				  const double *adF,
-				  const bag& afInBag,
 				  const double shrinkage,
 				  const double* adFadj) = 0;
 

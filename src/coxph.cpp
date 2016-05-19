@@ -165,12 +165,11 @@ double CCoxPH::BagImprovement
 (
 	const CDataset& data,
     const double *adF,
-    const bag& afInBag,
-  const double shrinkage,
+    const double shrinkage,
   const double* adFadj
 )
 {
-    return coxStateMethods->BagImprovement(data, adF, afInBag, shrinkage, adFadj);
+    return coxStateMethods->BagImprovement(data, adF, shrinkage, adFadj);
 }
 
 //-----------------------------------

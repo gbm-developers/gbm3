@@ -62,7 +62,7 @@ CGBMDataContainer::~CGBMDataContainer()
 //-----------------------------------
 double CGBMDataContainer::InitialFunctionEstimate()
 {
-  return pDist->InitF(data);
+  return getDist()->InitF(data);
 }
 
 //-----------------------------------
@@ -94,10 +94,11 @@ void CGBMDataContainer::ComputeResiduals(const double* adF, double* adZ)
 //-----------------------------------
 void CGBMDataContainer::ComputeBestTermNodePreds(const double* adF, double* adZ, CTreeComps& treeComp)
 {
-	getDist()->FitBestConstant(data, &adF[0],
-			       (2*treeComp.GetSizeOfTree()+1)/3, // number of terminal nodes
-			       &adZ[0],
-			       treeComp);
+  getDist()->FitBestConstant(getData(),
+			     &adF[0],
+			     (2*treeComp.GetSizeOfTree()+1)/3, // number of terminal nodes
+			     &adZ[0],
+			     treeComp);
 }
 
 //-----------------------------------
@@ -137,7 +138,7 @@ double CGBMDataContainer::ComputeDeviance(const double* adF, bool isValidationSe
 //-----------------------------------
 double CGBMDataContainer::ComputeBagImprovement(const double* adF, const double shrinkage, const double* adFadj)
 {
-  return getDist()->BagImprovement(data, &adF[0], data.GetBag(), shrinkage, adFadj);
+  return getDist()->BagImprovement(getData(), &adF[0], shrinkage, adFadj);
 }
 
 //-----------------------------------

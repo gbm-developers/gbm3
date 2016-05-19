@@ -203,9 +203,8 @@ void CBernoulli::FitBestConstant
 
 double CBernoulli::BagImprovement
 (
-	const CDataset& data,
+    const CDataset& data,
     const double *adF,
-    const bag& afInBag,
     const double shrinkage,
     const double* adFadj
 )

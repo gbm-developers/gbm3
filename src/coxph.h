@@ -61,8 +61,8 @@ public:
                     bool isValidationSet=false);
 
     double BagImprovement(const CDataset& data,
-    					  const double *adF,
-    					  const bag& afInBag, const double shrinkage, const double* adFadj);
+			  const double *adF,
+			  const double shrinkage, const double* adFadj);
 
     // Getters for the internal variables
     double* StatusVec();

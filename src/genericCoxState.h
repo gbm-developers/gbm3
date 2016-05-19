@@ -55,8 +55,9 @@ public:
     				const double *adF)=0;
 
     virtual double BagImprovement(const CDataset& data,
-    					  const double *adF,
-    					  const bag& afInBag, const double shrinkage, const double* adFadj)=0;
+				  const double *adF,
+				  const double shrinkage,
+				  const double* adFadj)=0;
 
 };
 #endif // __genericCoxState_h__

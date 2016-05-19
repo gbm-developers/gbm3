@@ -174,9 +174,8 @@ void CAdaBoost::FitBestConstant
 
 double CAdaBoost::BagImprovement
 (
-	const CDataset& data,
+    const CDataset& data,
     const double *adF,
-    const bag& afInBag,
     const double shrinkage,
     const double* adFadj
 )
