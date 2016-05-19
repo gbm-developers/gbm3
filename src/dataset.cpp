@@ -24,10 +24,11 @@ public:
 	//----------------------
 	CDImpl(SEXP radY, SEXP radOffset, SEXP radX, SEXP raiXOrder,
 		SEXP radWeight, SEXP racVarClasses, SEXP ralMonotoneVar,
-		const int cTrain, const int cFeatures, const double fractionInBag):
+		const int cTrain, const int cFeatures, const double fractionInBag, const int cTrainPatients):
 		adY(radY), adOffset(radOffset), adWeight(radWeight), adX(radX),
 		acVarClasses(racVarClasses), alMonotoneVar(ralMonotoneVar),
 		aiXOrder(raiXOrder), numOfTrainData(cTrain), numOfFeatures(cFeatures),
+		numOfTrainPatients(cTrainPatients),
 		fHasOffset(GBM_FUNC::has_value(adOffset))
 	{
 
@@ -39,7 +40,7 @@ public:
 
 		// Set variables
 		bagFraction = fractionInBag;
-		totalInBag = (long) (fractionInBag * cTrain);
+		totalInBag = (long) (fractionInBag * cTrainPatients);
 		cValid = adX.nrow() - cTrain;
 		pointAtTrainSet = true;
 
@@ -144,6 +145,7 @@ public:
 
 		// Properties of the data
 		long numOfTrainData;
+		long numOfTrainPatients;
 		unsigned long cValid;
 		long numOfFeatures;
 		bool fHasOffset;
@@ -186,7 +188,7 @@ CDataset::CDataset(DataDistParams dataParams)
 	dataImpl = new CDImpl(dataParams.respY, dataParams.offset, dataParams.xValues,
 							dataParams.xOrder,	dataParams.varWeight, dataParams.varClasses,
 							dataParams.monotoneVar, dataParams.cTrain,
-								dataParams.cFeatures, dataParams.dBagFraction);
+								dataParams.cFeatures, dataParams.dBagFraction, dataParams.cTrainPatients);
 
 	// Check for errors on initialization
 	if (dataImpl-> adX.ncol() != dataImpl-> alMonotoneVar.size())
@@ -599,7 +601,10 @@ void CDataset::FillRemainderOfBag(long offset)
 	std::fill((dataImpl->afInBag).begin() + offset, (dataImpl->afInBag).end(), false);
 }
 
-
+long CDataset::GetNumPatientsInTraining() const
+{
+	return dataImpl->numOfTrainPatients;
+}
 
 
 

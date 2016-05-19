@@ -19,7 +19,7 @@ gbm.fit <- function(x,y,
                     response.name = "y",
                     group = NULL,
                     prior.node.coeff.var = 1000,
-                    strata = NULL){
+                    strata = NULL, patient.id = 1:nrow(x)){
 
    if(is.character(distribution)) { distribution <- list(name=distribution) }
   
@@ -45,11 +45,11 @@ gbm.fit <- function(x,y,
    
    } else if(!is.null(train.fraction)) {
       warning("Parameter 'train.fraction' of gbm.fit is deprecated, please specify 'nTrain' instead")
-      nTrain <- floor(train.fraction*cRows)
+      nTrain <- floor(train.fraction*length(unique(patient.id)))
    
    } else if(is.null(nTrain)) {
      # both undefined, use all training data
-     nTrain <- cRows
+     nTrain <- length(unique(patient.id))
    }
   
    if(!is.double(prior.node.coeff.var))
@@ -58,7 +58,7 @@ gbm.fit <- function(x,y,
    }
    
    if (is.null(train.fraction)){
-      train.fraction <- nTrain / cRows
+      train.fraction <- nTrain / length(unique(patient.id))
    }
    
    if (is.null(mFeatures)) {
@@ -69,11 +69,19 @@ gbm.fit <- function(x,y,
        var.names <- getVarNames(x)
    }
 
+   # Order X, Y according to the patient id
+   y <- y[order(patient.id)]
+   x <- x[order(patient.id),]
+   num_rows_each_pat <- table(patient.id[order(patient.id)])
+   
+   # Calculate the number of rows in training set
+   nTrainRows <- sum(num_rows_each_pat[1:nTrain])
+   
 #   if(is.null(response.name)) { response.name <- "y" }
 
    # check dataset size
-   if(nTrain * bag.fraction <= 2*n.minobsinnode+1) {
-      stop("The dataset size is too small or subsampling rate is too large: nTrain*bag.fraction <= n.minobsinnode")
+   if(nTrainRows * bag.fraction <= 2*n.minobsinnode+1) {
+      stop("The dataset size is too small or subsampling rate is too large: nTrainRows*bag.fraction <= n.minobsinnode")
    }
 
    if (distribution$name != "pairwise") {
@@ -196,22 +204,25 @@ gbm.fit <- function(x,y,
       # Patients are split into train and test, and are ordered by
       # strata
        # Define number of tests
-       n.test <- cRows - nTrain
+       n.test <- cRows - nTrainRows
        
        
        # Set up strata 
        if(!is.null(strata))
        {
+         # Sort strata according to patient ID
+         strata <- strata[order(patient.id)]
+         
          # Order strata and split into train/test
-         strataVecTrain <- strata[1:nTrain]
-         strataVecTest <- strata[(nTrain+1): cRows]
+         strataVecTrain <- strata[1:nTrainRows]
+         strataVecTest <- strata[(nTrainRows+1): cRows]
          
          # Cum sum the number in each stratum and pad with NAs
          # between train and test strata
          strataVecTrain <- as.vector(cumsum(table(strataVecTrain)))
          strataVecTest <- as.vector(cumsum(table(strataVecTest)))
          
-         strataVecTrain <- c(strataVecTrain, rep(NA, nTrain-length(strataVecTrain)))
+         strataVecTrain <- c(strataVecTrain, rep(NA, nTrainRows-length(strataVecTrain)))
          strataVecTest <- c(strataVecTest, rep(NA, n.test-length(strataVecTest)))
          
          # Recreate Strata Vec to Pass In
@@ -222,7 +233,7 @@ gbm.fit <- function(x,y,
        {
          # Put all the train and test data in a single stratum
          strata <- rep(1, cRows)
-         trainStrat <- c(nTrain, rep(NA, nTrain-1))
+         trainStrat <- c(nTrainRows, rep(NA, nTrainRows-1))
          testStrat <- c(n.test, rep(NA, n.test-1))
          nstrat <- c(trainStrat, testStrat)
        }
@@ -231,16 +242,14 @@ gbm.fit <- function(x,y,
        # i.order sets order of outputs
        if (attr(y, "type") == "right")
        {
-         
-         sorted <- c(order(strata[1:nTrain], -y[1:nTrain, 1]), order(strata[(nTrain+1):cRows], -y[(nTrain+1):cRows, 1])) 
-         i.order <- c(order(strata[1:nTrain], -y[1:nTrain, 1]), order(strata[(nTrain+1):cRows], -y[(nTrain+1):cRows, 1]) + nTrain)
+         sorted <- c(order(strata[1:nTrainRows], -y[1:nTrainRows, 1]), order(strata[(nTrainRows+1):cRows], -y[(nTrainRows+1):cRows, 1])) 
+         i.order <- c(order(strata[1:nTrainRows], -y[1:nTrainRows, 1]), order(strata[(nTrainRows+1):cRows], -y[(nTrainRows+1):cRows, 1]) + nTrainRows)
        }
        else if (attr(y, "type") == "counting") 
        {
-         
-         sorted <- cbind(c(order(strata[1:nTrain], -y[1:nTrain, 1]), order(strata[(nTrain+1):cRows], -y[(nTrain+1):cRows, 1])),
-                         c(order(strata[1:nTrain], -y[1:nTrain, 2]), order(strata[(nTrain+1):cRows], -y[(nTrain+1):cRows, 2])))
-         i.order <- c(order(strata[1:nTrain], -y[1:nTrain, 1]), order(strata[(nTrain+1):cRows], -y[(nTrain+1):cRows, 1]) + nTrain)
+         sorted <- cbind(c(order(strata[1:nTrainRows], -y[1:nTrainRows, 1]), order(strata[(nTrainRows+1):cRows], -y[(nTrainRows+1):cRows, 1])),
+                         c(order(strata[1:nTrainRows], -y[1:nTrainRows, 2]), order(strata[(nTrainRows+1):cRows], -y[(nTrainRows+1):cRows, 2])))
+         i.order <- c(order(strata[1:nTrainRows], -y[1:nTrainRows, 1]), order(strata[(nTrainRows+1):cRows], -y[(nTrainRows+1):cRows, 1]) + nTrainRows)
        }
        else
        {
@@ -331,7 +340,7 @@ gbm.fit <- function(x,y,
    } # close if (dist... == "pairwise"
 
    # create index upfront... subtract one for 0 based order
-   x.order <- apply(x[1:nTrain,,drop=FALSE],2,order,na.last=FALSE)-1
+   x.order <- apply(x[1:nTrainRows,,drop=FALSE],2,order,na.last=FALSE)-1
 
    x <- as.vector(data.matrix(x))
 
@@ -377,6 +386,7 @@ gbm.fit <- function(x,y,
                     weights=as.double(w),
                     Misc=as.list(Misc),
                     prior.node.coeff.var = as.double(prior.node.coeff.var),
+                    patient.id = as.integer(patient.id),
                     var.type=as.integer(var.type),
                     var.monotone=as.integer(var.monotone),
                     distribution=as.character(distribution.call.name),
@@ -385,7 +395,8 @@ gbm.fit <- function(x,y,
                     n.minobsinnode=as.integer(n.minobsinnode),
                     shrinkage=as.double(shrinkage),
                     bag.fraction=as.double(bag.fraction),
-                    nTrain=as.integer(nTrain),
+                    nTrain=as.integer(nTrainRows),
+                    nTrainPats = as.integer(nTrain),
                     mFeatures=as.integer(mFeatures),
                     fit.old=as.double(NA),
                     n.cat.splits.old=as.integer(0),
@@ -398,7 +409,7 @@ gbm.fit <- function(x,y,
    gbm.obj$interaction.depth <- interaction.depth
    gbm.obj$n.minobsinnode <- n.minobsinnode
    gbm.obj$n.trees <- length(gbm.obj$trees)
-   gbm.obj$nTrain <- nTrain
+   gbm.obj$nTrain <- nTrainRows
    gbm.obj$mFeatures <- mFeatures
    gbm.obj$train.fraction <- train.fraction
    gbm.obj$response.name <- response.name
@@ -412,7 +423,7 @@ gbm.fit <- function(x,y,
 
    if(distribution$name == "coxph")
    {
-      gbm.obj$fit[i.timeorder] <- gbm.obj$fit
+      gbm.obj$fit[i.order] <- gbm.obj$fit
    }
    
 
@@ -422,7 +433,7 @@ gbm.fit <- function(x,y,
       {
          # put the observations back in order
          gbm.obj$data <- list(y=oldy,x=x,x.order=x.order,offset=offset,Misc=Misc,w=w,
-                              i.timeorder=i.timeorder)
+                              i.order=i.order)
      } else
       {
          gbm.obj$data <- list(y=oldy,x=x,x.order=x.order,offset=offset,Misc=Misc,w=w)

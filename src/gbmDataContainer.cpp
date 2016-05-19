@@ -31,6 +31,13 @@ CGBMDataContainer::CGBMDataContainer(DataDistParams dataDistConfig):
 	//Initialize the factory and then use to get the disribution
 	DistFactory = new DistributionFactory();
 	pDist = DistFactory -> CreateDist(dataDistConfig);
+
+	// Set up multi map
+	for(long i = 0; i < dataDistConfig.patId.size(); i++)
+	{
+		patIdToRow.insert(pair<int, int>(dataDistConfig.patId(i), i));
+	}
+
 }
 
 //-----------------------------------
@@ -81,7 +88,7 @@ double CGBMDataContainer::InitialFunctionEstimate()
 //-----------------------------------
 // Function: ComputeResiduals
 //
-// Returns: none
+// Returns: nonei = 0; i < data.getNumUniquePatient()
 //
 // Description: Compute the residuals associated with the distributions loss function.
 //
@@ -200,21 +207,47 @@ void CGBMDataContainer::BagData()
 	// randomly assign observations to the Bag
 	if (pDist->GetNumGroups() < 0)
 	{
-		// regular instance based training
-		for(i=0; i<data.get_trainSize() && (cBagged < data.GetTotalInBag()); i++)
+		pair<multimap<int, int>::iterator, multimap<int, int>::iterator> keyRange;
+		multimap<int, int>::iterator patIt, rowIt;
+
+		long finalRowBeforeStopBagging = 0;
+		bool bagVal;
+
+		// Bag via patient id  - loop over patients
+		for(patIt = patIdToRow.begin();
+				patIt != patIdToRow.end();
+				patIt = rowIt)
 		{
-			if(unif_rand() * (data.get_trainSize()-i) < data.GetTotalInBag() - cBagged)
+
+			// Check if we've filled the bag or have left the training set
+			if((i >= data.GetNumPatientsInTraining()) || (cBagged >= data.GetTotalInBag())) break;
+
+			keyRange = patIdToRow.equal_range(patIt->first);
+
+			// Check if that patient should be bagged
+			if(unif_rand() * (data.GetNumPatientsInTraining()-i) < data.GetTotalInBag() - cBagged)
 			{
-				data.SetBagElem(i, true);
+				bagVal = true;
 				cBagged++;
 			}
 			else
 			{
-				 data.SetBagElem(i, false);
+				bagVal = false;
 			}
+
+			// Loop over rows and set to bool value
+			for(rowIt = keyRange.first; rowIt != keyRange.second; ++rowIt)
+			{
+				finalRowBeforeStopBagging = (*rowIt).second;
+				data.SetBagElem((*rowIt).second, bagVal);
+			}
+
+			// Increment patient number
+			i += 1;
 		}
 
-		data.FillRemainderOfBag(i);
+		data.FillRemainderOfBag(finalRowBeforeStopBagging);
+
 	}
 	else
 	{

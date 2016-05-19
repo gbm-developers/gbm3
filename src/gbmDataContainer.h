@@ -60,7 +60,7 @@ private:
     CDataset data;
     CDistribution* pDist;
     DistributionFactory* DistFactory;
-
+    std::multimap<int, int> patIdToRow; // Map from patientID to row
 };
 
 #endif //  __gbmDataContainer_h__

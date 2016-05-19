@@ -78,7 +78,7 @@ public:
 	index_vector random_order() const;//randomize order of predictor varaiables
   
 	double GetBagFraction() const;
-
+	long GetNumPatientsInTraining() const;
 	long GetValidSize() const;
 	long GetTotalInBag() const;
 	bag GetBag();

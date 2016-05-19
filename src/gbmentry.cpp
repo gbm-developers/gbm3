@@ -41,6 +41,7 @@ SEXP gbm
     SEXP radWeight,
     SEXP radMisc,   // other row specific data (eg failure time), NA=no Misc
     SEXP rPriorCoeff, // Prior coefficient of variation in Cox PH fit.
+    SEXP rPatientId, // Used in the bagging process
     SEXP racVarClasses,
     SEXP ralMonotoneVar,
     SEXP rszFamily,
@@ -50,6 +51,7 @@ SEXP gbm
     SEXP rdShrinkage,
     SEXP rdBagFraction,
     SEXP rcTrain,
+    SEXP rcTrainPatients,
     SEXP rcFeatures,
     SEXP radFOld,
     SEXP rcCatSplitsOld,
@@ -71,10 +73,10 @@ SEXP gbm
     // Set up parameters for initialization
     configStructs GBMParams (radY, radOffset, radX,
 				raiXOrder, rSorted, rStrata, radWeight, radMisc,
-				rPriorCoeff, racVarClasses, ralMonotoneVar,
+				rPriorCoeff, rPatientId, racVarClasses, ralMonotoneVar,
 				rszFamily, rcTrees, rcDepth,
 				rcMinObsInNode, rdShrinkage,
-				rdBagFraction, rcTrain, rcFeatures);
+				rdBagFraction, rcTrain, rcTrainPatients, rcFeatures);
      Rcpp::RNGScope scope;
 
     // Build gbm piece-by-piece
