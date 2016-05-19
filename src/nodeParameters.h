@@ -19,45 +19,46 @@
 //------------------------------
 struct NodeDef
 {
-	//----------------------
-	// Public Constructors
-	//----------------------
-	NodeDef() : numObs(0), weightResid(0), totalWeight(0) {};
 
-	NodeDef(double weightResid, double totalWeight, long numObs) :
-	weightResid(weightResid), totalWeight(totalWeight), numObs(numObs) {};
+  //----------------------
+  // Public Constructors
+  //----------------------
+  NodeDef() : numObs(0), weightResid(0), totalWeight(0) {};
   
-	//---------------------
-	// Public Functions
-	//---------------------
-	void clear()
-	{
-		numObs = 0;
-		weightResid = totalWeight = 0;
-	};
+  NodeDef(double weightResid, double totalWeight, long numObs) :
+  numObs(numObs), weightResid(weightResid), totalWeight(totalWeight) {};
+  
+  //---------------------
+  // Public Functions
+  //---------------------
+  void clear()
+  {
+    numObs = 0;
+    weightResid = totalWeight = 0;
+  };
+  
+  void increment(const double pred, const double trainWeight, long num)
+  {
+    weightResid += pred;
+    totalWeight += trainWeight;
+    numObs += num;
+  };
+  
+  double prediction() const
+  {
+    return weightResid / totalWeight;
+  };
+  
+  double unweightedGradient(const NodeDef& other) const
+  {
+	const double tmp = prediction() - other.prediction();
+	return totalWeight * other.totalWeight * tmp * tmp;
+  };
 
-	void increment(const double pred, const double trainWeight, long num)
-	{
-		weightResid += pred;
-		totalWeight += trainWeight;
-		numObs += num;
-	};
-
-	double prediction() const
-	{
-		return weightResid / totalWeight;
-	};
-
-	double unweightedGradient(const NodeDef& other) const
-	{
-		const double tmp = prediction() - other.prediction();
-		return totalWeight * other.totalWeight * tmp * tmp;
-	};
-
-	bool hasMinObs(long minObsInNode) const
-	{
-		return (numObs >= minObsInNode);
-	}
+  bool hasMinObs(long minObsInNode) const
+  {
+	return (numObs >= minObsInNode);
+  }
 
   bool hasObs() const {
     return numObs;
