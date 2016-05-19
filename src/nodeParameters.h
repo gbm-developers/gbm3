@@ -167,21 +167,6 @@ public:
 	    }
 	};
 
-	NodeParams& operator=(const NodeParams& rhs)
-	{
-	  right = rhs.right;
-	  left = rhs.left;
-	  missing = rhs.missing;
-
-	  SplitValue = rhs.SplitValue;
-	  SplitVar = rhs.SplitVar;
-	  SplitClass = rhs.SplitClass;
-	  ImprovedResiduals = rhs.ImprovedResiduals;
-	  
-	  // Copy best category
-	  aiBestCategory = rhs.aiBestCategory;
-	  return *this;
-	}
 	bool hasMissing() const
 	{
 	  return missing.hasObs();
