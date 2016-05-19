@@ -185,38 +185,6 @@ long CDataset::GetTotalInBag() const
   return dataImpl.totalInBag;
 }
 
-//-----------------------------------
-// Function: SetBagElem
-//
-// Returns: none
-//
-// Description: setter for bag elements
-//
-// Parameters: long - index of element to set
-//    bool - value to set index bag to.
-//
-//-----------------------------------
-void CDataset::SetBagElem(long index, bool value)
-{
-	dataImpl.afInBag[index] = value;
-}
-
-//-----------------------------------
-// Function: FillRemainderOfBag
-//
-// Returns: void
-//
-// Description: once data put in bag set all other elems to False
-//
-// Parameters: long - sets where to start filling the bag
-//
-//-----------------------------------
-void CDataset::FillRemainderOfBag(long offset)
-{
-	std::fill((dataImpl.afInBag).begin() + offset, (dataImpl.afInBag).end(), false);
-}
-
-
 
 
 

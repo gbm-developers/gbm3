@@ -293,13 +293,18 @@ public:
   {
     return dataImpl.afInBag;
   };
+  
   bool GetBagElem(long index) const
   {
 	return dataImpl.afInBag[index];
   }
-  void FillRemainderOfBag(long offset);
-  void SetBagElem(long index, bool value);
 
+  void SetBagElem(long index) { dataImpl.afInBag[index] = 1; };
+
+  void clearBag() {
+    dataImpl.afInBag.assign(get_trainSize(), 0);
+  };
+  
 private:
   //-------------------
   // Private Variables

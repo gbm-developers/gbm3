@@ -1132,3 +1132,41 @@ double CPairwise::BagImprovement
     return dL / dW;
 
 }
+
+void CPairwise::bagIt(CDataset& data) {
+  double dLastGroup = -1;
+  bool fChosen = false;
+  unsigned int cBagged = 0;
+  unsigned int cBaggedGroups = 0;
+  unsigned int cSeenGroups   = 0;
+  unsigned int cTotalGroupsInBag = (unsigned long)(data.GetBagFraction() * GetNumGroups());
+
+  if (cTotalGroupsInBag <= 0) {
+    cTotalGroupsInBag = 1;
+  }
+  
+  for(unsigned long i=0; i< data.get_trainSize(); i++) {
+    const double dGroup = adGroup[i];
+    
+    if(dGroup != dLastGroup) {
+      if (cBaggedGroups >= cTotalGroupsInBag) {
+	break;
+      }
+      
+      // Group changed, make a new decision
+      fChosen = (unif_rand()*(GetNumGroups() - cSeenGroups) <
+		 cTotalGroupsInBag - cBaggedGroups);
+      if(fChosen) {
+	cBaggedGroups++;
+      }
+      dLastGroup = dGroup;
+      cSeenGroups++;
+    }
+    
+    if(fChosen) {
+      data.SetBagElem(i);
+      cBagged++;
+    }
+  }
+  
+}

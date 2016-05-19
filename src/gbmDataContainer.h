@@ -50,8 +50,12 @@ public:
     double ComputeBagImprovement(const double* adF, const double shrinkage, const double* adFadj);
     void BagData();
     CDistribution* getDist();
-    const CDataset& getData();
+    
+    const CDataset& getData() const {
+      return data;
+    }
 
+    CDataset& getData() { return data; }
 
 private:
 	//-------------------

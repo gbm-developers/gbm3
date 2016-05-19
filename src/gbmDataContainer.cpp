@@ -62,7 +62,7 @@ CGBMDataContainer::~CGBMDataContainer()
 //-----------------------------------
 double CGBMDataContainer::InitialFunctionEstimate()
 {
-	return pDist->InitF(data);
+  return pDist->InitF(data);
 }
 
 //-----------------------------------
@@ -78,7 +78,7 @@ double CGBMDataContainer::InitialFunctionEstimate()
 //-----------------------------------
 void CGBMDataContainer::ComputeResiduals(const double* adF, double* adZ)
 {
-	pDist->ComputeWorkingResponse(data, adF, adZ);
+	getDist()->ComputeWorkingResponse(data, adF, adZ);
 }
 
 //-----------------------------------
@@ -94,7 +94,7 @@ void CGBMDataContainer::ComputeResiduals(const double* adF, double* adZ)
 //-----------------------------------
 void CGBMDataContainer::ComputeBestTermNodePreds(const double* adF, double* adZ, CTreeComps& treeComp)
 {
-	pDist->FitBestConstant(data, &adF[0],
+	getDist()->FitBestConstant(data, &adF[0],
 			       (2*treeComp.GetSizeOfTree()+1)/3, // number of terminal nodes
 			       &adZ[0],
 			       treeComp);
@@ -114,14 +114,14 @@ void CGBMDataContainer::ComputeBestTermNodePreds(const double* adF, double* adZ,
 //-----------------------------------
 double CGBMDataContainer::ComputeDeviance(const double* adF, bool isValidationSet)
 {
-	if(!(isValidationSet))
-	{
-		return pDist->Deviance(data, adF);
-	}
-	else
-	{
-		return pDist->Deviance(data, adF + data.get_trainSize(), true);
-	}
+  if(!(isValidationSet))
+    {
+      return getDist()->Deviance(data, adF);
+    }
+  else
+    {
+      return getDist()->Deviance(data, adF + data.get_trainSize(), true);
+    }
 }
 
 //-----------------------------------
@@ -137,7 +137,7 @@ double CGBMDataContainer::ComputeDeviance(const double* adF, bool isValidationSe
 //-----------------------------------
 double CGBMDataContainer::ComputeBagImprovement(const double* adF, const double shrinkage, const double* adFadj)
 {
-	return pDist->BagImprovement(data, &adF[0], data.GetBag(),  shrinkage, adFadj);
+  return getDist()->BagImprovement(data, &adF[0], data.GetBag(), shrinkage, adFadj);
 }
 
 //-----------------------------------
@@ -151,23 +151,8 @@ double CGBMDataContainer::ComputeBagImprovement(const double* adF, const double 
 //-----------------------------------
 CDistribution* CGBMDataContainer::getDist()
 {
-	return pDist;
+  return pDist;
 }
-
-//-----------------------------------
-// Function: getData
-//
-// Returns: const Dataset ptr
-//
-// Description: Get const pointer to dataset.
-//
-// Parameters: none
-//-----------------------------------
-const CDataset& CGBMDataContainer::getData()
-{
-	return data;
-}
-
 
 //-----------------------------------
 // Function: BagData
@@ -182,76 +167,7 @@ const CDataset& CGBMDataContainer::getData()
 //-----------------------------------
 void CGBMDataContainer::BagData()
 {
-	unsigned long i = 0;
-	unsigned long cBagged = 0;
-
-	// randomly assign observations to the Bag
-	if (pDist->GetNumGroups() < 0)
-	{
-		// regular instance based training
-		for(i=0; i<data.get_trainSize() && (cBagged < data.GetTotalInBag()); i++)
-		{
-			if(unif_rand() * (data.get_trainSize()-i) < data.GetTotalInBag() - cBagged)
-			{
-				data.SetBagElem(i, true);
-				cBagged++;
-			}
-			else
-			{
-				 data.SetBagElem(i, false);
-			}
-		}
-
-		data.FillRemainderOfBag(i);
-	}
-	else
-	{
-		// for pairwise training, sampling is per group
-		// therefore, we will not have exactly cTotalInBag instances
-
-		double dLastGroup = -1;
-		bool fChosen = false;
-		unsigned int cBaggedGroups = 0;
-		unsigned int cSeenGroups   = 0;
-		unsigned int cTotalGroupsInBag = (unsigned long)(data.GetBagFraction() * pDist->GetNumGroups());
-		if (cTotalGroupsInBag <= 0)
-		{
-			cTotalGroupsInBag = 1;
-		}
-
-		for(i=0; i< data.get_trainSize(); i++)
-		{
-
-			const double dGroup = static_cast<CPairwise*>(pDist)->adGroup[i];
-			if(dGroup != dLastGroup)
-			{
-				if (cBaggedGroups >= cTotalGroupsInBag)
-				{
-					break;
-				}
-
-				// Group changed, make a new decision
-				fChosen = (unif_rand()*(pDist->GetNumGroups() - cSeenGroups) <
-			   cTotalGroupsInBag - cBaggedGroups);
-				if(fChosen)
-				{
-					cBaggedGroups++;
-				}
-				dLastGroup = dGroup;
-				cSeenGroups++;
-			}
-			if(fChosen)
-			{
-				data.SetBagElem(i, true);
-				cBagged++;
-			}
-			else
-			{
-				data.SetBagElem(i, false);
-			}
-		}
-
-		// the remainder is not in the bag
-		data.FillRemainderOfBag(i);
-	}
+  // randomly assign observations to the Bag
+  getData().clearBag();
+  getDist()->bagIt(getData());
 }
