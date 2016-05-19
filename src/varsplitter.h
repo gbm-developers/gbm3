@@ -40,53 +40,57 @@ public:
 		fIsSplit = true;
 	};
 
-	 void IncorporateObs(const double& dX,
-				const double& dZ,
-				const double& dW,
-				const long& lMonotone);
+	 void IncorporateObs(double dX,
+			     double dZ,
+			     double dW,
+			     long lMonotone);
 
 	void Set(CNode& nodeToSplit);
 	void ResetForNewVar(unsigned long iWhichVar,
-						long cVarClasses);
+			    long cVarClasses);
 
 
 	inline double BestImprovement() { return bestSplit.ImprovedResiduals; }
 	inline NodeParams GetBestSplit() { return bestSplit;}
 	void SetupNewNodes(CNode& nodeToSplit)
 	{
-		nodeToSplit.SplitNode(bestSplit);
+	  nodeToSplit.SplitNode(bestSplit);
 	}
 
 	unsigned long SetAndReturnNumGroupMeans()
 	{
-		unsigned long cFiniteMeans = 0;
+	  unsigned long cFiniteMeans = 0;
 
-		for(long i=0; i < proposedSplit.SplitClass; i++)
+	  for(long i=0; i < proposedSplit.SplitClass; i++)
+	    {
+	      groupMeanAndCat[i].second = i;
+	      
+	      if(adGroupW[i] != 0.0)
 		{
-		  groupMeanAndCat[i].second = i;
-
-		  if(adGroupW[i] != 0.0)
-		  {
-			  groupMeanAndCat[i].first = adGroupSumZ[i]/adGroupW[i];
-			  cFiniteMeans++;
-		  }
-		  else
-		  {
-			  groupMeanAndCat[i].first = HUGE_VAL;
-		  }
+		  groupMeanAndCat[i].first = adGroupSumZ[i]/adGroupW[i];
+		  cFiniteMeans++;
 		}
-
-	  std::sort(groupMeanAndCat.begin(), groupMeanAndCat.begin() + proposedSplit.SplitClass);
+	      else
+		{
+		  groupMeanAndCat[i].first = HUGE_VAL;
+		}
+	    }
+	  
+	  std::sort(groupMeanAndCat.begin(),
+		    groupMeanAndCat.begin() + proposedSplit.SplitClass);
 
 	  return cFiniteMeans;
 	}
 
-	void IncrementCategories(unsigned long cat, double predIncrement, double trainWIncrement)
+	void IncrementCategories(unsigned long cat,
+				 double predIncrement,
+				 double trainWIncrement)
 	{
-		adGroupSumZ[cat] += predIncrement;
-		adGroupW[cat] += trainWIncrement;
-		acGroupN[cat]++;
+	  adGroupSumZ[cat] += predIncrement;
+	  adGroupW[cat] += trainWIncrement;
+	  acGroupN[cat]++;
 	}
+	
 	void UpdateLeftNodeWithCat(long catIndex)
 	{
 
