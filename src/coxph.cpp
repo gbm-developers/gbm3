@@ -15,6 +15,18 @@
 #include <Rinternals.h>
 #include <math.h>
 
+namespace {
+  int getTiesMethod(const std::string& selection) {
+    if (selection == "efron") {
+      return 1;
+    } else if (selection == "breslow") {
+      return 0;
+    }
+
+    throw GBM::invalid_argument("unknown tie-handling method");
+  }
+}
+
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
@@ -49,19 +61,11 @@ CDistribution* CCoxPH::Create(DataDistParams& distParams)
 	int* sortedSt = NULL;
 	int* sortedEnd = NULL;
 	bool isStartStop = false;
-	int tiesMethod;
+	int tiesMethod = getTiesMethod(Rcpp::as<string>(distParams.misc[0]));
 
 	// Switch on misc to set up ties method
 	std::string miscString = Rcpp::as<std::string>(distParams.misc[0]);
-	if(miscString == "efron")
-	{
-		tiesMethod = 1;
-	}
-	else if(miscString == "breslow")
-	{
-	  tiesMethod = 0;
-	}
-	
+
 	// Set up strata
 	Rcpp::IntegerVector strats(distParams.strata);
 
