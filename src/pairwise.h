@@ -289,7 +289,7 @@ public:
 			const double shrinkage,
 			const double* adFadj);
 
-  void bagIt(CDataset& data, std::multimap<int, int>& patIdToRow);
+  void bagIt(CDataset& data);
 
 protected:
 

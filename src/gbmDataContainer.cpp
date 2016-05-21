@@ -27,18 +27,10 @@
 CGBMDataContainer::CGBMDataContainer(DataDistParams& dataDistConfig):
         data(dataDistConfig)
 {
-
 	//Initialize the factory and then use to get the disribution
 	DistFactory = new DistributionFactory();
 	pDist = DistFactory -> CreateDist(dataDistConfig);
 	pDist->Initialize(data);
-
-	// Set up multi map
-	for(long i = 0; i < dataDistConfig.patId.size(); i++)
-	{
-		patIdToRow.insert(pair<int, int>(dataDistConfig.patId(i), i));
-	}
-
 }
 
 //-----------------------------------
@@ -176,6 +168,6 @@ CDistribution* CGBMDataContainer::getDist()
 void CGBMDataContainer::BagData()
 {
   getData().clearBag();
-  getDist()->bagIt(getData(), patIdToRow);
+  getDist()->bagIt(getData());
 
 }

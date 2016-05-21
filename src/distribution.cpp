@@ -23,7 +23,7 @@ void CDistribution::SetNumGroups(int GroupVal)
   cGroups = GroupVal;
 }
 
-void CDistribution::bagIt(CDataset& data, std::multimap<int, int>& patIdToRow) {
+void CDistribution::bagIt(CDataset& data) {
 
 	unsigned long i = 0;
 	unsigned long cBagged = 0;

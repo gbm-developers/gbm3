@@ -41,11 +41,11 @@ public:
   CDImpl(SEXP radY, SEXP radOffset, SEXP radX, SEXP raiXOrder,
 	 SEXP radWeight, SEXP racVarClasses, SEXP ralMonotoneVar,
 	 const int cTrain, const int cFeatures, const double fractionInBag,
-	 const int cTrainPatients) :
+	 const int cTrainPatients, SEXP patientIds) :
     adY(radY), adOffset(radOffset), adWeight(radWeight), adX(radX),
     acVarClasses(racVarClasses), alMonotoneVar(ralMonotoneVar),
     aiXOrder(raiXOrder), numOfTrainData(cTrain), numOfFeatures(cFeatures),
-    numOfTrainPatients(cTrainPatients)
+    numOfTrainPatients(cTrainPatients), patIds(patientIds)
   {
     
     // If you've no offset set to 0
@@ -187,7 +187,7 @@ public:
   // Numeric vectors storing data
   Rcpp::NumericVector adOffset, adWeight;
   Rcpp::NumericMatrix adX, adY;
-  Rcpp::IntegerVector acVarClasses, alMonotoneVar, aiXOrder;
+  Rcpp::IntegerVector acVarClasses, alMonotoneVar, aiXOrder, patIds;
   
   // Ptrs to numeric vectors - these must be mutable
   mutable std::vector<double*> yptrs;
@@ -298,6 +298,11 @@ public:
   long GetNumPatientsInTraining() const
   {
 	  return dataImpl.numOfTrainPatients;
+  }
+
+  int GetRowPatientId(int rowNumber) const
+  {
+	  return dataImpl.patIds(rowNumber);
   }
 
   bool GetBagElem(long index) const

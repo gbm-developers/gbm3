@@ -1132,7 +1132,7 @@ double CPairwise::BagImprovement
 
 }
 
-void CPairwise::bagIt(CDataset& data, std::multimap<int, int>& patIdToRow) {
+void CPairwise::bagIt(CDataset& data) {
   double dLastGroup = -1;
   bool fChosen = false;
   unsigned int cBagged = 0;

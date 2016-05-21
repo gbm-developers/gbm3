@@ -42,7 +42,8 @@ CDataset::CDataset(const DataDistParams& dataParams) :
 	   dataParams.xOrder, dataParams.varWeight,
 	   dataParams.varClasses,
 	   dataParams.monotoneVar, dataParams.cTrain,
-	   dataParams.cFeatures, dataParams.dBagFraction, dataParams.cTrainPatients) {
+	   dataParams.cFeatures, dataParams.dBagFraction,
+	   dataParams.cTrainPatients, dataParams.patId) {
   
   // Check for errors on initialization
   if (dataImpl.adX.ncol() != dataImpl.alMonotoneVar.size())

@@ -65,7 +65,15 @@ public:
      //---------------------
      // Public Virtual Functions
      //---------------------
-     virtual void Initialize(const CDataset& data) { };
+     virtual void Initialize(const CDataset& data)
+     {
+    	 // Set up multi map
+		for(long i = 0; i < (data.get_trainSize() + data.GetValidSize()); i++)
+		{
+			patIdToRow.insert(pair<int, int>(data.GetRowPatientId(i), i));
+		}
+
+     };
      virtual void ComputeWorkingResponse(const CDataset& data,
 					const double *adF,
 					double *adZ) = 0;
@@ -84,13 +92,14 @@ public:
 				  const double shrinkage,
 				  const double* adFadj) = 0;
 
-    virtual void bagIt(CDataset& data, std::multimap<int, int>& patIdToRow);
+    virtual void bagIt(CDataset& data);
  private:
 
     //---------------------
     // Private Variables
     //---------------------
     int cGroups;
+    std::multimap<int, int> patIdToRow; // Map from patientID to row
 };
 
 #endif // DISTRIBUTION_H
