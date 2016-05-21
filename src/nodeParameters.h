@@ -49,6 +49,11 @@ struct NodeDef
     return weightResid / totalWeight;
   };
   
+  double unweightedGradient(const NodeDef& other) const
+  {
+	return weightResid * other.totalWeight - other.weightResid * totalWeight;
+  };
+
   double varianceReduction(const NodeDef& other) const
   {
 	const double predictionDiff = prediction() - other.prediction();
@@ -126,7 +131,7 @@ public:
 	{
 		return (
 			(specifyMonotone == 0) ||
-			((specifyMonotone * right.varianceReduction(left)) > 0)
+			((specifyMonotone * right.unweightedGradient(left)) > 0)
 			);
 	}
 	void NodeGradResiduals()
