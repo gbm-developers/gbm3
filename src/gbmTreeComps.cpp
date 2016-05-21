@@ -31,11 +31,11 @@
 //    int - number of groups in data
 //
 //-----------------------------------
-CTreeComps::CTreeComps(TreeParams treeConfig):
-aNodeSearch(treeConfig.cDepth, treeConfig.numColData, treeConfig.cMinObsInNode)
+CTreeComps::CTreeComps(TreeParams treeConfig) :
+  aNodeSearch(treeConfig.cDepth, treeConfig.numColData, treeConfig.cMinObsInNode),
+  tree(treeConfig.dShrinkage, treeConfig.cDepth)
 {
 	this-> cMinObsInNode = treeConfig.cMinObsInNode;
-	ptreeTemp = new CCARTTree(treeConfig.dShrinkage, treeConfig.cDepth);
 	aiNodeAssign.resize(treeConfig.cTrain, 0);
 }
 
@@ -51,7 +51,6 @@ aNodeSearch(treeConfig.cDepth, treeConfig.numColData, treeConfig.cMinObsInNode)
 //-----------------------------------
 CTreeComps::~CTreeComps()
 {
-	delete ptreeTemp;
 }
 
 //-----------------------------------
@@ -65,33 +64,33 @@ CTreeComps::~CTreeComps()
 //    int& - reference to  number of nodes in tree
 //
 //-----------------------------------
-void CTreeComps::GrowTrees(const CDataset* pData, double* adZ, const double* adFadj)
+void CTreeComps::GrowTrees(const CDataset& data, double* adZ, const double* adFadj)
 {
 	#ifdef NOISY_DEBUG
 	  Rprintf("Reset tree\n");
 	#endif
 
 	  //Reset tree and searcher
-	  ptreeTemp->Reset();
+	  tree.Reset();
 	  aNodeSearch.Reset();
 
 	#ifdef NOISY_DEBUG
 	  Rprintf("grow tree\n");
 	#endif
 
-	ptreeTemp->grow(&(adZ[0]),
-	                *(pData),
-	                &(adFadj[0]),
-	                cMinObsInNode,
-	                aiNodeAssign,
-	                 aNodeSearch);
+	tree.grow(&(adZ[0]),
+				data,
+			&(adFadj[0]),
+			cMinObsInNode,
+			aiNodeAssign,
+			 aNodeSearch);
 
 	#ifdef NOISY_DEBUG
 	  ptempTree->Print();
 	#endif
 
 	#ifdef NOISY_DEBUG
-	  Rprintf("get node count=%d\n", ptreeTemp->GetNodeCount());
+	  Rprintf("get node count=%d\n", tree.GetNodeCount());
 	#endif
 }
 
@@ -107,12 +106,12 @@ void CTreeComps::GrowTrees(const CDataset* pData, double* adZ, const double* adF
 //-----------------------------------
 void CTreeComps::AdjustAndShrink(double * adFadj)
 {
-	ptreeTemp->Adjust(aiNodeAssign,
-	                  &(adFadj[0]),
-	                  cMinObsInNode);
+	tree.Adjust(aiNodeAssign,
+				  &(adFadj[0]),
+				  cMinObsInNode);
 
 	#ifdef NOISY_DEBUG
-	  ptreeTemp->Print();
+	  tree.Print();
 	#endif
 }
 
@@ -126,7 +125,7 @@ void CTreeComps::AdjustAndShrink(double * adFadj)
 // Parameters:
 //
 //-----------------------------------
-void CTreeComps::TransferTreeToRList(const CDataset &pData,
+void CTreeComps::TransferTreeToRList(const CDataset &data,
 	     int *aiSplitVar,
 	     double *adSplitPoint,
 	     int *aiLeftNode,
@@ -140,21 +139,21 @@ void CTreeComps::TransferTreeToRList(const CDataset &pData,
 {
 	int iNodeID = 0;
 
-	if(ptreeTemp->GetRootNode())
+	if(tree.GetRootNode())
 	{
-		ptreeTemp->GetRootNode()->TransferTreeToRList(iNodeID,
-													   pData,
-													   aiSplitVar,
-													   adSplitPoint,
-													   aiLeftNode,
-													   aiRightNode,
-													   aiMissingNode,
-													   adErrorReduction,
-													   adWeight,
-													   adPred,
-													   vecSplitCodes,
-													   cCatSplitsOld,
-													   ptreeTemp->GetShrinkageConst());
+		tree.GetRootNode()->TransferTreeToRList(iNodeID,
+											   data,
+											   aiSplitVar,
+											   adSplitPoint,
+											   aiLeftNode,
+											   aiRightNode,
+											   aiMissingNode,
+											   adErrorReduction,
+											   adWeight,
+											   adPred,
+											   vecSplitCodes,
+											   cCatSplitsOld,
+											   tree.GetShrinkageConst());
 	}
 	else
 	{
@@ -171,79 +170,10 @@ void CTreeComps::TransferTreeToRList(const CDataset &pData,
 //
 // Parameters: const CDataset ptr - ptr to gbm data
 //
-void CTreeComps::PredictValid(const CDataset* pData, double* adFadj)
+void CTreeComps::PredictValid(const CDataset& data, double* adFadj)
 {
-	ptreeTemp->PredictValid(*(pData), pData->GetValidSize(), &(adFadj[0]));
+	tree.PredictValid(data, data.GetValidSize(), &(adFadj[0]));
 }
 
-//-----------------------------------
-// Function: GetNodeAssign
-//
-// Returns: vector<unsigned long>
-//
-// Description: getter node assignments
-//
-// Parameters: none
-//
-//-----------------------------------
-std::vector<unsigned long> CTreeComps::GetNodeAssign()
-{
-	return aiNodeAssign;
-}
-
-//-----------------------------------
-// Function: GetTermNodes
-//
-// Returns: VEC_P_NODETERMINAL
-//
-// Description: getter for terminal nodes
-//
-// Parameters: none
-//
-//-----------------------------------
-vector<CNode*> CTreeComps::GetTermNodes()
-{
-	return ptreeTemp->GetTermNodes();
-}
-
-//-----------------------------------
-// Function: GetLambda
-//
-// Returns: double
-//
-// Description: get shrinkage
-//
-// Parameters: none
-//
-//-----------------------------------
-const double CTreeComps::ShrinkageConstant() const
-{
-	return ptreeTemp->GetShrinkageConst();
-}
-
-//-----------------------------------
-// Function: GetMinNodeObs
-//
-// Returns: unsigned long
-//
-// Description: get min no of observation in node
-//
-// Parameters: none
-//
-//-----------------------------------
-unsigned long CTreeComps::GetMinNodeObs()
-{
-	return cMinObsInNode;
-}
-
-
-long CTreeComps::GetSizeOfTree()
-{
-	return ptreeTemp->GetNodeCount();
-}
-const long CTreeComps::GetSizeOfTree() const
-{
-	return ptreeTemp->GetNodeCount();
-}
 
 

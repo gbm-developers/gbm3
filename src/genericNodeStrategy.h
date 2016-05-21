@@ -7,8 +7,8 @@
 //	Author: 	James Hickey
 //------------------------------------------------------------------------------
 
-#ifndef __genericNodeStrategy_h__
-#define __genericNodeStrategy_h__
+#ifndef GENERICNODESTRATEGY_H
+#define GENERICNODESTRATEGY_H
 
 //------------------------------
 // Includes
@@ -62,4 +62,4 @@ public:
 	)=0;
 
 };
-#endif // __genericNodeStrategy_h__
+#endif // GENERICNODESTRATEGY_H

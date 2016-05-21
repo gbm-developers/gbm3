@@ -71,7 +71,7 @@ void CCARTTree::grow
 		// aiNodeAssign tracks to which node each training obs belongs
 		aiNodeAssign[iObs] = 0;
 
-		if(data.GetBag()[iObs])
+		if(data.GetBagElem(iObs))
 		{
 			// get the initial sums and sum of squares and total weight
 			dSumZ += data.weight_ptr()[iObs]*adZ[iObs];
@@ -81,8 +81,9 @@ void CCARTTree::grow
 	}
 
   dError = dSumZ2-dSumZ*dSumZ/dTotalW;
-  pRootNode = new CNode(dSumZ/dTotalW, dTotalW, data.GetTotalInBag());
+  pRootNode = new CNode(NodeDef(dSumZ, dTotalW, data.GetTotalInBag()));
   vecpTermNodes[0] = pRootNode;
+  aNodeSearch.SetRootNode(*pRootNode);
 
   // build the tree structure
 #ifdef NOISY_DEBUG
@@ -97,7 +98,7 @@ void CCARTTree::grow
       
     // Generate all splits
     aNodeSearch.GenerateAllSplits(vecpTermNodes, data, &(adZ[0]), aiNodeAssign);
-    double bestImprov = aNodeSearch.SplitAndCalcImprovement(vecpTermNodes, data, aiNodeAssign);
+    double bestImprov = aNodeSearch.CalcImprovementAndSplit(vecpTermNodes, data, aiNodeAssign);
 
     // Make the best split if possible
 	if(bestImprov == 0.0)
@@ -105,21 +106,13 @@ void CCARTTree::grow
 	  break;
 	}
 	// setup the new nodes and add them to the tree
+
 	cTotalNodeCount += 3;
 
   } // end tree growing
 
     // DEBUG
     // Print();
-}
-
-long CCARTTree::GetNodeCount()
-{
-	return cTotalNodeCount;
-}
-const long CCARTTree::GetNodeCount() const
-{
-    return cTotalNodeCount;
 }
 
 void CCARTTree::PredictValid

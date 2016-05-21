@@ -13,8 +13,8 @@
 //				22/02/2016  jhickey: modified to implement factory pattern
 //------------------------------------------------------------------------------
 
-#ifndef __distribution_h__
-#define __distribution_h__
+#ifndef DISTRIBUTION_H
+#define DISTRIBUTION_H
 
 //------------------------------
 // Includes
@@ -62,37 +62,35 @@ public:
   		}
   	}
 
-    //---------------------
-    // Public Virtual Functions
-    //---------------------
-    virtual void Initialize(const CDataset* pData) { };
+     //---------------------
+     // Public Virtual Functions
+     //---------------------
+     virtual void Initialize(const CDataset& data) { };
+     virtual void ComputeWorkingResponse(const CDataset& data,
+					const double *adF,
+					double *adZ) = 0;
 
-    virtual void ComputeWorkingResponse(const CDataset* pData,
-    								const double *adF,
-									double *adZ) = 0;
+    virtual double InitF(const CDataset& data) = 0;
 
-    virtual double InitF(const CDataset* pData) = 0;
-
-    virtual double Deviance(const CDataset* pData, const double *adF,
+    virtual double Deviance(const CDataset& data, const double *adF,
                             bool isValidationSet=false) = 0;
 
-    virtual void FitBestConstant(const CDataset* pData, const double *adF,
-						  unsigned long cTermNodes,
-						  double* adZ, CTreeComps* pTreeComps) = 0;
+    virtual void FitBestConstant(const CDataset& data, const double *adF,
+				 unsigned long cTermNodes,
+				 double* adZ, CTreeComps& treeComps) = 0;
 
     virtual double BagImprovement(const CDataset& data,
-    							  const double *adF,
-								  const bag& afInBag,
-								  const double shrinkage, const double* adFadj) = 0;
+				  const double *adF,
+				  const double shrinkage,
+				  const double* adFadj) = 0;
 
-private:
+    virtual void bagIt(CDataset& data, std::multimap<int, int>& patIdToRow);
+ private:
+
     //---------------------
     // Private Variables
     //---------------------
     int cGroups;
 };
 
-#endif // __distribution_h__
-
-
-
+#endif // DISTRIBUTION_H

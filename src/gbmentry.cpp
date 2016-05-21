@@ -69,7 +69,6 @@ SEXP gbm
     const bool verbose = Rcpp::as<bool>(rfVerbose);
     const Rcpp::NumericVector adFold(radFOld);
 
-
     // Set up parameters for initialization
     configStructs GBMParams (radY, radOffset, radX,
 				raiXOrder, rSorted, rStrata, radWeight, radMisc,
@@ -86,6 +85,7 @@ SEXP gbm
     double dInitF = GBM.InitF();
     Rcpp::NumericMatrix tempX(radX);
     Rcpp::NumericVector adF(tempX.nrow());
+
 
     if(ISNA(adFold[0])) // check for old predictions
     {

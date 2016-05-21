@@ -24,13 +24,14 @@
 //
 // Parameters: ...
 //-----------------------------------
-CGBMDataContainer::CGBMDataContainer(DataDistParams dataDistConfig):
+CGBMDataContainer::CGBMDataContainer(DataDistParams& dataDistConfig):
         data(dataDistConfig)
 {
 
 	//Initialize the factory and then use to get the disribution
 	DistFactory = new DistributionFactory();
 	pDist = DistFactory -> CreateDist(dataDistConfig);
+	pDist->Initialize(data);
 
 	// Set up multi map
 	for(long i = 0; i < dataDistConfig.patId.size(); i++)
@@ -56,20 +57,6 @@ CGBMDataContainer::~CGBMDataContainer()
 }
 
 //-----------------------------------
-// Function: Initialize
-//
-// Returns: none
-//
-// Description: Set up the distribution
-//
-// Parameters: none
-//-----------------------------------
-void CGBMDataContainer::Initialize()
-{
-	pDist->Initialize(&data);
-}
-
-//-----------------------------------
 // Function: InitializeFunctionEstimate
 //
 // Returns: none
@@ -82,7 +69,7 @@ void CGBMDataContainer::Initialize()
 //-----------------------------------
 double CGBMDataContainer::InitialFunctionEstimate()
 {
-	return pDist->InitF(&data);
+  return getDist()->InitF(data);
 }
 
 //-----------------------------------
@@ -98,7 +85,7 @@ double CGBMDataContainer::InitialFunctionEstimate()
 //-----------------------------------
 void CGBMDataContainer::ComputeResiduals(const double* adF, double* adZ)
 {
-	pDist->ComputeWorkingResponse(&data, adF, adZ);
+	getDist()->ComputeWorkingResponse(data, adF, adZ);
 }
 
 //-----------------------------------
@@ -112,11 +99,13 @@ void CGBMDataContainer::ComputeResiduals(const double* adF, double* adZ)
 //    CTreeComps ptr - ptr to the tree components container in the gbm
 //    int& - reference to the number of nodes in the tree.
 //-----------------------------------
-void CGBMDataContainer::ComputeBestTermNodePreds(const double* adF, double* adZ, CTreeComps* pTreeComp)
+void CGBMDataContainer::ComputeBestTermNodePreds(const double* adF, double* adZ, CTreeComps& treeComp)
 {
-	pDist->FitBestConstant(&data, &adF[0],
-	                         (2*pTreeComp->GetSizeOfTree()+1)/3, // number of terminal nodes
-	                         &adZ[0], pTreeComp);
+  getDist()->FitBestConstant(getData(),
+			     &adF[0],
+			     (2*treeComp.GetSizeOfTree()+1)/3, // number of terminal nodes
+			     &adZ[0],
+			     treeComp);
 }
 
 //-----------------------------------
@@ -133,14 +122,14 @@ void CGBMDataContainer::ComputeBestTermNodePreds(const double* adF, double* adZ,
 //-----------------------------------
 double CGBMDataContainer::ComputeDeviance(const double* adF, bool isValidationSet)
 {
-	if(!(isValidationSet))
-	{
-		return pDist->Deviance(&data, adF);
-	}
-	else
-	{
-		return pDist->Deviance(&data, adF + data.get_trainSize(), true);
-	}
+  if(!(isValidationSet))
+    {
+      return getDist()->Deviance(data, adF);
+    }
+  else
+    {
+      return getDist()->Deviance(data, adF + data.get_trainSize(), true);
+    }
 }
 
 //-----------------------------------
@@ -156,7 +145,7 @@ double CGBMDataContainer::ComputeDeviance(const double* adF, bool isValidationSe
 //-----------------------------------
 double CGBMDataContainer::ComputeBagImprovement(const double* adF, const double shrinkage, const double* adFadj)
 {
-	return pDist->BagImprovement(data, &adF[0], data.GetBag(),  shrinkage, adFadj);
+  return getDist()->BagImprovement(getData(), &adF[0], shrinkage, adFadj);
 }
 
 //-----------------------------------
@@ -170,23 +159,8 @@ double CGBMDataContainer::ComputeBagImprovement(const double* adF, const double 
 //-----------------------------------
 CDistribution* CGBMDataContainer::getDist()
 {
-	return pDist;
+  return pDist;
 }
-
-//-----------------------------------
-// Function: getData
-//
-// Returns: const Dataset ptr
-//
-// Description: Get const pointer to dataset.
-//
-// Parameters: none
-//-----------------------------------
-CDataset* CGBMDataContainer::getData()
-{
-	return &data;
-}
-
 
 //-----------------------------------
 // Function: BagData
@@ -201,102 +175,7 @@ CDataset* CGBMDataContainer::getData()
 //-----------------------------------
 void CGBMDataContainer::BagData()
 {
-	unsigned long i = 0;
-	unsigned long cBagged = 0;
+  getData().clearBag();
+  getDist()->bagIt(getData(), patIdToRow);
 
-	// randomly assign observations to the Bag
-	if (pDist->GetNumGroups() < 0)
-	{
-		pair<multimap<int, int>::iterator, multimap<int, int>::iterator> keyRange;
-		multimap<int, int>::iterator patIt, rowIt;
-
-		long finalRowBeforeStopBagging = 0;
-		bool bagVal;
-
-		// Bag via patient id  - loop over patients
-		for(patIt = patIdToRow.begin();
-				patIt != patIdToRow.end();
-				patIt = rowIt)
-		{
-
-			// Check if we've filled the bag or have left the training set
-			if((i >= data.GetNumPatientsInTraining()) || (cBagged >= data.GetTotalInBag())) break;
-
-			keyRange = patIdToRow.equal_range(patIt->first);
-
-			// Check if that patient should be bagged
-			if(unif_rand() * (data.GetNumPatientsInTraining()-i) < data.GetTotalInBag() - cBagged)
-			{
-				bagVal = true;
-				cBagged++;
-			}
-			else
-			{
-				bagVal = false;
-			}
-
-			// Loop over rows and set to bool value
-			for(rowIt = keyRange.first; rowIt != keyRange.second; ++rowIt)
-			{
-				finalRowBeforeStopBagging = (*rowIt).second;
-				data.SetBagElem((*rowIt).second, bagVal);
-			}
-
-			// Increment patient number
-			i += 1;
-		}
-
-		data.FillRemainderOfBag(finalRowBeforeStopBagging+1);
-
-	}
-	else
-	{
-		// for pairwise training, sampling is per group
-		// therefore, we will not have exactly cTotalInBag instances
-
-		double dLastGroup = -1;
-		bool fChosen = false;
-		unsigned int cBaggedGroups = 0;
-		unsigned int cSeenGroups   = 0;
-		unsigned int cTotalGroupsInBag = (unsigned long)(data.GetBagFraction() * pDist->GetNumGroups());
-		if (cTotalGroupsInBag <= 0)
-		{
-			cTotalGroupsInBag = 1;
-		}
-
-		for(i=0; i< data.get_trainSize(); i++)
-		{
-
-			const double dGroup = static_cast<CPairwise*>(pDist)->adGroup[i];
-			if(dGroup != dLastGroup)
-			{
-				if (cBaggedGroups >= cTotalGroupsInBag)
-				{
-					break;
-				}
-
-				// Group changed, make a new decision
-				fChosen = (unif_rand()*(pDist->GetNumGroups() - cSeenGroups) <
-			   cTotalGroupsInBag - cBaggedGroups);
-				if(fChosen)
-				{
-					cBaggedGroups++;
-				}
-				dLastGroup = dGroup;
-				cSeenGroups++;
-			}
-			if(fChosen)
-			{
-				data.SetBagElem(i, true);
-				cBagged++;
-			}
-			else
-			{
-				data.SetBagElem(i, false);
-			}
-		}
-
-		// the remainder is not in the bag
-		data.FillRemainderOfBag(i);
-	}
 }

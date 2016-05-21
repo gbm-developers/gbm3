@@ -11,12 +11,11 @@
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CNode::CNode(double nodePrediction,
-		double trainingWeight, long numObs):aiLeftCategory()
-{
-    dPrediction = nodePrediction;
-    dTrainW = trainingWeight;
-    cN = numObs;
+CNode::CNode(const NodeDef& defn) :
+  dPrediction(defn.prediction()),
+  dTrainW(defn.getTotalWeight()),
+  cN(defn.getNumObs()),
+  aiLeftCategory() {
 
     dSplitValue = 0.0;
     iSplitVar = 0;
@@ -36,7 +35,7 @@ CNode::CNode(double nodePrediction,
 
 void CNode::SetStrategy()
 {
-	delete nodeStrategy;
+	//delete nodeStrategy;
 	switch(splitType)
 	{
 	case none:
@@ -69,6 +68,57 @@ void CNode::Adjust
     unsigned long cMinObsInNode
 )
 {
+	/*switch(splitType)
+	{
+	case none:
+		return;
+		break;
+	case continuous:
+		pLeftNode->Adjust(cMinObsInNode);
+		pRightNode->Adjust(cMinObsInNode);
+
+		if((pMissingNode->splitType == none) && (pMissingNode->cN < cMinObsInNode))
+		{
+			dPrediction = ((pLeftNode->dTrainW)*(pLeftNode->dPrediction) +
+				 (pRightNode->dTrainW)*(pRightNode->dPrediction))/
+			(pLeftNode->dTrainW + pRightNode->dTrainW);
+			pMissingNode->dPrediction = dPrediction;
+		}
+		else
+		{
+			pMissingNode->Adjust(cMinObsInNode);
+			dPrediction =
+			((pLeftNode->dTrainW)*(pLeftNode->dPrediction) +
+			(pRightNode->dTrainW)*  (pRightNode->dPrediction) +
+			(pMissingNode->dTrainW)*(pMissingNode->dPrediction))/
+			(pLeftNode->dTrainW + pRightNode->dTrainW + pMissingNode->dTrainW);
+		}
+		break;
+	case categorical:
+		pLeftNode->Adjust(cMinObsInNode);
+		pRightNode->Adjust(cMinObsInNode);
+
+		if((pMissingNode->splitType == none) && (pMissingNode->cN < cMinObsInNode))
+		{
+			dPrediction = ((pLeftNode->dTrainW)*(pLeftNode->dPrediction) +
+				 (pRightNode->dTrainW)*(pRightNode->dPrediction))/
+			(pLeftNode->dTrainW + pRightNode->dTrainW);
+			pMissingNode->dPrediction = dPrediction;
+		}
+		else
+		{
+			pMissingNode->Adjust(cMinObsInNode);
+			dPrediction =
+			((pLeftNode->dTrainW)*(pLeftNode->dPrediction) +
+			(pRightNode->dTrainW)*  (pRightNode->dPrediction) +
+			(pMissingNode->dTrainW)*(pMissingNode->dPrediction))/
+			(pLeftNode->dTrainW + pRightNode->dTrainW + pMissingNode->dTrainW);
+		}
+		break;
+	default:
+			throw GBM::failure("Node State not recognised.");
+			break;
+	}*/
 	nodeStrategy->Adjust(cMinObsInNode);
 }
 
@@ -99,13 +149,9 @@ void CNode::PrintSubtree
   nodeStrategy->PrintSubTree(cIndent);
 }
 
-void CNode::SplitAssign()
+void CNode::SplitNode(NodeParams& childrenParams)
 {
-	splitAssigned = true;
-}
 
-void CNode::SplitNode()
-{
 	// set up a continuous split
 	if(childrenParams.SplitClass==0)
 	{
@@ -116,22 +162,24 @@ void CNode::SplitNode()
 	{
 		splitType = categorical;
 		SetStrategy();
+		// the types are confused here
 		aiLeftCategory.resize(1 + (ULONG)childrenParams.SplitValue);
-					  std::copy(childrenParams.aiBestCategory.begin(),
-								childrenParams.aiBestCategory.begin() + aiLeftCategory.size(),
-								 aiLeftCategory.begin());
+		std::copy(childrenParams.aiBestCategory.begin(),
+			  childrenParams.aiBestCategory.begin() +
+			  aiLeftCategory.size(),
+			  aiLeftCategory.begin());
 	}
+
 
 	iSplitVar = childrenParams.SplitVar;
 	dSplitValue = childrenParams.SplitValue;
 	dImprovement = childrenParams.ImprovedResiduals;
 
-	pLeftNode    = new CNode(childrenParams.LeftWeightResiduals/childrenParams.LeftTotalWeight, childrenParams.LeftTotalWeight,
-									childrenParams.LeftNumObs);
-	pRightNode   = new CNode(childrenParams.RightWeightResiduals/childrenParams.RightTotalWeight,
-							childrenParams.RightTotalWeight, childrenParams.RightNumObs);
-	pMissingNode = new CNode(childrenParams.MissingWeightResiduals/childrenParams.MissingTotalWeight,
-							childrenParams.MissingTotalWeight, childrenParams.MissingNumObs);
+	pLeftNode    = new CNode(childrenParams.left);
+	pRightNode   = new CNode(childrenParams.right);
+	pMissingNode = new CNode(childrenParams.missing);
+
+
 
 }
 

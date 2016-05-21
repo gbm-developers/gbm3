@@ -8,8 +8,8 @@
 //
 //------------------------------------------------------------------------------
 
-#ifndef __tdistGBM_h__
-#define __tdistGBM_h__
+#ifndef TDIST_H
+#define TDIST_H
 
 //------------------------------
 // Includes
@@ -39,26 +39,25 @@ public:
     //---------------------
     // Public Functions
     //---------------------
-	void ComputeWorkingResponse(const CDataset* pData,
+	void ComputeWorkingResponse(const CDataset& data,
 			const double *adF,
 			      	  double *adZ);
 
-    double InitF(const CDataset* pData);
+    double InitF(const CDataset& data);
     
-    void FitBestConstant(const CDataset* pData,
+    void FitBestConstant(const CDataset& data,
     		const double *adF,
 			 unsigned long cTermNodes,
 			 double* adZ,
-			 CTreeComps* pTreeComps);
+			 CTreeComps& treeComps);
 
-    double Deviance(const CDataset* pData,
+    double Deviance(const CDataset& data,
     				const double *adF,
                     bool isValidationSet=false);
 
     double BagImprovement(const CDataset& data,
-    					  const double *adF,
-    					  const bag& afInBag,
-                          const double shrinkage,
+			  const double *adF,
+			  const double shrinkage,
                           const double* adFadj);
 
 private:
@@ -74,7 +73,7 @@ private:
     CLocationM mpLocM;
 };
 
-#endif // __tdistGBM_h__
+#endif // TDIST_H
 
 
 

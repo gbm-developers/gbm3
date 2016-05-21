@@ -15,8 +15,8 @@
 //			   30/03/2016   James Hickey: state pattern to deal with continuous and categorical splits.
 //------------------------------------------------------------------------------
 
-#ifndef __node_h__
-#define __node_h__
+#ifndef NODE_H
+#define NODE_H
 //------------------------------
 // Includes
 //------------------------------
@@ -44,8 +44,7 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-    CNode(double nodePrediction,
-    		double trainingWeight, long numObs);
+  CNode(const NodeDef& defn);
 
 	//---------------------
 	// Public destructor
@@ -61,10 +60,8 @@ public:
 			 double &dFadj);
 
     void GetVarRelativeInfluence(double *adRelInf);
-    void SplitAssign();
-    void SplitNode();
+    void SplitNode(NodeParams& childrenParams);
     void PrintSubtree(unsigned long cIndent);
-    double SplitImprovement(){ return childrenParams.ImprovedResiduals;}
     void TransferTreeToRList(int &iNodeID,
 				     const CDataset &data,
 				     int *aiSplitVar,
@@ -88,9 +85,6 @@ public:
 	CNode* pLeftNode;
 	CNode* pRightNode;
 	CNode* pMissingNode;
-
-	// Parameters
-	NodeParams childrenParams;
 
 	//TODO: Currently most useful in printing out tree
 	// This nodes parameters
@@ -123,7 +117,5 @@ private:
 
 };
 
-#endif // __node_h__
-
-
+#endif // NODE_H
 

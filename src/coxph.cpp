@@ -15,6 +15,18 @@
 #include <Rinternals.h>
 #include <math.h>
 
+namespace {
+  int getTiesMethod(const std::string& selection) {
+    if (selection == "efron") {
+      return 1;
+    } else if (selection == "breslow") {
+      return 0;
+    }
+
+    throw GBM::invalid_argument("unknown tie-handling method");
+  }
+}
+
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
@@ -49,19 +61,11 @@ CDistribution* CCoxPH::Create(DataDistParams& distParams)
 	int* sortedSt = NULL;
 	int* sortedEnd = NULL;
 	bool isStartStop = false;
-	int tiesMethod;
+	int tiesMethod = getTiesMethod(Rcpp::as<string>(distParams.misc[0]));
 
 	// Switch on misc to set up ties method
 	std::string miscString = Rcpp::as<std::string>(distParams.misc[0]);
-	if(miscString == "efron")
-	{
-		tiesMethod = 1;
-	}
-	else if(miscString == "breslow")
-	{
-	  tiesMethod = 0;
-	}
-	
+
 	// Set up strata
 	Rcpp::IntegerVector strats(distParams.strata);
 
@@ -95,17 +99,17 @@ CCoxPH::~CCoxPH()
 
 void CCoxPH::ComputeWorkingResponse
 (
-	const CDataset* pData,
+	const CDataset& data,
     const double *adF,
     double *adZ
 )
 {
-    coxStateMethods->ComputeWorkingResponse(pData, adF, adZ);
+    coxStateMethods->ComputeWorkingResponse(data, adF, adZ);
 }
 
 double CCoxPH::InitF
 (
-	const CDataset* pData
+	const CDataset& data
 )
 {
     return 0.0;
@@ -114,34 +118,34 @@ double CCoxPH::InitF
 
 double CCoxPH::Deviance
 (
-	const CDataset* pData,
+	const CDataset& data,
     const double *adF,
     bool isValidationSet
 )
 {
     // Set size and move to validation set if necessary
-    long cLength = pData->get_trainSize();
+    long cLength = data.get_trainSize();
 	if(isValidationSet)
 	{
-		pData->shift_to_validation();
-		status = shift_ptr(status, pData->get_trainSize());
-		sortedEndTimes = shift_ptr(sortedEndTimes, pData->get_trainSize());
-		sortedStartTimes = shift_ptr(sortedStartTimes, pData->get_trainSize());
-		strata = shift_ptr(strata, pData->get_trainSize());
-		cLength = pData->GetValidSize();
+		data.shift_to_validation();
+		status = shift_ptr(status, data.get_trainSize());
+		sortedEndTimes = shift_ptr(sortedEndTimes, data.get_trainSize());
+		sortedStartTimes = shift_ptr(sortedStartTimes, data.get_trainSize());
+		strata = shift_ptr(strata, data.get_trainSize());
+		cLength = data.GetValidSize();
 	}
 
 	double returnValue = 0.0;
-	returnValue = coxStateMethods->Deviance(cLength, pData, adF);
+	returnValue = coxStateMethods->Deviance(cLength, data, adF);
 
 	// Shift back for future calculations if required
 	if(isValidationSet)
 	{
-		pData->shift_to_train();
-		status = shift_ptr(status, -(pData->get_trainSize()));
-		sortedEndTimes = shift_ptr(sortedEndTimes, -(pData->get_trainSize()));
-		sortedStartTimes = shift_ptr(sortedStartTimes, -(pData->get_trainSize()));
-		strata = shift_ptr(strata, -(pData->get_trainSize()));
+		data.shift_to_train();
+		status = shift_ptr(status, -(data.get_trainSize()));
+		sortedEndTimes = shift_ptr(sortedEndTimes, -(data.get_trainSize()));
+		sortedStartTimes = shift_ptr(sortedStartTimes, -(data.get_trainSize()));
+		strata = shift_ptr(strata, -(data.get_trainSize()));
 	}
 
 
@@ -151,26 +155,25 @@ double CCoxPH::Deviance
 
 void CCoxPH::FitBestConstant
 (
-	const CDataset* pData,
+	const CDataset& data,
     const double *adF,
     unsigned long cTermNodes,
     double* adZ,
-    CTreeComps* pTreeComps
+    CTreeComps& treeComps
 )
 {
-   coxStateMethods->FitBestConstant(pData, adF, cTermNodes, adZ, pTreeComps);
+   coxStateMethods->FitBestConstant(data, adF, cTermNodes, adZ, treeComps);
 }
 
 double CCoxPH::BagImprovement
 (
 	const CDataset& data,
     const double *adF,
-    const bag& afInBag,
-  const double shrinkage,
+    const double shrinkage,
   const double* adFadj
 )
 {
-    return coxStateMethods->BagImprovement(data, adF, afInBag, shrinkage, adFadj);
+    return coxStateMethods->BagImprovement(data, adF, shrinkage, adFadj);
 }
 
 //-----------------------------------
@@ -267,10 +270,6 @@ const int* CCoxPH::StrataVec() const
 // Parameters: none
 //
 //-----------------------------------
-int CCoxPH::TieApproxMethod()
-{
-	return tiedTimesMethod;
-}
 int CCoxPH::TieApproxMethod() const
 {
 	return tiedTimesMethod;
@@ -287,15 +286,9 @@ int CCoxPH::TieApproxMethod() const
 // Parameters: none
 //
 //-----------------------------------
-double CCoxPH::PriorCoeffVar()
-{
-	return priorCoeffVar;
-}
 double CCoxPH::PriorCoeffVar() const
 {
 	return priorCoeffVar;
 }
-
-
 
 

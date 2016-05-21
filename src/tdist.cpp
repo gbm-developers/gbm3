@@ -43,7 +43,7 @@ CTDist::~CTDist()
 
 void CTDist::ComputeWorkingResponse
 (
-	const CDataset* pData,
+	const CDataset& data,
     const double *adF,
     double *adZ
 )
@@ -51,9 +51,9 @@ void CTDist::ComputeWorkingResponse
     unsigned long i = 0;
     double dU = 0.0;
 
-	for(i=0; i<pData->get_trainSize(); i++)
+	for(i=0; i<data.get_trainSize(); i++)
 	{
-		dU = pData->y_ptr()[i] - pData->offset_ptr(false)[i] - adF[i];
+		dU = data.y_ptr()[i] - data.offset_ptr()[i] - adF[i];
 		adZ[i] = (2 * dU) / (mdNu + (dU * dU));
 	}
 
@@ -62,25 +62,25 @@ void CTDist::ComputeWorkingResponse
 
 double CTDist::InitF
 (
-	const CDataset* pData
+	const CDataset& data
 )
 {
 
 	// Get objects to pass into the LocM function
-	std::vector<double> adArr(pData->get_trainSize());
+	std::vector<double> adArr(data.get_trainSize());
 
-	for (long ii = 0; ii < pData->get_trainSize(); ii++)
+	for (long ii = 0; ii < data.get_trainSize(); ii++)
 	{
-		double dOffset = (pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[ii];
-		adArr[ii] = pData->y_ptr()[ii] - dOffset;
+		double dOffset = data.offset_ptr()[ii];
+		adArr[ii] = data.y_ptr()[ii] - dOffset;
 	}
 
-	return mpLocM.LocationM(pData->get_trainSize(), &adArr[0], pData->weight_ptr(), 0.5);
+	return mpLocM.LocationM(data.get_trainSize(), &adArr[0], data.weight_ptr(), 0.5);
 }
 
 double CTDist::Deviance
 (
-	const CDataset* pData,
+	const CDataset& data,
     const double *adF,
     bool isValidationSet
 )
@@ -91,26 +91,26 @@ double CTDist::Deviance
 	double dU = 0.0;
 
 	// Switch to validation set if necessary
-	long cLength = pData->get_trainSize();
+	long cLength = data.get_trainSize();
 	if(isValidationSet)
 	{
-	   pData->shift_to_validation();
-	   cLength = pData->GetValidSize();
+	   data.shift_to_validation();
+	   cLength = data.GetValidSize();
 	}
 
 
 	for(i=0; i<cLength; i++)
 	{
-		dU = pData->y_ptr()[i] - pData->offset_ptr(false)[i] - adF[i];
-		dL += pData->weight_ptr()[i] * std::log(mdNu + (dU * dU));
-		dW += pData->weight_ptr()[i];
+		dU = data.y_ptr()[i] - data.offset_ptr()[i] - adF[i];
+		dL += data.weight_ptr()[i] * std::log(mdNu + (dU * dU));
+		dW += data.weight_ptr()[i];
 	}
 
 
     // Switch back to training set if necessary
     if(isValidationSet)
     {
- 	   pData->shift_to_train();
+ 	   data.shift_to_train();
     }
 
     //TODO: Check if weights are all zero for validation set
@@ -129,11 +129,11 @@ double CTDist::Deviance
 
 void CTDist::FitBestConstant
 (
-	const CDataset* pData,
+	const CDataset& data,
     const double *adF,
     unsigned long cTermNodes,
     double* adZ,
-    CTreeComps* pTreeComps
+    CTreeComps& treeComps
 )
 {
    	// Local variables
@@ -145,22 +145,22 @@ void CTDist::FitBestConstant
 	// Call LocM for the array of values on each node
     for(iNode=0; iNode<cTermNodes; iNode++)
     {
-      if(pTreeComps->GetTermNodes()[iNode]->cN >= pTreeComps->GetMinNodeObs())
+      if(treeComps.GetTermNodes()[iNode]->cN >= treeComps.GetMinNodeObs())
         {
 	  adArr.clear();
 	  adW.clear();
 
-	  for (iObs = 0; iObs < pData->get_trainSize(); iObs++)
+	  for (iObs = 0; iObs < data.get_trainSize(); iObs++)
 	    {
-	      if(pData->GetBagElem(iObs) && (pTreeComps->GetNodeAssign()[iObs] == iNode))
+	      if(data.GetBagElem(iObs) && (treeComps.GetNodeAssign()[iObs] == iNode))
                 {
-		  const double dOffset = pData->offset_ptr(false)[iObs];
-		  adArr.push_back(pData->y_ptr()[iObs] - dOffset - adF[iObs]);
-		  adW.push_back(pData->weight_ptr()[iObs]);
+		  const double dOffset = data.offset_ptr()[iObs];
+		  adArr.push_back(data.y_ptr()[iObs] - dOffset - adF[iObs]);
+		  adW.push_back(data.weight_ptr()[iObs]);
                 }
 	    }
 
-	  pTreeComps->GetTermNodes()[iNode]->dPrediction = mpLocM.LocationM(adArr.size(), &adArr[0],
+	  treeComps.GetTermNodes()[iNode]->dPrediction = mpLocM.LocationM(adArr.size(), &adArr[0],
 							       &adW[0], 0.5);
 
         }
@@ -169,9 +169,8 @@ void CTDist::FitBestConstant
 
 double CTDist::BagImprovement
 (
-	const CDataset& data,
+    const CDataset& data,
     const double *adF,
-    const bag& afInBag,
     const double shrinkage,
     const double* adFadj
 )
@@ -184,7 +183,7 @@ double CTDist::BagImprovement
     {
         if(!data.GetBagElem(i))
         {
-            const double dF = adF[i] + data.offset_ptr(false)[i];
+            const double dF = adF[i] + data.offset_ptr()[i];
 	    const double dU = (data.y_ptr()[i] - dF);
 	    const double dV = (data.y_ptr()[i] - dF - shrinkage * adFadj[i]) ;
 

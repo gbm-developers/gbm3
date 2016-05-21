@@ -11,8 +11,8 @@
 //
 //------------------------------------------------------------------------------
 
-#ifndef __configStructs_h__
-#define __configStructs_h__
+#ifndef CONFIGSTRUCTS_H
+#define CONFIGSTRUCTS_H
 
 //------------------------------
 // Includes
@@ -165,8 +165,8 @@ public:
 	//---------------------
 	// Public Methods
 	//---------------------
-	DataDistParams GetDataConfig() const { return dataConfig;};
-	TreeParams GetTreeConfig() const { return treeConfig;};
+	DataDistParams& GetDataConfig() { return dataConfig;};
+	TreeParams& GetTreeConfig() { return treeConfig;};
 
 private:
 	//-------------------
@@ -206,4 +206,4 @@ private:
 	}
 
 };
-#endif // __configStructs_h__*/
+#endif // CONFIGSTRUCTS_H

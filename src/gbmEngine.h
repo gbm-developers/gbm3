@@ -11,8 +11,8 @@
 //
 //------------------------------------------------------------------------------
 
-#ifndef __gbmEnginegbm_h__
-#define __gbmEnginegbm_h__
+#ifndef GBMENGINE_H
+#define GBMENGINE_H
 
 //------------------------------
 // Includes
@@ -34,7 +34,7 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-    CGBM(configStructs GBMParams);
+    CGBM(configStructs& GBMParams);
 
 	//---------------------
 	// Public destructor
@@ -67,16 +67,15 @@ private:
 	//-------------------
 	// Private Variables
 	//-------------------
-    CGBMDataContainer* pDataCont;
-	CTreeComps* pTreeComp;
-    bool fInitialized;          // indicates whether the GBM has been initialized
-
+    CGBMDataContainer dataCont;
+    CTreeComps treeComp;
+    
     // Residuals and adjustments to function estimate
     std::vector<double> adZ;
 
 };
 
-#endif //  __gbmEnginegbm_h__
+#endif // GBMENGINE_H
 
 
 

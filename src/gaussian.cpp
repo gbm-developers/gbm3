@@ -34,28 +34,28 @@ CGaussian::~CGaussian()
 
 void CGaussian::ComputeWorkingResponse
 (
- const CDataset* pData,
+ const CDataset& data,
  const double *adF,
  double *adZ
  )
 {
   unsigned long i = 0;
   
-  if (!(pData->y_ptr() && adF && adZ && pData->weight_ptr())) {
+  if (!(data.y_ptr() && adF && adZ && data.weight_ptr())) {
     throw GBM::invalid_argument();
   }
   
 
-	for(i=0; i<pData->get_trainSize(); i++)
+	for(i=0; i<data.get_trainSize(); i++)
 	{
-		adZ[i] = pData->y_ptr()[i] - pData->offset_ptr(false)[i] - adF[i];
+		adZ[i] = data.y_ptr()[i] - data.offset_ptr()[i] - adF[i];
 	}
 
 }
 
 double CGaussian::InitF
 (
-	const CDataset* pData
+	const CDataset& data
 )
 {
     double dSum=0.0;
@@ -64,10 +64,10 @@ double CGaussian::InitF
 
     // compute the mean
 
-	for(i=0; i<pData->get_trainSize(); i++)
+	for(i=0; i<data.get_trainSize(); i++)
 	{
-		dSum += pData->weight_ptr()[i]*(pData->y_ptr()[i] - pData->offset_ptr(false)[i]);
-		dTotalWeight += pData->weight_ptr()[i];
+		dSum += data.weight_ptr()[i]*(data.y_ptr()[i] - data.offset_ptr()[i]);
+		dTotalWeight += data.weight_ptr()[i];
 	}
 
 
@@ -77,7 +77,7 @@ double CGaussian::InitF
 
 double CGaussian::Deviance
 (
-	const CDataset* pData,
+	const CDataset& data,
     const double *adF,
     bool isValidationSet
 )
@@ -86,26 +86,26 @@ double CGaussian::Deviance
     double dL = 0.0;
     double dW = 0.0;
 
-    long cLength = pData->get_trainSize();
+    long cLength = data.get_trainSize();
     if(isValidationSet)
     {
-    	pData->shift_to_validation();
-    	cLength = pData->GetValidSize();
+    	data.shift_to_validation();
+    	cLength = data.GetValidSize();
     }
 
 
 
 	for(i=0; i<cLength; i++)
 	{
-		dL += pData->weight_ptr()[i]*(pData->y_ptr()[i]-pData->offset_ptr(false)[i]-adF[i])*
-						  (pData->y_ptr()[i]-pData->offset_ptr(false)[i]-adF[i]);
-		dW += pData->weight_ptr()[i];
+		dL += data.weight_ptr()[i]*(data.y_ptr()[i]-data.offset_ptr()[i]-adF[i])*
+						  (data.y_ptr()[i]-data.offset_ptr()[i]-adF[i]);
+		dW += data.weight_ptr()[i];
 	}
 
 
     if(isValidationSet)
     {
-    	pData->shift_to_train();
+    	data.shift_to_train();
     }
 
     //TODO: Check if weights are all zero for validation set
@@ -124,11 +124,11 @@ double CGaussian::Deviance
 
 void CGaussian::FitBestConstant
 (
-	const CDataset* pData,
+	const CDataset& data,
     const double *adF,
     unsigned long cTermNodes,
     double* adZ,
-    CTreeComps* pTreeComps
+    CTreeComps& treeComps
 )
 {
   // the tree aready stores the mean prediction
@@ -137,9 +137,8 @@ void CGaussian::FitBestConstant
 
 double CGaussian::BagImprovement
 (
-	const CDataset& data,
+    const CDataset& data,
     const double *adF,
-    const bag& afInBag,
     const double shrinkage,
     const double* adFadj
 )
@@ -153,7 +152,7 @@ double CGaussian::BagImprovement
     {
         if(!data.GetBagElem(i))
         {
-            dF = adF[i] + data.offset_ptr(false)[i];
+            dF = adF[i] + data.offset_ptr()[i];
 
             dReturnValue += data.weight_ptr()[i]*shrinkage*adFadj[i]*
                             (2.0*(data.y_ptr()[i]-dF) - shrinkage*adFadj[i]);
