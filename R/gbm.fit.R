@@ -26,6 +26,15 @@ gbm.fit <- function(x,y,
    cRows <- nrow(x)
    cCols <- ncol(x)
 
+   # Get size of Response frame
+   cRowsY <- nrow(y)
+   cColsY <- ncol(y)
+   if(is.null(cRowsY))
+   {
+     cRowsY <- length(y)
+     cColsY <- 1
+   }
+   
    checkSanity(x, y)
    ch <- checkMissing(x, y)
    checkVarType(x, y)
@@ -70,8 +79,15 @@ gbm.fit <- function(x,y,
    }
 
    # Order X, Y according to the patient id
-   y <- y[order(patient.id)]
-   x <- x[order(patient.id),]
+   if(is.data.frame(y)) 
+   {
+     y <- y[order(patient.id), , drop=FALSE]
+   }
+   else
+   {
+     y <- y[order(patient.id)]
+   }
+   x <- x[order(patient.id), , drop=FALSE]
    num_rows_each_pat <- table(patient.id[order(patient.id)])
    
    # Calculate the number of rows in training set
@@ -352,15 +368,6 @@ gbm.fit <- function(x,y,
    else if(!all(is.element(var.monotone,-1:1)))
    {
       stop("var.monotone must be -1, 0, or 1")
-   }
-   
-   # Get size of Response frame
-   cRowsY <- nrow(y)
-   cColsY <- ncol(y)
-   if(is.null(cRowsY))
-   {
-     cRowsY <- length(y)
-     cColsY <- 1
    }
    
    # Make sorted vec into a matrix
