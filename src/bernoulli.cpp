@@ -16,10 +16,8 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CBernoulli::CBernoulli() {
-  // Used to issue warnings to user that at least one terminal node capped
-  terminalnode_capped_ = false;
-}
+CBernoulli::CBernoulli()
+    : terminalnode_capped_(false), terminalnode_cap_level_(10) {}
 
 //----------------------------------------
 // Function Members - Public
@@ -110,7 +108,6 @@ void CBernoulli::FitBestConstant(const CDataset& kData,
                                  double* residuals, CCARTTree& tree) {
   unsigned long obs_num = 0;
   unsigned long node_num = 0;
-  double temp = 0.0;
   vector<double> numerator_vec(num_terminalnodes, 0.0);
   vector<double> denom_vec(num_terminalnodes, 0.0);
 
@@ -138,24 +135,27 @@ void CBernoulli::FitBestConstant(const CDataset& kData,
       if (denom_vec[node_num] == 0) {
         tree.get_terminal_nodes()[node_num]->set_prediction(0.0);
       } else {
-        temp = numerator_vec[node_num] / denom_vec[node_num];
+        double temp = numerator_vec[node_num] / denom_vec[node_num];
         // avoid large changes in predictions on log odds scale
-        if (std::abs(temp) > 1.0) {
+        if (std::abs(temp) > terminalnode_cap_level_) {
           if (!terminalnode_capped_) {
             // set fCappedPred=true so that warning only issued once
             terminalnode_capped_ = true;
             Rcpp::warning(
                 "Some terminal node predictions were excessively large for "
-                "Bernoulli and have been capped at 1.0. Likely due to a "
+                "Bernoulli and have been capped. Likely due to a "
                 "feature that separates the 0/1 outcomes. Consider reducing "
                 "shrinkage parameter.");
           }
-          if (temp > 1.0)
-            temp = 1.0;
-          else if (temp < -1.0)
-            temp = -1.0;
+          if (temp > terminalnode_cap_level_) {
+            temp = terminalnode_cap_level_;
+	  }
+          else if (temp < -terminalnode_cap_level_) {
+            temp = -terminalnode_cap_level_;
+	  }
         }
-        tree.get_terminal_nodes()[node_num]->set_prediction(temp);
+	
+	tree.get_terminal_nodes()[node_num]->set_prediction(temp);
       }
     }
   }
