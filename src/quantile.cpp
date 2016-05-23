@@ -61,7 +61,7 @@ double CQuantile::InitF
 {
     double dOffset=0.0;
     vecd.resize(data.get_trainSize());
-    for(long i=0; i< data.get_trainSize(); i++)
+    for(unsigned long i=0; i< data.get_trainSize(); i++)
     {
         dOffset = data.offset_ptr()[i];
         vecd[i] = data.y_ptr()[i] - dOffset;
@@ -83,7 +83,7 @@ double CQuantile::Deviance
     double dW = 0.0;
 
     // Switch to validation set if necessary
-    long cLength = data.get_trainSize();
+    unsigned long cLength = data.get_trainSize();
     if(isValidationSet)
     {
  	   data.shift_to_validation();

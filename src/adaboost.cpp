@@ -40,7 +40,7 @@ void CAdaBoost::ComputeWorkingResponse
 {
 
 
-	for(long i=0; i<data.get_trainSize(); i++)
+	for(unsigned long i=0; i<data.get_trainSize(); i++)
 	{
 		adZ[i] = -(2*data.y_ptr()[i]-1) * std::exp(-(2*data.y_ptr()[i]-1)*(data.offset_ptr()[i]+adF[i]));
 	}
@@ -59,7 +59,7 @@ double CAdaBoost::InitF
     double dDen = 0.0;
 
 
-	for(long i=0; i< data.get_trainSize(); i++)
+	for(unsigned long i=0; i< data.get_trainSize(); i++)
 	{
 		if(data.y_ptr()[i]==1.0)
 		{
@@ -88,7 +88,7 @@ double CAdaBoost::Deviance
     double dW = 0.0;
 
     // Switch to validation set if necessary
-    long cLength = data.get_trainSize();
+    unsigned long cLength = data.get_trainSize();
     if(isValidationSet)
     {
     	data.shift_to_validation();

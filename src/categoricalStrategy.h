@@ -88,16 +88,16 @@ public:
 	{
 		const std::size_t cLeftCategory = nodeContext->aiLeftCategory.size();
 
-		for(long i=0; i< Indent; i++) Rprintf("  ");
+		for(unsigned long i=0; i< Indent; i++) Rprintf("  ");
 		Rprintf("N=%f, Improvement=%f, Prediction=%f, NA pred=%f\n",
 		  nodeContext->dTrainW,
 		  nodeContext->dImprovement,
 		  nodeContext->dPrediction,
 		  (nodeContext->pMissingNode == NULL ? 0.0 : nodeContext->pMissingNode->dPrediction));
 
-		for(long i=0; i< Indent; i++) Rprintf("  ");
+		for(unsigned long i=0; i< Indent; i++) Rprintf("  ");
 		Rprintf("V%d in ",nodeContext->iSplitVar);
-		for(long i=0; i<cLeftCategory; i++)
+		for(unsigned long i=0; i<cLeftCategory; i++)
 		  {
 			Rprintf("%d", nodeContext->aiLeftCategory[i]);
 			if(i<cLeftCategory-1) Rprintf(",");
@@ -105,9 +105,9 @@ public:
 		Rprintf("\n");
 		nodeContext->pLeftNode->PrintSubtree((Indent+1));
 
-		for(long i=0; i< Indent; i++) Rprintf("  ");
+		for(unsigned long i=0; i< Indent; i++) Rprintf("  ");
 		Rprintf("V%d not in ", nodeContext->iSplitVar);
-		for(long i=0; i<cLeftCategory; i++)
+		for(unsigned long i=0; i<cLeftCategory; i++)
 		  {
 			Rprintf("%d", nodeContext->aiLeftCategory[i]);
 			if(i<cLeftCategory-1) Rprintf(",");
@@ -115,7 +115,7 @@ public:
 		Rprintf("\n");
 		nodeContext->pRightNode->PrintSubtree(Indent+1);
 
-		for(long i=0; i< Indent; i++) Rprintf("  ");
+		for(unsigned long i=0; i< Indent; i++) Rprintf("  ");
 		Rprintf("missing\n");
 		nodeContext->pMissingNode->PrintSubtree(Indent+1);
 	}

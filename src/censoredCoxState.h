@@ -46,10 +46,10 @@ public:
 	{
 		// Initialize parameters
 		std::vector<double> martingaleResid(data.get_trainSize(), 0.0);
-		double loglik = LogLikelihood(data.get_trainSize(), data, adF, &martingaleResid[0], false);
+		LogLikelihood(data.get_trainSize(), data, adF, &martingaleResid[0], false);
 
 		// Fill up response
-		for(long i = 0; i < data.get_trainSize(); i++)
+		for(unsigned long i = 0; i < data.get_trainSize(); i++)
 		{
 			if(data.GetBagElem(i))
 			{
@@ -75,7 +75,7 @@ public:
 		LogLikelihood(data.get_trainSize(), data, adF,
 			      &martingaleResid[0], false);
 
-		for(long i = 0; i < data.get_trainSize(); i++)
+		for(unsigned long i = 0; i < data.get_trainSize(); i++)
 		{
 			if(data.GetBagElem(i) &&
 			   (treeComps.GetTermNodes()[treeComps.GetNodeAssign()[i]]->cN >= treeComps.GetMinNodeObs()) )
@@ -87,7 +87,7 @@ public:
 		}
 
 		// Update Node predictions
-		for(long nodeNum = 0; nodeNum < cTermNodes; nodeNum++)
+		for(unsigned long nodeNum = 0; nodeNum < cTermNodes; nodeNum++)
 		{
 			// If there are no data points in node this is 0.0
 			treeComps.GetTermNodes()[nodeNum]->dPrediction = log(numEventsInNodes[nodeNum]/expNoEventsInNodes[nodeNum]);
@@ -128,7 +128,7 @@ public:
 	    std::vector<double> etaAdj(data.get_trainSize(), 0.0);
 
 	    // Fill up the adjusted and shrunk eta
-	    for(long i = 0; i < data.get_trainSize(); i++)
+	    for(unsigned long i = 0; i < data.get_trainSize(); i++)
 	    {
 	    	if(!data.GetBagElem(i))
 	    	{

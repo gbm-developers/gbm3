@@ -68,7 +68,7 @@ public:
      virtual void Initialize(const CDataset& data)
      {
     	 // Set up multi map
-		for(long i = 0; i < (data.get_trainSize() + data.GetValidSize()); i++)
+		for(unsigned long i = 0; i < (data.get_trainSize() + data.GetValidSize()); i++)
 		{
 			patIdToRow.insert(pair<int, int>(data.GetRowPatientId(i), i));
 		}

@@ -94,7 +94,7 @@ public:
 	// Properties defining the node
 	double dPrediction;
 	double dTrainW;   // total training weight in node
-	long cN; // number of training observations in node
+	unsigned long cN; // number of training observations in node
 
 	// ENUM FOR strategy
 	SplitType splitType;

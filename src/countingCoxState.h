@@ -50,7 +50,7 @@ public:
 		LogLikelihoodTiedTimes(data.get_trainSize(), data, adF, &martingaleResid[0], false);
 
 		// Fill up response
-		for(long i = 0; i < data.get_trainSize(); i++)
+		for(unsigned long i = 0; i < data.get_trainSize(); i++)
 		{
 			if(data.GetBagElem(i))
 			{
@@ -77,7 +77,7 @@ public:
 		LogLikelihoodTiedTimes(data.get_trainSize(), data, adF, &martingaleResid[0], false);
 
 
-		for(long i = 0; i < data.get_trainSize(); i++)
+		for(unsigned long i = 0; i < data.get_trainSize(); i++)
 		{
 			if(data.GetBagElem(i) &&
 					(treeComps.GetTermNodes()[treeComps.GetNodeAssign()[i]]->cN >= treeComps.GetMinNodeObs()) )
@@ -89,7 +89,7 @@ public:
 		}
 
 		// Update Node predictions
-		for(long nodeNum = 0; nodeNum < cTermNodes; nodeNum++)
+		for(unsigned long nodeNum = 0; nodeNum < cTermNodes; nodeNum++)
 		{
 			// If there are no data points in node this is 0.0
 			treeComps.GetTermNodes()[nodeNum]->dPrediction = log(numEventsInNodes[nodeNum]/expNoEventsInNodes[nodeNum]);
@@ -130,7 +130,7 @@ public:
 		std::vector<double> etaAdj(data.get_trainSize(), 0.0);
 
 		// Fill up the adjusted and shrunk eta
-		for(long i = 0; i < data.get_trainSize(); i++)
+		for(unsigned long i = 0; i < data.get_trainSize(); i++)
 		{
 			if(!data.GetBagElem(i))
 			{
@@ -163,7 +163,6 @@ private:
 	    double deathwt, denom, temp, center;
 	    double esum, dtime, e_hazard;
 	    double loglik, d_denom;
-	    int stratastart;    /* the first obs of each stratum */
 
 	    /*
 	    **  'person' walks through the the data from 1 to n, p2= sort2[person].
@@ -209,7 +208,6 @@ private:
 	    		}
 	    	}
 	    }
-	    stratastart =0;   /* first strata starts at index 0 */
 
 	    for (person=0; person<n; )
 	    {
@@ -344,7 +342,6 @@ private:
 				/* clean up at the end of a strata */
 				if (person == coxPh->StrataVec()[istrat])
 				{
-					stratastart = person;
 					for (; indx1< coxPh->StrataVec()[istrat]; indx1++)
 					{
 						p1 = coxPh->StartTimeIndices()[indx1];

@@ -42,10 +42,9 @@ public:
 	 SEXP radWeight, SEXP racVarClasses, SEXP ralMonotoneVar,
 	 const int cTrain, const int cFeatures, const double fractionInBag,
 	 const int cTrainPatients, SEXP patientIds) :
-    adY(radY), adOffset(radOffset), adWeight(radWeight), adX(radX),
+    adX(radX), adY(radY), adOffset(radOffset), adWeight(radWeight),
     acVarClasses(racVarClasses), alMonotoneVar(ralMonotoneVar),
-    aiXOrder(raiXOrder), numOfTrainData(cTrain), numOfFeatures(cFeatures),
-    numOfTrainPatients(cTrainPatients), patIds(patientIds)
+    aiXOrder(raiXOrder), patIds(patientIds)
   {
     
     // If you've no offset set to 0
@@ -55,18 +54,23 @@ public:
       std::swap(adOffset, new_offset);
     }
     
-    // Set variables
-    bagFraction = fractionInBag;
-    totalInBag = (long) (fractionInBag * cTrainPatients);
-    cValid = adX.nrow() - cTrain;
-    pointAtTrainSet = true;
-    
-    // Set up pointers
+    // Set-up pointers
+    SetUpYPtrs();
     adWeightPtr = adWeight.begin();
     adOffsetPtr = adOffset.begin();
-    afInBag.assign(cTrain, false);
-    SetUpYPtrs();
     
+    // Set-up data properties
+    numOfTrainData = cTrain;
+    numOfTrainPatients = cTrainPatients;
+    cValid = adX.nrow() - cTrain;
+    numOfFeatures = cFeatures;
+    pointAtTrainSet = true;
+    
+    // Set-up Bags
+    afInBag.assign(cTrain, false);
+    bagFraction = fractionInBag;
+    totalInBag = (long) (fractionInBag * cTrainPatients);
+
     // Ensure initialization makes sense
     if (totalInBag <= 0)
       {
@@ -149,7 +153,7 @@ public:
   {
     if(!(pointAtTrainSet))
     {
-      for(int i = 0; i < yptrs.size(); i++)
+      for(unsigned int i = 0; i < yptrs.size(); i++)
       {
     	  yptrs[i] = shift_ptr_to_train(yptrs[i]);
       }
@@ -168,7 +172,7 @@ public:
   {
     if (pointAtTrainSet)
     {
-      for(int i = 0; i < yptrs.size(); i++)
+      for(unsigned int i = 0; i < yptrs.size(); i++)
       {
     	  yptrs[i] = shift_ptr_to_validation(yptrs[i]);
       }
@@ -185,8 +189,8 @@ public:
   // Public Variables
   //-------------------
   // Numeric vectors storing data
-  Rcpp::NumericVector adOffset, adWeight;
   Rcpp::NumericMatrix adX, adY;
+  Rcpp::NumericVector adOffset, adWeight;
   Rcpp::IntegerVector acVarClasses, alMonotoneVar, aiXOrder, patIds;
   
   // Ptrs to numeric vectors - these must be mutable
@@ -195,7 +199,7 @@ public:
   mutable double* adWeightPtr;
   
   // Properties of the data
-  long numOfTrainData;
+  unsigned long numOfTrainData;
   long numOfTrainPatients;
   unsigned long cValid;
   long numOfFeatures;
@@ -204,7 +208,7 @@ public:
   // Bagged  data
   bag afInBag;
   double bagFraction;
-  long totalInBag;
+  unsigned long totalInBag;
   
 };
 
@@ -228,11 +232,11 @@ public:
   //---------------------
   // Public Functions
   //---------------------
-  int nrow() const
+  unsigned int nrow() const
   {
     return dataImpl.adX.nrow();
   };
-  int ncol() const
+  unsigned int ncol() const
   {
     return dataImpl.adX.ncol();
   };
@@ -276,7 +280,7 @@ public:
     return dataImpl.adX(row, col);
   }; // retrieve predictor value
   
-  long get_trainSize() const { return dataImpl.numOfTrainData; }; // get size of training set
+  unsigned long get_trainSize() const { return dataImpl.numOfTrainData; }; // get size of training set
   long get_numFeatures() const; // get the number of features in data
   
   void shift_to_validation() const; // shift all of the ptrs to validation set
@@ -287,15 +291,15 @@ public:
   
   double GetBagFraction() const;
   
-  long GetValidSize() const;
-  long GetTotalInBag() const;
+  unsigned long GetValidSize() const;
+  unsigned long GetTotalInBag() const;
 
   const bag& GetBag() const
   {
     return dataImpl.afInBag;
   };
   
-  long GetNumPatientsInTraining() const
+  unsigned long GetNumPatientsInTraining() const
   {
 	  return dataImpl.numOfTrainPatients;
   }

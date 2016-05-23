@@ -86,7 +86,7 @@ double CGaussian::Deviance
     double dL = 0.0;
     double dW = 0.0;
 
-    long cLength = data.get_trainSize();
+    unsigned long cLength = data.get_trainSize();
     if(isValidationSet)
     {
     	data.shift_to_validation();

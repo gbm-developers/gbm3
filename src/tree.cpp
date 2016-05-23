@@ -66,7 +66,7 @@ void CCARTTree::grow
 #endif
 
   	  // Move to data -- FOR TIME BEING
-	for(long iObs=0; iObs<data.get_trainSize(); iObs++)
+	for(unsigned long iObs=0; iObs<data.get_trainSize(); iObs++)
 	{
 		// aiNodeAssign tracks to which node each training obs belongs
 		aiNodeAssign[iObs] = 0;
@@ -122,8 +122,7 @@ void CCARTTree::PredictValid
  double *adFadj
  )
 {
-  int i=0;
-  
+  unsigned int i=0;
   for(i=data.nrow() - nValid; i<data.nrow(); i++)
     {
       pRootNode->Predict(data, i, adFadj[i]);

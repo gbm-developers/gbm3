@@ -59,7 +59,7 @@ private:
 	//---------------------
 	// Private Functions
 	//---------------------
-    void ReAssignData(long splittedNodeIndex, vector<CNode*>& vecpTermNodes,
+    void ReAssignData(unsigned long splittedNodeIndex, vector<CNode*>& vecpTermNodes,
     					const CDataset& data, vector<unsigned long>& aiNodeAssign);
 
 	//---------------------
@@ -69,9 +69,8 @@ private:
     std::vector<VarSplitter> variableSplitters;
 
     // Number of terminal nodes
-    long cTerminalNodes;
+    unsigned long cTerminalNodes;
     unsigned long minNumObs;
-    long totalCache;
 };
 
 #endif // NODESEARCH_H

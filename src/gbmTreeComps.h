@@ -71,7 +71,7 @@ public:
 	{
 		return cMinObsInNode;
 	}
-	const long& GetSizeOfTree() const
+	const unsigned long& GetSizeOfTree() const
 	{
 		return tree.GetNodeCount();
 	}

@@ -61,7 +61,7 @@ public:
 	{
 	  unsigned long cFiniteMeans = 0;
 
-	  for(long i=0; i < proposedSplit.SplitClass; i++)
+	  for(unsigned long i=0; i < proposedSplit.SplitClass; i++)
 	    {
 	      groupMeanAndCat[i].second = i;
 	      

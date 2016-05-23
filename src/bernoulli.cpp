@@ -104,7 +104,7 @@ double CBernoulli::Deviance
    double dW = 0.0;
 
    // Switch to validation set if necessary
-   long cLength = data.get_trainSize();
+   unsigned long cLength = data.get_trainSize();
    if(isValidationSet)
    {
 	   data.shift_to_validation();

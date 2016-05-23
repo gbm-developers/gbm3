@@ -25,7 +25,7 @@ struct NodeDef
   //----------------------
   NodeDef() : numObs(0), weightResid(0), totalWeight(0) {};
   
-  NodeDef(double weightResid, double totalWeight, long numObs) :
+  NodeDef(double weightResid, double totalWeight, unsigned long numObs) :
   numObs(numObs), weightResid(weightResid), totalWeight(totalWeight) {};
   
   //---------------------
@@ -60,7 +60,7 @@ struct NodeDef
     return totalWeight* other.totalWeight*predictionDiff*predictionDiff;
   };
 
-  bool hasMinObs(long minObsInNode) const
+  bool hasMinObs(unsigned long minObsInNode) const
   {
 	return (numObs >= minObsInNode);
   }
@@ -87,7 +87,7 @@ struct NodeDef
   
 private:
   
-  long numObs;
+  unsigned long numObs;
   double weightResid;
   double totalWeight;
 
@@ -153,7 +153,7 @@ public:
 	    }
 	};
 	
-	bool HasMinNumOfObs(long minObsInNode)
+	bool HasMinNumOfObs(unsigned long minObsInNode)
 	{
 		return (left.hasMinObs(minObsInNode) &&
 			  right.hasMinObs(minObsInNode));

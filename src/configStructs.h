@@ -44,8 +44,8 @@ public:
 		    SEXP rcTrainPatients,
 		    SEXP rcFeatures):
 		    respY(radY),
-		    misc(radMisc),
-		    patId(rPatientId)
+		    patId(rPatientId),
+		    misc(radMisc)
 {
 		sorted = rSorted;
 		strata = rStrata;
@@ -54,7 +54,6 @@ public:
 		xOrder = raiXOrder;
 		varWeight =	radWeight;
 		varClasses = racVarClasses;
-		misc = radMisc;
 		monotoneVar = ralMonotoneVar;
 		cTrain = Rcpp::as<int>(rcTrain);
 		cTrainPatients = Rcpp::as<int>(rcTrainPatients);
@@ -67,6 +66,7 @@ public:
 }
 	Rcpp::NumericMatrix respY;
 	Rcpp::IntegerVector patId;
+	Rcpp::List misc;
 	SEXP sorted;
 	SEXP strata;
 	SEXP offset;
@@ -75,7 +75,6 @@ public:
 	SEXP varWeight;
 	SEXP varClasses;
 	SEXP monotoneVar;
-	Rcpp::List misc;
 	int cTrain;
 	int cTrainPatients;
 	int cFeatures;

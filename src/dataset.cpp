@@ -60,7 +60,7 @@ CDataset::CDataset(const DataDistParams& dataParams) :
     {
       throw GBM::invalid_argument("your training instances don't make sense");
     }
-};
+}
 
 //-----------------------------------
 // Function: ~CDataset()
@@ -166,7 +166,7 @@ double CDataset::GetBagFraction() const
 // Parameters: none
 //
 //-----------------------------------
-long CDataset::GetValidSize() const
+unsigned long CDataset::GetValidSize() const
 {
   return dataImpl.cValid;
 }
@@ -181,7 +181,7 @@ long CDataset::GetValidSize() const
 // Parameters: none
 //
 //-----------------------------------
-long CDataset::GetTotalInBag() const
+unsigned long CDataset::GetTotalInBag() const
 {
   return dataImpl.totalInBag;
 }

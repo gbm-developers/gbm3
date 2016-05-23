@@ -65,7 +65,7 @@ public:
 		double *adFadj,
 		unsigned long cMinObsInNode);
 
-    const long& GetNodeCount() const { return cTotalNodeCount; }
+    const unsigned long& GetNodeCount() const { return cTotalNodeCount; }
     vector<CNode*>& GetTermNodes() { return vecpTermNodes; }
     const double& GetShrinkageConst() const { return shrinkageConst; }
     void Print();
@@ -80,7 +80,7 @@ private:
     const long depthOfTree;
     const double shrinkageConst;
     double dError; // total squared error before carrying out the splits
-    long cTotalNodeCount;
+    unsigned long cTotalNodeCount;
 
 };
 

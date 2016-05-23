@@ -69,7 +69,7 @@ double CTDist::InitF
 	// Get objects to pass into the LocM function
 	std::vector<double> adArr(data.get_trainSize());
 
-	for (long ii = 0; ii < data.get_trainSize(); ii++)
+	for (unsigned long ii = 0; ii < data.get_trainSize(); ii++)
 	{
 		double dOffset = data.offset_ptr()[ii];
 		adArr[ii] = data.y_ptr()[ii] - dOffset;
@@ -91,7 +91,7 @@ double CTDist::Deviance
 	double dU = 0.0;
 
 	// Switch to validation set if necessary
-	long cLength = data.get_trainSize();
+	unsigned long cLength = data.get_trainSize();
 	if(isValidationSet)
 	{
 	   data.shift_to_validation();

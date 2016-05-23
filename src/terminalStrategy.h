@@ -48,7 +48,7 @@ public:
 	void GetVarRelativeInfluence(double* adRelInf){return;}
 	void PrintSubTree(unsigned long Indent)
 	{
-		  for(long i=0; i< Indent; i++) Rprintf("  ");
+		  for(unsigned long i=0; i< Indent; i++) Rprintf("  ");
 		  Rprintf("N=%f, Prediction=%f *\n",
 			  nodeContext->dTrainW,
 			  nodeContext->dPrediction);
