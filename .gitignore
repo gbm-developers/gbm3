@@ -16,6 +16,8 @@ test_baseline*
 test_runner.R
 git_commit.sh
 
+.RData
+
 tests/testthat/Baseline_GBM_Objects/
 *.Rout
 *.pdf

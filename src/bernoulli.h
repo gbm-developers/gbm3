@@ -9,8 +9,8 @@
 //
 //------------------------------------------------------------------------------
 
-#ifndef __bernoulli_h__
-#define __bernoulli_h__
+#ifndef BERNOULLI_H
+#define BERNOULLI_H
 
 //------------------------------
 // Includes
@@ -40,25 +40,24 @@ public:
     //---------------------
     // Public Functions
     //---------------------
-    void ComputeWorkingResponse(const CDataset* pData,
-    		const double *adF,
+    void ComputeWorkingResponse(const CDataset& data,
+				const double *adF,
 				double *adZ);
 
-    double Deviance(const CDataset* pData,
-    				const double *adF,
+    double Deviance(const CDataset& data,
+		    const double *adF,
                     bool isValidationSet=false);
 
-    double InitF(const CDataset* pData);
+    double InitF(const CDataset& data);
 
-    void FitBestConstant(const CDataset* pData,
-    		const double *adF,
+    void FitBestConstant(const CDataset& data,
+			 const double *adF,
 			 unsigned long cTermNodes,
-				double* adZ, CTreeComps* pTreeComps);
+			 double* adZ, CTreeComps& treeComps);
     
     double BagImprovement(const CDataset& data,
-    					  const double *adF,
-    					  const bag& afInBag,
-                          const double shrinkage, const double* adFadj);
+			  const double *adF,
+			  const double shrinkage, const double* adFadj);
 
 private:
     //----------------------
@@ -73,6 +72,3 @@ private:
 };
 
 #endif // BERNOULLI_H
-
-
-

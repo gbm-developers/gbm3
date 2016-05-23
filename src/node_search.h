@@ -37,7 +37,7 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-    CNodeSearch(int numColData, unsigned long minObs);
+    CNodeSearch(int treeDepth, int numColData, unsigned long minObs);
 
 	//---------------------
 	// Public destructor
@@ -49,10 +49,11 @@ public:
 	//---------------------
     void GenerateAllSplits(vector<CNode*>& vecpTermNodes, const CDataset& data,
     						double* residuals, vector<unsigned long>& aiNodeAssign);
-    double SplitAndCalcImprovement(vector<CNode*>& vecpTermNodes,
-    					const CDataset& data,
-    					vector<unsigned long>& aiNodeAssign);
-    void Reset();
+    double CalcImprovementAndSplit(vector<CNode*>& vecpTermNodes, const CDataset& data,
+    		vector<unsigned long>& aiNodeAssign);
+
+    inline void Reset(){ cTerminalNodes = 1; }
+    void SetRootNode(CNode& rootNode){ variableSplitters[0].Set(rootNode); }
 
 private:
 	//---------------------
@@ -60,8 +61,6 @@ private:
 	//---------------------
     void ReAssignData(long splittedNodeIndex, vector<CNode*>& vecpTermNodes,
     					const CDataset& data, vector<unsigned long>& aiNodeAssign);
-    void AssignToNode(CNode& terminalNode);
-    void ResetVarSplitter();
 
 	//---------------------
 	// Private Variables
@@ -72,6 +71,7 @@ private:
     // Number of terminal nodes
     long cTerminalNodes;
     unsigned long minNumObs;
+    long totalCache;
 };
 
 #endif // NODESEARCH_H

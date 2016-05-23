@@ -12,8 +12,8 @@
 \item{object}{a \code{gbm} object created from an initial call to
 \code{\link{gbm}}.}
 
-\item{cBars}{the number of bars to plot. If \code{order=TRUE} the only the
-variables with the \code{cBars} largest relative influence will appear in
+\item{cBars}{the number of bars to plot. If \code{order=TRUE} then only the
+\code{cBars} variables with the largest relative influence will appear in
 the barplot. If \code{order=FALSE} then the first \code{cBars} variables
 will appear in the plot. In either case, the function will return the
 relative influence of all of the variables.}

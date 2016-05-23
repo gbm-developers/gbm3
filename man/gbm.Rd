@@ -11,13 +11,16 @@ data = list(), weights, subset = NULL, offset = NULL, var.monotone
 = NULL, n.trees = 100, interaction.depth = 1, n.minobsinnode = 10,
 shrinkage = 0.001, bag.fraction = 0.5, train.fraction = 1,
 mFeatures = NULL, cv.folds = 0, keep.data = TRUE, verbose = "CV",
-class.stratify.cv = NULL, n.cores = NULL, fold.id=NULL, tied.times.method = "breslow")
+class.stratify.cv = NULL, n.cores = NULL, fold.id=NULL,
+tied.times.method = "efron", prior.node.coeff.var = 1000, strata = NULL, 
+patient.id = 1:nrow(data))
 
 gbm.fit(x, y, offset = NULL, misc = NULL, distribution = "bernoulli", 
 w = NULL, var.monotone = NULL, n.trees = 100, interaction.depth = 1, 
 n.minobsinnode = 10, shrinkage = 0.001, bag.fraction = 0.5, 
 nTrain = NULL, train.fraction = NULL, mFeatures = NULL, keep.data = TRUE, 
-verbose = TRUE, var.names = NULL, response.name = "y", group = NULL)
+verbose = TRUE, var.names = NULL, response.name = "y", group = NULL,
+prior.node.coeff.var = 1000, strata = NULL, patient.id = 1:nrow(x))
 
 gbm.more(object, n.new.trees = 100, data = NULL, weights = NULL, 
 offset = NULL, verbose = NULL)
@@ -43,7 +46,7 @@ Available distributions are "gaussian" (squared error), "laplace"
 (logistic regression for 0-1 outcomes), "huberized" (Huberized
 hinge loss for 0-1 outcomes), "adaboost" (the AdaBoost
 exponential loss for 0-1 outcomes), "poisson" (count outcomes),
-"coxph" (right censored or counting observations), "quantile", or "pairwise"
+"coxph" (right censored observations), "quantile", or "pairwise"
 (ranking measure using the LambdaMART algorithm).
 
 If quantile regression is specified, \code{distribution} must be a
@@ -131,11 +134,12 @@ weights) in the terminal nodes of the trees.}
 \item{shrinkage}{a shrinkage parameter applied to each tree in the
 expansion. Also known as the learning rate or step-size reduction.}
 
-\item{bag.fraction}{the fraction of the training set observations
-randomly selected to propose the next tree in the expansion. This
-introduces randomness into the model fit. If \code{bag.fraction}<1
-then running the same model twice will result in similar but
-different fits. \code{gbm} uses the R random number generator, so
+\item{bag.fraction}{the fraction of independent training observations (or patients)
+randomly selected to propose the next tree in the expansion, depending 
+on the patient.id vector multiple training data rows may belong to
+a single 'patient'. This introduces randomness into the model fit.
+If \code{bag.fraction}<1 then running the same model twice will result
+in similar but different fits. \code{gbm} uses the R random number generator, so
 \code{set.seed} ensures the same model can be
 reconstructed. Preferably, the user can save the returned
 \code{\link{gbm.object}} using \code{\link{save}}.}
@@ -180,9 +184,30 @@ guessed using the \code{detectCores} function in the
 return a spurious number of available cores.}
 
 \item{fold.id}{An optional vector of values identifying what fold
-each observation is in. If supplied, cv.folds can be missing.}
+each observation is in. If supplied, cv.folds can be missing. Note:
+Multiple observations to the same patient must have the same fold id.}
 
-\item{nTrain}{An integer representing the number of cases on which
+\item{tied.times.method}{For \code{gbm}: This is an optional string used with
+\code{CoxPH} distribution specifying what method to employ when dealing with tied times. 
+Currently only "efron" and "breslow" are available; the default value is "efron". 
+Setting the string to any other value reverts the method to the original CoxPH model
+implementation where ties are not explicitly dealt with.}
+
+\item{prior.node.coeff.var}{Optional double only used with the \code{CoxPH} distribution.
+It is a prior on the coefficient of variation associated with the hazard 
+rate assigned to each terminal node when fitting a tree.Increasing its value emphasises 
+the importance of the training data in the node when assigning a prediction to said node.}
+
+\item{strata}{Optional vector of integers only used with the \code{CoxPH} distributions.
+Each integer in this vector represents the stratum the corresponding row in the data belongs to,
+e. g. if the 10th element is 3 then the 10th data row belongs to the 3rd strata.}
+
+\item{patient.id}{Optional vector of integers used to specify which rows of data belong
+to individual patients.  Data is then bagged by patient id; the default sets each row of the data
+to belong to an individual patient.}
+
+\item{nTrain}{An integer representing the number of unique patients,
+each patient could have multiple rows associated with them, on which
 to train.  This is the preferred way of specification for
 \code{gbm.fit}; The option \code{train.fraction} in \code{gbm.fit}
 is deprecated and only maintained for backward compatibility. These
@@ -196,15 +221,17 @@ data is used for training.}
 \code{object} using \code{gbm.more}.}
 
 \item{x, y}{For \code{gbm.fit}: \code{x} is a data frame or data
-matrix containing the predictor variables and \code{y} is a matrix of outcomes.  Excluding \code{CoxPH} this matrix of outcomes
-collapses to a vector, in the case of \code{CoxPH} it is a survival object where the event times fill the first one (or two columns) and the status fills the final column. The number of rows in \code{x} must be the
-same as the length of the 1st dimension of \code{y}.}
+matrix containing the predictor variables and \code{y} is a matrix of outcomes.
+Excluding \code{CoxPH} this matrix of outcomes collapses to a vector, in the case of
+\code{CoxPH} it is a survival object where the event times fill the first 
+one (or two columns) and the status fills the final column. 
+The number of rows in \code{x} must be the same as the length of the 1st dimension
+of \code{y}.}
 
 \item{misc}{For \code{gbm.fit}: \code{misc} is an R object that is
 simply passed on to the gbm engine. It can be used for additional
-data for the specific distribution. Currently it is only used for
-with the Cox proportional hazards
-model to set the tied times method.}
+data for the specific distribution.  Currently it is only used for
+with the Cox proportional hazards model to set the tied times method.}
 
 \item{w}{For \code{gbm.fit}: \code{w} is a vector of weights of the same
 length as the 1st dimension of \code{y}.}
@@ -218,16 +245,7 @@ for the response variable.}
 
 \item{group}{\code{group} used when \code{distribution =
 'pairwise'.}}
-
-\item{tied.times.method}{This is an optional string used with \code{CoxPH}
-distribution specifying what method to employ when dealing with tied
-times.  Currently only "effron" and "breslow" are available; the default value is "breslow". Setting the string to any other value reverts the method
-to the original CoxPH model implementation where ties are not explicitly dealt with.}
-
 }
-
-
-
 \value{
 \code{gbm}, \code{gbm.fit}, and \code{gbm.more} return a
 \code{\link{gbm.object}}.

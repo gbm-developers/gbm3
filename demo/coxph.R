@@ -3,6 +3,7 @@
 
 cat("Running cox proportional hazards regression example.\n")
 # create some data
+set.seed(1)
 N <- 3000
 X1 <- runif(N)
 X2 <- runif(N)

@@ -7,8 +7,8 @@
 //	Author: 	James Hickey
 //------------------------------------------------------------------------------
 
-#ifndef __terminalStrategy_h__
-#define __terminalStrategy_h__
+#ifndef TERMINALSTRATEGY_H
+#define TERMINALSTRATEGY_H
 
 //------------------------------
 // Includes
@@ -104,4 +104,4 @@ public:
 private:
 	CNode* nodeContext;
 };
-#endif //__terminalStrategy_h__
+#endif // TERMINALSTRATEGY_H

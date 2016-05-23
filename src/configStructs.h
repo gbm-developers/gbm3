@@ -11,8 +11,8 @@
 //
 //------------------------------------------------------------------------------
 
-#ifndef __configStructs_h__
-#define __configStructs_h__
+#ifndef CONFIGSTRUCTS_H
+#define CONFIGSTRUCTS_H
 
 //------------------------------
 // Includes
@@ -34,14 +34,18 @@ public:
 		    SEXP rStrata,
 		    SEXP radWeight,
 		    SEXP radMisc,
+		    SEXP rPriorCoeff,
+		    SEXP rPatientId,
 		    SEXP racVarClasses,
 		    SEXP ralMonotoneVar,
 		    SEXP rszFamily,
 		    SEXP rdBagFraction,
 		    SEXP rcTrain,
+		    SEXP rcTrainPatients,
 		    SEXP rcFeatures):
 		    respY(radY),
-		    misc(radMisc)
+		    misc(radMisc),
+		    patId(rPatientId)
 {
 		sorted = rSorted;
 		strata = rStrata;
@@ -53,12 +57,16 @@ public:
 		misc = radMisc;
 		monotoneVar = ralMonotoneVar;
 		cTrain = Rcpp::as<int>(rcTrain);
+		cTrainPatients = Rcpp::as<int>(rcTrainPatients);
 		cFeatures = Rcpp::as<int>(rcFeatures);
 		dBagFraction = Rcpp::as<double>(rdBagFraction);
+		priorCoeffVar = Rcpp::as<double>(rPriorCoeff);
 		family = Rcpp::as<std::string>(rszFamily);
 		szIRMeasure = NULL;
+
 }
 	Rcpp::NumericMatrix respY;
+	Rcpp::IntegerVector patId;
 	SEXP sorted;
 	SEXP strata;
 	SEXP offset;
@@ -69,8 +77,10 @@ public:
 	SEXP monotoneVar;
 	Rcpp::List misc;
 	int cTrain;
+	int cTrainPatients;
 	int cFeatures;
 	double dBagFraction;
+	double priorCoeffVar;
 	std::string family;
 	const char* szIRMeasure;
 };
@@ -101,6 +111,8 @@ public:
 		    SEXP rStrata,
 		    SEXP radWeight,
 		    SEXP radMisc,
+		    SEXP rPriorCoeff,
+		    SEXP rPatientId,
 		    SEXP racVarClasses,
 		    SEXP ralMonotoneVar,
 		    SEXP rszFamily,
@@ -110,6 +122,7 @@ public:
 		    SEXP rdShrinkage,
 		    SEXP rdBagFraction,
 		    SEXP rcTrain,
+		    SEXP rcTrainPatients,
 		    SEXP rcFeatures):
 
 		    dataConfig(radY,
@@ -120,11 +133,14 @@ public:
 		    rStrata,
 		    radWeight,
 		    radMisc,
+		    rPriorCoeff,
+		    rPatientId,
 		    racVarClasses,
 		    ralMonotoneVar,
 		    rszFamily,
 		    rdBagFraction,
 		    rcTrain,
+		    rcTrainPatients,
 		    rcFeatures)
 	{
 		// Initialize DataDistParams
@@ -149,8 +165,8 @@ public:
 	//---------------------
 	// Public Methods
 	//---------------------
-	DataDistParams GetDataConfig() const { return dataConfig;};
-	TreeParams GetTreeConfig() const { return treeConfig;};
+	DataDistParams& GetDataConfig() { return dataConfig;};
+	TreeParams& GetTreeConfig() { return treeConfig;};
 
 private:
 	//-------------------
@@ -162,7 +178,7 @@ private:
 	//-------------------
 	// Private Methods
 	//-------------------
-	void InitszIRMeasure()
+	inline void InitszIRMeasure()
 	{
 		// Check family specified
 		if(dataConfig.family.empty())
@@ -190,4 +206,4 @@ private:
 	}
 
 };
-#endif // __configStructs_h__*/
+#endif // CONFIGSTRUCTS_H

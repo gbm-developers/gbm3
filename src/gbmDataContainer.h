@@ -1,14 +1,14 @@
 //------------------------------------------------------------------------------
 //
-//  File:       gbmDataContainer.h
+ //  File:       gbmDataContainer.h
 //
 //  Description:   Header file for a class that stores the data and dist for gbm.
 //
 //------------------------------------------------------------------------------
 
 
-#ifndef __gbmDataContainer_h__
-#define __gbmDataContainer_h__
+#ifndef GBMDATACONTAINER_H
+#define GBMDATACONTAINER_H
 
 //------------------------------
 // Includes
@@ -32,7 +32,7 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-    CGBMDataContainer(DataDistParams dataDistConfig);
+    CGBMDataContainer(DataDistParams& dataDistConfig);
 
 	//---------------------
 	// Public destructor
@@ -45,13 +45,17 @@ public:
     void Initialize();
     double InitialFunctionEstimate();
     void ComputeResiduals(const double* adF, double* adZ);
-    void ComputeBestTermNodePreds(const double* adF, double* adZ, CTreeComps* pTreeComp);
+    void ComputeBestTermNodePreds(const double* adF, double* adZ, CTreeComps& pTreeComp);
     double ComputeDeviance(const double *adF, bool isValidationSet=false);
     double ComputeBagImprovement(const double* adF, const double shrinkage, const double* adFadj);
     void BagData();
     CDistribution* getDist();
-    CDataset* getData();
+    
+    const CDataset& getData() const {
+      return data;
+    }
 
+    CDataset& getData() { return data; }
 
 private:
 	//-------------------
@@ -60,7 +64,6 @@ private:
     CDataset data;
     CDistribution* pDist;
     DistributionFactory* DistFactory;
-
 };
 
-#endif //  __gbmDataContainer_h__
+#endif // GBMDATACONTAINER_H

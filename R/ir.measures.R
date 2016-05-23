@@ -48,7 +48,7 @@
 #' ##-- ==>  Define data, use random,
 #' ##--	or do  help(data=index)  for the standard data sets.
 #' 
-#' 
+#' @export
 gbm.roc.area <- function(obs, pred) {
    n1 <- sum(obs)
    n <- length(obs)

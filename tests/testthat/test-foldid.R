@@ -2,6 +2,8 @@ context("fold.id")
 
 test_that("gaussian works in parallel", {
     skip_on_cran()
+    skip_on_travis()
+    
     ## Based on example in R package
     # Data generation from gbm manual ------------------------------------------
     set.seed(1)

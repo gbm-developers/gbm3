@@ -9,15 +9,14 @@
 //
 //------------------------------------------------------------------------------
 
-#ifndef __coxph_h__
-#define __coxph_h__
+#ifndef COXPH_H
+#define COXPH_H
 
 //------------------------------
 // Includes
 //------------------------------
 
 #include "distribution.h"
-#include "matrix.h"
 #include <memory>
 
 //------------------------------
@@ -45,25 +44,25 @@ public:
     //---------------------
     // Public Functions
     //---------------------
-    void ComputeWorkingResponse(const CDataset* pData,
+    void ComputeWorkingResponse(const CDataset& data,
     		const double *adF,
 				double *adZ);
 
-    double InitF(const CDataset* pData);
+    double InitF(const CDataset& data);
     
-    void FitBestConstant(const CDataset* pData,
+    void FitBestConstant(const CDataset& data,
     		const double *adF,
 			 unsigned long cTermNodes,
 			 double* adZ,
-			 CTreeComps* pTreeComps);
+			 CTreeComps& treeComps);
     
-    double Deviance(const CDataset* pData,
+    double Deviance(const CDataset& data,
     				const double *adF,
                     bool isValidationSet=false);
 
     double BagImprovement(const CDataset& data,
-    					  const double *adF,
-    					  const bag& afInBag, const double shrinkage, const double* adFadj);
+			  const double *adF,
+			  const double shrinkage, const double* adFadj);
 
     // Getters for the internal variables
     double* StatusVec();
@@ -78,30 +77,31 @@ public:
     int* StrataVec();
     const int* StrataVec() const;
 
-    int TieApproxMethod();
     int TieApproxMethod() const;
 
-
+    double PriorCoeffVar() const;
 
 private:
     //----------------------
     // Private Constructors
     //----------------------
-    CCoxPH(double* stats, int* sortedEnd, int* sortedSt, int* strats, bool isStartStop, int tiedMethod);
+    CCoxPH(double* stats, int* sortedEnd, int* sortedSt, int* strats,
+	   bool isStartStop, int tiedMethod, double priorCoeff);
 
     //----------------------
     // Private Functions
     //----------------------
-    double LogLikelihood(const int n, const CDataset* pData,
-    					const double* eta, double* resid);
+    double LogLikelihood(const int n, const CDataset& data,
+			 const double* eta, double* resid);
 
-    double LogLikelihoodTiedTimes(const int n, const CDataset* pData,
-    							const double* eta, double* resid);
+    double LogLikelihoodTiedTimes(const int n, const CDataset& data,
+				  const double* eta, double* resid);
 
     //-------------------
     // Private Variables
     //-------------------
     const bool startStopCase;
+    const double priorCoeffVar;
     GenericCoxState* coxStateMethods;
 
     double* status;
@@ -111,7 +111,7 @@ private:
 	int tiedTimesMethod;
 };
 
-#endif // __coxph_h__
+#endif // COXPH_H
 
 
 

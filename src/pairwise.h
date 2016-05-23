@@ -261,34 +261,35 @@ protected:
 class CPairwise : public CDistribution
 {
 public:
+  
+  static CDistribution* Create(DataDistParams& distParams);
+  
+  virtual ~CPairwise();
+  
+  void Initialize(const CDataset& data);
+  
+  void ComputeWorkingResponse(const CDataset& data,
+			      const double *adF,
+			      double *adZ);
+  
+  double Deviance(const CDataset& data,
+		  const double *adF,
+		  bool isValidationSet=false);
+  
+  double InitF(const CDataset& data);
 
-	static CDistribution* Create(DataDistParams& distParams);
+  void FitBestConstant(const CDataset& data,
+		       const double *adF,
+		       unsigned long cTermNodes,
+		       double* adZ,
+		       CTreeComps& treeComps);
+  
+  double BagImprovement(const CDataset& data,
+			const double *adF,
+			const double shrinkage,
+			const double* adFadj);
 
-    virtual ~CPairwise();
-
-    void Initialize(const CDataset* pData);
-    
-    void ComputeWorkingResponse(const CDataset* pData,
-    			const double *adF,
-				double *adZ);
-    
-    double Deviance(const CDataset* pData,
-    			const double *adF,
-                    bool isValidationSet=false);
-
-    double InitF(const CDataset* pData);
-
-    void FitBestConstant(const CDataset* pData,
-    		const double *adF,
-			 unsigned long cTermNodes,
-			 double* adZ,
-			 CTreeComps* pTreeComps);
-
-    double BagImprovement(const CDataset& data,
-    					  const double *adF,
-    					  const bag& afInBag,
-                          const double shrinkage, const double* adFadj);
-    const double* adGroup;
+  void bagIt(CDataset& data);
 
 protected:
 
@@ -307,6 +308,8 @@ protected:
     vector<double> vecdDenom;         // Buffer used for denominator in FitBestConstant(), for each node
 
     vector<double> vecdFPlusOffset;   // Temporary buffer for (adF + adOffset), if the latter is not null
+  
+  const double* adGroup;
 };
 
 #endif // PAIRWISE_H

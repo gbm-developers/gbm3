@@ -8,8 +8,8 @@
 //              2/14/2003   gregr: adapted for R implementation
 //------------------------------------------------------------------------------
 
-#ifndef __huberized_h__
-#define __huberized_h__
+#ifndef HUBERIZED_H
+#define HUBERIZED_H
 
 //------------------------------
 // Includes
@@ -38,26 +38,25 @@ public:
     //---------------------
     // Public Functions
     //---------------------
-    void ComputeWorkingResponse(const CDataset* pData,
+    void ComputeWorkingResponse(const CDataset& data,
     			const double *adF,
 				double *adZ);
 
-    double Deviance(const CDataset* pData,
+    double Deviance(const CDataset& data,
     				const double *adF,
                     bool isValidationSet=false);
 
-    double InitF(const CDataset* pData);
+    double InitF(const CDataset& data);
 
-    void FitBestConstant(const CDataset* pData,
+    void FitBestConstant(const CDataset& data,
     		const double *adF,
 			 unsigned long cTermNodes,
 			 double* adZ,
-			 CTreeComps* pTreeComps);
+			 CTreeComps& treeComps);
 
     double BagImprovement(const CDataset& data,
-    					  const double *adF,
-    					  const bag& afInBag,
-                          const double shrinkage,
+			  const double *adF,
+			  const double shrinkage,
                           const double* adFadj);
 
 private:
@@ -67,7 +66,7 @@ private:
     CHuberized();
 };
 
-#endif // __huberized_h__
+#endif // HUBERIZED_H
 
 
 

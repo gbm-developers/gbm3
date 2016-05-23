@@ -7,8 +7,14 @@
 //	Author: 	James Hickey
 //------------------------------------------------------------------------------
 
-#ifndef __genericCoxState_h__
-#define __genericCoxState_h__
+#ifndef GENERICCOXSTATE_H
+#define GENERICCOXSTATE_H
+
+//-----------------------------------
+// Definitions
+//-----------------------------------
+#define frac .00000001
+#define recenter 50
 
 //------------------------------
 // Includes
@@ -35,22 +41,23 @@ public:
 	//---------------------
 	// Public Functions
 	//---------------------
-    virtual void ComputeWorkingResponse(const CDataset* pData,
+    virtual void ComputeWorkingResponse(const CDataset& data,
     		const double *adF,
 				double *adZ)=0;
 
-    virtual void FitBestConstant(const CDataset* pData,
+    virtual void FitBestConstant(const CDataset& data,
     		const double *adF,
 			 unsigned long cTermNodes,
 			 double* adZ,
-			 CTreeComps* pTreeComps)=0;
+			 CTreeComps& treeComps)=0;
 
-    virtual double Deviance(const long cLength, const CDataset* pData,
+    virtual double Deviance(const long cLength, const CDataset& data,
     				const double *adF)=0;
 
     virtual double BagImprovement(const CDataset& data,
-    					  const double *adF,
-    					  const bag& afInBag, const double shrinkage, const double* adFadj)=0;
+				  const double *adF,
+				  const double shrinkage,
+				  const double* adFadj)=0;
 
 };
-#endif // __genericCoxState_h__
+#endif // GENERICCOXSTATE_H

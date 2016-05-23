@@ -7,6 +7,10 @@
 // Description: Functions that are accessible to all of GBM.
 //
 //////////////////////////////////////////////
+
+#ifndef GBMFUNC_H
+#define GBMFUNC_H
+
 #include <Rcpp.h>
 
 namespace GBM_FUNC
@@ -15,3 +19,5 @@ namespace GBM_FUNC
 	bool has_value(const Rcpp::NumericVector& vec);
 	std::ptrdiff_t ptrShuffler(std::ptrdiff_t n);
 }
+
+#endif // GBMFUNC_H

@@ -53,6 +53,3 @@ private:
 };
 
 #endif // LOCMCGBM_H
-
-
-

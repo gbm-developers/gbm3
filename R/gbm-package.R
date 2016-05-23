@@ -1,9 +1,15 @@
-
 #' @importFrom Rcpp sourceCpp
 #' @useDynLib gbm
 #' @importFrom survival Surv
 #' @import lattice
 #' @import parallel
+#' @importFrom graphics abline axis barplot lines mtext par plot polygon rug
+#' @importFrom grDevices rainbow
+#' @importFrom stats approx binomial delete.response gaussian glm loess
+#' @importFrom stats mad median model.extract model.frame model.offset
+#' @importFrom stats model.response model.weights na.pass poisson
+#' @importFrom stats predict quantile reformulate runif supsmu
+#' @importFrom stats terms weighted.mean
 NULL
 
 #' gbm internal functions

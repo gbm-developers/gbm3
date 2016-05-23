@@ -40,7 +40,6 @@ significantly slower.
 ##-- ==>  Define data, use random,
 ##--	or do  help(data=index)  for the standard data sets.
 
-
 }
 \author{
 Stefan Schroedl

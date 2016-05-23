@@ -143,11 +143,12 @@
 #' @param shrinkage a shrinkage parameter applied to each tree in the
 #' expansion. Also known as the learning rate or step-size reduction.
 #'
-#' @param bag.fraction the fraction of the training set observations
-#' randomly selected to propose the next tree in the expansion. This
-#' introduces randomness into the model fit. If \code{bag.fraction}<1
-#' then running the same model twice will result in similar but
-#' different fits. \code{gbm} uses the R random number generator, so
+#' @param bag.fraction the fraction of independent training observations (or patients)
+#' randomly selected to propose the next tree in the expansion, depending 
+#' on the patient.id vector multiple training data rows may belong to
+#' a single 'patient'. This introduces randomness into the model fit.
+#' If \code{bag.fraction}<1 then running the same model twice will result
+#' in similar but different fits. \code{gbm} uses the R random number generator, so
 #' \code{set.seed} ensures the same model can be
 #' reconstructed. Preferably, the user can save the returned
 #' \code{\link{gbm.object}} using \code{\link{save}}.
@@ -156,7 +157,8 @@
 #' observations are used to fit the \code{gbm} and the remainder are used for
 #' computing out-of-sample estimates of the loss function.
 #'
-#' @param nTrain An integer representing the number of cases on which
+#' @param nTrain An integer representing the number of unique patients,
+#' each patient could have multiple rows associated with them, on which
 #' to train.  This is the preferred way of specification for
 #' \code{gbm.fit}; The option \code{train.fraction} in \code{gbm.fit}
 #' is deprecated and only maintained for backward compatibility. These
@@ -193,9 +195,11 @@
 #'
 #' @param x,y For \code{gbm.fit}: \code{x} is a data frame or data
 #' matrix containing the predictor variables and \code{y} is a matrix of outcomes.
-#' Excluding \code{CoxPH} this matrix of outcomes collapses to a vector, in the case of \code{CoxPH} it is a survival object 
-#' where the event times fill the first one (or two columns) and the status fills the final column. 
-#' The number of rows in \code{x} must be the same as the length of the 1st dimension of \code{y}.
+#' Excluding \code{CoxPH} this matrix of outcomes collapses to a vector, in the case of
+#' \code{CoxPH} it is a survival object where the event times fill the first 
+#' one (or two columns) and the status fills the final column. 
+#' The number of rows in \code{x} must be the same as the length of the 1st dimension
+#' of \code{y}.
 #'
 #' @param misc For \code{gbm.fit}: \code{misc} is an R object that is
 #' simply passed on to the gbm engine. It can be used for additional
@@ -217,10 +221,23 @@
 #' 
 #' @param tied.times.method For \code{gbm}: This is an optional string used with
 #' \code{CoxPH} distribution specifying what method to employ when dealing with tied times. 
-#' Currently only "effron" and "breslow" are available; the default value is "breslow". 
+#' Currently only "efron" and "breslow" are available; the default value is "efron". 
 #' Setting the string to any other value reverts the method to the original CoxPH model
 #' implementation where ties are not explicitly dealt with.
+#' 
+#' @param prior.node.coeff.var Optional double only used with the \code{CoxPH} distribution.
+#' It is a prior on the coefficient of variation associated with the hazard 
+#' rate assigned to each terminal node when fitting a tree.Increasing its value emphasises 
+#' the importance of the training data in the node when assigning a prediction to said node.
 #'
+#' @param strata Optional vector of integers only used with the \code{CoxPH} distributions.
+#' Each integer in this vector represents the stratum the corresponding row in the data belongs to,
+#' e. g. if the 10th element is 3 then the 10th data row belongs to the 3rd strata.
+#' 
+#' @param patient.id Optional vector of integers used to specify which rows of data belong
+#' to individual patients.  Data is then bagged by patient id; the default sets each row of the data
+#' to belong to an individual patient.
+#' 
 #' @param n.cores The number of CPU cores to use. The cross-validation
 #' loop will attempt to send different CV folds off to different
 #' cores. If \code{n.cores} is not specified by the user, it is
@@ -230,7 +247,8 @@
 #' return a spurious number of available cores.
 #'
 #' @param fold.id An optional vector of values identifying what fold
-#' each observation is in. If supplied, cv.folds can be missing.
+#' each observation is in. If supplied, cv.folds can be missing. Note:
+#' Multiple observations to the same patient must have the same fold id.
 #' 
 #' 
 #' @usage
@@ -239,13 +257,16 @@
 #' = NULL, n.trees = 100, interaction.depth = 1, n.minobsinnode = 10,
 #' shrinkage = 0.001, bag.fraction = 0.5, train.fraction = 1,
 #' mFeatures = NULL, cv.folds = 0, keep.data = TRUE, verbose = "CV",
-#' class.stratify.cv = NULL, n.cores = NULL, fold.id=NULL)
+#' class.stratify.cv = NULL, n.cores = NULL, fold.id=NULL,
+#' tied.times.method = "efron", prior.node.coeff.var = 1000, strata = NULL, 
+#' patient.id = 1:nrow(data))
 #' 
 #' gbm.fit(x, y, offset = NULL, misc = NULL, distribution = "bernoulli", 
 #' w = NULL, var.monotone = NULL, n.trees = 100, interaction.depth = 1, 
 #' n.minobsinnode = 10, shrinkage = 0.001, bag.fraction = 0.5, 
 #' nTrain = NULL, train.fraction = NULL, mFeatures = NULL, keep.data = TRUE, 
-#' verbose = TRUE, var.names = NULL, response.name = "y", group = NULL)
+#' verbose = TRUE, var.names = NULL, response.name = "y", group = NULL,
+#' prior.node.coeff.var = 1000, strata = NULL, patient.id = 1:nrow(x))
 #'
 #' gbm.more(object, n.new.trees = 100, data = NULL, weights = NULL, 
 #' offset = NULL, verbose = NULL)
@@ -425,7 +446,9 @@ gbm <- function(formula = formula(data),
                 class.stratify.cv=NULL,
                 n.cores=NULL,
                 fold.id = NULL,
-                tied.times.method="breslow"){
+                tied.times.method="efron",
+                prior.node.coeff.var=1000,
+                strata=NULL, patient.id=1:nrow(data)){
    theCall <- match.call()
 
 
@@ -457,6 +480,18 @@ gbm <- function(formula = formula(data),
                     data,
                     na.action=na.pass,
                     subset=subset)
+   
+   # Check fold.id does not split patient data up
+   if(!is.null(fold.id))
+   {
+     for(id in patient.id)
+     {
+       if(length(unique(fold.id[patient.id == id])) > 1)
+       {
+         stop("Patients are split across multiple folds")
+       }
+     }
+   }
 
 #  x <- mf[, !is.element(names(mf), response.name)]
 
@@ -469,6 +504,32 @@ gbm <- function(formula = formula(data),
    group      <- NULL
    num.groups <- 0
 
+   # Check prior coeff var and strata
+   if(distribution$name == "coxph")
+   {
+     if(!is.double(prior.node.coeff.var) || (as.double(prior.node.coeff.var) < 0.0))
+     {
+       stop("Prior on node predictions must be a double and non-negative")
+     }
+     
+     if(!is.null(strata))
+     {
+       
+       # Check if integers
+       if((all.equal(strata, as.integer(strata))==FALSE))
+       {
+         stop("Strata must be a vector of integers")
+       }
+       
+       # Check length
+       if(length(strata) != nrow(y))
+       {
+         stop("Strata indices must be provided for every data point")
+       }
+     }
+     
+   }
+   
    # Set up tied.times.method for CoxPh
    if(distribution$name != "coxph")
    {
@@ -476,12 +537,22 @@ gbm <- function(formula = formula(data),
    }
    else
    {
-     tied.times.method <- tied.times.method
+     # Check if string
+     if(is.character(tied.times.method))
+     {
+       tied.times.method <- tied.times.method
+     }
+     else
+     {
+       warning("Tied times method must be a string - has been set to NULL")
+       tied.times.method <- NULL
+     }
    }
    
-   # determine number of training instances
-   if (distribution$name != "pairwise"){
-      nTrain <- floor(train.fraction * nrow(x))
+   # determine number of training groups 
+   if (distribution$name != "pairwise")
+   {
+      nTrain <- floor(train.fraction * length(unique(patient.id)))
    }
    else {
       # distribution$name == "pairwise":
@@ -574,7 +645,7 @@ gbm <- function(formula = formula(data),
                                n.trees, interaction.depth, n.minobsinnode,
                                shrinkage, bag.fraction, mFeatures,
                                var.names, response.name, group, lVerbose,
-                               keep.data, fold.id, tied.times.method)
+                               keep.data, fold.id, tied.times.method, prior.node.coeff.var, strata, patient.id)
      cv.error <- cv.results$error
      p        <- cv.results$predictions
      gbm.obj  <- cv.results$all.model
@@ -585,6 +656,7 @@ gbm <- function(formula = formula(data),
                       offset = offset,
                       distribution = distribution,
                       w = w,
+                      misc = tied.times.method,
                       var.monotone = var.monotone,
                       n.trees = n.trees,
                       interaction.depth = interaction.depth,
@@ -597,9 +669,12 @@ gbm <- function(formula = formula(data),
                       verbose = lVerbose,
                       var.names = var.names,
                       response.name = response.name,
-                      group = group)
+                      group = group,
+                      prior.node.coeff.var = prior.node.coeff.var, 
+                      strata = strata, patient.id = patient.id)
    }
 
+   gbm.obj$patient.id <- patient.id
    gbm.obj$train.fraction <- train.fraction
    gbm.obj$Terms <- Terms
    gbm.obj$cv.error <- cv.error
@@ -615,6 +690,8 @@ gbm <- function(formula = formula(data),
       # to the original order.
       gbm.obj$ord.group <- ord.group
       gbm.obj$fit <- gbm.obj$fit[order(ord.group)]
+   }else if(distribution$name == "coxph"){
+     gbm.obj$tied.times.method <- tied.times.method
    }
 
    return(gbm.obj)

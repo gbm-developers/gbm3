@@ -8,14 +8,14 @@
 # 
 # aliases: gbmCrossVal gbmCrossValModelBuild gbmDoFold gbmCrossValErr
 # gbmCrossValPredictions
-gbmCrossVal <- function(cv.folds, nTrain, n.cores,
+gbmCrossVal <- function(cv.folds, nTrainGroups, n.cores,
                         class.stratify.cv, data,
                         x, y, offset, distribution, w, var.monotone,
                         n.trees, interaction.depth, n.minobsinnode,
                         shrinkage, bag.fraction, mFeatures,
                         var.names, response.name, group, lVerbose, keep.data,
-                        fold.id, tied.times.method) {
-  i.train <- 1:nTrain
+                        fold.id, tied.times.method, prior.node.coeff.var, strata, patient.id) {
+  i.train <- 1:nTrainGroups
   cv.group <- getCVgroup(distribution$name, class.stratify.cv, y,
                          i.train, cv.folds, group, fold.id)
   ## build the models
@@ -26,13 +26,13 @@ gbmCrossVal <- function(cv.folds, nTrain, n.cores,
                                      n.minobsinnode, shrinkage,
                                      bag.fraction, mFeatures, var.names,
                                      response.name, group, lVerbose, keep.data, 
-                                     nTrain, tied.times.method)
+                                     nTrainGroups, tied.times.method, prior.node.coeff.var, strata, patient.id)
 
   # First element is final model
   all.model <- cv.models[[1]]
   cv.models <- cv.models[-1]
   ## get the errors
-  cv.error  <- gbmCrossValErr(cv.models, cv.folds, cv.group, nTrain, n.trees)
+  cv.error  <- gbmCrossValErr(cv.models, cv.folds, cv.group, nTrainGroups, n.trees)
   best.iter.cv <- which.min(cv.error)
 
   ## get the predictions
@@ -99,7 +99,8 @@ gbmCrossValModelBuild <- function(cv.folds, cv.group, n.cores, i.train,
                                   interaction.depth, n.minobsinnode,
                                   shrinkage, bag.fraction, mFeatures,
                                   var.names, response.name,
-                                  group, lVerbose, keep.data, nTrain, tied.times.method) {
+                                  group, lVerbose, keep.data, nTrain, tied.times.method,
+                                  prior.node.coeff.var, strata, patient.id) {
   ## set up the cluster and add a finalizer
   cluster <- gbmCluster(n.cores)
   on.exit(if (!is.null(cluster)){ parallel::stopCluster(cluster) })
@@ -114,7 +115,8 @@ gbmCrossValModelBuild <- function(cv.folds, cv.group, n.cores, i.train,
             w, var.monotone, n.trees,
             interaction.depth, n.minobsinnode, shrinkage,
             bag.fraction, mFeatures,
-            cv.group, var.names, response.name, group, seeds, lVerbose, keep.data, nTrain, tied.times.method)
+            cv.group, var.names, response.name, group, seeds, lVerbose, keep.data,
+            nTrain, tied.times.method, prior.node.coeff.var, strata, patient.id)
   }
   else {
     lapply(X=0:cv.folds,
@@ -122,6 +124,7 @@ gbmCrossValModelBuild <- function(cv.folds, cv.group, n.cores, i.train,
             w, var.monotone, n.trees,
             interaction.depth, n.minobsinnode, shrinkage,
             bag.fraction, mFeatures,
-            cv.group, var.names, response.name, group, seeds, lVerbose, keep.data, nTrain, tied.times.method)
+            cv.group, var.names, response.name, group, seeds, lVerbose, keep.data,
+           nTrain, tied.times.method, prior.node.coeff.var, strata, patient.id)
   }
 }
