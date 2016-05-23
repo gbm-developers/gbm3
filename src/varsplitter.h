@@ -13,7 +13,7 @@
 // Includes
 //------------------------------
 #include "node.h"
-#include "nodeParameters.h"
+#include "node_parameters.h"
 #include <Rcpp.h>
 
 //------------------------------

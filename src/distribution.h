@@ -19,9 +19,9 @@
 //------------------------------
 // Includes
 //------------------------------
-#include "configStructs.h"
+#include "config_structs.h"
 #include "dataset.h"
-#include "gbmTreeComps.h"
+#include "gbm_treecomponents.h"
 #include "node.h"
 #include <vector>
 #include <Rcpp.h>

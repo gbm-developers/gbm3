@@ -3,7 +3,7 @@
 // Author: Stefan Schroedl (schroedl@a9.com)
 
 #include "pairwise.h"
-#include "gbmFunc.h"
+#include "gbm_functions.h"
 #include <limits>
 #include <iostream>
 #include <vector>

@@ -1,7 +1,7 @@
 //  GBM by Greg Ridgeway  Copyright (C) 2003
 //#define NOISY_DEBUG
 #include <algorithm>
-#include "gbmEngine.h"
+#include "gbm_engine.h"
 
 CGBM::CGBM(ConfigStructs& GBMParams) :
   dataCont(GBMParams.get_data_config()),

@@ -19,9 +19,9 @@
 // Includes
 //------------------------------
 #include "buildinfo.h"
-#include "configStructs.h"
+#include "config_structs.h"
 #include "gbmexcept.h"
-#include "gbmFunc.h"
+#include "gbm_functions.h"
 #include <algorithm>
 #include <memory>
 #include <vector>

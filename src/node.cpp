@@ -4,9 +4,9 @@
 // Includes
 //-----------------------------------
 #include "node.h"
-#include "terminalStrategy.h"
-#include "continuousStrategy.h"
-#include "categoricalStrategy.h"
+#include "terminal_strategy.h"
+#include "continuous_strategy.h"
+#include "categorical_strategy.h"
 
 //----------------------------------------
 // Function Members - Public

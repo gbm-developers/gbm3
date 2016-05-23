@@ -14,11 +14,11 @@
 // Includes
 //------------------------------
 #include "buildinfo.h"
-#include "configStructs.h"
+#include "config_structs.h"
 #include "dataset.h"
 #include "distribution.h"
-#include "distributionFactory.h"
-#include "gbmTreeComps.h"
+#include "distribution_factory.h"
+#include "gbm_treecomponents.h"
 #include <Rcpp.h>
 #include <vector>
 #include <memory>

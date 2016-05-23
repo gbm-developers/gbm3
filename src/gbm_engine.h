@@ -18,9 +18,9 @@
 // Includes
 //------------------------------
 #include "buildinfo.h"
-#include "configStructs.h"
-#include "gbmDataContainer.h"
-#include "gbmTreeComps.h"
+#include "config_structs.h"
+#include "gbm_datacontainer.h"
+#include "gbm_treecomponents.h"
 #include <memory>
 #include <Rcpp.h>
 #include <vector>

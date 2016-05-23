@@ -10,8 +10,8 @@
 // Includes
 //-----------------------------------
 #include "coxph.h"
-#include "censoredCoxState.h"
-#include "countingCoxState.h"
+#include "censored_cox_state.h"
+#include "counting_cox_state.h"
 #include <Rinternals.h>
 #include <math.h>
 

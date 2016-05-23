@@ -9,7 +9,7 @@
 //------------------------------
 // Includes
 //------------------------------
-#include "gbmDataContainer.h"
+#include "gbm_datacontainer.h"
 #include "pairwise.h"
 
 //----------------------------------------

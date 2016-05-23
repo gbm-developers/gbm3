@@ -24,7 +24,7 @@
 #include "dataset.h"
 #include "node.h"
 #include "varsplitter.h"
-#include "nodeParameters.h"
+#include "node_parameters.h"
 
 using namespace std;
 

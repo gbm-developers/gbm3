@@ -10,7 +10,7 @@
 //------------------------------
 // Includes
 //------------------------------
-#include "gbmTreeComps.h"
+#include "gbm_treecomponents.h"
 
 //----------------------------------------
 // Function Members - Public

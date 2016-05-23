@@ -7,7 +7,7 @@
 // Description: Functions that are accessible to all of GBM.
 //
 //////////////////////////////////////////////
-#include "gbmFunc.h"
+#include "gbm_functions.h"
 
 //  Function that counts the number of distinct groups in the input data.
 //  Used only with the pairwise distribution.

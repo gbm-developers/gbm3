@@ -1,7 +1,7 @@
 // GBM by Greg Ridgeway  Copyright (C) 2003
 
-#include "gbmEngine.h"
-#include "configStructs.h"
+#include "gbm_engine.h"
+#include "config_structs.h"
 #include <memory>
 #include <utility>
 #include <Rcpp.h>

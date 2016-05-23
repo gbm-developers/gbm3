@@ -10,7 +10,7 @@
 //-----------------------------------
 // Includes
 //-----------------------------------
-#include "distributionFactory.h"
+#include "distribution_factory.h"
 #include "adaboost.h"
 #include "bernoulli.h"
 #include "coxph.h"

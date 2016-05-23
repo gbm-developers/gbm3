@@ -1,39 +1,39 @@
 //------------------------------------------------------------------------------
 //
-//  File:       continuousStrategy.h
+//  File:       categoricalStrategy.h
 //
-//  Description: strategies for continuous splits.
+//  Description: strategy for categorical splits.
 //
 //	Author: 	James Hickey
 //------------------------------------------------------------------------------
 
-#ifndef CONTINUOUSSTRATEGY_H
-#define CONTINUOUSSTRATEGY_H
+#ifndef CATEGORICALSTRATEGY_H
+#define CATEGORICALSTRATEGY_H
 
 //------------------------------
 // Includes
 //------------------------------
 #include "dataset.h"
 #include "node.h"
-#include "genericNodeStrategy.h"
+#include "generic_node_strategy.h"
 #include <Rcpp.h>
 
 
 //------------------------------
 // Class Definition
 //------------------------------
-class ContinuousStrategy:public GenericNodeStrategy
+class CategoricalStrategy:public GenericNodeStrategy
 {
 public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-	ContinuousStrategy(CNode* node):nodeContext(node){};
+	CategoricalStrategy(CNode* node):nodeContext(node){};
 
 	//---------------------
 	// Public destructor
 	//---------------------
-	~ContinuousStrategy(){nodeContext=NULL;};
+	~CategoricalStrategy(){nodeContext=NULL;};
 
 	//---------------------
 	// Public Functions
@@ -61,10 +61,10 @@ public:
 		}
 	}
 	void Predict(const CDataset &data,
-			    unsigned long iRow,
-			    double &dFadj)
+				    unsigned long iRow,
+				    double &dFadj)
 	{
-		signed char schWhichNode = ContinuousStrategy::WhichNode(data,iRow);
+		signed char schWhichNode = CategoricalStrategy::WhichNode(data,iRow);
 		if(schWhichNode == -1)
 		{
 		  nodeContext->pLeftNode->Predict(data, iRow, dFadj);
@@ -123,20 +123,23 @@ public:
 	{
 		signed char ReturnValue = 0;
 		double dX = data.x_value(iObs, nodeContext->iSplitVar);
-		 if(!ISNA(dX))
-			{
-				if(dX < nodeContext->dSplitValue)
-				{
-					ReturnValue = -1;
-				}
-				else
-				{
-					ReturnValue = 1;
-				}
-			}
-			// if missing value returns 0
 
-			return ReturnValue;
+    	if(!ISNA(dX))
+		{
+		  if(std::find(nodeContext->aiLeftCategory.begin(),
+			   nodeContext->aiLeftCategory.end(),
+			   (ULONG)dX) != nodeContext->aiLeftCategory.end())
+			{
+				ReturnValue = -1;
+			}
+			else
+			{
+				ReturnValue = 1;
+			}
+		}
+		// if missing value returns 0
+
+		return ReturnValue;
 	}
 	void TransferTreeToRList
 	(
@@ -156,11 +159,24 @@ public:
 	)
 	{
 		int iThisNodeID = iNodeID;
+		unsigned long cCatSplits = vecSplitCodes.size();
+		unsigned long i = 0;
+		int cLevels = data.varclass(nodeContext->iSplitVar);
+		const std::size_t cLeftCategory = nodeContext->aiLeftCategory.size();
+
 		aiSplitVar[iThisNodeID] = nodeContext->iSplitVar;
-		adSplitPoint[iThisNodeID] = nodeContext->dSplitValue;
+		adSplitPoint[iThisNodeID] = cCatSplits+cCatSplitsOld; // 0 based
 		adErrorReduction[iThisNodeID] = nodeContext->dImprovement;
 		adWeight[iThisNodeID] = nodeContext->dTrainW;
 		adPred[iThisNodeID] = dShrinkage*nodeContext->dPrediction;
+
+		vecSplitCodes.push_back(VEC_CATEGORIES());
+
+		vecSplitCodes[cCatSplits].resize(cLevels,1);
+		for(i=0; i<cLeftCategory; i++)
+		  {
+			vecSplitCodes[cCatSplits][nodeContext->aiLeftCategory[i]] = -1;
+		  }
 
 		iNodeID++;
 		aiLeftNode[iThisNodeID] = iNodeID;
@@ -177,7 +193,6 @@ public:
 					 vecSplitCodes,
 					 cCatSplitsOld,
 					 dShrinkage);
-
 		aiRightNode[iThisNodeID] = iNodeID;
 		nodeContext->pRightNode->TransferTreeToRList(iNodeID,
 					  data,
@@ -192,6 +207,7 @@ public:
 					  vecSplitCodes,
 					  cCatSplitsOld,
 					  dShrinkage);
+
 		aiMissingNode[iThisNodeID] = iNodeID;
 		nodeContext->pMissingNode->TransferTreeToRList(iNodeID,
 						data,
@@ -211,5 +227,4 @@ public:
 private:
 	CNode* nodeContext;
 };
-#endif // CONTINUOUSSTRATEGY_H
-
+#endif // CATEGORICALSTRATEGY_H

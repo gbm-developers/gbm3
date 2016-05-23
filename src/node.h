@@ -22,7 +22,7 @@
 //------------------------------
 #include <vector>
 #include "dataset.h"
-#include "nodeParameters.h"
+#include "node_parameters.h"
 #include "buildinfo.h"
 
 //------------------------------

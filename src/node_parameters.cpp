@@ -8,7 +8,7 @@
 //---------------------
 // Includes
 //---------------------
-#include "nodeParameters.h"
+#include "node_parameters.h"
 #include "gbmexcept.h"
 
 //---------------------

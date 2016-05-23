@@ -13,7 +13,7 @@
 //------------------------------
 // Includes
 //------------------------------
-#include "configStructs.h"
+#include "config_structs.h"
 #include "distribution.h"
 #include "dataset.h"
 #include <map>

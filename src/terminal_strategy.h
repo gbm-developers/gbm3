@@ -14,7 +14,7 @@
 // Includes
 //------------------------------
 #include "dataset.h"
-#include "genericNodeStrategy.h"
+#include "generic_node_strategy.h"
 #include "node.h"
 #include <Rcpp.h>
 
