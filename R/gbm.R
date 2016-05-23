@@ -446,7 +446,7 @@ gbm <- function(formula = formula(data),
                 class.stratify.cv=NULL,
                 n.cores=NULL,
                 fold.id = NULL,
-                tied.times.method="breslow",
+                tied.times.method="efron",
                 prior.node.coeff.var=1000,
                 strata=NULL, patient.id=1:nrow(data)){
    theCall <- match.call()
