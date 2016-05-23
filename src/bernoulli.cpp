@@ -76,6 +76,7 @@ double CBernoulli::InitF
 
       double dNum=0.0;
       double dDen=0.0;
+
       for(unsigned long i=0; i<data.get_trainSize(); i++)
 	{
 	  const double dTemp = 1.0/(1.0+std::exp(-(data.offset_ptr()[i] + dInitF)));
