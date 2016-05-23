@@ -68,9 +68,9 @@ public:
      virtual void Initialize(const CDataset& data)
      {
     	 // Set up multi map
-		for(unsigned long i = 0; i < (data.get_trainSize() + data.GetValidSize()); i++)
+		for(unsigned long i = 0; i < (data.get_trainsize() + data.get_validsize()); i++)
 		{
-			patIdToRow.insert(pair<int, int>(data.GetRowPatientId(i), i));
+			patIdToRow.insert(pair<int, int>(data.get_row_patient_id(i), i));
 		}
 
      };
@@ -92,7 +92,7 @@ public:
 				  const double shrinkage,
 				  const double* adFadj) = 0;
 
-    virtual void bagIt(CDataset& data);
+    virtual void BagData(CDataset& data);
  private:
 
     //---------------------

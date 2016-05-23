@@ -58,7 +58,7 @@ double CLocationM::weightedQuantile(int iN, double *adV, const double *adW, doub
 	}
 
 	// Sort the vector
-	std::stable_sort(vecV.begin(), vecV.end(), comp());
+	std::stable_sort(vecV.begin(), vecV.end(), Compare());
 
 	// Sort the weights correspondingly and calculate their sum
 	vecW.resize(iN);

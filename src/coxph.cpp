@@ -16,10 +16,14 @@
 #include <math.h>
 
 namespace {
-  int getTiesMethod(const std::string& selection) {
-    if (selection == "efron") {
+  int GetTiesMethod(const std::string& selection)
+  {
+    if (selection == "efron")
+    {
       return 1;
-    } else if (selection == "breslow") {
+    }
+    else if (selection == "breslow")
+    {
       return 0;
     }
 
@@ -61,7 +65,7 @@ CDistribution* CCoxPH::Create(DataDistParams& distParams)
 	int* sortedSt = NULL;
 	int* sortedEnd = NULL;
 	bool isStartStop = false;
-	int tiesMethod = getTiesMethod(Rcpp::as<string>(distParams.misc[0]));
+	int tiesMethod = GetTiesMethod(Rcpp::as<string>(distParams.misc[0]));
 
 	// Switch on misc to set up ties method
 	std::string miscString = Rcpp::as<std::string>(distParams.misc[0]);
@@ -124,15 +128,15 @@ double CCoxPH::Deviance
 )
 {
     // Set size and move to validation set if necessary
-    long cLength = data.get_trainSize();
+    long cLength = data.get_trainsize();
 	if(isValidationSet)
 	{
 		data.shift_to_validation();
-		status = shift_ptr(status, data.get_trainSize());
-		sortedEndTimes = shift_ptr(sortedEndTimes, data.get_trainSize());
-		sortedStartTimes = shift_ptr(sortedStartTimes, data.get_trainSize());
-		strata = shift_ptr(strata, data.get_trainSize());
-		cLength = data.GetValidSize();
+		status = shift_ptr(status, data.get_trainsize());
+		sortedEndTimes = shift_ptr(sortedEndTimes, data.get_trainsize());
+		sortedStartTimes = shift_ptr(sortedStartTimes, data.get_trainsize());
+		strata = shift_ptr(strata, data.get_trainsize());
+		cLength = data.get_validsize();
 	}
 
 	double returnValue = 0.0;
@@ -142,10 +146,10 @@ double CCoxPH::Deviance
 	if(isValidationSet)
 	{
 		data.shift_to_train();
-		status = shift_ptr(status, -(data.get_trainSize()));
-		sortedEndTimes = shift_ptr(sortedEndTimes, -(data.get_trainSize()));
-		sortedStartTimes = shift_ptr(sortedStartTimes, -(data.get_trainSize()));
-		strata = shift_ptr(strata, -(data.get_trainSize()));
+		status = shift_ptr(status, -(data.get_trainsize()));
+		sortedEndTimes = shift_ptr(sortedEndTimes, -(data.get_trainsize()));
+		sortedStartTimes = shift_ptr(sortedStartTimes, -(data.get_trainsize()));
+		strata = shift_ptr(strata, -(data.get_trainsize()));
 	}
 
 

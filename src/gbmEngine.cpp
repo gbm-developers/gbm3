@@ -3,10 +3,10 @@
 #include <algorithm>
 #include "gbmEngine.h"
 
-CGBM::CGBM(configStructs& GBMParams) :
-  dataCont(GBMParams.GetDataConfig()),
-  treeComp(GBMParams.GetTreeConfig()),
-  adZ(dataCont.getData().nrow(), 0) {}
+CGBM::CGBM(ConfigStructs& GBMParams) :
+  dataCont(GBMParams.get_data_config()),
+  treeComp(GBMParams.get_tree_config()),
+  adZ(dataCont.get_data().nrow(), 0) {}
 
 
 CGBM::~CGBM()
@@ -27,7 +27,7 @@ void CGBM::FitLearner
   dOOBagImprove = 0.0;
 
   // Initialize adjustments to function estimate
-  std::vector<double> adFadj(dataCont.getData().nrow(), 0);
+  std::vector<double> adFadj(dataCont.get_data().nrow(), 0);
 
   // Bag data
   dataCont.BagData();
@@ -38,7 +38,7 @@ void CGBM::FitLearner
 
   // Compute Residuals and fit tree
   dataCont.ComputeResiduals(&adF[0], &adZ[0]);
-  treeComp.GrowTrees(dataCont.getData(), &adZ[0], &adFadj[0]);
+  treeComp.GrowTrees(dataCont.get_data(), &adZ[0], &adFadj[0]);
 
 
 
@@ -54,23 +54,23 @@ void CGBM::FitLearner
 
   // Compute the error improvement within bag
   dOOBagImprove = dataCont.ComputeBagImprovement(&adF[0],
-						 treeComp.ShrinkageConstant(),
+						 treeComp.get_shrinkage_factor(),
 						 &adFadj[0]);
 
   // Update the function estimate
   unsigned long i = 0;
-  for(i=0; i < dataCont.getData().get_trainSize(); i++)
+  for(i=0; i < dataCont.get_data().get_trainsize(); i++)
   {
-    adF[i] += treeComp.ShrinkageConstant() * adFadj[i];
+    adF[i] += treeComp.get_shrinkage_factor() * adFadj[i];
 
   }
 
   // Make validation predictions
   dTrainError = dataCont.ComputeDeviance(&adF[0], false);
-  treeComp.PredictValid(dataCont.getData(), &adFadj[0]);
+  treeComp.PredictValid(dataCont.get_data(), &adFadj[0]);
 
-  for(i=dataCont.getData().get_trainSize();
-      i < dataCont.getData().get_trainSize()+dataCont.getData().GetValidSize();
+  for(i=dataCont.get_data().get_trainsize();
+      i < dataCont.get_data().get_trainsize()+dataCont.get_data().get_validsize();
       i++)
     {
       adF[i] += adFadj[i];
@@ -95,7 +95,7 @@ void CGBM::GBMTransferTreeToRList
  int cCatSplitsOld
  )
 {
-	treeComp.TransferTreeToRList(dataCont.getData(),
+	treeComp.TransferTreeToRList(dataCont.get_data(),
 				     aiSplitVar,
 				     adSplitPoint,
 				     aiLeftNode,
@@ -106,14 +106,4 @@ void CGBM::GBMTransferTreeToRList
 				     adPred,
 				     vecSplitCodes,
 				     cCatSplitsOld);
-}
-
-const long CGBM::SizeOfFittedTree() const
-{
-  return treeComp.GetSizeOfTree();
-}
-
-double CGBM::InitF()
-{
-  return dataCont.InitialFunctionEstimate();
 }

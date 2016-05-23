@@ -52,8 +52,8 @@ void VarSplitter::IncorporateObs
 	  proposedSplit.SplitValue = 0.5*(dLastXValue + dX);
 	  
 	  if((dLastXValue != dX) &&
-	     proposedSplit.HasMinNumOfObs(cMinObsInNode) &&
-	     proposedSplit.SplitIsCorrMonotonic(lMonotone))
+	     proposedSplit.has_min_num_obs(cMinObsInNode) &&
+	     proposedSplit.split_is_correct_monotonicity(lMonotone))
 	    {
 	      proposedSplit.NodeGradResiduals();
 	      if(proposedSplit.ImprovedResiduals > bestSplit.ImprovedResiduals)
@@ -93,7 +93,7 @@ void VarSplitter::EvaluateCategoricalSplit()
       proposedSplit.setBestCategory(groupMeanAndCat);
       proposedSplit.NodeGradResiduals();
       
-      if(proposedSplit.HasMinNumOfObs(cMinObsInNode)
+      if(proposedSplit.has_min_num_obs(cMinObsInNode)
 	 && (proposedSplit.ImprovedResiduals > bestSplit.ImprovedResiduals))
 	{
 	  
@@ -142,7 +142,7 @@ void VarSplitter::WrapUpCurrentVariable()
 {
   if(proposedSplit.SplitVar == bestSplit.SplitVar)
     {
-      if(proposedSplit.missing.hasObs())
+      if(proposedSplit.missing.has_obs())
 	{
 	  bestSplit.missing = proposedSplit.missing;
 	}

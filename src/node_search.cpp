@@ -34,7 +34,7 @@ void CNodeSearch::GenerateAllSplits
 {
 	unsigned long iWhichObs = 0;
 	const CDataset::index_vector colNumbers(data.random_order());
-	const CDataset::index_vector::const_iterator final = colNumbers.begin() + data.get_numFeatures();
+	const CDataset::index_vector::const_iterator final = colNumbers.begin() + data.get_num_features();
 
 	for(CDataset::index_vector::const_iterator it=colNumbers.begin();
 	  it != final;
@@ -49,10 +49,10 @@ void CNodeSearch::GenerateAllSplits
 	  }
 
 	  // distribute the observations in order to the correct node search
-	  for(unsigned long iOrderObs=0; iOrderObs < data.get_trainSize(); iOrderObs++)
+	  for(unsigned long iOrderObs=0; iOrderObs < data.get_trainsize(); iOrderObs++)
 	  {
-		  iWhichObs = data.order_ptr()[iVar*data.get_trainSize() + iOrderObs];
-		  if(data.GetBagElem(iWhichObs))
+		  iWhichObs = data.order_ptr()[iVar*data.get_trainsize() + iOrderObs];
+		  if(data.get_bag_element(iWhichObs))
 		  {
 			  const int iNode = aiNodeAssign[iWhichObs];
 			  const double dX = data.x_value(iWhichObs, iVar);
@@ -88,10 +88,10 @@ double CNodeSearch::CalcImprovementAndSplit
 	for(unsigned long iNode=0; iNode < cTerminalNodes; iNode++)
 	{
 		variableSplitters[iNode].SetToSplit();
-		if(variableSplitters[iNode].BestImprovement() > dBestNodeImprovement)
+		if(variableSplitters[iNode].best_improvement() > dBestNodeImprovement)
 		{
 			iBestNode = iNode;
-			dBestNodeImprovement = variableSplitters[iNode].BestImprovement();
+			dBestNodeImprovement = variableSplitters[iNode].best_improvement();
 		}
 	}
 
@@ -133,7 +133,7 @@ void CNodeSearch::ReAssignData
 )
 {
 	// assign observations to the correct node
-	for(unsigned long iObs=0; iObs < data.get_trainSize(); iObs++)
+	for(unsigned long iObs=0; iObs < data.get_trainsize(); iObs++)
 	{
 		if(aiNodeAssign[iObs]==splittedNodeIndex)
 		{

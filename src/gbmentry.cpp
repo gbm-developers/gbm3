@@ -70,7 +70,7 @@ SEXP gbm
     const Rcpp::NumericVector adFold(radFOld);
 
     // Set up parameters for initialization
-    configStructs GBMParams (radY, radOffset, radX,
+    ConfigStructs GBMParams (radY, radOffset, radX,
 				raiXOrder, rSorted, rStrata, radWeight, radMisc,
 				rPriorCoeff, rPatientId, racVarClasses, ralMonotoneVar,
 				rszFamily, rcTrees, rcDepth,
@@ -82,7 +82,7 @@ SEXP gbm
     CGBM GBM(GBMParams);
 
     // Set up the function estimate
-    double dInitF = GBM.InitF();
+    double dInitF = GBM.initial_function_estimate();
     Rcpp::NumericMatrix tempX(radX);
     Rcpp::NumericVector adF(tempX.nrow());
 
@@ -125,14 +125,14 @@ SEXP gbm
         adValidError[iT] += dValidError;
         adOOBagImprove[iT] += dOOBagImprove;
 
-        Rcpp::IntegerVector iSplitVar(GBM.SizeOfFittedTree());
-        Rcpp::NumericVector dSplitPoint(GBM.SizeOfFittedTree());
-        Rcpp::IntegerVector iLeftNode(GBM.SizeOfFittedTree());
-        Rcpp::IntegerVector iRightNode(GBM.SizeOfFittedTree());
-        Rcpp::IntegerVector iMissingNode(GBM.SizeOfFittedTree());
-        Rcpp::NumericVector dErrorReduction(GBM.SizeOfFittedTree());
-        Rcpp::NumericVector dWeight(GBM.SizeOfFittedTree());
-        Rcpp::NumericVector dPred(GBM.SizeOfFittedTree());
+        Rcpp::IntegerVector iSplitVar(GBM.size_of_fitted_tree());
+        Rcpp::NumericVector dSplitPoint(GBM.size_of_fitted_tree());
+        Rcpp::IntegerVector iLeftNode(GBM.size_of_fitted_tree());
+        Rcpp::IntegerVector iRightNode(GBM.size_of_fitted_tree());
+        Rcpp::IntegerVector iMissingNode(GBM.size_of_fitted_tree());
+        Rcpp::NumericVector dErrorReduction(GBM.size_of_fitted_tree());
+        Rcpp::NumericVector dWeight(GBM.size_of_fitted_tree());
+        Rcpp::NumericVector dPred(GBM.size_of_fitted_tree());
 
 
         GBM.GBMTransferTreeToRList(iSplitVar.begin(),
@@ -160,7 +160,7 @@ SEXP gbm
 		  iT+1+cTreesOld,
 		  adTrainError[iT],
 		  adValidError[iT],
-		  GBMParams.GetTreeConfig().dShrinkage,
+		  GBMParams.get_tree_config().dShrinkage,
 		  adOOBagImprove[iT]);
         }
 

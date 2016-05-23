@@ -46,7 +46,7 @@ void CQuantile::ComputeWorkingResponse
 )
 {
     unsigned long i = 0;
-	for(i=0; i<data.get_trainSize(); i++)
+	for(i=0; i<data.get_trainsize(); i++)
 	{
 		adZ[i] = (data.y_ptr()[i] > adF[i]+data.offset_ptr()[i]) ? dAlpha : -(1.0-dAlpha);
 	}
@@ -60,14 +60,14 @@ double CQuantile::InitF
 )
 {
     double dOffset=0.0;
-    vecd.resize(data.get_trainSize());
-    for(unsigned long i=0; i< data.get_trainSize(); i++)
+    vecd.resize(data.get_trainsize());
+    for(unsigned long i=0; i< data.get_trainsize(); i++)
     {
         dOffset = data.offset_ptr()[i];
         vecd[i] = data.y_ptr()[i] - dOffset;
     }
 
-    return mpLocM.weightedQuantile(data.get_trainSize(), &vecd[0], data.weight_ptr(), dAlpha);
+    return mpLocM.weightedQuantile(data.get_trainsize(), &vecd[0], data.weight_ptr(), dAlpha);
 }
 
 
@@ -83,11 +83,11 @@ double CQuantile::Deviance
     double dW = 0.0;
 
     // Switch to validation set if necessary
-    unsigned long cLength = data.get_trainSize();
+    unsigned long cLength = data.get_trainsize();
     if(isValidationSet)
     {
  	   data.shift_to_validation();
- 	   cLength = data.GetValidSize();
+ 	   cLength = data.get_validsize();
     }
 
 
@@ -137,17 +137,17 @@ void CQuantile::FitBestConstant
   unsigned long iVecd = 0;
   double dOffset;
 
-  vecd.resize(data.get_trainSize()); // should already be this size from InitF
-  std::vector<double> adW2(data.get_trainSize());
+  vecd.resize(data.get_trainsize()); // should already be this size from InitF
+  std::vector<double> adW2(data.get_trainsize());
 
   for(iNode=0; iNode<cTermNodes; iNode++)
     {
-      if(treeComps.GetTermNodes()[iNode]->cN >= treeComps.GetMinNodeObs())
+      if(treeComps.get_terminal_nodes()[iNode]->cN >= treeComps.min_num_obs_required())
         {
 	  iVecd = 0;
-	  for(iObs=0; iObs< data.get_trainSize(); iObs++)
+	  for(iObs=0; iObs< data.get_trainsize(); iObs++)
             {
-	      if(data.GetBagElem(iObs) && (treeComps.GetNodeAssign()[iObs] == iNode))
+	      if(data.get_bag_element(iObs) && (treeComps.get_node_assignments()[iObs] == iNode))
                 {
 		  dOffset = data.offset_ptr()[iObs];
 		  
@@ -157,7 +157,7 @@ void CQuantile::FitBestConstant
                 }
             }
 	  
-	 treeComps.GetTermNodes()[iNode]->dPrediction = mpLocM.weightedQuantile(iVecd, &vecd[0], &adW2[0], dAlpha);
+	 treeComps.get_terminal_nodes()[iNode]->dPrediction = mpLocM.weightedQuantile(iVecd, &vecd[0], &adW2[0], dAlpha);
 	}
     }
 }
@@ -177,9 +177,9 @@ double CQuantile::BagImprovement
     double dW = 0.0;
     unsigned long i = 0;
 
-    for(i=0; i <data.get_trainSize(); i++)
+    for(i=0; i <data.get_trainsize(); i++)
     {
-        if(!data.GetBagElem(i))
+        if(!data.get_bag_element(i))
         {
             dF = adF[i] + data.offset_ptr()[i];
 

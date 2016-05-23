@@ -44,7 +44,8 @@ private:
   std::string msType;
   double mdEps;
 
-  struct comp {
+  struct Compare
+  {
     bool operator()(pair<int, double> prP, pair<int, double> prQ)
     {
       return (prP.second < prQ.second);

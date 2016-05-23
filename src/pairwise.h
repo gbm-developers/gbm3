@@ -113,11 +113,11 @@ public:
     virtual ~CIRMeasure() { }
 
     // Getter / Setter
-    unsigned int GetCutoffRank() const { return cRankCutoff; }
-    void SetCutoffRank(unsigned int cRankCutoff) { this->cRankCutoff = cRankCutoff; }
+    unsigned int get_cutoff_rank() const { return cRankCutoff; }
+    void set_cutoff_rank(unsigned int cRankCutoff) { this->cRankCutoff = cRankCutoff; }
 
     // Auxiliary function for sanity check
-    bool AnyPairs(const double* const adY, unsigned int cNumItems) const
+    bool any_pairs(const double* const adY, unsigned int cNumItems) const
     {
         return (cNumItems >= 2                    // at least two instances
                 && adY[0] > 0.0                   // at least one positive example (targets are non-increasing)
@@ -138,7 +138,7 @@ public:
     // ranking them at the top yields a perfect measure of 1.
     virtual double MaxMeasure(unsigned int iGroup, const double* const adY, unsigned int cNumItems)
     {
-        return (AnyPairs(adY, cNumItems) ? 1.0 : 0.0);
+        return (any_pairs(adY, cNumItems) ? 1.0 : 0.0);
     }
 
     // Calculate the difference in the IR measure caused by swapping the ranks of two items.
@@ -289,7 +289,7 @@ public:
 			const double shrinkage,
 			const double* adFadj);
 
-  void bagIt(CDataset& data);
+  void BagData(CDataset& data);
 
 protected:
 

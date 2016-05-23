@@ -61,7 +61,7 @@ CGBMDataContainer::~CGBMDataContainer()
 //-----------------------------------
 double CGBMDataContainer::InitialFunctionEstimate()
 {
-  return getDist()->InitF(data);
+  return get_dist()->InitF(data);
 }
 
 //-----------------------------------
@@ -77,7 +77,7 @@ double CGBMDataContainer::InitialFunctionEstimate()
 //-----------------------------------
 void CGBMDataContainer::ComputeResiduals(const double* adF, double* adZ)
 {
-	getDist()->ComputeWorkingResponse(data, adF, adZ);
+	get_dist()->ComputeWorkingResponse(data, adF, adZ);
 }
 
 //-----------------------------------
@@ -93,9 +93,9 @@ void CGBMDataContainer::ComputeResiduals(const double* adF, double* adZ)
 //-----------------------------------
 void CGBMDataContainer::ComputeBestTermNodePreds(const double* adF, double* adZ, CTreeComps& treeComp)
 {
-  getDist()->FitBestConstant(getData(),
+  get_dist()->FitBestConstant(get_data(),
 			     &adF[0],
-			     (2*treeComp.GetSizeOfTree()+1)/3, // number of terminal nodes
+			     (2*treeComp.size_of_tree()+1)/3, // number of terminal nodes
 			     &adZ[0],
 			     treeComp);
 }
@@ -116,11 +116,11 @@ double CGBMDataContainer::ComputeDeviance(const double* adF, bool isValidationSe
 {
   if(!(isValidationSet))
     {
-      return getDist()->Deviance(data, adF);
+      return get_dist()->Deviance(data, adF);
     }
   else
     {
-      return getDist()->Deviance(data, adF + data.get_trainSize(), true);
+      return get_dist()->Deviance(data, adF + data.get_trainsize(), true);
     }
 }
 
@@ -137,21 +137,7 @@ double CGBMDataContainer::ComputeDeviance(const double* adF, bool isValidationSe
 //-----------------------------------
 double CGBMDataContainer::ComputeBagImprovement(const double* adF, const double shrinkage, const double* adFadj)
 {
-  return getDist()->BagImprovement(getData(), &adF[0], shrinkage, adFadj);
-}
-
-//-----------------------------------
-// Function: getDist
-//
-// Returns: CDistribution ptr
-//
-// Description: Get pointer to the distribution in use.
-//
-// Parameters: none
-//-----------------------------------
-CDistribution* CGBMDataContainer::getDist()
-{
-  return pDist;
+  return get_dist()->BagImprovement(get_data(), &adF[0], shrinkage, adFadj);
 }
 
 //-----------------------------------
@@ -167,7 +153,7 @@ CDistribution* CGBMDataContainer::getDist()
 //-----------------------------------
 void CGBMDataContainer::BagData()
 {
-  getData().clearBag();
-  getDist()->bagIt(getData());
+  get_data().clear_bag();
+  get_dist()->BagData(get_data());
 
 }

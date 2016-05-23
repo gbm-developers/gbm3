@@ -50,8 +50,8 @@ public:
 			    long cVarClasses);
 
 
-	inline double BestImprovement() { return bestSplit.ImprovedResiduals; }
-	inline NodeParams GetBestSplit() { return bestSplit;}
+	inline double best_improvement() { return bestSplit.ImprovedResiduals; }
+	inline NodeParams best_split() { return bestSplit;}
 	void SetupNewNodes(CNode& nodeToSplit)
 	{
 	  nodeToSplit.SplitNode(bestSplit);

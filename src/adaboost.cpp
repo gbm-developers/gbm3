@@ -40,7 +40,7 @@ void CAdaBoost::ComputeWorkingResponse
 {
 
 
-	for(unsigned long i=0; i<data.get_trainSize(); i++)
+	for(unsigned long i=0; i<data.get_trainsize(); i++)
 	{
 		adZ[i] = -(2*data.y_ptr()[i]-1) * std::exp(-(2*data.y_ptr()[i]-1)*(data.offset_ptr()[i]+adF[i]));
 	}
@@ -59,7 +59,7 @@ double CAdaBoost::InitF
     double dDen = 0.0;
 
 
-	for(unsigned long i=0; i< data.get_trainSize(); i++)
+	for(unsigned long i=0; i< data.get_trainsize(); i++)
 	{
 		if(data.y_ptr()[i]==1.0)
 		{
@@ -88,11 +88,11 @@ double CAdaBoost::Deviance
     double dW = 0.0;
 
     // Switch to validation set if necessary
-    unsigned long cLength = data.get_trainSize();
+    unsigned long cLength = data.get_trainsize();
     if(isValidationSet)
     {
     	data.shift_to_validation();
-    	cLength = data.GetValidSize();
+    	cLength = data.get_validsize();
     }
 
 
@@ -142,29 +142,29 @@ void CAdaBoost::FitBestConstant
   vecdDen.assign(vecdDen.size(),0.0);
     
 
-  for(iObs=0; iObs< data.get_trainSize(); iObs++)
+  for(iObs=0; iObs< data.get_trainsize(); iObs++)
     {
-      if(data.GetBagElem(iObs))
+      if(data.get_bag_element(iObs))
         {
 	  dF = adF[iObs] + data.offset_ptr()[iObs];
-	  vecdNum[treeComps.GetNodeAssign()[iObs]] +=
+	  vecdNum[treeComps.get_node_assignments()[iObs]] +=
 	    data.weight_ptr()[iObs]*(2*data.y_ptr()[iObs]-1)*std::exp(-(2*data.y_ptr()[iObs]-1)*dF);
-	  vecdDen[treeComps.GetNodeAssign()[iObs]] +=
+	  vecdDen[treeComps.get_node_assignments()[iObs]] +=
 	    data.weight_ptr()[iObs]*std::exp(-(2*data.y_ptr()[iObs]-1)*dF);
         }
     }
   
   for(iNode=0; iNode<cTermNodes; iNode++)
     {
-      if(treeComps.GetTermNodes()[iNode]!=NULL)
+      if(treeComps.get_terminal_nodes()[iNode]!=NULL)
         {
 	  if(vecdDen[iNode] == 0)
             {
-	      	  treeComps.GetTermNodes()[iNode]->dPrediction = 0.0;
+	      	  treeComps.get_terminal_nodes()[iNode]->dPrediction = 0.0;
             }
 	  else
             {
-	      treeComps.GetTermNodes()[iNode]->dPrediction =
+	      treeComps.get_terminal_nodes()[iNode]->dPrediction =
 		vecdNum[iNode]/vecdDen[iNode];
             }
         }
@@ -185,9 +185,9 @@ double CAdaBoost::BagImprovement
     double dW = 0.0;
     unsigned long i = 0;
 
-    for(i=0; i<data.get_trainSize(); i++)
+    for(i=0; i<data.get_trainsize(); i++)
     {
-        if(!data.GetBagElem(i))
+        if(!data.get_bag_element(i))
         {
             dF = adF[i] + data.offset_ptr()[i];
 

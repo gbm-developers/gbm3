@@ -66,12 +66,12 @@ void CCARTTree::grow
 #endif
 
   	  // Move to data -- FOR TIME BEING
-	for(unsigned long iObs=0; iObs<data.get_trainSize(); iObs++)
+	for(unsigned long iObs=0; iObs<data.get_trainsize(); iObs++)
 	{
 		// aiNodeAssign tracks to which node each training obs belongs
 		aiNodeAssign[iObs] = 0;
 
-		if(data.GetBagElem(iObs))
+		if(data.get_bag_element(iObs))
 		{
 			// get the initial sums and sum of squares and total weight
 			dSumZ += data.weight_ptr()[iObs]*adZ[iObs];
@@ -81,9 +81,9 @@ void CCARTTree::grow
 	}
 
   dError = dSumZ2-dSumZ*dSumZ/dTotalW;
-  pRootNode = new CNode(NodeDef(dSumZ, dTotalW, data.GetTotalInBag()));
+  pRootNode = new CNode(NodeDef(dSumZ, dTotalW, data.get_total_in_bag()));
   vecpTermNodes[0] = pRootNode;
-  aNodeSearch.SetRootNode(*pRootNode);
+  aNodeSearch.set_search_rootnode(*pRootNode);
 
   // build the tree structure
 #ifdef NOISY_DEBUG

@@ -72,7 +72,7 @@ void CTreeComps::GrowTrees(const CDataset& data, double* adZ, const double* adFa
 
 	  //Reset tree and searcher
 	  tree.Reset();
-	  aNodeSearch.Reset();
+	  aNodeSearch.reset();
 
 	#ifdef NOISY_DEBUG
 	  Rprintf("grow tree\n");
@@ -172,7 +172,7 @@ void CTreeComps::TransferTreeToRList(const CDataset &data,
 //
 void CTreeComps::PredictValid(const CDataset& data, double* adFadj)
 {
-	tree.PredictValid(data, data.GetValidSize(), &(adFadj[0]));
+	tree.PredictValid(data, data.get_validsize(), &(adFadj[0]));
 }
 
 

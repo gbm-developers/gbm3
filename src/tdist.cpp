@@ -51,7 +51,7 @@ void CTDist::ComputeWorkingResponse
     unsigned long i = 0;
     double dU = 0.0;
 
-	for(i=0; i<data.get_trainSize(); i++)
+	for(i=0; i<data.get_trainsize(); i++)
 	{
 		dU = data.y_ptr()[i] - data.offset_ptr()[i] - adF[i];
 		adZ[i] = (2 * dU) / (mdNu + (dU * dU));
@@ -67,15 +67,15 @@ double CTDist::InitF
 {
 
 	// Get objects to pass into the LocM function
-	std::vector<double> adArr(data.get_trainSize());
+	std::vector<double> adArr(data.get_trainsize());
 
-	for (unsigned long ii = 0; ii < data.get_trainSize(); ii++)
+	for (unsigned long ii = 0; ii < data.get_trainsize(); ii++)
 	{
 		double dOffset = data.offset_ptr()[ii];
 		adArr[ii] = data.y_ptr()[ii] - dOffset;
 	}
 
-	return mpLocM.LocationM(data.get_trainSize(), &adArr[0], data.weight_ptr(), 0.5);
+	return mpLocM.LocationM(data.get_trainsize(), &adArr[0], data.weight_ptr(), 0.5);
 }
 
 double CTDist::Deviance
@@ -91,11 +91,11 @@ double CTDist::Deviance
 	double dU = 0.0;
 
 	// Switch to validation set if necessary
-	unsigned long cLength = data.get_trainSize();
+	unsigned long cLength = data.get_trainsize();
 	if(isValidationSet)
 	{
 	   data.shift_to_validation();
-	   cLength = data.GetValidSize();
+	   cLength = data.get_validsize();
 	}
 
 
@@ -145,14 +145,14 @@ void CTDist::FitBestConstant
 	// Call LocM for the array of values on each node
     for(iNode=0; iNode<cTermNodes; iNode++)
     {
-      if(treeComps.GetTermNodes()[iNode]->cN >= treeComps.GetMinNodeObs())
+      if(treeComps.get_terminal_nodes()[iNode]->cN >= treeComps.min_num_obs_required())
         {
 	  adArr.clear();
 	  adW.clear();
 
-	  for (iObs = 0; iObs < data.get_trainSize(); iObs++)
+	  for (iObs = 0; iObs < data.get_trainsize(); iObs++)
 	    {
-	      if(data.GetBagElem(iObs) && (treeComps.GetNodeAssign()[iObs] == iNode))
+	      if(data.get_bag_element(iObs) && (treeComps.get_node_assignments()[iObs] == iNode))
                 {
 		  const double dOffset = data.offset_ptr()[iObs];
 		  adArr.push_back(data.y_ptr()[iObs] - dOffset - adF[iObs]);
@@ -160,7 +160,7 @@ void CTDist::FitBestConstant
                 }
 	    }
 
-	  treeComps.GetTermNodes()[iNode]->dPrediction = mpLocM.LocationM(adArr.size(), &adArr[0],
+	  treeComps.get_terminal_nodes()[iNode]->dPrediction = mpLocM.LocationM(adArr.size(), &adArr[0],
 							       &adW[0], 0.5);
 
         }
@@ -179,9 +179,9 @@ double CTDist::BagImprovement
     unsigned long i = 0;
     double dW = 0.0;
 
-    for(i=0; i<data.get_trainSize(); i++)
+    for(i=0; i<data.get_trainsize(); i++)
     {
-        if(!data.GetBagElem(i))
+        if(!data.get_bag_element(i))
         {
             const double dF = adF[i] + data.offset_ptr()[i];
 	    const double dU = (data.y_ptr()[i] - dF);

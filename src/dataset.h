@@ -55,7 +55,7 @@ public:
     }
     
     // Set-up pointers
-    SetUpYPtrs();
+    set_up_yptrs();
     adWeightPtr = adWeight.begin();
     adOffsetPtr = adOffset.begin();
     
@@ -141,7 +141,7 @@ public:
   // Parameters: none
   //
   //-----------------------------------
-  void SetUpYPtrs()
+  void set_up_yptrs()
   {
     for(long i = 0; i < adY.ncol(); i++)
       {
@@ -280,45 +280,40 @@ public:
     return dataImpl.adX(row, col);
   }; // retrieve predictor value
   
-  unsigned long get_trainSize() const { return dataImpl.numOfTrainData; }; // get size of training set
-  long get_numFeatures() const; // get the number of features in data
+  unsigned long get_trainsize() const { return dataImpl.numOfTrainData; }; // get size of training set
+  long get_num_features() const { return dataImpl.numOfFeatures; }; // get the number of features in data
   
-  void shift_to_validation() const; // shift all of the ptrs to validation set
-  void shift_to_train() const; // shift all of the ptrs to training set
+  void shift_to_validation() const {  dataImpl.shift_to_validation(); }; // shift all of the ptrs to validation set
+  void shift_to_train() const {  dataImpl.shift_to_train(); }; // shift all of the ptrs to training set
   
   typedef std::vector<int> index_vector;
   index_vector random_order() const;//randomize order of predictor varaiables
   
-  double GetBagFraction() const;
+  double get_bagfraction() const { return dataImpl.bagFraction; };
   
-  unsigned long GetValidSize() const;
-  unsigned long GetTotalInBag() const;
-
-  const bag& GetBag() const
-  {
-    return dataImpl.afInBag;
-  };
+  unsigned long get_validsize() const { return dataImpl.cValid; };
+  unsigned long get_total_in_bag() const { return dataImpl.totalInBag;};
   
-  unsigned long GetNumPatientsInTraining() const
+  unsigned long get_num_patients_in_training() const
   {
 	  return dataImpl.numOfTrainPatients;
   }
 
-  int GetRowPatientId(int rowNumber) const
+  int get_row_patient_id(int rowNumber) const
   {
 	  return dataImpl.patIds(rowNumber);
   }
 
-  bool GetBagElem(long index) const
+  bool get_bag_element(long index) const
   {
 	return dataImpl.afInBag[index];
   }
 
-  void SetBagElem(long index) { dataImpl.afInBag[index] = 1; };
+  void set_bag_element(long index) { dataImpl.afInBag[index] = 1; };
 
-  void clearBag()
+  void clear_bag()
   {
-    dataImpl.afInBag.assign(get_trainSize(), 0);
+    dataImpl.afInBag.assign(get_trainsize(), 0);
   };
   
 private:

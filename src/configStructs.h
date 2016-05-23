@@ -96,13 +96,13 @@ struct TreeParams
 //------------------------------
 // Class definition
 //------------------------------
-class configStructs
+class ConfigStructs
 {
 public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-	configStructs(SEXP radY,
+	ConfigStructs(SEXP radY,
 		    SEXP radOffset,
 		    SEXP radX,
 		    SEXP raiXOrder,
@@ -159,13 +159,13 @@ public:
 	//---------------------
 	// Public destructor
 	//---------------------
-	~configStructs(){};
+	~ConfigStructs(){};
 
 	//---------------------
 	// Public Methods
 	//---------------------
-	DataDistParams& GetDataConfig() { return dataConfig;};
-	TreeParams& GetTreeConfig() { return treeConfig;};
+	DataDistParams& get_data_config() { return dataConfig;};
+	TreeParams& get_tree_config() { return treeConfig;};
 
 private:
 	//-------------------

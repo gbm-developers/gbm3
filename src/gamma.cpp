@@ -51,7 +51,7 @@ void CGamma::ComputeWorkingResponse
     throw GBM::invalid_argument();
   }
 
-  for(i=0; i<data.get_trainSize(); i++)
+  for(i=0; i<data.get_trainsize(); i++)
     {
       dF = adF[i] + data.offset_ptr()[i];
       adZ[i] = data.y_ptr()[i]*std::exp(-dF)-1.0;
@@ -72,7 +72,7 @@ double CGamma::InitF
     unsigned long i=0;
     double dInitF = 0.0;
 
-	for(i=0; i<data.get_trainSize(); i++)
+	for(i=0; i<data.get_trainsize(); i++)
 	{
 		dSum += data.weight_ptr()[i]*data.y_ptr()[i]*std::exp(-data.offset_ptr()[i]);
 		dTotalWeight += data.weight_ptr()[i];
@@ -100,11 +100,11 @@ double CGamma::Deviance
   double dW = 0.0;
   double dF = 0.0;
   
-  unsigned long cLength = data.get_trainSize();
+  unsigned long cLength = data.get_trainsize();
   if(isValidationSet)
   {
 	data.shift_to_validation();
-	cLength = data.GetValidSize();
+	cLength = data.get_validsize();
   }
 
   for(i=0; i!=cLength; i++)
@@ -154,23 +154,23 @@ const CDataset& data,
   vector<double> vecdMax(cTermNodes, -HUGE_VAL);
   vector<double> vecdMin(cTermNodes, HUGE_VAL);
 
-  for(iObs=0; iObs<data.get_trainSize(); iObs++)
+  for(iObs=0; iObs<data.get_trainsize(); iObs++)
     {
-      if(data.GetBagElem(iObs))
+      if(data.get_bag_element(iObs))
 	{
 	  dF = adF[iObs] + data.offset_ptr()[iObs];
-	  vecdNum[treeComps.GetNodeAssign()[iObs]] += data.weight_ptr()[iObs]*data.y_ptr()[iObs]*std::exp(-dF);
-	  vecdDen[treeComps.GetNodeAssign()[iObs]] += data.weight_ptr()[iObs];
+	  vecdNum[treeComps.get_node_assignments()[iObs]] += data.weight_ptr()[iObs]*data.y_ptr()[iObs]*std::exp(-dF);
+	  vecdDen[treeComps.get_node_assignments()[iObs]] += data.weight_ptr()[iObs];
 	  
 	  // Keep track of largest and smallest prediction in each node
-	  vecdMax[treeComps.GetNodeAssign()[iObs]] = R::fmax2(dF,vecdMax[treeComps.GetNodeAssign()[iObs]]);
-	  vecdMin[treeComps.GetNodeAssign()[iObs]] = R::fmin2(dF,vecdMin[treeComps.GetNodeAssign()[iObs]]);
+	  vecdMax[treeComps.get_node_assignments()[iObs]] = R::fmax2(dF,vecdMax[treeComps.get_node_assignments()[iObs]]);
+	  vecdMin[treeComps.get_node_assignments()[iObs]] = R::fmin2(dF,vecdMin[treeComps.get_node_assignments()[iObs]]);
 	}
     }
   
   for(iNode=0; iNode<cTermNodes; iNode++)
     {
-      if(treeComps.GetTermNodes()[iNode]!=NULL)
+      if(treeComps.get_terminal_nodes()[iNode]!=NULL)
 	{
 	  if(vecdNum[iNode] == 0.0)
 	    {
@@ -180,17 +180,17 @@ const CDataset& data,
 	      // Not sure what else to do except plug in an arbitrary
 	      //   negative number, -1? -10? Let's use -19, then make
 	      //   sure |adF| < 19 always.
-		  treeComps.GetTermNodes()[iNode]->dPrediction = MinVal;
+		  treeComps.get_terminal_nodes()[iNode]->dPrediction = MinVal;
 	    }
 	  
-	  else if(vecdDen[iNode] == 0.0) { treeComps.GetTermNodes()[iNode]->dPrediction = 0.0; }
+	  else if(vecdDen[iNode] == 0.0) { treeComps.get_terminal_nodes()[iNode]->dPrediction = 0.0; }
 	  
-	  else { treeComps.GetTermNodes()[iNode]->dPrediction = std::log(vecdNum[iNode]/vecdDen[iNode]); }
+	  else { treeComps.get_terminal_nodes()[iNode]->dPrediction = std::log(vecdNum[iNode]/vecdDen[iNode]); }
 	  
-	  if (vecdMax[iNode]+treeComps.GetTermNodes()[iNode]->dPrediction > MaxVal)
-	    { treeComps.GetTermNodes()[iNode]->dPrediction = MaxVal - vecdMax[iNode]; }
-	  if (vecdMin[iNode]+treeComps.GetTermNodes()[iNode]->dPrediction < MinVal)
-	    { treeComps.GetTermNodes()[iNode]->dPrediction = MinVal - vecdMin[iNode]; }
+	  if (vecdMax[iNode]+treeComps.get_terminal_nodes()[iNode]->dPrediction > MaxVal)
+	    { treeComps.get_terminal_nodes()[iNode]->dPrediction = MaxVal - vecdMax[iNode]; }
+	  if (vecdMin[iNode]+treeComps.get_terminal_nodes()[iNode]->dPrediction < MinVal)
+	    { treeComps.get_terminal_nodes()[iNode]->dPrediction = MinVal - vecdMin[iNode]; }
 	  
 	}
     }
@@ -209,9 +209,9 @@ double CGamma::BagImprovement
 	double dW = 0.0;
 	unsigned long i = 0;
 
-	for(i=0; i<data.get_trainSize(); i++)
+	for(i=0; i<data.get_trainsize(); i++)
 	{
-		if(!data.GetBagElem(i))
+		if(!data.get_bag_element(i))
 		{
 			dF = adF[i] +  data.offset_ptr()[i];
 			dReturnValue += data.weight_ptr()[i]*(data.y_ptr()[i]*std::exp(-dF)*(1.0-exp(-shrinkage*adFadj[i])) - shrinkage*adFadj[i]);

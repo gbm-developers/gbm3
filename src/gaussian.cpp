@@ -46,7 +46,7 @@ void CGaussian::ComputeWorkingResponse
   }
   
 
-	for(i=0; i<data.get_trainSize(); i++)
+	for(i=0; i<data.get_trainsize(); i++)
 	{
 		adZ[i] = data.y_ptr()[i] - data.offset_ptr()[i] - adF[i];
 	}
@@ -64,7 +64,7 @@ double CGaussian::InitF
 
     // compute the mean
 
-	for(i=0; i<data.get_trainSize(); i++)
+	for(i=0; i<data.get_trainsize(); i++)
 	{
 		dSum += data.weight_ptr()[i]*(data.y_ptr()[i] - data.offset_ptr()[i]);
 		dTotalWeight += data.weight_ptr()[i];
@@ -86,11 +86,11 @@ double CGaussian::Deviance
     double dL = 0.0;
     double dW = 0.0;
 
-    unsigned long cLength = data.get_trainSize();
+    unsigned long cLength = data.get_trainsize();
     if(isValidationSet)
     {
     	data.shift_to_validation();
-    	cLength = data.GetValidSize();
+    	cLength = data.get_validsize();
     }
 
 
@@ -148,9 +148,9 @@ double CGaussian::BagImprovement
     double dW = 0.0;
     unsigned long i = 0;
 
-    for(i=0; i<data.get_trainSize(); i++)
+    for(i=0; i<data.get_trainsize(); i++)
     {
-        if(!data.GetBagElem(i))
+        if(!data.get_bag_element(i))
         {
             dF = adF[i] + data.offset_ptr()[i];
 

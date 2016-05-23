@@ -117,7 +117,7 @@ unsigned int CConc::PairCount(unsigned int iGroup, const double* const adY, unsi
 // Assumption: instances are sorted such that labels are non-increasing
 int CConc::ComputePairCount(const double* const adY, unsigned int cNumItems)
 {
-    if (!AnyPairs(adY, cNumItems))
+    if (!any_pairs(adY, cNumItems))
     {
         return 0;
     }
@@ -246,7 +246,7 @@ void CNDCG::Init
 
     vecdRankWeight.resize(cMaxItemsPerGroup + 1, 0.0);
 
-    const unsigned int cMaxRank = std::min((unsigned int)cMaxItemsPerGroup, GetCutoffRank());
+    const unsigned int cMaxRank = std::min((unsigned int)cMaxItemsPerGroup, get_cutoff_rank());
 
     // Precompute rank weights
     for (unsigned int i = 1; i <= cMaxRank; i++)
@@ -285,7 +285,7 @@ double CNDCG::MaxMeasure(unsigned int iGroup, const double* const adY, unsigned 
     {
         // Not initialized
 
-        if (!AnyPairs(adY, cNumItems))
+        if (!any_pairs(adY, cNumItems))
         {
             // No training pairs exist
             vecdMaxDCG[iGroup] = 0.0;
@@ -355,7 +355,7 @@ double CMRR::Measure(const double* const adY, const CRanker& ranker)
 
     TopRankPos(adY, ranker, cRankTop, cPos);
 
-    const unsigned int cNumItems =  min(ranker.GetNumItems(), GetCutoffRank());
+    const unsigned int cNumItems =  min(ranker.GetNumItems(), get_cutoff_rank());
 
     if (cRankTop >= cNumItems + 1)
     {
@@ -383,7 +383,7 @@ double CMRR::SwapCost(int iItemPos, int iItemNeg, const double* const adY, const
     const unsigned int cRankPos    = ranker.GetRank(iItemPos);
     const unsigned int cRankNeg    = ranker.GetRank(iItemNeg);
 
-    const unsigned int cCutoffRank = GetCutoffRank();
+    const unsigned int cCutoffRank = get_cutoff_rank();
     const double dMeasureCurrent   = (cRankTop > cCutoffRank) ? 0.0 : 1.0 / cRankTop;
     const double dMeasureNeg       = (cRankNeg > cCutoffRank) ? 0.0 : 1.0 / cRankNeg;
 
@@ -609,14 +609,14 @@ void CPairwise::ComputeWorkingResponse
     Rprintf("compute working response, nTrain = %u\n", nTrain);
 #endif
     
-    if (data.get_trainSize() <= 0) return;
+    if (data.get_trainsize() <= 0) return;
     
     // Iterate through all groups, compute gradients
     
     unsigned int iItemStart = 0;
     unsigned int iItemEnd   = 0;
     
-    while (iItemStart < data.get_trainSize())
+    while (iItemStart < data.get_trainsize())
       {
 	adZ[iItemEnd]           = 0;
 	vecdHessian[iItemEnd]   = 0;
@@ -624,7 +624,7 @@ void CPairwise::ComputeWorkingResponse
 	const double dGroup = adGroup[iItemStart];
 	
 	// Find end of current group, initialize working response
-	for (iItemEnd = iItemStart + 1; iItemEnd < data.get_trainSize() && adGroup[iItemEnd] == dGroup; iItemEnd++)
+	for (iItemEnd = iItemStart + 1; iItemEnd < data.get_trainsize() && adGroup[iItemEnd] == dGroup; iItemEnd++)
 	  {
 	    // Clear gradients from last iteration
 	    adZ[iItemEnd]         = 0;
@@ -640,7 +640,7 @@ void CPairwise::ComputeWorkingResponse
 	}  
 #endif
 
-	if (data.GetBagElem(iItemStart))
+	if (data.get_bag_element(iItemStart))
 	  {
 	    // Group is part of the training set
 	    
@@ -910,12 +910,12 @@ double CPairwise::Deviance
 {
 
     // Shift adGroup to validation set if necessary
-	long cLength = data.get_trainSize();
+	long cLength = data.get_trainsize();
     if(isValidationSet)
     {
-    	cLength = data.GetValidSize();
+    	cLength = data.get_validsize();
     	data.shift_to_validation();
-    	adGroup=shift_ptr(adGroup, data.get_trainSize());
+    	adGroup=shift_ptr(adGroup, data.get_trainsize());
 
     }
 
@@ -923,7 +923,7 @@ double CPairwise::Deviance
 	{
     	// NB: SWITCH BACK TO TRAIN BEFORE LEAVING
     	data.shift_to_train();
-    	adGroup=shift_ptr(adGroup, -(data.get_trainSize()));
+    	adGroup=shift_ptr(adGroup, -(data.get_trainsize()));
     	return 0;
 	}
 
@@ -976,7 +976,7 @@ double CPairwise::Deviance
     if(isValidationSet)
     {
     	data.shift_to_train();
-    	adGroup=shift_ptr(adGroup, -(data.get_trainSize()));
+    	adGroup=shift_ptr(adGroup, -(data.get_trainsize()));
 
     }
 
@@ -1011,9 +1011,9 @@ void CPairwise::FitBestConstant
 	vecdDenom[i] = 0.0;
       }
 
-    for (unsigned int iObs = 0; iObs < data.get_trainSize(); iObs++)
+    for (unsigned int iObs = 0; iObs < data.get_trainsize(); iObs++)
     {
-      if (data.GetBagElem(iObs))
+      if (data.get_bag_element(iObs))
         {
 #ifdef NOISY_DEBUG
           if (!(isfinite(data.weight_ptr()[iObs]) &&
@@ -1023,22 +1023,22 @@ void CPairwise::FitBestConstant
 	  };
 #endif
 
-            vecdNum[treeComps.GetNodeAssign()[iObs]]   += data.weight_ptr()[iObs] * adZ[iObs];
-            vecdDenom[treeComps.GetNodeAssign()[iObs]] += data.weight_ptr()[iObs] * vecdHessian[iObs];
+            vecdNum[treeComps.get_node_assignments()[iObs]]   += data.weight_ptr()[iObs] * adZ[iObs];
+            vecdDenom[treeComps.get_node_assignments()[iObs]] += data.weight_ptr()[iObs] * vecdHessian[iObs];
         }
     }
 
     for (unsigned int iNode = 0; iNode < cTermNodes; iNode++)
     {
-        if (treeComps.GetTermNodes()[iNode] != NULL)
+        if (treeComps.get_terminal_nodes()[iNode] != NULL)
         {
             if (vecdDenom[iNode] <= 0.0)
             {
-            	treeComps.GetTermNodes()[iNode]->dPrediction = 0.0;
+            	treeComps.get_terminal_nodes()[iNode]->dPrediction = 0.0;
             }
             else
             {
-            	treeComps.GetTermNodes()[iNode]->dPrediction =
+            	treeComps.get_terminal_nodes()[iNode]->dPrediction =
                     vecdNum[iNode]/vecdDenom[iNode];
             }
         }
@@ -1059,7 +1059,7 @@ double CPairwise::BagImprovement
     Rprintf("BagImprovement, nTrain = %u\n", nTrain);
 #endif
 
-    if (data.get_trainSize() <= 0)
+    if (data.get_trainsize() <= 0)
     {
         return 0;
     }
@@ -1071,14 +1071,14 @@ double CPairwise::BagImprovement
     unsigned int iItemEnd   = 0;
 
 
-    while (iItemStart < data.get_trainSize())
+    while (iItemStart < data.get_trainsize())
     {
         const double dGroup = adGroup[iItemStart];
 
         // Find end of current group
-        for (iItemEnd = iItemStart + 1; iItemEnd < data.get_trainSize() && adGroup[iItemEnd] == dGroup; iItemEnd++) ;
+        for (iItemEnd = iItemStart + 1; iItemEnd < data.get_trainsize() && adGroup[iItemEnd] == dGroup; iItemEnd++) ;
 
-        if (!data.GetBagElem(iItemStart))
+        if (!data.get_bag_element(iItemStart))
         {
             // Group was held out of training set
 
@@ -1132,19 +1132,19 @@ double CPairwise::BagImprovement
 
 }
 
-void CPairwise::bagIt(CDataset& data) {
+void CPairwise::BagData(CDataset& data) {
   double dLastGroup = -1;
   bool fChosen = false;
   unsigned int cBagged = 0;
   unsigned int cBaggedGroups = 0;
   unsigned int cSeenGroups   = 0;
-  unsigned int cTotalGroupsInBag = (unsigned long)(data.GetBagFraction() * GetNumGroups());
+  unsigned int cTotalGroupsInBag = (unsigned long)(data.get_bagfraction() * GetNumGroups());
 
   if (cTotalGroupsInBag <= 0) {
     cTotalGroupsInBag = 1;
   }
   
-  for(unsigned long i=0; i< data.get_trainSize(); i++) {
+  for(unsigned long i=0; i< data.get_trainsize(); i++) {
     const double dGroup = adGroup[i];
     
     if(dGroup != dLastGroup) {
@@ -1163,7 +1163,7 @@ void CPairwise::bagIt(CDataset& data) {
     }
     
     if(fChosen) {
-      data.SetBagElem(i);
+      data.set_bag_element(i);
       cBagged++;
     }
   }

@@ -13,8 +13,8 @@
 //----------------------------------------
 CNode::CNode(const NodeDef& defn) :
   dPrediction(defn.prediction()),
-  dTrainW(defn.getTotalWeight()),
-  cN(defn.getNumObs()),
+  dTrainW(defn.get_totalweight()),
+  cN(defn.get_num_obs()),
   aiLeftCategory() {
 
     dSplitValue = 0.0;

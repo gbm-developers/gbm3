@@ -55,23 +55,23 @@ public:
 		     int cCatSplitsOld);
 
     // getters
-	std::vector<unsigned long>& GetNodeAssign()
+	std::vector<unsigned long>& get_node_assignments()
 	{
 		return aiNodeAssign;
 	}
-	vector<CNode*>& GetTermNodes()
+	vector<CNode*>& get_terminal_nodes()
 	{
 		return tree.GetTermNodes();
 	}
-	const double& ShrinkageConstant() const
+	const double& get_shrinkage_factor() const
 	{
 		return tree.GetShrinkageConst();
 	}
-	const unsigned long& GetMinNodeObs() const
+	const unsigned long& min_num_obs_required() const
 	{
 		return cMinObsInNode;
 	}
-	const unsigned long& GetSizeOfTree() const
+	const unsigned long& size_of_tree() const
 	{
 		return tree.GetNodeCount();
 	}

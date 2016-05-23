@@ -34,7 +34,7 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-    CGBM(configStructs& GBMParams);
+    CGBM(ConfigStructs& GBMParams);
 
 	//---------------------
 	// Public destructor
@@ -60,8 +60,8 @@ public:
 			     VEC_VEC_CATEGORIES &vecSplitCodes,
 			     int cCatSplitsOld);
 
-    const long SizeOfFittedTree() const;
-    double InitF();
+    const long size_of_fitted_tree() const{ return treeComp.size_of_tree(); }
+    double initial_function_estimate() { return dataCont.InitialFunctionEstimate(); };
 
 private:
 	//-------------------

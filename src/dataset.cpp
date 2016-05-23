@@ -76,46 +76,6 @@ CDataset::~CDataset()
 {
 }
 
-
-//-----------------------------------
-// Function: get_numFeatures
-//
-// Returns: long - the number of features
-//
-// Parameters: none
-//
-//-----------------------------------
-long CDataset::get_numFeatures() const
-{
-	return dataImpl.numOfFeatures;
-}
-
-//-----------------------------------
-// Function: shift_to_validation
-//
-// Returns:  shifts the data to the validation set.
-//
-// Parameters: none
-//
-//-----------------------------------
-void CDataset::shift_to_validation() const
-{
-  dataImpl.shift_to_validation();
-}
-
-//-----------------------------------
-// Function: shift_to_train
-//
-// Returns:  shifts the data to the training set.
-//
-// Parameters: none
-//
-//-----------------------------------
-void CDataset::shift_to_train() const
-{
-  dataImpl.shift_to_train();
-}
-
 //-----------------------------------
 // Function: random_order
 //
@@ -141,50 +101,6 @@ index_vector CDataset::random_order() const
   return result;
 }
 
-//-----------------------------------
-// Function: GetBagFraction
-//
-// Returns: double
-//
-// Description: get fraction of data in bag
-//
-// Parameters: none
-//
-//-----------------------------------
-double CDataset::GetBagFraction() const
-{
-	return dataImpl.bagFraction;
-}
-
-//-----------------------------------
-// Function: GetValidSize
-//
-// Returns: long
-//
-// Description: get size of validation set.
-//
-// Parameters: none
-//
-//-----------------------------------
-unsigned long CDataset::GetValidSize() const
-{
-  return dataImpl.cValid;
-}
-
-//-----------------------------------
-// Function: GetTotalInBag
-//
-// Returns: long
-//
-// Description: get total amount of data in bag
-//
-// Parameters: none
-//
-//-----------------------------------
-unsigned long CDataset::GetTotalInBag() const
-{
-  return dataImpl.totalInBag;
-}
 
 
 

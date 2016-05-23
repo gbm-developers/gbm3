@@ -52,8 +52,8 @@ public:
     double CalcImprovementAndSplit(vector<CNode*>& vecpTermNodes, const CDataset& data,
     		vector<unsigned long>& aiNodeAssign);
 
-    inline void Reset(){ cTerminalNodes = 1; }
-    void SetRootNode(CNode& rootNode){ variableSplitters[0].Set(rootNode); }
+    inline void reset(){ cTerminalNodes = 1; }
+    void set_search_rootnode(CNode& rootNode){ variableSplitters[0].Set(rootNode); }
 
 private:
 	//---------------------

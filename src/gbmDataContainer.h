@@ -49,13 +49,10 @@ public:
     double ComputeDeviance(const double *adF, bool isValidationSet=false);
     double ComputeBagImprovement(const double* adF, const double shrinkage, const double* adFadj);
     void BagData();
-    CDistribution* getDist();
     
-    const CDataset& getData() const {
-      return data;
-    }
-
-    CDataset& getData() { return data; }
+    CDistribution* get_dist(){ return pDist; }
+    const CDataset& get_data() const { return data; }
+    CDataset& get_data() { return data; }
 
 private:
 	//-------------------

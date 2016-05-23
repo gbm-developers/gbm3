@@ -46,13 +46,13 @@ public:
 	)
 	{
 		// Initialize parameters
-		std::vector<double> martingaleResid(data.get_trainSize(), 0.0);
-		LogLikelihoodTiedTimes(data.get_trainSize(), data, adF, &martingaleResid[0], false);
+		std::vector<double> martingaleResid(data.get_trainsize(), 0.0);
+		LogLikelihoodTiedTimes(data.get_trainsize(), data, adF, &martingaleResid[0], false);
 
 		// Fill up response
-		for(unsigned long i = 0; i < data.get_trainSize(); i++)
+		for(unsigned long i = 0; i < data.get_trainsize(); i++)
 		{
-			if(data.GetBagElem(i))
+			if(data.get_bag_element(i))
 			{
 				adZ[i] = data.weight_ptr()[i] * martingaleResid[i]; // From chain rule
 			}
@@ -71,20 +71,20 @@ public:
 	{
 		// Calculate the expected number of events and actual number of events in
 		// terminal nodes
-		std::vector<double> martingaleResid(data.get_trainSize(), 0.0);
+		std::vector<double> martingaleResid(data.get_trainsize(), 0.0);
 		std::vector<double> expNoEventsInNodes(cTermNodes, 1.0/coxPh->PriorCoeffVar());
 		std::vector<double> numEventsInNodes(cTermNodes, 1.0/coxPh->PriorCoeffVar());
-		LogLikelihoodTiedTimes(data.get_trainSize(), data, adF, &martingaleResid[0], false);
+		LogLikelihoodTiedTimes(data.get_trainsize(), data, adF, &martingaleResid[0], false);
 
 
-		for(unsigned long i = 0; i < data.get_trainSize(); i++)
+		for(unsigned long i = 0; i < data.get_trainsize(); i++)
 		{
-			if(data.GetBagElem(i) &&
-					(treeComps.GetTermNodes()[treeComps.GetNodeAssign()[i]]->cN >= treeComps.GetMinNodeObs()) )
+			if(data.get_bag_element(i) &&
+					(treeComps.get_terminal_nodes()[treeComps.get_node_assignments()[i]]->cN >= treeComps.min_num_obs_required()) )
 			{
 				// Cap expected number of events to be at least 0
-				expNoEventsInNodes[treeComps.GetNodeAssign()[i]] += max(0.0, coxPh->StatusVec()[i] - martingaleResid[i]);
-				numEventsInNodes[treeComps.GetNodeAssign()[i]] += coxPh->StatusVec()[i];
+				expNoEventsInNodes[treeComps.get_node_assignments()[i]] += max(0.0, coxPh->StatusVec()[i] - martingaleResid[i]);
+				numEventsInNodes[treeComps.get_node_assignments()[i]] += coxPh->StatusVec()[i];
 			}
 		}
 
@@ -92,7 +92,7 @@ public:
 		for(unsigned long nodeNum = 0; nodeNum < cTermNodes; nodeNum++)
 		{
 			// If there are no data points in node this is 0.0
-			treeComps.GetTermNodes()[nodeNum]->dPrediction = log(numEventsInNodes[nodeNum]/expNoEventsInNodes[nodeNum]);
+			treeComps.get_terminal_nodes()[nodeNum]->dPrediction = log(numEventsInNodes[nodeNum]/expNoEventsInNodes[nodeNum]);
 		}
 
 	}
@@ -125,14 +125,14 @@ public:
 		// Initialize Parameters
 		double loglikeNoAdj = 0.0;
 		double loglikeWithAdj = 0.0;
-		std::vector<double> martingaleResidNoAdj(data.get_trainSize(), 0.0);
-		std::vector<double> martingaleResidWithAdj(data.get_trainSize(), 0.0);
-		std::vector<double> etaAdj(data.get_trainSize(), 0.0);
+		std::vector<double> martingaleResidNoAdj(data.get_trainsize(), 0.0);
+		std::vector<double> martingaleResidWithAdj(data.get_trainsize(), 0.0);
+		std::vector<double> etaAdj(data.get_trainsize(), 0.0);
 
 		// Fill up the adjusted and shrunk eta
-		for(unsigned long i = 0; i < data.get_trainSize(); i++)
+		for(unsigned long i = 0; i < data.get_trainsize(); i++)
 		{
-			if(!data.GetBagElem(i))
+			if(!data.get_bag_element(i))
 			{
 				etaAdj[i] = adF[i] + shrinkage * adFadj[i];
 
@@ -144,8 +144,8 @@ public:
 		}
 
 		// Calculate likelihoods - data not in bags
-		loglikeNoAdj = LogLikelihoodTiedTimes(data.get_trainSize(), data, adF, &martingaleResidNoAdj[0], false, false);
-		loglikeWithAdj = LogLikelihoodTiedTimes(data.get_trainSize(), data, &etaAdj[0], &martingaleResidWithAdj[0], false, false);
+		loglikeNoAdj = LogLikelihoodTiedTimes(data.get_trainsize(), data, adF, &martingaleResidNoAdj[0], false, false);
+		loglikeWithAdj = LogLikelihoodTiedTimes(data.get_trainsize(), data, &etaAdj[0], &martingaleResidWithAdj[0], false, false);
 
 		return (loglikeWithAdj - loglikeNoAdj);
 	}
@@ -199,7 +199,7 @@ private:
 	    for(person = 0; person < n; person++)
 	    {
 	    	p2 = coxPh->EndTimeIndices()[person];
-	    	if(skipBag || (data.GetBagElem(p2)==checkInBag))
+	    	if(skipBag || (data.get_bag_element(p2)==checkInBag))
 	    	{
 	    		newCenter = eta[coxPh->EndTimeIndices()[p2]] + data.offset_ptr()[coxPh->EndTimeIndices()[p2]];
 	    		if(newCenter > center)
@@ -214,7 +214,7 @@ private:
 			p2 = coxPh->EndTimeIndices()[person];
 
 	    	// Check if bagging is required
-			if(skipBag || (data.GetBagElem(p2)==checkInBag))
+			if(skipBag || (data.get_bag_element(p2)==checkInBag))
 			{
 
 				if (coxPh->StatusVec()[p2] ==0)
@@ -239,7 +239,7 @@ private:
 					{
 
 						p1 = coxPh->StartTimeIndices()[indx1];
-						if(skipBag || (data.GetBagElem(p1)==checkInBag))
+						if(skipBag || (data.get_bag_element(p1)==checkInBag))
 						{
 							if (data.y_ptr(0)[p1] < dtime) break; /* still in the risk set */
 							nrisk--;
@@ -269,7 +269,7 @@ private:
 					for (k=person; k< coxPh->StrataVec()[istrat]; k++)
 					{
 						p2 = coxPh->EndTimeIndices()[k];
-						if(skipBag || (data.GetBagElem(p2)==checkInBag))
+						if(skipBag || (data.get_bag_element(p2)==checkInBag))
 						{
 							if (data.y_ptr(1)[p2]  < dtime) break;  /* only tied times */
 							nrisk++;
@@ -321,7 +321,7 @@ private:
 					for (; person < ksave; person++)
 					{
 						p2 = coxPh->EndTimeIndices()[person];
-						if(skipBag || (data.GetBagElem(p2)==checkInBag))
+						if(skipBag || (data.get_bag_element(p2)==checkInBag))
 						{
 							if (coxPh->StatusVec()[p2] ==1) resid[p2] = 1 + temp*exp(eta[p2] + data.offset_ptr()[p2] - center);
 							else resid[p2] = cumhaz * exp(eta[p2] + data.offset_ptr()[p2] - center);
@@ -345,7 +345,7 @@ private:
 					for (; indx1< coxPh->StrataVec()[istrat]; indx1++)
 					{
 						p1 = coxPh->StartTimeIndices()[indx1];
-						if(skipBag || (data.GetBagElem(p1)==checkInBag))
+						if(skipBag || (data.get_bag_element(p1)==checkInBag))
 						{
 							resid[p1] -= cumhaz * exp(eta[p1] + data.offset_ptr()[p1] - center);
 						}

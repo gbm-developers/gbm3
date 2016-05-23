@@ -42,7 +42,7 @@ void CHuberized::ComputeWorkingResponse
    unsigned long i = 0;
    double dF = 0.0;
 
-   for(i=0; i<data.get_trainSize(); i++)
+   for(i=0; i<data.get_trainsize(); i++)
    {
       dF = adF[i] + data.offset_ptr()[i];
       if( (2*data.y_ptr()[i]-1)*dF < -1)
@@ -69,7 +69,7 @@ double CHuberized::InitF
     double dNum = 0.0;
     double dDen = 0.0;
 
-    for(i=0; i<data.get_trainSize(); i++)
+    for(i=0; i<data.get_trainsize(); i++)
     {
         if(data.y_ptr()[i]==1.0)
         {
@@ -97,11 +97,11 @@ double CHuberized::Deviance
    double dF = 0.0;
    double dW = 0.0;
 
-   unsigned long cLength = data.get_trainSize();
+   unsigned long cLength = data.get_trainsize();
    if(isValidationSet)
    {
 	   data.shift_to_validation();
-	   cLength = data.GetValidSize();
+	   cLength = data.get_validsize();
    }
 
 
@@ -162,40 +162,40 @@ void CHuberized::FitBestConstant
   vector<double> vecdNum(cTermNodes, 0.0);
   vector<double> vecdDen(cTermNodes, 0.0);
 
-  for(iObs=0; iObs<data.get_trainSize(); iObs++)
+  for(iObs=0; iObs<data.get_trainsize(); iObs++)
     {
-      if(data.GetBagElem(iObs))
+      if(data.get_bag_element(iObs))
         {
 	  dF = adF[iObs] +  data.offset_ptr()[iObs];
 	  if( (2*data.y_ptr()[iObs]-1)*adF[iObs] < -1 )
 	  {
-	    vecdNum[treeComps.GetNodeAssign()[iObs]] +=
+	    vecdNum[treeComps.get_node_assignments()[iObs]] +=
 	      data.weight_ptr()[iObs]*4*(2*data.y_ptr()[iObs]-1);
-	    vecdDen[treeComps.GetNodeAssign()[iObs]] +=
+	    vecdDen[treeComps.get_node_assignments()[iObs]] +=
 	      -data.weight_ptr()[iObs]*4*(2*data.y_ptr()[iObs]-1)*dF;
 	  }
 	  else if ( 1 - (2*data.y_ptr()[iObs]-1)*adF[iObs] < 0 ){
-	    vecdNum[treeComps.GetNodeAssign()[iObs]] += 0;
-	    vecdDen[treeComps.GetNodeAssign()[iObs]] += 0;
+	    vecdNum[treeComps.get_node_assignments()[iObs]] += 0;
+	    vecdDen[treeComps.get_node_assignments()[iObs]] += 0;
 	  }
 	  else{
-	    vecdNum[treeComps.GetNodeAssign()[iObs]] += data.weight_ptr()[iObs]*2*(2*data.y_ptr()[iObs]-1)*( 1 - (2*data.y_ptr()[iObs]-1)*adF[iObs] );
-	    vecdDen[treeComps.GetNodeAssign()[iObs]] += data.weight_ptr()[iObs]*( 1 - (2*data.y_ptr()[iObs]-1)*adF[iObs])*( 1 - (2*data.y_ptr()[iObs]-1)*adF[iObs]);
+	    vecdNum[treeComps.get_node_assignments()[iObs]] += data.weight_ptr()[iObs]*2*(2*data.y_ptr()[iObs]-1)*( 1 - (2*data.y_ptr()[iObs]-1)*adF[iObs] );
+	    vecdDen[treeComps.get_node_assignments()[iObs]] += data.weight_ptr()[iObs]*( 1 - (2*data.y_ptr()[iObs]-1)*adF[iObs])*( 1 - (2*data.y_ptr()[iObs]-1)*adF[iObs]);
 	  }
         } // close if(afInBag[iObs
     }
   
   for(iNode=0; iNode<cTermNodes; iNode++)
     {
-      if(treeComps.GetTermNodes()[iNode]!=NULL)
+      if(treeComps.get_terminal_nodes()[iNode]!=NULL)
         {
 	  if(vecdDen[iNode] == 0)
             {
-	      treeComps.GetTermNodes()[iNode]->dPrediction = 0.0;
+	      treeComps.get_terminal_nodes()[iNode]->dPrediction = 0.0;
             }
 	  else
             {
-	      treeComps.GetTermNodes()[iNode]->dPrediction =
+	      treeComps.get_terminal_nodes()[iNode]->dPrediction =
 		vecdNum[iNode]/vecdDen[iNode];
             }
         }
@@ -216,9 +216,9 @@ double CHuberized::BagImprovement
     double dW = 0.0;
     unsigned long i = 0;
 
-    for(i=0; i<data.get_trainSize(); i++)
+    for(i=0; i<data.get_trainsize(); i++)
     {
-        if(!data.GetBagElem(i))
+        if(!data.get_bag_element(i))
         {
             dF = adF[i] +  data.offset_ptr()[i];
 

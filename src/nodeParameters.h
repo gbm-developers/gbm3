@@ -49,39 +49,44 @@ struct NodeDef
     return weightResid / totalWeight;
   };
   
-  double unweightedGradient(const NodeDef& other) const
+  double unweighted_gradient(const NodeDef& other) const
   {
 	return weightResid * other.totalWeight - other.weightResid * totalWeight;
   };
 
-  double varianceReduction(const NodeDef& other) const
+  double variance_reduction(const NodeDef& other) const
   {
 	const double predictionDiff = prediction() - other.prediction();
     return totalWeight* other.totalWeight*predictionDiff*predictionDiff;
   };
 
-  bool hasMinObs(unsigned long minObsInNode) const
+  bool has_min_obs(unsigned long minObsInNode) const
   {
 	return (numObs >= minObsInNode);
   }
 
-  bool hasObs() const {
+  bool has_obs() const
+  {
     return numObs;
   }
 
-  double weightSum(const NodeDef& a) const {
+  double sum_weights(const NodeDef& a) const
+  {
     return totalWeight + a.totalWeight;
   }
   
-  double weightSum(const NodeDef& a, const NodeDef& b) const {
-    return totalWeight + a.weightSum(b);
+  double sum_weights(const NodeDef& a, const NodeDef& b) const
+  {
+    return totalWeight + a.sum_weights(b);
   }
 
-  double getTotalWeight() const {
+  double get_totalweight() const
+  {
     return totalWeight;
   }
 
-  long getNumObs() const {
+  long get_num_obs() const
+  {
     return numObs;
   }
   
@@ -126,37 +131,37 @@ public:
 		left.increment(predIncrement, trainWIncrement, numIncrement);
 		right.increment(-predIncrement, -trainWIncrement, -numIncrement);
 	}
-	inline double GetImprovement() { return ImprovedResiduals;};
-	bool SplitIsCorrMonotonic(long specifyMonotone)
+	inline double get_improvement() { return ImprovedResiduals;};
+	bool split_is_correct_monotonicity(long specifyMonotone)
 	{
 		return (
 			(specifyMonotone == 0) ||
-			((specifyMonotone * right.unweightedGradient(left)) > 0)
+			((specifyMonotone * right.unweighted_gradient(left)) > 0)
 			);
 	}
 	void NodeGradResiduals()
 	{
 	  // Only need to look at left and right
-	  if(!missing.hasObs())
+	  if(!missing.has_obs())
 	    {
-	      ImprovedResiduals = left.varianceReduction(right) /
-		left.weightSum(right);
+	      ImprovedResiduals = left.variance_reduction(right) /
+		left.sum_weights(right);
 	    }
 	  else
 	    {
 	      // Grad - left/right
 	      ImprovedResiduals =
-		(left.varianceReduction(right) +
-		 left.varianceReduction(missing) +
-		 right.varianceReduction(missing)) /
-		left.weightSum(right, missing);
+		(left.variance_reduction(right) +
+		 left.variance_reduction(missing) +
+		 right.variance_reduction(missing)) /
+		left.sum_weights(right, missing);
 	    }
 	};
 	
-	bool HasMinNumOfObs(unsigned long minObsInNode)
+	bool has_min_num_obs(unsigned long minObsInNode)
 	{
-		return (left.hasMinObs(minObsInNode) &&
-			  right.hasMinObs(minObsInNode));
+		return (left.has_min_obs(minObsInNode) &&
+			  right.has_min_obs(minObsInNode));
 	}
 	inline void setBestCategory(std::vector<std::pair<double, int> >& groupMeanAndCat)
 	{
@@ -172,9 +177,9 @@ public:
 	    }
 	};
 
-	bool hasMissing() const
+	bool has_missing() const
 	{
-	  return missing.hasObs();
+	  return missing.has_obs();
 	};
 	//---------------------
 	// Public Variables
