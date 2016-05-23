@@ -35,6 +35,7 @@
 #' @references J.H. Friedman and B.E. Popescu (2005). \dQuote{Predictive
 #' Learning via Rule Ensembles.} Section 8.1
 #' @keywords methods
+#' @export
 interact.gbm <- function(x, data, i.var = 1, n.trees = x$n.trees){
    ###############################################################
    # Do sanity checks on the call
