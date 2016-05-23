@@ -140,9 +140,7 @@ gbm.fit <- function(x,y,
       }
 
       # check for some variation in each variable
-      if(length(unique(var.levels[[i]])) == 1) {
-         warning("variable ",i,": ",var.names[i]," has no variation.")
-      }
+      warnNoVariation(x[,i], i, var.names[[i]])
    }
    
    
