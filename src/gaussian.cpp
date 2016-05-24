@@ -22,7 +22,7 @@ CGaussian::CGaussian()
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CGaussian::Create(DataDistParams& distParams)
+CDistribution* CGaussian::Create(DataDistParams& distparams)
 {
 	return new CGaussian();
 }
@@ -34,100 +34,100 @@ CGaussian::~CGaussian()
 
 void CGaussian::ComputeWorkingResponse
 (
- const CDataset& data,
- const double *adF,
- double *adZ
+ const CDataset& kData,
+ const double* kFuncEstimate,
+ double* residuals
  )
 {
   unsigned long i = 0;
   
-  if (!(data.y_ptr() && adF && adZ && data.weight_ptr())) {
+  if (!(kData.y_ptr() && kFuncEstimate && residuals && kData.weight_ptr())) {
     throw GBM::InvalidArgument();
   }
   
 
-	for(i=0; i<data.get_trainsize(); i++)
+	for(i=0; i<kData.get_trainsize(); i++)
 	{
-		adZ[i] = data.y_ptr()[i] - data.offset_ptr()[i] - adF[i];
+		residuals[i] = kData.y_ptr()[i] - kData.offset_ptr()[i] - kFuncEstimate[i];
 	}
 
 }
 
 double CGaussian::InitF
 (
-	const CDataset& data
+	const CDataset& kData
 )
 {
-    double dSum=0.0;
-    double dTotalWeight = 0.0;
+    double sum=0.0;
+    double totalweight = 0.0;
     unsigned long i=0;
 
     // compute the mean
 
-	for(i=0; i<data.get_trainsize(); i++)
+	for(i=0; i<kData.get_trainsize(); i++)
 	{
-		dSum += data.weight_ptr()[i]*(data.y_ptr()[i] - data.offset_ptr()[i]);
-		dTotalWeight += data.weight_ptr()[i];
+		sum += kData.weight_ptr()[i]*(kData.y_ptr()[i] - kData.offset_ptr()[i]);
+		totalweight += kData.weight_ptr()[i];
 	}
 
 
-    return dSum/dTotalWeight;
+    return sum/totalweight;
 }
 
 
 double CGaussian::Deviance
 (
-	const CDataset& data,
-    const double *adF,
-    bool isValidationSet
+	const CDataset& kData,
+    const double* kFuncEstimate,
+    bool is_validationset
 )
 {
     unsigned long i=0;
-    double dL = 0.0;
-    double dW = 0.0;
+    double loss = 0.0;
+    double weight = 0.0;
 
-    unsigned long cLength = data.get_trainsize();
-    if(isValidationSet)
+    unsigned long num_rows_in_set = kData.get_trainsize();
+    if(is_validationset)
     {
-    	data.shift_to_validation();
-    	cLength = data.get_validsize();
+    	kData.shift_to_validation();
+    	num_rows_in_set = kData.get_validsize();
     }
 
 
 
-	for(i=0; i<cLength; i++)
+	for(i=0; i<num_rows_in_set; i++)
 	{
-		dL += data.weight_ptr()[i]*(data.y_ptr()[i]-data.offset_ptr()[i]-adF[i])*
-						  (data.y_ptr()[i]-data.offset_ptr()[i]-adF[i]);
-		dW += data.weight_ptr()[i];
+		loss += kData.weight_ptr()[i]*(kData.y_ptr()[i]-kData.offset_ptr()[i]-kFuncEstimate[i])*
+						  (kData.y_ptr()[i]-kData.offset_ptr()[i]-kFuncEstimate[i]);
+		weight += kData.weight_ptr()[i];
 	}
 
 
-    if(isValidationSet)
+    if(is_validationset)
     {
-    	data.shift_to_train();
+    	kData.shift_to_train();
     }
 
     //TODO: Check if weights are all zero for validation set
-   if((dW == 0.0) && (dL == 0.0))
+   if((weight == 0.0) && (loss == 0.0))
    {
 	   return nan("");
    }
-   else if(dW == 0.0)
+   else if(weight == 0.0)
    {
-	   return copysign(HUGE_VAL, dL);
+	   return copysign(HUGE_VAL, loss);
    }
 
-    return dL/dW;
+    return loss/weight;
 }
 
 
 void CGaussian::FitBestConstant
 (
-	const CDataset& data,
-    const double *adF,
-    unsigned long cTermNodes,
-    double* adZ,
+	const CDataset& kData,
+    const double* kFuncEstimate,
+    unsigned long num_terminalnodes,
+    double* residuals,
     CTreeComps& treeComps
 )
 {
@@ -137,30 +137,30 @@ void CGaussian::FitBestConstant
 
 double CGaussian::BagImprovement
 (
-    const CDataset& data,
-    const double *adF,
-    const double shrinkage,
-    const double* adFadj
+    const CDataset& kData,
+    const double* kFuncEstimate,
+    const double kShrinkage,
+    const double* kDeltaEstimate
 )
 {
-    double dReturnValue = 0.0;
-    double dF = 0.0;
-    double dW = 0.0;
+    double returnvalue = 0.0;
+    double deltafunc_est = 0.0;
+    double weight = 0.0;
     unsigned long i = 0;
 
-    for(i=0; i<data.get_trainsize(); i++)
+    for(i=0; i<kData.get_trainsize(); i++)
     {
-        if(!data.get_bag_element(i))
+        if(!kData.get_bag_element(i))
         {
-            dF = adF[i] + data.offset_ptr()[i];
+            deltafunc_est = kFuncEstimate[i] + kData.offset_ptr()[i];
 
-            dReturnValue += data.weight_ptr()[i]*shrinkage*adFadj[i]*
-                            (2.0*(data.y_ptr()[i]-dF) - shrinkage*adFadj[i]);
-            dW += data.weight_ptr()[i];
+            returnvalue += kData.weight_ptr()[i]*kShrinkage*kDeltaEstimate[i]*
+                            (2.0*(kData.y_ptr()[i]-deltafunc_est) - kShrinkage*kDeltaEstimate[i]);
+            weight += kData.weight_ptr()[i];
         }
     }
 
-    return dReturnValue/dW;
+    return returnvalue/weight;
 }
 
 

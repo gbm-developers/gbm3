@@ -70,11 +70,11 @@ public:
     typedef std::pair<double, unsigned int> CDoubleUintPair;
 
     // Buffer memory allocation
-    void Init(unsigned int cMaxItemsPerGroup);
+    void Init(unsigned int max_items_per_group);
 
     // Initialize ranker with scores of items belonging to the same group
     // - adScores is a score array, (at least) cNumItems long
-    bool SetGroupScores(const double* const adScores, unsigned int cNumItems);
+    bool SetGroupScores(const double* const kScores, unsigned int num_items);
 
     // Perform the ranking
     // - Return true if any item changed its rank
@@ -83,7 +83,7 @@ public:
     // Getter / setter
     unsigned int GetNumItems() const               { return num_items_; }
     unsigned int GetRank(int i) const              { return score_rank_vec_[i].second; }
-    unsigned int GetItem(unsigned int iRank) const { return (ptrs_to_score_rank_vec_[iRank-1] - &(score_rank_vec_[0])); }
+    unsigned int GetItem(unsigned int rank) const { return (ptrs_to_score_rank_vec_[rank-1] - &(score_rank_vec_[0])); }
     void SetRank(int i, unsigned int r)            { score_rank_vec_[i].second = r; }
     void AddToScore(int i, double delta)           { score_rank_vec_[i].first += delta; }
 
@@ -117,35 +117,35 @@ public:
     void set_cutoff_rank(unsigned int cRankCutoff) { this->rank_cutoff_ = cRankCutoff; }
 
     // Auxiliary function for sanity check
-    bool any_pairs(const double* const adY, unsigned int cNumItems) const
+    bool any_pairs(const double* const kResponse, unsigned int num_items) const
     {
-        return (cNumItems >= 2                    // at least two instances
-                && adY[0] > 0.0                   // at least one positive example (targets are non-increasing)
-                && adY[cNumItems-1] != adY[0]);   // at least two different targets
+        return (num_items >= 2                    // at least two instances
+                && kResponse[0] > 0.0                   // at least one positive example (targets are non-increasing)
+                && kResponse[num_items-1] != kResponse[0]);   // at least two different targets
     }
 
     // Memory allocation
-    virtual void Init(unsigned long cMaxGroup, unsigned long cNumItems, unsigned int cRankCutoff = UINT_MAX) { this->rank_cutoff_ = cRankCutoff; }
+    virtual void Init(unsigned long maxgroup, unsigned long num_items, unsigned int rank_cutoff = UINT_MAX) { this->rank_cutoff_ = rank_cutoff; }
 
      // Calculate the IR measure for the group of items set in the ranker.
      // Precondition: CRanker::SetGroupScores() has been called
      // - adY are the target scores
-    virtual double Measure(const double* const adY, const CRanker& ranker) = 0;
+    virtual double Measure(const double* const kResponse, const CRanker& kRanker) = 0;
 
     // Calculate the maximum achievable IR measure for a given group.
     // Side effect: the ranker state might change
     // Default implementation for MRR and MAP: if any positive items exist,
     // ranking them at the top yields a perfect measure of 1.
-    virtual double MaxMeasure(unsigned int iGroup, const double* const adY, unsigned int cNumItems)
+    virtual double MaxMeasure(unsigned int group, const double* const kResponse, unsigned int num_items)
     {
-        return (any_pairs(adY, cNumItems) ? 1.0 : 0.0);
+        return (any_pairs(kResponse, num_items) ? 1.0 : 0.0);
     }
 
     // Calculate the difference in the IR measure caused by swapping the ranks of two items.
     // Assumptions:
     // * iItemBetter has a higher label than iItemWorse (i.e., adY[iItemBetter] > adY[iItemWorse]).
     // * ranker.setGroup() has been called.
-    virtual double SwapCost(int iItemBetter, int iItemWorse, const double* const adY, const CRanker& ranker) const = 0;
+    virtual double SwapCost(int item_better, int item_worse, const double* const kResponse, const CRanker& kRanker) const = 0;
 
 protected:
     // Cut-off rank below which items are ignored for measure
@@ -160,24 +160,24 @@ class CConc : public CIRMeasure
 public:
     virtual ~CConc() { }
 
-    void Init(unsigned long cMaxGroup, unsigned long cNumItems, unsigned int cRankCutoff = UINT_MAX);
+    void Init(unsigned long maxgroup, unsigned long num_items, unsigned int rank_cutoff = UINT_MAX);
 
-    double Measure(const double* const adY, const CRanker& ranker);
+    double Measure(const double* const kResponse, const CRanker& kRanker);
 
     // The maximum number of correctly classified pairs is simply all pairs with different labels
-    double MaxMeasure(unsigned int iGroup, const double* const adY, unsigned int cNumItems)
+    double MaxMeasure(unsigned int group, const double* const kResponse, unsigned int num_items)
     {
-        return PairCount(iGroup, adY, cNumItems);
+        return PairCount(group, kResponse, num_items);
     }
 
     // (Cached) calculation of the number of pairs with different labels
-    unsigned int PairCount(unsigned int iGroup, const double* const adY, unsigned int cNumItems);
+    unsigned int PairCount(unsigned int group, const double* const kResponse, unsigned int num_items);
 
-    double SwapCost(int iItemBetter, int iItemWorse, const double* const adY, const CRanker& ranker) const;
+    double SwapCost(int item_better, int item_worse, const double* const kResponse, const CRanker& kRanker) const;
 
 protected:
     // Calculate the number of pairs with different labels
-    int  ComputePairCount(const double* const adY, unsigned int cNumItems);
+    int  ComputePairCount(const double* const kResponse, unsigned int num_items);
 
     // Caches the number of pairs with different labels, for each group
     vector<int> paircount_vec_;
@@ -190,15 +190,15 @@ class CNDCG : public CIRMeasure
 {
 public:
 
-    void Init(unsigned long cMaxGroup, unsigned long cNumItems, unsigned int cRankCutoff = UINT_MAX);
+    void Init(unsigned long maxgroup, unsigned long num_items, unsigned int rank_cutoff = UINT_MAX);
 
     // Compute DCG
-    double Measure(const double* const adY, const CRanker& ranker);
+    double Measure(const double* const kResponse, const CRanker& kRanker);
 
     // Compute best possible DCG
-    double MaxMeasure(unsigned int iGroup, const double* const adY, unsigned int cNumItems);
+    double MaxMeasure(unsigned int group, const double* const kResponse, unsigned int num_items);
 
-    double SwapCost(int iItemBetter, int iItemWorse, const double* const adY, const CRanker& ranker) const;
+    double SwapCost(int item_better, int item_worse, const double* const kResponse, const CRanker& kRanker) const;
 
 protected:
      // Lookup table for rank weight (w(rank) = 1/log2(1+rank))
@@ -214,9 +214,9 @@ protected:
 class CMRR : public CIRMeasure
 {
 public:
-    double Measure(const double* const adY, const CRanker& ranker);
+    double Measure(const double* const kResponse, const CRanker& kRanker);
 
-    double SwapCost(int iItemPos, int iItemNeg, const double* const adY, const CRanker& ranker) const;
+    double SwapCost(int item_pos, int item_neg, const double* const kResponse, const CRanker& kRanker) const;
 
 };
 
@@ -228,11 +228,11 @@ class CMAP : public CIRMeasure
 {
 public:
 
-    void Init(unsigned long cMaxGroup, unsigned long cNumItems, unsigned int cRankCutoff = UINT_MAX);
+    void Init(unsigned long max_group, unsigned long num_items, unsigned int rank_cutoff = UINT_MAX);
 
-    double Measure(const double* const adY, const CRanker& ranker);
+    double Measure(const double* const kResponse, const CRanker& kRanker);
 
-    double SwapCost(int iItemPos, int iItemNeg, const double* const adY, const CRanker& ranker) const;
+    double SwapCost(int item_pos, int item_neg, const double* const kResponse, const CRanker& kRanker) const;
 protected:
 
     // Buffer to hold positions of positive examples
@@ -262,42 +262,43 @@ class CPairwise : public CDistribution
 {
 public:
   
-  static CDistribution* Create(DataDistParams& distParams);
+  static CDistribution* Create(DataDistParams& distparams);
   
   virtual ~CPairwise();
   
-  void Initialize(const CDataset& data);
+  void Initialize(const CDataset& kData);
   
-  void ComputeWorkingResponse(const CDataset& data,
-			      const double *adF,
-			      double *adZ);
+  void ComputeWorkingResponse(const CDataset& kData,
+			      const double* kFuncEstimate,
+			      double* residuals);
   
-  double Deviance(const CDataset& data,
-		  const double *adF,
-		  bool isValidationSet=false);
+  double Deviance(const CDataset& kData,
+		  const double* kFuncEstimate,
+		  bool is_validationset=false);
   
-  double InitF(const CDataset& data);
+  double InitF(const CDataset& kData);
 
-  void FitBestConstant(const CDataset& data,
-		       const double *adF,
-		       unsigned long cTermNodes,
-		       double* adZ,
-		       CTreeComps& treeComps);
+  void FitBestConstant(const CDataset& kData,
+		       const double* kFuncEstimate,
+		       unsigned long num_terminalnodes,
+		       double* residuals,
+		       CTreeComps& treecomps);
   
-  double BagImprovement(const CDataset& data,
-			const double *adF,
-			const double shrinkage,
-			const double* adFadj);
+  double BagImprovement(const CDataset& kData,
+			const double* kFuncEstimate,
+			const double kShrinkage,
+			const double* kDeltaEstimates);
 
-  void BagData(CDataset& data);
+  void BagData(CDataset& kData);
 
 protected:
 
     // Constructor: determine IR measure as either "conc", "map", "mrr", or "ndcg"
-    CPairwise(const double* adgroups, const char* szIRMeasure, int cTrain);
+    CPairwise(const double* kGroups, const char* kIrMeasure, int num_training_rows);
 
     // Calculate and accumulate up the gradients and Hessians from all training pairs
-    void ComputeLambdas(int iGroup, unsigned int cNumItems, const double* const adY, const double* const adF, const double* const adWeight, double* adZ, double* adDeriv);
+    void ComputeLambdas(int group, unsigned int num_items, const double* const kResponse, const double* const kFuncEstimate,
+    		const double* const kWeights, double* residuals, double* deriv);
 
     std::auto_ptr<CIRMeasure> pirm_;                 // The IR measure to use
     CRanker ranker_;                   // The ranker

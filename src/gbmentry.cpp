@@ -191,153 +191,153 @@ SEXP gbm_pred
 )
 {
    BEGIN_RCPP
-   int iTree = 0;
-   int iObs = 0;
+   int tree_num = 0;
+   int obs_num = 0;
    const Rcpp::NumericMatrix kCovarMat(covariates);
    const int kNumCovarRows = kCovarMat.nrow();
    const Rcpp::IntegerVector kTrees(num_trees);
-   const Rcpp::GenericVector trees(fitted_trees);
-   const Rcpp::IntegerVector aiVarType(variable_type);
-   const Rcpp::GenericVector cSplits(categorical_splits);
-   const bool fSingleTree = Rcpp::as<bool>(ret_single_tree_res);
-   const int cPredIterations = kTrees.size();
-   int iPredIteration = 0;
-   int iClass = 0;
+   const Rcpp::GenericVector kFittedTrees(fitted_trees);
+   const Rcpp::IntegerVector kVarType(variable_type);
+   const Rcpp::GenericVector kSplits(categorical_splits);
+   const bool kSingleTree = Rcpp::as<bool>(ret_single_tree_res);
+   const int kPredIterations = kTrees.size();
+   int prediction_iteration = 0;
+   int class_num = 0;
 
-   if ((kCovarMat.ncol() != aiVarType.size())) {
+   if ((kCovarMat.ncol() != kVarType.size())) {
      throw GBM::InvalidArgument("shape mismatch");
    }
      
-   Rcpp::NumericVector adPredF(kNumCovarRows * cPredIterations);
+   Rcpp::NumericVector predicted_func(kNumCovarRows * kPredIterations);
 
    // initialize the predicted values
-   if(!fSingleTree)
+   if(!kSingleTree)
    {
-     std::fill(adPredF.begin(),
-               adPredF.begin() + kNumCovarRows,
+     std::fill(predicted_func.begin(),
+               predicted_func.begin() + kNumCovarRows,
                Rcpp::as<double>(initial_func_est));
    }
    else
    {
-     adPredF.fill(0.0);
+     predicted_func.fill(0.0);
    }
-   iTree = 0;
-   for(iPredIteration=0; iPredIteration<kTrees.size(); iPredIteration++)
+   tree_num = 0;
+   for(prediction_iteration=0; prediction_iteration<kTrees.size(); prediction_iteration++)
    {
-     const int mycTrees = kTrees[iPredIteration];
-     if(fSingleTree) iTree=mycTrees-1;
-     if(!fSingleTree && (iPredIteration>0))
+     const int kCurrTree = kTrees[prediction_iteration];
+     if(kSingleTree) tree_num=kCurrTree-1;
+     if(!kSingleTree && (prediction_iteration>0))
        {
          // copy over from the last rcTrees
-         std::copy(adPredF.begin() + kNumCovarRows * (iPredIteration -1),
-                   adPredF.begin() + kNumCovarRows * iPredIteration,
-                   adPredF.begin() + kNumCovarRows * iPredIteration);
+         std::copy(predicted_func.begin() + kNumCovarRows * (prediction_iteration -1),
+                   predicted_func.begin() + kNumCovarRows * prediction_iteration,
+                   predicted_func.begin() + kNumCovarRows * prediction_iteration);
        }
-     while(iTree<mycTrees)
+     while(tree_num<kCurrTree)
        {
-         const Rcpp::GenericVector thisTree = trees[iTree];
-         const Rcpp::IntegerVector iSplitVar = thisTree[0];
-         const Rcpp::NumericVector dSplitCode = thisTree[1];
-         const Rcpp::IntegerVector iLeftNode = thisTree[2];
-         const Rcpp::IntegerVector iRightNode = thisTree[3];
-         const Rcpp::IntegerVector iMissingNode = thisTree[4];
+         const Rcpp::GenericVector kThisFitTree = kFittedTrees[tree_num];
+         const Rcpp::IntegerVector kThisSplitVar = kThisFitTree[0];
+         const Rcpp::NumericVector kThisSplitCode = kThisFitTree[1];
+         const Rcpp::IntegerVector kThisLeftNode = kThisFitTree[2];
+         const Rcpp::IntegerVector kThisRightNode = kThisFitTree[3];
+         const Rcpp::IntegerVector kThisMissingNode = kThisFitTree[4];
          
-         for(iObs=0; iObs<kNumCovarRows; iObs++)
+         for(obs_num=0; obs_num<kNumCovarRows; obs_num++)
            {
              int iCurrentNode = 0;
-             while(iSplitVar[iCurrentNode] != -1)
+             while(kThisSplitVar[iCurrentNode] != -1)
                {
-                 const double dX = kCovarMat[iSplitVar[iCurrentNode]*kNumCovarRows + iObs];
+                 const double dX = kCovarMat[kThisSplitVar[iCurrentNode]*kNumCovarRows + obs_num];
                  // missing?
                  if(ISNA(dX))
                    {
-                     iCurrentNode = iMissingNode[iCurrentNode];
+                     iCurrentNode = kThisMissingNode[iCurrentNode];
                    }
                  // continuous?
-                 else if (aiVarType[iSplitVar[iCurrentNode]] == 0)
+                 else if (kVarType[kThisSplitVar[iCurrentNode]] == 0)
                    {
-                     if(dX < dSplitCode[iCurrentNode])
+                     if(dX < kThisSplitCode[iCurrentNode])
                        {
-                         iCurrentNode = iLeftNode[iCurrentNode];
+                         iCurrentNode = kThisLeftNode[iCurrentNode];
                        }
                      else
                        {
-                         iCurrentNode = iRightNode[iCurrentNode];
+                         iCurrentNode = kThisRightNode[iCurrentNode];
                        }
                    }
                  else // categorical
                    {
-                     const Rcpp::IntegerVector mySplits = cSplits[dSplitCode[iCurrentNode]];
-                     if (mySplits.size() < (int)dX + 1) {
-                       iCurrentNode = iMissingNode[iCurrentNode];
+                     const Rcpp::IntegerVector kMySplits = kSplits[kThisSplitCode[iCurrentNode]];
+                     if (kMySplits.size() < (int)dX + 1) {
+                       iCurrentNode = kThisMissingNode[iCurrentNode];
                      } else {
-                       const int iCatSplitIndicator = mySplits[(int)dX];
+                       const int iCatSplitIndicator = kMySplits[(int)dX];
                        if(iCatSplitIndicator==-1)
                          {
-                           iCurrentNode = iLeftNode[iCurrentNode];
+                           iCurrentNode = kThisLeftNode[iCurrentNode];
                          }
                        else if (iCatSplitIndicator==1)
                          {
-                           iCurrentNode = iRightNode[iCurrentNode];
+                           iCurrentNode = kThisRightNode[iCurrentNode];
                          }
                        else // categorical level not present in training
                          {
-                           iCurrentNode = iMissingNode[iCurrentNode];
+                           iCurrentNode = kThisMissingNode[iCurrentNode];
                          }
                      }
                    }
                }
-             adPredF[kNumCovarRows*iPredIteration+kNumCovarRows*iClass+iObs] += dSplitCode[iCurrentNode]; // add the prediction
+             predicted_func[kNumCovarRows*prediction_iteration+kNumCovarRows*class_num+obs_num] += kThisSplitCode[iCurrentNode]; // add the prediction
            } // iObs
-         iTree++;
+         tree_num++;
        } // iTree
    }  // iPredIteration
    
-   return Rcpp::wrap(adPredF);
+   return Rcpp::wrap(predicted_func);
    END_RCPP
 }
 
 
 SEXP gbm_plot
 (
-    SEXP radX,          // vector or matrix of points to make predictions
-    SEXP raiWhichVar,   // index of which var cols of X are
-    SEXP rcTrees,       // number of trees to use
-    SEXP rdInitF,       // initial value
-    SEXP rTrees,        // tree list object
-    SEXP rCSplits,      // categorical split list object
-    SEXP raiVarType     // vector of variable types
+    SEXP covariates,          // vector or matrix of points to make predictions
+    SEXP whichvar,   // index of which var cols of X are
+    SEXP num_trees,       // number of trees to use
+    SEXP init_func_est,       // initial value
+    SEXP fitted_trees,        // tree list object
+    SEXP categorical_splits,      // categorical split list object
+    SEXP var_types     // vector of variable types
 )
 {
     BEGIN_RCPP
-    int iTree = 0;
-    int iObs = 0;
-    int iClass = 0;
-    const Rcpp::NumericMatrix adX(radX);
-    const int cRows = adX.nrow();
-    const int cTrees = Rcpp::as<int>(rcTrees);
-    const Rcpp::IntegerVector aiWhichVar(raiWhichVar);
-    const Rcpp::GenericVector trees(rTrees);
-    const Rcpp::GenericVector cSplits(rCSplits);
-    const Rcpp::IntegerVector aiVarType(raiVarType);
+    int tree_num = 0;
+    int obs_num = 0;
+    int class_num = 0;
+    const Rcpp::NumericMatrix kCovarMat(covariates);
+    const int kNumRows = kCovarMat.nrow();
+    const int kNumTrees = Rcpp::as<int>(num_trees);
+    const Rcpp::IntegerVector kWhichVars(whichvar);
+    const Rcpp::GenericVector kFittedTrees(fitted_trees);
+    const Rcpp::GenericVector kSplits(categorical_splits);
+    const Rcpp::IntegerVector kVarType(var_types);
 
-    Rcpp::NumericVector adPredF(cRows,
-                                Rcpp::as<double>(rdInitF));
+    Rcpp::NumericVector predicted_func(kNumRows,
+                                Rcpp::as<double>(init_func_est));
 
-    if (adX.ncol() != aiWhichVar.size()) {
+    if (kCovarMat.ncol() != kWhichVars.size()) {
       throw GBM::InvalidArgument("shape mismatch");
     }
 
-    for(iTree=0; iTree<cTrees; iTree++)
+    for(tree_num=0; tree_num<kNumTrees; tree_num++)
     {
-      const Rcpp::GenericVector thisTree = trees[iTree];
-      const Rcpp::IntegerVector iSplitVar = thisTree[0];
-      const Rcpp::NumericVector dSplitCode = thisTree[1];
-      const Rcpp::IntegerVector iLeftNode = thisTree[2];
-      const Rcpp::IntegerVector iRightNode = thisTree[3];
-      const Rcpp::IntegerVector iMissingNode = thisTree[4];
-      const Rcpp::NumericVector dW = thisTree[6];
-      for(iObs=0; iObs<cRows; iObs++)
+      const Rcpp::GenericVector kThisTree = kFittedTrees[tree_num];
+      const Rcpp::IntegerVector kThisSplitVar = kThisTree[0];
+      const Rcpp::NumericVector kThisSplitCode = kThisTree[1];
+      const Rcpp::IntegerVector kThisLeftNode = kThisTree[2];
+      const Rcpp::IntegerVector kThisRightNode = kThisTree[3];
+      const Rcpp::IntegerVector kThisMissingNode = kThisTree[4];
+      const Rcpp::NumericVector kThisWeight = kThisTree[6];
+      for(obs_num=0; obs_num<kNumRows; obs_num++)
         {
           NodeStack stack;
           stack.push(0, 1.0);
@@ -347,78 +347,78 @@ SEXP gbm_plot
               int iCurrentNode = top.first;
               const double dWeight = top.second;
               
-              if(iSplitVar[iCurrentNode] == -1) // terminal node
+              if(kThisSplitVar[iCurrentNode] == -1) // terminal node
                 {
-                  adPredF[iClass*cRows + iObs] +=
-                    dWeight * dSplitCode[iCurrentNode];
+                  predicted_func[class_num*kNumRows + obs_num] +=
+                    dWeight * kThisSplitCode[iCurrentNode];
                 }
               else // non-terminal node
                 {
                   // is this a split variable that interests me?
                   const Rcpp::IntegerVector::const_iterator
-                    found = std::find(aiWhichVar.begin(),
-                                      aiWhichVar.end(),
-                                      iSplitVar[iCurrentNode]);
+                    found = std::find(kWhichVars.begin(),
+                                      kWhichVars.end(),
+                                      kThisSplitVar[iCurrentNode]);
                   
-                  if (found != aiWhichVar.end())
+                  if (found != kWhichVars.end())
                     {
-                      const int iPredVar = found - aiWhichVar.begin();
-                      const double dX = adX(iObs, iPredVar);
+                      const int kPredVar = found - kWhichVars.begin();
+                      const double kXValue = kCovarMat(obs_num, kPredVar);
                       // missing?
-                      if(ISNA(dX))
+                      if(ISNA(kXValue))
                         {
-                          stack.push(iMissingNode[iCurrentNode],dWeight);
+                          stack.push(kThisMissingNode[iCurrentNode],dWeight);
                         }
                       // continuous?
-                      else if(aiVarType[iSplitVar[iCurrentNode]] == 0)
+                      else if(kVarType[kThisSplitVar[iCurrentNode]] == 0)
                         {
-                          if(dX < dSplitCode[iCurrentNode])
+                          if(kXValue < kThisSplitCode[iCurrentNode])
                             {
-                              stack.push(iLeftNode[iCurrentNode],dWeight);
+                              stack.push(kThisLeftNode[iCurrentNode],dWeight);
                             }
                           else
                             {
-                              stack.push(iRightNode[iCurrentNode],dWeight);
+                              stack.push(kThisRightNode[iCurrentNode],dWeight);
                             }
                         }
                       else // categorical
                         {
-                          const Rcpp::IntegerVector catSplits = cSplits[dSplitCode[iCurrentNode]];
+                          const Rcpp::IntegerVector kCatSplits = kSplits[kThisSplitCode[iCurrentNode]];
                           
-                          const int iCatSplitIndicator = catSplits[dX];
-                          if(iCatSplitIndicator==-1)
+                          const int kCatSplitIndicator = kCatSplits[kXValue];
+                          if(kCatSplitIndicator==-1)
                             {
-                              stack.push(iLeftNode[iCurrentNode],dWeight);
+                              stack.push(kThisLeftNode[iCurrentNode],dWeight);
                             }
-                          else if(iCatSplitIndicator==1)
+                          else if(kCatSplitIndicator==1)
                             {
-                              stack.push(iRightNode[iCurrentNode],dWeight);
+                              stack.push(kThisRightNode[iCurrentNode],dWeight);
                             }
                           else // handle unused level
                             {
-                              stack.push(iMissingNode[iCurrentNode],dWeight);
+                              stack.push(kThisMissingNode[iCurrentNode],dWeight);
                             }
                         }
                     } // iPredVar != -1
                   else // not interested in this split, average left and right
                     {
-                      const int right = iRightNode[iCurrentNode];
-                      const int left = iLeftNode[iCurrentNode];
-                      const double right_weight = dW[right];
-                      const double left_weight = dW[left];
-                      stack.push(right,
-                                 dWeight * right_weight /
-                                 (right_weight + left_weight));
-                      stack.push(left,
-                                 dWeight * left_weight /
-                                 (right_weight + left_weight));
+                      const int kRight = kThisRightNode[iCurrentNode];
+                      const int kLeft = kThisLeftNode[iCurrentNode];
+                      const double kRightWeight = kThisWeight[kRight];
+                      const double kLeftWeight = kThisWeight[kLeft];
+                      stack.push(kRight,
+                                 dWeight * kRightWeight /
+                                 (kRightWeight + kLeftWeight));
+                      stack.push(kLeft,
+                                 dWeight * kLeftWeight /
+                                 (kRightWeight + kLeftWeight));
                     }
                 } // non-terminal node
             } // while(cStackNodes > 0)
         } // iObs
     } // iTree
 
-    return Rcpp::wrap(adPredF);
+    return Rcpp::wrap(predicted_func);
     END_RCPP
 } // gbm_plot
 

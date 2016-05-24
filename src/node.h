@@ -44,7 +44,7 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-  CNode(const NodeDef& defn);
+  CNode(const NodeDef& kDefn);
 
 	//---------------------
 	// Public destructor
@@ -54,29 +54,29 @@ public:
 	//---------------------
 	// Public Functions
 	//---------------------
-    void Adjust(unsigned long cMinObsInNode);
-    void Predict(const CDataset &data,
-			 unsigned long iRow,
-			 double &dFadj);
+    void Adjust(unsigned long min_num_node_obs);
+    void Predict(const CDataset &kData,
+			 unsigned long rownum,
+			 double &delta_estimate);
 
-    void GetVarRelativeInfluence(double *adRelInf);
-    void SplitNode(NodeParams& childrenParams);
-    void PrintSubtree(unsigned long cIndent);
-    void TransferTreeToRList(int &iNodeID,
-				     const CDataset &data,
-				     int *aiSplitVar,
-				     double *adSplitPoint,
-				     int *aiLeftNode,
-				     int *aiRightNode,
-				     int *aiMissingNode,
-				     double *adErrorReduction,
-				     double *adWeight,
-				     double *adPred,
-				     VEC_VEC_CATEGORIES &vecSplitCodes,
-				     int cCatSplitsOld,
-				     double dShrinkage);
-	signed char WhichNode(const CDataset &data,
-							unsigned long iObs);
+    void GetVarRelativeInfluence(double* relative_influence);
+    void SplitNode(NodeParams& childrenparams);
+    void PrintSubtree(unsigned long indent);
+    void TransferTreeToRList(int &node_iD,
+				     const CDataset &kData,
+				     int* splitvar,
+				     double* splitvalues,
+				     int* leftnodes,
+				     int* rightnodes,
+				     int* missingnodes,
+				     double* error_reduction,
+				     double* weights,
+				     double* predictions,
+				     VEC_VEC_CATEGORIES &splitcodes_vec,
+				     int prev_categorical_splits,
+				     double shrinkage);
+	signed char WhichNode(const CDataset &kData,
+							unsigned long obs_num);
 
 	//---------------------
 	// Public Variables

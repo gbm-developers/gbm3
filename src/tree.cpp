@@ -39,51 +39,51 @@ void CCARTTree::Reset()
 //------------------------------------------------------------------------------
 void CCARTTree::grow
 (
- double *adZ,
- const CDataset& data,
- const double *adF,
- unsigned long cMinObsInNode,
- std::vector<unsigned long>& aiNodeAssign,
- CNodeSearch& aNodeSearch
+ double* residuals,
+ const CDataset& kData,
+ const double* kFuncEstimates,
+ unsigned long min_num_node_obs,
+ std::vector<unsigned long>& data_node_assigns,
+ CNodeSearch& nodesearcher
 )
 {
 #ifdef NOISY_DEBUG
   Rprintf("Growing tree\n");
 #endif
 
-	if((adZ==NULL) || (data.weight_ptr()==NULL) || (adF==NULL) ||
+	if((residuals==NULL) || (kData.weight_ptr()==NULL) || (kFuncEstimates==NULL) ||
 	 (kTreeDepth_ < 1))
 	{
 	  throw GBM::InvalidArgument();
 	}
 
-  double dSumZ = 0.0;
-  double dSumZ2 = 0.0;
-  double dTotalW = 0.0;
+  double sumz = 0.0;
+  double sum_zsquared = 0.0;
+  double totalw = 0.0;
 
 #ifdef NOISY_DEBUG
   Rprintf("initial tree calcs\n");
 #endif
 
   	  // Move to data -- FOR TIME BEING
-	for(unsigned long iObs=0; iObs<data.get_trainsize(); iObs++)
+	for(unsigned long obs_num=0; obs_num<kData.get_trainsize(); obs_num++)
 	{
 		// aiNodeAssign tracks to which node each training obs belongs
-		aiNodeAssign[iObs] = 0;
+		data_node_assigns[obs_num] = 0;
 
-		if(data.get_bag_element(iObs))
+		if(kData.get_bag_element(obs_num))
 		{
 			// get the initial sums and sum of squares and total weight
-			dSumZ += data.weight_ptr()[iObs]*adZ[iObs];
-			dSumZ2 += data.weight_ptr()[iObs]*adZ[iObs]*adZ[iObs];
-			dTotalW += data.weight_ptr()[iObs];
+			sumz += kData.weight_ptr()[obs_num]*residuals[obs_num];
+			sum_zsquared += kData.weight_ptr()[obs_num]*residuals[obs_num]*residuals[obs_num];
+			totalw += kData.weight_ptr()[obs_num];
 		}
 	}
 
-  error_ = dSumZ2-dSumZ*dSumZ/dTotalW;
-  rootnode_ = new CNode(NodeDef(dSumZ, dTotalW, data.get_total_in_bag()));
+  error_ = sum_zsquared-sumz*sumz/totalw;
+  rootnode_ = new CNode(NodeDef(sumz, totalw, kData.get_total_in_bag()));
   terminalnode_ptrs_[0] = rootnode_;
-  aNodeSearch.set_search_rootnode(*rootnode_);
+  nodesearcher.set_search_rootnode(*rootnode_);
 
   // build the tree structure
 #ifdef NOISY_DEBUG
@@ -97,8 +97,8 @@ void CCARTTree::grow
 #endif
       
     // Generate all splits
-    aNodeSearch.GenerateAllSplits(terminalnode_ptrs_, data, &(adZ[0]), aiNodeAssign);
-    double bestImprov = aNodeSearch.CalcImprovementAndSplit(terminalnode_ptrs_, data, aiNodeAssign);
+    nodesearcher.GenerateAllSplits(terminalnode_ptrs_, kData, &(residuals[0]), data_node_assigns);
+    double bestImprov = nodesearcher.CalcImprovementAndSplit(terminalnode_ptrs_, kData, data_node_assigns);
 
     // Make the best split if possible
 	if(bestImprov == 0.0)
@@ -117,34 +117,34 @@ void CCARTTree::grow
 
 void CCARTTree::PredictValid
 (
- const CDataset &data,
- unsigned long nValid,
- double *adFadj
+ const CDataset &kData,
+ unsigned long num_validation_points,
+ double* delta_estimates
  )
 {
   unsigned int i=0;
-  for(i=data.nrow() - nValid; i<data.nrow(); i++)
+  for(i=kData.nrow() - num_validation_points; i<kData.nrow(); i++)
     {
-      rootnode_->Predict(data, i, adFadj[i]);
-      adFadj[i] *= kShrinkage_;
+      rootnode_->Predict(kData, i, delta_estimates[i]);
+      delta_estimates[i] *= kShrinkage_;
     }
 }
 
 void CCARTTree::Adjust
 (
- const std::vector<unsigned long>& aiNodeAssign,
- double *adFadj,
- unsigned long cMinObsInNode
+ const std::vector<unsigned long>& kDataNodeAssigns,
+ double* delta_estimates,
+ unsigned long min_num_node_obs
 )
 {
-	unsigned long iObs = 0;
+	unsigned long obs_num = 0;
 
-	rootnode_->Adjust(cMinObsInNode);
+	rootnode_->Adjust(min_num_node_obs);
 
 	// predict for the training observations
-	for(iObs=0; iObs<aiNodeAssign.size(); iObs++)
+	for(obs_num=0; obs_num<kDataNodeAssigns.size(); obs_num++)
 	{
-		adFadj[iObs] = terminalnode_ptrs_[aiNodeAssign[iObs]]->prediction;
+		delta_estimates[obs_num] = terminalnode_ptrs_[kDataNodeAssigns[obs_num]]->prediction;
 	}
 }
 

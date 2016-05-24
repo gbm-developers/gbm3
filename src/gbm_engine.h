@@ -34,7 +34,7 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-    CGBM(ConfigStructs& GBMParams);
+    CGBM(ConfigStructs& gbmparams);
 
 	//---------------------
 	// Public destructor
@@ -44,21 +44,21 @@ public:
 	//---------------------
 	// Public Functions
 	//---------------------
-    void FitLearner(double *adF,
-		 double &dTrainError,
-		 double &dValidError,
-		 double &dOOBagImprove);
+    void FitLearner(double* func_estimate,
+		 double &training_error,
+		 double &validation_error,
+		 double &outofbag_improv);
 
-    void GBMTransferTreeToRList(int *aiSplitVar,
-			     double *adSplitPoint,
-			     int *aiLeftNode,
-			     int *aiRightNode,
-			     int *aiMissingNode,
-			     double *adErrorReduction,
-			     double *adWeight,
-			     double *adPred,
-			     VEC_VEC_CATEGORIES &vecSplitCodes,
-			     int cCatSplitsOld);
+    void GBMTransferTreeToRList(int* splitvar,
+			     double* splitvalues,
+			     int* leftnodes,
+			     int* rightnodes,
+			     int* missingnodes,
+			     double* error_reduction,
+			     double* weights,
+			     double* predictions,
+			     VEC_VEC_CATEGORIES &splitcodes_vec,
+			     int prev_categorical_splits);
 
     const long size_of_fitted_tree() const{ return treecomponents_.size_of_tree(); }
     double initial_function_estimate() { return datacontainer_.InitialFunctionEstimate(); };

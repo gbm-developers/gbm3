@@ -234,93 +234,93 @@ public:
   //---------------------
   unsigned int nrow() const
   {
-    return dataImpl.xmatrix_.nrow();
+    return dataimpl_.xmatrix_.nrow();
   };
   unsigned int ncol() const
   {
-    return dataImpl.xmatrix_.ncol();
+    return dataimpl_.xmatrix_.ncol();
   };
   
   double* y_ptr(long colIndex=0)
   {
-    return dataImpl.yptrs_[colIndex];
+    return dataimpl_.yptrs_[colIndex];
   }; //get iterator to class labels
 
   const double* y_ptr(long colIndex=0) const
   {
-    return dataImpl.yptrs_[colIndex];
+    return dataimpl_.yptrs_[colIndex];
   }; //const overloaded version
   
   const double* offset_ptr() const
   {
-    return dataImpl.offset_ptr_;
+    return dataimpl_.offset_ptr_;
   };
   
   const double* weight_ptr() const
   {
-    return dataImpl.weights_ptr_;
+    return dataimpl_.weights_ptr_;
   }; //const overloaded version
   
   int varclass(int ind) const
   {
-    return dataImpl.num_variable_classes_[ind];
+    return dataimpl_.num_variable_classes_[ind];
   };
   int monotone(int ind) const
   {
-    return dataImpl.variable_monotonicity_[ind];
+    return dataimpl_.variable_monotonicity_[ind];
   };
   
   const int* order_ptr() const
   {
-    return dataImpl.order_xvals_.begin();
+    return dataimpl_.order_xvals_.begin();
   };
 
   double x_value(const int row, const int col) const
   {
-    return dataImpl.xmatrix_(row, col);
+    return dataimpl_.xmatrix_(row, col);
   }; // retrieve predictor value
   
-  unsigned long get_trainsize() const { return dataImpl.num_traindata_; }; // get size of training set
-  long get_num_features() const { return dataImpl.num_features_; }; // get the number of features in data
+  unsigned long get_trainsize() const { return dataimpl_.num_traindata_; }; // get size of training set
+  long get_num_features() const { return dataimpl_.num_features_; }; // get the number of features in data
   
-  void shift_to_validation() const {  dataImpl.shift_to_validation(); }; // shift all of the ptrs to validation set
-  void shift_to_train() const {  dataImpl.shift_to_train(); }; // shift all of the ptrs to training set
+  void shift_to_validation() const {  dataimpl_.shift_to_validation(); }; // shift all of the ptrs to validation set
+  void shift_to_train() const {  dataimpl_.shift_to_train(); }; // shift all of the ptrs to training set
   
   typedef std::vector<int> index_vector;
   index_vector RandomOrder() const;//randomize order of predictor varaiables
   
-  double get_bagfraction() const { return dataImpl.bagfraction_; };
+  double get_bagfraction() const { return dataimpl_.bagfraction_; };
   
-  unsigned long get_validsize() const { return dataImpl.num_validationdata_; };
-  unsigned long get_total_in_bag() const { return dataImpl.totalinbag_;};
+  unsigned long get_validsize() const { return dataimpl_.num_validationdata_; };
+  unsigned long get_total_in_bag() const { return dataimpl_.totalinbag_;};
   
   unsigned long get_num_patients_in_training() const
   {
-	  return dataImpl.num_trainobservations_;
+	  return dataimpl_.num_trainobservations_;
   }
 
   int get_row_patient_id(int rowNumber) const
   {
-	  return dataImpl.patient_ids_(rowNumber);
+	  return dataimpl_.patient_ids_(rowNumber);
   }
 
   bool get_bag_element(long index) const
   {
-	return dataImpl.databag_[index];
+	return dataimpl_.databag_[index];
   }
 
-  void set_bag_element(long index) { dataImpl.databag_[index] = 1; };
+  void set_bag_element(long index) { dataimpl_.databag_[index] = 1; };
 
   void clear_bag()
   {
-    dataImpl.databag_.assign(get_trainsize(), 0);
+    dataimpl_.databag_.assign(get_trainsize(), 0);
   };
   
 private:
   //-------------------
   // Private Variables
   //-------------------
-  CDImpl dataImpl;
+  CDImpl dataimpl_;
 };
 #endif // DATASET_H
 

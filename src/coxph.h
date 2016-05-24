@@ -34,7 +34,7 @@ public:
 	//---------------------
 	// Factory Function
 	//---------------------
-	static CDistribution* Create(DataDistParams& distParams);
+	static CDistribution* Create(DataDistParams& distparams);
 
 	//---------------------
 	// Public destructor
@@ -44,25 +44,25 @@ public:
     //---------------------
     // Public Functions
     //---------------------
-    void ComputeWorkingResponse(const CDataset& data,
-    		const double *adF,
-				double *adZ);
+    void ComputeWorkingResponse(const CDataset& kData,
+    		const double* kFuncEstimate,
+				double* residuals);
 
-    double InitF(const CDataset& data);
+    double InitF(const CDataset& kData);
     
-    void FitBestConstant(const CDataset& data,
-    		const double *adF,
-			 unsigned long cTermNodes,
-			 double* adZ,
+    void FitBestConstant(const CDataset& kData,
+    		const double* kFuncEstimate,
+			 unsigned long num_terminalnodes,
+			 double* residuals,
 			 CTreeComps& treeComps);
     
-    double Deviance(const CDataset& data,
-    				const double *adF,
-                    bool isValidationSet=false);
+    double Deviance(const CDataset& kData,
+    				const double *kFuncEstimate,
+                    bool is_validationset=false);
 
-    double BagImprovement(const CDataset& data,
-			  const double *adF,
-			  const double shrinkage, const double* adFadj);
+    double BagImprovement(const CDataset& kData,
+			  const double* kFuncEstimate,
+			  const double kShrinkage, const double* kDeltaEstimate);
 
     // Getters for the internal variables
     double* StatusVec();
@@ -85,16 +85,16 @@ private:
     //----------------------
     // Private Constructors
     //----------------------
-    CCoxPH(double* stats, int* sortedEnd, int* sortedSt, int* strats,
-	   bool isStartStop, int tiedMethod, double priorCoeff);
+    CCoxPH(double* stats, int* sorted_end, int* sorted_start, int* strats,
+	   bool is_startstop, int tiesmethod, double priorcoeff);
 
     //----------------------
     // Private Functions
     //----------------------
-    double LogLikelihood(const int n, const CDataset& data,
+    double LogLikelihood(const int n, const CDataset& kData,
 			 const double* eta, double* resid);
 
-    double LogLikelihoodTiedTimes(const int n, const CDataset& data,
+    double LogLikelihoodTiedTimes(const int n, const CDataset& kData,
 				  const double* eta, double* resid);
 
     //-------------------

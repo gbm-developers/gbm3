@@ -37,28 +37,28 @@ public:
 	//---------------------
 	// Public Functions
 	//---------------------
-	virtual void Adjust(unsigned long cMinObsInNode)=0;
-	virtual void Predict(const CDataset &data,
-		    unsigned long iRow,
-		    double &dFadj)=0;
-	virtual void GetVarRelativeInfluence(double* adRelInf)=0;
-	virtual void PrintSubTree(unsigned long Indent)=0;
-	virtual signed char WhichNode(const CDataset& data, unsigned long iObs)=0;
+	virtual void Adjust(unsigned long min_num_node_obs)=0;
+	virtual void Predict(const CDataset &kData,
+		    unsigned long rownum,
+		    double &delta_estimate)=0;
+	virtual void GetVarRelativeInfluence(double* relative_influence)=0;
+	virtual void PrintSubTree(unsigned long indent)=0;
+	virtual signed char WhichNode(const CDataset& kData, unsigned long obs_num)=0;
 	virtual void TransferTreeToRList
 	(
-	    int &iNodeID,
-	    const CDataset &data,
-	    int *aiSplitVar,
-	    double *adSplitPoint,
-	    int *aiLeftNode,
-	    int *aiRightNode,
-	    int *aiMissingNode,
-	    double *adErrorReduction,
-	    double *adWeight,
-	    double *adPred,
-	    VEC_VEC_CATEGORIES &vecSplitCodes,
-	    int cCatSplitsOld,
-	    double dShrinkage
+	    int &nodeid,
+	    const CDataset &kData,
+	    int* splitvar,
+	    double* splitvalues,
+	    int* leftnodes,
+	    int* rightnodes,
+	    int* missingnodes,
+	    double* error_reduction,
+	    double* weights,
+	    double* predictions,
+	    VEC_VEC_CATEGORIES &splitcodes_vec,
+	    int prev_categorical_splits,
+	    double shrinkage
 	)=0;
 
 };

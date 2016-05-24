@@ -32,7 +32,7 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-    CGBMDataContainer(DataDistParams& dataDistConfig);
+    CGBMDataContainer(DataDistParams& datadist_config);
 
 	//---------------------
 	// Public destructor
@@ -44,10 +44,10 @@ public:
 	//---------------------
     void Initialize();
     double InitialFunctionEstimate();
-    void ComputeResiduals(const double* adF, double* adZ);
-    void ComputeBestTermNodePreds(const double* adF, double* adZ, CTreeComps& pTreeComp);
-    double ComputeDeviance(const double *adF, bool isValidationSet=false);
-    double ComputeBagImprovement(const double* adF, const double shrinkage, const double* adFadj);
+    void ComputeResiduals(const double* kFuncEstimate, double* residuals);
+    void ComputeBestTermNodePreds(const double* kFuncEstimate, double* residuals, CTreeComps& treecomps);
+    double ComputeDeviance(const double *kFuncEstimate, bool is_validationset=false);
+    double ComputeBagImprovement(const double* kFuncEstimate, const double kShrinkage, const double* kDeltaEstimate);
     void BagData();
     
     CDistribution* get_dist(){ return distptr_; }

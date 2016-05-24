@@ -11,31 +11,31 @@
 
 //  Function that counts the number of distinct groups in the input data.
 //  Used only with the pairwise distribution.
-int GBM_FUNC::NumGroups(const double* adMisc, int cTrain)
+int GBM_FUNC::NumGroups(const double* kMisc, int num_training_rows)
 {
-	if (cTrain <= 0)
+	if (num_training_rows <= 0)
 	{
 		return 0;
 	}
-	double dLastGroup = adMisc[0];
-	int cGroups = 1;
+	double lastgroup = kMisc[0];
+	int groups = 1;
 
-	for(int i=1; i<cTrain; i++)
+	for(int i=1; i<num_training_rows; i++)
 	{
-		const double dGroup = adMisc[i];
-		if (dGroup != dLastGroup)
+		const double dGroup = kMisc[i];
+		if (dGroup != lastgroup)
 		{
-			dLastGroup = dGroup;
-			cGroups++;
+			lastgroup = dGroup;
+			groups++;
 		}
 	}
-	return cGroups;
+	return groups;
 }
 
 // Function that checks that a R vector is not NA.
-bool GBM_FUNC::has_value(const Rcpp::NumericVector& x)
+bool GBM_FUNC::has_value(const Rcpp::NumericVector& kVec)
 {
-    return !( (x.size() == 1) && (ISNA(x[0])));
+    return !( (kVec.size() == 1) && (ISNA(kVec[0])));
 }
 
 // Function that shuffles an array.

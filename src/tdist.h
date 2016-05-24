@@ -29,7 +29,7 @@ public:
 	//---------------------
 	// Factory Function
 	//---------------------
-	static CDistribution* Create(DataDistParams& distParams);
+	static CDistribution* Create(DataDistParams& distarams);
 
 	//---------------------
 	// Public destructor
@@ -39,26 +39,26 @@ public:
     //---------------------
     // Public Functions
     //---------------------
-	void ComputeWorkingResponse(const CDataset& data,
-			const double *adF,
-			      	  double *adZ);
+	void ComputeWorkingResponse(const CDataset& kData,
+			const double* kFuncEstimate,
+			      	  double* residuals);
 
-    double InitF(const CDataset& data);
+    double InitF(const CDataset& kData);
     
-    void FitBestConstant(const CDataset& data,
-    		const double *adF,
-			 unsigned long cTermNodes,
-			 double* adZ,
-			 CTreeComps& treeComps);
+    void FitBestConstant(const CDataset& kData,
+    		const double* kFuncEstimate,
+			 unsigned long num_terminalnodes,
+			 double* residuals,
+			 CTreeComps& treecomps);
 
-    double Deviance(const CDataset& data,
-    				const double *adF,
-                    bool isValidationSet=false);
+    double Deviance(const CDataset& kData,
+    				const double* kFuncEstimates,
+                    bool is_validationset=false);
 
-    double BagImprovement(const CDataset& data,
-			  const double *adF,
-			  const double shrinkage,
-                          const double* adFadj);
+    double BagImprovement(const CDataset& kData,
+			  const double *kFuncEstimate,
+			  const double kShrinkage,
+                          const double* kDeltaEstimate);
 
 private:
     //----------------------

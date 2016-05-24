@@ -38,12 +38,12 @@ public:
 	//---------------------
 	// Public Functions
 	//---------------------
-	void Adjust(unsigned long cMinObsInNode)
+	void Adjust(unsigned long min_num_node_obs)
 	{
-		node_context_->left_node_ptr->Adjust(cMinObsInNode);
-		node_context_->right_node_ptr->Adjust(cMinObsInNode);
+		node_context_->left_node_ptr->Adjust(min_num_node_obs);
+		node_context_->right_node_ptr->Adjust(min_num_node_obs);
 
-		if((node_context_->missing_node_ptr->splittype == none) && (node_context_->missing_node_ptr->numobs < cMinObsInNode))
+		if((node_context_->missing_node_ptr->splittype == none) && (node_context_->missing_node_ptr->numobs < min_num_node_obs))
 		{
 			node_context_->prediction = ((node_context_->left_node_ptr->totalweight)*(node_context_->left_node_ptr->prediction) +
 				 (node_context_->right_node_ptr->totalweight)*(node_context_->right_node_ptr->prediction))/
@@ -52,7 +52,7 @@ public:
 		}
 		else
 		{
-			node_context_->missing_node_ptr->Adjust(cMinObsInNode);
+			node_context_->missing_node_ptr->Adjust(min_num_node_obs);
 			node_context_->prediction =
 			((node_context_->left_node_ptr->totalweight)*(node_context_->left_node_ptr->prediction) +
 			(node_context_->right_node_ptr->totalweight)*  (node_context_->right_node_ptr->prediction) +
@@ -60,152 +60,152 @@ public:
 			(node_context_->left_node_ptr->totalweight + node_context_->right_node_ptr->totalweight + node_context_->missing_node_ptr->totalweight);
 		}
 	}
-	void Predict(const CDataset &data,
-			    unsigned long iRow,
-			    double &dFadj)
+	void Predict(const CDataset &kData,
+			    unsigned long row_num,
+			    double &deltafunc_est)
 	{
-		signed char schWhichNode = ContinuousStrategy::WhichNode(data,iRow);
-		if(schWhichNode == -1)
+		signed char whichnode = ContinuousStrategy::WhichNode(kData,row_num);
+		if(whichnode == -1)
 		{
-		  node_context_->left_node_ptr->Predict(data, iRow, dFadj);
+		  node_context_->left_node_ptr->Predict(kData, row_num, deltafunc_est);
 		}
-		else if(schWhichNode == 1)
+		else if(whichnode == 1)
 		{
-		  node_context_->right_node_ptr->Predict(data, iRow, dFadj);
+		  node_context_->right_node_ptr->Predict(kData, row_num, deltafunc_est);
 		}
 		else
 		{
-		  node_context_->missing_node_ptr->Predict(data, iRow, dFadj);
+		  node_context_->missing_node_ptr->Predict(kData, row_num, deltafunc_est);
 		}
 	}
-	void GetVarRelativeInfluence(double* adRelInf)
+	void GetVarRelativeInfluence(double* relative_influence)
 	{
-		adRelInf[node_context_->split_var] += node_context_->improvement;
-		node_context_->left_node_ptr->GetVarRelativeInfluence(adRelInf);
-		node_context_->right_node_ptr->GetVarRelativeInfluence(adRelInf);
+		relative_influence[node_context_->split_var] += node_context_->improvement;
+		node_context_->left_node_ptr->GetVarRelativeInfluence(relative_influence);
+		node_context_->right_node_ptr->GetVarRelativeInfluence(relative_influence);
 	}
-	void PrintSubTree(unsigned long Indent)
+	void PrintSubTree(unsigned long indent)
 	{
-		const std::size_t cLeftCategory = node_context_->leftcategory.size();
+		const std::size_t leftcategory = node_context_->leftcategory.size();
 
-		for(unsigned long i=0; i< Indent; i++) Rprintf("  ");
+		for(unsigned long i=0; i< indent; i++) Rprintf("  ");
 		Rprintf("N=%f, Improvement=%f, Prediction=%f, NA pred=%f\n",
 		  node_context_->totalweight,
 		  node_context_->improvement,
 		  node_context_->prediction,
 		  (node_context_->missing_node_ptr == NULL ? 0.0 : node_context_->missing_node_ptr->prediction));
 
-		for(unsigned long i=0; i< Indent; i++) Rprintf("  ");
+		for(unsigned long i=0; i< indent; i++) Rprintf("  ");
 		Rprintf("V%d in ",node_context_->split_var);
-		for(unsigned long i=0; i<cLeftCategory; i++)
+		for(unsigned long i=0; i<leftcategory; i++)
 		  {
 			Rprintf("%d", node_context_->leftcategory[i]);
-			if(i<cLeftCategory-1) Rprintf(",");
+			if(i<leftcategory-1) Rprintf(",");
 		  }
 		Rprintf("\n");
-		node_context_->left_node_ptr->PrintSubtree((Indent+1));
+		node_context_->left_node_ptr->PrintSubtree((indent+1));
 
-		for(unsigned long i=0; i< Indent; i++) Rprintf("  ");
+		for(unsigned long i=0; i< indent; i++) Rprintf("  ");
 		Rprintf("V%d not in ", node_context_->split_var);
-		for(unsigned long i=0; i<cLeftCategory; i++)
+		for(unsigned long i=0; i<leftcategory; i++)
 		  {
 			Rprintf("%d", node_context_->leftcategory[i]);
-			if(i<cLeftCategory-1) Rprintf(",");
+			if(i<leftcategory-1) Rprintf(",");
 		  }
 		Rprintf("\n");
-		node_context_->right_node_ptr->PrintSubtree(Indent+1);
+		node_context_->right_node_ptr->PrintSubtree(indent+1);
 
-		for(unsigned long i=0; i< Indent; i++) Rprintf("  ");
+		for(unsigned long i=0; i< indent; i++) Rprintf("  ");
 		Rprintf("missing\n");
-		node_context_->missing_node_ptr->PrintSubtree(Indent+1);
+		node_context_->missing_node_ptr->PrintSubtree(indent+1);
 	}
-	signed char WhichNode(const CDataset& data, unsigned long iObs)
+	signed char WhichNode(const CDataset& kData, unsigned long obs_num)
 	{
-		signed char ReturnValue = 0;
-		double dX = data.x_value(iObs, node_context_->split_var);
-		 if(!ISNA(dX))
+		signed char return_value = 0;
+		double xval = kData.x_value(obs_num, node_context_->split_var);
+		 if(!ISNA(xval))
 			{
-				if(dX < node_context_->splitvalue)
+				if(xval < node_context_->splitvalue)
 				{
-					ReturnValue = -1;
+					return_value = -1;
 				}
 				else
 				{
-					ReturnValue = 1;
+					return_value = 1;
 				}
 			}
 			// if missing value returns 0
 
-			return ReturnValue;
+			return return_value;
 	}
 	void TransferTreeToRList
 	(
-		int &iNodeID,
-		const CDataset &data,
-		int *aiSplitVar,
-		double *adSplitPoint,
-		int *aiLeftNode,
-		int *aiRightNode,
-		int *aiMissingNode,
-		double *adErrorReduction,
-		double *adWeight,
-		double *adPred,
-		VEC_VEC_CATEGORIES &vecSplitCodes,
-		int cCatSplitsOld,
-		double dShrinkage
+		int &nodeid,
+		const CDataset &kData,
+		int* splitvar,
+		double* splitvalues,
+		int* leftnodes,
+		int* rightnodes,
+		int* missingnodes,
+		double* error_reduction,
+		double* weights,
+		double* predictions,
+		VEC_VEC_CATEGORIES &splitcodes_vec,
+		int prev_categorical_splits,
+		double shrinkage
 	)
 	{
-		int iThisNodeID = iNodeID;
-		aiSplitVar[iThisNodeID] = node_context_->split_var;
-		adSplitPoint[iThisNodeID] = node_context_->splitvalue;
-		adErrorReduction[iThisNodeID] = node_context_->improvement;
-		adWeight[iThisNodeID] = node_context_->totalweight;
-		adPred[iThisNodeID] = dShrinkage*node_context_->prediction;
+		int thisnode_id = nodeid;
+		splitvar[thisnode_id] = node_context_->split_var;
+		splitvalues[thisnode_id] = node_context_->splitvalue;
+		error_reduction[thisnode_id] = node_context_->improvement;
+		weights[thisnode_id] = node_context_->totalweight;
+		predictions[thisnode_id] = shrinkage*node_context_->prediction;
 
-		iNodeID++;
-		aiLeftNode[iThisNodeID] = iNodeID;
-		node_context_->left_node_ptr->TransferTreeToRList(iNodeID,
-					 data,
-					 aiSplitVar,
-					 adSplitPoint,
-					 aiLeftNode,
-					 aiRightNode,
-					 aiMissingNode,
-					 adErrorReduction,
-					 adWeight,
-					 adPred,
-					 vecSplitCodes,
-					 cCatSplitsOld,
-					 dShrinkage);
+		nodeid++;
+		leftnodes[thisnode_id] = nodeid;
+		node_context_->left_node_ptr->TransferTreeToRList(nodeid,
+					 kData,
+					 splitvar,
+					 splitvalues,
+					 leftnodes,
+					 rightnodes,
+					 missingnodes,
+					 error_reduction,
+					 weights,
+					 predictions,
+					 splitcodes_vec,
+					 prev_categorical_splits,
+					 shrinkage);
 
-		aiRightNode[iThisNodeID] = iNodeID;
-		node_context_->right_node_ptr->TransferTreeToRList(iNodeID,
-					  data,
-					  aiSplitVar,
-					  adSplitPoint,
-					  aiLeftNode,
-					  aiRightNode,
-					  aiMissingNode,
-					  adErrorReduction,
-					  adWeight,
-					  adPred,
-					  vecSplitCodes,
-					  cCatSplitsOld,
-					  dShrinkage);
-		aiMissingNode[iThisNodeID] = iNodeID;
-		node_context_->missing_node_ptr->TransferTreeToRList(iNodeID,
-						data,
-						aiSplitVar,
-						adSplitPoint,
-						aiLeftNode,
-						aiRightNode,
-						aiMissingNode,
-						adErrorReduction,
-						adWeight,
-						adPred,
-						vecSplitCodes,
-						cCatSplitsOld,
-						dShrinkage);
+		rightnodes[thisnode_id] = nodeid;
+		node_context_->right_node_ptr->TransferTreeToRList(nodeid,
+					  kData,
+					  splitvar,
+					  splitvalues,
+					  leftnodes,
+					  rightnodes,
+					  missingnodes,
+					  error_reduction,
+					  weights,
+					  predictions,
+					  splitcodes_vec,
+					  prev_categorical_splits,
+					  shrinkage);
+		missingnodes[thisnode_id] = nodeid;
+		node_context_->missing_node_ptr->TransferTreeToRList(nodeid,
+						kData,
+						splitvar,
+						splitvalues,
+						leftnodes,
+						rightnodes,
+						missingnodes,
+						error_reduction,
+						weights,
+						predictions,
+						splitcodes_vec,
+						prev_categorical_splits,
+						shrinkage);
 	}
 
 private:

@@ -15,8 +15,8 @@
 
 namespace GBM_FUNC
 {
-	int NumGroups(const double* adMisc, int cTrain);
-	bool has_value(const Rcpp::NumericVector& vec);
+	int NumGroups(const double* kMisc, int num_training_rows);
+	bool has_value(const Rcpp::NumericVector& kVec);
 	std::ptrdiff_t PtrShuffler(std::ptrdiff_t n);
 }
 

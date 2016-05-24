@@ -38,18 +38,18 @@ public:
     //---------------------
     // Public Functions
     //---------------------
-    void ComputeWorkingResponse(const CDataset& data, const double* kFuncEstimate,
+    void ComputeWorkingResponse(const CDataset& kData, const double* kFuncEstimate,
 							double* residuals);
 
-    double InitF(const CDataset& data);
+    double InitF(const CDataset& kData);
 
-    void FitBestConstant(const CDataset& data, const double* kFuncEstimate,
+    void FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
 			 unsigned long numterminal_nodes, double* residuals, CTreeComps& treecomps);
     
-    double Deviance(const CDataset& data, const double* kFuncEstimate,
+    double Deviance(const CDataset& kData, const double* kFuncEstimate,
 				bool is_validationset=false);
 
-    double BagImprovement(const CDataset& data, const double* kFuncEstimate,
+    double BagImprovement(const CDataset& kData, const double* kFuncEstimate,
 			  const double shrinkage, const double* kDeltaEstimate);
 
 private:

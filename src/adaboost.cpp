@@ -33,16 +33,16 @@ CAdaBoost::~CAdaBoost()
 
 void CAdaBoost::ComputeWorkingResponse
 (
- const CDataset& data,
+ const CDataset& kData,
  const double* kFuncEstimate,
  double* residuals
 )
 {
 
 
-	for(unsigned long i=0; i<data.get_trainsize(); i++)
+	for(unsigned long i=0; i<kData.get_trainsize(); i++)
 	{
-		residuals[i] = -(2*data.y_ptr()[i]-1) * std::exp(-(2*data.y_ptr()[i]-1)*(data.offset_ptr()[i]+kFuncEstimate[i]));
+		residuals[i] = -(2*kData.y_ptr()[i]-1) * std::exp(-(2*kData.y_ptr()[i]-1)*(kData.offset_ptr()[i]+kFuncEstimate[i]));
 	}
 
 
@@ -52,22 +52,22 @@ void CAdaBoost::ComputeWorkingResponse
 
 double CAdaBoost::InitF
 (
- const CDataset& data
+ const CDataset& kData
 )
 {
     double numerator = 0.0;
     double denominator = 0.0;
 
 
-	for(unsigned long i=0; i< data.get_trainsize(); i++)
+	for(unsigned long i=0; i< kData.get_trainsize(); i++)
 	{
-		if(data.y_ptr()[i]==1.0)
+		if(kData.y_ptr()[i]==1.0)
 		{
-			numerator += data.weight_ptr()[i] * std::exp(-data.offset_ptr()[i]);
+			numerator += kData.weight_ptr()[i] * std::exp(-kData.offset_ptr()[i]);
 		}
 		else
 		{
-			denominator += data.weight_ptr()[i] * std::exp(data.offset_ptr()[i]);
+			denominator += kData.weight_ptr()[i] * std::exp(kData.offset_ptr()[i]);
 		}
 	}
 
@@ -78,8 +78,8 @@ double CAdaBoost::InitF
 
 double CAdaBoost::Deviance
 (
-	const CDataset& data,
-    const double *adF,
+	const CDataset& kData,
+    const double* kFuncEstimate,
     bool is_validationset
 )
 {
@@ -88,26 +88,26 @@ double CAdaBoost::Deviance
     double weight = 0.0;
 
     // Switch to validation set if necessary
-    unsigned long num_of_rows_in_set = data.get_trainsize();
+    unsigned long num_of_rows_in_set = kData.get_trainsize();
     if(is_validationset)
     {
-    	data.shift_to_validation();
-    	num_of_rows_in_set = data.get_validsize();
+    	kData.shift_to_validation();
+    	num_of_rows_in_set = kData.get_validsize();
     }
 
 
 
 	for(i=0; i!=num_of_rows_in_set; i++)
 	{
-		loss += data.weight_ptr()[i] * std::exp(-(2*data.y_ptr()[i]-1)*(data.offset_ptr()[i]+adF[i]));
-		weight += data.weight_ptr()[i];
+		loss += kData.weight_ptr()[i] * std::exp(-(2*kData.y_ptr()[i]-1)*(kData.offset_ptr()[i]+kFuncEstimate[i]));
+		weight += kData.weight_ptr()[i];
 	}
 
 
     // Switch back to trainig set if necessary
    if(is_validationset)
    {
-	   data.shift_to_train();
+	   kData.shift_to_train();
    }
 
    //TODO: Check if weights are all zero for validation set
@@ -126,46 +126,46 @@ double CAdaBoost::Deviance
 
 void CAdaBoost::FitBestConstant
 (
-	const CDataset& data,
-    const double* adF,
-    unsigned long cTermNodes,
-    double* adZ,
-    CTreeComps& treeComps
+	const CDataset& kData,
+    const double* kFuncEstimate,
+    unsigned long num_terminalnodes,
+    double* residuals,
+    CTreeComps& treecomps
 )
 {
-  double dF = 0.0;
-  unsigned long iObs = 0;
-  unsigned long iNode = 0;
-  numerator_bestconstant_.resize(cTermNodes);
+  double deltafunc_est = 0.0;
+  unsigned long obs_num = 0;
+  unsigned long node_num = 0;
+  numerator_bestconstant_.resize(num_terminalnodes);
   numerator_bestconstant_.assign(numerator_bestconstant_.size(),0.0);
-  denominator_bestconstant_.resize(cTermNodes);
+  denominator_bestconstant_.resize(num_terminalnodes);
   denominator_bestconstant_.assign(denominator_bestconstant_.size(),0.0);
     
 
-  for(iObs=0; iObs< data.get_trainsize(); iObs++)
+  for(obs_num=0; obs_num< kData.get_trainsize(); obs_num++)
     {
-      if(data.get_bag_element(iObs))
+      if(kData.get_bag_element(obs_num))
         {
-	  dF = adF[iObs] + data.offset_ptr()[iObs];
-	  numerator_bestconstant_[treeComps.get_node_assignments()[iObs]] +=
-	    data.weight_ptr()[iObs]*(2*data.y_ptr()[iObs]-1)*std::exp(-(2*data.y_ptr()[iObs]-1)*dF);
-	  denominator_bestconstant_[treeComps.get_node_assignments()[iObs]] +=
-	    data.weight_ptr()[iObs]*std::exp(-(2*data.y_ptr()[iObs]-1)*dF);
+	  deltafunc_est = kFuncEstimate[obs_num] + kData.offset_ptr()[obs_num];
+	  numerator_bestconstant_[treecomps.get_node_assignments()[obs_num]] +=
+	    kData.weight_ptr()[obs_num]*(2*kData.y_ptr()[obs_num]-1)*std::exp(-(2*kData.y_ptr()[obs_num]-1)*deltafunc_est);
+	  denominator_bestconstant_[treecomps.get_node_assignments()[obs_num]] +=
+	    kData.weight_ptr()[obs_num]*std::exp(-(2*kData.y_ptr()[obs_num]-1)*deltafunc_est);
         }
     }
   
-  for(iNode=0; iNode<cTermNodes; iNode++)
+  for(node_num=0; node_num<num_terminalnodes; node_num++)
     {
-      if(treeComps.get_terminal_nodes()[iNode]!=NULL)
+      if(treecomps.get_terminal_nodes()[node_num]!=NULL)
         {
-	  if(denominator_bestconstant_[iNode] == 0)
+	  if(denominator_bestconstant_[node_num] == 0)
             {
-	      	  treeComps.get_terminal_nodes()[iNode]->prediction = 0.0;
+	      	  treecomps.get_terminal_nodes()[node_num]->prediction = 0.0;
             }
 	  else
             {
-	      treeComps.get_terminal_nodes()[iNode]->prediction =
-		numerator_bestconstant_[iNode]/denominator_bestconstant_[iNode];
+	      treecomps.get_terminal_nodes()[node_num]->prediction =
+		numerator_bestconstant_[node_num]/denominator_bestconstant_[node_num];
             }
         }
     }
@@ -174,29 +174,29 @@ void CAdaBoost::FitBestConstant
 
 double CAdaBoost::BagImprovement
 (
-    const CDataset& data,
-    const double *adF,
-    const double shrinkage,
-    const double* adFadj
+    const CDataset& kData,
+    const double* kFuncEstimate,
+    const double kShrinkage,
+    const double* kDeltaEstimate
 )
 {
-    double dReturnValue = 0.0;
-    double dF = 0.0;
-    double dW = 0.0;
+    double returnvalue = 0.0;
+    double func_est = 0.0;
+    double weight = 0.0;
     unsigned long i = 0;
 
-    for(i=0; i<data.get_trainsize(); i++)
+    for(i=0; i<kData.get_trainsize(); i++)
     {
-        if(!data.get_bag_element(i))
+        if(!kData.get_bag_element(i))
         {
-            dF = adF[i] + data.offset_ptr()[i];
+            func_est = kFuncEstimate[i] + kData.offset_ptr()[i];
 
-            dReturnValue += data.weight_ptr()[i]*
-                (std::exp(-(2*data.y_ptr()[i]-1)*dF) -
-                 std::exp(-(2*data.y_ptr()[i]-1)*(dF+(shrinkage)*(adFadj[i]))));
-            dW += data.weight_ptr()[i];
+            returnvalue += kData.weight_ptr()[i]*
+                (std::exp(-(2*kData.y_ptr()[i]-1)*func_est) -
+                 std::exp(-(2*kData.y_ptr()[i]-1)*(func_est+(kShrinkage)*(kDeltaEstimate[i]))));
+            weight += kData.weight_ptr()[i];
         }
     }
 
-    return dReturnValue/dW;
+    return returnvalue/weight;
 }

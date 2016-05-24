@@ -22,7 +22,7 @@ CPoisson::CPoisson()
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CPoisson::Create(DataDistParams& distParams)
+CDistribution* CPoisson::Create(DataDistParams& distparams)
 {
 	return new CPoisson();
 }
@@ -35,19 +35,19 @@ CPoisson::~CPoisson()
 
 void CPoisson::ComputeWorkingResponse
 (
-	const CDataset& data,
-    const double *adF,
-    double *adZ
+	const CDataset& kData,
+    const double* kFuncEstimate,
+    double* residuals
 )
 {
     unsigned long i = 0;
-    double dF = 0.0;
+    double delta_func_est = 0.0;
 
     // compute working response
-    for(i=0; i < data.get_trainsize(); i++)
+    for(i=0; i < kData.get_trainsize(); i++)
     {
-        dF = adF[i] +  data.offset_ptr()[i];
-        adZ[i] = data.y_ptr()[i] - std::exp(dF);
+        delta_func_est = kFuncEstimate[i] +  kData.offset_ptr()[i];
+        residuals[i] = kData.y_ptr()[i] - std::exp(delta_func_est);
     }
 }
 
@@ -55,124 +55,124 @@ void CPoisson::ComputeWorkingResponse
 
 double CPoisson::InitF
 (
-	const CDataset& data
+	const CDataset& kData
 )
 {
-    double dSum = 0.0;
-    double dDenom = 0.0;
+    double sum = 0.0;
+    double denom = 0.0;
     unsigned long i = 0;
 
 
-	for(i=0; i<data.get_trainsize(); i++)
+	for(i=0; i<kData.get_trainsize(); i++)
 	{
-		dSum += data.weight_ptr()[i]*data.y_ptr()[i];
-		dDenom += data.weight_ptr()[i]*std::exp(data.offset_ptr()[i]);
+		sum += kData.weight_ptr()[i]*kData.y_ptr()[i];
+		denom += kData.weight_ptr()[i]*std::exp(kData.offset_ptr()[i]);
 	}
 
-    return std::log(dSum/dDenom);
+    return std::log(sum/denom);
 }
 
 
 double CPoisson::Deviance
 (
-	const CDataset& data,
-    const double *adF,
-    bool isValidationSet
+	const CDataset& kData,
+    const double* kFuncEstimate,
+    bool is_validationset
 )
 {
     unsigned long i=0;
-    double dL = 0.0;
-    double dW = 0.0;
+    double loss = 0.0;
+    double weight = 0.0;
 
     // Switch to validation set if necessary
-    unsigned long cLength = data.get_trainsize();
-    if(isValidationSet)
+    unsigned long num_rows_in_set = kData.get_trainsize();
+    if(is_validationset)
     {
- 	   data.shift_to_validation();
- 	   cLength = data.get_validsize();
+ 	   kData.shift_to_validation();
+ 	   num_rows_in_set = kData.get_validsize();
     }
 
 
-	for(i=0; i<cLength; i++)
+	for(i=0; i<num_rows_in_set; i++)
 	{
-		dL += data.weight_ptr()[i]*(data.y_ptr()[i]*(data.offset_ptr()[i]+adF[i]) -
-						   std::exp(data.offset_ptr()[i]+adF[i]));
-		dW += data.weight_ptr()[i];
+		loss += kData.weight_ptr()[i]*(kData.y_ptr()[i]*(kData.offset_ptr()[i]+kFuncEstimate[i]) -
+						   std::exp(kData.offset_ptr()[i]+kFuncEstimate[i]));
+		weight += kData.weight_ptr()[i];
    }
 
 
     // Switch back to training set if necessary
-    if(isValidationSet)
+    if(is_validationset)
     {
- 	   data.shift_to_train();
+ 	   kData.shift_to_train();
     }
 
     //TODO: Check if weights are all zero for validation set
-   if((dW == 0.0) && (dL == 0.0))
+   if((weight == 0.0) && (loss == 0.0))
    {
 	   return nan("");
    }
-   else if(dW == 0.0)
+   else if(weight == 0.0)
    {
-	   return copysign(HUGE_VAL, -dL);
+	   return copysign(HUGE_VAL, -loss);
    }
-    return -2*dL/dW;
+    return -2*loss/weight;
 }
 
 
 void CPoisson::FitBestConstant
 (
-	const CDataset& data,
-    const double *adF,
-    unsigned long cTermNodes,
-    double* adZ,
-    CTreeComps& treeComps
+	const CDataset& kData,
+    const double* kFuncEstimate,
+    unsigned long num_terminalnodes,
+    double* residuals,
+    CTreeComps& treecomps
 )
 {
-    unsigned long iObs = 0;
-    unsigned long iNode = 0;
-    vector<double> vecdNum(cTermNodes, 0.0);
-    vector<double> vecdDen(cTermNodes, 0.0);
-    vector<double> vecdMax(cTermNodes, -HUGE_VAL);
-    vector<double> vecdMin(cTermNodes, HUGE_VAL);
+    unsigned long obs_num = 0;
+    unsigned long node_num = 0;
+    vector<double> numerator_vec(num_terminalnodes, 0.0);
+    vector<double> denominator_vec(num_terminalnodes, 0.0);
+    vector<double> max_vec(num_terminalnodes, -HUGE_VAL);
+    vector<double> min_vec(num_terminalnodes, HUGE_VAL);
 
-	for(iObs=0; iObs<data.get_trainsize(); iObs++)
+	for(obs_num=0; obs_num<kData.get_trainsize(); obs_num++)
 	{
-		if(data.get_bag_element(iObs))
+		if(kData.get_bag_element(obs_num))
 		{
-			vecdNum[treeComps.get_node_assignments()[iObs]] += data.weight_ptr()[iObs]*data.y_ptr()[iObs];
-			vecdDen[treeComps.get_node_assignments()[iObs]] +=
-				data.weight_ptr()[iObs]*std::exp(data.offset_ptr()[iObs]+adF[iObs]);
+			numerator_vec[treecomps.get_node_assignments()[obs_num]] += kData.weight_ptr()[obs_num]*kData.y_ptr()[obs_num];
+			denominator_vec[treecomps.get_node_assignments()[obs_num]] +=
+				kData.weight_ptr()[obs_num]*std::exp(kData.offset_ptr()[obs_num]+kFuncEstimate[obs_num]);
 		}
 	}
 
-    for(iNode=0; iNode<cTermNodes; iNode++)
+    for(node_num=0; node_num<num_terminalnodes; node_num++)
     {
-        if(treeComps.get_terminal_nodes()[iNode]!=NULL)
+        if(treecomps.get_terminal_nodes()[node_num]!=NULL)
         {
-            if(vecdNum[iNode] == 0.0)
+            if(numerator_vec[node_num] == 0.0)
             {
                 // DEBUG: if vecdNum==0 then prediction = -Inf
                 // Not sure what else to do except plug in an arbitrary
                 //   negative number, -1? -10? Let's use -1, then make
                 //   sure |adF| < 19 always.
-            	treeComps.get_terminal_nodes()[iNode]->prediction = -19.0;
+            	treecomps.get_terminal_nodes()[node_num]->prediction = -19.0;
             }
-            else if(vecdDen[iNode] == 0.0)
+            else if(denominator_vec[node_num] == 0.0)
             {
-            	treeComps.get_terminal_nodes()[iNode]->prediction = 0.0;
+            	treecomps.get_terminal_nodes()[node_num]->prediction = 0.0;
             }
             else
             {
-            	treeComps.get_terminal_nodes()[iNode]->prediction =
-                    std::log(vecdNum[iNode]/vecdDen[iNode]);
+            	treecomps.get_terminal_nodes()[node_num]->prediction =
+                    std::log(numerator_vec[node_num]/denominator_vec[node_num]);
             }
-            treeComps.get_terminal_nodes()[iNode]->prediction =
-               R::fmin2(treeComps.get_terminal_nodes()[iNode]->prediction,
-                     19-vecdMax[iNode]);
-            treeComps.get_terminal_nodes()[iNode]->prediction =
-               R::fmax2(treeComps.get_terminal_nodes()[iNode]->prediction,
-                     -19-vecdMin[iNode]);
+            treecomps.get_terminal_nodes()[node_num]->prediction =
+               R::fmin2(treecomps.get_terminal_nodes()[node_num]->prediction,
+                     19-max_vec[node_num]);
+            treecomps.get_terminal_nodes()[node_num]->prediction =
+               R::fmax2(treecomps.get_terminal_nodes()[node_num]->prediction,
+                     -19-min_vec[node_num]);
         }
     }
 }
@@ -180,32 +180,32 @@ void CPoisson::FitBestConstant
 
 double CPoisson::BagImprovement
 (
-	const CDataset& data,
-    const double *adF,
-    const double shrinkage,
-    const double* adFadj
+	const CDataset& kData,
+    const double* kFuncEstimate,
+    const double kShrinkage,
+    const double* kDeltaEstimate
 )
 {
-    double dReturnValue = 0.0;
-    double dF = 0.0;
-    double dW = 0.0;
+    double returnvalue = 0.0;
+    double delta_func_est = 0.0;
+    double weight = 0.0;
     unsigned long i = 0;
 
-    for(i=0; i<data.get_trainsize(); i++)
+    for(i=0; i<kData.get_trainsize(); i++)
     {
-        if(!data.get_bag_element(i))
+        if(!kData.get_bag_element(i))
         {
-            dF = adF[i] + data.offset_ptr()[i];
+            delta_func_est = kFuncEstimate[i] + kData.offset_ptr()[i];
 
-            dReturnValue += data.weight_ptr()[i]*
-                            (data.y_ptr()[i]*shrinkage*adFadj[i] -
-                             std::exp(dF+shrinkage*adFadj[i]) +
-                             std::exp(dF));
-            dW += data.weight_ptr()[i];
+            returnvalue += kData.weight_ptr()[i]*
+                            (kData.y_ptr()[i]*kShrinkage*kDeltaEstimate[i] -
+                             std::exp(delta_func_est+kShrinkage*kDeltaEstimate[i]) +
+                             std::exp(delta_func_est));
+            weight += kData.weight_ptr()[i];
         }
     }
 
-    return dReturnValue/dW;
+    return returnvalue/weight;
 }
 
 

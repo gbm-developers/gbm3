@@ -38,67 +38,67 @@ public:
 	//---------------------
 	// Public Functions
 	//---------------------
-	void Adjust(unsigned long cMinObsInNode){return;};
-	void Predict(const CDataset &data,
-		    unsigned long iRow,
-		    double &dFadj)
+	void Adjust(unsigned long min_num_node_obs){return;};
+	void Predict(const CDataset &kData,
+		    unsigned long rownum,
+		    double &delta_estimate)
 	{
-		dFadj = nodecontext_->prediction;
+		delta_estimate = nodecontext_->prediction;
 	}
-	void GetVarRelativeInfluence(double* adRelInf){return;}
-	void PrintSubTree(unsigned long Indent)
+	void GetVarRelativeInfluence(double* relative_influence){return;}
+	void PrintSubTree(unsigned long indent)
 	{
-		  for(unsigned long i=0; i< Indent; i++) Rprintf("  ");
+		  for(unsigned long i=0; i< indent; i++) Rprintf("  ");
 		  Rprintf("N=%f, Prediction=%f *\n",
 			  nodecontext_->totalweight,
 			  nodecontext_->prediction);
 	}
-	signed char WhichNode(const CDataset& data, unsigned long iObs)
+	signed char WhichNode(const CDataset& kData, unsigned long obs_num)
 	{
-		signed char ReturnValue = 0;
-		double dX = data.x_value(iObs, nodecontext_->split_var);
-		 if(!ISNA(dX))
+		signed char returnvalue = 0;
+		double xval = kData.x_value(obs_num, nodecontext_->split_var);
+		 if(!ISNA(xval))
 			{
-				if(dX < nodecontext_->splitvalue)
+				if(xval < nodecontext_->splitvalue)
 				{
-					ReturnValue = -1;
+					returnvalue = -1;
 				}
 				else
 				{
-					ReturnValue = 1;
+					returnvalue = 1;
 				}
 			}
 			// if missing value returns 0
 
-			return ReturnValue;
+			return returnvalue;
 	}
 	void TransferTreeToRList
 	(
-		int &iNodeID,
-		const CDataset &data,
-		int *aiSplitVar,
-		double *adSplitPoint,
-		int *aiLeftNode,
-		int *aiRightNode,
-		int *aiMissingNode,
-		double *adErrorReduction,
-		double *adWeight,
-		double *adPred,
-		VEC_VEC_CATEGORIES &vecSplitCodes,
-		int cCatSplitsOld,
-		double dShrinkage
+		int &nodeid,
+		const CDataset &kData,
+		int* splitvar,
+		double* splitpoint,
+		int* leftnodes,
+		int* rightnodes,
+		int* missingnodes,
+		double* error_reduction,
+		double* weights,
+		double* predictions,
+		VEC_VEC_CATEGORIES &splitcodes_vec,
+		int prev_categorical_splits,
+		double shrinkage
 	)
 	{
-		aiSplitVar[iNodeID] = -1;
-		adSplitPoint[iNodeID] = dShrinkage*nodecontext_->prediction;
-		aiLeftNode[iNodeID] = -1;
-		aiRightNode[iNodeID] = -1;
-		aiMissingNode[iNodeID] = -1;
-		adErrorReduction[iNodeID] = 0.0;
-		adWeight[iNodeID] = nodecontext_->totalweight;
-		adPred[iNodeID] = dShrinkage*nodecontext_->prediction;
+		splitvar[nodeid] = -1;
+		splitpoint[nodeid] = shrinkage*nodecontext_->prediction;
+		leftnodes[nodeid] = -1;
+		rightnodes[nodeid] = -1;
+		missingnodes[nodeid] = -1;
+		error_reduction[nodeid] = 0.0;
+		weights[nodeid] = nodecontext_->totalweight;
+		predictions[nodeid] = shrinkage*nodecontext_->prediction;
 
-		iNodeID++;
+		nodeid++;
 	}
 
 private:

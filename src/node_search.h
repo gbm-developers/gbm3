@@ -37,7 +37,7 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-    CNodeSearch(int treeDepth, int numColData, unsigned long minObs);
+    CNodeSearch(int treedepth, int numcoldata, unsigned long minobs);
 
 	//---------------------
 	// Public destructor
@@ -47,10 +47,10 @@ public:
 	//---------------------
 	// Public Functions
 	//---------------------
-    void GenerateAllSplits(vector<CNode*>& vecpTermNodes, const CDataset& data,
-    						double* residuals, vector<unsigned long>& aiNodeAssign);
-    double CalcImprovementAndSplit(vector<CNode*>& vecpTermNodes, const CDataset& data,
-    		vector<unsigned long>& aiNodeAssign);
+    void GenerateAllSplits(vector<CNode*>& term_nodes_ptrs, const CDataset& kData,
+    						double* residuals, vector<unsigned long>& data_node_assigns);
+    double CalcImprovementAndSplit(vector<CNode*>& term_nodes_ptrs, const CDataset& kData,
+    		vector<unsigned long>& data_node_assigns);
 
     inline void reset(){ num_terminal_nodes_ = 1; }
     void set_search_rootnode(CNode& rootNode){ variable_splitters_[0].Set(rootNode); }
@@ -59,8 +59,8 @@ private:
 	//---------------------
 	// Private Functions
 	//---------------------
-    void ReassignData(unsigned long splittedNodeIndex, vector<CNode*>& vecpTermNodes,
-    					const CDataset& data, vector<unsigned long>& aiNodeAssign);
+    void ReassignData(unsigned long splittednode_index, vector<CNode*>& term_nodes_ptrs,
+    					const CDataset& kData, vector<unsigned long>& data_node_assigns);
 
 	//---------------------
 	// Private Variables

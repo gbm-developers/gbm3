@@ -31,12 +31,12 @@
 //    int - number of groups in data
 //
 //-----------------------------------
-CTreeComps::CTreeComps(TreeParams treeConfig) :
-  new_node_searcher_(treeConfig.depth, treeConfig.numberdatacolumns, treeConfig.min_obs_in_node),
-  tree_(treeConfig.shrinkage, treeConfig.depth)
+CTreeComps::CTreeComps(TreeParams treeconfig) :
+  new_node_searcher_(treeconfig.depth, treeconfig.numberdatacolumns, treeconfig.min_obs_in_node),
+  tree_(treeconfig.shrinkage, treeconfig.depth)
 {
-	this-> min_num_node_obs_ = treeConfig.min_obs_in_node;
-	data_node_assignment_.resize(treeConfig.num_trainrows, 0);
+	this-> min_num_node_obs_ = treeconfig.min_obs_in_node;
+	data_node_assignment_.resize(treeconfig.num_trainrows, 0);
 }
 
 //-----------------------------------
@@ -64,7 +64,7 @@ CTreeComps::~CTreeComps()
 //    int& - reference to  number of nodes in tree
 //
 //-----------------------------------
-void CTreeComps::GrowTrees(const CDataset& data, double* adZ, const double* adFadj)
+void CTreeComps::GrowTrees(const CDataset& kData, double* func_estimates, const double* kDeltaEstimates)
 {
 	#ifdef NOISY_DEBUG
 	  Rprintf("Reset tree\n");
@@ -78,9 +78,9 @@ void CTreeComps::GrowTrees(const CDataset& data, double* adZ, const double* adFa
 	  Rprintf("grow tree\n");
 	#endif
 
-	tree_.grow(&(adZ[0]),
-				data,
-			&(adFadj[0]),
+	tree_.grow(&(func_estimates[0]),
+				kData,
+			&(kDeltaEstimates[0]),
 			min_num_node_obs_,
 			data_node_assignment_,
 			 new_node_searcher_);
@@ -104,10 +104,10 @@ void CTreeComps::GrowTrees(const CDataset& data, double* adZ, const double* adFa
 // Parameters: none
 //
 //-----------------------------------
-void CTreeComps::AdjustAndShrink(double * adFadj)
+void CTreeComps::AdjustAndShrink(double* delta_estimates)
 {
 	tree_.Adjust(data_node_assignment_,
-				  &(adFadj[0]),
+				  &(delta_estimates[0]),
 				  min_num_node_obs_);
 
 	#ifdef NOISY_DEBUG
@@ -125,33 +125,33 @@ void CTreeComps::AdjustAndShrink(double * adFadj)
 // Parameters:
 //
 //-----------------------------------
-void CTreeComps::TransferTreeToRList(const CDataset &data,
-	     int *aiSplitVar,
-	     double *adSplitPoint,
-	     int *aiLeftNode,
-	     int *aiRightNode,
-	     int *aiMissingNode,
-	     double *adErrorReduction,
-	     double *adWeight,
-	     double *adPred,
-	     VEC_VEC_CATEGORIES &vecSplitCodes,
-	     int cCatSplitsOld)
+void CTreeComps::TransferTreeToRList(const CDataset &kData,
+	     int* splitvar,
+	     double* splitvalues,
+	     int* leftnodes,
+	     int* rightnodes,
+	     int* missingnodes,
+	     double* error_reduction,
+	     double* weights,
+	     double* predictions,
+	     VEC_VEC_CATEGORIES &splitcodes_vec,
+	     int prev_categorical_splits)
 {
 	int nodeid = 0;
 	if(tree_.GetRootNode())
 	{
 		tree_.GetRootNode()->TransferTreeToRList(nodeid,
-											   data,
-											   aiSplitVar,
-											   adSplitPoint,
-											   aiLeftNode,
-											   aiRightNode,
-											   aiMissingNode,
-											   adErrorReduction,
-											   adWeight,
-											   adPred,
-											   vecSplitCodes,
-											   cCatSplitsOld,
+											   kData,
+											   splitvar,
+											   splitvalues,
+											   leftnodes,
+											   rightnodes,
+											   missingnodes,
+											   error_reduction,
+											   weights,
+											   predictions,
+											   splitcodes_vec,
+											   prev_categorical_splits,
 											   tree_.GetShrinkageConst());
 	}
 	else
@@ -169,9 +169,9 @@ void CTreeComps::TransferTreeToRList(const CDataset &data,
 //
 // Parameters: const CDataset ptr - ptr to gbm data
 //
-void CTreeComps::PredictValid(const CDataset& data, double* adFadj)
+void CTreeComps::PredictValid(const CDataset& data, double* delta_estimates)
 {
-	tree_.PredictValid(data, data.get_validsize(), &(adFadj[0]));
+	tree_.PredictValid(data, data.get_validsize(), &(delta_estimates[0]));
 }
 
 

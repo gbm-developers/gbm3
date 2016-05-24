@@ -34,12 +34,12 @@ namespace {
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CCoxPH::CCoxPH(double* stats, int* sortedEnd, int* sortedSt, int* strats,
-		bool isStartStop, int tiedMethod, double priorCoeff):
-kStartStopCase_(isStartStop), sortedendtimes_(sortedEnd), sortedstarttimes_(sortedSt), strata(strats), kPriorCoeffVariation_(priorCoeff)
+CCoxPH::CCoxPH(double* stats, int* sorted_end, int* sorted_start, int* strats,
+		bool is_startstop, int tiesmethod, double priorcoeff):
+kStartStopCase_(is_startstop), sortedendtimes_(sorted_end), sortedstarttimes_(sorted_start), strata(strats), kPriorCoeffVariation_(priorcoeff)
 {
 	status_ = stats;
-	tiedtimesmethod_ = tiedMethod;
+	tiedtimesmethod_ = tiesmethod;
 
 	// Set up which methods CoxPh will use
 	if(kStartStopCase_)
@@ -57,41 +57,41 @@ kStartStopCase_(isStartStop), sortedendtimes_(sortedEnd), sortedstarttimes_(sort
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CCoxPH::Create(DataDistParams& distParams)
+CDistribution* CCoxPH::Create(DataDistParams& distparams)
 {
 
 	// Initialize variables to pass to constructor
 	double* stat = 0;
-	int* sortedSt = NULL;
-	int* sortedEnd = NULL;
-	bool isStartStop = false;
-	int tiesMethod = GetTiesMethod(Rcpp::as<string>(distParams.misc[0]));
+	int* sortedst = NULL;
+	int* sortedend = NULL;
+	bool isstartstop = false;
+	int tiesmethod = GetTiesMethod(Rcpp::as<string>(distparams.misc[0]));
 
 	// Switch on misc to set up ties method
-	std::string miscString = Rcpp::as<std::string>(distParams.misc[0]);
+	std::string miscstring = Rcpp::as<std::string>(distparams.misc[0]);
 
 	// Set up strata
-	Rcpp::IntegerVector strats(distParams.strata);
+	Rcpp::IntegerVector strats(distparams.strata);
 
 	// Check if start/stop case or not
-	Rcpp::IntegerMatrix sortMatrix(distParams.sorted);
-	if(distParams.response.ncol() > 2)
+	Rcpp::IntegerMatrix sortMatrix(distparams.sorted);
+	if(distparams.response.ncol() > 2)
 	{
-		isStartStop=true;
-		stat = distParams.response(Rcpp::_, 2).begin();
-		sortedEnd = sortMatrix(Rcpp::_, 1).begin();
-		sortedSt = sortMatrix(Rcpp::_, 0).begin();
+		isstartstop=true;
+		stat = distparams.response(Rcpp::_, 2).begin();
+		sortedend = sortMatrix(Rcpp::_, 1).begin();
+		sortedst = sortMatrix(Rcpp::_, 0).begin();
 
-		return new CCoxPH(stat, sortedEnd, sortedSt, strats.begin(), isStartStop, tiesMethod, distParams.prior_coefficient_variation);
+		return new CCoxPH(stat, sortedend, sortedst, strats.begin(), isstartstop, tiesmethod, distparams.prior_coefficient_variation);
 
 	}
 
 	// If not start/stop
-	stat = distParams.response(Rcpp::_, 1).begin();
-	sortedEnd = sortMatrix(Rcpp::_, 0).begin();
+	stat = distparams.response(Rcpp::_, 1).begin();
+	sortedend = sortMatrix(Rcpp::_, 0).begin();
 
 
-	return new CCoxPH(stat, sortedEnd, sortedSt, strats.begin(), isStartStop, tiesMethod, distParams.prior_coefficient_variation);
+	return new CCoxPH(stat, sortedend, sortedst, strats.begin(), isstartstop, tiesmethod, distparams.prior_coefficient_variation);
 
 
 }
@@ -103,17 +103,17 @@ CCoxPH::~CCoxPH()
 
 void CCoxPH::ComputeWorkingResponse
 (
-	const CDataset& data,
-    const double *adF,
-    double *adZ
+	const CDataset& kData,
+    const double* kFuncEstimate,
+    double* residuals
 )
 {
-    coxstate_methods_->ComputeWorkingResponse(data, adF, adZ);
+    coxstate_methods_->ComputeWorkingResponse(kData, kFuncEstimate, residuals);
 }
 
 double CCoxPH::InitF
 (
-	const CDataset& data
+	const CDataset& kData
 )
 {
     return 0.0;
@@ -122,62 +122,62 @@ double CCoxPH::InitF
 
 double CCoxPH::Deviance
 (
-	const CDataset& data,
-    const double *adF,
-    bool isValidationSet
+	const CDataset& kData,
+    const double* kFuncEstimate,
+    bool is_validationset
 )
 {
     // Set size and move to validation set if necessary
-    long cLength = data.get_trainsize();
-	if(isValidationSet)
+    long num_rows_in_set = kData.get_trainsize();
+	if(is_validationset)
 	{
-		data.shift_to_validation();
-		status_ = shift_ptr(status_, data.get_trainsize());
-		sortedendtimes_ = shift_ptr(sortedendtimes_, data.get_trainsize());
-		sortedstarttimes_ = shift_ptr(sortedstarttimes_, data.get_trainsize());
-		strata = shift_ptr(strata, data.get_trainsize());
-		cLength = data.get_validsize();
+		kData.shift_to_validation();
+		status_ = shift_ptr(status_, kData.get_trainsize());
+		sortedendtimes_ = shift_ptr(sortedendtimes_, kData.get_trainsize());
+		sortedstarttimes_ = shift_ptr(sortedstarttimes_, kData.get_trainsize());
+		strata = shift_ptr(strata, kData.get_trainsize());
+		num_rows_in_set = kData.get_validsize();
 	}
 
-	double returnValue = 0.0;
-	returnValue = coxstate_methods_->Deviance(cLength, data, adF);
+	double returnvalue = 0.0;
+	returnvalue = coxstate_methods_->Deviance(num_rows_in_set, kData, kFuncEstimate);
 
 	// Shift back for future calculations if required
-	if(isValidationSet)
+	if(is_validationset)
 	{
-		data.shift_to_train();
-		status_ = shift_ptr(status_, -(data.get_trainsize()));
-		sortedendtimes_ = shift_ptr(sortedendtimes_, -(data.get_trainsize()));
-		sortedstarttimes_ = shift_ptr(sortedstarttimes_, -(data.get_trainsize()));
-		strata = shift_ptr(strata, -(data.get_trainsize()));
+		kData.shift_to_train();
+		status_ = shift_ptr(status_, -(kData.get_trainsize()));
+		sortedendtimes_ = shift_ptr(sortedendtimes_, -(kData.get_trainsize()));
+		sortedstarttimes_ = shift_ptr(sortedstarttimes_, -(kData.get_trainsize()));
+		strata = shift_ptr(strata, -(kData.get_trainsize()));
 	}
 
 
-	return returnValue;
+	return returnvalue;
 
 }
 
 void CCoxPH::FitBestConstant
 (
-	const CDataset& data,
-    const double *adF,
-    unsigned long cTermNodes,
-    double* adZ,
-    CTreeComps& treeComps
+	const CDataset& kData,
+    const double* kFuncEstimate,
+    unsigned long num_terminalnodes,
+    double* residuals,
+    CTreeComps& treecomps
 )
 {
-   coxstate_methods_->FitBestConstant(data, adF, cTermNodes, adZ, treeComps);
+   coxstate_methods_->FitBestConstant(kData, kFuncEstimate, num_terminalnodes, residuals, treecomps);
 }
 
 double CCoxPH::BagImprovement
 (
-	const CDataset& data,
-    const double *adF,
-    const double shrinkage,
-  const double* adFadj
+	const CDataset& kData,
+    const double* kFuncEstimate,
+    const double kShrinkage,
+  const double* kDeltaEstimate
 )
 {
-    return coxstate_methods_->BagImprovement(data, adF, shrinkage, adFadj);
+    return coxstate_methods_->BagImprovement(kData, kFuncEstimate, kShrinkage, kDeltaEstimate);
 }
 
 //-----------------------------------

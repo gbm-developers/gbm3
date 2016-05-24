@@ -19,20 +19,20 @@ NodeParams::~NodeParams()
 
 }
 
-void NodeParams::ResetSplitProperties(double weightedResiduals,
-				      double trainingWeight,
-				      unsigned long numObs,
-				      double splitValue,
-				      unsigned long variableClasses,
-				      unsigned long splitVar)
+void NodeParams::ResetSplitProperties(double weightedresiduals,
+				      double trainingweight,
+				      unsigned long numobs,
+				      double splitvalue,
+				      unsigned long variableclasses,
+				      unsigned long splitvar)
 {
-  right_ = NodeDef(weightedResiduals, trainingWeight, numObs);
+  right_ = NodeDef(weightedresiduals, trainingweight, numobs);
 
   left_.clear();
   missing_.clear();
   
-  split_var_ = splitVar;
-  split_value_ = splitValue;
+  split_var_ = splitvar;
+  split_value_ = splitvalue;
   improvement_ = 0.0;
-  split_class_ = variableClasses;
+  split_class_ = variableclasses;
 }

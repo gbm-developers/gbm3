@@ -13,32 +13,32 @@
 #ifdef NOISY_DEBUG
 #endif
 
-void CRanker::Init(unsigned int cMaxItemsPerGroup)
+void CRanker::Init(unsigned int max_items_per_group)
 {
     // Allocate sorting buffers
-    score_rank_vec_.resize(cMaxItemsPerGroup);
-    ptrs_to_score_rank_vec_.resize(cMaxItemsPerGroup);
+    score_rank_vec_.resize(max_items_per_group);
+    ptrs_to_score_rank_vec_.resize(max_items_per_group);
 }
 
-bool CRanker::SetGroupScores(const double* const adScores, const unsigned int cNumItems)
+bool CRanker::SetGroupScores(const double* const kScores, const unsigned int kNumItems)
 {
-    const double dEPS = 1e-10;
+    const double eps = 1e-10;
 
-    if (cNumItems > score_rank_vec_.size())
+    if (kNumItems > score_rank_vec_.size())
     {
         // Allocate additional space
         // (We should never get here if CPairwise::Initialize has been called before, as expected)
-        Init(cNumItems);
+        Init(kNumItems);
     }
-    this->num_items_ = cNumItems;
+    this->num_items_ = kNumItems;
 
     // Copy scores to buffer, and
     // initialize pointer array to score entries
 
-    for(unsigned int i = 0; i < cNumItems; i++)
+    for(unsigned int i = 0; i < kNumItems; i++)
     {
         // Add small random number to break possible ties
-        score_rank_vec_[i].first = adScores[i] + dEPS * (unif_rand() - 0.5);
+        score_rank_vec_[i].first = kScores[i] + eps * (unif_rand() - 0.5);
 
         ptrs_to_score_rank_vec_[i] = &(score_rank_vec_[i]);
     }
@@ -50,9 +50,9 @@ bool CRanker::SetGroupScores(const double* const adScores, const unsigned int cN
 // decreasing order based on the first component (score)
 struct CDoubleUintPairPtrComparison
 {
-    bool operator() (const CRanker::CDoubleUintPair* lhs, const CRanker::CDoubleUintPair* rhs)
+    bool operator() (const CRanker::CDoubleUintPair* kLhs, const CRanker::CDoubleUintPair* kRhs)
     {
-        return (lhs->first > rhs->first);
+        return (kLhs->first > kRhs->first);
     }
 };
 
@@ -64,231 +64,231 @@ bool CRanker::Rank()
 
     sort(ptrs_to_score_rank_vec_.begin(), ptrs_to_score_rank_vec_.begin() + num_items_, comp);
 
-    bool bChanged = false;
+    bool is_changed = false;
 
     // Create inverted rank lookup
 
     for(unsigned int i = 0; i < num_items_; i++)
     {
         // Note: ranks are 1-based
-        const unsigned int cNewRank = i + 1;
-        if (!bChanged)
+        const unsigned int kNewRank = i + 1;
+        if (!is_changed)
         {
-            bChanged = (cNewRank != ptrs_to_score_rank_vec_[i]->second);
+            is_changed = (kNewRank != ptrs_to_score_rank_vec_[i]->second);
         }
         // Store the rank with the corresponding score in the vecdipScoreRank array
-        ptrs_to_score_rank_vec_[i]->second = cNewRank;
+        ptrs_to_score_rank_vec_[i]->second = kNewRank;
     }
 
-    return bChanged;
+    return is_changed;
 }
 
 
 
 void CConc::Init
 (
-    unsigned long cMaxGroup,
-    unsigned long cMaxItemsPerGroup,
-    unsigned int cRankCutoff
+    unsigned long max_group,
+    unsigned long max_items_per_group,
+    unsigned int rank_cutoff
 )
 {
-    CIRMeasure::Init(cMaxGroup, cMaxItemsPerGroup, cRankCutoff);
-    paircount_vec_.resize(cMaxGroup + 1, -1);
+    CIRMeasure::Init(max_group, max_items_per_group, rank_cutoff);
+    paircount_vec_.resize(max_group + 1, -1);
 }
 
-unsigned int CConc::PairCount(unsigned int iGroup, const double* const adY, unsigned int cNumItems)
+unsigned int CConc::PairCount(unsigned int group, const double* const kResponse, unsigned int num_items)
 {
-    if (iGroup >= paircount_vec_.size())
+    if (group >= paircount_vec_.size())
     {
         // Allocate additional space
         // (We should never get here if CPairwise::Initialize has been called before, as expected)
-        paircount_vec_.resize(iGroup + 1, -1);
+        paircount_vec_.resize(group + 1, -1);
     }
 
-    if (paircount_vec_[iGroup] < 0.0)
+    if (paircount_vec_[group] < 0.0)
     {
         // Not yet initialized
-        paircount_vec_[iGroup] = ComputePairCount(adY, cNumItems);
+        paircount_vec_[group] = ComputePairCount(kResponse, num_items);
     }
-    return paircount_vec_[iGroup];
+    return paircount_vec_[group];
 }
 
 // Calculate the number of pairs with different labels, and store in veccPairCount
 // Assumption: instances are sorted such that labels are non-increasing
-int CConc::ComputePairCount(const double* const adY, unsigned int cNumItems)
+int CConc::ComputePairCount(const double* const kResponse, unsigned int num_items)
 {
-    if (!any_pairs(adY, cNumItems))
+    if (!any_pairs(kResponse, num_items))
     {
         return 0;
     }
 
-    double dLabelCurrent = adY[0];
-    int iLabelEnd        = 0; // End of range with higher labels
-    int cPairs           = 0;
+    double label_current = kResponse[0];
+    int labelend        = 0; // End of range with higher labels
+    int pairs           = 0;
 
-    for (unsigned int j = 1; j < cNumItems; j++)
+    for (unsigned int j = 1; j < num_items; j++)
     {
-        if (adY[j] != dLabelCurrent)
+        if (kResponse[j] != label_current)
         {
             // i.e., dYj < dLabelCurrent
-            iLabelEnd     = j;
-            dLabelCurrent = adY[j];
+            labelend     = j;
+            label_current = kResponse[j];
         }
         // All items in 0 .. iLabelEnd - 1 are better than item j;
         // i.e, we have pairs (j,0), (j,1), ... (j, iLabelEnd - 1)
-        cPairs += iLabelEnd;
+        pairs += labelend;
     }
 
-    return cPairs;
+    return pairs;
 }
 
 // Count the number of correctly ranked pairs with different labels
-double CConc::Measure(const double* const adY, const CRanker& ranker)
+double CConc::Measure(const double* const kResponse, const CRanker& kRanker)
 {
-    double dLabelCurrent  = adY[0];
-    int iLabelEnd         = 0; // End of the range with higher labels
-    int cGoodPairs        = 0;
+    double label_current  = kResponse[0];
+    int label_end         = 0; // End of the range with higher labels
+    int goodpairs        = 0;
 
-    for (unsigned int j = 1; j < ranker.GetNumItems(); j++)
+    for (unsigned int j = 1; j < kRanker.GetNumItems(); j++)
     {
-        const double dYj  = adY[j];
+        const double kYj  = kResponse[j];
 
-        if (dYj != dLabelCurrent)
+        if (kYj != label_current)
         {
             // i.e., dYj < dLabelCurrent
-            iLabelEnd     = j;
-            dLabelCurrent = dYj;
+            label_end     = j;
+            label_current = kYj;
         }
 
         // All items in 0 .. iLabelEnd - 1 are better than this item
 
-        for (int i = 0; i < iLabelEnd; i++)
+        for (int i = 0; i < label_end; i++)
         {
-            if (ranker.GetRank(i) < ranker.GetRank(j))
+            if (kRanker.GetRank(i) < kRanker.GetRank(j))
             {
-                cGoodPairs++;
+                goodpairs++;
             }
         }
     }
 
-    return cGoodPairs;
+    return goodpairs;
 }
 
-double CConc::SwapCost(int iItemBetter, int iItemWorse, const double* const adY, const CRanker& ranker) const
+double CConc::SwapCost(int item_better, int item_worse, const double* const kResponse, const CRanker& kRanker) const
 {
     // Note: this implementation can handle arbitrary non-negative target values.
     // For binary (0/1) targets, the swap cost would reduce to the much simpler expression:
     // (int)ranker.GetRank(iItemBetter) - (int)ranker.GetRank(iItemWorse)
 
-    const unsigned int cRankBetter = ranker.GetRank(iItemBetter);
-    const unsigned int cRankWorse  = ranker.GetRank(iItemWorse);
+    const unsigned int kRankBetter = kRanker.GetRank(item_better);
+    const unsigned int kRankWorse  = kRanker.GetRank(item_worse);
 
     // Which one of the two has the higher rank?
 
-    unsigned int cRankUpper, cRankLower;
-    double dYUpper, dYLower;
-    int cDiff;
+    unsigned int rank_upper, rank_lower;
+    double resp_upper, resp_lower;
+    int diff;
 
-    if (cRankBetter > cRankWorse)
+    if (kRankBetter > kRankWorse)
     {
         // Concordance increasing
-        cRankUpper = cRankWorse;
-        cRankLower = cRankBetter;
-        dYUpper    = adY[iItemWorse];
-        dYLower    = adY[iItemBetter];
+        rank_upper = kRankWorse;
+        rank_lower = kRankBetter;
+        resp_upper    = kResponse[item_worse];
+        resp_lower    = kResponse[item_better];
 
-        cDiff = 1; // The direct impact of the pair (iItemBetter, iItemWorse)
+        diff = 1; // The direct impact of the pair (iItemBetter, iItemWorse)
     }
     else
     {
         // Concordance decreasing
-        cRankUpper = cRankBetter;
-        cRankLower = cRankWorse;
-        dYUpper    = adY[iItemBetter];
-        dYLower    = adY[iItemWorse];
+        rank_upper = kRankBetter;
+        rank_lower = kRankWorse;
+        resp_upper    = kResponse[item_better];
+        resp_lower    = kResponse[item_worse];
 
-        cDiff = -1; // // The direct impact of the pair (iItemBetter, iItemWorse)
+        diff = -1; // // The direct impact of the pair (iItemBetter, iItemWorse)
     }
 
     // Compute indirect impact for pairs involving items in between the two
 
-    for (unsigned int cRank = cRankUpper + 1; cRank < cRankLower; cRank++)
+    for (unsigned int rank = rank_upper + 1; rank < rank_lower; rank++)
     {
-        const double dYi = adY[ranker.GetItem(cRank)];
+        const double kYi = kResponse[kRanker.GetItem(rank)];
 
-        double dScoreDiff = dYi - dYLower;
-        if (dScoreDiff != 0)
+        double score_diff = kYi - resp_lower;
+        if (score_diff != 0)
         {
-            cDiff += (dScoreDiff < 0) ? 1 : -1;
+            diff += (score_diff < 0) ? 1 : -1;
         }
 
-        dScoreDiff = dYi - dYUpper;
-        if (dScoreDiff != 0)
+        score_diff = kYi - resp_upper;
+        if (score_diff != 0)
         {
-            cDiff += (dScoreDiff < 0) ? -1 : 1;
+            diff += (score_diff < 0) ? -1 : 1;
         }
     }
 
-    return cDiff;
+    return diff;
 }
 
 
 void CNDCG::Init
 (
-    unsigned long cMaxGroup,
-    unsigned long cMaxItemsPerGroup,
-    unsigned int cRankCutoff
+    unsigned long max_group,
+    unsigned long max_items_per_group,
+    unsigned int rank_cutoff
 )
 {
-    CIRMeasure::Init(cMaxGroup, cMaxItemsPerGroup, cRankCutoff);
+    CIRMeasure::Init(max_group, max_items_per_group, rank_cutoff);
 
     // Initialize rank weights (note: ranks are 1-based)
 
-    rankweight_vec_.resize(cMaxItemsPerGroup + 1, 0.0);
+    rankweight_vec_.resize(max_items_per_group + 1, 0.0);
 
-    const unsigned int cMaxRank = std::min((unsigned int)cMaxItemsPerGroup, get_cutoff_rank());
+    const unsigned int kMaxRank = std::min((unsigned int)max_items_per_group, get_cutoff_rank());
 
     // Precompute rank weights
-    for (unsigned int i = 1; i <= cMaxRank; i++)
+    for (unsigned int i = 1; i <= kMaxRank; i++)
     {
         rankweight_vec_[i] = std::log((double)2) / log((double)(i+1));
     }
 
     // Allocate buffer
-    maxdcg_vec_.resize(cMaxGroup + 1, -1.0);
+    maxdcg_vec_.resize(max_group + 1, -1.0);
 }
 
 
 // Sum of target values, weighted by rank weight
-double CNDCG::Measure(const double* const adY, const CRanker& ranker)
+double CNDCG::Measure(const double* const kResponse, const CRanker& kRanker)
 {
-    double dScore = 0;
+    double score = 0;
 
-    for (unsigned int i = 0; i < ranker.GetNumItems(); i++)
+    for (unsigned int i = 0; i < kRanker.GetNumItems(); i++)
     {
-        dScore += adY[i] * rankweight_vec_[ranker.GetRank(i)];
+        score += kResponse[i] * rankweight_vec_[kRanker.GetRank(i)];
     }
-    return dScore;
+    return score;
 }
 
-double CNDCG::MaxMeasure(unsigned int iGroup, const double* const adY, unsigned int cNumItems)
+double CNDCG::MaxMeasure(unsigned int group, const double* const kResponse, unsigned int num_items)
 {
-    if (iGroup >= maxdcg_vec_.size())
+    if (group >= maxdcg_vec_.size())
     {
         // Allocate additional space
         // (We should never get here if CPairwise::Initialize has been called before, as expected)
     	// JHickey: Then should we call initialize in the constructor?
-        maxdcg_vec_.resize(iGroup + 1, -1.0);
+        maxdcg_vec_.resize(group + 1, -1.0);
     }
 
-    if (maxdcg_vec_[iGroup] < 0.0)
+    if (maxdcg_vec_[group] < 0.0)
     {
         // Not initialized
 
-        if (!any_pairs(adY, cNumItems))
+        if (!any_pairs(kResponse, num_items))
         {
             // No training pairs exist
-            maxdcg_vec_[iGroup] = 0.0;
+            maxdcg_vec_[group] = 0.0;
         }
         else
         {
@@ -298,141 +298,141 @@ double CNDCG::MaxMeasure(unsigned int iGroup, const double* const adY, unsigned 
             double dScore = 0;
             unsigned int i = 0;
 
-            while (i < cNumItems && adY[i] > 0)
+            while (i < num_items && kResponse[i] > 0)
             {
                 // Note: Due to sorting, we can terminate early for a zero score.
-                dScore += adY[i] * rankweight_vec_[i + 1];
+                dScore += kResponse[i] * rankweight_vec_[i + 1];
                 i++;
             }
 
-            maxdcg_vec_[iGroup] = dScore;
+            maxdcg_vec_[group] = dScore;
 
 #ifdef NOISY_DEBUG
-            if (maxdcg_vec_[iGroup] == 0)
+            if (maxdcg_vec_[group] == 0)
             {
                 Rprintf("max score is 0: iGroup = %d, maxScore = %f\n", 
-                        iGroup,  maxdcg_vec_[iGroup]);
+                        group,  maxdcg_vec_[group]);
                 throw GBM::Failure();
             }
 #endif
         }
     }
 
-    return maxdcg_vec_[iGroup];
+    return maxdcg_vec_[group];
 }
 
 
-double CNDCG::SwapCost(int iItemBetter, int iItemWorse, const double* const adY, const CRanker& ranker) const
+double CNDCG::SwapCost(int item_better, int item_worse, const double* const kResponse, const CRanker& kRanker) const
 {
-    const unsigned int cRanki = ranker.GetRank(iItemBetter);
-    const unsigned int cRankj = ranker.GetRank(iItemWorse);
-    return (rankweight_vec_[cRanki] - rankweight_vec_[cRankj]) * (adY[iItemBetter] - adY[iItemWorse]);
+    const unsigned int kRanki = kRanker.GetRank(item_better);
+    const unsigned int kRankj = kRanker.GetRank(item_worse);
+    return (rankweight_vec_[kRanki] - rankweight_vec_[kRankj]) * (kResponse[item_better] - kResponse[item_worse]);
 }
 
 
 // Auxiliary function to find the top rank of a positive item (cRankTop), and the number of positive items (cPos)
 
-inline void TopRankPos(const double* const adY, const CRanker& ranker, unsigned int& cRankTop, unsigned int& cPos)
+inline void TopRankPos(const double* const kResponse, const CRanker& kRanker, unsigned int& ranktop, unsigned int& pos)
 {
-    const unsigned int cNumItems = ranker.GetNumItems();
+    const unsigned int kNumItems = kRanker.GetNumItems();
 
-    cRankTop = cNumItems + 1; // Ranks are 1-based
+    ranktop = kNumItems + 1; // Ranks are 1-based
 
-    for (cPos = 0; cPos < cNumItems; cPos++)
+    for (pos = 0; pos < kNumItems; pos++)
     {
-        if (adY[cPos] <= 0.0)
+        if (kResponse[pos] <= 0.0)
         {
             // All subsequent items are zero, because of presorting
             return;
         }
-        cRankTop = min(cRankTop, ranker.GetRank(cPos));
+        ranktop = min(ranktop, kRanker.GetRank(pos));
     }
 }
 
-double CMRR::Measure(const double* const adY, const CRanker& ranker)
+double CMRR::Measure(const double* const kResponse, const CRanker& kRanker)
 {
-    unsigned int cRankTop, cPos;
+    unsigned int ranktop, pos;
 
-    TopRankPos(adY, ranker, cRankTop, cPos);
+    TopRankPos(kResponse, kRanker, ranktop, pos);
 
-    const unsigned int cNumItems =  min(ranker.GetNumItems(), get_cutoff_rank());
+    const unsigned int kNumItems =  min(kRanker.GetNumItems(), get_cutoff_rank());
 
-    if (cRankTop >= cNumItems + 1)
+    if (ranktop >= kNumItems + 1)
     {
         // No positive item found
         return 0.0;
     }
     // Ranks start at 1
-    return 1.0 / cRankTop;
+    return 1.0 / ranktop;
 }
 
-double CMRR::SwapCost(int iItemPos, int iItemNeg, const double* const adY, const CRanker& ranker) const
+double CMRR::SwapCost(int item_pos, int item_neg, const double* const kResponse, const CRanker& kRanker) const
 {
-    unsigned int cRankTop, cPos;
+    unsigned int ranktop, pos;
 
-    TopRankPos(adY, ranker, cRankTop, cPos);
+    TopRankPos(kResponse, kRanker, ranktop, pos);
 
-    const unsigned int cNumItems = ranker.GetNumItems();
+    const unsigned int kNumItems = kRanker.GetNumItems();
 
-    if (cRankTop >= cNumItems + 1 // No positive item (ranks are 1-based)
-        || cPos >= cNumItems)     // No negative item
+    if (ranktop >= kNumItems + 1 // No positive item (ranks are 1-based)
+        || pos >= kNumItems)     // No negative item
     {
         return 0.0;
     }
 
-    const unsigned int cRankPos    = ranker.GetRank(iItemPos);
-    const unsigned int cRankNeg    = ranker.GetRank(iItemNeg);
+    const unsigned int kRankPos    = kRanker.GetRank(item_pos);
+    const unsigned int kRankNeg    = kRanker.GetRank(item_neg);
 
-    const unsigned int cCutoffRank = get_cutoff_rank();
-    const double dMeasureCurrent   = (cRankTop > cCutoffRank) ? 0.0 : 1.0 / cRankTop;
-    const double dMeasureNeg       = (cRankNeg > cCutoffRank) ? 0.0 : 1.0 / cRankNeg;
+    const unsigned int kCutoffRank = get_cutoff_rank();
+    const double kMeasureCurrent   = (ranktop > kCutoffRank) ? 0.0 : 1.0 / ranktop;
+    const double kMeasureNeg       = (kRankNeg > kCutoffRank) ? 0.0 : 1.0 / kRankNeg;
 
     // Only pairs where the negative item is above the top positive result,
     // or else where the positive item *is* the top item, can change the MRR
 
-    return ((cRankNeg < cRankTop || cRankPos == cRankTop) ? (dMeasureNeg - dMeasureCurrent) : 0.0);
+    return ((kRankNeg < ranktop || kRankPos == ranktop) ? (kMeasureNeg - kMeasureCurrent) : 0.0);
 }
 
 void CMAP::Init
 (
-    unsigned long cMaxGroup,
-    unsigned long cMaxItemsPerGroup,
-    unsigned int cRankCutoff
+    unsigned long max_group,
+    unsigned long max_items_per_group,
+    unsigned int rank_cutoff
 )
 {
-    CIRMeasure::Init(cMaxGroup, cMaxItemsPerGroup, cRankCutoff);
+    CIRMeasure::Init(max_group, max_items_per_group, rank_cutoff);
 
     // Allocate rank buffer (note: ranks are 1-based)
-    rankpos_vec_.resize(cMaxItemsPerGroup + 1);
+    rankpos_vec_.resize(max_items_per_group + 1);
 }
 
 
 
 // Auxiliary function to find the sorted ranks of positive items (veccRankPos), and their number (cPos)
-inline void SortRankPos(const double* const adY, const CRanker& ranker, vector<int>& veccRankPos, unsigned int& cPos)
+inline void SortRankPos(const double* const kResponse, const CRanker& kRanker, vector<int>& rankpos_vec, unsigned int& pos)
 {
     // Store all ranks of positive items in veccRankPos
-    for (cPos = 0; cPos < ranker.GetNumItems(); cPos++)
+    for (pos = 0; pos < kRanker.GetNumItems(); pos++)
     {
-        if (adY[cPos] <= 0.0)
+        if (kResponse[pos] <= 0.0)
         {
             // All subsequent items are zero, because of presorting
             break;
         }
-        veccRankPos[cPos] = ranker.GetRank(cPos);
+        rankpos_vec[pos] = kRanker.GetRank(pos);
     }
 
-    sort(veccRankPos.begin(), veccRankPos.begin() + cPos);
+    sort(rankpos_vec.begin(), rankpos_vec.begin() + pos);
 }
 
 
-double CMAP::SwapCost(int iItemPos, int iItemNeg, const double* const adY, const CRanker& ranker) const
+double CMAP::SwapCost(int item_pos, int item_neg, const double* const kResponse, const CRanker& kRanker) const
 {
-    unsigned int cPos;
+    unsigned int pos;
 
-    SortRankPos(adY, ranker, rankpos_vec_, cPos);
+    SortRankPos(kResponse, kRanker, rankpos_vec_, pos);
 
-    if (cPos == 0)
+    if (pos == 0)
     {
         return 0.0;
     }
@@ -440,139 +440,139 @@ double CMAP::SwapCost(int iItemPos, int iItemNeg, const double* const adY, const
     // Now veccRankPos[i] is the i-th highest rank of a positive item, and
     // cPos is the total number of positive items.
 
-    const int iRankItemPos  = ranker.GetRank(iItemPos);
-    const int iRankItemNeg  = ranker.GetRank(iItemNeg);
+    const int kRankItemPos  = kRanker.GetRank(item_pos);
+    const int kRankItemNeg  = kRanker.GetRank(item_neg);
 
     // Search for the position of the two items to swap
-    const vector<int>::iterator itItemPos = upper_bound(rankpos_vec_.begin(), rankpos_vec_.begin() + cPos, iRankItemPos);
-    const vector<int>::iterator itItemNeg = upper_bound(rankpos_vec_.begin(), rankpos_vec_.begin() + cPos, iRankItemNeg);
+    const vector<int>::iterator kItItemPos = upper_bound(rankpos_vec_.begin(), rankpos_vec_.begin() + pos, kRankItemPos);
+    const vector<int>::iterator kItItemNeg = upper_bound(rankpos_vec_.begin(), rankpos_vec_.begin() + pos, kRankItemNeg);
 
     // The number of positive items up to and including iItemPos
-    const int cNumPosNotBelowItemPos = (int)(itItemPos - rankpos_vec_.begin());
+    const int kNumPosNotBelowItemPos = (int)(kItItemPos - rankpos_vec_.begin());
 
     // The number of positive items up to iItemNeg (Note: Cannot include iItemNeg itself)
-    const unsigned int cNumPosAboveItemNeg    = (unsigned int)(itItemNeg  - rankpos_vec_.begin());
+    const unsigned int kNumPosAboveItemNeg    = (unsigned int)(kItItemNeg  - rankpos_vec_.begin());
 
     // Range of indices of positive items between iRankItemPos and iRankItemNeg (exclusively)
-    int cIntermediateHigh, cIntermediateLow;
+    int intermediatehigh, intermediatelow;
 
     // Current contribution of iItemPos
-    double dContribBefore =  (double) cNumPosNotBelowItemPos / iRankItemPos;
+    double contrib_before =  (double) kNumPosNotBelowItemPos / kRankItemPos;
 
-    double dSign, dContribAfter;
+    double sign, contrib_after;
 
-    if (iRankItemNeg > iRankItemPos)
+    if (kRankItemNeg > kRankItemPos)
     {
         // MAP is decreasing
-        dSign = -1.0;
+        sign = -1.0;
 
         // The first positive item after iRankItemPos
-        cIntermediateLow = cNumPosNotBelowItemPos;
+        intermediatelow = kNumPosNotBelowItemPos;
 
         // The last positive item before iRankItemNeg
-        cIntermediateHigh = cNumPosAboveItemNeg - 1;
+        intermediatehigh = kNumPosAboveItemNeg - 1;
 
         // Note: iItemPos already counted in cNumPosAboveItemNeg
-        dContribAfter = (double)cNumPosAboveItemNeg / iRankItemNeg;
+        contrib_after = (double)kNumPosAboveItemNeg / kRankItemNeg;
     }
     else
     {
         // MAP is increasing
-        dSign = 1.0;
+        sign = 1.0;
 
         // The first positive result after iRankItemNeg
-        cIntermediateLow = cNumPosAboveItemNeg;
+        intermediatelow = kNumPosAboveItemNeg;
 
         // The first positive result after iRankItemPos, minus iItemPos itself
-        cIntermediateHigh = cNumPosNotBelowItemPos - 2;
+        intermediatehigh = kNumPosNotBelowItemPos - 2;
 
         // Note: iItemPos not yet counted in cNumPosAboveItemNeg
-        dContribAfter = (double) (cNumPosAboveItemNeg + 1) / iRankItemNeg;
+        contrib_after = (double) (kNumPosAboveItemNeg + 1) / kRankItemNeg;
     }
 
     // The direct effect of switching iItemPos
-    double dDiff = dContribAfter - dContribBefore;
+    double diff = contrib_after - contrib_before;
 
     // The indirect effect for all items in between the two items
-    for (int j = cIntermediateLow; j <= cIntermediateHigh; j++)
+    for (int j = intermediatelow; j <= intermediatehigh; j++)
     {
-        dDiff += dSign / rankpos_vec_[j];
+        diff += sign / rankpos_vec_[j];
     }
 
-    return dDiff / cPos;
+    return diff / pos;
 }
 
 
-double CMAP::Measure(const double* const adY, const CRanker& ranker)
+double CMAP::Measure(const double* const kResponse, const CRanker& kRanker)
 {
-    unsigned int cPos;
+    unsigned int kPos;
 
-    SortRankPos(adY, ranker, rankpos_vec_, cPos);
+    SortRankPos(kResponse, kRanker, rankpos_vec_, kPos);
 
-    if (cPos == 0)
+    if (kPos == 0)
     {
         return 0.0;
     }
 
     // Now veccRankPos[i] is the i-th highest rank of a positive item
 
-    double dPrec = 0.0;
-    for (unsigned int j = 0; j < cPos; j++)
+    double prec = 0.0;
+    for (unsigned int j = 0; j < kPos; j++)
     {
-        dPrec += double(j + 1) / rankpos_vec_[j];
+        prec += double(j + 1) / rankpos_vec_[j];
     }
 
-    return dPrec / cPos;
+    return prec / kPos;
 }
 
 
-CPairwise::CPairwise(const double* adgroups, const char* szIRMeasure, int cTrain)
+CPairwise::CPairwise(const double* kGroups, const char* kIrMeasure, int num_training_rows)
 {
 
 	// Set up adGroup - this is not required
-	kGroups_ = adgroups;
+	kGroups_ = kGroups;
 
 	// Set up the number of groups - this used externally
-	SetNumGroups(GBM_FUNC::NumGroups(adgroups, cTrain));
+	SetNumGroups(GBM_FUNC::NumGroups(kGroups, num_training_rows));
 
     // Construct the IR Measure
-    if (!strcmp(szIRMeasure, "conc"))
+    if (!strcmp(kIrMeasure, "conc"))
     {
       pirm_.reset(new CConc());
     }
-    else if (!strcmp(szIRMeasure, "map"))
+    else if (!strcmp(kIrMeasure, "map"))
     {
       pirm_.reset(new CMAP());
     }
-    else if (!strcmp(szIRMeasure, "mrr"))
+    else if (!strcmp(kIrMeasure, "mrr"))
     {
       pirm_.reset(new CMRR());
     }
     else
       {
-        if (strcmp(szIRMeasure, "ndcg"))
+        if (strcmp(kIrMeasure, "ndcg"))
         {
-            Rprintf("Unknown IR measure '%s' in initialization, using 'ndcg' instead\n", szIRMeasure);
+            Rprintf("Unknown IR measure '%s' in initialization, using 'ndcg' instead\n", kIrMeasure);
         }
         pirm_.reset(new CNDCG());
       }
 }
 
-CDistribution* CPairwise::Create(DataDistParams& distParams)
+CDistribution* CPairwise::Create(DataDistParams& distparams)
 {
 	// Create pointers to pairwise
-	Rcpp::NumericVector miscVec(distParams.misc[0]);
-	const double* adgroup = 0;
+	Rcpp::NumericVector misc_vec(distparams.misc[0]);
+	const double* kGroup = 0;
 
-	if(!GBM_FUNC::has_value(miscVec))
+	if(!GBM_FUNC::has_value(misc_vec))
 	{
 		throw GBM::Failure("Pairwise requires misc to initialize");
 	}
 	else
 	{
-		adgroup = miscVec.begin();
+		kGroup = misc_vec.begin();
 	}
-	return new CPairwise(adgroup, distParams.irmeasure, distParams.num_trainrows);
+	return new CPairwise(kGroup, distparams.irmeasure, distparams.num_trainrows);
 }
 
 CPairwise::~CPairwise()
@@ -581,91 +581,91 @@ CPairwise::~CPairwise()
 
 
 // Auxiliary function for addition of optional offset parameter
-inline const double* OffsetVector(const double* const adX, const double* const adOffset, unsigned int iStart, unsigned int iEnd, vector<double>& vecBuffer)
+inline const double* OffsetVector(const double* const kCovariates, const double* const kOffset, unsigned int start, unsigned int end, vector<double>& buffer_vec)
 {
-    if (adOffset == NULL)
+    if (kOffset == NULL)
     {
         // Optional second argument is not set, just return first one
-        return adX + iStart;
+        return kCovariates + start;
     }
     else
     {
-        for (unsigned int i = iStart, iOut = 0; i < iEnd; i++, iOut++)
+        for (unsigned int i = start, iOut = 0; i < end; i++, iOut++)
         {
-            vecBuffer[iOut] = adX[i] + adOffset[i];
+            buffer_vec[iOut] = kCovariates[i] + kOffset[i];
         }
-        return &vecBuffer[0];
+        return &buffer_vec[0];
     }
 }
 
 void CPairwise::ComputeWorkingResponse
 (
- const CDataset& data,
- const double *adF,
- double *adZ
+ const CDataset& kData,
+ const double* kFuncEstimate,
+ double* residuals
 )
 {
 #ifdef NOISY_DEBUG
     Rprintf("compute working response, nTrain = %u\n", nTrain);
 #endif
     
-    if (data.get_trainsize() <= 0) return;
+    if (kData.get_trainsize() <= 0) return;
     
     // Iterate through all groups, compute gradients
     
-    unsigned int iItemStart = 0;
-    unsigned int iItemEnd   = 0;
+    unsigned int item_start = 0;
+    unsigned int item_end   = 0;
     
-    while (iItemStart < data.get_trainsize())
+    while (item_start < kData.get_trainsize())
       {
-	adZ[iItemEnd]           = 0;
-	hessian_[iItemEnd]   = 0;
+	residuals[item_end]           = 0;
+	hessian_[item_end]   = 0;
 	
-	const double dGroup = kGroups_[iItemStart];
+	const double dGroup = kGroups_[item_start];
 	
 	// Find end of current group, initialize working response
-	for (iItemEnd = iItemStart + 1; iItemEnd < data.get_trainsize() && kGroups_[iItemEnd] == dGroup; iItemEnd++)
+	for (item_end = item_start + 1; item_end < kData.get_trainsize() && kGroups_[item_end] == dGroup; item_end++)
 	  {
 	    // Clear gradients from last iteration
-	    adZ[iItemEnd]         = 0;
-	    hessian_[iItemEnd] = 0;
+	    residuals[item_end]         = 0;
+	    hessian_[item_end] = 0;
 	  }
 	
 #ifdef NOISY_DEBUG
 	// Check sorting
-	for (unsigned int i = iItemStart; i < iItemEnd-1; i++) {
-	  if (data. y_ptr()[i] < data. y_ptr()[i+1]) {
+	for (unsigned int i = item_start; i < item_end-1; i++) {
+	  if (kData. y_ptr()[i] < kData. y_ptr()[i+1]) {
 	    throw GBM::Failure("sorting failed in pairwise?");
 	  }
 	}  
 #endif
 
-	if (data.get_bag_element(iItemStart))
+	if (kData.get_bag_element(item_start))
 	  {
 	    // Group is part of the training set
 	    
-	    const int cNumItems = iItemEnd - iItemStart;
+	    const int kNumItems = item_end - item_start;
 	    
 	    // If offset given, add up current scores
-	    const double* adFPlusOffset = OffsetVector(adF, data.offset_ptr(), iItemStart, iItemEnd, func_est_plus_offset_);
+	    const double* kFuncPlusOffset = OffsetVector(kFuncEstimate, kData.offset_ptr(), item_start, item_end, func_est_plus_offset_);
 	    
 	    // Accumulate gradients
 	    // TODO: Implement better way to ensure casting robust to overflow
-	    int intGroup = 0;
+	    int int_group = 0;
 	    if(fabs(dGroup) > nextafter(INT_MAX, 0) || isnan(dGroup))
 	    {
-	    	intGroup = copysign(INT_MAX, dGroup);
+	    	int_group = copysign(INT_MAX, dGroup);
 	    }
 	    else
 	    {
-	    	intGroup = (int) dGroup;
+	    	int_group = (int) dGroup;
 	    }
 
-	    ComputeLambdas(intGroup, cNumItems, data.y_ptr() + iItemStart, adFPlusOffset, data.weight_ptr() + iItemStart, adZ + iItemStart, &hessian_[iItemStart]);
+	    ComputeLambdas(int_group, kNumItems, kData.y_ptr() + item_start, kFuncPlusOffset, kData.weight_ptr() + item_start, residuals + item_start, &hessian_[item_start]);
 	  }
 	
 	// Next group
-	iItemStart = iItemEnd;
+	item_start = item_end;
       }
 }
 
@@ -709,192 +709,193 @@ void CPairwise::ComputeWorkingResponse
 // (resp. d^2C/d^2s_i = gamma_i) over all instances falling into this leaf. This
 // summation is calculated later in CPairwise::FitBestConstant().
 
-void CPairwise::ComputeLambdas(int iGroup, unsigned int cNumItems, const double* const adY, const double* const adF, const double* const adWeight, double* adZ, double* adDeriv)
+void CPairwise::ComputeLambdas(int group, unsigned int num_items, const double* const kResponse,
+		const double* const kFuncEstimate, const double* const kWeights, double* residuals, double* deriv)
 {
     // Assumption: Weights are constant within group
-    if (adWeight[0] <= 0)
+    if (kWeights[0] <= 0)
     {
         return;
     }
 
     // Normalize for maximum achievable group score
-    const double dMaxScore = pirm_->MaxMeasure(iGroup, adY, cNumItems);
+    const double kMaxScore = pirm_->MaxMeasure(group, kResponse, num_items);
 
-    if (dMaxScore <= 0.0)
+    if (kMaxScore <= 0.0)
     {
         // No pairs
         return;
     }
 
     // Rank items by current score
-    ranker_.SetGroupScores(adF, cNumItems);
+    ranker_.SetGroupScores(kFuncEstimate, num_items);
     ranker_.Rank();
 
-    double dLabelCurrent    = adY[0];
+    double label_current    = kResponse[0];
 
     // First index of instance that has dLabelCurrent
     // (i.e., each smaller index corresponds to better item)
-    unsigned int iLabelCurrentStart  = 0;
+    unsigned int label_current_start  = 0;
 
     // Number of pairs with unequal labels
-    unsigned int cPairs   = 0;
+    unsigned int pairs   = 0;
 
 #ifdef NOISY_DEBUG
-    double dMeasureBefore = pirm_->Measure(adY, ranker_);
+    double measure_before = pirm_->Measure(kResponse, ranker_);
 #endif
 
-    for (unsigned int j = 1; j < cNumItems; j++)
+    for (unsigned int j = 1; j < num_items; j++)
     {
-        const double dYj     = adY[j];
+        const double kYj     = kResponse[j];
 
-        if (dYj != dLabelCurrent)
+        if (kYj != label_current)
         {
-            iLabelCurrentStart = j;
-            dLabelCurrent      = dYj;
+            label_current_start = j;
+            label_current      = kYj;
         }
 
-        for (unsigned int i = 0; i < iLabelCurrentStart; i++)
+        for (unsigned int i = 0; i < label_current_start; i++)
         {
             // Instance i is better than j
 
-            const double dSwapCost = fabs(pirm_->SwapCost(i, j, adY, ranker_));
+            const double kSwapCost = fabs(pirm_->SwapCost(i, j, kResponse, ranker_));
 
 #ifdef NOISY_DEBUG
-            double dDelta    = fabs(pirm_->SwapCost(i, j, adY, ranker_));
-            const int cRanki = ranker_.GetRank(i);
-            const int cRankj = ranker_.GetRank(j);
+            double delta    = fabs(pirm_->SwapCost(i, j, kResponse, ranker_));
+            const int kRanki = ranker_.GetRank(i);
+            const int kRankj = ranker_.GetRank(j);
             ranker_.SetRank(i, cRankj);
             ranker_.SetRank(j, cRanki);
-            double dMeasureAfter = pirm_->Measure(adY, ranker_);
+            double measure_after = pirm_->Measure(kResponse, ranker_);
 
-            if (fabs(dMeasureBefore-dMeasureAfter) - dDelta > 1e-5)
+            if (fabs(measure_before-measure_after) - dDelta > 1e-5)
             {
-                Rprintf("%f %f %f %f %f %d %d\n", pirm_->SwapCost(i, j, adY, ranker_), dMeasureBefore, dMeasureAfter, dMeasureBefore - dMeasureAfter, dDelta , i, j);
+                Rprintf("%f %f %f %f %f %d %d\n", pirm_->SwapCost(i, j, kResponse, ranker_), measure_before, measure_after, measure_before - measure_after, delta , i, j);
                 for (unsigned int k = 0; k < num_items_; k++)
                 {
-                    Rprintf("%d\t%d\t%f\t%f\n", k, ranker_.GetRank(k), adY[k], adF[k]);
+                    Rprintf("%d\t%d\t%f\t%f\n", k, ranker_.GetRank(k), kResponse[k], kFuncEstimate[k]);
                 }
 		throw GBM::Failure("the impossible happened");
             }
-	    if (fabs(dMeasureBefore - dMeasureAfter) - fabs(dDelta) >= 1e-5) {
+	    if (fabs(measure_before - measure_after) - fabs(dDelta) >= 1e-5) {
 	      throw GBM::Failure("the impossible happened");
 	    }
             ranker_.SetRank(j, cRankj);
             ranker_.SetRank(i, cRanki);
 	    
 #endif
-	    if (!isfinite(dSwapCost)) {
+	    if (!isfinite(kSwapCost)) {
 	      throw GBM::Failure("infinite swap cost");
 	    }
 
-            if (dSwapCost > 0.0)
+            if (kSwapCost > 0.0)
             {
-                cPairs++;
-                const double dRhoij    = 1.0 / (1.0 + std::exp(adF[i]- adF[j])) ;
-                if (!isfinite(dRhoij)) {
+                pairs++;
+                const double kRhoij    = 1.0 / (1.0 + std::exp(kFuncEstimate[i]- kFuncEstimate[j])) ;
+                if (!isfinite(kRhoij)) {
 		  throw GBM::Failure("unanticipated infinity");
 		};
 
-                const double dLambdaij = dSwapCost * dRhoij;
-                adZ[i] += dLambdaij;
-                adZ[j] -= dLambdaij;
-                const double dDerivij  = dLambdaij * (1.0 - dRhoij);
-		if (dDerivij < 0) {
+                const double kLambdaij = kSwapCost * kRhoij;
+                residuals[i] += kLambdaij;
+                residuals[j] -= kLambdaij;
+                const double kDerivij  = kLambdaij * (1.0 - kRhoij);
+		if (kDerivij < 0) {
 		  throw GBM::Failure("negative derivative!");
 		}
-                adDeriv[i] += dDerivij;
-                adDeriv[j] += dDerivij;
+                deriv[i] += kDerivij;
+                deriv[j] += kDerivij;
             }
         }
     }
 
-    if (cPairs > 0)
+    if (pairs > 0)
     {
         // Normalize for number of training pairs
-        const double dQNorm     = 1.0 / (dMaxScore * cPairs);
+        const double kQNorm     = 1.0 / (kMaxScore * pairs);
 
-        for (unsigned int j = 0; j < cNumItems; j++)
+        for (unsigned int j = 0; j < num_items; j++)
         {
-            adZ[j]     *= dQNorm;
-            adDeriv[j] *= dQNorm;
+            residuals[j]     *= kQNorm;
+            deriv[j] *= kQNorm;
         }
     }
 }
 
 void CPairwise::Initialize
 (
-	const CDataset& data
+	const CDataset& kData
 )
 {
-  if (data.nrow() <= 0) return;
+  if (kData.nrow() <= 0) return;
   
   // Allocate memory for derivative buffer
-  hessian_.resize(data.nrow());
+  hessian_.resize(kData.nrow());
 
   // Count the groups and number of items per group
-  unsigned int cMaxItemsPerGroup = 0;
-  double       dMaxGroup         = 0;
+  unsigned int max_items_per_group = 0;
+  double       max_group         = 0;
   
-  unsigned int iItemStart        = 0;
-  unsigned int iItemEnd          = 0;
+  unsigned int item_start        = 0;
+  unsigned int item_end          = 0;
   
-  while (iItemStart < data.nrow())
+  while (item_start < kData.nrow())
     {
       
-      const double dGroup = kGroups_[iItemStart];
+      const double kGroup = kGroups_[item_start];
       
       // Find end of current group
-      for (iItemEnd = iItemStart + 1; iItemEnd < data.nrow() && kGroups_[iItemEnd] == dGroup; iItemEnd++);
+      for (item_end = item_start + 1; item_end < kData.nrow() && kGroups_[item_end] == kGroup; item_end++);
       
-      const unsigned int cNumItems = iItemEnd - iItemStart;
-      if (cNumItems > cMaxItemsPerGroup)
+      const unsigned int kNumItems = item_end - item_start;
+      if (kNumItems > max_items_per_group)
 	{
-	  cMaxItemsPerGroup = cNumItems;
+	  max_items_per_group = kNumItems;
 	}
-      if (dGroup > dMaxGroup)
+      if (kGroup > max_group)
 	{
-	  dMaxGroup = dGroup;
+	  max_group = kGroup;
 	}
       
       // Next group
-      iItemStart = iItemEnd;
+      item_start = item_end;
     }
   
   // Allocate buffer for offset addition
-  func_est_plus_offset_.resize(cMaxItemsPerGroup);
+  func_est_plus_offset_.resize(max_items_per_group);
   
   // Allocate ranker memory
-  ranker_.Init(cMaxItemsPerGroup);
+  ranker_.Init(max_items_per_group);
   
   // Allocate IR measure memory
   
   // The last element of adGroup specifies the cutoff
   // (zero means no cutoff)
-  unsigned int cRankCutoff = cMaxItemsPerGroup;
-  if (kGroups_[data.nrow()] > 0)
+  unsigned int rank_cutoff = max_items_per_group;
+  if (kGroups_[kData.nrow()] > 0)
     {
-      cRankCutoff = (unsigned int)kGroups_[data.nrow()];
+      rank_cutoff = (unsigned int)kGroups_[kData.nrow()];
     }
 
   	// TODO: Make More robust against overflow
-  	unsigned long ulMaxGroup = 0;
-	if(fabs(dMaxGroup) > nextafter(ULONG_MAX, 0) || isnan(dMaxGroup))
+  	unsigned long max_group_unsigned_long = 0;
+	if(fabs(max_group) > nextafter(ULONG_MAX, 0) || isnan(max_group))
 	{
-		ulMaxGroup = copysign(ULONG_MAX, dMaxGroup);
+		max_group_unsigned_long = copysign(ULONG_MAX, max_group);
 	}
 	else
 	{
-		ulMaxGroup = (unsigned long) dMaxGroup;
+		max_group_unsigned_long = (unsigned long) max_group;
 	}
-  pirm_->Init(ulMaxGroup, cMaxItemsPerGroup, cRankCutoff);
+  pirm_->Init(max_group_unsigned_long, max_items_per_group, rank_cutoff);
 #ifdef NOISY_DEBUG
-  Rprintf("Initialization: instances=%ld, groups=%u, max items per group=%u, rank cutoff=%u, offset specified: %d\n", cLength, (unsigned long)dMaxGroup, cMaxItemsPerGroup, cRankCutoff, (data.offset_ptr() != NULL));
+  Rprintf("Initialization: instances=%ld, groups=%u, max items per group=%u, rank cutoff=%u, offset specified: %d\n", cLength, (unsigned long)max_group, max_items_per_group, rank_cutoff, (kData.offset_ptr() != NULL));
 #endif
 }
 
 double CPairwise::InitF
 (
-	const CDataset& data
+	const CDataset& kData
 )
 {
     return 0.0;
@@ -903,143 +904,143 @@ double CPairwise::InitF
 
 double CPairwise::Deviance
 (
-   const CDataset& data,
-   const double *adF,
-   bool isValidationSet
+   const CDataset& kData,
+   const double* kfuncEstimate,
+   bool is_validationset
 )
 {
 
     // Shift adGroup to validation set if necessary
-	long cLength = data.get_trainsize();
-    if(isValidationSet)
+	long num_rows_in_set = kData.get_trainsize();
+    if(is_validationset)
     {
-    	cLength = data.get_validsize();
-    	data.shift_to_validation();
-    	kGroups_=shift_ptr(kGroups_, data.get_trainsize());
+    	num_rows_in_set = kData.get_validsize();
+    	kData.shift_to_validation();
+    	kGroups_=shift_ptr(kGroups_, kData.get_trainsize());
 
     }
 
-    if (cLength <= 0)
+    if (num_rows_in_set <= 0)
 	{
     	// NB: SWITCH BACK TO TRAIN BEFORE LEAVING
-    	data.shift_to_train();
-    	kGroups_=shift_ptr(kGroups_, -(data.get_trainsize()));
+    	kData.shift_to_train();
+    	kGroups_=shift_ptr(kGroups_, -(kData.get_trainsize()));
     	return 0;
 	}
 
-    double dL = 0.0;
-    double dW = 0.0;
+    double loss = 0.0;
+    double weight = 0.0;
 
-    unsigned int iItemStart  = 0;
-    unsigned int iItemEnd    = iItemStart;
-    const unsigned int cEnd = cLength;
+    unsigned int item_start  = 0;
+    unsigned int item_end    = item_start;
+    const unsigned int kEnd = num_rows_in_set;
 
-    while (iItemStart < cEnd)
+    while (item_start < kEnd)
     {
-        const double dGroup = kGroups_[iItemStart];
-        const double dWi    = data.weight_ptr()[iItemStart];
+        const double kGroup = kGroups_[item_start];
+        const double kWi    = kData.weight_ptr()[item_start];
 
         // Find end of current group
-        for (iItemEnd = iItemStart + 1; iItemEnd < cEnd && kGroups_[iItemEnd] == dGroup; iItemEnd++) ;
+        for (item_end = item_start + 1; item_end < kEnd && kGroups_[item_end] == kGroup; item_end++) ;
 
-        const int cNumItems = iItemEnd - iItemStart;
+        const int cNumItems = item_end - item_start;
         // TODO: Implement better way to ensure casting robust to overflow
-		int intGroup = 0;
-		if(fabs(dGroup) > nextafter(INT_MAX, 0) || isnan(dGroup))
+		int int_group = 0;
+		if(fabs(kGroup) > nextafter(INT_MAX, 0) || isnan(kGroup))
 		{
-			intGroup = copysign(INT_MAX, dGroup);
+			int_group = copysign(INT_MAX, kGroup);
 		}
 		else
 		{
-			intGroup = (int) dGroup;
+			int_group = (int) kGroup;
 		}
-        const double dMaxScore = pirm_->MaxMeasure(intGroup, data.y_ptr() + iItemStart, cNumItems);
+        const double kMaxScore = pirm_->MaxMeasure(int_group, kData.y_ptr() + item_start, cNumItems);
 
-        if (dMaxScore > 0.0)
+        if (kMaxScore > 0.0)
         {
             // Rank items by current score
 
             // If offset given, add up current scores
-            const double* adFPlusOffset = OffsetVector(adF, data.offset_ptr(), iItemStart, iItemEnd, func_est_plus_offset_);
+            const double* kFuncPlusOffset = OffsetVector(kfuncEstimate, kData.offset_ptr(), item_start, item_end, func_est_plus_offset_);
 
-            ranker_.SetGroupScores(adFPlusOffset, cNumItems);
+            ranker_.SetGroupScores(kFuncPlusOffset, cNumItems);
             ranker_.Rank();
 
-            dL += dWi * pirm_->Measure(data.y_ptr() + iItemStart, ranker_) / dMaxScore;
-            dW += dWi;
+            loss += kWi * pirm_->Measure(kData.y_ptr() + item_start, ranker_) / kMaxScore;
+            weight += kWi;
         }
         // Next group
-        iItemStart = iItemEnd;
+        item_start = item_end;
     }
 
     // Reset adGroup if required
-    if(isValidationSet)
+    if(is_validationset)
     {
-    	data.shift_to_train();
-    	kGroups_=shift_ptr(kGroups_, -(data.get_trainsize()));
+    	kData.shift_to_train();
+    	kGroups_=shift_ptr(kGroups_, -(kData.get_trainsize()));
 
     }
 
    // Loss = 1 - utility
-   return 1.0 - dL / dW;
+   return 1.0 - loss / weight;
 }
 
 
 void CPairwise::FitBestConstant
 (
-	const CDataset& data,
-    const double *adF,
-    unsigned long cTermNodes,
-    double* adZ,
-    CTreeComps& treeComps
+	const CDataset& kData,
+    const double* kFuncEstimate,
+    unsigned long num_terminalnodes,
+    double* residuals,
+    CTreeComps& treecomps
 )
 {
 
 #ifdef NOISY_DEBUG
-    Rprintf("FitBestConstant, nTrain = %u,  cTermNodes = %d, \n", nTrain, cTermNodes);
+    Rprintf("FitBestConstant, nTrain = %u,  cTermNodes = %d, \n", nTrain, num_terminalnodes);
 #endif
 
     // Assumption: ComputeWorkingResponse() has been executed before with
     // the same arguments
 
     // Allocate space for numerators and denominators, and set to zero
-    fit_numerator_.reserve(cTermNodes);
-    fit_denominator_.reserve(cTermNodes);
-    for (unsigned int i = 0; i < cTermNodes; i++)
+    fit_numerator_.reserve(num_terminalnodes);
+    fit_denominator_.reserve(num_terminalnodes);
+    for (unsigned int i = 0; i < num_terminalnodes; i++)
       {
 	fit_numerator_[i]   = 0.0;
 	fit_denominator_[i] = 0.0;
       }
 
-    for (unsigned int iObs = 0; iObs < data.get_trainsize(); iObs++)
+    for (unsigned int obs_num = 0; obs_num < kData.get_trainsize(); obs_num++)
     {
-      if (data.get_bag_element(iObs))
+      if (kData.get_bag_element(obs_num))
         {
 #ifdef NOISY_DEBUG
-          if (!(isfinite(data.weight_ptr()[iObs]) &&
-		isfinite(adZ[iObs]) &&
-		isfinite(hessian_[iObs]))) {
+          if (!(isfinite(kData.weight_ptr()[obs_num]) &&
+		isfinite(residuals[obs_num]) &&
+		isfinite(hessian_[obs_num]))) {
 	    throw GBM::Failure("unanticipated infinities");
 	  };
 #endif
 
-            fit_numerator_[treeComps.get_node_assignments()[iObs]]   += data.weight_ptr()[iObs] * adZ[iObs];
-            fit_denominator_[treeComps.get_node_assignments()[iObs]] += data.weight_ptr()[iObs] * hessian_[iObs];
+            fit_numerator_[treecomps.get_node_assignments()[obs_num]]   += kData.weight_ptr()[obs_num] * residuals[obs_num];
+            fit_denominator_[treecomps.get_node_assignments()[obs_num]] += kData.weight_ptr()[obs_num] * hessian_[obs_num];
         }
     }
 
-    for (unsigned int iNode = 0; iNode < cTermNodes; iNode++)
+    for (unsigned int node_num = 0; node_num < num_terminalnodes; node_num++)
     {
-        if (treeComps.get_terminal_nodes()[iNode] != NULL)
+        if (treecomps.get_terminal_nodes()[node_num] != NULL)
         {
-            if (fit_denominator_[iNode] <= 0.0)
+            if (fit_denominator_[node_num] <= 0.0)
             {
-            	treeComps.get_terminal_nodes()[iNode]->prediction = 0.0;
+            	treecomps.get_terminal_nodes()[node_num]->prediction = 0.0;
             }
             else
             {
-            	treeComps.get_terminal_nodes()[iNode]->prediction =
-                    fit_numerator_[iNode]/fit_denominator_[iNode];
+            	treecomps.get_terminal_nodes()[node_num]->prediction =
+                    fit_numerator_[node_num]/fit_denominator_[node_num];
             }
         }
     }
@@ -1048,10 +1049,10 @@ void CPairwise::FitBestConstant
 
 double CPairwise::BagImprovement
 (
-	const CDataset& data,
-    const double *adF,
-    const double shrinkage,
-    const double* adFadj
+	const CDataset& kData,
+    const double* kFuncEstimate,
+    const double kShrinkage,
+    const double* kDeltaEstimates
 )
 {
 
@@ -1059,112 +1060,112 @@ double CPairwise::BagImprovement
     Rprintf("BagImprovement, nTrain = %u\n", nTrain);
 #endif
 
-    if (data.get_trainsize() <= 0)
+    if (kData.get_trainsize() <= 0)
     {
         return 0;
     }
 
-    double dL = 0.0;
-    double dW = 0.0;
+    double loss = 0.0;
+    double weight = 0.0;
 
-    unsigned int iItemStart = 0;
-    unsigned int iItemEnd   = 0;
+    unsigned int item_start = 0;
+    unsigned int item_end   = 0;
 
 
-    while (iItemStart < data.get_trainsize())
+    while (item_start < kData.get_trainsize())
     {
-        const double dGroup = kGroups_[iItemStart];
+        const double kGroup = kGroups_[item_start];
 
         // Find end of current group
-        for (iItemEnd = iItemStart + 1; iItemEnd < data.get_trainsize() && kGroups_[iItemEnd] == dGroup; iItemEnd++) ;
+        for (item_end = item_start + 1; item_end < kData.get_trainsize() && kGroups_[item_end] == kGroup; item_end++) ;
 
-        if (!data.get_bag_element(iItemStart))
+        if (!kData.get_bag_element(item_start))
         {
             // Group was held out of training set
 
-            const unsigned int cNumItems = iItemEnd - iItemStart;
+            const unsigned int kNumItems = item_end - item_start;
             // TODO: Implement better way to ensure casting robust to overflow
-			int intGroup = 0;
-			if(fabs(dGroup) > nextafter(INT_MAX, 0) || isnan(dGroup))
+			int int_group = 0;
+			if(fabs(kGroup) > nextafter(INT_MAX, 0) || isnan(kGroup))
 			{
-				intGroup = copysign(INT_MAX, dGroup);
+				int_group = copysign(INT_MAX, kGroup);
 			}
 			else
 			{
-				intGroup = (int) dGroup;
+				int_group = (int) kGroup;
 			}
-            const double dMaxScore = pirm_->MaxMeasure(intGroup, data.y_ptr() + iItemStart, cNumItems);
+            const double dMaxScore = pirm_->MaxMeasure(int_group, kData.y_ptr() + item_start, kNumItems);
 
             if (dMaxScore > 0.0)
             {
                 // If offset given, add up current scores
-                const double* adFPlusOffset = OffsetVector(adF, data.offset_ptr(), iItemStart, iItemEnd, func_est_plus_offset_);
+                const double* kFuncPlusOffset = OffsetVector(kFuncEstimate, kData.offset_ptr(), item_start, item_end, func_est_plus_offset_);
 
                 // Compute score according to old score, adF
-                ranker_.SetGroupScores(adFPlusOffset, cNumItems);
+                ranker_.SetGroupScores(kFuncPlusOffset, kNumItems);
                 ranker_.Rank();
-                const double dOldScore = pirm_->Measure(data.y_ptr() + iItemStart, ranker_);
+                const double kOldScore = pirm_->Measure(kData.y_ptr() + item_start, ranker_);
 
                 // Compute score according to new score: adF' =  adF + dStepSize * adFadj
-                for (unsigned int i = 0; i < cNumItems; i++)
+                for (unsigned int i = 0; i < kNumItems; i++)
                 {
-                    ranker_.AddToScore(i, adFadj[i+iItemStart] * shrinkage);
+                    ranker_.AddToScore(i, kDeltaEstimates[i+item_start] * kShrinkage);
                 }
 
-                const double dWi = data.weight_ptr()[iItemStart];
+                const double kWi = kData.weight_ptr()[item_start];
 
                 if (ranker_.Rank())
                 {
                     // Ranking changed
-                    const double dNewScore = pirm_->Measure(data.y_ptr() + iItemStart, ranker_);
-                    dL                    += dWi * (dNewScore - dOldScore) / dMaxScore;
+                    const double kNewScore = pirm_->Measure(kData.y_ptr() + item_start, ranker_);
+                    loss                    += kWi * (kNewScore - kOldScore) / dMaxScore;
                 }
-                dW += dWi;
+                weight += kWi;
             }
         }
 
         // Next group
-        iItemStart = iItemEnd;
+        item_start = item_end;
 
     }
 
-    return dL / dW;
+    return loss / weight;
 
 }
 
-void CPairwise::BagData(CDataset& data) {
-  double dLastGroup = -1;
-  bool fChosen = false;
-  unsigned int cBagged = 0;
-  unsigned int cBaggedGroups = 0;
-  unsigned int cSeenGroups   = 0;
-  unsigned int cTotalGroupsInBag = (unsigned long)(data.get_bagfraction() * GetNumGroups());
+void CPairwise::BagData(CDataset& kData) {
+  double last_group = -1;
+  bool is_chosen = false;
+  unsigned int bagged = 0;
+  unsigned int bagged_groups = 0;
+  unsigned int seen_groups   = 0;
+  unsigned int total_groupsinbag = (unsigned long)(kData.get_bagfraction() * GetNumGroups());
 
-  if (cTotalGroupsInBag <= 0) {
-    cTotalGroupsInBag = 1;
+  if (total_groupsinbag <= 0) {
+    total_groupsinbag = 1;
   }
   
-  for(unsigned long i=0; i< data.get_trainsize(); i++) {
-    const double dGroup = kGroups_[i];
+  for(unsigned long i=0; i< kData.get_trainsize(); i++) {
+    const double kGroup = kGroups_[i];
     
-    if(dGroup != dLastGroup) {
-      if (cBaggedGroups >= cTotalGroupsInBag) {
+    if(kGroup != last_group) {
+      if (bagged_groups >= total_groupsinbag) {
 	break;
       }
       
       // Group changed, make a new decision
-      fChosen = (unif_rand()*(GetNumGroups() - cSeenGroups) <
-		 cTotalGroupsInBag - cBaggedGroups);
-      if(fChosen) {
-	cBaggedGroups++;
+      is_chosen = (unif_rand()*(GetNumGroups() - seen_groups) <
+		 total_groupsinbag - bagged_groups);
+      if(is_chosen) {
+	bagged_groups++;
       }
-      dLastGroup = dGroup;
-      cSeenGroups++;
+      last_group = kGroup;
+      seen_groups++;
     }
     
-    if(fChosen) {
-      data.set_bag_element(i);
-      cBagged++;
+    if(is_chosen) {
+      kData.set_bag_element(i);
+      bagged++;
     }
   }
   

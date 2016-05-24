@@ -11,10 +11,10 @@
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CNode::CNode(const NodeDef& defn) :
-  prediction(defn.prediction()),
-  totalweight(defn.get_totalweight()),
-  numobs(defn.get_num_obs()),
+CNode::CNode(const NodeDef& kDefn) :
+  prediction(kDefn.prediction()),
+  totalweight(kDefn.get_totalweight()),
+  numobs(kDefn.get_num_obs()),
   leftcategory() {
 
     splitvalue = 0.0;
@@ -64,44 +64,44 @@ CNode::~CNode()
 
 void CNode::Adjust
 (
-    unsigned long cMinObsInNode
+    unsigned long min_num_node_obs
 )
 {
-	node_strategy_->Adjust(cMinObsInNode);
+	node_strategy_->Adjust(min_num_node_obs);
 }
 
 void CNode::Predict
 (
-    const CDataset &data,
-    unsigned long iRow,
-    double &dFadj
+    const CDataset &kData,
+    unsigned long rownum,
+    double &delta_estimate
 )
 {
-	node_strategy_->Predict(data, iRow, dFadj);
+	node_strategy_->Predict(kData, rownum, delta_estimate);
 }
 
 
 void CNode::GetVarRelativeInfluence
 (
-    double *adRelInf
+    double* relative_influence
 )
 {
-	node_strategy_->GetVarRelativeInfluence(adRelInf);
+	node_strategy_->GetVarRelativeInfluence(relative_influence);
 }
 
 void CNode::PrintSubtree
 (
- unsigned long cIndent
+ unsigned long indent
 )
 {
-  node_strategy_->PrintSubTree(cIndent);
+  node_strategy_->PrintSubTree(indent);
 }
 
-void CNode::SplitNode(NodeParams& childrenParams)
+void CNode::SplitNode(NodeParams& childrenparams)
 {
 
 	// set up a continuous split
-	if(childrenParams.split_class_==0)
+	if(childrenparams.split_class_==0)
 	{
 		splittype = continuous;
 		SetStrategy();
@@ -111,21 +111,21 @@ void CNode::SplitNode(NodeParams& childrenParams)
 		splittype = categorical;
 		SetStrategy();
 		// the types are confused here
-		leftcategory.resize(1 + (ULONG)childrenParams.split_value_);
-		std::copy(childrenParams.category_ordering_.begin(),
-			  childrenParams.category_ordering_.begin() +
+		leftcategory.resize(1 + (ULONG)childrenparams.split_value_);
+		std::copy(childrenparams.category_ordering_.begin(),
+			  childrenparams.category_ordering_.begin() +
 			  leftcategory.size(),
 			  leftcategory.begin());
 	}
 
 
-	split_var = childrenParams.split_var_;
-	splitvalue = childrenParams.split_value_;
-	improvement = childrenParams.improvement_;
+	split_var = childrenparams.split_var_;
+	splitvalue = childrenparams.split_value_;
+	improvement = childrenparams.improvement_;
 
-	left_node_ptr    = new CNode(childrenParams.left_);
-	right_node_ptr   = new CNode(childrenParams.right_);
-	missing_node_ptr = new CNode(childrenParams.missing_);
+	left_node_ptr    = new CNode(childrenparams.left_);
+	right_node_ptr   = new CNode(childrenparams.right_);
+	missing_node_ptr = new CNode(childrenparams.missing_);
 
 
 
@@ -133,44 +133,44 @@ void CNode::SplitNode(NodeParams& childrenParams)
 
 signed char CNode::WhichNode
 (
-    const CDataset &data,
-    unsigned long iObs
+    const CDataset &kData,
+    unsigned long obs_num
 )
 {
-	return node_strategy_->WhichNode(data, iObs);
+	return node_strategy_->WhichNode(kData, obs_num);
 }
 
 
 void CNode::TransferTreeToRList
 (
-    int &iNodeID,
-    const CDataset &data,
-    int *aiSplitVar,
-    double *adSplitPoint,
-    int *aiLeftNode,
-    int *aiRightNode,
-    int *aiMissingNode,
-    double *adErrorReduction,
-    double *adWeight,
-    double *adPred,
-    VEC_VEC_CATEGORIES &vecSplitCodes,
-    int cCatSplitsOld,
-    double dShrinkage
+    int &node_id,
+    const CDataset &kData,
+    int* splivar,
+    double* splitvalues,
+    int* leftnodes,
+    int* rightnodes,
+    int* missingnodes,
+    double* error_reduction,
+    double* weights,
+    double* predictions,
+    VEC_VEC_CATEGORIES &splitcodes_vec,
+    int prev_categorical_split,
+    double shrinkage
 )
 {
-	node_strategy_->TransferTreeToRList(iNodeID,
-										data,
-									aiSplitVar,
-									adSplitPoint,
-									aiLeftNode,
-									aiRightNode,
-									aiMissingNode,
-									adErrorReduction,
-									adWeight,
-									adPred,
-									vecSplitCodes,
-									cCatSplitsOld,
-									dShrinkage);
+	node_strategy_->TransferTreeToRList(node_id,
+										kData,
+									splivar,
+									splitvalues,
+									leftnodes,
+									rightnodes,
+									missingnodes,
+									error_reduction,
+									weights,
+									predictions,
+									splitcodes_vec,
+									prev_categorical_split,
+									shrinkage);
 }
 
 

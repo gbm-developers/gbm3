@@ -23,10 +23,10 @@ CQuantile::CQuantile(double alpha): mplocm_("Other")
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CQuantile::Create(DataDistParams& distParams)
+CDistribution* CQuantile::Create(DataDistParams& distparams)
 {
 	// Check that misc exists
-	double alpha = Rcpp::as<double>(distParams.misc[0]);
+	double alpha = Rcpp::as<double>(distparams.misc[0]);
 	if(!GBM_FUNC::has_value(alpha))
 	{
 		throw GBM::Failure("Quantile dist requires misc to initialization.");
@@ -40,15 +40,15 @@ CQuantile::~CQuantile()
 
 void CQuantile::ComputeWorkingResponse
 (
-	const CDataset& data,
-    const double *adF,
-    double *adZ
+	const CDataset& kData,
+    const double* kFuncEstimate,
+    double* residuals
 )
 {
     unsigned long i = 0;
-	for(i=0; i<data.get_trainsize(); i++)
+	for(i=0; i<kData.get_trainsize(); i++)
 	{
-		adZ[i] = (data.y_ptr()[i] > adF[i]+data.offset_ptr()[i]) ? alpha_ : -(1.0-alpha_);
+		residuals[i] = (kData.y_ptr()[i] > kFuncEstimate[i]+kData.offset_ptr()[i]) ? alpha_ : -(1.0-alpha_);
 	}
 
 }
@@ -56,108 +56,108 @@ void CQuantile::ComputeWorkingResponse
 
 double CQuantile::InitF
 (
-	const CDataset& data
+	const CDataset& kData
 )
 {
-    double dOffset=0.0;
-    vecd_.resize(data.get_trainsize());
-    for(unsigned long i=0; i< data.get_trainsize(); i++)
+    double offset=0.0;
+    vecd_.resize(kData.get_trainsize());
+    for(unsigned long i=0; i< kData.get_trainsize(); i++)
     {
-        dOffset = data.offset_ptr()[i];
-        vecd_[i] = data.y_ptr()[i] - dOffset;
+        offset = kData.offset_ptr()[i];
+        vecd_[i] = kData.y_ptr()[i] - offset;
     }
 
-    return mplocm_.weightedQuantile(data.get_trainsize(), &vecd_[0], data.weight_ptr(), alpha_);
+    return mplocm_.WeightedQuantile(kData.get_trainsize(), &vecd_[0], kData.weight_ptr(), alpha_);
 }
 
 
 double CQuantile::Deviance
 (
-	const CDataset& data,
-    const double *adF,
-    bool isValidationSet
+	const CDataset& kData,
+    const double* kFuncEstimate,
+    bool is_validationset
 )
 {
     unsigned long i=0;
-    double dL = 0.0;
-    double dW = 0.0;
+    double loss = 0.0;
+    double weight = 0.0;
 
     // Switch to validation set if necessary
-    unsigned long cLength = data.get_trainsize();
-    if(isValidationSet)
+    unsigned long num_rows_in_set = kData.get_trainsize();
+    if(is_validationset)
     {
- 	   data.shift_to_validation();
- 	   cLength = data.get_validsize();
+ 	   kData.shift_to_validation();
+ 	   num_rows_in_set = kData.get_validsize();
     }
 
 
-	for(i=0; i<cLength; i++)
+	for(i=0; i<num_rows_in_set; i++)
 	{
-		if(data.y_ptr()[i] > adF[i] + data.offset_ptr()[i])
+		if(kData.y_ptr()[i] > kFuncEstimate[i] + kData.offset_ptr()[i])
 		{
-			dL += data.weight_ptr()[i]*alpha_*(data.y_ptr()[i] - adF[i]-data.offset_ptr()[i]);
+			loss += kData.weight_ptr()[i]*alpha_*(kData.y_ptr()[i] - kFuncEstimate[i]-kData.offset_ptr()[i]);
 		}
 		else
 		{
-			dL += data.weight_ptr()[i]*(1.0-alpha_)*(adF[i]+data.offset_ptr()[i] - data.y_ptr()[i]);
+			loss += kData.weight_ptr()[i]*(1.0-alpha_)*(kFuncEstimate[i]+kData.offset_ptr()[i] - kData.y_ptr()[i]);
 		}
-		dW += data.weight_ptr()[i];
+		weight += kData.weight_ptr()[i];
 	}
 
 
     // Switch back to training set if necessary
-    if(isValidationSet)
+    if(is_validationset)
     {
- 	   data.shift_to_train();
+ 	   kData.shift_to_train();
     }
 
     //TODO: Check if weights are all zero for validation set
-   if((dW == 0.0) && (dL == 0.0))
+   if((weight == 0.0) && (loss == 0.0))
    {
 	   return nan("");
    }
-   else if(dW == 0.0)
+   else if(weight == 0.0)
    {
-	   return copysign(HUGE_VAL, dL);
+	   return copysign(HUGE_VAL, loss);
    }
-    return dL/dW;
+    return loss/weight;
 }
 
 void CQuantile::FitBestConstant
 (
-	const CDataset& data,
-    const double *adF,
-    unsigned long cTermNodes,
-    double* adZ,
-    CTreeComps& treeComps
+	const CDataset& kData,
+    const double* kFuncEstimate,
+    unsigned long num_terminalnodes,
+    double* residuals,
+    CTreeComps& treecomps
 )
 {
-  unsigned long iNode = 0;
-  unsigned long iObs = 0;
-  unsigned long iVecd = 0;
-  double dOffset;
+  unsigned long node_num = 0;
+  unsigned long obs_num = 0;
+  unsigned long vec_num = 0;
+  double offset;
 
-  vecd_.resize(data.get_trainsize()); // should already be this size from InitF
-  std::vector<double> adW2(data.get_trainsize());
+  vecd_.resize(kData.get_trainsize()); // should already be this size from InitF
+  std::vector<double> weight_vec(kData.get_trainsize());
 
-  for(iNode=0; iNode<cTermNodes; iNode++)
+  for(node_num=0; node_num<num_terminalnodes; node_num++)
     {
-      if(treeComps.get_terminal_nodes()[iNode]->numobs >= treeComps.min_num_obs_required())
+      if(treecomps.get_terminal_nodes()[node_num]->numobs >= treecomps.min_num_obs_required())
         {
-	  iVecd = 0;
-	  for(iObs=0; iObs< data.get_trainsize(); iObs++)
+	  vec_num = 0;
+	  for(obs_num=0; obs_num< kData.get_trainsize(); obs_num++)
             {
-	      if(data.get_bag_element(iObs) && (treeComps.get_node_assignments()[iObs] == iNode))
+	      if(kData.get_bag_element(obs_num) && (treecomps.get_node_assignments()[obs_num] == node_num))
                 {
-		  dOffset = data.offset_ptr()[iObs];
+		  offset = kData.offset_ptr()[obs_num];
 		  
-		  vecd_[iVecd] = data.y_ptr()[iObs] - dOffset - adF[iObs];
-		  adW2[iVecd] = data.weight_ptr()[iObs];
-		  iVecd++;
+		  vecd_[vec_num] = kData.y_ptr()[obs_num] - offset - kFuncEstimate[obs_num];
+		  weight_vec[vec_num] = kData.weight_ptr()[obs_num];
+		  vec_num++;
                 }
             }
 	  
-	 treeComps.get_terminal_nodes()[iNode]->prediction = mplocm_.weightedQuantile(iVecd, &vecd_[0], &adW2[0], alpha_);
+	 treecomps.get_terminal_nodes()[node_num]->prediction = mplocm_.WeightedQuantile(vec_num, &vecd_[0], &weight_vec[0], alpha_);
 	}
     }
 }
@@ -165,46 +165,46 @@ void CQuantile::FitBestConstant
 
 double CQuantile::BagImprovement
 (
-	const CDataset& data,
-    const double *adF,
-    const double shrinkage,
-    const double* adFadj
+	const CDataset& kData,
+    const double* kFuncEstimate,
+    const double kShrinkage,
+    const double* kDeltaEstimate
 )
 {
-    double dReturnValue = 0.0;
+    double returnvalue = 0.0;
 
-    double dF = 0.0;
-    double dW = 0.0;
+    double delta_func_est = 0.0;
+    double weight = 0.0;
     unsigned long i = 0;
 
-    for(i=0; i <data.get_trainsize(); i++)
+    for(i=0; i <kData.get_trainsize(); i++)
     {
-        if(!data.get_bag_element(i))
+        if(!kData.get_bag_element(i))
         {
-            dF = adF[i] + data.offset_ptr()[i];
+            delta_func_est = kFuncEstimate[i] + kData.offset_ptr()[i];
 
-            if(data.y_ptr()[i] > dF)
+            if(kData.y_ptr()[i] > delta_func_est)
             {
-                dReturnValue += data.weight_ptr()[i]*alpha_*(data.y_ptr()[i]-dF);
+                returnvalue += kData.weight_ptr()[i]*alpha_*(kData.y_ptr()[i]-delta_func_est);
             }
             else
             {
-                dReturnValue += data.weight_ptr()[i]*(1-alpha_)*(dF-data.y_ptr()[i]);
+                returnvalue += kData.weight_ptr()[i]*(1-alpha_)*(delta_func_est-kData.y_ptr()[i]);
             }
 
-            if(data.y_ptr()[i] > dF+shrinkage*adFadj[i])
+            if(kData.y_ptr()[i] > delta_func_est+kShrinkage*kDeltaEstimate[i])
             {
-                dReturnValue -= data.weight_ptr()[i]*alpha_*
-                                (data.y_ptr()[i] - dF-shrinkage*adFadj[i]);
+                returnvalue -= kData.weight_ptr()[i]*alpha_*
+                                (kData.y_ptr()[i] - delta_func_est-kShrinkage*kDeltaEstimate[i]);
             }
             else
             {
-                dReturnValue -= data.weight_ptr()[i]*(1-alpha_)*
-                                (dF+shrinkage*adFadj[i] - data.y_ptr()[i]);
+                returnvalue -= kData.weight_ptr()[i]*(1-alpha_)*
+                                (delta_func_est+kShrinkage*kDeltaEstimate[i] - kData.y_ptr()[i]);
             }
-            dW += data.weight_ptr()[i];
+            weight += kData.weight_ptr()[i];
         }
     }
-    return dReturnValue/dW;
+    return returnvalue/weight;
 }
 

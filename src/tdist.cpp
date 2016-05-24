@@ -25,10 +25,10 @@ CTDist::CTDist(double nu):mplocm_("tdist", nu)
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CTDist::Create(DataDistParams& distParams)
+CDistribution* CTDist::Create(DataDistParams& distparams)
 {
 	// Check that misc exists
-	double nu = Rcpp::as<double>(distParams.misc[0]);
+	double nu = Rcpp::as<double>(distparams.misc[0]);
 	if(!GBM_FUNC::has_value(nu))
 	{
 		throw GBM::Failure("T Dist requires misc to initialization.");
@@ -43,18 +43,18 @@ CTDist::~CTDist()
 
 void CTDist::ComputeWorkingResponse
 (
-	const CDataset& data,
-    const double *adF,
-    double *adZ
+	const CDataset& kData,
+    const double* kFuncEstimate,
+    double* residuals
 )
 {
     unsigned long i = 0;
-    double dU = 0.0;
+    double du = 0.0;
 
-	for(i=0; i<data.get_trainsize(); i++)
+	for(i=0; i<kData.get_trainsize(); i++)
 	{
-		dU = data.y_ptr()[i] - data.offset_ptr()[i] - adF[i];
-		adZ[i] = (2 * dU) / (m_nu_ + (dU * dU));
+		du = kData.y_ptr()[i] - kData.offset_ptr()[i] - kFuncEstimate[i];
+		residuals[i] = (2 * du) / (m_nu_ + (du * du));
 	}
 
 }
@@ -62,106 +62,106 @@ void CTDist::ComputeWorkingResponse
 
 double CTDist::InitF
 (
-	const CDataset& data
+	const CDataset& kData
 )
 {
 
 	// Get objects to pass into the LocM function
-	std::vector<double> adArr(data.get_trainsize());
+	std::vector<double> arr(kData.get_trainsize());
 
-	for (unsigned long ii = 0; ii < data.get_trainsize(); ii++)
+	for (unsigned long ii = 0; ii < kData.get_trainsize(); ii++)
 	{
-		double dOffset = data.offset_ptr()[ii];
-		adArr[ii] = data.y_ptr()[ii] - dOffset;
+		double offset = kData.offset_ptr()[ii];
+		arr[ii] = kData.y_ptr()[ii] - offset;
 	}
 
-	return mplocm_.LocationM(data.get_trainsize(), &adArr[0], data.weight_ptr(), 0.5);
+	return mplocm_.LocationM(kData.get_trainsize(), &arr[0], kData.weight_ptr(), 0.5);
 }
 
 double CTDist::Deviance
 (
-	const CDataset& data,
-    const double *adF,
-    bool isValidationSet
+	const CDataset& kData,
+    const double *kFuncEstimate,
+    bool is_validationset
 )
 {
     unsigned long i=0;
-    double dL = 0.0;
-    double dW = 0.0;
-	double dU = 0.0;
+    double loss = 0.0;
+    double weight = 0.0;
+	double du = 0.0;
 
 	// Switch to validation set if necessary
-	unsigned long cLength = data.get_trainsize();
-	if(isValidationSet)
+	unsigned long num_rows_in_set = kData.get_trainsize();
+	if(is_validationset)
 	{
-	   data.shift_to_validation();
-	   cLength = data.get_validsize();
+	   kData.shift_to_validation();
+	   num_rows_in_set = kData.get_validsize();
 	}
 
 
-	for(i=0; i<cLength; i++)
+	for(i=0; i<num_rows_in_set; i++)
 	{
-		dU = data.y_ptr()[i] - data.offset_ptr()[i] - adF[i];
-		dL += data.weight_ptr()[i] * std::log(m_nu_ + (dU * dU));
-		dW += data.weight_ptr()[i];
+		du = kData.y_ptr()[i] - kData.offset_ptr()[i] - kFuncEstimate[i];
+		loss += kData.weight_ptr()[i] * std::log(m_nu_ + (du * du));
+		weight += kData.weight_ptr()[i];
 	}
 
 
     // Switch back to training set if necessary
-    if(isValidationSet)
+    if(is_validationset)
     {
- 	   data.shift_to_train();
+ 	   kData.shift_to_train();
     }
 
     //TODO: Check if weights are all zero for validation set
-   if((dW == 0.0) && (dL == 0.0))
+   if((weight == 0.0) && (loss == 0.0))
    {
 	   return nan("");
    }
-   else if(dW == 0.0)
+   else if(weight == 0.0)
    {
-	   return copysign(HUGE_VAL, dL);
+	   return copysign(HUGE_VAL, loss);
    }
 
-    return dL/dW;
+    return loss/weight;
 }
 
 
 void CTDist::FitBestConstant
 (
-	const CDataset& data,
-    const double *adF,
-    unsigned long cTermNodes,
-    double* adZ,
-    CTreeComps& treeComps
+	const CDataset& kData,
+    const double* kFuncEstimate,
+    unsigned long num_terminalnodes,
+    double* residuals,
+    CTreeComps& treecomps
 )
 {
    	// Local variables
-    unsigned long iNode = 0;
-    unsigned long iObs = 0;
+    unsigned long node_num = 0;
+    unsigned long obs_num = 0;
 
 
-    std::vector<double> adArr, adW;
+    std::vector<double> arr_vec, weight_vec;
 	// Call LocM for the array of values on each node
-    for(iNode=0; iNode<cTermNodes; iNode++)
+    for(node_num=0; node_num<num_terminalnodes; node_num++)
     {
-      if(treeComps.get_terminal_nodes()[iNode]->numobs >= treeComps.min_num_obs_required())
+      if(treecomps.get_terminal_nodes()[node_num]->numobs >= treecomps.min_num_obs_required())
         {
-	  adArr.clear();
-	  adW.clear();
+	  arr_vec.clear();
+	  weight_vec.clear();
 
-	  for (iObs = 0; iObs < data.get_trainsize(); iObs++)
+	  for (obs_num = 0; obs_num < kData.get_trainsize(); obs_num++)
 	    {
-	      if(data.get_bag_element(iObs) && (treeComps.get_node_assignments()[iObs] == iNode))
+	      if(kData.get_bag_element(obs_num) && (treecomps.get_node_assignments()[obs_num] == node_num))
                 {
-		  const double dOffset = data.offset_ptr()[iObs];
-		  adArr.push_back(data.y_ptr()[iObs] - dOffset - adF[iObs]);
-		  adW.push_back(data.weight_ptr()[iObs]);
+		  const double dOffset = kData.offset_ptr()[obs_num];
+		  arr_vec.push_back(kData.y_ptr()[obs_num] - dOffset - kFuncEstimate[obs_num]);
+		  weight_vec.push_back(kData.weight_ptr()[obs_num]);
                 }
 	    }
 
-	  treeComps.get_terminal_nodes()[iNode]->prediction = mplocm_.LocationM(adArr.size(), &adArr[0],
-							       &adW[0], 0.5);
+	  treecomps.get_terminal_nodes()[node_num]->prediction = mplocm_.LocationM(arr_vec.size(), &arr_vec[0],
+							       &weight_vec[0], 0.5);
 
         }
     }
@@ -169,30 +169,30 @@ void CTDist::FitBestConstant
 
 double CTDist::BagImprovement
 (
-    const CDataset& data,
-    const double *adF,
-    const double shrinkage,
-    const double* adFadj
+    const CDataset& kData,
+    const double* kFuncEstimate,
+    const double kShrinkage,
+    const double* kDeltaEstimate
 )
 {
-    double dReturnValue = 0.0;
+    double returnvalue = 0.0;
     unsigned long i = 0;
-    double dW = 0.0;
+    double weight = 0.0;
 
-    for(i=0; i<data.get_trainsize(); i++)
+    for(i=0; i<kData.get_trainsize(); i++)
     {
-        if(!data.get_bag_element(i))
+        if(!kData.get_bag_element(i))
         {
-            const double dF = adF[i] + data.offset_ptr()[i];
-	    const double dU = (data.y_ptr()[i] - dF);
-	    const double dV = (data.y_ptr()[i] - dF - shrinkage * adFadj[i]) ;
+            const double dF = kFuncEstimate[i] + kData.offset_ptr()[i];
+	    const double dU = (kData.y_ptr()[i] - dF);
+	    const double dV = (kData.y_ptr()[i] - dF - kShrinkage * kDeltaEstimate[i]) ;
 
-            dReturnValue += data.weight_ptr()[i] * (std::log(m_nu_ + (dU * dU)) - log(m_nu_ + (dV * dV)));
-            dW += data.weight_ptr()[i];
+            returnvalue += kData.weight_ptr()[i] * (std::log(m_nu_ + (dU * dU)) - log(m_nu_ + (dV * dV)));
+            weight += kData.weight_ptr()[i];
         }
     }
 
-    return dReturnValue/dW;
+    return returnvalue/weight;
 }
 
 

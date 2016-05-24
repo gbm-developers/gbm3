@@ -25,8 +25,8 @@ struct NodeDef
   //----------------------
   NodeDef() : numobs_(0), weightresid_(0), totalweight_(0) {};
   
-  NodeDef(double weightResid, double totalWeight, unsigned long numObs) :
-  numobs_(numObs), weightresid_(weightResid), totalweight_(totalWeight) {};
+  NodeDef(double weightresid, double totalweight, unsigned long numobs) :
+  numobs_(numobs), weightresid_(weightresid), totalweight_(totalweight) {};
   
   //---------------------
   // Public Functions
@@ -37,10 +37,10 @@ struct NodeDef
     weightresid_ = totalweight_ = 0;
   };
   
-  void increment(const double pred, const double trainWeight, long num)
+  void increment(const double kPred, const double kTrainWeight, long num)
   {
-    weightresid_ += pred;
-    totalweight_ += trainWeight;
+    weightresid_ += kPred;
+    totalweight_ += kTrainWeight;
     numobs_ += num;
   };
   
@@ -49,20 +49,20 @@ struct NodeDef
     return weightresid_ / totalweight_;
   };
   
-  double unweighted_gradient(const NodeDef& other) const
+  double unweighted_gradient(const NodeDef& kOtherNode) const
   {
-	return weightresid_ * other.totalweight_ - other.weightresid_ * totalweight_;
+	return weightresid_ * kOtherNode.totalweight_ - kOtherNode.weightresid_ * totalweight_;
   };
 
-  double variance_reduction(const NodeDef& other) const
+  double variance_reduction(const NodeDef& kOtherNode) const
   {
-	const double predictionDiff = prediction() - other.prediction();
-    return totalweight_* other.totalweight_*predictionDiff*predictionDiff;
+	const double predictionDiff = prediction() - kOtherNode.prediction();
+    return totalweight_* kOtherNode.totalweight_*predictionDiff*predictionDiff;
   };
 
-  bool has_min_obs(unsigned long minObsInNode) const
+  bool has_min_obs(unsigned long min_num_node_obs) const
   {
-	return (numobs_ >= minObsInNode);
+	return (numobs_ >= min_num_node_obs);
   }
 
   bool has_obs() const
@@ -70,14 +70,14 @@ struct NodeDef
     return numobs_;
   }
 
-  double sum_weights(const NodeDef& a) const
+  double sum_weights(const NodeDef& kOtherNode) const
   {
-    return totalweight_ + a.totalweight_;
+    return totalweight_ + kOtherNode.totalweight_;
   }
   
-  double sum_weights(const NodeDef& a, const NodeDef& b) const
+  double sum_weights(const NodeDef& kNodeOne, const NodeDef& kNodeTwo) const
   {
-    return totalweight_ + a.sum_weights(b);
+    return totalweight_ + kNodeOne.sum_weights(kNodeTwo);
   }
 
   double get_totalweight() const
@@ -117,26 +117,26 @@ public:
 	//---------------------
 	// Public Functions
 	//---------------------
-	void ResetSplitProperties(double weightedResiduals, double trainingWeight, unsigned long numObs,
-				  double splitValue = -HUGE_VAL, unsigned long variableClasses=1, unsigned long splitVar = UINT_MAX);
-	void UpdateMissingNode(double predIncrement, double trainWIncrement, long numIncrement = 1)
+	void ResetSplitProperties(double weightedresiduals, double trainingweight, unsigned long numobs,
+				  double splitvalue = -HUGE_VAL, unsigned long variable_classes=1, unsigned long splitvar = UINT_MAX);
+	void UpdateMissingNode(double predincrement, double trainw_increment, long numincrement = 1)
 	{
 	  // Move data point from right node to missing
-	  missing_.increment(predIncrement, trainWIncrement, numIncrement);
-	  right_.increment(-predIncrement, -trainWIncrement, -numIncrement);
+	  missing_.increment(predincrement, trainw_increment, numincrement);
+	  right_.increment(-predincrement, -trainw_increment, -numincrement);
 	}
-	void UpdateLeftNode(double predIncrement, double trainWIncrement, long numIncrement = 1)
+	void UpdateLeftNode(double predincrement, double trainw_increment, long numincrement = 1)
 	{
 		// Move data point from right node to left node
-		left_.increment(predIncrement, trainWIncrement, numIncrement);
-		right_.increment(-predIncrement, -trainWIncrement, -numIncrement);
+		left_.increment(predincrement, trainw_increment, numincrement);
+		right_.increment(-predincrement, -trainw_increment, -numincrement);
 	}
 	inline double get_improvement() { return improvement_;};
-	bool split_is_correct_monotonicity(long specifyMonotone)
+	bool split_is_correct_monotonicity(long specify_monotone)
 	{
 		return (
-			(specifyMonotone == 0) ||
-			((specifyMonotone * right_.unweighted_gradient(left_)) > 0)
+			(specify_monotone == 0) ||
+			((specify_monotone * right_.unweighted_gradient(left_)) > 0)
 			);
 	}
 	void NodeGradResiduals()
@@ -158,18 +158,18 @@ public:
 	    }
 	};
 	
-	bool has_min_num_obs(unsigned long minObsInNode)
+	bool has_min_num_obs(unsigned long min_num_node_obs)
 	{
-		return (left_.has_min_obs(minObsInNode) &&
-			  right_.has_min_obs(minObsInNode));
+		return (left_.has_min_obs(min_num_node_obs) &&
+			  right_.has_min_obs(min_num_node_obs));
 	}
-	inline void SetBestCategory(std::vector<std::pair<double, int> >& groupMeanAndCat)
+	inline void SetBestCategory(std::vector<std::pair<double, int> >& groupmean_and_cat)
 	{
 
 	  int count = 0;
-	  category_ordering_.resize(groupMeanAndCat.size());
-	  for(std::vector<std::pair<double, int> >::const_iterator it = groupMeanAndCat.begin();
-	      it != groupMeanAndCat.end();
+	  category_ordering_.resize(groupmean_and_cat.size());
+	  for(std::vector<std::pair<double, int> >::const_iterator it = groupmean_and_cat.begin();
+	      it != groupmean_and_cat.end();
 	      ++it)
 	    {
 	      category_ordering_[count] = it->second;

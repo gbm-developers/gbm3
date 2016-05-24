@@ -39,120 +39,120 @@ public:
 	//---------------------
 	void ComputeWorkingResponse
 	(
-		const CDataset& data,
-	    const double *adF,
-	    double *adZ
+		const CDataset& kData,
+	    const double* kFuncEstimate,
+	    double* residuals
 	)
 	{
 		// Initialize parameters
-		std::vector<double> martingaleResid(data.get_trainsize(), 0.0);
-		LogLikelihood(data.get_trainsize(), data, adF, &martingaleResid[0], false);
+		std::vector<double> martingale_resid(kData.get_trainsize(), 0.0);
+		LogLikelihood(kData.get_trainsize(), kData, kFuncEstimate, &martingale_resid[0], false);
 
 		// Fill up response
-		for(unsigned long i = 0; i < data.get_trainsize(); i++)
+		for(unsigned long i = 0; i < kData.get_trainsize(); i++)
 		{
-			if(data.get_bag_element(i))
+			if(kData.get_bag_element(i))
 			{
-				adZ[i] = data.weight_ptr()[i] * martingaleResid[i]; // From chain rule
+				residuals[i] = kData.weight_ptr()[i] * martingale_resid[i]; // From chain rule
 			}
 		}
 	}
 
 	void FitBestConstant
 	(
-		const CDataset& data,
-	    const double *adF,
-	    unsigned long cTermNodes,
-	    double* adZ,
-	    CTreeComps& treeComps
+		const CDataset& kData,
+	    const double* kFuncEstimate,
+	    unsigned long num_terminalnodes,
+	    double* residuals,
+	    CTreeComps& treecomps
 	)
 	{
 		// Calculate the expected number of events and actual number of events in
 		// terminal nodes
-		std::vector<double> martingaleResid(data.get_trainsize(), 0.0);
-		std::vector<double> expNoEventsInNodes(cTermNodes, 1.0/coxph_->PriorCoeffVar());
-		std::vector<double> numEventsInNodes(cTermNodes, 1.0/coxph_->PriorCoeffVar());
-		LogLikelihood(data.get_trainsize(), data, adF,
-			      &martingaleResid[0], false);
+		std::vector<double> martingale_resid(kData.get_trainsize(), 0.0);
+		std::vector<double> expnum_events_in_nodes(num_terminalnodes, 1.0/coxph_->PriorCoeffVar());
+		std::vector<double> num_events_in_nodes(num_terminalnodes, 1.0/coxph_->PriorCoeffVar());
+		LogLikelihood(kData.get_trainsize(), kData, kFuncEstimate,
+			      &martingale_resid[0], false);
 
-		for(unsigned long i = 0; i < data.get_trainsize(); i++)
+		for(unsigned long i = 0; i < kData.get_trainsize(); i++)
 		{
-			if(data.get_bag_element(i) &&
-			   (treeComps.get_terminal_nodes()[treeComps.get_node_assignments()[i]]->numobs >= treeComps.min_num_obs_required()) )
+			if(kData.get_bag_element(i) &&
+			   (treecomps.get_terminal_nodes()[treecomps.get_node_assignments()[i]]->numobs >= treecomps.min_num_obs_required()) )
 			{
 				// Cap expected number of events to be at least 0
-				expNoEventsInNodes[treeComps.get_node_assignments()[i]] += max(0.0, coxph_->StatusVec()[i] - martingaleResid[i]);
-				numEventsInNodes[treeComps.get_node_assignments()[i]] += coxph_->StatusVec()[i];
+				expnum_events_in_nodes[treecomps.get_node_assignments()[i]] += max(0.0, coxph_->StatusVec()[i] - martingale_resid[i]);
+				num_events_in_nodes[treecomps.get_node_assignments()[i]] += coxph_->StatusVec()[i];
 			}
 		}
 
 		// Update Node predictions
-		for(unsigned long nodeNum = 0; nodeNum < cTermNodes; nodeNum++)
+		for(unsigned long nodeNum = 0; nodeNum < num_terminalnodes; nodeNum++)
 		{
 			// If there are no data points in node this is 0.0
-			treeComps.get_terminal_nodes()[nodeNum]->prediction = log(numEventsInNodes[nodeNum]/expNoEventsInNodes[nodeNum]);
+			treecomps.get_terminal_nodes()[nodeNum]->prediction = log(num_events_in_nodes[nodeNum]/expnum_events_in_nodes[nodeNum]);
 		}
 
 	}
 
 	double Deviance
 	(
-		const long cLength,
-		const CDataset& data,
-	    const double *adF
+		const long kNumRowsInSet,
+		const CDataset& kData,
+	    const double* kFuncEstimate
 	)
 	{
 		// Initialize Parameters
 	    double loglik = 0.0;
-	    std::vector<double> martingaleResid(cLength, 0.0);
+	    std::vector<double> martingale_resid(kNumRowsInSet, 0.0);
 
 	    // Calculate Deviance - skip bag as pointing at validation set
-	    loglik = LogLikelihood(cLength, data, adF, &martingaleResid[0]);
+	    loglik = LogLikelihood(kNumRowsInSet, kData, kFuncEstimate, &martingale_resid[0]);
 
 	    return -loglik;
 	}
 
 	double BagImprovement
 	(
-	 const CDataset& data,
-	 const double *adF,
-	 const double shrinkage,
-	 const double* adFadj
+	 const CDataset& kData,
+	 const double* kFuncEstimate,
+	 const double kShrinkage,
+	 const double* kDeltaEstimate
 	)
 	{
 		// Initialize Parameters
-	    double loglikeNoAdj = 0.0;
-	    double loglikeWithAdj = 0.0;
-	    std::vector<double> martingaleResidNoAdj(data.get_trainsize(), 0.0);
-	    std::vector<double> martingaleResidWithAdj(data.get_trainsize(), 0.0);
-	    std::vector<double> etaAdj(data.get_trainsize(), 0.0);
+	    double loglike_no_adj = 0.0;
+	    double loglike_with_adj = 0.0;
+	    std::vector<double> martingale_resid_no_adj(kData.get_trainsize(), 0.0);
+	    std::vector<double> martingale_resid_with_adj(kData.get_trainsize(), 0.0);
+	    std::vector<double> eta_adj(kData.get_trainsize(), 0.0);
 
 	    // Fill up the adjusted and shrunk eta
-	    for(unsigned long i = 0; i < data.get_trainsize(); i++)
+	    for(unsigned long i = 0; i < kData.get_trainsize(); i++)
 	    {
-	    	if(!data.get_bag_element(i))
+	    	if(!kData.get_bag_element(i))
 	    	{
-		    	etaAdj[i] = adF[i] + shrinkage * adFadj[i];
+		    	eta_adj[i] = kFuncEstimate[i] + kShrinkage * kDeltaEstimate[i];
 
 	    	}
 	    	else
 	    	{
-	    		etaAdj[i]  = adF[i];
+	    		eta_adj[i]  = kFuncEstimate[i];
 	    	}
 	    }
 
 	    // Calculate likelihoods - data not in bags
-	    loglikeNoAdj = LogLikelihood(data.get_trainsize(), data, adF, &martingaleResidNoAdj[0], false, false);
-	    loglikeWithAdj = LogLikelihood(data.get_trainsize(), data, &etaAdj[0], &martingaleResidWithAdj[0], false, false);
+	    loglike_no_adj = LogLikelihood(kData.get_trainsize(), kData, kFuncEstimate, &martingale_resid_no_adj[0], false, false);
+	    loglike_with_adj = LogLikelihood(kData.get_trainsize(), kData, &eta_adj[0], &martingale_resid_with_adj[0], false, false);
 
-	    return (loglikeWithAdj - loglikeNoAdj);
+	    return (loglike_with_adj - loglike_no_adj);
 	}
 
 private:
 	CCoxPH* coxph_;
 
-	double LogLikelihood(const int n, const CDataset& data, const double* eta,
-								double* resid, bool skipBag=true, bool checkInBag=true)
+	double LogLikelihood(const int n, const CDataset& kData, const double* eta,
+								double* resid, bool skipbag=true, bool checkinbag=true)
 	{
 	    int k, ksave;
 	    int person, p2;
@@ -176,18 +176,18 @@ private:
 	    loglik =0;
 
 	    // Center based on last person in the set of interest
-	    double newCenter = 0.0;
+	    double new_center = 0.0;
 	    center = -10.0E16;
 
 	    for(person = 0; person < n; person++)
 	    {
 	    	p2 = coxph_->EndTimeIndices()[person];
-	    	if(skipBag || (data.get_bag_element(p2)==checkInBag))
+	    	if(skipbag || (kData.get_bag_element(p2)==checkinbag))
 	    	{
-	    		newCenter = eta[coxph_->EndTimeIndices()[p2]] + data.offset_ptr()[coxph_->EndTimeIndices()[p2]];
-	    		if(newCenter > center)
+	    		new_center = eta[coxph_->EndTimeIndices()[p2]] + kData.offset_ptr()[coxph_->EndTimeIndices()[p2]];
+	    		if(new_center > center)
 	    		{
-	    			center = newCenter;
+	    			center = new_center;
 	    		}
 	    	}
 	    }
@@ -198,20 +198,20 @@ private:
 	    	p2 = coxph_->EndTimeIndices()[person];
 
 	    	// Check if bagging is required - p2 gives the within strata order
-	    	if(skipBag || (data.get_bag_element(p2)==checkInBag))
+	    	if(skipbag || (kData.get_bag_element(p2)==checkinbag))
 	    	{
 	    		if (coxph_->StatusVec()[p2] ==0)
 				{
 					/* add the subject to the risk set */
-					resid[p2] = exp(eta[p2] + data.offset_ptr()[p2] - center) * cumhaz;
+					resid[p2] = exp(eta[p2] + kData.offset_ptr()[p2] - center) * cumhaz;
 					nrisk++;
-					denom  += data.weight_ptr()[p2]* exp(eta[p2] + data.offset_ptr()[p2] - center);
-					esum += eta[p2] + data.offset_ptr()[p2];
+					denom  += kData.weight_ptr()[p2]* exp(eta[p2] + kData.offset_ptr()[p2] - center);
+					esum += eta[p2] + kData.offset_ptr()[p2];
 					person++;
 				}
 				else
 				{
-					dtime = data.y_ptr()[p2];  /* found a new, unique death time */
+					dtime = kData.y_ptr()[p2];  /* found a new, unique death time */
 					/*
 					**        Add up over this death time, for all subjects
 					*/
@@ -223,21 +223,21 @@ private:
 						p2 = coxph_->EndTimeIndices()[k];
 						// Check in loop over stratum that person in stratum has correct bag
 						// properties
-						if(skipBag || (data.get_bag_element(p2)==checkInBag))
+						if(skipbag || (kData.get_bag_element(p2)==checkinbag))
 						{
-							if (data.y_ptr()[p2]  < dtime)
+							if (kData.y_ptr()[p2]  < dtime)
 							{
 								break;  /* only tied times */
 							}
 							nrisk++;
-							denom += data.weight_ptr()[p2] * exp(eta[p2] + data.offset_ptr()[p2] - center);
-							esum += eta[p2] + data.offset_ptr()[p2];
+							denom += kData.weight_ptr()[p2] * exp(eta[p2] + kData.offset_ptr()[p2] - center);
+							esum += eta[p2] + kData.offset_ptr()[p2];
 							if (coxph_->StatusVec()[p2] ==1)
 							{
 								ndeath ++;
-								deathwt += data.weight_ptr()[p2];
-								d_denom += data.weight_ptr()[p2] * exp(eta[p2] + data.offset_ptr()[p2] - center);
-								loglik  += data.weight_ptr()[p2]*(eta[p2] + data.offset_ptr()[p2] - center);
+								deathwt += kData.weight_ptr()[p2];
+								d_denom += kData.weight_ptr()[p2] * exp(eta[p2] + kData.offset_ptr()[p2] - center);
+								loglik  += kData.weight_ptr()[p2]*(eta[p2] + kData.offset_ptr()[p2] - center);
 							 }
 						}
 					}
@@ -276,10 +276,10 @@ private:
 					{
 						p2 = coxph_->EndTimeIndices()[person];
 						// Check if person in stratum in/out of bag
-						if(skipBag || (data.get_bag_element(p2)==checkInBag))
+						if(skipbag || (kData.get_bag_element(p2)==checkinbag))
 						{
-							if (coxph_->StatusVec()[p2] ==1) resid[p2] = 1 + temp*exp(eta[p2] + data.offset_ptr()[p2] - center);
-							else resid[p2] = cumhaz * exp(eta[p2] + data.offset_ptr()[p2] - center);
+							if (coxph_->StatusVec()[p2] ==1) resid[p2] = 1 + temp*exp(eta[p2] + kData.offset_ptr()[p2] - center);
+							else resid[p2] = cumhaz * exp(eta[p2] + kData.offset_ptr()[p2] - center);
 						}
 
 					}
@@ -302,9 +302,9 @@ private:
 						p2 = coxph_->EndTimeIndices()[indx1];
 
 						// Check bagging status
-						if(skipBag || (data.get_bag_element(p2)==checkInBag))
+						if(skipbag || (kData.get_bag_element(p2)==checkinbag))
 						{
-							resid[p2] -= cumhaz * exp(eta[p2] + data.offset_ptr()[p2] - center);
+							resid[p2] -= cumhaz * exp(eta[p2] + kData.offset_ptr()[p2] - center);
 						}
 					}
 					cumhaz =0;

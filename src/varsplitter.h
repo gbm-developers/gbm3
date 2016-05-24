@@ -25,7 +25,7 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-	VarSplitter(unsigned long minNumObs);
+	VarSplitter(unsigned long min_num_node_obs);
 
 	//---------------------
 	// Public destructor
@@ -40,26 +40,25 @@ public:
 		issplit_ = true;
 	};
 
-	 void IncorporateObs(double dX,
-			     double dZ,
-			     double dW,
-			     long lMonotone);
-
+	 void IncorporateObs(double xval,
+			     double residval,
+			     double weight,
+			     long monotonicity);
 	void Set(CNode& nodeToSplit);
-	void ResetForNewVar(unsigned long iWhichVar,
-			    long cVarClasses);
+	void ResetForNewVar(unsigned long whichvar,
+			    long numvar_classes);
 
 
 	inline double best_improvement() { return bestsplit_.improvement_; }
 	inline NodeParams best_split() { return bestsplit_;}
-	void SetupNewNodes(CNode& nodeToSplit)
+	void SetupNewNodes(CNode& node_to_split)
 	{
-	  nodeToSplit.SplitNode(bestsplit_);
+	  node_to_split.SplitNode(bestsplit_);
 	}
 
 	unsigned long SetAndReturnNumGroupMeans()
 	{
-	  unsigned long cFiniteMeans = 0;
+	  unsigned long num_finite_means = 0;
 
 	  for(unsigned long i=0; i < proposedsplit_.split_class_; i++)
 	    {
@@ -68,7 +67,7 @@ public:
 	      if(group_weight_[i] != 0.0)
 		{
 		  groupMeanAndCat[i].first = group_sumresid_[i]/group_weight_[i];
-		  cFiniteMeans++;
+		  num_finite_means++;
 		}
 	      else
 		{
@@ -79,24 +78,24 @@ public:
 	  std::sort(groupMeanAndCat.begin(),
 		    groupMeanAndCat.begin() + proposedsplit_.split_class_);
 
-	  return cFiniteMeans;
+	  return num_finite_means;
 	}
 
 	void IncrementCategories(unsigned long cat,
-				 double predIncrement,
-				 double trainWIncrement)
+				 double pred_increment,
+				 double trainw_increment)
 	{
-	  group_sumresid_[cat] += predIncrement;
-	  group_weight_[cat] += trainWIncrement;
+	  group_sumresid_[cat] += pred_increment;
+	  group_weight_[cat] += trainw_increment;
 	  group_num_obs_[cat]++;
 	}
 	
-	void UpdateLeftNodeWithCat(long catIndex)
+	void UpdateLeftNodeWithCat(long cat_index)
 	{
 
-		proposedsplit_.UpdateLeftNode(group_sumresid_[groupMeanAndCat[catIndex].second],
-				group_weight_[groupMeanAndCat[catIndex].second],
-				group_num_obs_[groupMeanAndCat[catIndex].second]);
+		proposedsplit_.UpdateLeftNode(group_sumresid_[groupMeanAndCat[cat_index].second],
+				group_weight_[groupMeanAndCat[cat_index].second],
+				group_num_obs_[groupMeanAndCat[cat_index].second]);
 	}
 
 	void EvaluateCategoricalSplit();

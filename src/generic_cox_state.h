@@ -41,23 +41,23 @@ public:
 	//---------------------
 	// Public Functions
 	//---------------------
-    virtual void ComputeWorkingResponse(const CDataset& data,
-    		const double *adF,
-				double *adZ)=0;
+    virtual void ComputeWorkingResponse(const CDataset& kData,
+    		const double* kFuncEstimate,
+				double* residuals)=0;
 
-    virtual void FitBestConstant(const CDataset& data,
-    		const double *adF,
-			 unsigned long cTermNodes,
-			 double* adZ,
-			 CTreeComps& treeComps)=0;
+    virtual void FitBestConstant(const CDataset& kData,
+    		const double* kFuncEstimate,
+			 unsigned long num_terminalnodes,
+			 double* residuals,
+			 CTreeComps& treecomps)=0;
 
-    virtual double Deviance(const long cLength, const CDataset& data,
-    				const double *adF)=0;
+    virtual double Deviance(const long kNumRowsInSet, const CDataset& kData,
+    				const double* kFuncEstimate)=0;
 
-    virtual double BagImprovement(const CDataset& data,
-				  const double *adF,
-				  const double shrinkage,
-				  const double* adFadj)=0;
+    virtual double BagImprovement(const CDataset& kData,
+				  const double* kFuncEstimate,
+				  const double kShrinkage,
+				  const double* kDeltaEstimate)=0;
 
 };
 #endif // GENERICCOXSTATE_H

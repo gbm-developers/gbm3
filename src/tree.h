@@ -47,23 +47,23 @@ public:
 	//---------------------
 	// Public Functions
 	//---------------------
-    void grow(double *adZ,
-	      const CDataset& data,
-	      const double *adF,
-	      unsigned long cMinObsInNode,
-	      std::vector<unsigned long>& aiNodeAssign,
-	      CNodeSearch& aNodeSearch);
+    void grow(double* residuals,
+	      const CDataset& kData,
+	      const double* kFuncEstimate,
+	      unsigned long min_num_node_obs,
+	      std::vector<unsigned long>& data_node_assigns,
+	      CNodeSearch& nodesearcher);
     void Reset();
 
     CNode* GetRootNode();
     const CNode* GetRootNode() const;
 
-    void PredictValid(const CDataset &pData,
-		      unsigned long nValid,
-		      double *adFadj);
-    void Adjust(const std::vector<unsigned long>& aiNodeAssign,
-		double *adFadj,
-		unsigned long cMinObsInNode);
+    void PredictValid(const CDataset &kData,
+		      unsigned long num_validation_points,
+		      double* delta_estimates);
+    void Adjust(const std::vector<unsigned long>& kDataNodeAssigns,
+		double* delta_estimates,
+		unsigned long min_num_node_obs);
 
     const unsigned long& GetNodeCount() const { return totalnodecount_; }
     vector<CNode*>& GetTermNodes() { return terminalnode_ptrs_; }

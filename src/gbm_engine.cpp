@@ -15,7 +15,7 @@ CGBM::~CGBM()
 
 void CGBM::FitLearner
 (
-  double *adF,
+  double* kFuncEstimate,
   double &trainingerror,
   double &validationerror,
   double &outofbag_improvement
@@ -27,7 +27,7 @@ void CGBM::FitLearner
   outofbag_improvement = 0.0;
 
   // Initialize adjustments to function estimate
-  std::vector<double> adFadj(datacontainer_.get_data().nrow(), 0);
+  std::vector<double> delta_estimates(datacontainer_.get_data().nrow(), 0);
 
   // Bag data
   datacontainer_.BagData();
@@ -37,8 +37,8 @@ void CGBM::FitLearner
 #endif
 
   // Compute Residuals and fit tree
-  datacontainer_.ComputeResiduals(&adF[0], &residuals_[0]);
-  treecomponents_.GrowTrees(datacontainer_.get_data(), &residuals_[0], &adFadj[0]);
+  datacontainer_.ComputeResiduals(&kFuncEstimate[0], &residuals_[0]);
+  treecomponents_.GrowTrees(datacontainer_.get_data(), &residuals_[0], &delta_estimates[0]);
 
 
 
@@ -49,61 +49,61 @@ void CGBM::FitLearner
 #endif
 
   // Adjust terminal node predictions and shrink
-  datacontainer_.ComputeBestTermNodePreds(&adF[0], &residuals_[0], treecomponents_);
-  treecomponents_.AdjustAndShrink(&adFadj[0]);
+  datacontainer_.ComputeBestTermNodePreds(&kFuncEstimate[0], &residuals_[0], treecomponents_);
+  treecomponents_.AdjustAndShrink(&delta_estimates[0]);
 
   // Compute the error improvement within bag
-  outofbag_improvement = datacontainer_.ComputeBagImprovement(&adF[0],
+  outofbag_improvement = datacontainer_.ComputeBagImprovement(&kFuncEstimate[0],
 						 treecomponents_.get_shrinkage_factor(),
-						 &adFadj[0]);
+						 &delta_estimates[0]);
 
   // Update the function estimate
   unsigned long i = 0;
   for(i=0; i < datacontainer_.get_data().get_trainsize(); i++)
   {
-    adF[i] += treecomponents_.get_shrinkage_factor() * adFadj[i];
+    kFuncEstimate[i] += treecomponents_.get_shrinkage_factor() * delta_estimates[i];
 
   }
 
   // Make validation predictions
-  trainingerror = datacontainer_.ComputeDeviance(&adF[0], false);
-  treecomponents_.PredictValid(datacontainer_.get_data(), &adFadj[0]);
+  trainingerror = datacontainer_.ComputeDeviance(&kFuncEstimate[0], false);
+  treecomponents_.PredictValid(datacontainer_.get_data(), &delta_estimates[0]);
 
   for(i=datacontainer_.get_data().get_trainsize();
       i < datacontainer_.get_data().get_trainsize()+datacontainer_.get_data().get_validsize();
       i++)
     {
-      adF[i] += adFadj[i];
+      kFuncEstimate[i] += delta_estimates[i];
     }
 
-  validationerror = datacontainer_.ComputeDeviance(&adF[0], true);
+  validationerror = datacontainer_.ComputeDeviance(&kFuncEstimate[0], true);
 
 }
 
 
 void CGBM::GBMTransferTreeToRList
 (
- int *aiSplitVar,
- double *adSplitPoint,
- int *aiLeftNode,
- int *aiRightNode,
- int *aiMissingNode,
- double *adErrorReduction,
- double *adWeight,
- double *adPred,
- VEC_VEC_CATEGORIES &vecSplitCodes,
- int cCatSplitsOld
+ int* splitvar,
+ double* splitvalues,
+ int* leftnodes,
+ int* rightnodes,
+ int* missingnodes,
+ double* error_reduction,
+ double* weights,
+ double* predictions,
+ VEC_VEC_CATEGORIES &splitcodes_vec,
+ int prev_categorical_splits
  )
 {
 	treecomponents_.TransferTreeToRList(datacontainer_.get_data(),
-				     aiSplitVar,
-				     adSplitPoint,
-				     aiLeftNode,
-				     aiRightNode,
-				     aiMissingNode,
-				     adErrorReduction,
-				     adWeight,
-				     adPred,
-				     vecSplitCodes,
-				     cCatSplitsOld);
+				     splitvar,
+				     splitvalues,
+				     leftnodes,
+				     rightnodes,
+				     missingnodes,
+				     error_reduction,
+				     weights,
+				     predictions,
+				     splitcodes_vec,
+				     prev_categorical_splits);
 }

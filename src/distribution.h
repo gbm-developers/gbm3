@@ -47,7 +47,7 @@ public:
     // Public Functions
     //---------------------
   	int GetNumGroups() const;
-  	void SetNumGroups(int GroupVal);
+  	void SetNumGroups(int groupval);
 
   	// shifts the ptrs() as appropriate
   	template<typename T>
@@ -65,34 +65,34 @@ public:
      //---------------------
      // Public Virtual Functions
      //---------------------
-     virtual void Initialize(const CDataset& data)
+     virtual void Initialize(const CDataset& kData)
      {
     	 // Set up multi map
-		for(unsigned long i = 0; i < (data.get_trainsize() + data.get_validsize()); i++)
+		for(unsigned long i = 0; i < (kData.get_trainsize() + kData.get_validsize()); i++)
 		{
-			obsid_to_row_.insert(pair<int, int>(data.get_row_patient_id(i), i));
+			obsid_to_row_.insert(pair<int, int>(kData.get_row_patient_id(i), i));
 		}
 
      };
-     virtual void ComputeWorkingResponse(const CDataset& data,
-					const double *adF,
-					double *adZ) = 0;
+     virtual void ComputeWorkingResponse(const CDataset& kData,
+					const double* kFuncEstimate,
+					double* residuals) = 0;
 
-    virtual double InitF(const CDataset& data) = 0;
+    virtual double InitF(const CDataset& kData) = 0;
 
-    virtual double Deviance(const CDataset& data, const double *adF,
-                            bool isValidationSet=false) = 0;
+    virtual double Deviance(const CDataset& kData, const double* kFuncEstimate,
+                            bool is_validationset=false) = 0;
 
-    virtual void FitBestConstant(const CDataset& data, const double *adF,
-				 unsigned long cTermNodes,
-				 double* adZ, CTreeComps& treeComps) = 0;
+    virtual void FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
+				 unsigned long num_terminalnodes,
+				 double*  residuals, CTreeComps& treecomps) = 0;
 
-    virtual double BagImprovement(const CDataset& data,
-				  const double *adF,
-				  const double shrinkage,
-				  const double* adFadj) = 0;
+    virtual double BagImprovement(const CDataset& kData,
+				  const double* kFuncEstimate,
+				  const double kShrinkage,
+				  const double* kDeltaFunce) = 0;
 
-    virtual void BagData(CDataset& data);
+    virtual void BagData(CDataset& kData);
  private:
 
     //---------------------

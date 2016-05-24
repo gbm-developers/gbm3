@@ -37,7 +37,7 @@
 //
 //-----------------------------------
 CDataset::CDataset(const DataDistParams& dataParams) :
-  dataImpl(dataParams.response, dataParams.offset,
+  dataimpl_(dataParams.response, dataParams.offset,
 	   dataParams.xvalues,
 	   dataParams.xorder, dataParams.variable_weight,
 	   dataParams.variable_num_classes,
@@ -46,17 +46,17 @@ CDataset::CDataset(const DataDistParams& dataParams) :
 	   dataParams.num_trainobservations, dataParams.patientids) {
   
   // Check for errors on initialization
-  if (dataImpl.xmatrix_.ncol() != dataImpl.variable_monotonicity_.size())
+  if (dataimpl_.xmatrix_.ncol() != dataimpl_.variable_monotonicity_.size())
     {
       throw GBM::InvalidArgument("shape mismatch (monotone does not match data)");
     }
 
-  if (dataImpl.xmatrix_.ncol() != dataImpl.num_variable_classes_.size())
+  if (dataimpl_.xmatrix_.ncol() != dataimpl_.num_variable_classes_.size())
     {
       throw GBM::InvalidArgument("shape mismatch (var classes does not match data)");
     }
   
-  if (dataImpl.xmatrix_.nrow() < int(dataParams.num_trainrows))
+  if (dataimpl_.xmatrix_.nrow() < int(dataParams.num_trainrows))
     {
       throw GBM::InvalidArgument("your training instances don't make sense");
     }

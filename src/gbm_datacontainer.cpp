@@ -24,12 +24,12 @@
 //
 // Parameters: ...
 //-----------------------------------
-CGBMDataContainer::CGBMDataContainer(DataDistParams& dataDistConfig):
-        data_(dataDistConfig)
+CGBMDataContainer::CGBMDataContainer(DataDistParams& datadist_config):
+        data_(datadist_config)
 {
 	//Initialize the factory and then use to get the disribution
 	distfactory_ = new DistributionFactory();
-	distptr_ = distfactory_ -> CreateDist(dataDistConfig);
+	distptr_ = distfactory_ -> CreateDist(datadist_config);
 	distptr_->Initialize(data_);
 }
 
@@ -75,9 +75,9 @@ double CGBMDataContainer::InitialFunctionEstimate()
 //    CTreeComps ptr - ptr to the tree components container in the gbm.
 //
 //-----------------------------------
-void CGBMDataContainer::ComputeResiduals(const double* adF, double* adZ)
+void CGBMDataContainer::ComputeResiduals(const double* kFuncEstimate, double* residuals)
 {
-	get_dist()->ComputeWorkingResponse(data_, adF, adZ);
+	get_dist()->ComputeWorkingResponse(data_, kFuncEstimate, residuals);
 }
 
 //-----------------------------------
@@ -91,12 +91,12 @@ void CGBMDataContainer::ComputeResiduals(const double* adF, double* adZ)
 //    CTreeComps ptr - ptr to the tree components container in the gbm
 //    int& - reference to the number of nodes in the tree.
 //-----------------------------------
-void CGBMDataContainer::ComputeBestTermNodePreds(const double* adF, double* adZ, CTreeComps& treeComp)
+void CGBMDataContainer::ComputeBestTermNodePreds(const double* kFuncEstimate, double* residuals, CTreeComps& treeComp)
 {
   get_dist()->FitBestConstant(get_data(),
-			     &adF[0],
+			     &kFuncEstimate[0],
 			     (2*treeComp.size_of_tree()+1)/3, // number of terminal nodes
-			     &adZ[0],
+			     &residuals[0],
 			     treeComp);
 }
 
@@ -112,15 +112,15 @@ void CGBMDataContainer::ComputeBestTermNodePreds(const double* adF, double* adZ,
 //    bool - bool which indicates whether it is the training or validation data used.
 //
 //-----------------------------------
-double CGBMDataContainer::ComputeDeviance(const double* adF, bool isValidationSet)
+double CGBMDataContainer::ComputeDeviance(const double* kFuncEstimate, bool is_validationset)
 {
-  if(!(isValidationSet))
+  if(!(is_validationset))
     {
-      return get_dist()->Deviance(data_, adF);
+      return get_dist()->Deviance(data_, kFuncEstimate);
     }
   else
     {
-      return get_dist()->Deviance(data_, adF + data_.get_trainsize(), true);
+      return get_dist()->Deviance(data_, kFuncEstimate + data_.get_trainsize(), true);
     }
 }
 
@@ -135,9 +135,9 @@ double CGBMDataContainer::ComputeDeviance(const double* adF, bool isValidationSe
 //    CTreeComps ptr - ptr to the tree components container in the gbm
 //
 //-----------------------------------
-double CGBMDataContainer::ComputeBagImprovement(const double* adF, const double shrinkage, const double* adFadj)
+double CGBMDataContainer::ComputeBagImprovement(const double* kFuncEstimate, const double kShrinkage, const double* kDeltaEstimate)
 {
-  return get_dist()->BagImprovement(get_data(), &adF[0], shrinkage, adFadj);
+  return get_dist()->BagImprovement(get_data(), &kFuncEstimate[0], kShrinkage, kDeltaEstimate);
 }
 
 //-----------------------------------

@@ -28,7 +28,7 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-    CTreeComps(TreeParams treeConfig);
+    CTreeComps(TreeParams treeconfig);
 
 
 	//---------------------
@@ -39,20 +39,20 @@ public:
     //---------------------
 	// Public Functions
 	//---------------------
-    void GrowTrees(const CDataset& data, double* adZ, const double* adFadj);
-    void AdjustAndShrink(double * adFadj);
-    void PredictValid(const CDataset& data, double* adFadj);
-    void TransferTreeToRList(const CDataset &pData,
-		     int *aiSplitVar,
-		     double *adSplitPoint,
-		     int *aiLeftNode,
-		     int *aiRightNode,
-		     int *aiMissingNode,
-		     double *adErrorReduction,
-		     double *adWeight,
-		     double *adPred,
-		     VEC_VEC_CATEGORIES &vecSplitCodes,
-		     int cCatSplitsOld);
+    void GrowTrees(const CDataset& kData, double* residuals, const double* kDeltaEstimate);
+    void AdjustAndShrink(double* kDeltaEstimate);
+    void PredictValid(const CDataset& kData, double* kDeltaEstimate);
+    void TransferTreeToRList(const CDataset &kData,
+		     int* splitvar,
+		     double* splitvalues,
+		     int* leftnodes,
+		     int* rightnodes,
+		     int* missingnodes,
+		     double* error_reduction,
+		     double* weights,
+		     double* predictions,
+		     VEC_VEC_CATEGORIES &splitcodes_vec,
+		     int prev_categorical_splits);
 
     // getters
 	std::vector<unsigned long>& get_node_assignments()
