@@ -24,7 +24,7 @@
 //----------------------------------------
 CTweedie:: CTweedie(double power)
 {
-	dPower = power;
+	power_ = power;
 }
 
 //----------------------------------------
@@ -36,7 +36,7 @@ CDistribution* CTweedie::Create(DataDistParams& distParams)
 	double power = Rcpp::as<double>(distParams.misc[0]);
 	if(!GBM_FUNC::has_value(power))
 	{
-		throw GBM::failure("Tweedie distribution requires misc to initialization.");
+		throw GBM::Failure("Tweedie distribution requires misc to initialization.");
 	}
 	return new CTweedie(power);
 }
@@ -58,13 +58,13 @@ void CTweedie::ComputeWorkingResponse
     
   if( ! (data.y_ptr() && adF && adZ && data.weight_ptr()) )
     {
-      throw GBM::invalid_argument();
+      throw GBM::InvalidArgument();
     }
 
   for(i=0; i<data.get_trainsize(); i++)
     {
       dF = adF[i] + data.offset_ptr()[i];
-      adZ[i] = data.y_ptr()[i]*std::exp(dF*(1.0-dPower)) - exp(dF*(2.0-dPower));
+      adZ[i] = data.y_ptr()[i]*std::exp(dF*(1.0-power_)) - exp(dF*(2.0-power_));
     }
 }
 
@@ -85,8 +85,8 @@ double CTweedie::InitF
 
 	for(i=0; i<data.get_trainsize(); i++)
 	{
-		dSum += data.weight_ptr()[i]*data.y_ptr()[i]*std::exp(data.offset_ptr()[i]*(1.0-dPower));
-		dTotalWeight += data.weight_ptr()[i]*std::exp(data.offset_ptr()[i]*(2.0-dPower));
+		dSum += data.weight_ptr()[i]*data.y_ptr()[i]*std::exp(data.offset_ptr()[i]*(1.0-power_));
+		dTotalWeight += data.weight_ptr()[i]*std::exp(data.offset_ptr()[i]*(2.0-power_));
 	}
 
     
@@ -123,8 +123,8 @@ double CTweedie::Deviance
   for(i=0; i<cLength; i++)
     {
       dF = adF[i] +  data.offset_ptr()[i];
-      dL += data.weight_ptr()[i]*(pow(data.y_ptr()[i],2.0-dPower)/((1.0-dPower)*(2.0-dPower)) -
-			 data.y_ptr()[i]*std::exp(dF*(1.0-dPower))/(1.0-dPower) + exp(dF*(2.0-dPower))/(2.0-dPower) );
+      dL += data.weight_ptr()[i]*(pow(data.y_ptr()[i],2.0-power_)/((1.0-power_)*(2.0-power_)) -
+			 data.y_ptr()[i]*std::exp(dF*(1.0-power_))/(1.0-power_) + exp(dF*(2.0-power_))/(2.0-power_) );
       dW += data.weight_ptr()[i];
     }
   
@@ -174,8 +174,8 @@ void CTweedie::FitBestConstant
       if(data.get_bag_element(iObs))
 	{
 	  dF = adF[iObs] +  data.offset_ptr()[iObs];
-	  vecdNum[treeComps.get_node_assignments()[iObs]] += data.weight_ptr()[iObs]*data.y_ptr()[iObs]*std::exp(dF*(1.0-dPower));
-	  vecdDen[treeComps.get_node_assignments()[iObs]] += data.weight_ptr()[iObs]*std::exp(dF*(2.0-dPower));
+	  vecdNum[treeComps.get_node_assignments()[iObs]] += data.weight_ptr()[iObs]*data.y_ptr()[iObs]*std::exp(dF*(1.0-power_));
+	  vecdDen[treeComps.get_node_assignments()[iObs]] += data.weight_ptr()[iObs]*std::exp(dF*(2.0-power_));
 
 	  // Keep track of largest and smallest prediction in each node
 	  vecdMax[treeComps.get_node_assignments()[iObs]] = R::fmax2(dF,vecdMax[treeComps.get_node_assignments()[iObs]]);
@@ -195,17 +195,17 @@ void CTweedie::FitBestConstant
 	      // Not sure what else to do except plug in an arbitrary
 	      //   negative number, -1? -10? Let's use -19, then make
 	      //   sure |adF| < 19 always.
-		  treeComps.get_terminal_nodes()[iNode]->dPrediction = MinVal;
+		  treeComps.get_terminal_nodes()[iNode]->prediction = MinVal;
 	    }
 	  
-	  else if(vecdDen[iNode] == 0.0) { treeComps.get_terminal_nodes()[iNode]->dPrediction = 0.0; }
+	  else if(vecdDen[iNode] == 0.0) { treeComps.get_terminal_nodes()[iNode]->prediction = 0.0; }
 	  
-	  else { treeComps.get_terminal_nodes()[iNode]->dPrediction = std::log(vecdNum[iNode]/vecdDen[iNode]); }
+	  else { treeComps.get_terminal_nodes()[iNode]->prediction = std::log(vecdNum[iNode]/vecdDen[iNode]); }
 	  
-	  if (vecdMax[iNode]+treeComps.get_terminal_nodes()[iNode]->dPrediction > MaxVal)
-	    {treeComps.get_terminal_nodes()[iNode]->dPrediction = MaxVal - vecdMax[iNode];}
-	  if (vecdMin[iNode]+treeComps.get_terminal_nodes()[iNode]->dPrediction < MinVal)
-	    {treeComps.get_terminal_nodes()[iNode]->dPrediction = MinVal - vecdMin[iNode];}
+	  if (vecdMax[iNode]+treeComps.get_terminal_nodes()[iNode]->prediction > MaxVal)
+	    {treeComps.get_terminal_nodes()[iNode]->prediction = MaxVal - vecdMax[iNode];}
+	  if (vecdMin[iNode]+treeComps.get_terminal_nodes()[iNode]->prediction < MinVal)
+	    {treeComps.get_terminal_nodes()[iNode]->prediction = MinVal - vecdMin[iNode];}
 	  
 	}
     }
@@ -230,9 +230,9 @@ double CTweedie::BagImprovement
 		{
 			dF = adF[i] + data.offset_ptr()[i];
 
-			dReturnValue += data.weight_ptr()[i]*( std::exp(dF*(1.0-dPower))*data.y_ptr()[i]/(1.0-dPower)*
-				(std::exp(shrinkage*adFadj[i]*(1.0-dPower))-1.0) +
-				std::exp(dF*(2.0-dPower))/(2.0-dPower)*(1.0-exp(shrinkage*adFadj[i]*(2.0-dPower))) );
+			dReturnValue += data.weight_ptr()[i]*( std::exp(dF*(1.0-power_))*data.y_ptr()[i]/(1.0-power_)*
+				(std::exp(shrinkage*adFadj[i]*(1.0-power_))-1.0) +
+				std::exp(dF*(2.0-power_))/(2.0-power_)*(1.0-exp(shrinkage*adFadj[i]*(2.0-power_))) );
 			dW += data.weight_ptr()[i];
 		}
 	}

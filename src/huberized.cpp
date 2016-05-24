@@ -191,11 +191,11 @@ void CHuberized::FitBestConstant
         {
 	  if(vecdDen[iNode] == 0)
             {
-	      treeComps.get_terminal_nodes()[iNode]->dPrediction = 0.0;
+	      treeComps.get_terminal_nodes()[iNode]->prediction = 0.0;
             }
 	  else
             {
-	      treeComps.get_terminal_nodes()[iNode]->dPrediction =
+	      treeComps.get_terminal_nodes()[iNode]->prediction =
 		vecdNum[iNode]/vecdDen[iNode];
             }
         }

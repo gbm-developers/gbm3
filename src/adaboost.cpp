@@ -22,7 +22,7 @@ CAdaBoost::CAdaBoost()
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CAdaBoost::Create(DataDistParams& distParams)
+CDistribution* CAdaBoost::Create(DataDistParams& distparams)
 {
  	return new CAdaBoost();
 }
@@ -34,15 +34,15 @@ CAdaBoost::~CAdaBoost()
 void CAdaBoost::ComputeWorkingResponse
 (
  const CDataset& data,
- const double *adF,
- double *adZ
+ const double* kFuncEstimate,
+ double* residuals
 )
 {
 
 
 	for(unsigned long i=0; i<data.get_trainsize(); i++)
 	{
-		adZ[i] = -(2*data.y_ptr()[i]-1) * std::exp(-(2*data.y_ptr()[i]-1)*(data.offset_ptr()[i]+adF[i]));
+		residuals[i] = -(2*data.y_ptr()[i]-1) * std::exp(-(2*data.y_ptr()[i]-1)*(data.offset_ptr()[i]+kFuncEstimate[i]));
 	}
 
 
@@ -55,24 +55,24 @@ double CAdaBoost::InitF
  const CDataset& data
 )
 {
-    double dNum = 0.0;
-    double dDen = 0.0;
+    double numerator = 0.0;
+    double denominator = 0.0;
 
 
 	for(unsigned long i=0; i< data.get_trainsize(); i++)
 	{
 		if(data.y_ptr()[i]==1.0)
 		{
-			dNum += data.weight_ptr()[i] * std::exp(-data.offset_ptr()[i]);
+			numerator += data.weight_ptr()[i] * std::exp(-data.offset_ptr()[i]);
 		}
 		else
 		{
-			dDen += data.weight_ptr()[i] * std::exp(data.offset_ptr()[i]);
+			denominator += data.weight_ptr()[i] * std::exp(data.offset_ptr()[i]);
 		}
 	}
 
     
-    return 0.5*std::log(dNum/dDen);
+    return 0.5*std::log(numerator/denominator);
 }
 
 
@@ -80,54 +80,54 @@ double CAdaBoost::Deviance
 (
 	const CDataset& data,
     const double *adF,
-    bool isValidationSet
+    bool is_validationset
 )
 {
     unsigned long i=0;
-    double dL = 0.0;
-    double dW = 0.0;
+    double loss = 0.0;
+    double weight = 0.0;
 
     // Switch to validation set if necessary
-    unsigned long cLength = data.get_trainsize();
-    if(isValidationSet)
+    unsigned long num_of_rows_in_set = data.get_trainsize();
+    if(is_validationset)
     {
     	data.shift_to_validation();
-    	cLength = data.get_validsize();
+    	num_of_rows_in_set = data.get_validsize();
     }
 
 
 
-	for(i=0; i!=cLength; i++)
+	for(i=0; i!=num_of_rows_in_set; i++)
 	{
-		dL += data.weight_ptr()[i] * std::exp(-(2*data.y_ptr()[i]-1)*(data.offset_ptr()[i]+adF[i]));
-		dW += data.weight_ptr()[i];
+		loss += data.weight_ptr()[i] * std::exp(-(2*data.y_ptr()[i]-1)*(data.offset_ptr()[i]+adF[i]));
+		weight += data.weight_ptr()[i];
 	}
 
 
     // Switch back to trainig set if necessary
-   if(isValidationSet)
+   if(is_validationset)
    {
 	   data.shift_to_train();
    }
 
    //TODO: Check if weights are all zero for validation set
-   if((dW == 0.0) && (dL == 0.0))
+   if((weight == 0.0) && (loss == 0.0))
    {
 	   return nan("");
    }
-   else if(dW == 0.0)
+   else if(weight == 0.0)
    {
 	   return HUGE_VAL;
    }
 
-   return dL/dW;
+   return loss/weight;
 }
 
 
 void CAdaBoost::FitBestConstant
 (
 	const CDataset& data,
-    const double *adF,
+    const double* adF,
     unsigned long cTermNodes,
     double* adZ,
     CTreeComps& treeComps
@@ -136,10 +136,10 @@ void CAdaBoost::FitBestConstant
   double dF = 0.0;
   unsigned long iObs = 0;
   unsigned long iNode = 0;
-  vecdNum.resize(cTermNodes);
-  vecdNum.assign(vecdNum.size(),0.0);
-  vecdDen.resize(cTermNodes);
-  vecdDen.assign(vecdDen.size(),0.0);
+  numerator_bestconstant_.resize(cTermNodes);
+  numerator_bestconstant_.assign(numerator_bestconstant_.size(),0.0);
+  denominator_bestconstant_.resize(cTermNodes);
+  denominator_bestconstant_.assign(denominator_bestconstant_.size(),0.0);
     
 
   for(iObs=0; iObs< data.get_trainsize(); iObs++)
@@ -147,9 +147,9 @@ void CAdaBoost::FitBestConstant
       if(data.get_bag_element(iObs))
         {
 	  dF = adF[iObs] + data.offset_ptr()[iObs];
-	  vecdNum[treeComps.get_node_assignments()[iObs]] +=
+	  numerator_bestconstant_[treeComps.get_node_assignments()[iObs]] +=
 	    data.weight_ptr()[iObs]*(2*data.y_ptr()[iObs]-1)*std::exp(-(2*data.y_ptr()[iObs]-1)*dF);
-	  vecdDen[treeComps.get_node_assignments()[iObs]] +=
+	  denominator_bestconstant_[treeComps.get_node_assignments()[iObs]] +=
 	    data.weight_ptr()[iObs]*std::exp(-(2*data.y_ptr()[iObs]-1)*dF);
         }
     }
@@ -158,14 +158,14 @@ void CAdaBoost::FitBestConstant
     {
       if(treeComps.get_terminal_nodes()[iNode]!=NULL)
         {
-	  if(vecdDen[iNode] == 0)
+	  if(denominator_bestconstant_[iNode] == 0)
             {
-	      	  treeComps.get_terminal_nodes()[iNode]->dPrediction = 0.0;
+	      	  treeComps.get_terminal_nodes()[iNode]->prediction = 0.0;
             }
 	  else
             {
-	      treeComps.get_terminal_nodes()[iNode]->dPrediction =
-		vecdNum[iNode]/vecdDen[iNode];
+	      treeComps.get_terminal_nodes()[iNode]->prediction =
+		numerator_bestconstant_[iNode]/denominator_bestconstant_[iNode];
             }
         }
     }

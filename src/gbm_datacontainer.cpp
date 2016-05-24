@@ -25,12 +25,12 @@
 // Parameters: ...
 //-----------------------------------
 CGBMDataContainer::CGBMDataContainer(DataDistParams& dataDistConfig):
-        data(dataDistConfig)
+        data_(dataDistConfig)
 {
 	//Initialize the factory and then use to get the disribution
-	DistFactory = new DistributionFactory();
-	pDist = DistFactory -> CreateDist(dataDistConfig);
-	pDist->Initialize(data);
+	distfactory_ = new DistributionFactory();
+	distptr_ = distfactory_ -> CreateDist(dataDistConfig);
+	distptr_->Initialize(data_);
 }
 
 //-----------------------------------
@@ -44,8 +44,8 @@ CGBMDataContainer::CGBMDataContainer(DataDistParams& dataDistConfig):
 //-----------------------------------
 CGBMDataContainer::~CGBMDataContainer()
 {
-	delete pDist;
-	delete DistFactory;
+	delete distptr_;
+	delete distfactory_;
 }
 
 //-----------------------------------
@@ -61,7 +61,7 @@ CGBMDataContainer::~CGBMDataContainer()
 //-----------------------------------
 double CGBMDataContainer::InitialFunctionEstimate()
 {
-  return get_dist()->InitF(data);
+  return get_dist()->InitF(data_);
 }
 
 //-----------------------------------
@@ -77,7 +77,7 @@ double CGBMDataContainer::InitialFunctionEstimate()
 //-----------------------------------
 void CGBMDataContainer::ComputeResiduals(const double* adF, double* adZ)
 {
-	get_dist()->ComputeWorkingResponse(data, adF, adZ);
+	get_dist()->ComputeWorkingResponse(data_, adF, adZ);
 }
 
 //-----------------------------------
@@ -116,11 +116,11 @@ double CGBMDataContainer::ComputeDeviance(const double* adF, bool isValidationSe
 {
   if(!(isValidationSet))
     {
-      return get_dist()->Deviance(data, adF);
+      return get_dist()->Deviance(data_, adF);
     }
   else
     {
-      return get_dist()->Deviance(data, adF + data.get_trainsize(), true);
+      return get_dist()->Deviance(data_, adF + data_.get_trainsize(), true);
     }
 }
 

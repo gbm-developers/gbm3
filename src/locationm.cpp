@@ -118,12 +118,12 @@ double CLocationM::PsiFun(double dX)
     why we are checking this here rather than at construction
     is entirely unknown...
    */
-  if(msType == "tdist")
+  if(mtype_ == "tdist")
     {
-      return dX / (madParams[0] + (dX * dX));
+      return dX / (mparams_[0] + (dX * dX));
     }
   
-  throw GBM::failure("Function type " + msType + "not known.");
+  throw GBM::Failure("Function type " + mtype_ + "not known.");
 }
 
 /////////////////////////////////////////////////
@@ -157,7 +157,7 @@ double CLocationM::LocationM(int iN, double *adX, const double *adW, double dAlp
 	}
 
 	double dScale0 = 1.4826 * weightedQuantile(iN, &adDiff[0], adW, dAlpha);
-	dScale0 = fmax(dScale0, mdEps);
+	dScale0 = fmax(dScale0, meps_);
 
 	// Loop over until the error is low enough
 	double dErr = 1.0;
@@ -170,7 +170,7 @@ double CLocationM::LocationM(int iN, double *adX, const double *adW, double dAlp
 		for (ii = 0; ii < iN; ii++)
 		{
 			double dT = fabs(adX[ii] - dBeta0) / dScale0;
-			dT = fmax(dT, mdEps);
+			dT = fmax(dT, meps_);
 			double dWt = adW[ii] * PsiFun(dT) / dT;
 
 			dSumWX += dWt * adX[ii];
@@ -183,13 +183,13 @@ double CLocationM::LocationM(int iN, double *adX, const double *adW, double dAlp
 		}
 
 		dErr = fabs(dBeta - dBeta0);
-		if (dErr > mdEps)
+		if (dErr > meps_)
 		{
 			dErr /= fabs(dBeta0);
 		}
 		dBeta0 = dBeta;
 
-		if (dErr < mdEps)
+		if (dErr < meps_)
 		{
 			iCount = 100;
 		}

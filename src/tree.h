@@ -65,22 +65,22 @@ public:
 		double *adFadj,
 		unsigned long cMinObsInNode);
 
-    const unsigned long& GetNodeCount() const { return cTotalNodeCount; }
-    vector<CNode*>& GetTermNodes() { return vecpTermNodes; }
-    const double& GetShrinkageConst() const { return shrinkageConst; }
+    const unsigned long& GetNodeCount() const { return totalnodecount_; }
+    vector<CNode*>& GetTermNodes() { return terminalnode_ptrs_; }
+    const double& GetShrinkageConst() const { return kShrinkage_; }
     void Print();
 
 private:
 	//---------------------
 	// Private Variables
 	//---------------------
-    CNode* pRootNode;
-    vector<CNode*> vecpTermNodes;
+    CNode* rootnode_;
+    vector<CNode*> terminalnode_ptrs_;
 
-    const long depthOfTree;
-    const double shrinkageConst;
-    double dError; // total squared error before carrying out the splits
-    unsigned long cTotalNodeCount;
+    const long kTreeDepth_;
+    const double kShrinkage_;
+    double error_; // total squared error before carrying out the splits
+    unsigned long totalnodecount_;
 
 };
 

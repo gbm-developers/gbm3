@@ -26,13 +26,13 @@ void NodeParams::ResetSplitProperties(double weightedResiduals,
 				      unsigned long variableClasses,
 				      unsigned long splitVar)
 {
-  right = NodeDef(weightedResiduals, trainingWeight, numObs);
+  right_ = NodeDef(weightedResiduals, trainingWeight, numObs);
 
-  left.clear();
-  missing.clear();
+  left_.clear();
+  missing_.clear();
   
-  SplitVar = splitVar;
-  SplitValue = splitValue;
-  ImprovedResiduals = 0.0;
-  SplitClass = variableClasses;
+  split_var_ = splitVar;
+  split_value_ = splitValue;
+  improvement_ = 0.0;
+  split_class_ = variableClasses;
 }

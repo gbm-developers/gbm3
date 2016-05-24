@@ -14,11 +14,11 @@
 //---------------------
 // Public Functions
 //---------------------
-VarSplitter::VarSplitter(unsigned long minNumObs): bestSplit(), proposedSplit(),
-adGroupSumZ(1024), adGroupW(1024), acGroupN(1024), groupMeanAndCat(1024)
+VarSplitter::VarSplitter(unsigned long minNumObs): bestsplit_(), proposedsplit_(),
+group_sumresid_(1024), group_weight_(1024), group_num_obs_(1024), groupMeanAndCat(1024)
 {
-	cMinObsInNode = minNumObs;
-	fIsSplit = false;
+	min_num_node_obs_ = minNumObs;
+	issplit_ = false;
 }
 
 VarSplitter::~VarSplitter()
@@ -33,39 +33,39 @@ void VarSplitter::IncorporateObs
     long lMonotone
 )
 {
-	if(fIsSplit) return;
+	if(issplit_) return;
 
 	if(ISNA(dX))
 	{
-		proposedSplit.UpdateMissingNode(dW*dZ, dW);
+		proposedsplit_.UpdateMissingNode(dW*dZ, dW);
 
 	}
-	else if(proposedSplit.SplitClass == 0)   // variable is continuous
+	else if(proposedsplit_.split_class_ == 0)   // variable is continuous
 	{
-	  if(dLastXValue > dX)
+	  if(last_xvalue_ > dX)
 	    {
-	      throw GBM::failure("Observations are not in order. gbm() was unable to build an index for the design matrix. Could be a bug in gbm or an unusual data type in data.");
+	      throw GBM::Failure("Observations are not in order. gbm() was unable to build an index for the design matrix. Could be a bug in gbm or an unusual data type in data.");
 	    }
 	  
 	  // Evaluate the current split
 	  // the newest observation is still in the right child
-	  proposedSplit.SplitValue = 0.5*(dLastXValue + dX);
+	  proposedsplit_.split_value_ = 0.5*(last_xvalue_ + dX);
 	  
-	  if((dLastXValue != dX) &&
-	     proposedSplit.has_min_num_obs(cMinObsInNode) &&
-	     proposedSplit.split_is_correct_monotonicity(lMonotone))
+	  if((last_xvalue_ != dX) &&
+	     proposedsplit_.has_min_num_obs(min_num_node_obs_) &&
+	     proposedsplit_.split_is_correct_monotonicity(lMonotone))
 	    {
-	      proposedSplit.NodeGradResiduals();
-	      if(proposedSplit.ImprovedResiduals > bestSplit.ImprovedResiduals)
+	      proposedsplit_.NodeGradResiduals();
+	      if(proposedsplit_.improvement_ > bestsplit_.improvement_)
 		{
-		  bestSplit = proposedSplit;
+		  bestsplit_ = proposedsplit_;
 		}
 	    }
 	  
 	  // now move the new observation to the left
 	  // if another observation arrives we will evaluate this
-	  proposedSplit.UpdateLeftNode(dW*dZ, dW);
-	  dLastXValue = dX;
+	  proposedsplit_.UpdateLeftNode(dW*dZ, dW);
+	  last_xvalue_ = dX;
 	}
 	else // variable is categorical, evaluates later
 	  {
@@ -79,7 +79,7 @@ void VarSplitter::EvaluateCategoricalSplit()
   long i=0;
   unsigned long cFiniteMeans = 0;
   
-  if(fIsSplit) return;
+  if(issplit_) return;
   cFiniteMeans = SetAndReturnNumGroupMeans();
   
   // if only one group has a finite mean it will not consider
@@ -88,28 +88,28 @@ void VarSplitter::EvaluateCategoricalSplit()
     {
       
       
-      proposedSplit.SplitValue = (double) i;
+      proposedsplit_.split_value_ = (double) i;
       UpdateLeftNodeWithCat(i);
-      proposedSplit.setBestCategory(groupMeanAndCat);
-      proposedSplit.NodeGradResiduals();
+      proposedsplit_.SetBestCategory(groupMeanAndCat);
+      proposedsplit_.NodeGradResiduals();
       
-      if(proposedSplit.has_min_num_obs(cMinObsInNode)
-	 && (proposedSplit.ImprovedResiduals > bestSplit.ImprovedResiduals))
+      if(proposedsplit_.has_min_num_obs(min_num_node_obs_)
+	 && (proposedsplit_.improvement_ > bestsplit_.improvement_))
 	{
 	  
-	  bestSplit = proposedSplit;
+	  bestsplit_ = proposedsplit_;
 	}
     }
 }
 
 void VarSplitter::Set(CNode& nodeToSplit)
 {
-  dInitSumZ   = nodeToSplit.dPrediction * nodeToSplit.dTrainW;
-  dInitTotalW = nodeToSplit.dTrainW;
-  cInitN      = nodeToSplit.cN;
+  initial_sumresiduals   = nodeToSplit.prediction * nodeToSplit.totalweight;
+  initial_totalweight = nodeToSplit.totalweight;
+  initial_numobs      = nodeToSplit.numobs;
   
-  bestSplit.ResetSplitProperties(dInitSumZ, dInitTotalW, cInitN);
-  fIsSplit=false;
+  bestsplit_.ResetSplitProperties(initial_sumresiduals, initial_totalweight, initial_numobs);
+  issplit_=false;
 }
 
 void VarSplitter::ResetForNewVar
@@ -118,37 +118,37 @@ void VarSplitter::ResetForNewVar
  long cCurrentVarClasses
 )
 {
-  if(fIsSplit) return;
-  proposedSplit.ResetSplitProperties(dInitSumZ,
-				     dInitTotalW,
-				     cInitN,
-				     proposedSplit.SplitValue,
+  if(issplit_) return;
+  proposedsplit_.ResetSplitProperties(initial_sumresiduals,
+				     initial_totalweight,
+				     initial_numobs,
+				     proposedsplit_.split_value_,
 				     cCurrentVarClasses, iWhichVar);
 
-  std::fill(adGroupSumZ.begin(),
-	    adGroupSumZ.begin() + cCurrentVarClasses,
+  std::fill(group_sumresid_.begin(),
+	    group_sumresid_.begin() + cCurrentVarClasses,
 	    0);
-  std::fill(adGroupW.begin(),
-	    adGroupW.begin() + cCurrentVarClasses,
+  std::fill(group_weight_.begin(),
+	    group_weight_.begin() + cCurrentVarClasses,
 	    0);
-  std::fill(acGroupN.begin(),
-	    acGroupN.begin() + cCurrentVarClasses,
+  std::fill(group_num_obs_.begin(),
+	    group_num_obs_.begin() + cCurrentVarClasses,
 	    0);
 
-  dLastXValue = -HUGE_VAL;
+  last_xvalue_ = -HUGE_VAL;
 }
 
 void VarSplitter::WrapUpCurrentVariable()
 {
-  if(proposedSplit.SplitVar == bestSplit.SplitVar)
+  if(proposedsplit_.split_var_ == bestsplit_.split_var_)
     {
-      if(proposedSplit.missing.has_obs())
+      if(proposedsplit_.missing_.has_obs())
 	{
-	  bestSplit.missing = proposedSplit.missing;
+	  bestsplit_.missing_ = proposedsplit_.missing_;
 	}
       else // DEBUG: consider a weighted average with parent node?
 	{
-	  bestSplit.missing = NodeDef(dInitSumZ, dInitTotalW, 0);
+	  bestsplit_.missing_ = NodeDef(initial_sumresiduals, initial_totalweight, 0);
 	}
     }
 }

@@ -19,7 +19,7 @@
 CBernoulli::CBernoulli()
 {
   // Used to issue warnings to user that at least one terminal node capped
-  fCappedPred = false;
+  terminalnode_capped_ = false;
 }
 
 //----------------------------------------
@@ -178,7 +178,7 @@ void CBernoulli::FitBestConstant
     {
       if(vecdDen[iNode] == 0)
       {
-          treeComps.get_terminal_nodes()[iNode]->dPrediction = 0.0;
+          treeComps.get_terminal_nodes()[iNode]->prediction = 0.0;
       }
       else
       {
@@ -186,16 +186,16 @@ void CBernoulli::FitBestConstant
         // avoid large changes in predictions on log odds scale
         if(std::abs(dTemp) > 1.0)
         {
-          if(!fCappedPred)
+          if(!terminalnode_capped_)
           {
             // set fCappedPred=true so that warning only issued once
-            fCappedPred = true;  
+            terminalnode_capped_ = true;  
             Rcpp::warning("Some terminal node predictions were excessively large for Bernoulli and have been capped at 1.0. Likely due to a feature that separates the 0/1 outcomes. Consider reducing shrinkage parameter.");
           }
           if(dTemp>1.0) dTemp = 1.0;
           else if(dTemp<-1.0) dTemp = -1.0;
         }
-        treeComps.get_terminal_nodes()[iNode]->dPrediction = dTemp;
+        treeComps.get_terminal_nodes()[iNode]->prediction = dTemp;
       }
     }
   }

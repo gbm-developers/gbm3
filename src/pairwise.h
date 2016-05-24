@@ -81,23 +81,23 @@ public:
     bool Rank();
 
     // Getter / setter
-    unsigned int GetNumItems() const               { return cNumItems; }
-    unsigned int GetRank(int i) const              { return vecdipScoreRank[i].second; }
-    unsigned int GetItem(unsigned int iRank) const { return (vecpdipScoreRank[iRank-1] - &(vecdipScoreRank[0])); }
-    void SetRank(int i, unsigned int r)            { vecdipScoreRank[i].second = r; }
-    void AddToScore(int i, double delta)           { vecdipScoreRank[i].first += delta; }
+    unsigned int GetNumItems() const               { return num_items_; }
+    unsigned int GetRank(int i) const              { return score_rank_vec_[i].second; }
+    unsigned int GetItem(unsigned int iRank) const { return (ptrs_to_score_rank_vec_[iRank-1] - &(score_rank_vec_[0])); }
+    void SetRank(int i, unsigned int r)            { score_rank_vec_[i].second = r; }
+    void AddToScore(int i, double delta)           { score_rank_vec_[i].first += delta; }
 
 protected:
     // Number of items in current group
-    unsigned int cNumItems;
+    unsigned int num_items_;
 
     // Pairs of (score, rank) for current group
-    vector<CDoubleUintPair> vecdipScoreRank;
+    vector<CDoubleUintPair> score_rank_vec_;
 
     // Array of pointers to elements of vecdipScoreRank, used for sorting
     // Note: We need a separate array for sorting in order to be able to
     // quickly look up the rank for any given item.
-    vector<CDoubleUintPair*> vecpdipScoreRank;
+    vector<CDoubleUintPair*> ptrs_to_score_rank_vec_;
 };
 
 
@@ -107,14 +107,14 @@ class CIRMeasure
 {
 public:
     // Constructor
-    CIRMeasure() : cRankCutoff(UINT_MAX) {}
+    CIRMeasure() : rank_cutoff_(UINT_MAX) {}
 
     // Destructor
     virtual ~CIRMeasure() { }
 
     // Getter / Setter
-    unsigned int get_cutoff_rank() const { return cRankCutoff; }
-    void set_cutoff_rank(unsigned int cRankCutoff) { this->cRankCutoff = cRankCutoff; }
+    unsigned int get_cutoff_rank() const { return rank_cutoff_; }
+    void set_cutoff_rank(unsigned int cRankCutoff) { this->rank_cutoff_ = cRankCutoff; }
 
     // Auxiliary function for sanity check
     bool any_pairs(const double* const adY, unsigned int cNumItems) const
@@ -125,7 +125,7 @@ public:
     }
 
     // Memory allocation
-    virtual void Init(unsigned long cMaxGroup, unsigned long cNumItems, unsigned int cRankCutoff = UINT_MAX) { this->cRankCutoff = cRankCutoff; }
+    virtual void Init(unsigned long cMaxGroup, unsigned long cNumItems, unsigned int cRankCutoff = UINT_MAX) { this->rank_cutoff_ = cRankCutoff; }
 
      // Calculate the IR measure for the group of items set in the ranker.
      // Precondition: CRanker::SetGroupScores() has been called
@@ -149,7 +149,7 @@ public:
 
 protected:
     // Cut-off rank below which items are ignored for measure
-    unsigned int cRankCutoff;
+    unsigned int rank_cutoff_;
 };
 
 // Class to implement IR Measure 'CONC' (fraction of concordant pairs). For the case of binary labels, this is
@@ -180,7 +180,7 @@ protected:
     int  ComputePairCount(const double* const adY, unsigned int cNumItems);
 
     // Caches the number of pairs with different labels, for each group
-    vector<int> veccPairCount;
+    vector<int> paircount_vec_;
 };
 
 // Class to implement IR Measure 'Normalized Discounted Cumulative Gain'
@@ -202,10 +202,10 @@ public:
 
 protected:
      // Lookup table for rank weight (w(rank) = 1/log2(1+rank))
-    vector<double> vecdRankWeight;
+    vector<double> rankweight_vec_;
 
     // Caches the maximum achievable DCG, for each group
-    vector<double> vecdMaxDCG;
+    vector<double> maxdcg_vec_;
 };
 
 // Class to implement IR Measure 'Mean Reciprocal Rank'
@@ -236,7 +236,7 @@ public:
 protected:
 
     // Buffer to hold positions of positive examples
-    mutable vector<int> veccRankPos;
+    mutable vector<int> rankpos_vec_;
 };
 
 
@@ -299,17 +299,17 @@ protected:
     // Calculate and accumulate up the gradients and Hessians from all training pairs
     void ComputeLambdas(int iGroup, unsigned int cNumItems, const double* const adY, const double* const adF, const double* const adWeight, double* adZ, double* adDeriv);
 
-    std::auto_ptr<CIRMeasure> pirm;                 // The IR measure to use
-    CRanker ranker;                   // The ranker
+    std::auto_ptr<CIRMeasure> pirm_;                 // The IR measure to use
+    CRanker ranker_;                   // The ranker
 
-    vector<double> vecdHessian;       // Second derivative of loss function, for each training instance; used for Newton step
+    vector<double> hessian_;       // Second derivative of loss function, for each training instance; used for Newton step
 
-    vector<double> vecdNum;           // Buffer used for numerator   in FitBestConstant(), for each node
-    vector<double> vecdDenom;         // Buffer used for denominator in FitBestConstant(), for each node
+    vector<double> fit_numerator_;           // Buffer used for numerator   in FitBestConstant(), for each node
+    vector<double> fit_denominator_;         // Buffer used for denominator in FitBestConstant(), for each node
 
-    vector<double> vecdFPlusOffset;   // Temporary buffer for (adF + adOffset), if the latter is not null
+    vector<double> func_est_plus_offset_;   // Temporary buffer for (adF + adOffset), if the latter is not null
   
-  const double* adGroup;
+  const double* kGroups_;
 };
 
 #endif // PAIRWISE_H

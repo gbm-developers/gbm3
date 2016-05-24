@@ -69,7 +69,7 @@ private:
 	//-------------------
 	// Private Variables
 	//-------------------
-	CLocationM mpLocM;
+	CLocationM mpLocM_;
 };
 
 #endif // LAPLACE_H

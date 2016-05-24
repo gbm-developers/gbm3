@@ -28,36 +28,36 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-	ContinuousStrategy(CNode* node):nodeContext(node){};
+	ContinuousStrategy(CNode* node):node_context_(node){};
 
 	//---------------------
 	// Public destructor
 	//---------------------
-	~ContinuousStrategy(){nodeContext=NULL;};
+	~ContinuousStrategy(){node_context_=NULL;};
 
 	//---------------------
 	// Public Functions
 	//---------------------
 	void Adjust(unsigned long cMinObsInNode)
 	{
-		nodeContext->pLeftNode->Adjust(cMinObsInNode);
-		nodeContext->pRightNode->Adjust(cMinObsInNode);
+		node_context_->left_node_ptr->Adjust(cMinObsInNode);
+		node_context_->right_node_ptr->Adjust(cMinObsInNode);
 
-		if((nodeContext->pMissingNode->splitType == none) && (nodeContext->pMissingNode->cN < cMinObsInNode))
+		if((node_context_->missing_node_ptr->splittype == none) && (node_context_->missing_node_ptr->numobs < cMinObsInNode))
 		{
-			nodeContext->dPrediction = ((nodeContext->pLeftNode->dTrainW)*(nodeContext->pLeftNode->dPrediction) +
-				 (nodeContext->pRightNode->dTrainW)*(nodeContext->pRightNode->dPrediction))/
-			(nodeContext->pLeftNode->dTrainW + nodeContext->pRightNode->dTrainW);
-			nodeContext->pMissingNode->dPrediction = nodeContext->dPrediction;
+			node_context_->prediction = ((node_context_->left_node_ptr->totalweight)*(node_context_->left_node_ptr->prediction) +
+				 (node_context_->right_node_ptr->totalweight)*(node_context_->right_node_ptr->prediction))/
+			(node_context_->left_node_ptr->totalweight + node_context_->right_node_ptr->totalweight);
+			node_context_->missing_node_ptr->prediction = node_context_->prediction;
 		}
 		else
 		{
-			nodeContext->pMissingNode->Adjust(cMinObsInNode);
-			nodeContext->dPrediction =
-			((nodeContext->pLeftNode->dTrainW)*(nodeContext->pLeftNode->dPrediction) +
-			(nodeContext->pRightNode->dTrainW)*  (nodeContext->pRightNode->dPrediction) +
-			(nodeContext->pMissingNode->dTrainW)*(nodeContext->pMissingNode->dPrediction))/
-			(nodeContext->pLeftNode->dTrainW + nodeContext->pRightNode->dTrainW + nodeContext->pMissingNode->dTrainW);
+			node_context_->missing_node_ptr->Adjust(cMinObsInNode);
+			node_context_->prediction =
+			((node_context_->left_node_ptr->totalweight)*(node_context_->left_node_ptr->prediction) +
+			(node_context_->right_node_ptr->totalweight)*  (node_context_->right_node_ptr->prediction) +
+			(node_context_->missing_node_ptr->totalweight)*(node_context_->missing_node_ptr->prediction))/
+			(node_context_->left_node_ptr->totalweight + node_context_->right_node_ptr->totalweight + node_context_->missing_node_ptr->totalweight);
 		}
 	}
 	void Predict(const CDataset &data,
@@ -67,65 +67,65 @@ public:
 		signed char schWhichNode = ContinuousStrategy::WhichNode(data,iRow);
 		if(schWhichNode == -1)
 		{
-		  nodeContext->pLeftNode->Predict(data, iRow, dFadj);
+		  node_context_->left_node_ptr->Predict(data, iRow, dFadj);
 		}
 		else if(schWhichNode == 1)
 		{
-		  nodeContext->pRightNode->Predict(data, iRow, dFadj);
+		  node_context_->right_node_ptr->Predict(data, iRow, dFadj);
 		}
 		else
 		{
-		  nodeContext->pMissingNode->Predict(data, iRow, dFadj);
+		  node_context_->missing_node_ptr->Predict(data, iRow, dFadj);
 		}
 	}
 	void GetVarRelativeInfluence(double* adRelInf)
 	{
-		adRelInf[nodeContext->iSplitVar] += nodeContext->dImprovement;
-		nodeContext->pLeftNode->GetVarRelativeInfluence(adRelInf);
-		nodeContext->pRightNode->GetVarRelativeInfluence(adRelInf);
+		adRelInf[node_context_->split_var] += node_context_->improvement;
+		node_context_->left_node_ptr->GetVarRelativeInfluence(adRelInf);
+		node_context_->right_node_ptr->GetVarRelativeInfluence(adRelInf);
 	}
 	void PrintSubTree(unsigned long Indent)
 	{
-		const std::size_t cLeftCategory = nodeContext->aiLeftCategory.size();
+		const std::size_t cLeftCategory = node_context_->leftcategory.size();
 
 		for(unsigned long i=0; i< Indent; i++) Rprintf("  ");
 		Rprintf("N=%f, Improvement=%f, Prediction=%f, NA pred=%f\n",
-		  nodeContext->dTrainW,
-		  nodeContext->dImprovement,
-		  nodeContext->dPrediction,
-		  (nodeContext->pMissingNode == NULL ? 0.0 : nodeContext->pMissingNode->dPrediction));
+		  node_context_->totalweight,
+		  node_context_->improvement,
+		  node_context_->prediction,
+		  (node_context_->missing_node_ptr == NULL ? 0.0 : node_context_->missing_node_ptr->prediction));
 
 		for(unsigned long i=0; i< Indent; i++) Rprintf("  ");
-		Rprintf("V%d in ",nodeContext->iSplitVar);
+		Rprintf("V%d in ",node_context_->split_var);
 		for(unsigned long i=0; i<cLeftCategory; i++)
 		  {
-			Rprintf("%d", nodeContext->aiLeftCategory[i]);
+			Rprintf("%d", node_context_->leftcategory[i]);
 			if(i<cLeftCategory-1) Rprintf(",");
 		  }
 		Rprintf("\n");
-		nodeContext->pLeftNode->PrintSubtree((Indent+1));
+		node_context_->left_node_ptr->PrintSubtree((Indent+1));
 
 		for(unsigned long i=0; i< Indent; i++) Rprintf("  ");
-		Rprintf("V%d not in ", nodeContext->iSplitVar);
+		Rprintf("V%d not in ", node_context_->split_var);
 		for(unsigned long i=0; i<cLeftCategory; i++)
 		  {
-			Rprintf("%d", nodeContext->aiLeftCategory[i]);
+			Rprintf("%d", node_context_->leftcategory[i]);
 			if(i<cLeftCategory-1) Rprintf(",");
 		  }
 		Rprintf("\n");
-		nodeContext->pRightNode->PrintSubtree(Indent+1);
+		node_context_->right_node_ptr->PrintSubtree(Indent+1);
 
 		for(unsigned long i=0; i< Indent; i++) Rprintf("  ");
 		Rprintf("missing\n");
-		nodeContext->pMissingNode->PrintSubtree(Indent+1);
+		node_context_->missing_node_ptr->PrintSubtree(Indent+1);
 	}
 	signed char WhichNode(const CDataset& data, unsigned long iObs)
 	{
 		signed char ReturnValue = 0;
-		double dX = data.x_value(iObs, nodeContext->iSplitVar);
+		double dX = data.x_value(iObs, node_context_->split_var);
 		 if(!ISNA(dX))
 			{
-				if(dX < nodeContext->dSplitValue)
+				if(dX < node_context_->splitvalue)
 				{
 					ReturnValue = -1;
 				}
@@ -156,15 +156,15 @@ public:
 	)
 	{
 		int iThisNodeID = iNodeID;
-		aiSplitVar[iThisNodeID] = nodeContext->iSplitVar;
-		adSplitPoint[iThisNodeID] = nodeContext->dSplitValue;
-		adErrorReduction[iThisNodeID] = nodeContext->dImprovement;
-		adWeight[iThisNodeID] = nodeContext->dTrainW;
-		adPred[iThisNodeID] = dShrinkage*nodeContext->dPrediction;
+		aiSplitVar[iThisNodeID] = node_context_->split_var;
+		adSplitPoint[iThisNodeID] = node_context_->splitvalue;
+		adErrorReduction[iThisNodeID] = node_context_->improvement;
+		adWeight[iThisNodeID] = node_context_->totalweight;
+		adPred[iThisNodeID] = dShrinkage*node_context_->prediction;
 
 		iNodeID++;
 		aiLeftNode[iThisNodeID] = iNodeID;
-		nodeContext->pLeftNode->TransferTreeToRList(iNodeID,
+		node_context_->left_node_ptr->TransferTreeToRList(iNodeID,
 					 data,
 					 aiSplitVar,
 					 adSplitPoint,
@@ -179,7 +179,7 @@ public:
 					 dShrinkage);
 
 		aiRightNode[iThisNodeID] = iNodeID;
-		nodeContext->pRightNode->TransferTreeToRList(iNodeID,
+		node_context_->right_node_ptr->TransferTreeToRList(iNodeID,
 					  data,
 					  aiSplitVar,
 					  adSplitPoint,
@@ -193,7 +193,7 @@ public:
 					  cCatSplitsOld,
 					  dShrinkage);
 		aiMissingNode[iThisNodeID] = iNodeID;
-		nodeContext->pMissingNode->TransferTreeToRList(iNodeID,
+		node_context_->missing_node_ptr->TransferTreeToRList(iNodeID,
 						data,
 						aiSplitVar,
 						adSplitPoint,
@@ -209,7 +209,7 @@ public:
 	}
 
 private:
-	CNode* nodeContext;
+	CNode* node_context_;
 };
 #endif // CONTINUOUSSTRATEGY_H
 

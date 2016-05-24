@@ -28,7 +28,7 @@ public:
 	//---------------------
 	// Factory Function
 	//---------------------
-	static CDistribution* Create(DataDistParams& distParams);
+	static CDistribution* Create(DataDistParams& distparams);
 
 	//---------------------
 	// Public destructor
@@ -38,19 +38,19 @@ public:
     //---------------------
     // Public Functions
     //---------------------
-    void ComputeWorkingResponse(const CDataset& data, const double *adF,
-							double *adZ);
+    void ComputeWorkingResponse(const CDataset& data, const double* kFuncEstimate,
+							double* residuals);
 
     double InitF(const CDataset& data);
 
-    void FitBestConstant(const CDataset& data, const double *adF,
-			 unsigned long cTermNodes, double* adZ, CTreeComps& treeComps);
+    void FitBestConstant(const CDataset& data, const double* kFuncEstimate,
+			 unsigned long numterminal_nodes, double* residuals, CTreeComps& treecomps);
     
-    double Deviance(const CDataset& data, const double *adF,
-				bool isValidationSet=false);
+    double Deviance(const CDataset& data, const double* kFuncEstimate,
+				bool is_validationset=false);
 
-    double BagImprovement(const CDataset& data, const double *adF,
-			  const double shrinkage, const double* adFadj);
+    double BagImprovement(const CDataset& data, const double* kFuncEstimate,
+			  const double shrinkage, const double* kDeltaEstimate);
 
 private:
     //----------------------
@@ -61,8 +61,8 @@ private:
 	//-------------------
 	// Private Variables
 	//-------------------
-   vector<double> vecdNum;
-   vector<double> vecdDen;
+   vector<double> numerator_bestconstant_;
+   vector<double> denominator_bestconstant_;
 };
 
 #endif // ADABOOST_H

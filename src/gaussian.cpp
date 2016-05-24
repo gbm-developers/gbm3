@@ -42,7 +42,7 @@ void CGaussian::ComputeWorkingResponse
   unsigned long i = 0;
   
   if (!(data.y_ptr() && adF && adZ && data.weight_ptr())) {
-    throw GBM::invalid_argument();
+    throw GBM::InvalidArgument();
   }
   
 

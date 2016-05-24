@@ -52,25 +52,25 @@ public:
     double CalcImprovementAndSplit(vector<CNode*>& vecpTermNodes, const CDataset& data,
     		vector<unsigned long>& aiNodeAssign);
 
-    inline void reset(){ cTerminalNodes = 1; }
-    void set_search_rootnode(CNode& rootNode){ variableSplitters[0].Set(rootNode); }
+    inline void reset(){ num_terminal_nodes_ = 1; }
+    void set_search_rootnode(CNode& rootNode){ variable_splitters_[0].Set(rootNode); }
 
 private:
 	//---------------------
 	// Private Functions
 	//---------------------
-    void ReAssignData(unsigned long splittedNodeIndex, vector<CNode*>& vecpTermNodes,
+    void ReassignData(unsigned long splittedNodeIndex, vector<CNode*>& vecpTermNodes,
     					const CDataset& data, vector<unsigned long>& aiNodeAssign);
 
 	//---------------------
 	// Private Variables
 	//---------------------
     // Splitters for variable sets
-    std::vector<VarSplitter> variableSplitters;
+    std::vector<VarSplitter> variable_splitters_;
 
     // Number of terminal nodes
-    unsigned long cTerminalNodes;
-    unsigned long minNumObs;
+    unsigned long num_terminal_nodes_;
+    unsigned long min_num_node_obs_;
 };
 
 #endif // NODESEARCH_H

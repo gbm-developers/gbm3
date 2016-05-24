@@ -14,9 +14,9 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CQuantile::CQuantile(double alpha): mpLocM("Other")
+CQuantile::CQuantile(double alpha): mplocm_("Other")
 {
-	dAlpha = alpha;
+	alpha_ = alpha;
 }
 
 
@@ -29,7 +29,7 @@ CDistribution* CQuantile::Create(DataDistParams& distParams)
 	double alpha = Rcpp::as<double>(distParams.misc[0]);
 	if(!GBM_FUNC::has_value(alpha))
 	{
-		throw GBM::failure("Quantile dist requires misc to initialization.");
+		throw GBM::Failure("Quantile dist requires misc to initialization.");
 	}
 	return new CQuantile(alpha);
 }
@@ -48,7 +48,7 @@ void CQuantile::ComputeWorkingResponse
     unsigned long i = 0;
 	for(i=0; i<data.get_trainsize(); i++)
 	{
-		adZ[i] = (data.y_ptr()[i] > adF[i]+data.offset_ptr()[i]) ? dAlpha : -(1.0-dAlpha);
+		adZ[i] = (data.y_ptr()[i] > adF[i]+data.offset_ptr()[i]) ? alpha_ : -(1.0-alpha_);
 	}
 
 }
@@ -60,14 +60,14 @@ double CQuantile::InitF
 )
 {
     double dOffset=0.0;
-    vecd.resize(data.get_trainsize());
+    vecd_.resize(data.get_trainsize());
     for(unsigned long i=0; i< data.get_trainsize(); i++)
     {
         dOffset = data.offset_ptr()[i];
-        vecd[i] = data.y_ptr()[i] - dOffset;
+        vecd_[i] = data.y_ptr()[i] - dOffset;
     }
 
-    return mpLocM.weightedQuantile(data.get_trainsize(), &vecd[0], data.weight_ptr(), dAlpha);
+    return mplocm_.weightedQuantile(data.get_trainsize(), &vecd_[0], data.weight_ptr(), alpha_);
 }
 
 
@@ -95,11 +95,11 @@ double CQuantile::Deviance
 	{
 		if(data.y_ptr()[i] > adF[i] + data.offset_ptr()[i])
 		{
-			dL += data.weight_ptr()[i]*dAlpha*(data.y_ptr()[i] - adF[i]-data.offset_ptr()[i]);
+			dL += data.weight_ptr()[i]*alpha_*(data.y_ptr()[i] - adF[i]-data.offset_ptr()[i]);
 		}
 		else
 		{
-			dL += data.weight_ptr()[i]*(1.0-dAlpha)*(adF[i]+data.offset_ptr()[i] - data.y_ptr()[i]);
+			dL += data.weight_ptr()[i]*(1.0-alpha_)*(adF[i]+data.offset_ptr()[i] - data.y_ptr()[i]);
 		}
 		dW += data.weight_ptr()[i];
 	}
@@ -137,12 +137,12 @@ void CQuantile::FitBestConstant
   unsigned long iVecd = 0;
   double dOffset;
 
-  vecd.resize(data.get_trainsize()); // should already be this size from InitF
+  vecd_.resize(data.get_trainsize()); // should already be this size from InitF
   std::vector<double> adW2(data.get_trainsize());
 
   for(iNode=0; iNode<cTermNodes; iNode++)
     {
-      if(treeComps.get_terminal_nodes()[iNode]->cN >= treeComps.min_num_obs_required())
+      if(treeComps.get_terminal_nodes()[iNode]->numobs >= treeComps.min_num_obs_required())
         {
 	  iVecd = 0;
 	  for(iObs=0; iObs< data.get_trainsize(); iObs++)
@@ -151,13 +151,13 @@ void CQuantile::FitBestConstant
                 {
 		  dOffset = data.offset_ptr()[iObs];
 		  
-		  vecd[iVecd] = data.y_ptr()[iObs] - dOffset - adF[iObs];
+		  vecd_[iVecd] = data.y_ptr()[iObs] - dOffset - adF[iObs];
 		  adW2[iVecd] = data.weight_ptr()[iObs];
 		  iVecd++;
                 }
             }
 	  
-	 treeComps.get_terminal_nodes()[iNode]->dPrediction = mpLocM.weightedQuantile(iVecd, &vecd[0], &adW2[0], dAlpha);
+	 treeComps.get_terminal_nodes()[iNode]->prediction = mplocm_.weightedQuantile(iVecd, &vecd_[0], &adW2[0], alpha_);
 	}
     }
 }
@@ -185,21 +185,21 @@ double CQuantile::BagImprovement
 
             if(data.y_ptr()[i] > dF)
             {
-                dReturnValue += data.weight_ptr()[i]*dAlpha*(data.y_ptr()[i]-dF);
+                dReturnValue += data.weight_ptr()[i]*alpha_*(data.y_ptr()[i]-dF);
             }
             else
             {
-                dReturnValue += data.weight_ptr()[i]*(1-dAlpha)*(dF-data.y_ptr()[i]);
+                dReturnValue += data.weight_ptr()[i]*(1-alpha_)*(dF-data.y_ptr()[i]);
             }
 
             if(data.y_ptr()[i] > dF+shrinkage*adFadj[i])
             {
-                dReturnValue -= data.weight_ptr()[i]*dAlpha*
+                dReturnValue -= data.weight_ptr()[i]*alpha_*
                                 (data.y_ptr()[i] - dF-shrinkage*adFadj[i]);
             }
             else
             {
-                dReturnValue -= data.weight_ptr()[i]*(1-dAlpha)*
+                dReturnValue -= data.weight_ptr()[i]*(1-alpha_)*
                                 (dF+shrinkage*adFadj[i] - data.y_ptr()[i]);
             }
             dW += data.weight_ptr()[i];

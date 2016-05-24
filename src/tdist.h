@@ -69,8 +69,8 @@ private:
 	//-------------------
 	// Private Variables
 	//-------------------
-    double mdNu;
-    CLocationM mpLocM;
+    double m_nu_;
+    CLocationM mplocm_;
 };
 
 #endif // TDIST_H

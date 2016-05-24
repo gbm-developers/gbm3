@@ -12,43 +12,42 @@
 // Function Members - Public
 //----------------------------------------
 CNode::CNode(const NodeDef& defn) :
-  dPrediction(defn.prediction()),
-  dTrainW(defn.get_totalweight()),
-  cN(defn.get_num_obs()),
-  aiLeftCategory() {
+  prediction(defn.prediction()),
+  totalweight(defn.get_totalweight()),
+  numobs(defn.get_num_obs()),
+  leftcategory() {
 
-    dSplitValue = 0.0;
-    iSplitVar = 0;
-    dImprovement = 0.0;
+    splitvalue = 0.0;
+    split_var = 0;
+    improvement = 0.0;
 
     // Set children to NULL
-	pLeftNode = NULL;
-	pRightNode = NULL;
-	pMissingNode = NULL;
+	left_node_ptr = NULL;
+	right_node_ptr = NULL;
+	missing_node_ptr = NULL;
 
 	// Set up split type and strategy
-	splitType = none;
-	splitAssigned = false;
-	nodeStrategy = new TerminalStrategy(this);
+	splittype = none;
+	node_strategy_ = new TerminalStrategy(this);
 
 }
 
 void CNode::SetStrategy()
 {
 	//delete nodeStrategy;
-	switch(splitType)
+	switch(splittype)
 	{
 	case none:
-		nodeStrategy = new TerminalStrategy(this);
+		node_strategy_ = new TerminalStrategy(this);
 		break;
 	case continuous:
-		nodeStrategy = new ContinuousStrategy(this);
+		node_strategy_ = new ContinuousStrategy(this);
 		break;
 	case categorical:
-		nodeStrategy = new CategoricalStrategy(this);
+		node_strategy_ = new CategoricalStrategy(this);
 		break;
 	default:
-		throw GBM::failure("Node State not recognised.");
+		throw GBM::Failure("Node State not recognised.");
 		break;
 	}
 }
@@ -57,10 +56,10 @@ CNode::~CNode()
 {
 	// Each node is responsible for deleting its
 	// children and its strategy
-    delete pLeftNode;
-    delete pRightNode;
-    delete pMissingNode;
-    delete nodeStrategy;
+    delete left_node_ptr;
+    delete right_node_ptr;
+    delete missing_node_ptr;
+    delete node_strategy_;
 }
 
 void CNode::Adjust
@@ -68,58 +67,7 @@ void CNode::Adjust
     unsigned long cMinObsInNode
 )
 {
-	/*switch(splitType)
-	{
-	case none:
-		return;
-		break;
-	case continuous:
-		pLeftNode->Adjust(cMinObsInNode);
-		pRightNode->Adjust(cMinObsInNode);
-
-		if((pMissingNode->splitType == none) && (pMissingNode->cN < cMinObsInNode))
-		{
-			dPrediction = ((pLeftNode->dTrainW)*(pLeftNode->dPrediction) +
-				 (pRightNode->dTrainW)*(pRightNode->dPrediction))/
-			(pLeftNode->dTrainW + pRightNode->dTrainW);
-			pMissingNode->dPrediction = dPrediction;
-		}
-		else
-		{
-			pMissingNode->Adjust(cMinObsInNode);
-			dPrediction =
-			((pLeftNode->dTrainW)*(pLeftNode->dPrediction) +
-			(pRightNode->dTrainW)*  (pRightNode->dPrediction) +
-			(pMissingNode->dTrainW)*(pMissingNode->dPrediction))/
-			(pLeftNode->dTrainW + pRightNode->dTrainW + pMissingNode->dTrainW);
-		}
-		break;
-	case categorical:
-		pLeftNode->Adjust(cMinObsInNode);
-		pRightNode->Adjust(cMinObsInNode);
-
-		if((pMissingNode->splitType == none) && (pMissingNode->cN < cMinObsInNode))
-		{
-			dPrediction = ((pLeftNode->dTrainW)*(pLeftNode->dPrediction) +
-				 (pRightNode->dTrainW)*(pRightNode->dPrediction))/
-			(pLeftNode->dTrainW + pRightNode->dTrainW);
-			pMissingNode->dPrediction = dPrediction;
-		}
-		else
-		{
-			pMissingNode->Adjust(cMinObsInNode);
-			dPrediction =
-			((pLeftNode->dTrainW)*(pLeftNode->dPrediction) +
-			(pRightNode->dTrainW)*  (pRightNode->dPrediction) +
-			(pMissingNode->dTrainW)*(pMissingNode->dPrediction))/
-			(pLeftNode->dTrainW + pRightNode->dTrainW + pMissingNode->dTrainW);
-		}
-		break;
-	default:
-			throw GBM::failure("Node State not recognised.");
-			break;
-	}*/
-	nodeStrategy->Adjust(cMinObsInNode);
+	node_strategy_->Adjust(cMinObsInNode);
 }
 
 void CNode::Predict
@@ -129,7 +77,7 @@ void CNode::Predict
     double &dFadj
 )
 {
-	nodeStrategy->Predict(data, iRow, dFadj);
+	node_strategy_->Predict(data, iRow, dFadj);
 }
 
 
@@ -138,7 +86,7 @@ void CNode::GetVarRelativeInfluence
     double *adRelInf
 )
 {
-	nodeStrategy->GetVarRelativeInfluence(adRelInf);
+	node_strategy_->GetVarRelativeInfluence(adRelInf);
 }
 
 void CNode::PrintSubtree
@@ -146,38 +94,38 @@ void CNode::PrintSubtree
  unsigned long cIndent
 )
 {
-  nodeStrategy->PrintSubTree(cIndent);
+  node_strategy_->PrintSubTree(cIndent);
 }
 
 void CNode::SplitNode(NodeParams& childrenParams)
 {
 
 	// set up a continuous split
-	if(childrenParams.SplitClass==0)
+	if(childrenParams.split_class_==0)
 	{
-		splitType = continuous;
+		splittype = continuous;
 		SetStrategy();
 	}
 	else
 	{
-		splitType = categorical;
+		splittype = categorical;
 		SetStrategy();
 		// the types are confused here
-		aiLeftCategory.resize(1 + (ULONG)childrenParams.SplitValue);
-		std::copy(childrenParams.aiBestCategory.begin(),
-			  childrenParams.aiBestCategory.begin() +
-			  aiLeftCategory.size(),
-			  aiLeftCategory.begin());
+		leftcategory.resize(1 + (ULONG)childrenParams.split_value_);
+		std::copy(childrenParams.category_ordering_.begin(),
+			  childrenParams.category_ordering_.begin() +
+			  leftcategory.size(),
+			  leftcategory.begin());
 	}
 
 
-	iSplitVar = childrenParams.SplitVar;
-	dSplitValue = childrenParams.SplitValue;
-	dImprovement = childrenParams.ImprovedResiduals;
+	split_var = childrenParams.split_var_;
+	splitvalue = childrenParams.split_value_;
+	improvement = childrenParams.improvement_;
 
-	pLeftNode    = new CNode(childrenParams.left);
-	pRightNode   = new CNode(childrenParams.right);
-	pMissingNode = new CNode(childrenParams.missing);
+	left_node_ptr    = new CNode(childrenParams.left_);
+	right_node_ptr   = new CNode(childrenParams.right_);
+	missing_node_ptr = new CNode(childrenParams.missing_);
 
 
 
@@ -189,7 +137,7 @@ signed char CNode::WhichNode
     unsigned long iObs
 )
 {
-	return nodeStrategy->WhichNode(data, iObs);
+	return node_strategy_->WhichNode(data, iObs);
 }
 
 
@@ -210,7 +158,7 @@ void CNode::TransferTreeToRList
     double dShrinkage
 )
 {
-	nodeStrategy->TransferTreeToRList(iNodeID,
+	node_strategy_->TransferTreeToRList(iNodeID,
 										data,
 									aiSplitVar,
 									adSplitPoint,

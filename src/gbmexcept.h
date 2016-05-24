@@ -6,21 +6,21 @@
 
 namespace GBM {
 
-  class invalid_argument : public std::runtime_error {
+  class InvalidArgument : public std::runtime_error {
   public:
-    invalid_argument() : std::runtime_error("invalid argument") {} ;
-    invalid_argument(const std::string& msg) : std::runtime_error(msg) {};
+    InvalidArgument() : std::runtime_error("invalid argument") {} ;
+    InvalidArgument(const std::string& msg) : std::runtime_error(msg) {};
   };
 
-  class out_of_nodes : public std::runtime_error {
+  class OutOfNodes : public std::runtime_error {
   public:
-    out_of_nodes() : std::runtime_error("factory empty!") {};
+    OutOfNodes() : std::runtime_error("factory empty!") {};
   };
 
-  class failure : public std::runtime_error {
+  class Failure : public std::runtime_error {
   public:
-  failure() : std::runtime_error("unspecified failure") {};
-  failure(const std::string& msg) : std::runtime_error(msg) {};
+  Failure() : std::runtime_error("unspecified failure") {};
+  Failure(const std::string& msg) : std::runtime_error(msg) {};
   };
 
 }

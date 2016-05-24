@@ -66,7 +66,7 @@ private:
 	//-------------------
 	// Private Variables
 	//-------------------
-    double dPower;
+    double power_;
 };
 
 #endif // TWEEDIE_H

@@ -69,9 +69,9 @@ private:
 	//-------------------
 	// Private Variables
 	//-------------------
-    vector<double> vecd;
-    double dAlpha;
-    CLocationM mpLocM;
+    vector<double> vecd_;
+    double alpha_;
+    CLocationM mplocm_;
 };
 
 #endif // QUANTILE_H

@@ -28,12 +28,12 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-	TerminalStrategy(CNode* node):nodeContext(node){};
+	TerminalStrategy(CNode* node):nodecontext_(node){};
 
 	//---------------------
 	// Public destructor
 	//---------------------
-	~TerminalStrategy(){nodeContext = NULL;};
+	~TerminalStrategy(){nodecontext_ = NULL;};
 
 	//---------------------
 	// Public Functions
@@ -43,23 +43,23 @@ public:
 		    unsigned long iRow,
 		    double &dFadj)
 	{
-		dFadj = nodeContext->dPrediction;
+		dFadj = nodecontext_->prediction;
 	}
 	void GetVarRelativeInfluence(double* adRelInf){return;}
 	void PrintSubTree(unsigned long Indent)
 	{
 		  for(unsigned long i=0; i< Indent; i++) Rprintf("  ");
 		  Rprintf("N=%f, Prediction=%f *\n",
-			  nodeContext->dTrainW,
-			  nodeContext->dPrediction);
+			  nodecontext_->totalweight,
+			  nodecontext_->prediction);
 	}
 	signed char WhichNode(const CDataset& data, unsigned long iObs)
 	{
 		signed char ReturnValue = 0;
-		double dX = data.x_value(iObs, nodeContext->iSplitVar);
+		double dX = data.x_value(iObs, nodecontext_->split_var);
 		 if(!ISNA(dX))
 			{
-				if(dX < nodeContext->dSplitValue)
+				if(dX < nodecontext_->splitvalue)
 				{
 					ReturnValue = -1;
 				}
@@ -90,18 +90,18 @@ public:
 	)
 	{
 		aiSplitVar[iNodeID] = -1;
-		adSplitPoint[iNodeID] = dShrinkage*nodeContext->dPrediction;
+		adSplitPoint[iNodeID] = dShrinkage*nodecontext_->prediction;
 		aiLeftNode[iNodeID] = -1;
 		aiRightNode[iNodeID] = -1;
 		aiMissingNode[iNodeID] = -1;
 		adErrorReduction[iNodeID] = 0.0;
-		adWeight[iNodeID] = nodeContext->dTrainW;
-		adPred[iNodeID] = dShrinkage*nodeContext->dPrediction;
+		adWeight[iNodeID] = nodecontext_->totalweight;
+		adPred[iNodeID] = dShrinkage*nodecontext_->prediction;
 
 		iNodeID++;
 	}
 
 private:
-	CNode* nodeContext;
+	CNode* nodecontext_;
 };
 #endif // TERMINALSTRATEGY_H

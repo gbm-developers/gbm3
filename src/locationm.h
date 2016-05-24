@@ -23,13 +23,13 @@ class CLocationM
 public:
 
  CLocationM(){};
- CLocationM(const std::string& sType) : msType(sType), mdEps(1e-8) {};
+ CLocationM(const std::string& sType) : mtype_(sType), meps_(1e-8) {};
 
  CLocationM(const std::string& sType, const double& singleParam) :
-  madParams(1, singleParam), msType(sType), mdEps(1e-8) {};
+  mparams_(1, singleParam), mtype_(sType), meps_(1e-8) {};
 
  CLocationM(const std::string& sType, const std::vector<double>& adParams) :
-  madParams(adParams), msType(sType), mdEps(1e-8) {};
+  mparams_(adParams), mtype_(sType), meps_(1e-8) {};
 
   virtual ~CLocationM() {};
 
@@ -40,9 +40,9 @@ public:
   double LocationM(int iN, double *adX, const double *adW, double dAlpha);
 
 private:
-  std::vector<double> madParams;
-  std::string msType;
-  double mdEps;
+  std::vector<double> mparams_;
+  std::string mtype_;
+  double meps_;
 
   struct Compare
   {

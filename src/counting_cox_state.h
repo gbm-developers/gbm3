@@ -28,12 +28,12 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-	CountingCoxState(CCoxPH* coxPhPtr): coxPh(coxPhPtr){};
+	CountingCoxState(CCoxPH* coxPhPtr): coxph_(coxPhPtr){};
 
 	//---------------------
 	// Public destructor
 	//---------------------
-	~CountingCoxState(){coxPh = NULL;};
+	~CountingCoxState(){coxph_ = NULL;};
 
 	//---------------------
 	// Public Functions
@@ -72,19 +72,19 @@ public:
 		// Calculate the expected number of events and actual number of events in
 		// terminal nodes
 		std::vector<double> martingaleResid(data.get_trainsize(), 0.0);
-		std::vector<double> expNoEventsInNodes(cTermNodes, 1.0/coxPh->PriorCoeffVar());
-		std::vector<double> numEventsInNodes(cTermNodes, 1.0/coxPh->PriorCoeffVar());
+		std::vector<double> expNoEventsInNodes(cTermNodes, 1.0/coxph_->PriorCoeffVar());
+		std::vector<double> numEventsInNodes(cTermNodes, 1.0/coxph_->PriorCoeffVar());
 		LogLikelihoodTiedTimes(data.get_trainsize(), data, adF, &martingaleResid[0], false);
 
 
 		for(unsigned long i = 0; i < data.get_trainsize(); i++)
 		{
 			if(data.get_bag_element(i) &&
-					(treeComps.get_terminal_nodes()[treeComps.get_node_assignments()[i]]->cN >= treeComps.min_num_obs_required()) )
+					(treeComps.get_terminal_nodes()[treeComps.get_node_assignments()[i]]->numobs >= treeComps.min_num_obs_required()) )
 			{
 				// Cap expected number of events to be at least 0
-				expNoEventsInNodes[treeComps.get_node_assignments()[i]] += max(0.0, coxPh->StatusVec()[i] - martingaleResid[i]);
-				numEventsInNodes[treeComps.get_node_assignments()[i]] += coxPh->StatusVec()[i];
+				expNoEventsInNodes[treeComps.get_node_assignments()[i]] += max(0.0, coxph_->StatusVec()[i] - martingaleResid[i]);
+				numEventsInNodes[treeComps.get_node_assignments()[i]] += coxph_->StatusVec()[i];
 			}
 		}
 
@@ -92,7 +92,7 @@ public:
 		for(unsigned long nodeNum = 0; nodeNum < cTermNodes; nodeNum++)
 		{
 			// If there are no data points in node this is 0.0
-			treeComps.get_terminal_nodes()[nodeNum]->dPrediction = log(numEventsInNodes[nodeNum]/expNoEventsInNodes[nodeNum]);
+			treeComps.get_terminal_nodes()[nodeNum]->prediction = log(numEventsInNodes[nodeNum]/expNoEventsInNodes[nodeNum]);
 		}
 
 	}
@@ -151,7 +151,7 @@ public:
 	}
 
 private:
-	CCoxPH* coxPh;
+	CCoxPH* coxph_;
 	double LogLikelihoodTiedTimes(const int n, const CDataset& data, const double* eta,
 										  double* resid, bool skipBag=true, bool checkInBag=true)
 	{
@@ -198,10 +198,10 @@ private:
 
 	    for(person = 0; person < n; person++)
 	    {
-	    	p2 = coxPh->EndTimeIndices()[person];
+	    	p2 = coxph_->EndTimeIndices()[person];
 	    	if(skipBag || (data.get_bag_element(p2)==checkInBag))
 	    	{
-	    		newCenter = eta[coxPh->EndTimeIndices()[p2]] + data.offset_ptr()[coxPh->EndTimeIndices()[p2]];
+	    		newCenter = eta[coxph_->EndTimeIndices()[p2]] + data.offset_ptr()[coxph_->EndTimeIndices()[p2]];
 	    		if(newCenter > center)
 	    		{
 	    			center = newCenter;
@@ -211,13 +211,13 @@ private:
 
 	    for (person=0; person<n; )
 	    {
-			p2 = coxPh->EndTimeIndices()[person];
+			p2 = coxph_->EndTimeIndices()[person];
 
 	    	// Check if bagging is required
 			if(skipBag || (data.get_bag_element(p2)==checkInBag))
 			{
 
-				if (coxPh->StatusVec()[p2] ==0)
+				if (coxph_->StatusVec()[p2] ==0)
 				{
 					/* add the subject to the risk set */
 					resid[p2] = exp(eta[p2] + data.offset_ptr()[p2] - center) * cumhaz;
@@ -238,7 +238,7 @@ private:
 					for (;  indx1 <person; indx1++)
 					{
 
-						p1 = coxPh->StartTimeIndices()[indx1];
+						p1 = coxph_->StartTimeIndices()[indx1];
 						if(skipBag || (data.get_bag_element(p1)==checkInBag))
 						{
 							if (data.y_ptr(0)[p1] < dtime) break; /* still in the risk set */
@@ -266,16 +266,16 @@ private:
 					ndeath =0;   /* total number of deaths at this time point */
 					deathwt =0;  /* sum(wt) for the deaths */
 					d_denom =0;  /*contribution to denominator for the deaths*/
-					for (k=person; k< coxPh->StrataVec()[istrat]; k++)
+					for (k=person; k< coxph_->StrataVec()[istrat]; k++)
 					{
-						p2 = coxPh->EndTimeIndices()[k];
+						p2 = coxph_->EndTimeIndices()[k];
 						if(skipBag || (data.get_bag_element(p2)==checkInBag))
 						{
 							if (data.y_ptr(1)[p2]  < dtime) break;  /* only tied times */
 							nrisk++;
 							denom += data.weight_ptr()[p2] * exp(eta[p2] + data.offset_ptr()[p2] - center);
 							esum += eta[p2];
-							if (coxPh->StatusVec()[p2] ==1)
+							if (coxph_->StatusVec()[p2] ==1)
 							{
 								ndeath ++;
 								deathwt += data.weight_ptr()[p2];
@@ -291,7 +291,7 @@ private:
 					** hazard = usual increment
 					** e_hazard = efron increment, for tied deaths only
 					*/
-					if (coxPh->TieApproxMethod()==0 || ndeath==1)
+					if (coxph_->TieApproxMethod()==0 || ndeath==1)
 					{ /* Breslow */
 						loglik -= deathwt*log(denom);
 						hazard = deathwt /denom;
@@ -320,10 +320,10 @@ private:
 					temp = cumhaz + (hazard -e_hazard);
 					for (; person < ksave; person++)
 					{
-						p2 = coxPh->EndTimeIndices()[person];
+						p2 = coxph_->EndTimeIndices()[person];
 						if(skipBag || (data.get_bag_element(p2)==checkInBag))
 						{
-							if (coxPh->StatusVec()[p2] ==1) resid[p2] = 1 + temp*exp(eta[p2] + data.offset_ptr()[p2] - center);
+							if (coxph_->StatusVec()[p2] ==1) resid[p2] = 1 + temp*exp(eta[p2] + data.offset_ptr()[p2] - center);
 							else resid[p2] = cumhaz * exp(eta[p2] + data.offset_ptr()[p2] - center);
 						}
 
@@ -340,11 +340,11 @@ private:
 				}
 
 				/* clean up at the end of a strata */
-				if (person == coxPh->StrataVec()[istrat])
+				if (person == coxph_->StrataVec()[istrat])
 				{
-					for (; indx1< coxPh->StrataVec()[istrat]; indx1++)
+					for (; indx1< coxph_->StrataVec()[istrat]; indx1++)
 					{
-						p1 = coxPh->StartTimeIndices()[indx1];
+						p1 = coxph_->StartTimeIndices()[indx1];
 						if(skipBag || (data.get_bag_element(p1)==checkInBag))
 						{
 							resid[p1] -= cumhaz * exp(eta[p1] + data.offset_ptr()[p1] - center);

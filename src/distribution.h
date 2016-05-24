@@ -70,7 +70,7 @@ public:
     	 // Set up multi map
 		for(unsigned long i = 0; i < (data.get_trainsize() + data.get_validsize()); i++)
 		{
-			patIdToRow.insert(pair<int, int>(data.get_row_patient_id(i), i));
+			obsid_to_row_.insert(pair<int, int>(data.get_row_patient_id(i), i));
 		}
 
      };
@@ -98,8 +98,8 @@ public:
     //---------------------
     // Private Variables
     //---------------------
-    int cGroups;
-    std::multimap<int, int> patIdToRow; // Map from patientID to row
+    int num_groups_;
+    std::multimap<int, int> obsid_to_row_; // Map from observation unit to row
 };
 
 #endif // DISTRIBUTION_H

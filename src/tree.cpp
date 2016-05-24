@@ -9,11 +9,11 @@
 // Function Members - Public
 //----------------------------------------
 CCARTTree::CCARTTree(double shrinkage, long depth):
-depthOfTree(depth), shrinkageConst(shrinkage)
+kTreeDepth_(depth), kShrinkage_(shrinkage)
 {
-    pRootNode = NULL;
-    cTotalNodeCount = 1;
-    dError = 0.0;
+    rootnode_ = NULL;
+    totalnodecount_ = 1;
+    error_ = 0.0;
 
     // Calculate original
 }
@@ -21,15 +21,15 @@ depthOfTree(depth), shrinkageConst(shrinkage)
 
 CCARTTree::~CCARTTree()
 {
-	delete pRootNode;
+	delete rootnode_;
 }
 
 void CCARTTree::Reset()
 {
-  delete pRootNode;
-  pRootNode = NULL;
-  vecpTermNodes.resize(2*depthOfTree + 1, NULL);
-  cTotalNodeCount = 1;
+  delete rootnode_;
+  rootnode_ = NULL;
+  terminalnode_ptrs_.resize(2*kTreeDepth_ + 1, NULL);
+  totalnodecount_ = 1;
 }
 
 
@@ -52,9 +52,9 @@ void CCARTTree::grow
 #endif
 
 	if((adZ==NULL) || (data.weight_ptr()==NULL) || (adF==NULL) ||
-	 (depthOfTree < 1))
+	 (kTreeDepth_ < 1))
 	{
-	  throw GBM::invalid_argument();
+	  throw GBM::InvalidArgument();
 	}
 
   double dSumZ = 0.0;
@@ -80,25 +80,25 @@ void CCARTTree::grow
 		}
 	}
 
-  dError = dSumZ2-dSumZ*dSumZ/dTotalW;
-  pRootNode = new CNode(NodeDef(dSumZ, dTotalW, data.get_total_in_bag()));
-  vecpTermNodes[0] = pRootNode;
-  aNodeSearch.set_search_rootnode(*pRootNode);
+  error_ = dSumZ2-dSumZ*dSumZ/dTotalW;
+  rootnode_ = new CNode(NodeDef(dSumZ, dTotalW, data.get_total_in_bag()));
+  terminalnode_ptrs_[0] = rootnode_;
+  aNodeSearch.set_search_rootnode(*rootnode_);
 
   // build the tree structure
 #ifdef NOISY_DEBUG
   Rprintf("Building tree 1 ");
 #endif
 
-  for(long cDepth=0; cDepth < depthOfTree; cDepth++)
+  for(long cDepth=0; cDepth < kTreeDepth_; cDepth++)
   {
 #ifdef NOISY_DEBUG
       Rprintf("%d ",cDepth);
 #endif
       
     // Generate all splits
-    aNodeSearch.GenerateAllSplits(vecpTermNodes, data, &(adZ[0]), aiNodeAssign);
-    double bestImprov = aNodeSearch.CalcImprovementAndSplit(vecpTermNodes, data, aiNodeAssign);
+    aNodeSearch.GenerateAllSplits(terminalnode_ptrs_, data, &(adZ[0]), aiNodeAssign);
+    double bestImprov = aNodeSearch.CalcImprovementAndSplit(terminalnode_ptrs_, data, aiNodeAssign);
 
     // Make the best split if possible
 	if(bestImprov == 0.0)
@@ -107,7 +107,7 @@ void CCARTTree::grow
 	}
 	// setup the new nodes and add them to the tree
 
-	cTotalNodeCount += 3;
+	totalnodecount_ += 3;
 
   } // end tree growing
 
@@ -125,8 +125,8 @@ void CCARTTree::PredictValid
   unsigned int i=0;
   for(i=data.nrow() - nValid; i<data.nrow(); i++)
     {
-      pRootNode->Predict(data, i, adFadj[i]);
-      adFadj[i] *= shrinkageConst;
+      rootnode_->Predict(data, i, adFadj[i]);
+      adFadj[i] *= kShrinkage_;
     }
 }
 
@@ -139,35 +139,35 @@ void CCARTTree::Adjust
 {
 	unsigned long iObs = 0;
 
-	pRootNode->Adjust(cMinObsInNode);
+	rootnode_->Adjust(cMinObsInNode);
 
 	// predict for the training observations
 	for(iObs=0; iObs<aiNodeAssign.size(); iObs++)
 	{
-		adFadj[iObs] = vecpTermNodes[aiNodeAssign[iObs]]->dPrediction;
+		adFadj[iObs] = terminalnode_ptrs_[aiNodeAssign[iObs]]->prediction;
 	}
 }
 
 
 void CCARTTree::Print()
 {
-    if(pRootNode)
+    if(rootnode_)
     {
-      pRootNode->PrintSubtree(0);
-      Rprintf("shrinkage: %f\n",shrinkageConst);
-      Rprintf("initial error: %f\n\n",dError);
+      rootnode_->PrintSubtree(0);
+      Rprintf("shrinkage: %f\n",kShrinkage_);
+      Rprintf("initial error: %f\n\n",error_);
     }
 }
 
 
 CNode* CCARTTree::GetRootNode()
 {
-	return pRootNode;
+	return rootnode_;
 }
 
 const CNode* CCARTTree::GetRootNode() const
 {
-	return pRootNode;
+	return rootnode_;
 }
 
 

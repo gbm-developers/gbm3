@@ -32,11 +32,11 @@
 //
 //-----------------------------------
 CTreeComps::CTreeComps(TreeParams treeConfig) :
-  aNodeSearch(treeConfig.cDepth, treeConfig.numColData, treeConfig.cMinObsInNode),
-  tree(treeConfig.dShrinkage, treeConfig.cDepth)
+  new_node_searcher_(treeConfig.depth, treeConfig.numberdatacolumns, treeConfig.min_obs_in_node),
+  tree_(treeConfig.shrinkage, treeConfig.depth)
 {
-	this-> cMinObsInNode = treeConfig.cMinObsInNode;
-	aiNodeAssign.resize(treeConfig.cTrain, 0);
+	this-> min_num_node_obs_ = treeConfig.min_obs_in_node;
+	data_node_assignment_.resize(treeConfig.num_trainrows, 0);
 }
 
 //-----------------------------------
@@ -71,26 +71,26 @@ void CTreeComps::GrowTrees(const CDataset& data, double* adZ, const double* adFa
 	#endif
 
 	  //Reset tree and searcher
-	  tree.Reset();
-	  aNodeSearch.reset();
+	  tree_.Reset();
+	  new_node_searcher_.reset();
 
 	#ifdef NOISY_DEBUG
 	  Rprintf("grow tree\n");
 	#endif
 
-	tree.grow(&(adZ[0]),
+	tree_.grow(&(adZ[0]),
 				data,
 			&(adFadj[0]),
-			cMinObsInNode,
-			aiNodeAssign,
-			 aNodeSearch);
+			min_num_node_obs_,
+			data_node_assignment_,
+			 new_node_searcher_);
 
 	#ifdef NOISY_DEBUG
 	  ptempTree->Print();
 	#endif
 
 	#ifdef NOISY_DEBUG
-	  Rprintf("get node count=%d\n", tree.GetNodeCount());
+	  Rprintf("get node count=%d\n", tree_.GetNodeCount());
 	#endif
 }
 
@@ -106,12 +106,12 @@ void CTreeComps::GrowTrees(const CDataset& data, double* adZ, const double* adFa
 //-----------------------------------
 void CTreeComps::AdjustAndShrink(double * adFadj)
 {
-	tree.Adjust(aiNodeAssign,
+	tree_.Adjust(data_node_assignment_,
 				  &(adFadj[0]),
-				  cMinObsInNode);
+				  min_num_node_obs_);
 
 	#ifdef NOISY_DEBUG
-	  tree.Print();
+	  tree_.Print();
 	#endif
 }
 
@@ -137,11 +137,10 @@ void CTreeComps::TransferTreeToRList(const CDataset &data,
 	     VEC_VEC_CATEGORIES &vecSplitCodes,
 	     int cCatSplitsOld)
 {
-	int iNodeID = 0;
-
-	if(tree.GetRootNode())
+	int nodeid = 0;
+	if(tree_.GetRootNode())
 	{
-		tree.GetRootNode()->TransferTreeToRList(iNodeID,
+		tree_.GetRootNode()->TransferTreeToRList(nodeid,
 											   data,
 											   aiSplitVar,
 											   adSplitPoint,
@@ -153,11 +152,11 @@ void CTreeComps::TransferTreeToRList(const CDataset &data,
 											   adPred,
 											   vecSplitCodes,
 											   cCatSplitsOld,
-											   tree.GetShrinkageConst());
+											   tree_.GetShrinkageConst());
 	}
 	else
 	{
-	  throw GBM::failure("Can't transfer to list - RootNode does not exist.");
+	  throw GBM::Failure("Can't transfer to list - RootNode does not exist.");
 	}
 }
 
@@ -172,7 +171,7 @@ void CTreeComps::TransferTreeToRList(const CDataset &data,
 //
 void CTreeComps::PredictValid(const CDataset& data, double* adFadj)
 {
-	tree.PredictValid(data, data.get_validsize(), &(adFadj[0]));
+	tree_.PredictValid(data, data.get_validsize(), &(adFadj[0]));
 }
 
 

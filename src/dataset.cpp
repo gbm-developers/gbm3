@@ -37,28 +37,28 @@
 //
 //-----------------------------------
 CDataset::CDataset(const DataDistParams& dataParams) :
-  dataImpl(dataParams.respY, dataParams.offset,
-	   dataParams.xValues,
-	   dataParams.xOrder, dataParams.varWeight,
-	   dataParams.varClasses,
-	   dataParams.monotoneVar, dataParams.cTrain,
-	   dataParams.cFeatures, dataParams.dBagFraction,
-	   dataParams.cTrainPatients, dataParams.patId) {
+  dataImpl(dataParams.response, dataParams.offset,
+	   dataParams.xvalues,
+	   dataParams.xorder, dataParams.variable_weight,
+	   dataParams.variable_num_classes,
+	   dataParams.variable_monotonicity, dataParams.num_trainrows,
+	   dataParams.num_features, dataParams.bagfraction,
+	   dataParams.num_trainobservations, dataParams.patientids) {
   
   // Check for errors on initialization
-  if (dataImpl.adX.ncol() != dataImpl.alMonotoneVar.size())
+  if (dataImpl.xmatrix_.ncol() != dataImpl.variable_monotonicity_.size())
     {
-      throw GBM::invalid_argument("shape mismatch (monotone does not match data)");
+      throw GBM::InvalidArgument("shape mismatch (monotone does not match data)");
     }
 
-  if (dataImpl.adX.ncol() != dataImpl.acVarClasses.size())
+  if (dataImpl.xmatrix_.ncol() != dataImpl.num_variable_classes_.size())
     {
-      throw GBM::invalid_argument("shape mismatch (var classes does not match data)");
+      throw GBM::InvalidArgument("shape mismatch (var classes does not match data)");
     }
   
-  if (dataImpl.adX.nrow() < int(dataParams.cTrain))
+  if (dataImpl.xmatrix_.nrow() < int(dataParams.num_trainrows))
     {
-      throw GBM::invalid_argument("your training instances don't make sense");
+      throw GBM::InvalidArgument("your training instances don't make sense");
     }
 }
 
@@ -85,7 +85,7 @@ CDataset::~CDataset()
 //
 //-----------------------------------
 typedef std::vector<int> index_vector;
-index_vector CDataset::random_order() const
+index_vector CDataset::RandomOrder() const
 {
   index_vector result(ncol());
 
@@ -96,7 +96,7 @@ index_vector CDataset::random_order() const
     }
   
   // and now shuffle
-  std::random_shuffle(result.begin(), result.end(), GBM_FUNC::ptrShuffler);
+  std::random_shuffle(result.begin(), result.end(), GBM_FUNC::PtrShuffler);
   // and return
   return result;
 }

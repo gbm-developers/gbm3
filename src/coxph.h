@@ -100,14 +100,14 @@ private:
     //-------------------
     // Private Variables
     //-------------------
-    const bool startStopCase;
-    int* sortedEndTimes;
-    int* sortedStartTimes;
+    const bool kStartStopCase_;
+    int* sortedendtimes_;
+    int* sortedstarttimes_;
     int* strata;
-    const double priorCoeffVar;
-    double* status;
-    int tiedTimesMethod;
-    GenericCoxState* coxStateMethods;
+    const double kPriorCoeffVariation_;
+    double* status_;
+    int tiedtimesmethod_;
+    GenericCoxState* coxstate_methods_;
 
     
   	

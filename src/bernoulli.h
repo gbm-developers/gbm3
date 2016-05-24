@@ -68,7 +68,7 @@ private:
     //-------------------
     // Private Variables
     //-------------------
-    bool fCappedPred;
+    bool terminalnode_capped_;
 };
 
 #endif // BERNOULLI_H

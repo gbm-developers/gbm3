@@ -82,27 +82,26 @@ public:
 	// Public Variables
 	//---------------------
 	// Pointers to the Node's children
-	CNode* pLeftNode;
-	CNode* pRightNode;
-	CNode* pMissingNode;
+	CNode* left_node_ptr;
+	CNode* right_node_ptr;
+	CNode* missing_node_ptr;
 
 	//TODO: Currently most useful in printing out tree
 	// This nodes parameters
-	unsigned long iSplitVar;
-	double dImprovement;
+	unsigned long split_var;
+	double improvement;
 
 	// Properties defining the node
-	double dPrediction;
-	double dTrainW;   // total training weight in node
-	unsigned long cN; // number of training observations in node
+	double prediction;
+	double totalweight;   // total training weight in node
+	unsigned long numobs; // number of training observations in node
 
 	// ENUM FOR strategy
-	SplitType splitType;
+	SplitType splittype;
 
 	// VARIABLES USED IN NODE SPLITTING
-	std::vector<unsigned long> aiLeftCategory;
-    double dSplitValue;
-    bool splitAssigned;
+	std::vector<unsigned long> leftcategory;
+    double splitvalue;
 
 private:
 	//---------------------
@@ -113,7 +112,7 @@ private:
 	//---------------------
 	// Private Variables
 	//---------------------
-    GenericNodeStrategy* nodeStrategy;
+    GenericNodeStrategy* node_strategy_;
 
 };
 

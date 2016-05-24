@@ -7,7 +7,7 @@
 #include <Rcpp.h>
 
 namespace {
-  class nodeStack {
+  class NodeStack {
   public:
     bool empty() const {
       return stack.empty();
@@ -32,206 +32,206 @@ extern "C" {
 
 SEXP gbm
 (
-    SEXP radY,       // outcome or response
-    SEXP radOffset,  // offset for f(x), NA for no offset
-    SEXP radX,
-    SEXP raiXOrder,
-    SEXP rSorted,
-    SEXP rStrata,
-    SEXP radWeight,
-    SEXP radMisc,   // other row specific data (eg failure time), NA=no Misc
-    SEXP rPriorCoeff, // Prior coefficient of variation in Cox PH fit.
-    SEXP rPatientId, // Used in the bagging process
-    SEXP racVarClasses,
-    SEXP ralMonotoneVar,
-    SEXP rszFamily,
-    SEXP rcTrees,
-    SEXP rcDepth,       // interaction depth
-    SEXP rcMinObsInNode,
-    SEXP rdShrinkage,
-    SEXP rdBagFraction,
-    SEXP rcTrain,
-    SEXP rcTrainPatients,
-    SEXP rcFeatures,
-    SEXP radFOld,
-    SEXP rcCatSplitsOld,
-    SEXP rcTreesOld,
-    SEXP rfVerbose
+    SEXP response,       // outcome or response
+    SEXP offset_vec,  // offset for f(x), NA for no offset
+    SEXP covariates,
+    SEXP covar_order,
+    SEXP sorted_vec,
+    SEXP strata_vec,
+    SEXP obs_weight,
+    SEXP misc,   // other row specific data (eg failure time), NA=no Misc
+    SEXP prior_coeff_var, // Prior coefficient of variation in Cox PH fit.
+    SEXP row_to_obs_id, // Used in the bagging process
+    SEXP var_classes,
+    SEXP monotonicity_vec,
+    SEXP dist_family,
+    SEXP num_trees,
+    SEXP tree_depth,       // interaction depth
+    SEXP min_num_node_obs,
+    SEXP shrinkageconstant,
+    SEXP fraction_inbag,
+    SEXP num_rows_in_training,
+    SEXP num_obs_in_training,
+    SEXP number_offeatures,
+    SEXP prev_func_estimate,
+    SEXP prev_category_splits,
+    SEXP prev_trees_fitted,
+    SEXP isverbose
 )
 {
   BEGIN_RCPP
     
   	// Set up consts for tree fitting and transfer to R API
-  	VEC_VEC_CATEGORIES vecSplitCodes;
-    const int cTrees = Rcpp::as<int>(rcTrees);
-    const int cCatSplitsOld = Rcpp::as<int>(rcCatSplitsOld);
-    const int cTreesOld = Rcpp::as<int>(rcTreesOld);
-    const bool verbose = Rcpp::as<bool>(rfVerbose);
-    const Rcpp::NumericVector adFold(radFOld);
+  	VEC_VEC_CATEGORIES splitcodes;
+    const int kNumTrees = Rcpp::as<int>(num_trees);
+    const int kCatSplitsOld = Rcpp::as<int>(prev_category_splits);
+    const int kTreesOld = Rcpp::as<int>(prev_trees_fitted);
+    const bool kIsVerbose = Rcpp::as<bool>(isverbose);
+    const Rcpp::NumericVector kPrevFuncEst(prev_func_estimate);
 
     // Set up parameters for initialization
-    ConfigStructs GBMParams (radY, radOffset, radX,
-				raiXOrder, rSorted, rStrata, radWeight, radMisc,
-				rPriorCoeff, rPatientId, racVarClasses, ralMonotoneVar,
-				rszFamily, rcTrees, rcDepth,
-				rcMinObsInNode, rdShrinkage,
-				rdBagFraction, rcTrain, rcTrainPatients, rcFeatures);
+    ConfigStructs gbmparams (response, offset_vec, covariates,
+				covar_order, sorted_vec, strata_vec, obs_weight, misc,
+				prior_coeff_var, row_to_obs_id, var_classes, monotonicity_vec,
+				dist_family, num_trees, tree_depth,
+				min_num_node_obs, shrinkageconstant,
+				fraction_inbag, num_rows_in_training, num_obs_in_training, number_offeatures);
      Rcpp::RNGScope scope;
 
     // Build gbm piece-by-piece
-    CGBM GBM(GBMParams);
+    CGBM gbm(gbmparams);
 
     // Set up the function estimate
-    double dInitF = GBM.initial_function_estimate();
-    Rcpp::NumericMatrix tempX(radX);
-    Rcpp::NumericVector adF(tempX.nrow());
+    double initial_func_est = gbm.initial_function_estimate();
+    Rcpp::NumericMatrix temp_covars(covariates);
+    Rcpp::NumericVector func_estimate(temp_covars.nrow());
 
 
-    if(ISNA(adFold[0])) // check for old predictions
+    if(ISNA(kPrevFuncEst[0])) // check for old predictions
     {
       // set the initial value of F as a constant
-      adF.fill(dInitF);
+      func_estimate.fill(initial_func_est);
     }
     else
     {
-		if (adFold.size() != adF.size()) {
-		  throw GBM::invalid_argument("old predictions are the wrong shape");
+		if (kPrevFuncEst.size() != func_estimate.size()) {
+		  throw GBM::InvalidArgument("old predictions are the wrong shape");
 		}
-		std::copy(adFold.begin(), adFold.end(), adF.begin());
+		std::copy(kPrevFuncEst.begin(), kPrevFuncEst.end(), func_estimate.begin());
      }
 
-    Rcpp::NumericVector adTrainError(cTrees, 0.0);
-    Rcpp::NumericVector adValidError(cTrees, 0.0);
-    Rcpp::NumericVector adOOBagImprove(cTrees, 0.0);
-    Rcpp::GenericVector setOfTrees(cTrees);
+    Rcpp::NumericVector training_errors(kNumTrees, 0.0);
+    Rcpp::NumericVector validation_errors(kNumTrees, 0.0);
+    Rcpp::NumericVector outofbag_improvement(kNumTrees, 0.0);
+    Rcpp::GenericVector set_of_trees(kNumTrees);
 
-    if(verbose)
+    if(kIsVerbose)
     {
        Rprintf("Iter   TrainDeviance   ValidDeviance   StepSize   Improve\n");
     }
-    for(int iT=0; iT<cTrees; iT++)
+    for(int treenum=0; treenum<kNumTrees; treenum++)
     {
     	Rcpp::checkUserInterrupt();
 
-        double dTrainError = 0.0;
-        double dValidError = 0.0;
-        double dOOBagImprove = 0.0;
+        double tree_training_error = 0.0;
+        double tree_validation_error = 0.0;
+        double tree_out_of_bagimprov = 0.0;
 
-        GBM.FitLearner(adF.begin(),
-                      dTrainError,dValidError,dOOBagImprove);
+        gbm.FitLearner(func_estimate.begin(),
+                      tree_training_error,tree_validation_error,tree_out_of_bagimprov);
 
         // store the performance measures
-        adTrainError[iT] += dTrainError;
-        adValidError[iT] += dValidError;
-        adOOBagImprove[iT] += dOOBagImprove;
+        training_errors[treenum] += tree_training_error;
+        validation_errors[treenum] += tree_validation_error;
+        outofbag_improvement[treenum] += tree_out_of_bagimprov;
 
-        Rcpp::IntegerVector iSplitVar(GBM.size_of_fitted_tree());
-        Rcpp::NumericVector dSplitPoint(GBM.size_of_fitted_tree());
-        Rcpp::IntegerVector iLeftNode(GBM.size_of_fitted_tree());
-        Rcpp::IntegerVector iRightNode(GBM.size_of_fitted_tree());
-        Rcpp::IntegerVector iMissingNode(GBM.size_of_fitted_tree());
-        Rcpp::NumericVector dErrorReduction(GBM.size_of_fitted_tree());
-        Rcpp::NumericVector dWeight(GBM.size_of_fitted_tree());
-        Rcpp::NumericVector dPred(GBM.size_of_fitted_tree());
+        Rcpp::IntegerVector split_vars(gbm.size_of_fitted_tree());
+        Rcpp::NumericVector split_values(gbm.size_of_fitted_tree());
+        Rcpp::IntegerVector left_nodes(gbm.size_of_fitted_tree());
+        Rcpp::IntegerVector right_nodes(gbm.size_of_fitted_tree());
+        Rcpp::IntegerVector missing_nodes(gbm.size_of_fitted_tree());
+        Rcpp::NumericVector error_reduction(gbm.size_of_fitted_tree());
+        Rcpp::NumericVector weights(gbm.size_of_fitted_tree());
+        Rcpp::NumericVector node_predictions(gbm.size_of_fitted_tree());
 
 
-        GBM.GBMTransferTreeToRList(iSplitVar.begin(),
-                          dSplitPoint.begin(),
-                          iLeftNode.begin(),
-                          iRightNode.begin(),
-                          iMissingNode.begin(),
-                          dErrorReduction.begin(),
-                          dWeight.begin(),
-                          dPred.begin(),
-                          vecSplitCodes,
-                          cCatSplitsOld);
+        gbm.GBMTransferTreeToRList(split_vars.begin(),
+                          split_values.begin(),
+                          left_nodes.begin(),
+                          right_nodes.begin(),
+                          missing_nodes.begin(),
+                          error_reduction.begin(),
+                          weights.begin(),
+                          node_predictions.begin(),
+                          splitcodes,
+                          kCatSplitsOld);
 
-        setOfTrees[iT] = 
-          Rcpp::List::create(iSplitVar,
-                             dSplitPoint,
-                             iLeftNode, iRightNode, iMissingNode,
-                             dErrorReduction, dWeight, dPred);
+        set_of_trees[treenum] = 
+          Rcpp::List::create(split_vars,
+                             split_values,
+                             left_nodes, right_nodes, missing_nodes,
+                             error_reduction, weights, node_predictions);
 
         // print the information
-        if((verbose) && ((iT <= 9) ||
-			 (0 == (iT+1+cTreesOld) % 20) ||
-			 (iT==cTrees-1))) {
+        if((kIsVerbose) && ((treenum <= 9) ||
+			 (0 == (treenum+1+kTreesOld) % 20) ||
+			 (treenum==kNumTrees-1))) {
 	  Rprintf("%6d %13.4f %15.4f %10.4f %9.4f\n",
-		  iT+1+cTreesOld,
-		  adTrainError[iT],
-		  adValidError[iT],
-		  GBMParams.get_tree_config().dShrinkage,
-		  adOOBagImprove[iT]);
+		  treenum+1+kTreesOld,
+		  training_errors[treenum],
+		  validation_errors[treenum],
+		  gbmparams.get_tree_config().shrinkage,
+		  outofbag_improvement[treenum]);
         }
 
       }
 
-    if(verbose) Rprintf("\n");
+    if(kIsVerbose) Rprintf("\n");
     using Rcpp::_;
-    return Rcpp::List::create(_["initF"]=dInitF,
-                              _["fit"]=adF,
-                              _["train.error"]=adTrainError,
-                              _["valid.error"]=adValidError,
-                              _["oobag.improve"]=adOOBagImprove,
-                              _["trees"]=setOfTrees,
-                              _["c.splits"]=vecSplitCodes);
+    return Rcpp::List::create(_["initF"]=initial_func_est,
+                              _["fit"]=func_estimate,
+                              _["train.error"]=training_errors,
+                              _["valid.error"]=validation_errors,
+                              _["oobag.improve"]=outofbag_improvement,
+                              _["trees"]=set_of_trees,
+                              _["c.splits"]=splitcodes);
 
    END_RCPP
 }
 
 SEXP gbm_pred
 (
-   SEXP radX,         // the data matrix
-   SEXP rcTrees,      // number of trees, may be a vector
-   SEXP rdInitF,      // the initial value
-   SEXP rTrees,       // the list of trees
-   SEXP rCSplits,     // the list of categorical splits
-   SEXP raiVarType,   // indicator of continuous/nominal
-   SEXP riSingleTree  // boolean whether to return only results for one tree
+   SEXP covariates,         // the data matrix
+   SEXP num_trees,      // number of trees, may be a vector
+   SEXP initial_func_est,      // the initial value
+   SEXP fitted_trees,       // the list of trees
+   SEXP categorical_splits,     // the list of categorical splits
+   SEXP variable_type,   // indicator of continuous/nominal
+   SEXP ret_single_tree_res  // boolean whether to return only results for one tree
 )
 {
    BEGIN_RCPP
    int iTree = 0;
    int iObs = 0;
-   const Rcpp::NumericMatrix adX(radX);
-   const int cRows = adX.nrow();
-   const Rcpp::IntegerVector cTrees(rcTrees);
-   const Rcpp::GenericVector trees(rTrees);
-   const Rcpp::IntegerVector aiVarType(raiVarType);
-   const Rcpp::GenericVector cSplits(rCSplits);
-   const bool fSingleTree = Rcpp::as<bool>(riSingleTree);
-   const int cPredIterations = cTrees.size();
+   const Rcpp::NumericMatrix kCovarMat(covariates);
+   const int kNumCovarRows = kCovarMat.nrow();
+   const Rcpp::IntegerVector kTrees(num_trees);
+   const Rcpp::GenericVector trees(fitted_trees);
+   const Rcpp::IntegerVector aiVarType(variable_type);
+   const Rcpp::GenericVector cSplits(categorical_splits);
+   const bool fSingleTree = Rcpp::as<bool>(ret_single_tree_res);
+   const int cPredIterations = kTrees.size();
    int iPredIteration = 0;
    int iClass = 0;
 
-   if ((adX.ncol() != aiVarType.size())) {
-     throw GBM::invalid_argument("shape mismatch");
+   if ((kCovarMat.ncol() != aiVarType.size())) {
+     throw GBM::InvalidArgument("shape mismatch");
    }
      
-   Rcpp::NumericVector adPredF(cRows * cPredIterations);
+   Rcpp::NumericVector adPredF(kNumCovarRows * cPredIterations);
 
    // initialize the predicted values
    if(!fSingleTree)
    {
      std::fill(adPredF.begin(),
-               adPredF.begin() + cRows,
-               Rcpp::as<double>(rdInitF));
+               adPredF.begin() + kNumCovarRows,
+               Rcpp::as<double>(initial_func_est));
    }
    else
    {
      adPredF.fill(0.0);
    }
    iTree = 0;
-   for(iPredIteration=0; iPredIteration<cTrees.size(); iPredIteration++)
+   for(iPredIteration=0; iPredIteration<kTrees.size(); iPredIteration++)
    {
-     const int mycTrees = cTrees[iPredIteration];
+     const int mycTrees = kTrees[iPredIteration];
      if(fSingleTree) iTree=mycTrees-1;
      if(!fSingleTree && (iPredIteration>0))
        {
          // copy over from the last rcTrees
-         std::copy(adPredF.begin() + cRows * (iPredIteration -1),
-                   adPredF.begin() + cRows * iPredIteration,
-                   adPredF.begin() + cRows * iPredIteration);
+         std::copy(adPredF.begin() + kNumCovarRows * (iPredIteration -1),
+                   adPredF.begin() + kNumCovarRows * iPredIteration,
+                   adPredF.begin() + kNumCovarRows * iPredIteration);
        }
      while(iTree<mycTrees)
        {
@@ -242,12 +242,12 @@ SEXP gbm_pred
          const Rcpp::IntegerVector iRightNode = thisTree[3];
          const Rcpp::IntegerVector iMissingNode = thisTree[4];
          
-         for(iObs=0; iObs<cRows; iObs++)
+         for(iObs=0; iObs<kNumCovarRows; iObs++)
            {
              int iCurrentNode = 0;
              while(iSplitVar[iCurrentNode] != -1)
                {
-                 const double dX = adX[iSplitVar[iCurrentNode]*cRows + iObs];
+                 const double dX = kCovarMat[iSplitVar[iCurrentNode]*kNumCovarRows + iObs];
                  // missing?
                  if(ISNA(dX))
                    {
@@ -287,7 +287,7 @@ SEXP gbm_pred
                      }
                    }
                }
-             adPredF[cRows*iPredIteration+cRows*iClass+iObs] += dSplitCode[iCurrentNode]; // add the prediction
+             adPredF[kNumCovarRows*iPredIteration+kNumCovarRows*iClass+iObs] += dSplitCode[iCurrentNode]; // add the prediction
            } // iObs
          iTree++;
        } // iTree
@@ -325,7 +325,7 @@ SEXP gbm_plot
                                 Rcpp::as<double>(rdInitF));
 
     if (adX.ncol() != aiWhichVar.size()) {
-      throw GBM::invalid_argument("shape mismatch");
+      throw GBM::InvalidArgument("shape mismatch");
     }
 
     for(iTree=0; iTree<cTrees; iTree++)
@@ -339,7 +339,7 @@ SEXP gbm_plot
       const Rcpp::NumericVector dW = thisTree[6];
       for(iObs=0; iObs<cRows; iObs++)
         {
-          nodeStack stack;
+          NodeStack stack;
           stack.push(0, 1.0);
           while( !stack.empty() )
             {

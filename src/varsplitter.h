@@ -37,7 +37,7 @@ public:
 	//---------------------
 	void SetToSplit()
 	{
-		fIsSplit = true;
+		issplit_ = true;
 	};
 
 	 void IncorporateObs(double dX,
@@ -50,24 +50,24 @@ public:
 			    long cVarClasses);
 
 
-	inline double best_improvement() { return bestSplit.ImprovedResiduals; }
-	inline NodeParams best_split() { return bestSplit;}
+	inline double best_improvement() { return bestsplit_.improvement_; }
+	inline NodeParams best_split() { return bestsplit_;}
 	void SetupNewNodes(CNode& nodeToSplit)
 	{
-	  nodeToSplit.SplitNode(bestSplit);
+	  nodeToSplit.SplitNode(bestsplit_);
 	}
 
 	unsigned long SetAndReturnNumGroupMeans()
 	{
 	  unsigned long cFiniteMeans = 0;
 
-	  for(unsigned long i=0; i < proposedSplit.SplitClass; i++)
+	  for(unsigned long i=0; i < proposedsplit_.split_class_; i++)
 	    {
 	      groupMeanAndCat[i].second = i;
 	      
-	      if(adGroupW[i] != 0.0)
+	      if(group_weight_[i] != 0.0)
 		{
-		  groupMeanAndCat[i].first = adGroupSumZ[i]/adGroupW[i];
+		  groupMeanAndCat[i].first = group_sumresid_[i]/group_weight_[i];
 		  cFiniteMeans++;
 		}
 	      else
@@ -77,7 +77,7 @@ public:
 	    }
 	  
 	  std::sort(groupMeanAndCat.begin(),
-		    groupMeanAndCat.begin() + proposedSplit.SplitClass);
+		    groupMeanAndCat.begin() + proposedsplit_.split_class_);
 
 	  return cFiniteMeans;
 	}
@@ -86,25 +86,25 @@ public:
 				 double predIncrement,
 				 double trainWIncrement)
 	{
-	  adGroupSumZ[cat] += predIncrement;
-	  adGroupW[cat] += trainWIncrement;
-	  acGroupN[cat]++;
+	  group_sumresid_[cat] += predIncrement;
+	  group_weight_[cat] += trainWIncrement;
+	  group_num_obs_[cat]++;
 	}
 	
 	void UpdateLeftNodeWithCat(long catIndex)
 	{
 
-		proposedSplit.UpdateLeftNode(adGroupSumZ[groupMeanAndCat[catIndex].second],
-				adGroupW[groupMeanAndCat[catIndex].second],
-				acGroupN[groupMeanAndCat[catIndex].second]);
+		proposedsplit_.UpdateLeftNode(group_sumresid_[groupMeanAndCat[catIndex].second],
+				group_weight_[groupMeanAndCat[catIndex].second],
+				group_num_obs_[groupMeanAndCat[catIndex].second]);
 	}
 
 	void EvaluateCategoricalSplit();
 	void WrapUpCurrentVariable();
 
-	double dInitTotalW;
-	double dInitSumZ;
-	unsigned long cInitN;
+	double initial_totalweight;
+	double initial_sumresiduals;
+	unsigned long initial_numobs;
 
 private:
 
@@ -116,13 +116,13 @@ private:
 	//---------------------
 	// Private Variables
 	//---------------------
-	bool fIsSplit;
-	unsigned long cMinObsInNode;
-	double dLastXValue;
-	NodeParams bestSplit, proposedSplit;
-	std::vector<double> adGroupSumZ;
-	std::vector<double> adGroupW;
-	std::vector<unsigned long> acGroupN;
+	bool issplit_;
+	unsigned long min_num_node_obs_;
+	double last_xvalue_;
+	NodeParams bestsplit_, proposedsplit_;
+	std::vector<double> group_sumresid_;
+	std::vector<double> group_weight_;
+	std::vector<unsigned long> group_num_obs_;
 
 	// Splitting arrays for Categorical variable
 	std::vector<std::pair<double, int> > groupMeanAndCat;

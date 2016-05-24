@@ -11,7 +11,7 @@
 
 //  Function that counts the number of distinct groups in the input data.
 //  Used only with the pairwise distribution.
-int GBM_FUNC::numGroups(const double* adMisc, int cTrain)
+int GBM_FUNC::NumGroups(const double* adMisc, int cTrain)
 {
 	if (cTrain <= 0)
 	{
@@ -39,7 +39,7 @@ bool GBM_FUNC::has_value(const Rcpp::NumericVector& x)
 }
 
 // Function that shuffles an array.
-std::ptrdiff_t GBM_FUNC::ptrShuffler(std::ptrdiff_t n)
+std::ptrdiff_t GBM_FUNC::PtrShuffler(std::ptrdiff_t n)
 {
     return n * unif_rand();
 }

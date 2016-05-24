@@ -156,22 +156,22 @@ void CPoisson::FitBestConstant
                 // Not sure what else to do except plug in an arbitrary
                 //   negative number, -1? -10? Let's use -1, then make
                 //   sure |adF| < 19 always.
-            	treeComps.get_terminal_nodes()[iNode]->dPrediction = -19.0;
+            	treeComps.get_terminal_nodes()[iNode]->prediction = -19.0;
             }
             else if(vecdDen[iNode] == 0.0)
             {
-            	treeComps.get_terminal_nodes()[iNode]->dPrediction = 0.0;
+            	treeComps.get_terminal_nodes()[iNode]->prediction = 0.0;
             }
             else
             {
-            	treeComps.get_terminal_nodes()[iNode]->dPrediction =
+            	treeComps.get_terminal_nodes()[iNode]->prediction =
                     std::log(vecdNum[iNode]/vecdDen[iNode]);
             }
-            treeComps.get_terminal_nodes()[iNode]->dPrediction =
-               R::fmin2(treeComps.get_terminal_nodes()[iNode]->dPrediction,
+            treeComps.get_terminal_nodes()[iNode]->prediction =
+               R::fmin2(treeComps.get_terminal_nodes()[iNode]->prediction,
                      19-vecdMax[iNode]);
-            treeComps.get_terminal_nodes()[iNode]->dPrediction =
-               R::fmax2(treeComps.get_terminal_nodes()[iNode]->dPrediction,
+            treeComps.get_terminal_nodes()[iNode]->prediction =
+               R::fmax2(treeComps.get_terminal_nodes()[iNode]->prediction,
                      -19-vecdMin[iNode]);
         }
     }

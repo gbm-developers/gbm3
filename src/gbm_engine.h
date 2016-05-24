@@ -60,18 +60,18 @@ public:
 			     VEC_VEC_CATEGORIES &vecSplitCodes,
 			     int cCatSplitsOld);
 
-    const long size_of_fitted_tree() const{ return treeComp.size_of_tree(); }
-    double initial_function_estimate() { return dataCont.InitialFunctionEstimate(); };
+    const long size_of_fitted_tree() const{ return treecomponents_.size_of_tree(); }
+    double initial_function_estimate() { return datacontainer_.InitialFunctionEstimate(); };
 
 private:
 	//-------------------
 	// Private Variables
 	//-------------------
-    CGBMDataContainer dataCont;
-    CTreeComps treeComp;
+    CGBMDataContainer datacontainer_;
+    CTreeComps treecomponents_;
     
     // Residuals and adjustments to function estimate
-    std::vector<double> adZ;
+    std::vector<double> residuals_;
 
 };
 

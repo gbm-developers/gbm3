@@ -48,7 +48,7 @@ void CGamma::ComputeWorkingResponse
   double dF = 0.0;
   
   if (!(data.y_ptr() && adF && adZ && data.weight_ptr())) {
-    throw GBM::invalid_argument();
+    throw GBM::InvalidArgument();
   }
 
   for(i=0; i<data.get_trainsize(); i++)
@@ -180,17 +180,17 @@ const CDataset& data,
 	      // Not sure what else to do except plug in an arbitrary
 	      //   negative number, -1? -10? Let's use -19, then make
 	      //   sure |adF| < 19 always.
-		  treeComps.get_terminal_nodes()[iNode]->dPrediction = MinVal;
+		  treeComps.get_terminal_nodes()[iNode]->prediction = MinVal;
 	    }
 	  
-	  else if(vecdDen[iNode] == 0.0) { treeComps.get_terminal_nodes()[iNode]->dPrediction = 0.0; }
+	  else if(vecdDen[iNode] == 0.0) { treeComps.get_terminal_nodes()[iNode]->prediction = 0.0; }
 	  
-	  else { treeComps.get_terminal_nodes()[iNode]->dPrediction = std::log(vecdNum[iNode]/vecdDen[iNode]); }
+	  else { treeComps.get_terminal_nodes()[iNode]->prediction = std::log(vecdNum[iNode]/vecdDen[iNode]); }
 	  
-	  if (vecdMax[iNode]+treeComps.get_terminal_nodes()[iNode]->dPrediction > MaxVal)
-	    { treeComps.get_terminal_nodes()[iNode]->dPrediction = MaxVal - vecdMax[iNode]; }
-	  if (vecdMin[iNode]+treeComps.get_terminal_nodes()[iNode]->dPrediction < MinVal)
-	    { treeComps.get_terminal_nodes()[iNode]->dPrediction = MinVal - vecdMin[iNode]; }
+	  if (vecdMax[iNode]+treeComps.get_terminal_nodes()[iNode]->prediction > MaxVal)
+	    { treeComps.get_terminal_nodes()[iNode]->prediction = MaxVal - vecdMax[iNode]; }
+	  if (vecdMin[iNode]+treeComps.get_terminal_nodes()[iNode]->prediction < MinVal)
+	    { treeComps.get_terminal_nodes()[iNode]->prediction = MinVal - vecdMin[iNode]; }
 	  
 	}
     }

@@ -4,9 +4,9 @@
 #include "gbm_engine.h"
 
 CGBM::CGBM(ConfigStructs& GBMParams) :
-  dataCont(GBMParams.get_data_config()),
-  treeComp(GBMParams.get_tree_config()),
-  adZ(dataCont.get_data().nrow(), 0) {}
+  datacontainer_(GBMParams.get_data_config()),
+  treecomponents_(GBMParams.get_tree_config()),
+  residuals_(datacontainer_.get_data().nrow(), 0) {}
 
 
 CGBM::~CGBM()
@@ -16,29 +16,29 @@ CGBM::~CGBM()
 void CGBM::FitLearner
 (
   double *adF,
-  double &dTrainError,
-  double &dValidError,
-  double &dOOBagImprove
+  double &trainingerror,
+  double &validationerror,
+  double &outofbag_improvement
 )
 {
 
-  dTrainError = 0.0;
-  dValidError = 0.0;
-  dOOBagImprove = 0.0;
+  trainingerror = 0.0;
+  validationerror = 0.0;
+  outofbag_improvement = 0.0;
 
   // Initialize adjustments to function estimate
-  std::vector<double> adFadj(dataCont.get_data().nrow(), 0);
+  std::vector<double> adFadj(datacontainer_.get_data().nrow(), 0);
 
   // Bag data
-  dataCont.BagData();
+  datacontainer_.BagData();
 
 #ifdef NOISY_DEBUG
   Rprintf("Compute working response\n");
 #endif
 
   // Compute Residuals and fit tree
-  dataCont.ComputeResiduals(&adF[0], &adZ[0]);
-  treeComp.GrowTrees(dataCont.get_data(), &adZ[0], &adFadj[0]);
+  datacontainer_.ComputeResiduals(&adF[0], &residuals_[0]);
+  treecomponents_.GrowTrees(datacontainer_.get_data(), &residuals_[0], &adFadj[0]);
 
 
 
@@ -49,34 +49,34 @@ void CGBM::FitLearner
 #endif
 
   // Adjust terminal node predictions and shrink
-  dataCont.ComputeBestTermNodePreds(&adF[0], &adZ[0], treeComp);
-  treeComp.AdjustAndShrink(&adFadj[0]);
+  datacontainer_.ComputeBestTermNodePreds(&adF[0], &residuals_[0], treecomponents_);
+  treecomponents_.AdjustAndShrink(&adFadj[0]);
 
   // Compute the error improvement within bag
-  dOOBagImprove = dataCont.ComputeBagImprovement(&adF[0],
-						 treeComp.get_shrinkage_factor(),
+  outofbag_improvement = datacontainer_.ComputeBagImprovement(&adF[0],
+						 treecomponents_.get_shrinkage_factor(),
 						 &adFadj[0]);
 
   // Update the function estimate
   unsigned long i = 0;
-  for(i=0; i < dataCont.get_data().get_trainsize(); i++)
+  for(i=0; i < datacontainer_.get_data().get_trainsize(); i++)
   {
-    adF[i] += treeComp.get_shrinkage_factor() * adFadj[i];
+    adF[i] += treecomponents_.get_shrinkage_factor() * adFadj[i];
 
   }
 
   // Make validation predictions
-  dTrainError = dataCont.ComputeDeviance(&adF[0], false);
-  treeComp.PredictValid(dataCont.get_data(), &adFadj[0]);
+  trainingerror = datacontainer_.ComputeDeviance(&adF[0], false);
+  treecomponents_.PredictValid(datacontainer_.get_data(), &adFadj[0]);
 
-  for(i=dataCont.get_data().get_trainsize();
-      i < dataCont.get_data().get_trainsize()+dataCont.get_data().get_validsize();
+  for(i=datacontainer_.get_data().get_trainsize();
+      i < datacontainer_.get_data().get_trainsize()+datacontainer_.get_data().get_validsize();
       i++)
     {
       adF[i] += adFadj[i];
     }
 
-  dValidError = dataCont.ComputeDeviance(&adF[0], true);
+  validationerror = datacontainer_.ComputeDeviance(&adF[0], true);
 
 }
 
@@ -95,7 +95,7 @@ void CGBM::GBMTransferTreeToRList
  int cCatSplitsOld
  )
 {
-	treeComp.TransferTreeToRList(dataCont.get_data(),
+	treecomponents_.TransferTreeToRList(datacontainer_.get_data(),
 				     aiSplitVar,
 				     adSplitPoint,
 				     aiLeftNode,

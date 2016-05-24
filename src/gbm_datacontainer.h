@@ -50,17 +50,17 @@ public:
     double ComputeBagImprovement(const double* adF, const double shrinkage, const double* adFadj);
     void BagData();
     
-    CDistribution* get_dist(){ return pDist; }
-    const CDataset& get_data() const { return data; }
-    CDataset& get_data() { return data; }
+    CDistribution* get_dist(){ return distptr_; }
+    const CDataset& get_data() const { return data_; }
+    CDataset& get_data() { return data_; }
 
 private:
 	//-------------------
 	// Private Variables
 	//-------------------
-    CDataset data;
-    CDistribution* pDist;
-    DistributionFactory* DistFactory;
+    CDataset data_;
+    CDistribution* distptr_;
+    DistributionFactory* distfactory_;
 };
 
 #endif // GBMDATACONTAINER_H

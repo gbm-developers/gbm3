@@ -16,9 +16,9 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CTDist::CTDist(double nu):mpLocM("tdist", nu)
+CTDist::CTDist(double nu):mplocm_("tdist", nu)
 {
-	mdNu = nu;
+	m_nu_ = nu;
 }
 
 
@@ -31,7 +31,7 @@ CDistribution* CTDist::Create(DataDistParams& distParams)
 	double nu = Rcpp::as<double>(distParams.misc[0]);
 	if(!GBM_FUNC::has_value(nu))
 	{
-		throw GBM::failure("T Dist requires misc to initialization.");
+		throw GBM::Failure("T Dist requires misc to initialization.");
 	}
 	return new CTDist(nu);
 }
@@ -54,7 +54,7 @@ void CTDist::ComputeWorkingResponse
 	for(i=0; i<data.get_trainsize(); i++)
 	{
 		dU = data.y_ptr()[i] - data.offset_ptr()[i] - adF[i];
-		adZ[i] = (2 * dU) / (mdNu + (dU * dU));
+		adZ[i] = (2 * dU) / (m_nu_ + (dU * dU));
 	}
 
 }
@@ -75,7 +75,7 @@ double CTDist::InitF
 		adArr[ii] = data.y_ptr()[ii] - dOffset;
 	}
 
-	return mpLocM.LocationM(data.get_trainsize(), &adArr[0], data.weight_ptr(), 0.5);
+	return mplocm_.LocationM(data.get_trainsize(), &adArr[0], data.weight_ptr(), 0.5);
 }
 
 double CTDist::Deviance
@@ -102,7 +102,7 @@ double CTDist::Deviance
 	for(i=0; i<cLength; i++)
 	{
 		dU = data.y_ptr()[i] - data.offset_ptr()[i] - adF[i];
-		dL += data.weight_ptr()[i] * std::log(mdNu + (dU * dU));
+		dL += data.weight_ptr()[i] * std::log(m_nu_ + (dU * dU));
 		dW += data.weight_ptr()[i];
 	}
 
@@ -145,7 +145,7 @@ void CTDist::FitBestConstant
 	// Call LocM for the array of values on each node
     for(iNode=0; iNode<cTermNodes; iNode++)
     {
-      if(treeComps.get_terminal_nodes()[iNode]->cN >= treeComps.min_num_obs_required())
+      if(treeComps.get_terminal_nodes()[iNode]->numobs >= treeComps.min_num_obs_required())
         {
 	  adArr.clear();
 	  adW.clear();
@@ -160,7 +160,7 @@ void CTDist::FitBestConstant
                 }
 	    }
 
-	  treeComps.get_terminal_nodes()[iNode]->dPrediction = mpLocM.LocationM(adArr.size(), &adArr[0],
+	  treeComps.get_terminal_nodes()[iNode]->prediction = mplocm_.LocationM(adArr.size(), &adArr[0],
 							       &adW[0], 0.5);
 
         }
@@ -187,7 +187,7 @@ double CTDist::BagImprovement
 	    const double dU = (data.y_ptr()[i] - dF);
 	    const double dV = (data.y_ptr()[i] - dF - shrinkage * adFadj[i]) ;
 
-            dReturnValue += data.weight_ptr()[i] * (std::log(mdNu + (dU * dU)) - log(mdNu + (dV * dV)));
+            dReturnValue += data.weight_ptr()[i] * (std::log(m_nu_ + (dU * dU)) - log(m_nu_ + (dV * dV)));
             dW += data.weight_ptr()[i];
         }
     }

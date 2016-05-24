@@ -70,9 +70,9 @@ DistributionFactory::DistributionFactory()
 //                    function pointer.
 //
 //------------------------------------------
-void DistributionFactory::RegisterDist(const string& DistFamily, distCreate PtrDistCreateFn)
+void DistributionFactory::RegisterDist(const string& kDistFamily, distCreate ptr_to_dist_createfunc)
 {
-	FactoryMap[DistFamily] = PtrDistCreateFn;
+	factorymap_[kDistFamily] = ptr_to_dist_createfunc;
 }
 
 //------------------------------------------
@@ -87,16 +87,16 @@ void DistributionFactory::RegisterDist(const string& DistFamily, distCreate PtrD
 //   distParams - configuration struct containing parameters for distribution set-up.
 //---------------------------------------------
 
-CDistribution* DistributionFactory::CreateDist(DataDistParams& distParams)
+CDistribution* DistributionFactory::CreateDist(DataDistParams& distparams)
 {
-  std::map<std::string, distCreate>::iterator it = FactoryMap.find(distParams.family);
-	if( it != FactoryMap.end() )
+  std::map<std::string, distCreate>::iterator it = factorymap_.find(distparams.family);
+	if( it != factorymap_.end() )
 	{
-		return it -> second(distParams);
+		return it -> second(distparams);
 	}
 	else
 	{
-		throw GBM::invalid_argument( "Error: Family string provided not recognised - distribution can't be initialized.");
+		throw GBM::InvalidArgument( "Error: Family string provided not recognised - distribution can't be initialized.");
 	}
 
 }

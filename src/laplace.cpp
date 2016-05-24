@@ -15,7 +15,7 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CLaplace::CLaplace(): mpLocM("Other")
+CLaplace::CLaplace(): mpLocM_("Other")
 {
 }
 
@@ -65,7 +65,7 @@ double CLaplace::InitF
       adArr[ii] = data.y_ptr()[ii] - dOffset;
     }
   
-  return mpLocM.weightedQuantile(data.get_trainsize(), &adArr[0], data.weight_ptr(), 0.5); // median
+  return mpLocM_.weightedQuantile(data.get_trainsize(), &adArr[0], data.weight_ptr(), 0.5); // median
 }
 
 
@@ -145,7 +145,7 @@ void CLaplace::FitBestConstant
   
   for(iNode=0; iNode<cTermNodes; iNode++)
     {
-      if(treeComps.get_terminal_nodes()[iNode]->cN >= treeComps.min_num_obs_required())
+      if(treeComps.get_terminal_nodes()[iNode]->numobs >= treeComps.min_num_obs_required())
         {
 	  iVecd = 0;
 	  for(iObs=0; iObs<data.get_trainsize(); iObs++)
@@ -160,7 +160,7 @@ void CLaplace::FitBestConstant
 	      
             }
 	  
-	  treeComps.get_terminal_nodes()[iNode]->dPrediction = mpLocM.weightedQuantile(iVecd, &adArr[0], &adW2[0], 0.5); // median
+	  treeComps.get_terminal_nodes()[iNode]->prediction = mpLocM_.weightedQuantile(iVecd, &adArr[0], &adW2[0], 0.5); // median
 	  
         }
     }

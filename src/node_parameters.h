@@ -23,78 +23,78 @@ struct NodeDef
   //----------------------
   // Public Constructors
   //----------------------
-  NodeDef() : numObs(0), weightResid(0), totalWeight(0) {};
+  NodeDef() : numobs_(0), weightresid_(0), totalweight_(0) {};
   
   NodeDef(double weightResid, double totalWeight, unsigned long numObs) :
-  numObs(numObs), weightResid(weightResid), totalWeight(totalWeight) {};
+  numobs_(numObs), weightresid_(weightResid), totalweight_(totalWeight) {};
   
   //---------------------
   // Public Functions
   //---------------------
   void clear()
   {
-    numObs = 0;
-    weightResid = totalWeight = 0;
+    numobs_ = 0;
+    weightresid_ = totalweight_ = 0;
   };
   
   void increment(const double pred, const double trainWeight, long num)
   {
-    weightResid += pred;
-    totalWeight += trainWeight;
-    numObs += num;
+    weightresid_ += pred;
+    totalweight_ += trainWeight;
+    numobs_ += num;
   };
   
   double prediction() const
   {
-    return weightResid / totalWeight;
+    return weightresid_ / totalweight_;
   };
   
   double unweighted_gradient(const NodeDef& other) const
   {
-	return weightResid * other.totalWeight - other.weightResid * totalWeight;
+	return weightresid_ * other.totalweight_ - other.weightresid_ * totalweight_;
   };
 
   double variance_reduction(const NodeDef& other) const
   {
 	const double predictionDiff = prediction() - other.prediction();
-    return totalWeight* other.totalWeight*predictionDiff*predictionDiff;
+    return totalweight_* other.totalweight_*predictionDiff*predictionDiff;
   };
 
   bool has_min_obs(unsigned long minObsInNode) const
   {
-	return (numObs >= minObsInNode);
+	return (numobs_ >= minObsInNode);
   }
 
   bool has_obs() const
   {
-    return numObs;
+    return numobs_;
   }
 
   double sum_weights(const NodeDef& a) const
   {
-    return totalWeight + a.totalWeight;
+    return totalweight_ + a.totalweight_;
   }
   
   double sum_weights(const NodeDef& a, const NodeDef& b) const
   {
-    return totalWeight + a.sum_weights(b);
+    return totalweight_ + a.sum_weights(b);
   }
 
   double get_totalweight() const
   {
-    return totalWeight;
+    return totalweight_;
   }
 
   long get_num_obs() const
   {
-    return numObs;
+    return numobs_;
   }
   
 private:
   
-  unsigned long numObs;
-  double weightResid;
-  double totalWeight;
+  unsigned long numobs_;
+  double weightresid_;
+  double totalweight_;
 
 };
 
@@ -107,7 +107,7 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-	NodeParams() : aiBestCategory(1024) {};
+	NodeParams() : category_ordering_(1024) {};
 
 	//---------------------
 	// Public destructor
@@ -122,77 +122,77 @@ public:
 	void UpdateMissingNode(double predIncrement, double trainWIncrement, long numIncrement = 1)
 	{
 	  // Move data point from right node to missing
-	  missing.increment(predIncrement, trainWIncrement, numIncrement);
-	  right.increment(-predIncrement, -trainWIncrement, -numIncrement);
+	  missing_.increment(predIncrement, trainWIncrement, numIncrement);
+	  right_.increment(-predIncrement, -trainWIncrement, -numIncrement);
 	}
 	void UpdateLeftNode(double predIncrement, double trainWIncrement, long numIncrement = 1)
 	{
 		// Move data point from right node to left node
-		left.increment(predIncrement, trainWIncrement, numIncrement);
-		right.increment(-predIncrement, -trainWIncrement, -numIncrement);
+		left_.increment(predIncrement, trainWIncrement, numIncrement);
+		right_.increment(-predIncrement, -trainWIncrement, -numIncrement);
 	}
-	inline double get_improvement() { return ImprovedResiduals;};
+	inline double get_improvement() { return improvement_;};
 	bool split_is_correct_monotonicity(long specifyMonotone)
 	{
 		return (
 			(specifyMonotone == 0) ||
-			((specifyMonotone * right.unweighted_gradient(left)) > 0)
+			((specifyMonotone * right_.unweighted_gradient(left_)) > 0)
 			);
 	}
 	void NodeGradResiduals()
 	{
 	  // Only need to look at left and right
-	  if(!missing.has_obs())
+	  if(!missing_.has_obs())
 	    {
-	      ImprovedResiduals = left.variance_reduction(right) /
-		left.sum_weights(right);
+	      improvement_ = left_.variance_reduction(right_) /
+		left_.sum_weights(right_);
 	    }
 	  else
 	    {
 	      // Grad - left/right
-	      ImprovedResiduals =
-		(left.variance_reduction(right) +
-		 left.variance_reduction(missing) +
-		 right.variance_reduction(missing)) /
-		left.sum_weights(right, missing);
+	      improvement_ =
+		(left_.variance_reduction(right_) +
+		 left_.variance_reduction(missing_) +
+		 right_.variance_reduction(missing_)) /
+		left_.sum_weights(right_, missing_);
 	    }
 	};
 	
 	bool has_min_num_obs(unsigned long minObsInNode)
 	{
-		return (left.has_min_obs(minObsInNode) &&
-			  right.has_min_obs(minObsInNode));
+		return (left_.has_min_obs(minObsInNode) &&
+			  right_.has_min_obs(minObsInNode));
 	}
-	inline void setBestCategory(std::vector<std::pair<double, int> >& groupMeanAndCat)
+	inline void SetBestCategory(std::vector<std::pair<double, int> >& groupMeanAndCat)
 	{
 
 	  int count = 0;
-	  aiBestCategory.resize(groupMeanAndCat.size());
+	  category_ordering_.resize(groupMeanAndCat.size());
 	  for(std::vector<std::pair<double, int> >::const_iterator it = groupMeanAndCat.begin();
 	      it != groupMeanAndCat.end();
 	      ++it)
 	    {
-	      aiBestCategory[count] = it->second;
+	      category_ordering_[count] = it->second;
 	      count++;
 	    }
 	};
 
 	bool has_missing() const
 	{
-	  return missing.has_obs();
+	  return missing_.has_obs();
 	};
 	//---------------------
 	// Public Variables
 	//---------------------
 	// Left Node Definition
-	NodeDef left, right, missing;
+	NodeDef left_, right_, missing_;
 
 	// Splitting values
-	double SplitValue; // Continuous Split Value
-	unsigned long SplitVar; // Which feature to split on
-	unsigned long SplitClass; // Categorical Split Value
-	std::vector<int> aiBestCategory; // Vector of levels ordering
-	double ImprovedResiduals;
+	double split_value_; // Continuous Split Value
+	unsigned long split_var_; // Which feature to split on
+	unsigned long split_class_; // Categorical Split Value
+	std::vector<int> category_ordering_; // Vector of levels ordering
+	double improvement_;
 };
 
 #endif // NODEPARAMETERS_H
