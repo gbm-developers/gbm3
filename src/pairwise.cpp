@@ -312,7 +312,7 @@ double CNDCG::MaxMeasure(unsigned int group, const double* const kResponse, unsi
             {
                 Rprintf("max score is 0: iGroup = %d, maxScore = %f\n", 
                         group,  maxdcg_vec_[group]);
-                throw GBM::Failure();
+                throw gbm_exception::Failure();
             }
 #endif
         }
@@ -533,7 +533,7 @@ CPairwise::CPairwise(const double* kGroups, const char* kIrMeasure, int num_trai
 	kGroups_ = kGroups;
 
 	// Set up the number of groups - this used externally
-	SetNumGroups(GBM_FUNC::NumGroups(kGroups, num_training_rows));
+	SetNumGroups(gbm_functions::NumGroups(kGroups, num_training_rows));
 
     // Construct the IR Measure
     if (!strcmp(kIrMeasure, "conc"))
@@ -564,9 +564,9 @@ CDistribution* CPairwise::Create(DataDistParams& distparams)
 	Rcpp::NumericVector misc_vec(distparams.misc[0]);
 	const double* kGroup = 0;
 
-	if(!GBM_FUNC::has_value(misc_vec))
+	if(!gbm_functions::has_value(misc_vec))
 	{
-		throw GBM::Failure("Pairwise requires misc to initialize");
+		throw gbm_exception::Failure("Pairwise requires misc to initialize");
 	}
 	else
 	{
@@ -635,7 +635,7 @@ void CPairwise::ComputeWorkingResponse
 	// Check sorting
 	for (unsigned int i = item_start; i < item_end-1; i++) {
 	  if (kData. y_ptr()[i] < kData. y_ptr()[i+1]) {
-	    throw GBM::Failure("sorting failed in pairwise?");
+	    throw gbm_exception::Failure("sorting failed in pairwise?");
 	  }
 	}  
 #endif
@@ -775,17 +775,17 @@ void CPairwise::ComputeLambdas(int group, unsigned int num_items, const double* 
                 {
                     Rprintf("%d\t%d\t%f\t%f\n", k, ranker_.GetRank(k), kResponse[k], kFuncEstimate[k]);
                 }
-		throw GBM::Failure("the impossible happened");
+		throw gbm_exception::Failure("the impossible happened");
             }
 	    if (fabs(measure_before - measure_after) - fabs(dDelta) >= 1e-5) {
-	      throw GBM::Failure("the impossible happened");
+	      throw gbm_exception::Failure("the impossible happened");
 	    }
             ranker_.SetRank(j, cRankj);
             ranker_.SetRank(i, cRanki);
 	    
 #endif
 	    if (!isfinite(kSwapCost)) {
-	      throw GBM::Failure("infinite swap cost");
+	      throw gbm_exception::Failure("infinite swap cost");
 	    }
 
             if (kSwapCost > 0.0)
@@ -793,7 +793,7 @@ void CPairwise::ComputeLambdas(int group, unsigned int num_items, const double* 
                 pairs++;
                 const double kRhoij    = 1.0 / (1.0 + std::exp(kFuncEstimate[i]- kFuncEstimate[j])) ;
                 if (!isfinite(kRhoij)) {
-		  throw GBM::Failure("unanticipated infinity");
+		  throw gbm_exception::Failure("unanticipated infinity");
 		};
 
                 const double kLambdaij = kSwapCost * kRhoij;
@@ -801,7 +801,7 @@ void CPairwise::ComputeLambdas(int group, unsigned int num_items, const double* 
                 residuals[j] -= kLambdaij;
                 const double kDerivij  = kLambdaij * (1.0 - kRhoij);
 		if (kDerivij < 0) {
-		  throw GBM::Failure("negative derivative!");
+		  throw gbm_exception::Failure("negative derivative!");
 		}
                 deriv[i] += kDerivij;
                 deriv[j] += kDerivij;
@@ -1000,7 +1000,7 @@ void CPairwise::FitBestConstant
           if (!(isfinite(kData.weight_ptr()[obs_num]) &&
 		isfinite(residuals[obs_num]) &&
 		isfinite(hessian_[obs_num]))) {
-	    throw GBM::Failure("unanticipated infinities");
+	    throw gbm_exception::Failure("unanticipated infinities");
 	  };
 #endif
 

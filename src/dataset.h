@@ -18,7 +18,6 @@
 //------------------------------
 // Includes
 //------------------------------
-#include "buildinfo.h"
 #include "config_structs.h"
 #include "gbmexcept.h"
 #include "gbm_functions.h"
@@ -27,7 +26,7 @@
 #include <vector>
 #include <Rcpp.h>
 
-typedef std::vector<int> bag;
+typedef std::vector<int> Bag;
 
 //------------------------------
 // Class definition
@@ -114,7 +113,7 @@ public:
   	}
   	else
   	{
-  		throw GBM::InvalidArgument("Data is already the validation set.");
+  		throw gbm_exception::InvalidArgument("Data is already the validation set.");
   	}
     };
     void shift_to_train()
@@ -131,7 +130,7 @@ public:
   	}
   	else
   	{
-  	  throw GBM::InvalidArgument("Data is already the training set.");
+  	  throw gbm_exception::InvalidArgument("Data is already the training set.");
   	}
 
     };
@@ -230,7 +229,7 @@ private:
   bool point_at_trainingset_;
 
   // Bagged  data
-  bag databag_;
+  Bag databag_;
   double bagfraction_;
   unsigned long totalinbag_;
 };

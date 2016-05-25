@@ -123,7 +123,7 @@ double CLocationM::PsiFun(double xval)
       return xval / (mparams_[0] + (xval * xval));
     }
   
-  throw GBM::Failure("Function type " + mtype_ + "not known.");
+  throw gbm_exception::Failure("Function type " + mtype_ + "not known.");
 }
 
 /////////////////////////////////////////////////

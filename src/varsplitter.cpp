@@ -44,7 +44,7 @@ void VarSplitter::IncorporateObs
 	{
 	  if(last_xvalue_ > xval)
 	    {
-	      throw GBM::Failure("Observations are not in order. gbm() was unable to build an index for the design matrix. Could be a bug in gbm or an unusual data type in data.");
+	      throw gbm_exception::Failure("Observations are not in order. gbm() was unable to build an index for the design matrix. Could be a bug in gbm or an unusual data type in data.");
 	    }
 	  
 	  // Evaluate the current split
@@ -84,7 +84,7 @@ void VarSplitter::EvaluateCategoricalSplit()
   
   // if only one group has a finite mean it will not consider
   // might be all are missing so no categories enter here
-  for(i=0; (num_finite_means>1) && ((ULONG)i<num_finite_means-1); i++)
+  for(i=0; (num_finite_means>1) && ((unsigned long)i<num_finite_means-1); i++)
     {
       
       

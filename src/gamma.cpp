@@ -48,7 +48,7 @@ void CGamma::ComputeWorkingResponse
   double deltafunc_est = 0.0;
   
   if (!(kData.y_ptr() && kFuncEstimate && residuals && kData.weight_ptr())) {
-    throw GBM::InvalidArgument();
+    throw gbm_exception::InvalidArgument();
   }
 
   for(i=0; i<kData.get_trainsize(); i++)

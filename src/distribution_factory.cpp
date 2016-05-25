@@ -96,7 +96,7 @@ CDistribution* DistributionFactory::CreateDist(DataDistParams& distparams)
 	}
 	else
 	{
-		throw GBM::InvalidArgument( "Error: Family string provided not recognised - distribution can't be initialized.");
+		throw gbm_exception::InvalidArgument( "Error: Family string provided not recognised - distribution can't be initialized.");
 	}
 
 }

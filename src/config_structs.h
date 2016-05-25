@@ -178,7 +178,7 @@ private:
 		// Check family specified
 		if(dataconfig_.family.empty())
 		{
-			throw GBM::Failure("configStructs - Can't specify IR metric as family not initialized.");
+			throw gbm_exception::Failure("configStructs - Can't specify IR metric as family not initialized.");
 		}
 		// Get szIRMeasure and throw appropriate errors
 		if(0 == dataconfig_.family.compare(0, 8, "pairwise"))
@@ -186,7 +186,7 @@ private:
 			std::size_t offset_tomeasure = dataconfig_.family.find("_");
 			if(offset_tomeasure == std::string::npos)
 			{
-				throw GBM::Failure("Unable to locate IR metric required for pairwise");
+				throw gbm_exception::Failure("Unable to locate IR metric required for pairwise");
 			}
 			const char* kIrMeasure = dataconfig_.family.c_str() + offset_tomeasure + 1;
 			dataconfig_.irmeasure = kIrMeasure;

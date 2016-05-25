@@ -27,7 +27,7 @@ namespace {
       return 0;
     }
 
-    throw GBM::InvalidArgument("unknown tie-handling method");
+    throw gbm_exception::InvalidArgument("unknown tie-handling method");
   }
 }
 

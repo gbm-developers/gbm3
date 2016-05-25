@@ -45,7 +45,7 @@ CDataset::CDataset(const DataDistParams& dataparams):
 {
 
 	    // If you've no offset set to 0
-	    if(!GBM_FUNC::has_value(response_offset_))
+	    if(!gbm_functions::has_value(response_offset_))
 	    {
 	      Rcpp::NumericVector new_offset(xmatrix_.nrow());
 	      std::swap(response_offset_, new_offset);
@@ -71,26 +71,26 @@ CDataset::CDataset(const DataDistParams& dataparams):
 	    // Ensure initialization makes sense
 	    if (totalinbag_ <= 0)
 	      {
-		throw GBM::InvalidArgument("you have an empty bag!");
+		throw gbm_exception::InvalidArgument("you have an empty bag!");
 	      }
 	    if (num_traindata_ <= 0)
 	      {
-		throw GBM::InvalidArgument("you've <= 0 training instances");
+		throw gbm_exception::InvalidArgument("you've <= 0 training instances");
 	      }
   // Check for errors on initialization
   if (xmatrix_.ncol() != variable_monotonicity_.size())
     {
-      throw GBM::InvalidArgument("shape mismatch (monotone does not match data)");
+      throw gbm_exception::InvalidArgument("shape mismatch (monotone does not match data)");
     }
 
   if (xmatrix_.ncol() != num_variable_classes_.size())
     {
-      throw GBM::InvalidArgument("shape mismatch (var classes does not match data)");
+      throw gbm_exception::InvalidArgument("shape mismatch (var classes does not match data)");
     }
   
   if (xmatrix_.nrow() < int(dataparams.num_trainrows))
     {
-      throw GBM::InvalidArgument("your training instances don't make sense");
+      throw gbm_exception::InvalidArgument("your training instances don't make sense");
     }
 }
 
@@ -128,7 +128,7 @@ index_vector CDataset::RandomOrder() const
     }
   
   // and now shuffle
-  std::random_shuffle(result.begin(), result.end(), GBM_FUNC::PtrShuffler);
+  std::random_shuffle(result.begin(), result.end(), gbm_functions::PtrShuffler);
   // and return
   return result;
 }

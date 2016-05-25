@@ -58,7 +58,6 @@
 #include <memory>
 #include "distribution.h"
 #include "dataset.h"
-#include "buildinfo.h"
 
 // A class to rerank groups based on (intermediate) scores
 // Note: Smaller ranks are better, the top rank is 1

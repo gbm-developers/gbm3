@@ -53,7 +53,7 @@ void CCARTTree::Grow
 	if((residuals==NULL) || (kData.weight_ptr()==NULL) || (kFuncEstimates==NULL) ||
 	 (kTreeDepth_ < 1))
 	{
-	  throw GBM::InvalidArgument();
+	  throw gbm_exception::InvalidArgument();
 	}
 
   double sumz = 0.0;
@@ -173,7 +173,7 @@ void CCARTTree::TransferTreeToRList(const CDataset &kData,
 	     double* error_reduction,
 	     double* weights,
 	     double* predictions,
-	     VEC_VEC_CATEGORIES &splitcodes_vec,
+	     VecOfVectorCategories &splitcodes_vec,
 	     int prev_categorical_splits)
 {
 	int nodeid = 0;
@@ -195,7 +195,7 @@ void CCARTTree::TransferTreeToRList(const CDataset &kData,
 	}
 	else
 	{
-	  throw GBM::Failure("Can't transfer to list - RootNode does not exist.");
+	  throw gbm_exception::Failure("Can't transfer to list - RootNode does not exist.");
 	}
 }
 

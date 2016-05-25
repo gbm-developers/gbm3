@@ -56,7 +56,7 @@ public:
 	    double* error_reduction,
 	    double* weights,
 	    double* predictions,
-	    VEC_VEC_CATEGORIES &splitcodes_vec,
+	    VecOfVectorCategories &splitcodes_vec,
 	    int prev_categorical_splits,
 	    double shrinkage
 	)=0;

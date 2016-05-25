@@ -27,9 +27,9 @@ CDistribution* CQuantile::Create(DataDistParams& distparams)
 {
 	// Check that misc exists
 	double alpha = Rcpp::as<double>(distparams.misc[0]);
-	if(!GBM_FUNC::has_value(alpha))
+	if(!gbm_functions::has_value(alpha))
 	{
-		throw GBM::Failure("Quantile dist requires misc to initialization.");
+		throw gbm_exception::Failure("Quantile dist requires misc to initialization.");
 	}
 	return new CQuantile(alpha);
 }

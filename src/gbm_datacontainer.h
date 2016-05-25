@@ -13,7 +13,6 @@
 //------------------------------
 // Includes
 //------------------------------
-#include "buildinfo.h"
 #include "config_structs.h"
 #include "dataset.h"
 #include "distribution.h"

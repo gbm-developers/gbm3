@@ -17,7 +17,6 @@
 //------------------------------
 // Includes
 //------------------------------
-#include "buildinfo.h"
 #include "config_structs.h"
 #include "gbm_datacontainer.h"
 #include "tree.h"
@@ -57,7 +56,7 @@ public:
 			     double* error_reduction,
 			     double* weights,
 			     double* predictions,
-			     VEC_VEC_CATEGORIES &splitcodes_vec,
+			     VecOfVectorCategories &splitcodes_vec,
 			     int prev_categorical_splits);
 
     const long size_of_fitted_tree() const{ return tree_.size_of_tree(); }

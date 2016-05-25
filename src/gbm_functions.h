@@ -13,7 +13,7 @@
 
 #include <Rcpp.h>
 
-namespace GBM_FUNC
+namespace gbm_functions
 {
 	int NumGroups(const double* kMisc, int num_training_rows);
 	bool has_value(const Rcpp::NumericVector& kVec);

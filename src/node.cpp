@@ -27,7 +27,7 @@ CNode::CNode(const NodeDef& kDefn) :
 	missing_node_ptr = NULL;
 
 	// Set up split type and strategy
-	splittype = none;
+	splittype = kNone;
 	node_strategy_ = new TerminalStrategy(this);
 
 }
@@ -37,17 +37,17 @@ void CNode::SetStrategy()
 	//delete nodeStrategy;
 	switch(splittype)
 	{
-	case none:
+	case kNone:
 		node_strategy_ = new TerminalStrategy(this);
 		break;
-	case continuous:
+	case kContinuous:
 		node_strategy_ = new ContinuousStrategy(this);
 		break;
-	case categorical:
+	case kCategorical:
 		node_strategy_ = new CategoricalStrategy(this);
 		break;
 	default:
-		throw GBM::Failure("Node State not recognised.");
+		throw gbm_exception::Failure("Node State not recognised.");
 		break;
 	}
 }
@@ -103,15 +103,15 @@ void CNode::SplitNode(NodeParams& childrenparams)
 	// set up a continuous split
 	if(childrenparams.split_class_==0)
 	{
-		splittype = continuous;
+		splittype = kContinuous;
 		SetStrategy();
 	}
 	else
 	{
-		splittype = categorical;
+		splittype = kCategorical;
 		SetStrategy();
 		// the types are confused here
-		leftcategory.resize(1 + (ULONG)childrenparams.split_value_);
+		leftcategory.resize(1 + (unsigned long)childrenparams.split_value_);
 		std::copy(childrenparams.category_ordering_.begin(),
 			  childrenparams.category_ordering_.begin() +
 			  leftcategory.size(),
@@ -153,7 +153,7 @@ void CNode::TransferTreeToRList
     double* error_reduction,
     double* weights,
     double* predictions,
-    VEC_VEC_CATEGORIES &splitcodes_vec,
+    VecOfVectorCategories &splitcodes_vec,
     int prev_categorical_split,
     double shrinkage
 )

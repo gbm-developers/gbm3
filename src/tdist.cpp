@@ -29,9 +29,9 @@ CDistribution* CTDist::Create(DataDistParams& distparams)
 {
 	// Check that misc exists
 	double nu = Rcpp::as<double>(distparams.misc[0]);
-	if(!GBM_FUNC::has_value(nu))
+	if(!gbm_functions::has_value(nu))
 	{
-		throw GBM::Failure("T Dist requires misc to initialization.");
+		throw gbm_exception::Failure("T Dist requires misc to initialization.");
 	}
 	return new CTDist(nu);
 }

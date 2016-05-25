@@ -62,7 +62,7 @@ SEXP gbm
   BEGIN_RCPP
     
   	// Set up consts for tree fitting and transfer to R API
-  	VEC_VEC_CATEGORIES splitcodes;
+  	VecOfVectorCategories splitcodes;
     const int kNumTrees = Rcpp::as<int>(num_trees);
     const int kCatSplitsOld = Rcpp::as<int>(prev_category_splits);
     const int kTreesOld = Rcpp::as<int>(prev_trees_fitted);
@@ -95,7 +95,7 @@ SEXP gbm
     else
     {
 		if (kPrevFuncEst.size() != func_estimate.size()) {
-		  throw GBM::InvalidArgument("old predictions are the wrong shape");
+		  throw gbm_exception::InvalidArgument("old predictions are the wrong shape");
 		}
 		std::copy(kPrevFuncEst.begin(), kPrevFuncEst.end(), func_estimate.begin());
      }
@@ -205,7 +205,7 @@ SEXP gbm_pred
    int class_num = 0;
 
    if ((kCovarMat.ncol() != kVarType.size())) {
-     throw GBM::InvalidArgument("shape mismatch");
+     throw gbm_exception::InvalidArgument("shape mismatch");
    }
      
    Rcpp::NumericVector predicted_func(kNumCovarRows * kPredIterations);
@@ -325,7 +325,7 @@ SEXP gbm_plot
                                 Rcpp::as<double>(init_func_est));
 
     if (kCovarMat.ncol() != kWhichVars.size()) {
-      throw GBM::InvalidArgument("shape mismatch");
+      throw gbm_exception::InvalidArgument("shape mismatch");
     }
 
     for(tree_num=0; tree_num<kNumTrees; tree_num++)

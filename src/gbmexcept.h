@@ -4,7 +4,7 @@
 #include <string>
 #include <stdexcept>
 
-namespace GBM {
+namespace gbm_exception {
 
   class InvalidArgument : public std::runtime_error {
   public:

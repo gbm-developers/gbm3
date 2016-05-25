@@ -43,7 +43,7 @@ public:
 		node_context_->left_node_ptr->Adjust(min_num_node_obs);
 		node_context_->right_node_ptr->Adjust(min_num_node_obs);
 
-		if((node_context_->missing_node_ptr->splittype == none) && (node_context_->missing_node_ptr->numobs < min_num_node_obs))
+		if((node_context_->missing_node_ptr->splittype == kNone) && (node_context_->missing_node_ptr->numobs < min_num_node_obs))
 		{
 			node_context_->prediction = ((node_context_->left_node_ptr->totalweight)*(node_context_->left_node_ptr->prediction) +
 				 (node_context_->right_node_ptr->totalweight)*(node_context_->right_node_ptr->prediction))/
@@ -150,7 +150,7 @@ public:
 		double* error_reduction,
 		double* weights,
 		double* predictions,
-		VEC_VEC_CATEGORIES &splitcodes_vec,
+		VecOfVectorCategories &splitcodes_vec,
 		int prev_categorical_splits,
 		double shrinkage
 	)

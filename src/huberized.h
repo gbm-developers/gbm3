@@ -15,7 +15,6 @@
 // Includes
 //------------------------------
 #include "distribution.h"
-#include "buildinfo.h"
 #include <memory>
 
 //------------------------------

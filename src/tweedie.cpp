@@ -34,9 +34,9 @@ CDistribution* CTweedie::Create(DataDistParams& distparams)
 {
 	// Extract misc from second column of response]
 	double power = Rcpp::as<double>(distparams.misc[0]);
-	if(!GBM_FUNC::has_value(power))
+	if(!gbm_functions::has_value(power))
 	{
-		throw GBM::Failure("Tweedie distribution requires misc to initialization.");
+		throw gbm_exception::Failure("Tweedie distribution requires misc to initialization.");
 	}
 	return new CTweedie(power);
 }
@@ -58,7 +58,7 @@ void CTweedie::ComputeWorkingResponse
     
   if( ! (kData.y_ptr() && kFuncEstimates && residuals && kData.weight_ptr()) )
     {
-      throw GBM::InvalidArgument();
+      throw gbm_exception::InvalidArgument();
     }
 
   for(i=0; i<kData.get_trainsize(); i++)

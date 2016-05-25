@@ -43,7 +43,7 @@ public:
 		node_context_->left_node_ptr->Adjust(min_num_node_obs);
 		node_context_->right_node_ptr->Adjust(min_num_node_obs);
 
-		if((node_context_->missing_node_ptr->splittype == none) && (node_context_->missing_node_ptr->numobs < min_num_node_obs))
+		if((node_context_->missing_node_ptr->splittype == kNone) && (node_context_->missing_node_ptr->numobs < min_num_node_obs))
 		{
 			node_context_->prediction = ((node_context_->left_node_ptr->totalweight)*(node_context_->left_node_ptr->prediction) +
 				 (node_context_->right_node_ptr->totalweight)*(node_context_->right_node_ptr->prediction))/
@@ -128,7 +128,7 @@ public:
 		{
 		  if(std::find(node_context_->leftcategory.begin(),
 			   node_context_->leftcategory.end(),
-			   (ULONG)xval) != node_context_->leftcategory.end())
+			   (unsigned long)xval) != node_context_->leftcategory.end())
 			{
 				returnvalue = -1;
 			}
@@ -153,7 +153,7 @@ public:
 		double* error_reduction,
 		double* weights,
 		double* predictions,
-		VEC_VEC_CATEGORIES &splitcodes_vec,
+		VecOfVectorCategories &splitcodes_vec,
 		int prev_categorical_splits,
 		double shrinkage
 	)
@@ -170,7 +170,7 @@ public:
 		weights[thisnode_id] = node_context_->totalweight;
 		predictions[thisnode_id] = shrinkage*node_context_->prediction;
 
-		splitcodes_vec.push_back(VEC_CATEGORIES());
+		splitcodes_vec.push_back(VectorCategories());
 
 		splitcodes_vec[cat_splits].resize(levels,1);
 		for(i=0; i<leftcategory; i++)

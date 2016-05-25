@@ -42,7 +42,7 @@ void CGaussian::ComputeWorkingResponse
   unsigned long i = 0;
   
   if (!(kData.y_ptr() && kFuncEstimate && residuals && kData.weight_ptr())) {
-    throw GBM::InvalidArgument();
+    throw gbm_exception::InvalidArgument();
   }
   
 

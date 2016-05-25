@@ -20,20 +20,19 @@
 //------------------------------
 // Includes
 //------------------------------
-#include <vector>
 #include "dataset.h"
 #include "node_parameters.h"
-#include "buildinfo.h"
+#include <vector>
 
 //------------------------------
 // Class Forwards and Enums
 //------------------------------
 class GenericNodeStrategy;
-enum SplitType {categorical, continuous, none};
+enum SplitType {kCategorical, kContinuous, kNone};
 
 using namespace std;
-typedef vector<int> VEC_CATEGORIES;
-typedef vector<VEC_CATEGORIES> VEC_VEC_CATEGORIES;
+typedef vector<int> VectorCategories;
+typedef vector<VectorCategories> VecOfVectorCategories;
 
 //------------------------------
 // Class definition
@@ -72,7 +71,7 @@ public:
 				     double* error_reduction,
 				     double* weights,
 				     double* predictions,
-				     VEC_VEC_CATEGORIES &splitcodes_vec,
+				     VecOfVectorCategories &splitcodes_vec,
 				     int prev_categorical_splits,
 				     double shrinkage);
 	signed char WhichNode(const CDataset &kData,
