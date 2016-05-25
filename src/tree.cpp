@@ -8,14 +8,15 @@
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CCARTTree::CCARTTree(double shrinkage, long depth):
-kTreeDepth_(depth), kShrinkage_(shrinkage)
+CCARTTree::CCARTTree(TreeParams treeconfig) :
+new_node_searcher_(treeconfig.depth, treeconfig.numberdatacolumns, treeconfig.min_obs_in_node),
+kTreeDepth_(treeconfig.depth), kShrinkage_(treeconfig.shrinkage)
 {
     rootnode_ = NULL;
     totalnodecount_ = 1;
     error_ = 0.0;
-
-    // Calculate original
+    min_num_node_obs_ = treeconfig.min_obs_in_node;
+    data_node_assignment_.resize(treeconfig.num_trainrows, 0);
 }
 
 
@@ -30,6 +31,8 @@ void CCARTTree::Reset()
   rootnode_ = NULL;
   terminalnode_ptrs_.resize(2*kTreeDepth_ + 1, NULL);
   totalnodecount_ = 1;
+  new_node_searcher_.reset();
+
 }
 
 
@@ -37,14 +40,11 @@ void CCARTTree::Reset()
 //------------------------------------------------------------------------------
 // Grows a regression tree
 //------------------------------------------------------------------------------
-void CCARTTree::grow
+void CCARTTree::Grow
 (
  double* residuals,
  const CDataset& kData,
- const double* kFuncEstimates,
- unsigned long min_num_node_obs,
- std::vector<unsigned long>& data_node_assigns,
- CNodeSearch& nodesearcher
+ const double* kFuncEstimates
 )
 {
 #ifdef NOISY_DEBUG
@@ -69,7 +69,7 @@ void CCARTTree::grow
 	for(unsigned long obs_num=0; obs_num<kData.get_trainsize(); obs_num++)
 	{
 		// aiNodeAssign tracks to which node each training obs belongs
-		data_node_assigns[obs_num] = 0;
+		data_node_assignment_[obs_num] = 0;
 
 		if(kData.get_bag_element(obs_num))
 		{
@@ -83,7 +83,7 @@ void CCARTTree::grow
   error_ = sum_zsquared-sumz*sumz/totalw;
   rootnode_ = new CNode(NodeDef(sumz, totalw, kData.get_total_in_bag()));
   terminalnode_ptrs_[0] = rootnode_;
-  nodesearcher.set_search_rootnode(*rootnode_);
+  new_node_searcher_.set_search_rootnode(*rootnode_);
 
   // build the tree structure
 #ifdef NOISY_DEBUG
@@ -97,8 +97,8 @@ void CCARTTree::grow
 #endif
       
     // Generate all splits
-    nodesearcher.GenerateAllSplits(terminalnode_ptrs_, kData, &(residuals[0]), data_node_assigns);
-    double bestImprov = nodesearcher.CalcImprovementAndSplit(terminalnode_ptrs_, kData, data_node_assigns);
+    new_node_searcher_.GenerateAllSplits(terminalnode_ptrs_, kData, &(residuals[0]), data_node_assignment_);
+    double bestImprov = new_node_searcher_.CalcImprovementAndSplit(terminalnode_ptrs_, kData, data_node_assignment_);
 
     // Make the best split if possible
 	if(bestImprov == 0.0)
@@ -132,19 +132,15 @@ void CCARTTree::PredictValid
 
 void CCARTTree::Adjust
 (
- const std::vector<unsigned long>& kDataNodeAssigns,
- double* delta_estimates,
- unsigned long min_num_node_obs
+ double* delta_estimates
 )
 {
-	unsigned long obs_num = 0;
-
-	rootnode_->Adjust(min_num_node_obs);
+	rootnode_->Adjust(min_num_node_obs_);
 
 	// predict for the training observations
-	for(obs_num=0; obs_num<kDataNodeAssigns.size(); obs_num++)
+	for(unsigned long obs_num=0; obs_num<data_node_assignment_.size(); obs_num++)
 	{
-		delta_estimates[obs_num] = terminalnode_ptrs_[kDataNodeAssigns[obs_num]]->prediction;
+		delta_estimates[obs_num] = terminalnode_ptrs_[data_node_assignment_[obs_num]]->prediction;
 	}
 }
 
@@ -159,15 +155,49 @@ void CCARTTree::Print()
     }
 }
 
-
-CNode* CCARTTree::GetRootNode()
+//-----------------------------------
+// Function: TransferTreeToRList
+//
+// Returns: none
+//
+// Description:
+//
+// Parameters:
+//
+//-----------------------------------
+void CCARTTree::TransferTreeToRList(const CDataset &kData,
+	     int* splitvar,
+	     double* splitvalues,
+	     int* leftnodes,
+	     int* rightnodes,
+	     int* missingnodes,
+	     double* error_reduction,
+	     double* weights,
+	     double* predictions,
+	     VEC_VEC_CATEGORIES &splitcodes_vec,
+	     int prev_categorical_splits)
 {
-	return rootnode_;
-}
-
-const CNode* CCARTTree::GetRootNode() const
-{
-	return rootnode_;
+	int nodeid = 0;
+	if(rootnode_)
+	{
+		rootnode_->TransferTreeToRList(nodeid,
+									   kData,
+									   splitvar,
+									   splitvalues,
+									   leftnodes,
+									   rightnodes,
+									   missingnodes,
+									   error_reduction,
+									   weights,
+									   predictions,
+									   splitcodes_vec,
+									   prev_categorical_splits,
+									   kShrinkage_);
+	}
+	else
+	{
+	  throw GBM::Failure("Can't transfer to list - RootNode does not exist.");
+	}
 }
 
 

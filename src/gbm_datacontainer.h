@@ -18,7 +18,7 @@
 #include "dataset.h"
 #include "distribution.h"
 #include "distribution_factory.h"
-#include "gbm_treecomponents.h"
+#include "tree.h"
 #include <Rcpp.h>
 #include <vector>
 #include <memory>
@@ -45,7 +45,7 @@ public:
     void Initialize();
     double InitialFunctionEstimate();
     void ComputeResiduals(const double* kFuncEstimate, double* residuals);
-    void ComputeBestTermNodePreds(const double* kFuncEstimate, double* residuals, CTreeComps& treecomps);
+    void ComputeBestTermNodePreds(const double* kFuncEstimate, double* residuals, CCARTTree& tree);
     double ComputeDeviance(const double *kFuncEstimate, bool is_validationset=false);
     double ComputeBagImprovement(const double* kFuncEstimate, const double kShrinkage, const double* kDeltaEstimate);
     void BagData();

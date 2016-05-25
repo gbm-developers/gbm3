@@ -37,7 +37,7 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-    CCARTTree(double shrinkage=1.0, long depth = 1);
+    CCARTTree(TreeParams treeconfig);
 
 	//---------------------
 	// Public destructor
@@ -47,28 +47,57 @@ public:
 	//---------------------
 	// Public Functions
 	//---------------------
-    void grow(double* residuals,
+    void Grow(double* residuals,
 	      const CDataset& kData,
-	      const double* kFuncEstimate,
-	      unsigned long min_num_node_obs,
-	      std::vector<unsigned long>& data_node_assigns,
-	      CNodeSearch& nodesearcher);
+	      const double* kFuncEstimate);
     void Reset();
-
-    CNode* GetRootNode();
-    const CNode* GetRootNode() const;
 
     void PredictValid(const CDataset &kData,
 		      unsigned long num_validation_points,
 		      double* delta_estimates);
-    void Adjust(const std::vector<unsigned long>& kDataNodeAssigns,
-		double* delta_estimates,
-		unsigned long min_num_node_obs);
+    void Adjust(double* delta_estimates);
 
-    const unsigned long& GetNodeCount() const { return totalnodecount_; }
-    vector<CNode*>& GetTermNodes() { return terminalnode_ptrs_; }
-    const double& GetShrinkageConst() const { return kShrinkage_; }
+    void TransferTreeToRList(const CDataset &kData,
+		     int* splitvar,
+		     double* splitvalues,
+		     int* leftnodes,
+		     int* rightnodes,
+		     int* missingnodes,
+		     double* error_reduction,
+		     double* weights,
+		     double* predictions,
+		     VEC_VEC_CATEGORIES &splitcodes_vec,
+		     int prev_categorical_splits);
     void Print();
+
+    std::vector<unsigned long>& get_node_assignments()
+	{
+		return data_node_assignment_;
+	}
+	vector<CNode*>& get_terminal_nodes()
+	{
+		return terminalnode_ptrs_;
+	}
+	const double& get_shrinkage_factor() const
+	{
+		return kShrinkage_;
+	}
+	const unsigned long& min_num_obs_required() const
+	{
+		return min_num_node_obs_;
+	}
+	const unsigned long& size_of_tree() const
+	{
+		return totalnodecount_;
+	}
+	 CNode* get_rootnode()
+	{
+		return rootnode_;
+	}
+	const CNode* get_rootnode() const
+	{
+		return rootnode_;
+	}
 
 private:
 	//---------------------
@@ -76,7 +105,10 @@ private:
 	//---------------------
     CNode* rootnode_;
     vector<CNode*> terminalnode_ptrs_;
+    vector<unsigned long> data_node_assignment_;
+    CNodeSearch new_node_searcher_;
 
+    unsigned long min_num_node_obs_;
     const long kTreeDepth_;
     const double kShrinkage_;
     double error_; // total squared error before carrying out the splits

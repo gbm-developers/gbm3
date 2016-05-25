@@ -152,7 +152,7 @@ void CHuberized::FitBestConstant
     const double* kFuncEstimate,
     unsigned long num_terminalnodes,
     double* residuals,
-    CTreeComps& treecomps
+    CCARTTree& tree
 )
 {
   double delta_func_est = 0.0;
@@ -169,33 +169,33 @@ void CHuberized::FitBestConstant
 	  delta_func_est = kFuncEstimate[obs_num] +  kData.offset_ptr()[obs_num];
 	  if( (2*kData.y_ptr()[obs_num]-1)*kFuncEstimate[obs_num] < -1 )
 	  {
-	    numerator_vec[treecomps.get_node_assignments()[obs_num]] +=
+	    numerator_vec[tree.get_node_assignments()[obs_num]] +=
 	      kData.weight_ptr()[obs_num]*4*(2*kData.y_ptr()[obs_num]-1);
-	    denominator_vec[treecomps.get_node_assignments()[obs_num]] +=
+	    denominator_vec[tree.get_node_assignments()[obs_num]] +=
 	      -kData.weight_ptr()[obs_num]*4*(2*kData.y_ptr()[obs_num]-1)*delta_func_est;
 	  }
 	  else if ( 1 - (2*kData.y_ptr()[obs_num]-1)*kFuncEstimate[obs_num] < 0 ){
-	    numerator_vec[treecomps.get_node_assignments()[obs_num]] += 0;
-	    denominator_vec[treecomps.get_node_assignments()[obs_num]] += 0;
+	    numerator_vec[tree.get_node_assignments()[obs_num]] += 0;
+	    denominator_vec[tree.get_node_assignments()[obs_num]] += 0;
 	  }
 	  else{
-	    numerator_vec[treecomps.get_node_assignments()[obs_num]] += kData.weight_ptr()[obs_num]*2*(2*kData.y_ptr()[obs_num]-1)*( 1 - (2*kData.y_ptr()[obs_num]-1)*kFuncEstimate[obs_num] );
-	    denominator_vec[treecomps.get_node_assignments()[obs_num]] += kData.weight_ptr()[obs_num]*( 1 - (2*kData.y_ptr()[obs_num]-1)*kFuncEstimate[obs_num])*( 1 - (2*kData.y_ptr()[obs_num]-1)*kFuncEstimate[obs_num]);
+	    numerator_vec[tree.get_node_assignments()[obs_num]] += kData.weight_ptr()[obs_num]*2*(2*kData.y_ptr()[obs_num]-1)*( 1 - (2*kData.y_ptr()[obs_num]-1)*kFuncEstimate[obs_num] );
+	    denominator_vec[tree.get_node_assignments()[obs_num]] += kData.weight_ptr()[obs_num]*( 1 - (2*kData.y_ptr()[obs_num]-1)*kFuncEstimate[obs_num])*( 1 - (2*kData.y_ptr()[obs_num]-1)*kFuncEstimate[obs_num]);
 	  }
         } // close if(afInBag[obs_num
     }
   
   for(node_num=0; node_num<num_terminalnodes; node_num++)
     {
-      if(treecomps.get_terminal_nodes()[node_num]!=NULL)
+      if(tree.get_terminal_nodes()[node_num]!=NULL)
         {
 	  if(denominator_vec[node_num] == 0)
             {
-	      treecomps.get_terminal_nodes()[node_num]->prediction = 0.0;
+	      tree.get_terminal_nodes()[node_num]->prediction = 0.0;
             }
 	  else
             {
-	      treecomps.get_terminal_nodes()[node_num]->prediction =
+	      tree.get_terminal_nodes()[node_num]->prediction =
 		numerator_vec[node_num]/denominator_vec[node_num];
             }
         }

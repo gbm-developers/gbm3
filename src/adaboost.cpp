@@ -130,7 +130,7 @@ void CAdaBoost::FitBestConstant
     const double* kFuncEstimate,
     unsigned long num_terminalnodes,
     double* residuals,
-    CTreeComps& treecomps
+    CCARTTree& tree
 )
 {
   double deltafunc_est = 0.0;
@@ -147,24 +147,24 @@ void CAdaBoost::FitBestConstant
       if(kData.get_bag_element(obs_num))
         {
 	  deltafunc_est = kFuncEstimate[obs_num] + kData.offset_ptr()[obs_num];
-	  numerator_bestconstant_[treecomps.get_node_assignments()[obs_num]] +=
+	  numerator_bestconstant_[tree.get_node_assignments()[obs_num]] +=
 	    kData.weight_ptr()[obs_num]*(2*kData.y_ptr()[obs_num]-1)*std::exp(-(2*kData.y_ptr()[obs_num]-1)*deltafunc_est);
-	  denominator_bestconstant_[treecomps.get_node_assignments()[obs_num]] +=
+	  denominator_bestconstant_[tree.get_node_assignments()[obs_num]] +=
 	    kData.weight_ptr()[obs_num]*std::exp(-(2*kData.y_ptr()[obs_num]-1)*deltafunc_est);
         }
     }
   
   for(node_num=0; node_num<num_terminalnodes; node_num++)
     {
-      if(treecomps.get_terminal_nodes()[node_num]!=NULL)
+      if(tree.get_terminal_nodes()[node_num]!=NULL)
         {
 	  if(denominator_bestconstant_[node_num] == 0)
             {
-	      	  treecomps.get_terminal_nodes()[node_num]->prediction = 0.0;
+	      	  tree.get_terminal_nodes()[node_num]->prediction = 0.0;
             }
 	  else
             {
-	      treecomps.get_terminal_nodes()[node_num]->prediction =
+	      tree.get_terminal_nodes()[node_num]->prediction =
 		numerator_bestconstant_[node_num]/denominator_bestconstant_[node_num];
             }
         }

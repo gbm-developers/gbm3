@@ -133,7 +133,7 @@ void CTDist::FitBestConstant
     const double* kFuncEstimate,
     unsigned long num_terminalnodes,
     double* residuals,
-    CTreeComps& treecomps
+    CCARTTree& tree
 )
 {
    	// Local variables
@@ -145,14 +145,14 @@ void CTDist::FitBestConstant
 	// Call LocM for the array of values on each node
     for(node_num=0; node_num<num_terminalnodes; node_num++)
     {
-      if(treecomps.get_terminal_nodes()[node_num]->numobs >= treecomps.min_num_obs_required())
+      if(tree.get_terminal_nodes()[node_num]->numobs >= tree.min_num_obs_required())
         {
 	  arr_vec.clear();
 	  weight_vec.clear();
 
 	  for (obs_num = 0; obs_num < kData.get_trainsize(); obs_num++)
 	    {
-	      if(kData.get_bag_element(obs_num) && (treecomps.get_node_assignments()[obs_num] == node_num))
+	      if(kData.get_bag_element(obs_num) && (tree.get_node_assignments()[obs_num] == node_num))
                 {
 		  const double dOffset = kData.offset_ptr()[obs_num];
 		  arr_vec.push_back(kData.y_ptr()[obs_num] - dOffset - kFuncEstimate[obs_num]);
@@ -160,7 +160,7 @@ void CTDist::FitBestConstant
                 }
 	    }
 
-	  treecomps.get_terminal_nodes()[node_num]->prediction = mplocm_.LocationM(arr_vec.size(), &arr_vec[0],
+	  tree.get_terminal_nodes()[node_num]->prediction = mplocm_.LocationM(arr_vec.size(), &arr_vec[0],
 							       &weight_vec[0], 0.5);
 
         }

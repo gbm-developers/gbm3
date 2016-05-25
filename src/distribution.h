@@ -21,8 +21,8 @@
 //------------------------------
 #include "config_structs.h"
 #include "dataset.h"
-#include "gbm_treecomponents.h"
 #include "node.h"
+#include "tree.h"
 #include <vector>
 #include <Rcpp.h>
 
@@ -85,7 +85,7 @@ public:
 
     virtual void FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
 				 unsigned long num_terminalnodes,
-				 double*  residuals, CTreeComps& treecomps) = 0;
+				 double*  residuals, CCARTTree& tree) = 0;
 
     virtual double BagImprovement(const CDataset& kData,
 				  const double* kFuncEstimate,

@@ -91,13 +91,13 @@ void CGBMDataContainer::ComputeResiduals(const double* kFuncEstimate, double* re
 //    CTreeComps ptr - ptr to the tree components container in the gbm
 //    int& - reference to the number of nodes in the tree.
 //-----------------------------------
-void CGBMDataContainer::ComputeBestTermNodePreds(const double* kFuncEstimate, double* residuals, CTreeComps& treeComp)
+void CGBMDataContainer::ComputeBestTermNodePreds(const double* kFuncEstimate, double* residuals, CCARTTree& tree)
 {
   get_dist()->FitBestConstant(get_data(),
 			     &kFuncEstimate[0],
-			     (2*treeComp.size_of_tree()+1)/3, // number of terminal nodes
+			     (2*tree.size_of_tree()+1)/3, // number of terminal nodes
 			     &residuals[0],
-			     treeComp);
+			     tree);
 }
 
 //-----------------------------------

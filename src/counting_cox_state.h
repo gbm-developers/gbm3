@@ -66,7 +66,7 @@ public:
 	    const double* kFuncEstimate,
 	    unsigned long num_terminalnodes,
 	    double* residuals,
-	    CTreeComps& treecomps
+	    CCARTTree& tree
 	)
 	{
 		// Calculate the expected number of events and actual number of events in
@@ -80,11 +80,11 @@ public:
 		for(unsigned long i = 0; i < kData.get_trainsize(); i++)
 		{
 			if(kData.get_bag_element(i) &&
-					(treecomps.get_terminal_nodes()[treecomps.get_node_assignments()[i]]->numobs >= treecomps.min_num_obs_required()) )
+					(tree.get_terminal_nodes()[tree.get_node_assignments()[i]]->numobs >= tree.min_num_obs_required()) )
 			{
 				// Cap expected number of events to be at least 0
-				expnum_events_in_nodes[treecomps.get_node_assignments()[i]] += max(0.0, coxph_->StatusVec()[i] - martingale_resid[i]);
-				num_events_in_nodes[treecomps.get_node_assignments()[i]] += coxph_->StatusVec()[i];
+				expnum_events_in_nodes[tree.get_node_assignments()[i]] += max(0.0, coxph_->StatusVec()[i] - martingale_resid[i]);
+				num_events_in_nodes[tree.get_node_assignments()[i]] += coxph_->StatusVec()[i];
 			}
 		}
 
@@ -92,7 +92,7 @@ public:
 		for(unsigned long nodeNum = 0; nodeNum < num_terminalnodes; nodeNum++)
 		{
 			// If there are no data points in node this is 0.0
-			treecomps.get_terminal_nodes()[nodeNum]->prediction = log(num_events_in_nodes[nodeNum]/expnum_events_in_nodes[nodeNum]);
+			tree.get_terminal_nodes()[nodeNum]->prediction = log(num_events_in_nodes[nodeNum]/expnum_events_in_nodes[nodeNum]);
 		}
 
 	}

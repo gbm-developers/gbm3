@@ -282,7 +282,7 @@ public:
 		       const double* kFuncEstimate,
 		       unsigned long num_terminalnodes,
 		       double* residuals,
-		       CTreeComps& treecomps);
+		       CCARTTree& tree);
   
   double BagImprovement(const CDataset& kData,
 			const double* kFuncEstimate,

@@ -49,7 +49,7 @@ public:
     		const double* kFuncEstimate,
 			 unsigned long num_terminalnodes,
 			 double* residuals,
-			 CTreeComps& treecomps)=0;
+			 CCARTTree& tree)=0;
 
     virtual double Deviance(const long kNumRowsInSet, const CDataset& kData,
     				const double* kFuncEstimate)=0;

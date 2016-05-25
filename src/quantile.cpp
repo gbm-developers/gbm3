@@ -129,7 +129,7 @@ void CQuantile::FitBestConstant
     const double* kFuncEstimate,
     unsigned long num_terminalnodes,
     double* residuals,
-    CTreeComps& treecomps
+    CCARTTree& tree
 )
 {
   unsigned long node_num = 0;
@@ -142,12 +142,12 @@ void CQuantile::FitBestConstant
 
   for(node_num=0; node_num<num_terminalnodes; node_num++)
     {
-      if(treecomps.get_terminal_nodes()[node_num]->numobs >= treecomps.min_num_obs_required())
+      if(tree.get_terminal_nodes()[node_num]->numobs >= tree.min_num_obs_required())
         {
 	  vec_num = 0;
 	  for(obs_num=0; obs_num< kData.get_trainsize(); obs_num++)
             {
-	      if(kData.get_bag_element(obs_num) && (treecomps.get_node_assignments()[obs_num] == node_num))
+	      if(kData.get_bag_element(obs_num) && (tree.get_node_assignments()[obs_num] == node_num))
                 {
 		  offset = kData.offset_ptr()[obs_num];
 		  
@@ -157,7 +157,7 @@ void CQuantile::FitBestConstant
                 }
             }
 	  
-	 treecomps.get_terminal_nodes()[node_num]->prediction = mplocm_.WeightedQuantile(vec_num, &vecd_[0], &weight_vec[0], alpha_);
+	 tree.get_terminal_nodes()[node_num]->prediction = mplocm_.WeightedQuantile(vec_num, &vecd_[0], &weight_vec[0], alpha_);
 	}
     }
 }

@@ -53,7 +53,7 @@ public:
     void FitBestConstant(const CDataset& kData,
 			 const double* kFuncEstimate,
 			 unsigned long num_terminalnodes,
-			 double* residuals, CTreeComps& treecomps);
+			 double* residuals, CCARTTree& tree);
     
     double BagImprovement(const CDataset& kData,
 			  const double* kFuncEstimate,

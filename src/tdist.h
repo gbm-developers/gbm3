@@ -47,9 +47,9 @@ public:
     
     void FitBestConstant(const CDataset& kData,
     		const double* kFuncEstimate,
-			 unsigned long num_terminalnodes,
-			 double* residuals,
-			 CTreeComps& treecomps);
+			unsigned long num_terminalnodes,
+			double* residuals,
+			CCARTTree& tree);
 
     double Deviance(const CDataset& kData,
     				const double* kFuncEstimates,

@@ -44,7 +44,7 @@ public:
     double InitF(const CDataset& kData);
 
     void FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
-			 unsigned long numterminal_nodes, double* residuals, CTreeComps& treecomps);
+			 unsigned long numterminal_nodes, double* residuals, CCARTTree& tree);
     
     double Deviance(const CDataset& kData, const double* kFuncEstimate,
 				bool is_validationset=false);

@@ -163,10 +163,10 @@ void CCoxPH::FitBestConstant
     const double* kFuncEstimate,
     unsigned long num_terminalnodes,
     double* residuals,
-    CTreeComps& treecomps
+    CCARTTree& tree
 )
 {
-   coxstate_methods_->FitBestConstant(kData, kFuncEstimate, num_terminalnodes, residuals, treecomps);
+   coxstate_methods_->FitBestConstant(kData, kFuncEstimate, num_terminalnodes, residuals, tree);
 }
 
 double CCoxPH::BagImprovement

@@ -130,7 +130,7 @@ void CLaplace::FitBestConstant
  const double* kFuncEstimate,
  unsigned long num_terminal_nodes,
  double* residuals,
- CTreeComps& treecomps
+ CCARTTree& tree
 )
 {
   unsigned long node_num = 0;
@@ -143,12 +143,12 @@ void CLaplace::FitBestConstant
   
   for(node_num=0; node_num<num_terminal_nodes; node_num++)
     {
-      if(treecomps.get_terminal_nodes()[node_num]->numobs >= treecomps.min_num_obs_required())
+      if(tree.get_terminal_nodes()[node_num]->numobs >= tree.min_num_obs_required())
         {
 	  vec_num = 0;
 	  for(obs_num=0; obs_num<kData.get_trainsize(); obs_num++)
             {
-	      if(kData.get_bag_element(obs_num) && (treecomps.get_node_assignments()[obs_num] == node_num))
+	      if(kData.get_bag_element(obs_num) && (tree.get_node_assignments()[obs_num] == node_num))
                 {
 		  offset =  kData.offset_ptr()[obs_num];
 		  adArr[vec_num] = kData.y_ptr()[obs_num] - offset - kFuncEstimate[obs_num];
@@ -158,7 +158,7 @@ void CLaplace::FitBestConstant
 	      
             }
 	  
-	  treecomps.get_terminal_nodes()[node_num]->prediction = mpLocM_.WeightedQuantile(vec_num, &adArr[0], &adW2[0], 0.5); // median
+	  tree.get_terminal_nodes()[node_num]->prediction = mpLocM_.WeightedQuantile(vec_num, &adArr[0], &adW2[0], 0.5); // median
 	  
         }
     }

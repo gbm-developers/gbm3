@@ -20,7 +20,7 @@
 #include "buildinfo.h"
 #include "config_structs.h"
 #include "gbm_datacontainer.h"
-#include "gbm_treecomponents.h"
+#include "tree.h"
 #include <memory>
 #include <Rcpp.h>
 #include <vector>
@@ -60,7 +60,7 @@ public:
 			     VEC_VEC_CATEGORIES &splitcodes_vec,
 			     int prev_categorical_splits);
 
-    const long size_of_fitted_tree() const{ return treecomponents_.size_of_tree(); }
+    const long size_of_fitted_tree() const{ return tree_.size_of_tree(); }
     double initial_function_estimate() { return datacontainer_.InitialFunctionEstimate(); };
 
 private:
@@ -68,7 +68,7 @@ private:
 	// Private Variables
 	//-------------------
     CGBMDataContainer datacontainer_;
-    CTreeComps treecomponents_;
+    CCARTTree tree_;
     
     // Residuals and adjustments to function estimate
     std::vector<double> residuals_;

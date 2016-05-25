@@ -126,7 +126,7 @@ void CPoisson::FitBestConstant
     const double* kFuncEstimate,
     unsigned long num_terminalnodes,
     double* residuals,
-    CTreeComps& treecomps
+    CCARTTree& tree
 )
 {
     unsigned long obs_num = 0;
@@ -140,15 +140,15 @@ void CPoisson::FitBestConstant
 	{
 		if(kData.get_bag_element(obs_num))
 		{
-			numerator_vec[treecomps.get_node_assignments()[obs_num]] += kData.weight_ptr()[obs_num]*kData.y_ptr()[obs_num];
-			denominator_vec[treecomps.get_node_assignments()[obs_num]] +=
+			numerator_vec[tree.get_node_assignments()[obs_num]] += kData.weight_ptr()[obs_num]*kData.y_ptr()[obs_num];
+			denominator_vec[tree.get_node_assignments()[obs_num]] +=
 				kData.weight_ptr()[obs_num]*std::exp(kData.offset_ptr()[obs_num]+kFuncEstimate[obs_num]);
 		}
 	}
 
     for(node_num=0; node_num<num_terminalnodes; node_num++)
     {
-        if(treecomps.get_terminal_nodes()[node_num]!=NULL)
+        if(tree.get_terminal_nodes()[node_num]!=NULL)
         {
             if(numerator_vec[node_num] == 0.0)
             {
@@ -156,22 +156,22 @@ void CPoisson::FitBestConstant
                 // Not sure what else to do except plug in an arbitrary
                 //   negative number, -1? -10? Let's use -1, then make
                 //   sure |adF| < 19 always.
-            	treecomps.get_terminal_nodes()[node_num]->prediction = -19.0;
+            	tree.get_terminal_nodes()[node_num]->prediction = -19.0;
             }
             else if(denominator_vec[node_num] == 0.0)
             {
-            	treecomps.get_terminal_nodes()[node_num]->prediction = 0.0;
+            	tree.get_terminal_nodes()[node_num]->prediction = 0.0;
             }
             else
             {
-            	treecomps.get_terminal_nodes()[node_num]->prediction =
+            	tree.get_terminal_nodes()[node_num]->prediction =
                     std::log(numerator_vec[node_num]/denominator_vec[node_num]);
             }
-            treecomps.get_terminal_nodes()[node_num]->prediction =
-               R::fmin2(treecomps.get_terminal_nodes()[node_num]->prediction,
+            tree.get_terminal_nodes()[node_num]->prediction =
+               R::fmin2(tree.get_terminal_nodes()[node_num]->prediction,
                      19-max_vec[node_num]);
-            treecomps.get_terminal_nodes()[node_num]->prediction =
-               R::fmax2(treecomps.get_terminal_nodes()[node_num]->prediction,
+            tree.get_terminal_nodes()[node_num]->prediction =
+               R::fmax2(tree.get_terminal_nodes()[node_num]->prediction,
                      -19-min_vec[node_num]);
         }
     }

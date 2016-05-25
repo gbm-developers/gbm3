@@ -139,7 +139,7 @@ const CDataset& kData,
  const double* kFuncEstimate,
  unsigned long num_terminalnodes,
  double* residuals,
- CTreeComps& treecomps
+ CCARTTree& tree
 )
 {
  
@@ -159,18 +159,18 @@ const CDataset& kData,
       if(kData.get_bag_element(obs_num))
 	{
 	  deltafunc_estimate = kFuncEstimate[obs_num] + kData.offset_ptr()[obs_num];
-	  numerator_vec[treecomps.get_node_assignments()[obs_num]] += kData.weight_ptr()[obs_num]*kData.y_ptr()[obs_num]*std::exp(-deltafunc_estimate);
-	  denominator_vec[treecomps.get_node_assignments()[obs_num]] += kData.weight_ptr()[obs_num];
+	  numerator_vec[tree.get_node_assignments()[obs_num]] += kData.weight_ptr()[obs_num]*kData.y_ptr()[obs_num]*std::exp(-deltafunc_estimate);
+	  denominator_vec[tree.get_node_assignments()[obs_num]] += kData.weight_ptr()[obs_num];
 	  
 	  // Keep track of largest and smallest prediction in each node
-	  max_vec[treecomps.get_node_assignments()[obs_num]] = R::fmax2(deltafunc_estimate, max_vec[treecomps.get_node_assignments()[obs_num]]);
-	  min_vec[treecomps.get_node_assignments()[obs_num]] = R::fmin2(deltafunc_estimate, min_vec[treecomps.get_node_assignments()[obs_num]]);
+	  max_vec[tree.get_node_assignments()[obs_num]] = R::fmax2(deltafunc_estimate, max_vec[tree.get_node_assignments()[obs_num]]);
+	  min_vec[tree.get_node_assignments()[obs_num]] = R::fmin2(deltafunc_estimate, min_vec[tree.get_node_assignments()[obs_num]]);
 	}
     }
   
   for(node_num=0; node_num<num_terminalnodes; node_num++)
     {
-      if(treecomps.get_terminal_nodes()[node_num]!=NULL)
+      if(tree.get_terminal_nodes()[node_num]!=NULL)
 	{
 	  if(numerator_vec[node_num] == 0.0)
 	    {
@@ -180,17 +180,17 @@ const CDataset& kData,
 	      // Not sure what else to do except plug in an arbitrary
 	      //   negative number, -1? -10? Let's use -19, then make
 	      //   sure |kFuncEstimate| < 19 always.
-		  treecomps.get_terminal_nodes()[node_num]->prediction = minval;
+		  tree.get_terminal_nodes()[node_num]->prediction = minval;
 	    }
 	  
-	  else if(denominator_vec[node_num] == 0.0) { treecomps.get_terminal_nodes()[node_num]->prediction = 0.0; }
+	  else if(denominator_vec[node_num] == 0.0) { tree.get_terminal_nodes()[node_num]->prediction = 0.0; }
 	  
-	  else { treecomps.get_terminal_nodes()[node_num]->prediction = std::log(numerator_vec[node_num]/denominator_vec[node_num]); }
+	  else { tree.get_terminal_nodes()[node_num]->prediction = std::log(numerator_vec[node_num]/denominator_vec[node_num]); }
 	  
-	  if (max_vec[node_num]+treecomps.get_terminal_nodes()[node_num]->prediction > maxval)
-	    { treecomps.get_terminal_nodes()[node_num]->prediction = maxval - max_vec[node_num]; }
-	  if (min_vec[node_num]+treecomps.get_terminal_nodes()[node_num]->prediction < minval)
-	    { treecomps.get_terminal_nodes()[node_num]->prediction = minval - min_vec[node_num]; }
+	  if (max_vec[node_num]+tree.get_terminal_nodes()[node_num]->prediction > maxval)
+	    { tree.get_terminal_nodes()[node_num]->prediction = maxval - max_vec[node_num]; }
+	  if (min_vec[node_num]+tree.get_terminal_nodes()[node_num]->prediction < minval)
+	    { tree.get_terminal_nodes()[node_num]->prediction = minval - min_vec[node_num]; }
 	  
 	}
     }

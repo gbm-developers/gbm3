@@ -145,7 +145,7 @@ void CBernoulli::FitBestConstant
   const double* kFuncEstimate,
   unsigned long num_terminalnodes,
   double* residuals,
-  CTreeComps& treecomps
+  CCARTTree& tree
 )
 {
   unsigned long obs_num = 0;
@@ -158,8 +158,8 @@ void CBernoulli::FitBestConstant
   {
     if(kData.get_bag_element(obs_num))
     {
-      numerator_vec[treecomps.get_node_assignments()[obs_num]] += kData.weight_ptr()[obs_num]*residuals[obs_num];
-      denom_vec[treecomps.get_node_assignments()[obs_num]] +=
+      numerator_vec[tree.get_node_assignments()[obs_num]] += kData.weight_ptr()[obs_num]*residuals[obs_num];
+      denom_vec[tree.get_node_assignments()[obs_num]] +=
           kData.weight_ptr()[obs_num]*(kData.y_ptr()[obs_num]-residuals[obs_num])*(1-kData.y_ptr()[obs_num]+residuals[obs_num]);
 #ifdef NOISY_DEBUG
 /*
@@ -174,11 +174,11 @@ void CBernoulli::FitBestConstant
 
   for(node_num=0; node_num<num_terminalnodes; node_num++)
   {
-    if(treecomps.get_terminal_nodes()[node_num]!=NULL)
+    if(tree.get_terminal_nodes()[node_num]!=NULL)
     {
       if(denom_vec[node_num] == 0)
       {
-          treecomps.get_terminal_nodes()[node_num]->prediction = 0.0;
+          tree.get_terminal_nodes()[node_num]->prediction = 0.0;
       }
       else
       {
@@ -195,7 +195,7 @@ void CBernoulli::FitBestConstant
           if(temp>1.0) temp = 1.0;
           else if(temp<-1.0) temp = -1.0;
         }
-        treecomps.get_terminal_nodes()[node_num]->prediction = temp;
+        tree.get_terminal_nodes()[node_num]->prediction = temp;
       }
     }
   }

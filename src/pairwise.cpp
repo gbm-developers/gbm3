@@ -992,7 +992,7 @@ void CPairwise::FitBestConstant
     const double* kFuncEstimate,
     unsigned long num_terminalnodes,
     double* residuals,
-    CTreeComps& treecomps
+    CCARTTree& tree
 )
 {
 
@@ -1024,22 +1024,22 @@ void CPairwise::FitBestConstant
 	  };
 #endif
 
-            fit_numerator_[treecomps.get_node_assignments()[obs_num]]   += kData.weight_ptr()[obs_num] * residuals[obs_num];
-            fit_denominator_[treecomps.get_node_assignments()[obs_num]] += kData.weight_ptr()[obs_num] * hessian_[obs_num];
+            fit_numerator_[tree.get_node_assignments()[obs_num]]   += kData.weight_ptr()[obs_num] * residuals[obs_num];
+            fit_denominator_[tree.get_node_assignments()[obs_num]] += kData.weight_ptr()[obs_num] * hessian_[obs_num];
         }
     }
 
     for (unsigned int node_num = 0; node_num < num_terminalnodes; node_num++)
     {
-        if (treecomps.get_terminal_nodes()[node_num] != NULL)
+        if (tree.get_terminal_nodes()[node_num] != NULL)
         {
             if (fit_denominator_[node_num] <= 0.0)
             {
-            	treecomps.get_terminal_nodes()[node_num]->prediction = 0.0;
+            	tree.get_terminal_nodes()[node_num]->prediction = 0.0;
             }
             else
             {
-            	treecomps.get_terminal_nodes()[node_num]->prediction =
+            	tree.get_terminal_nodes()[node_num]->prediction =
                     fit_numerator_[node_num]/fit_denominator_[node_num];
             }
         }

@@ -128,7 +128,7 @@ void CGaussian::FitBestConstant
     const double* kFuncEstimate,
     unsigned long num_terminalnodes,
     double* residuals,
-    CTreeComps& treeComps
+    CCARTTree& tree
 )
 {
   // the tree aready stores the mean prediction

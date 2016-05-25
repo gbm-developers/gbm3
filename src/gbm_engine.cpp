@@ -5,7 +5,7 @@
 
 CGBM::CGBM(ConfigStructs& GBMParams) :
   datacontainer_(GBMParams.get_data_config()),
-  treecomponents_(GBMParams.get_tree_config()),
+  tree_(GBMParams.get_tree_config()),
   residuals_(datacontainer_.get_data().nrow(), 0) {}
 
 
@@ -32,15 +32,16 @@ void CGBM::FitLearner
   // Bag data
   datacontainer_.BagData();
 
+  // Reset Tree
+  tree_.Reset();
+
 #ifdef NOISY_DEBUG
   Rprintf("Compute working response\n");
 #endif
 
   // Compute Residuals and fit tree
   datacontainer_.ComputeResiduals(&kFuncEstimate[0], &residuals_[0]);
-  treecomponents_.GrowTrees(datacontainer_.get_data(), &residuals_[0], &delta_estimates[0]);
-
-
+  tree_.Grow(&residuals_[0], datacontainer_.get_data(), &delta_estimates[0]);
 
   // Now I have adF, adZ, and vecpTermNodes (new node assignments)
   // Fit the best constant within each terminal node
@@ -49,25 +50,25 @@ void CGBM::FitLearner
 #endif
 
   // Adjust terminal node predictions and shrink
-  datacontainer_.ComputeBestTermNodePreds(&kFuncEstimate[0], &residuals_[0], treecomponents_);
-  treecomponents_.AdjustAndShrink(&delta_estimates[0]);
+  datacontainer_.ComputeBestTermNodePreds(&kFuncEstimate[0], &residuals_[0], tree_);
+  tree_.Adjust(&delta_estimates[0]);
 
   // Compute the error improvement within bag
   outofbag_improvement = datacontainer_.ComputeBagImprovement(&kFuncEstimate[0],
-						 treecomponents_.get_shrinkage_factor(),
+						 tree_.get_shrinkage_factor(),
 						 &delta_estimates[0]);
 
   // Update the function estimate
   unsigned long i = 0;
   for(i=0; i < datacontainer_.get_data().get_trainsize(); i++)
   {
-    kFuncEstimate[i] += treecomponents_.get_shrinkage_factor() * delta_estimates[i];
+    kFuncEstimate[i] += tree_.get_shrinkage_factor() * delta_estimates[i];
 
   }
 
   // Make validation predictions
   trainingerror = datacontainer_.ComputeDeviance(&kFuncEstimate[0], false);
-  treecomponents_.PredictValid(datacontainer_.get_data(), &delta_estimates[0]);
+  tree_.PredictValid(datacontainer_.get_data(), datacontainer_.get_data().get_validsize(), &delta_estimates[0]);
 
   for(i=datacontainer_.get_data().get_trainsize();
       i < datacontainer_.get_data().get_trainsize()+datacontainer_.get_data().get_validsize();
@@ -95,7 +96,7 @@ void CGBM::GBMTransferTreeToRList
  int prev_categorical_splits
  )
 {
-	treecomponents_.TransferTreeToRList(datacontainer_.get_data(),
+	tree_.TransferTreeToRList(datacontainer_.get_data(),
 				     splitvar,
 				     splitvalues,
 				     leftnodes,
