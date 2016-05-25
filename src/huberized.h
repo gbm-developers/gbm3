@@ -20,51 +20,40 @@
 //------------------------------
 // Class definition
 //------------------------------
-class CHuberized : public CDistribution
-{
+class CHuberized : public CDistribution {
+ public:
+  //---------------------
+  // Factory Function
+  //---------------------
+  static CDistribution* Create(DataDistParams& distparams);
 
-public:
-	//---------------------
-	// Factory Function
-	//---------------------
-	static CDistribution* Create(DataDistParams& distparams);
+  //---------------------
+  // Public destructor
+  //---------------------
+  virtual ~CHuberized();
 
-	//---------------------
-	// Public destructor
-	//---------------------
-    virtual ~CHuberized();
+  //---------------------
+  // Public Functions
+  //---------------------
+  void ComputeWorkingResponse(const CDataset& kData,
+                              const double* kFuncEstimate, double* residuals);
 
-    //---------------------
-    // Public Functions
-    //---------------------
-    void ComputeWorkingResponse(const CDataset& kData,
-    			const double* kFuncEstimate,
-				double* residuals);
+  double Deviance(const CDataset& kData, const double* kFuncEstimate);
 
-    double Deviance(const CDataset& kData,
-    				const double* kFuncEstimate);
+  double InitF(const CDataset& kData);
 
-    double InitF(const CDataset& kData);
+  void FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
+                       unsigned long num_terminalnodes, double* residuals,
+                       CCARTTree& tree);
 
-    void FitBestConstant(const CDataset& kData,
-    		const double* kFuncEstimate,
-			 unsigned long num_terminalnodes,
-			 double* residuals,
-			 CCARTTree& tree);
+  double BagImprovement(const CDataset& kData, const double* kFuncEstimates,
+                        const double kShrinkage, const double* kDeltaEstimates);
 
-    double BagImprovement(const CDataset& kData,
-			  const double* kFuncEstimates,
-			  const double kShrinkage,
-                          const double* kDeltaEstimates);
-
-private:
-    //----------------------
-    // Private Constructors
-    //----------------------
-    CHuberized();
+ private:
+  //----------------------
+  // Private Constructors
+  //----------------------
+  CHuberized();
 };
 
-#endif // HUBERIZED_H
-
-
-
+#endif  // HUBERIZED_H

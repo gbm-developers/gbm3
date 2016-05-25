@@ -22,56 +22,46 @@
 //------------------------------
 // Class definition
 //------------------------------
-class CLaplace : public CDistribution
-{
+class CLaplace : public CDistribution {
+ public:
+  //---------------------
+  // Factory Function
+  //---------------------
+  static CDistribution* Create(DataDistParams& distparams);
 
-public:
-	//---------------------
-	// Factory Function
-	//---------------------
-	static CDistribution* Create(DataDistParams& distparams);
+  //---------------------
+  // Public destructor
+  //---------------------
+  virtual ~CLaplace();
 
-	//---------------------
-	// Public destructor
-	//---------------------
-	virtual ~CLaplace();
+  //---------------------
+  // Public Functions
+  //---------------------
+  void ComputeWorkingResponse(const CDataset& kData,
+                              const double* kFuncEstimate, double* residuals);
 
-	//---------------------
-	// Public Functions
-	//---------------------
-	void ComputeWorkingResponse(const CDataset& kData,
-				const double* kFuncEstimate,
-				double* residuals);
+  double InitF(const CDataset& kData);
 
-	double InitF(const CDataset& kData);
+  void FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
+                       unsigned long num_terminalnodes, double* residuals,
+                       CCARTTree& tree);
 
-	void FitBestConstant(const CDataset& kData,
-				   const double* kFuncEstimate,
-		       	   unsigned long num_terminalnodes,
-		       	   double* residuals,
-		       	   CCARTTree& tree);
-  
-	double Deviance(const CDataset& kData,
-					const double* kFuncEstimate);
-  
-	double BagImprovement(const CDataset& kData,
-			      const double* kFuncEstimate,
-			      const double kShrinkage,
-			      const double* kFuncEstimateadj);
+  double Deviance(const CDataset& kData, const double* kFuncEstimate);
 
-private:
-	//----------------------
-	// Private Constructors
-	//----------------------
-	CLaplace();
+  double BagImprovement(const CDataset& kData, const double* kFuncEstimate,
+                        const double kShrinkage,
+                        const double* kFuncEstimateadj);
 
-	//-------------------
-	// Private Variables
-	//-------------------
-	CLocationM mpLocM_;
+ private:
+  //----------------------
+  // Private Constructors
+  //----------------------
+  CLaplace();
+
+  //-------------------
+  // Private Variables
+  //-------------------
+  CLocationM mpLocM_;
 };
 
-#endif // LAPLACE_H
-
-
-
+#endif  // LAPLACE_H

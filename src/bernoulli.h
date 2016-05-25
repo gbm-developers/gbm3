@@ -21,51 +21,45 @@
 //------------------------------
 // Class definition
 //------------------------------
-class CBernoulli : public CDistribution
-{
+class CBernoulli : public CDistribution {
+ public:
+  //---------------------
+  // Factory Function
+  //---------------------
+  static CDistribution* Create(DataDistParams& distparams);
 
-public:
-	//---------------------
-	// Factory Function
-	//---------------------
-	static CDistribution* Create(DataDistParams& distparams);
+  //---------------------
+  // Public destructor
+  //---------------------
+  virtual ~CBernoulli();
 
-	//---------------------
-	// Public destructor
-	//---------------------
-    virtual ~CBernoulli();
+  //---------------------
+  // Public Functions
+  //---------------------
+  void ComputeWorkingResponse(const CDataset& kData,
+                              const double* kFuncEstimate, double* residuals);
 
-    //---------------------
-    // Public Functions
-    //---------------------
-    void ComputeWorkingResponse(const CDataset& kData,
-				const double* kFuncEstimate,
-				double* residuals);
+  double Deviance(const CDataset& kData, const double* kFuncEstimate);
 
-    double Deviance(const CDataset& kData,
-		    const double* kFuncEstimate);
+  double InitF(const CDataset& kData);
 
-    double InitF(const CDataset& kData);
+  void FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
+                       unsigned long num_terminalnodes, double* residuals,
+                       CCARTTree& tree);
 
-    void FitBestConstant(const CDataset& kData,
-			 const double* kFuncEstimate,
-			 unsigned long num_terminalnodes,
-			 double* residuals, CCARTTree& tree);
-    
-    double BagImprovement(const CDataset& kData,
-			  const double* kFuncEstimate,
-			  const double kShrinkage, const double* kDeltaEstimate);
+  double BagImprovement(const CDataset& kData, const double* kFuncEstimate,
+                        const double kShrinkage, const double* kDeltaEstimate);
 
-private:
-    //----------------------
-    // Private Constructors
-    //----------------------
-    CBernoulli();
+ private:
+  //----------------------
+  // Private Constructors
+  //----------------------
+  CBernoulli();
 
-    //-------------------
-    // Private Variables
-    //-------------------
-    bool terminalnode_capped_;
+  //-------------------
+  // Private Variables
+  //-------------------
+  bool terminalnode_capped_;
 };
 
-#endif // BERNOULLI_H
+#endif  // BERNOULLI_H

@@ -31,89 +31,63 @@
 //------------------------------
 // Class definition
 //------------------------------
-class CCARTTree
-{
-public:
-	//----------------------
-	// Public Constructors
-	//----------------------
-    CCARTTree(TreeParams treeconfig);
+class CCARTTree {
+ public:
+  //----------------------
+  // Public Constructors
+  //----------------------
+  CCARTTree(TreeParams treeconfig);
 
-	//---------------------
-	// Public destructor
-	//---------------------
-    ~CCARTTree();
+  //---------------------
+  // Public destructor
+  //---------------------
+  ~CCARTTree();
 
-	//---------------------
-	// Public Functions
-	//---------------------
-    void Grow(double* residuals,
-	      const CDataset& kData,
-	      const double* kFuncEstimate);
-    void Reset();
+  //---------------------
+  // Public Functions
+  //---------------------
+  void Grow(double* residuals, const CDataset& kData,
+            const double* kFuncEstimate);
+  void Reset();
 
-    void PredictValid(const CDataset &kData,
-		      unsigned long num_validation_points,
-		      double* delta_estimates);
-    void Adjust(double* delta_estimates);
+  void PredictValid(const CDataset& kData, unsigned long num_validation_points,
+                    double* delta_estimates);
+  void Adjust(double* delta_estimates);
 
-    void TransferTreeToRList(const CDataset &kData,
-		     int* splitvar,
-		     double* splitvalues,
-		     int* leftnodes,
-		     int* rightnodes,
-		     int* missingnodes,
-		     double* error_reduction,
-		     double* weights,
-		     double* predictions,
-		     VecOfVectorCategories &splitcodes_vec,
-		     int prev_categorical_splits);
-    void Print();
+  void TransferTreeToRList(const CDataset& kData, int* splitvar,
+                           double* splitvalues, int* leftnodes, int* rightnodes,
+                           int* missingnodes, double* error_reduction,
+                           double* weights, double* predictions,
+                           VecOfVectorCategories& splitcodes_vec,
+                           int prev_categorical_splits);
+  void Print();
 
-    std::vector<unsigned long>& get_node_assignments()
-	{
-		return data_node_assignment_;
-	}
-	vector<CNode*>& get_terminal_nodes()
-	{
-		return terminalnode_ptrs_;
-	}
-	const double& get_shrinkage_factor() const
-	{
-		return kShrinkage_;
-	}
-	const unsigned long& min_num_obs_required() const
-	{
-		return min_num_node_obs_;
-	}
-	const unsigned long& size_of_tree() const
-	{
-		return totalnodecount_;
-	}
-	 CNode* get_rootnode()
-	{
-		return rootnode_;
-	}
-	const CNode* get_rootnode() const
-	{
-		return rootnode_;
-	}
+  std::vector<unsigned long>& get_node_assignments() {
+    return data_node_assignment_;
+  }
+  vector<CNode*>& get_terminal_nodes() { return terminalnode_ptrs_; }
+  const double& get_shrinkage_factor() const { return kShrinkage_; }
+  const unsigned long& min_num_obs_required() const {
+    return min_num_node_obs_;
+  }
+  const unsigned long& size_of_tree() const { return totalnodecount_; }
+  CNode* get_rootnode() { return rootnode_; }
+  const CNode* get_rootnode() const { return rootnode_; }
 
-private:
-	//---------------------
-	// Private Variables
-	//---------------------
-    CNode* rootnode_;
-    vector<CNode*> terminalnode_ptrs_;
-    vector<unsigned long> data_node_assignment_;
-    CNodeSearch new_node_searcher_;
+ private:
+  //---------------------
+  // Private Variables
+  //---------------------
+  CNode* rootnode_;
+  vector<CNode*> terminalnode_ptrs_;
+  vector<unsigned long> data_node_assignment_;
+  CNodeSearch new_node_searcher_;
 
-    unsigned long min_num_node_obs_;
-    const long kTreeDepth_;
-    const double kShrinkage_;
-    double error_; // total squared error before carrying out the splits
-    unsigned long totalnodecount_;
-
+  unsigned long min_num_node_obs_;
+  const long kTreeDepth_;
+  const double kShrinkage_;
+  double error_;  // total squared error before carrying out the splits
+  unsigned long totalnodecount_;
 };
 
-#endif // TREE_H
+#endif  // TREE_H

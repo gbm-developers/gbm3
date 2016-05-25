@@ -20,53 +20,45 @@
 //------------------------------
 // Class definition
 //------------------------------
-class CTweedie : public CDistribution
-{
+class CTweedie : public CDistribution {
+ public:
+  //---------------------
+  // Factory Function
+  //---------------------
+  static CDistribution* Create(DataDistParams& distparams);
 
-public:
-	//---------------------
-	// Factory Function
-	//---------------------
-	static CDistribution* Create(DataDistParams& distparams);
+  //---------------------
+  // Public destructor
+  //---------------------
+  virtual ~CTweedie();
 
-	//---------------------
-	// Public destructor
-	//---------------------
-    virtual ~CTweedie();
+  //---------------------
+  // Public Functions
+  //---------------------
+  void ComputeWorkingResponse(const CDataset& kData,
+                              const double* kFuncEstimate, double* residuals);
 
-    //---------------------
-    // Public Functions
-    //---------------------
-    void ComputeWorkingResponse(const CDataset& kData,
-    		const double* kFuncEstimate,
-				double* residuals);
+  double InitF(const CDataset& kData);
 
-    double InitF(const CDataset& kData);
-    
-    void FitBestConstant(const CDataset& kData,
-    		const double* kFuncEstimate,
-			 unsigned long num_terminalnodes,
-			 double* residuals,
-			 CCARTTree& tree);
+  void FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
+                       unsigned long num_terminalnodes, double* residuals,
+                       CCARTTree& tree);
 
-    double Deviance(const CDataset& kData,
-    				const double* kFuncEstimate);
-    
-    double BagImprovement(const CDataset& kData,
-			  const double* kFuncEstimate,
-			  const double kShrinkage,
-                          const double* kDeltaEstimates);
-private:
-    //----------------------
-    // Private Constructors
-    //----------------------
-    CTweedie(double power);
+  double Deviance(const CDataset& kData, const double* kFuncEstimate);
 
-	//-------------------
-	// Private Variables
-	//-------------------
-    double power_;
+  double BagImprovement(const CDataset& kData, const double* kFuncEstimate,
+                        const double kShrinkage, const double* kDeltaEstimates);
+
+ private:
+  //----------------------
+  // Private Constructors
+  //----------------------
+  CTweedie(double power);
+
+  //-------------------
+  // Private Variables
+  //-------------------
+  double power_;
 };
 
-#endif // TWEEDIE_H
-
+#endif  // TWEEDIE_H

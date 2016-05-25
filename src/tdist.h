@@ -22,57 +22,46 @@
 //------------------------------
 // Class definition
 //------------------------------
-class CTDist : public CDistribution
-{
-  
-public:
-	//---------------------
-	// Factory Function
-	//---------------------
-	static CDistribution* Create(DataDistParams& distarams);
+class CTDist : public CDistribution {
+ public:
+  //---------------------
+  // Factory Function
+  //---------------------
+  static CDistribution* Create(DataDistParams& distarams);
 
-	//---------------------
-	// Public destructor
-	//---------------------
-	virtual ~CTDist();
-  
-    //---------------------
-    // Public Functions
-    //---------------------
-	void ComputeWorkingResponse(const CDataset& kData,
-			const double* kFuncEstimate,
-			      	  double* residuals);
+  //---------------------
+  // Public destructor
+  //---------------------
+  virtual ~CTDist();
 
-    double InitF(const CDataset& kData);
-    
-    void FitBestConstant(const CDataset& kData,
-    		const double* kFuncEstimate,
-			unsigned long num_terminalnodes,
-			double* residuals,
-			CCARTTree& tree);
+  //---------------------
+  // Public Functions
+  //---------------------
+  void ComputeWorkingResponse(const CDataset& kData,
+                              const double* kFuncEstimate, double* residuals);
 
-    double Deviance(const CDataset& kData,
-    				const double* kFuncEstimates);
+  double InitF(const CDataset& kData);
 
-    double BagImprovement(const CDataset& kData,
-			  const double* kFuncEstimate,
-			  const double kShrinkage,
-                          const double* kDeltaEstimate);
+  void FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
+                       unsigned long num_terminalnodes, double* residuals,
+                       CCARTTree& tree);
 
-private:
-    //----------------------
-    // Private Constructors
-    //----------------------
-    CTDist(double nu);
+  double Deviance(const CDataset& kData, const double* kFuncEstimates);
 
-	//-------------------
-	// Private Variables
-	//-------------------
-    double m_nu_;
-    CLocationM mplocm_;
+  double BagImprovement(const CDataset& kData, const double* kFuncEstimate,
+                        const double kShrinkage, const double* kDeltaEstimate);
+
+ private:
+  //----------------------
+  // Private Constructors
+  //----------------------
+  CTDist(double nu);
+
+  //-------------------
+  // Private Variables
+  //-------------------
+  double m_nu_;
+  CLocationM mplocm_;
 };
 
-#endif // TDIST_H
-
-
-
+#endif  // TDIST_H

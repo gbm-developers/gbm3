@@ -23,41 +23,41 @@
 //------------------------------
 // Class definition
 //------------------------------
-class DistributionFactory
-{
-private:
-	//----------------------
-	// Private Constructors
-	//----------------------
-	DistributionFactory(const DistributionFactory&);
+class DistributionFactory {
+ private:
+  //----------------------
+  // Private Constructors
+  //----------------------
+  DistributionFactory(const DistributionFactory&);
 
-	//----------------------
-	// Private Operators
-	//----------------------
-	DistributionFactory& operator= (const DistributionFactory&);
+  //----------------------
+  // Private Operators
+  //----------------------
+  DistributionFactory& operator=(const DistributionFactory&);
 
-	//-------------------
-	// Private Variables
-	//-------------------
-	typedef CDistribution* (*distCreate)(DataDistParams&);
-	std::map<std::string, distCreate> factorymap_;
+  //-------------------
+  // Private Variables
+  //-------------------
+  typedef CDistribution* (*distCreate)(DataDistParams&);
+  std::map<std::string, distCreate> factorymap_;
 
-public:
-	//---------------------
-    // Public Constructor
-	//---------------------
-	DistributionFactory();
+ public:
+  //---------------------
+  // Public Constructor
+  //---------------------
+  DistributionFactory();
 
-	//---------------------
-	// Public destructor
-	//---------------------
-	~DistributionFactory(){};
+  //---------------------
+  // Public destructor
+  //---------------------
+  ~DistributionFactory(){};
 
-	//---------------------
-	// Public Functions
-	//---------------------
-	void RegisterDist(const std::string& kDistFamily, distCreate ptr_to_dist_createfunc);
-	CDistribution* CreateDist(DataDistParams& distparams);
+  //---------------------
+  // Public Functions
+  //---------------------
+  void RegisterDist(const std::string& kDistFamily,
+                    distCreate ptr_to_dist_createfunc);
+  CDistribution* CreateDist(DataDistParams& distparams);
 };
 
-#endif // DISTRIBUTIONFACTORY_H
+#endif  // DISTRIBUTIONFACTORY_H

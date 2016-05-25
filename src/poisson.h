@@ -22,51 +22,41 @@
 //------------------------------
 // Class definition
 //------------------------------
-class CPoisson : public CDistribution
-{
+class CPoisson : public CDistribution {
+ public:
+  //---------------------
+  // Factory Function
+  //---------------------
+  static CDistribution* Create(DataDistParams& distparams);
 
-public:
-	//---------------------
-	// Factory Function
-	//---------------------
-	static CDistribution* Create(DataDistParams& distparams);
+  //---------------------
+  // Public destructor
+  //---------------------
+  virtual ~CPoisson();
 
-	//---------------------
-	// Public destructor
-	//---------------------
-    virtual ~CPoisson();
+  //---------------------
+  // Public Functions
+  //---------------------
+  void ComputeWorkingResponse(const CDataset& kData,
+                              const double* kFuncEstimate, double* residual);
 
-    //---------------------
-    // Public Functions
-    //---------------------
-    void ComputeWorkingResponse(const CDataset& kData,
-    		const double *kFuncEstimate,
-				double *residual);
+  double Deviance(const CDataset& kData, const double* kFuncEstimate);
 
-    double Deviance(const CDataset&kData,
-    				const double *kFuncEstimate);
+  double InitF(const CDataset& kData);
 
-    double InitF(const CDataset&kData);
+  void FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
+                       unsigned long num_terminalnodes, double* residual,
+                       CCARTTree& tree);
 
-    void FitBestConstant(const CDataset&kData,
-    		const double *kFuncEstimate,
-			 unsigned long num_terminalnodes,
-			 double* residual,
-			 CCARTTree& tree);
+  double BagImprovement(const CDataset& kData, const double* kFuncEstimate,
+                        const double kShrinkage,
+                        const double* kFuncEstimateadj);
 
-    double BagImprovement(const CDataset&kData,
-			  const double *kFuncEstimate,
-			  const double kShrinkage,
-			  const double* kFuncEstimateadj);
-
-private:
-    //----------------------
-    // Private Constructors
-    //----------------------
-    CPoisson();
+ private:
+  //----------------------
+  // Private Constructors
+  //----------------------
+  CPoisson();
 };
 
-#endif // POISSON_H
-
-
-
+#endif  // POISSON_H
