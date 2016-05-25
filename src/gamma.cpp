@@ -91,8 +91,7 @@ double CGamma::InitF
 double CGamma::Deviance
 (
 	const CDataset& kData,
-    const double* kFuncEstimate,
-    bool is_validationset
+    const double* kFuncEstimate
 )
 {
   unsigned long i=0;
@@ -100,12 +99,7 @@ double CGamma::Deviance
   double weight = 0.0;
   double deltafunc_est = 0.0;
   
-  unsigned long num_rows_in_set = kData.get_trainsize();
-  if(is_validationset)
-  {
-	kData.shift_to_validation();
-	num_rows_in_set = kData.get_validsize();
-  }
+  unsigned long num_rows_in_set = kData.get_size_of_set();
 
   for(i=0; i!=num_rows_in_set; i++)
     {
@@ -114,11 +108,6 @@ double CGamma::Deviance
       weight += kData.weight_ptr()[i];
     }
   
-  if(is_validationset)
-  {
-	kData.shift_to_train();
-  }
-
 	//TODO: Check if weights are all zero for validation set
 	if((weight == 0.0) && (loss == 0.0))
 	{

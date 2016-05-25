@@ -76,8 +76,7 @@ double CPoisson::InitF
 double CPoisson::Deviance
 (
 	const CDataset& kData,
-    const double* kFuncEstimate,
-    bool is_validationset
+    const double* kFuncEstimate
 )
 {
     unsigned long i=0;
@@ -85,13 +84,7 @@ double CPoisson::Deviance
     double weight = 0.0;
 
     // Switch to validation set if necessary
-    unsigned long num_rows_in_set = kData.get_trainsize();
-    if(is_validationset)
-    {
- 	   kData.shift_to_validation();
- 	   num_rows_in_set = kData.get_validsize();
-    }
-
+    unsigned long num_rows_in_set = kData.get_size_of_set();
 
 	for(i=0; i<num_rows_in_set; i++)
 	{
@@ -99,13 +92,6 @@ double CPoisson::Deviance
 						   std::exp(kData.offset_ptr()[i]+kFuncEstimate[i]));
 		weight += kData.weight_ptr()[i];
    }
-
-
-    // Switch back to training set if necessary
-    if(is_validationset)
-    {
- 	   kData.shift_to_train();
-    }
 
     //TODO: Check if weights are all zero for validation set
    if((weight == 0.0) && (loss == 0.0))

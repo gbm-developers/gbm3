@@ -52,11 +52,10 @@ public:
 			CCARTTree& tree);
 
     double Deviance(const CDataset& kData,
-    				const double* kFuncEstimates,
-                    bool is_validationset=false);
+    				const double* kFuncEstimates);
 
     double BagImprovement(const CDataset& kData,
-			  const double *kFuncEstimate,
+			  const double* kFuncEstimate,
 			  const double kShrinkage,
                           const double* kDeltaEstimate);
 

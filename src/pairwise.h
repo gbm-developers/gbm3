@@ -273,8 +273,7 @@ public:
 			      double* residuals);
   
   double Deviance(const CDataset& kData,
-		  const double* kFuncEstimate,
-		  bool is_validationset=false);
+		  const double* kFuncEstimate);
   
   double InitF(const CDataset& kData);
 
@@ -290,6 +289,11 @@ public:
 			const double* kDeltaEstimates);
 
   void BagData(CDataset& kData);
+  void ShiftDistPtrs(unsigned long shift)
+  {
+  	kGroups_=shift_ptr(kGroups_, shift);
+  }
+
 
 protected:
 

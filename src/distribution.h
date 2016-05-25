@@ -80,8 +80,7 @@ public:
 
     virtual double InitF(const CDataset& kData) = 0;
 
-    virtual double Deviance(const CDataset& kData, const double* kFuncEstimate,
-                            bool is_validationset=false) = 0;
+    virtual double Deviance(const CDataset& kData, const double* kFuncEstimate) = 0;
 
     virtual void FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
 				 unsigned long num_terminalnodes,
@@ -93,6 +92,8 @@ public:
 				  const double* kDeltaFunce) = 0;
 
     virtual void BagData(CDataset& kData);
+    virtual void ShiftDistPtrs(unsigned long shift){};
+
  private:
 
     //---------------------

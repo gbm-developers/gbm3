@@ -44,8 +44,7 @@ public:
 				double *residual);
 
     double Deviance(const CDataset&kData,
-    				const double *kFuncEstimate,
-                    bool is_validationset=false);
+    				const double *kFuncEstimate);
 
     double InitF(const CDataset&kData);
 

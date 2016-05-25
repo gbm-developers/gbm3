@@ -12,7 +12,7 @@
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CNodeSearch::CNodeSearch(int treedepth, int numcol_kData, unsigned long minobs):
+CNodeSearch::CNodeSearch(unsigned long treedepth, unsigned long minobs):
 variable_splitters_(2*treedepth+1, VarSplitter(minobs))
 {
     num_terminal_nodes_ = 1;

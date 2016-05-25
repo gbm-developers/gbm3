@@ -3,9 +3,9 @@
 #include <algorithm>
 #include "gbm_engine.h"
 
-CGBM::CGBM(ConfigStructs& GBMParams) :
-  datacontainer_(GBMParams.get_data_config()),
-  tree_(GBMParams.get_tree_config()),
+CGBM::CGBM(ConfigStructs& gbmparams) :
+  datacontainer_(gbmparams.get_data_config()),
+  tree_(gbmparams.get_tree_config()),
   residuals_(datacontainer_.get_data().nrow(), 0) {}
 
 
@@ -32,7 +32,7 @@ void CGBM::FitLearner
   // Bag data
   datacontainer_.BagData();
 
-  // Reset Tree
+  // Set up tree
   tree_.Reset();
 
 #ifdef NOISY_DEBUG
@@ -82,7 +82,7 @@ void CGBM::FitLearner
 }
 
 
-void CGBM::GBMTransferTreeToRList
+void CGBM::GbmTransferTreeToRList
 (
  int* splitvar,
  double* splitvalues,

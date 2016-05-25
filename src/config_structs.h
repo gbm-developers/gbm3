@@ -55,9 +55,9 @@ public:
 		variable_weight =	obs_weight;
 		variable_num_classes = var_classes;
 		variable_monotonicity = monotonicity_vec;
-		num_trainrows = Rcpp::as<int>(num_rows_in_training);
-		num_trainobservations = Rcpp::as<int>(unique_training_obs);
-		num_features = Rcpp::as<int>(number_offeatures);
+		num_trainrows = Rcpp::as<unsigned long>(num_rows_in_training);
+		num_trainobservations = Rcpp::as<unsigned long>(unique_training_obs);
+		num_features = Rcpp::as<unsigned long>(number_offeatures);
 		bagfraction = Rcpp::as<double>(fraction_inbag);
 		prior_coefficient_variation = Rcpp::as<double>(prior_coeff_var);
 		family = Rcpp::as<std::string>(dist_family);
@@ -75,9 +75,9 @@ public:
 	SEXP variable_weight;
 	SEXP variable_num_classes;
 	SEXP variable_monotonicity;
-	int num_trainrows;
-	int num_trainobservations;
-	int num_features;
+	unsigned long num_trainrows;
+	unsigned long num_trainobservations;
+	unsigned long num_features;
 	double bagfraction;
 	double prior_coefficient_variation;
 	std::string family;
@@ -86,11 +86,10 @@ public:
 
 struct TreeParams
 {
-  int depth;
-  int min_obs_in_node;
+  unsigned long depth;
+  unsigned long min_obs_in_node;
   double shrinkage;
-  int num_trainrows;
-  int numberdatacolumns;
+  unsigned long num_trainrows;
 };
 
 //------------------------------
@@ -146,13 +145,10 @@ public:
 		InitIRMeasure();
 
 		// Initialize Tree Parameters
-		treeconfig_.depth = Rcpp::as<int>(tree_depth);
-		treeconfig_.min_obs_in_node = Rcpp::as<int>(min_num_node_obs);
+		treeconfig_.depth = Rcpp::as<unsigned long>(tree_depth);
+		treeconfig_.min_obs_in_node = Rcpp::as<unsigned long>(min_num_node_obs);
 		treeconfig_.shrinkage = Rcpp::as<double>(shrinkageconstant);
-		treeconfig_.num_trainrows = Rcpp::as<int>(num_rows_in_training);
-
-		Rcpp::NumericMatrix covar_mat(covariates);
-		treeconfig_.numberdatacolumns =  covar_mat.ncol();
+		treeconfig_.num_trainrows = Rcpp::as<unsigned long>(num_rows_in_training);
 	};
 
 

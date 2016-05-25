@@ -9,7 +9,7 @@
 // Function Members - Public
 //----------------------------------------
 CCARTTree::CCARTTree(TreeParams treeconfig) :
-new_node_searcher_(treeconfig.depth, treeconfig.numberdatacolumns, treeconfig.min_obs_in_node),
+new_node_searcher_(treeconfig.depth, treeconfig.min_obs_in_node),
 kTreeDepth_(treeconfig.depth), kShrinkage_(treeconfig.shrinkage)
 {
     rootnode_ = NULL;
@@ -32,7 +32,6 @@ void CCARTTree::Reset()
   terminalnode_ptrs_.resize(2*kTreeDepth_ + 1, NULL);
   totalnodecount_ = 1;
   new_node_searcher_.reset();
-
 }
 
 

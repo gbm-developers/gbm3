@@ -57,12 +57,18 @@ public:
 			 CCARTTree& tree);
     
     double Deviance(const CDataset& kData,
-    				const double *kFuncEstimate,
-                    bool is_validationset=false);
+    				const double *kFuncEstimate);
 
     double BagImprovement(const CDataset& kData,
 			  const double* kFuncEstimate,
 			  const double kShrinkage, const double* kDeltaEstimate);
+    void ShiftDistPtrs(unsigned long shift)
+    {
+    	status_ = shift_ptr(status_, shift);
+		sortedendtimes_ = shift_ptr(sortedendtimes_, shift);
+		sortedstarttimes_ = shift_ptr(sortedstarttimes_, shift);
+		strata = shift_ptr(strata, shift);
+    }
 
     // Getters for the internal variables
     double* StatusVec();

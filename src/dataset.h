@@ -100,18 +100,56 @@ public:
   unsigned long get_trainsize() const { return num_traindata_; }; // get size of training set
   unsigned long get_num_features() const { return num_features_; }; // get the number of features in data
   
-  void shift_to_validation() const {  shift_all_ptrs_to_validation(); }; // shift all of the ptrs to validation set
-  void shift_to_train() const {  shift_all_ptrs_to_train(); }; // shift all of the ptrs to training set
+  void shift_to_validation()
+    {
+  	if (point_at_trainingset_)
+  	{
+  	  for(unsigned int i = 0; i < yptrs_.size(); i++)
+  	  {
+  		  yptrs_[i] = shift_ptr_to_validation(yptrs_[i]);
+  	  }
+  	  offset_ptr_ = shift_ptr_to_validation(offset_ptr_);
+  	  weights_ptr_ = shift_ptr_to_validation(weights_ptr_);
+  	  point_at_trainingset_ = false;
+  	}
+  	else
+  	{
+  		throw GBM::InvalidArgument("Data is already the validation set.");
+  	}
+    };
+    void shift_to_train()
+    {
+  	if(!(point_at_trainingset_))
+  	{
+  	  for(unsigned int i = 0; i < yptrs_.size(); i++)
+  	  {
+  		  yptrs_[i] = shift_ptr_to_train(yptrs_[i]);
+  	  }
+  	  offset_ptr_ = shift_ptr_to_train(offset_ptr_);
+  	  weights_ptr_ = shift_ptr_to_train(weights_ptr_);
+  	  point_at_trainingset_ = true;
+  	}
+  	else
+  	{
+  	  throw GBM::InvalidArgument("Data is already the training set.");
+  	}
+
+    };
   
   typedef std::vector<int> index_vector;
   index_vector RandomOrder() const;//randomize order of predictor varaiables
   
   double get_bagfraction() const { return bagfraction_; };
-  
   unsigned long get_validsize() const { return num_validationdata_; };
+  unsigned long get_size_of_set() const
+  {
+	  if(point_at_trainingset_)
+		  return get_trainsize();
+	  return get_validsize();
+  }
   unsigned long get_total_in_bag() const { return totalinbag_;};
   
-  unsigned long get_num_patients_in_training() const
+  unsigned long get_num_observations_in_training() const
   {
 	  return num_trainobservations_;
   }
@@ -133,102 +171,43 @@ public:
     databag_.assign(get_trainsize(), 0);
   };
   
-  //-----------------------------------
-    // Function: shift_ptr_to_validation
-    //
-    // Returns:  shifts the ptr to the validation set.
-    //
-    // Parameters: none
-    //
-    //-----------------------------------
-    template<typename T>
-      T* shift_ptr_to_validation(T* x) const
-      {
-        if(x)
-        {
-      	  return x + num_traindata_;
-        }
-        else
-        {
-      	  return x;
-        }
-      }
-
-    //-----------------------------------
-    // Function: shift_ptr_to_train
-    //
-    // Returns:  shifts the ptr to the training set.
-    //
-    // Parameters: none
-    //
-    //-----------------------------------
-    template<typename T>
-  	T* shift_ptr_to_train(T* x) const
-  	{
-  	  if(x)
-  	  {
-  		  return x - num_traindata_;
-  	  }
-  	  else
-  	  {
-  		  return x;
-  	  }
-  	}
-
-    //-----------------------------------
-    // Function: SetUpYPtrs
-    //
-    // Returns:  sets up the ptrs to each column of response mat.
-    //
-    // Parameters: none
-    //
-    //-----------------------------------
-    void set_up_yptrs()
-    {
-      for(long i = 0; i < response_.ncol(); i++)
-        {
-      	yptrs_.push_back(response_(Rcpp::_, i).begin());
-        }
-    }
-
-    void shift_all_ptrs_to_train() const
-    {
-      if(!(point_at_trainingset_))
-      {
-        for(unsigned int i = 0; i < yptrs_.size(); i++)
-        {
-      	  yptrs_[i] = shift_ptr_to_train(yptrs_[i]);
-        }
-        offset_ptr_ = shift_ptr_to_train(offset_ptr_);
-        weights_ptr_ = shift_ptr_to_train(weights_ptr_);
-        point_at_trainingset_ = true;
-      }
-      else
-      {
-        throw GBM::InvalidArgument("Data is already the training set.");
-      }
-    }
-
-    //---shift_to_validation() const
-    void shift_all_ptrs_to_validation() const
-    {
-      if (point_at_trainingset_)
-      {
-        for(unsigned int i = 0; i < yptrs_.size(); i++)
-        {
-      	  yptrs_[i] = shift_ptr_to_validation(yptrs_[i]);
-        }
-        offset_ptr_ = shift_ptr_to_validation(offset_ptr_);
-        weights_ptr_ = shift_ptr_to_validation(weights_ptr_);
-        point_at_trainingset_ = false;
-      }
-      else
-      {
-      	throw GBM::InvalidArgument("Data is already the validation set.");
-      }
-    }
-
 private:
+  //-------------------
+  // Private Variables
+  //-------------------
+  void set_up_yptrs()
+  {
+	for(long i = 0; i < response_.ncol(); i++)
+	  {
+		yptrs_.push_back(response_(Rcpp::_, i).begin());
+	  }
+  }
+
+  template<typename T>
+	T* shift_ptr_to_validation(T* x) const
+	{
+	  if(x)
+	  {
+		  return x + num_traindata_;
+	  }
+	  else
+	  {
+		  return x;
+	  }
+	}
+
+  template<typename T>
+	T* shift_ptr_to_train(T* x) const
+	{
+	  if(x)
+	  {
+		  return x - num_traindata_;
+	  }
+	  else
+	  {
+		  return x;
+	  }
+	}
   //-------------------
   // Private Variables
   //-------------------
@@ -239,16 +218,16 @@ private:
   Rcpp::IntegerVector num_variable_classes_, variable_monotonicity_, order_xvals_, observation_ids_;
 
   // Ptrs to numeric vectors - these must be mutable
-  mutable std::vector<double*> yptrs_;
-  mutable double* offset_ptr_;
-  mutable double* weights_ptr_;
+  std::vector<double*> yptrs_;
+  double* offset_ptr_;
+  double* weights_ptr_;
 
   // Properties of the data
   unsigned long num_traindata_;
   unsigned long num_trainobservations_;
   unsigned long num_validationdata_;
   unsigned long num_features_;
-  mutable bool point_at_trainingset_;
+  bool point_at_trainingset_;
 
   // Bagged  data
   bag databag_;

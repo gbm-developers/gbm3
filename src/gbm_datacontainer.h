@@ -55,6 +55,20 @@ public:
     CDataset& get_data() { return data_; }
 
 private:
+    //-------------------
+	// Private functions
+	//-------------------
+    void shift_datadist_to_train() 
+    {
+    	data_.shift_to_train();
+    	distptr_->ShiftDistPtrs(-(data_.get_trainsize()));
+    }
+    void shift_datadist_to_validation() 
+    {
+    	data_.shift_to_validation();
+    	distptr_->ShiftDistPtrs(data_.get_trainsize());
+    }
+
 	//-------------------
 	// Private Variables
 	//-------------------

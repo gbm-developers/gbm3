@@ -905,26 +905,14 @@ double CPairwise::InitF
 double CPairwise::Deviance
 (
    const CDataset& kData,
-   const double* kfuncEstimate,
-   bool is_validationset
+   const double* kfuncEstimate
 )
 {
 
     // Shift adGroup to validation set if necessary
-	long num_rows_in_set = kData.get_trainsize();
-    if(is_validationset)
-    {
-    	num_rows_in_set = kData.get_validsize();
-    	kData.shift_to_validation();
-    	kGroups_=shift_ptr(kGroups_, kData.get_trainsize());
-
-    }
-
+	long num_rows_in_set = kData.get_size_of_set();
     if (num_rows_in_set <= 0)
 	{
-    	// NB: SWITCH BACK TO TRAIN BEFORE LEAVING
-    	kData.shift_to_train();
-    	kGroups_=shift_ptr(kGroups_, -(kData.get_trainsize()));
     	return 0;
 	}
 
@@ -971,14 +959,6 @@ double CPairwise::Deviance
         }
         // Next group
         item_start = item_end;
-    }
-
-    // Reset adGroup if required
-    if(is_validationset)
-    {
-    	kData.shift_to_train();
-    	kGroups_=shift_ptr(kGroups_, -(kData.get_trainsize()));
-
     }
 
    // Loss = 1 - utility

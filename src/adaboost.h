@@ -46,8 +46,7 @@ public:
     void FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
 			 unsigned long numterminal_nodes, double* residuals, CCARTTree& tree);
     
-    double Deviance(const CDataset& kData, const double* kFuncEstimate,
-				bool is_validationset=false);
+    double Deviance(const CDataset& kData, const double* kFuncEstimate);
 
     double BagImprovement(const CDataset& kData, const double* kFuncEstimate,
 			  const double shrinkage, const double* kDeltaEstimate);

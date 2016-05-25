@@ -94,8 +94,7 @@ double CBernoulli::InitF
 double CBernoulli::Deviance
 (
 	const CDataset& kData,
-    const double* kFuncEstimate,
-    bool is_validationset
+    const double* kFuncEstimate
 )
 {
    unsigned long i=0;
@@ -104,13 +103,7 @@ double CBernoulli::Deviance
    double weight = 0.0;
 
    // Switch to validation set if necessary
-   unsigned long num_of_rows_in_set = kData.get_trainsize();
-   if(is_validationset)
-   {
-	   kData.shift_to_validation();
-	   num_of_rows_in_set = kData.get_validsize();
-   }
-
+   unsigned long num_of_rows_in_set = kData.get_size_of_set();
 
 	for(i=0; i!=num_of_rows_in_set; i++)
 	{
@@ -118,12 +111,6 @@ double CBernoulli::Deviance
 	 loss += kData.weight_ptr()[i]*(kData.y_ptr()[i]*deltafunc_est - std::log(1.0+std::exp(deltafunc_est)));
 	 weight += kData.weight_ptr()[i];
 	}
-
-   // Switch back to trainig set if necessary
-   if(is_validationset)
-   {
-	   kData.shift_to_train();
-   }
 
    //TODO: Check if weights are all zero for validation set
 	if((weight == 0.0) && (loss == 0.0))

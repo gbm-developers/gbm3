@@ -123,35 +123,14 @@ double CCoxPH::InitF
 double CCoxPH::Deviance
 (
 	const CDataset& kData,
-    const double* kFuncEstimate,
-    bool is_validationset
+    const double* kFuncEstimate
 )
 {
     // Set size and move to validation set if necessary
-    long num_rows_in_set = kData.get_trainsize();
-	if(is_validationset)
-	{
-		kData.shift_to_validation();
-		status_ = shift_ptr(status_, kData.get_trainsize());
-		sortedendtimes_ = shift_ptr(sortedendtimes_, kData.get_trainsize());
-		sortedstarttimes_ = shift_ptr(sortedstarttimes_, kData.get_trainsize());
-		strata = shift_ptr(strata, kData.get_trainsize());
-		num_rows_in_set = kData.get_validsize();
-	}
+    unsigned long num_rows_in_set = kData.get_size_of_set();
 
 	double returnvalue = 0.0;
 	returnvalue = coxstate_methods_->Deviance(num_rows_in_set, kData, kFuncEstimate);
-
-	// Shift back for future calculations if required
-	if(is_validationset)
-	{
-		kData.shift_to_train();
-		status_ = shift_ptr(status_, -(kData.get_trainsize()));
-		sortedendtimes_ = shift_ptr(sortedendtimes_, -(kData.get_trainsize()));
-		sortedstarttimes_ = shift_ptr(sortedstarttimes_, -(kData.get_trainsize()));
-		strata = shift_ptr(strata, -(kData.get_trainsize()));
-	}
-
 
 	return returnvalue;
 

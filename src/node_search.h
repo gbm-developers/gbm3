@@ -37,7 +37,7 @@ public:
 	//----------------------
 	// Public Constructors
 	//----------------------
-    CNodeSearch(int treedepth, int numcoldata, unsigned long minobs);
+    CNodeSearch(unsigned long treedepth, unsigned long minobs);
 
 	//---------------------
 	// Public destructor

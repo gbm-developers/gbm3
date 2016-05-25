@@ -135,7 +135,7 @@ SEXP gbm
         Rcpp::NumericVector node_predictions(gbm.size_of_fitted_tree());
 
 
-        gbm.GBMTransferTreeToRList(split_vars.begin(),
+        gbm.GbmTransferTreeToRList(split_vars.begin(),
                           split_values.begin(),
                           left_nodes.begin(),
                           right_nodes.begin(),

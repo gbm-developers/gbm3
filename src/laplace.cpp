@@ -72,20 +72,14 @@ double CLaplace::InitF
 double CLaplace::Deviance
 (
 	const CDataset& kData,
-    const double* kFuncEstimates,
-    bool is_validationset
+    const double* kFuncEstimates
 )
 {
     unsigned long i=0;
     double loss = 0.0;
     double weight = 0.0;
 
-    unsigned long num_rows_in_set = kData.get_trainsize();
-    if(is_validationset)
-    {
-    	kData.shift_to_validation();
-    	num_rows_in_set = kData.get_validsize();
-    }
+    unsigned long num_rows_in_set = kData.get_size_of_set();
 
     if(kData.offset_ptr() == NULL)
     {
@@ -102,11 +96,6 @@ double CLaplace::Deviance
             loss += kData.weight_ptr()[i]*fabs(kData.y_ptr()[i]-kData.offset_ptr()[i]-kFuncEstimates[i]);
             weight += kData.weight_ptr()[i];
         }
-    }
-
-    if(is_validationset)
-    {
-    	kData.shift_to_train();
     }
 
     //TODO: Check if weights are all zero for validation set

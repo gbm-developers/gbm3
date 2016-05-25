@@ -114,14 +114,19 @@ void CGBMDataContainer::ComputeBestTermNodePreds(const double* kFuncEstimate, do
 //-----------------------------------
 double CGBMDataContainer::ComputeDeviance(const double* kFuncEstimate, bool is_validationset)
 {
-  if(!(is_validationset))
-    {
-      return get_dist()->Deviance(data_, kFuncEstimate);
-    }
-  else
-    {
-      return get_dist()->Deviance(data_, kFuncEstimate + data_.get_trainsize(), true);
-    }
+	double deviance = 0.0;
+	if(!(is_validationset))
+	{
+	  deviance = get_dist()->Deviance(data_, kFuncEstimate);
+	}
+	else
+	{
+	  // Shift to validation set, calculate deviance and shift back
+	  shift_datadist_to_validation();
+	  deviance = get_dist()->Deviance(data_, kFuncEstimate + data_.get_trainsize());
+	  shift_datadist_to_train();
+	}
+	return deviance;
 }
 
 //-----------------------------------

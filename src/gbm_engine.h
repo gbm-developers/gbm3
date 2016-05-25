@@ -49,7 +49,7 @@ public:
 		 double &validation_error,
 		 double &outofbag_improv);
 
-    void GBMTransferTreeToRList(int* splitvar,
+    void GbmTransferTreeToRList(int* splitvar,
 			     double* splitvalues,
 			     int* leftnodes,
 			     int* rightnodes,
