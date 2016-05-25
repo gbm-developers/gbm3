@@ -156,23 +156,23 @@ private:
 	{
 	    int k, ksave;
 	    int person, p2;
-	    int istrat, indx1;   /* this counts up over the strata */
+	    int istrat, indx1;   // this counts up over the strata
 	    double cumhaz, hazard;
 	    int nrisk, ndeath;
 	    double deathwt, denom, temp, center;
 	    double esum, dtime, e_hazard;
 	    double loglik, d_denom;
 
-	    /*
-	    **  'person' walks through the the data from 1 to n, p2= sort2[person].
-	    **     sort2[0] points to the largest stop time, sort2[1] the next, ...
-	    **  'dtime' is a scratch variable holding the time of current interest
-	    */
+
+	    //  'person' walks through the the data from 1 to n, p2= sort2[person].
+	    //     sort2[0] points to the largest stop time, sort2[1] the next, ...
+	    //  'dtime' is a scratch variable holding the time of current interest
+
 	    istrat=0; indx1=0;
-	    denom =0;  /* S in the math explanation */
+	    denom =0;  // S in the math explanation
 	    cumhaz =0;
-	    nrisk =0;   /* number at risk */
-	    esum =0;  /*cumulative eta, used for rescaling */
+	    nrisk =0;   // number at risk
+	    esum =0;  // cumulative eta, used for rescaling
 	    loglik =0;
 
 	    // Center based on last person in the set of interest
@@ -211,13 +211,12 @@ private:
 				}
 				else
 				{
-					dtime = kData.y_ptr()[p2];  /* found a new, unique death time */
-					/*
-					**        Add up over this death time, for all subjects
-					*/
+					dtime = kData.y_ptr()[p2];  // found a new, unique death time
+
+					//        Add up over this death time, for all subjects
 					ndeath =0;
 					deathwt =0;
-					d_denom =0;  /*contribution to denominator by death at dtime */
+					d_denom =0;  // contribution to denominator by death at dtime
 					for (k=person; k<coxph_->StrataVec()[istrat]; k++)
 					{
 						p2 = coxph_->EndTimeIndices()[k];
@@ -227,7 +226,7 @@ private:
 						{
 							if (kData.y_ptr()[p2]  < dtime)
 							{
-								break;  /* only tied times */
+								break;  // only tied times
 							}
 							nrisk++;
 							denom += kData.weight_ptr()[p2] * exp(eta[p2] + kData.offset_ptr()[p2] - center);
@@ -242,10 +241,9 @@ private:
 						}
 					}
 					ksave = k;
-					/* compute the increment in hazard
-					** hazard = usual increment
-					** e_hazard = efron increment, for tied deaths only
-					*/
+					// compute the increment in hazard
+					// hazard = usual increment
+					// e_hazard = efron increment, for tied deaths only
 					if (coxph_->TieApproxMethod()==0 || ndeath==1)
 					{ /* Breslow */
 						loglik -= deathwt* log(denom);
@@ -253,24 +251,24 @@ private:
 						e_hazard = hazard;
 					}
 					else
-					{ /* Efron */
+					{ // Efron
 						hazard =0;
-						e_hazard =0;  /* hazard experienced by a tied death */
-						deathwt /= ndeath;   /* average weight of each death */
+						e_hazard =0;  // hazard experienced by a tied death
+						deathwt /= ndeath;   // average weight of each death
 						for (k=0; k <ndeath; k++)
 						{
-							temp = (double)k /ndeath;    /* don't do integer division*/
+							temp = (double)k /ndeath;    // don't do integer division
 							loglik -= deathwt * log(denom - temp*d_denom);
 							hazard += deathwt/(denom - temp*d_denom);
 							e_hazard += (1-temp) *deathwt/(denom - temp*d_denom);
 						}
 					}
 
-					/* Give initial value to all intervals ending at this time
-					** If tied censors are sorted before deaths (which at least some
-					**  callers of this routine do), then the else below will never
-					**  occur.
-					*/
+					// Give initial value to all intervals ending at this time
+					// If tied censors are sorted before deaths (which at least some
+					//  callers of this routine do), then the else below will never
+					// occur.
+
 					temp = cumhaz + (hazard -e_hazard);
 					for (; person < ksave; person++)
 					{
@@ -285,7 +283,7 @@ private:
 					}
 					cumhaz += hazard;
 
-					/* see if we need to shift the centering (a rare case) */
+					// see if we need to shift the centering (a rare case)
 					if (fabs(esum/nrisk - center) > recenter)
 					{
 						temp = esum/nrisk - center;
@@ -294,7 +292,7 @@ private:
 					}
 				}
 
-				/* clean up at the end of a strata */
+				// clean up at the end of a strata
 				if (person == coxph_->StrataVec()[istrat])
 				{
 					for (; indx1< coxph_->StrataVec()[istrat]; indx1++)

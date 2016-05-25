@@ -164,25 +164,24 @@ private:
 	    double esum, dtime, e_hazard;
 	    double loglik, d_denom;
 
-	    /*
-	    **  'person' walks through the the data from 1 to n, p2= sort2[person].
-	    **     sort2[0] points to the largest stop time, sort2[1] the next, ...
-	    **  'dtime' is a scratch variable holding the time of current interest
-	    **  'indx1' walks through the start times.  It will be smaller than
-	    **    'person': if person=27 that means that 27 subjects have time2 >=dtime,
-	    **    and are thus potential members of the risk set.  If 'indx1' =9,
-	    **    that means that 9 subjects have start >=time and thus are NOT part
-	    **    of the risk set.  (stop > start for each subject guarrantees that
-	    **    the 9 are a subset of the 27). p1 = sort1[indx1]
-	    **  Basic algorithm: move 'person' forward, adding the new subject into
-	    **    the risk set.  If this is a new, unique death time, take selected
-	    **    old obs out of the sums, add in obs tied at this time, then update
-	    **    the cumulative hazard. Everything resets at the end of a stratum.
-	    **  The sort order is from large time to small, so we encounter a subjects
-	    **    ending time first, then their start time.
-	    **  The martingale residual for a subject is
-	    **     status - (cumhaz at entry - cumhaz at exit)*score
-	    */
+
+	    //  'person' walks through the the data from 1 to n, p2= sort2[person].
+	    //     sort2[0] points to the largest stop time, sort2[1] the next, ...
+	    //  'dtime' is a scratch variable holding the time of current interest
+	    //  'indx1' walks through the start times.  It will be smaller than
+	    //    'person': if person=27 that means that 27 subjects have time2 >=dtime,
+	    //    and are thus potential members of the risk set.  If 'indx1' =9,
+	    //    that means that 9 subjects have start >=time and thus are NOT part
+	    //    of the risk set.  (stop > start for each subject guarrantees that
+	    //    the 9 are a subset of the 27). p1 = sort1[indx1]
+	    //  Basic algorithm: move 'person' forward, adding the new subject into
+	    //    the risk set.  If this is a new, unique death time, take selected
+	    //    old obs out of the sums, add in obs tied at this time, then update
+	    //    the cumulative hazard. Everything resets at the end of a stratum.
+	    //  The sort order is from large time to small, so we encounter a subjects
+	    //    ending time first, then their start time.
+	    //  The martingale residual for a subject is
+	    //     status - (cumhaz at entry - cumhaz at exit)*score
 
 	    istrat=0;
 	    indx1 =0;
@@ -219,7 +218,7 @@ private:
 
 				if (coxph_->StatusVec()[p2] ==0)
 				{
-					/* add the subject to the risk set */
+					// add the subject to the risk set
 					resid[p2] = exp(eta[p2] + kData.offset_ptr()[p2] - center) * cumhaz;
 					nrisk++;
 					denom  += kData.weight_ptr()[p2]* exp(eta[p2] + kData.offset_ptr()[p2] - center);
@@ -228,12 +227,12 @@ private:
 				}
 				else
 				{
-					dtime = kData.y_ptr(1)[p2];  /* found a new, unique death time */
+					dtime = kData.y_ptr(1)[p2];  // found a new, unique death time
 
-					/*
-					** Remove those subjects whose start time is to the right
-					**  from the risk set, and finish computation of their residual
-					*/
+
+					// Remove those subjects whose start time is to the right
+					//  from the risk set, and finish computation of their residual
+
 					temp = denom;
 					for (;  indx1 <person; indx1++)
 					{
@@ -251,27 +250,24 @@ private:
 					}
 					if (nrisk==0)
 					{
-						/* everyone was removed!
-						** This happens with manufactured start/stop
-						**  data sets that have some g(time) as a covariate.
-						**  Just like a strata, reset the sums.
-						*/
+						// everyone was removed!
+						// This happens with manufactured start/stop
+						//  data sets that have some g(time) as a covariate.
+						//  Just like a strata, reset the sums.
 						denom =0;
 						esum =0;
 					}
 
-					/*
-					**        Add up over this death time, for all subjects
-					*/
-					ndeath =0;   /* total number of deaths at this time point */
-					deathwt =0;  /* sum(wt) for the deaths */
-					d_denom =0;  /*contribution to denominator for the deaths*/
+					//        Add up over this death time, for all subjects
+					ndeath =0;   // total number of deaths at this time point
+					deathwt =0;  // sum(wt) for the deaths
+					d_denom =0;  // contribution to denominator for the deaths
 					for (k=person; k< coxph_->StrataVec()[istrat]; k++)
 					{
 						p2 = coxph_->EndTimeIndices()[k];
 						if(skipbag || (kData.get_bag_element(p2)==checkinbag))
 						{
-							if (kData.y_ptr(1)[p2]  < dtime) break;  /* only tied times */
+							if (kData.y_ptr(1)[p2]  < dtime) break;  // only tied times
 							nrisk++;
 							denom += kData.weight_ptr()[p2] * exp(eta[p2] + kData.offset_ptr()[p2] - center);
 							esum += eta[p2];
@@ -287,36 +283,35 @@ private:
 					}
 					ksave = k;
 
-					/* compute the increment in hazard
-					** hazard = usual increment
-					** e_hazard = efron increment, for tied deaths only
-					*/
+					// compute the increment in hazard
+					// hazard = usual increment
+					// e_hazard = efron increment, for tied deaths only
 					if (coxph_->TieApproxMethod()==0 || ndeath==1)
-					{ /* Breslow */
+					{ // Breslow
 						loglik -= deathwt*log(denom);
 						hazard = deathwt /denom;
 						e_hazard = hazard;
 					}
 					else
-					{ /* Efron */
+					{ // Efron
 						hazard =0;
-						e_hazard =0;  /* hazard experienced by a tied death */
-						deathwt /= ndeath;   /* average weight of each death */
+						e_hazard =0;  // hazard experienced by a tied death
+						deathwt /= ndeath;   // average weight of each death
 						for (k=0; k <ndeath; k++)
 						{
 
-							temp = (double)k /ndeath;    /* don't do integer division*/
+							temp = (double)k /ndeath;    // don't do integer division
 							loglik -= deathwt *log(denom - temp*d_denom);
 							hazard += deathwt/(denom - temp*d_denom);
 							e_hazard += (1-temp) *deathwt/(denom - temp*d_denom);
 						}
 					}
 
-					/* Give initial value to all intervals ending at this time
-					** If tied censors are sorted before deaths (which at least some
-					**  callers of this routine do), then the else below will never
-					**  occur.
-					*/
+					// Give initial value to all intervals ending at this time
+					// If tied censors are sorted before deaths (which at least some
+					//  callers of this routine do), then the else below will never
+					//  occur.
+
 					temp = cumhaz + (hazard -e_hazard);
 					for (; person < ksave; person++)
 					{
@@ -330,7 +325,7 @@ private:
 					}
 					cumhaz += hazard;
 
-					/* see if we need to shift the centering (very rare case) */
+					// see if we need to shift the centering (very rare case)
 					if (fabs(esum/nrisk - center) > recenter)
 					{
 						temp = esum/nrisk - center;
@@ -339,7 +334,7 @@ private:
 					}
 				}
 
-				/* clean up at the end of a strata */
+				// clean up at the end of a strata
 				if (person == coxph_->StrataVec()[istrat])
 				{
 					for (; indx1< coxph_->StrataVec()[istrat]; indx1++)
