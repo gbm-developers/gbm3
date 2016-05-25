@@ -36,27 +36,59 @@
 //	cTrain		   - int specifiy the number of data points in training set
 //
 //-----------------------------------
-CDataset::CDataset(const DataDistParams& dataParams) :
-  dataimpl_(dataParams.response, dataParams.offset,
-	   dataParams.xvalues,
-	   dataParams.xorder, dataParams.variable_weight,
-	   dataParams.variable_num_classes,
-	   dataParams.variable_monotonicity, dataParams.num_trainrows,
-	   dataParams.num_features, dataParams.bagfraction,
-	   dataParams.num_trainobservations, dataParams.patientids) {
-  
+CDataset::CDataset(const DataDistParams& dataparams):
+	    xmatrix_(dataparams.xvalues), response_(dataparams.response),
+	    response_offset_(dataparams.offset), data_weights_(dataparams.variable_weight),
+	    num_variable_classes_(dataparams.variable_num_classes),
+	    variable_monotonicity_(dataparams.variable_monotonicity),
+	    order_xvals_(dataparams.xorder), observation_ids_(dataparams.observationids)
+{
+
+	    // If you've no offset set to 0
+	    if(!GBM_FUNC::has_value(response_offset_))
+	    {
+	      Rcpp::NumericVector new_offset(xmatrix_.nrow());
+	      std::swap(response_offset_, new_offset);
+	    }
+
+	    // Set-up pointers
+	    set_up_yptrs();
+	    weights_ptr_ = data_weights_.begin();
+	    offset_ptr_ = response_offset_.begin();
+
+	    // Set-up data properties
+	    num_traindata_ = dataparams.num_trainrows;
+	    num_trainobservations_ = dataparams.num_trainobservations;
+	    num_validationdata_ = xmatrix_.nrow() - dataparams.num_trainrows;
+	    num_features_  = dataparams.num_features;
+	    point_at_trainingset_ = true;
+
+	    // Set-up Bags
+	    databag_.assign(dataparams.num_trainrows, false);
+	    bagfraction_ = dataparams.bagfraction;
+	    totalinbag_ = (long) (dataparams.bagfraction * dataparams.num_trainobservations);
+
+	    // Ensure initialization makes sense
+	    if (totalinbag_ <= 0)
+	      {
+		throw GBM::InvalidArgument("you have an empty bag!");
+	      }
+	    if (num_traindata_ <= 0)
+	      {
+		throw GBM::InvalidArgument("you've <= 0 training instances");
+	      }
   // Check for errors on initialization
-  if (dataimpl_.xmatrix_.ncol() != dataimpl_.variable_monotonicity_.size())
+  if (xmatrix_.ncol() != variable_monotonicity_.size())
     {
       throw GBM::InvalidArgument("shape mismatch (monotone does not match data)");
     }
 
-  if (dataimpl_.xmatrix_.ncol() != dataimpl_.num_variable_classes_.size())
+  if (xmatrix_.ncol() != num_variable_classes_.size())
     {
       throw GBM::InvalidArgument("shape mismatch (var classes does not match data)");
     }
   
-  if (dataimpl_.xmatrix_.nrow() < int(dataParams.num_trainrows))
+  if (xmatrix_.nrow() < int(dataparams.num_trainrows))
     {
       throw GBM::InvalidArgument("your training instances don't make sense");
     }

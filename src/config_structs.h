@@ -44,7 +44,7 @@ public:
 		    SEXP unique_training_obs,
 		    SEXP number_offeatures):
 		    response(response),
-		    patientids(row_to_obs_id),
+		    observationids(row_to_obs_id),
 		    misc(misc)
 {
 		sorted = sorted_vec;
@@ -65,7 +65,7 @@ public:
 
 }
 	Rcpp::NumericMatrix response;
-	Rcpp::IntegerVector patientids;
+	Rcpp::IntegerVector observationids;
 	Rcpp::List misc;
 	SEXP sorted;
 	SEXP strata;
