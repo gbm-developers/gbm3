@@ -84,10 +84,6 @@ class VarSplitter {
   void EvaluateCategoricalSplit();
   void WrapUpCurrentVariable();
 
-  double initial_totalweight;
-  double initial_sumresiduals;
-  unsigned long initial_numobs;
-
  private:
   //---------------------
   // Private Functions
@@ -96,6 +92,10 @@ class VarSplitter {
   //---------------------
   // Private Variables
   //---------------------
+  double initial_totalweight;
+  double initial_sumresiduals;
+  unsigned long initial_numobs;
+
   bool issplit_;
   unsigned long min_num_node_obs_;
   double last_xvalue_;

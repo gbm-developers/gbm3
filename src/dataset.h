@@ -115,19 +115,15 @@ class CDataset {
     return get_validsize();
   }
   unsigned long get_total_in_bag() const { return totalinbag_; };
-
   unsigned long get_num_observations_in_training() const {
     return num_trainobservations_;
   }
-
   int get_row_observation_id(int row_number) const {
     return observation_ids_(row_number);
   }
 
   bool get_bag_element(long index) const { return databag_[index]; }
-
   void set_bag_element(long index) { databag_[index] = 1; };
-
   void clear_bag() { databag_.assign(get_trainsize(), 0); };
 
  private:
