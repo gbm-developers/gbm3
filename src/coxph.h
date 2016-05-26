@@ -63,21 +63,20 @@ class CCoxPH : public CDistribution {
   }
 
   // Getters for the internal variables
-  double* StatusVec();
-  const double* StatusVec() const;
+  double* StatusVec() { return &status_[0]; }
+  const double* StatusVec() const { return &status_[0]; }
 
-  int* EndTimeIndices();
-  const int* EndTimeIndices() const;
+  int* EndTimeIndices() { return &sortedendtimes_[0]; }
+  const int* EndTimeIndices() const { return &sortedendtimes_[0]; }
 
-  int* StartTimeIndices();
-  const int* StartTimeIndices() const;
+  int* StartTimeIndices() { return &sortedstarttimes_[0]; }
+  const int* StartTimeIndices() const { return &sortedstarttimes_[0]; }
 
-  int* StrataVec();
-  const int* StrataVec() const;
+  int* StrataVec() { return &strata[0]; }
+  const int* StrataVec() const { return &strata[0]; }
 
-  int TieApproxMethod() const;
-
-  double PriorCoeffVar() const;
+  int TieApproxMethod() const { return tiedtimesmethod_; }
+  double PriorCoeffVar() const { return kPriorCoeffVariation_; }
 
  private:
   //----------------------
