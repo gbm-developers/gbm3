@@ -91,9 +91,9 @@ void VarSplitter::EvaluateCategoricalSplit() {
 }
 
 void VarSplitter::Set(CNode& node_to_split) {
-  initial_sumresiduals = node_to_split.prediction * node_to_split.totalweight;
-  initial_totalweight = node_to_split.totalweight;
-  initial_numobs = node_to_split.numobs;
+  initial_sumresiduals = node_to_split.get_prediction() * node_to_split.get_totalweight();
+  initial_totalweight = node_to_split.get_totalweight();
+  initial_numobs = node_to_split.get_numobs();
 
   bestsplit_.ResetSplitProperties(initial_sumresiduals, initial_totalweight,
                                   initial_numobs);

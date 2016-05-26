@@ -96,7 +96,7 @@ void CQuantile::FitBestConstant(const CDataset& kData,
   std::vector<double> weight_vec(kData.get_trainsize());
 
   for (node_num = 0; node_num < num_terminalnodes; node_num++) {
-    if (tree.get_terminal_nodes()[node_num]->numobs >=
+    if (tree.get_terminal_nodes()[node_num]->get_numobs() >=
         tree.min_num_obs_required()) {
       vec_num = 0;
       for (obs_num = 0; obs_num < kData.get_trainsize(); obs_num++) {
@@ -111,8 +111,8 @@ void CQuantile::FitBestConstant(const CDataset& kData,
         }
       }
 
-      tree.get_terminal_nodes()[node_num]->prediction =
-          mplocm_.WeightedQuantile(vec_num, &vecd_[0], &weight_vec[0], alpha_);
+      tree.get_terminal_nodes()[node_num]->set_prediction(
+          mplocm_.WeightedQuantile(vec_num, &vecd_[0], &weight_vec[0], alpha_));
     }
   }
 }

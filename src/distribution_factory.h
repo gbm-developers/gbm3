@@ -38,8 +38,8 @@ class DistributionFactory {
   //-------------------
   // Private Variables
   //-------------------
-  typedef CDistribution* (*distCreate)(DataDistParams&);
-  std::map<std::string, distCreate> factorymap_;
+  typedef CDistribution* (*DistCreate)(DataDistParams&);
+  std::map<std::string, DistCreate> factorymap_;
 
  public:
   //---------------------
@@ -56,7 +56,7 @@ class DistributionFactory {
   // Public Functions
   //---------------------
   void RegisterDist(const std::string& kDistFamily,
-                    distCreate ptr_to_dist_createfunc);
+                    DistCreate ptr_to_dist_createfunc);
   CDistribution* CreateDist(DataDistParams& distparams);
 };
 

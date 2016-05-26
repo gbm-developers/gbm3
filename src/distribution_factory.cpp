@@ -71,7 +71,7 @@ DistributionFactory::DistributionFactory() {
 //
 //------------------------------------------
 void DistributionFactory::RegisterDist(const string& kDistFamily,
-                                       distCreate ptr_to_dist_createfunc) {
+                                       DistCreate ptr_to_dist_createfunc) {
   factorymap_[kDistFamily] = ptr_to_dist_createfunc;
 }
 
@@ -89,7 +89,7 @@ void DistributionFactory::RegisterDist(const string& kDistFamily,
 //---------------------------------------------
 
 CDistribution* DistributionFactory::CreateDist(DataDistParams& distparams) {
-  std::map<std::string, distCreate>::iterator it =
+  std::map<std::string, DistCreate>::iterator it =
       factorymap_.find(distparams.family);
   if (it != factorymap_.end()) {
     return it->second(distparams);

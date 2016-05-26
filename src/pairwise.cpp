@@ -909,10 +909,10 @@ void CPairwise::FitBestConstant(const CDataset& kData,
   for (unsigned int node_num = 0; node_num < num_terminalnodes; node_num++) {
     if (tree.get_terminal_nodes()[node_num] != NULL) {
       if (fit_denominator_[node_num] <= 0.0) {
-        tree.get_terminal_nodes()[node_num]->prediction = 0.0;
+        tree.get_terminal_nodes()[node_num]->set_prediction(0.0);
       } else {
-        tree.get_terminal_nodes()[node_num]->prediction =
-            fit_numerator_[node_num] / fit_denominator_[node_num];
+        tree.get_terminal_nodes()[node_num]->set_prediction(
+            fit_numerator_[node_num] / fit_denominator_[node_num]);
       }
     }
   }

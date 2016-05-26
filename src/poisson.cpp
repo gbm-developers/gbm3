@@ -103,19 +103,19 @@ void CPoisson::FitBestConstant(const CDataset& kData,
         // Not sure what else to do except plug in an arbitrary
         //   negative number, -1? -10? Let's use -1, then make
         //   sure |adF| < 19 always.
-        tree.get_terminal_nodes()[node_num]->prediction = -19.0;
+        tree.get_terminal_nodes()[node_num]->set_prediction(-19.0);
       } else if (denominator_vec[node_num] == 0.0) {
-        tree.get_terminal_nodes()[node_num]->prediction = 0.0;
+        tree.get_terminal_nodes()[node_num]->set_prediction(0.0);
       } else {
-        tree.get_terminal_nodes()[node_num]->prediction =
-            std::log(numerator_vec[node_num] / denominator_vec[node_num]);
+        tree.get_terminal_nodes()[node_num]->set_prediction(
+            std::log(numerator_vec[node_num] / denominator_vec[node_num]));
       }
-      tree.get_terminal_nodes()[node_num]->prediction =
-          R::fmin2(tree.get_terminal_nodes()[node_num]->prediction,
-                   19 - max_vec[node_num]);
-      tree.get_terminal_nodes()[node_num]->prediction =
-          R::fmax2(tree.get_terminal_nodes()[node_num]->prediction,
-                   -19 - min_vec[node_num]);
+      tree.get_terminal_nodes()[node_num]->set_prediction(
+          R::fmin2(tree.get_terminal_nodes()[node_num]->get_prediction(),
+                   19 - max_vec[node_num]));
+      tree.get_terminal_nodes()[node_num]->set_prediction(
+          R::fmax2(tree.get_terminal_nodes()[node_num]->get_prediction(),
+                   -19 - min_vec[node_num]));
     }
   }
 }

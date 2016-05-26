@@ -136,7 +136,7 @@ void CBernoulli::FitBestConstant(const CDataset& kData,
   for (node_num = 0; node_num < num_terminalnodes; node_num++) {
     if (tree.get_terminal_nodes()[node_num] != NULL) {
       if (denom_vec[node_num] == 0) {
-        tree.get_terminal_nodes()[node_num]->prediction = 0.0;
+        tree.get_terminal_nodes()[node_num]->set_prediction(0.0);
       } else {
         temp = numerator_vec[node_num] / denom_vec[node_num];
         // avoid large changes in predictions on log odds scale
@@ -155,7 +155,7 @@ void CBernoulli::FitBestConstant(const CDataset& kData,
           else if (temp < -1.0)
             temp = -1.0;
         }
-        tree.get_terminal_nodes()[node_num]->prediction = temp;
+        tree.get_terminal_nodes()[node_num]->set_prediction(temp);
       }
     }
   }

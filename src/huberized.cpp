@@ -136,10 +136,10 @@ void CHuberized::FitBestConstant(const CDataset& kData,
   for (node_num = 0; node_num < num_terminalnodes; node_num++) {
     if (tree.get_terminal_nodes()[node_num] != NULL) {
       if (denominator_vec[node_num] == 0) {
-        tree.get_terminal_nodes()[node_num]->prediction = 0.0;
+        tree.get_terminal_nodes()[node_num]->set_prediction(0.0);
       } else {
-        tree.get_terminal_nodes()[node_num]->prediction =
-            numerator_vec[node_num] / denominator_vec[node_num];
+        tree.get_terminal_nodes()[node_num]->set_prediction(
+            numerator_vec[node_num] / denominator_vec[node_num]);
       }
     }
   }

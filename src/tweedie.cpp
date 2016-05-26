@@ -160,27 +160,27 @@ void CTweedie::FitBestConstant(const CDataset& kData,
         // Not sure what else to do except plug in an arbitrary
         //   negative number, -1? -10? Let's use -19, then make
         //   sure |adF| < 19 always.
-        tree.get_terminal_nodes()[node_num]->prediction = minval;
+        tree.get_terminal_nodes()[node_num]->set_prediction(minval);
       }
 
       else if (denominator_vec[node_num] == 0.0) {
-        tree.get_terminal_nodes()[node_num]->prediction = 0.0;
+        tree.get_terminal_nodes()[node_num]->set_prediction(0.0);
       }
 
       else {
-        tree.get_terminal_nodes()[node_num]->prediction =
-            std::log(numerator_vec[node_num] / denominator_vec[node_num]);
+        tree.get_terminal_nodes()[node_num]->set_prediction(
+            std::log(numerator_vec[node_num] / denominator_vec[node_num]));
       }
 
-      if (max_vec[node_num] + tree.get_terminal_nodes()[node_num]->prediction >
+      if (max_vec[node_num] + tree.get_terminal_nodes()[node_num]->get_prediction() >
           maxval) {
-        tree.get_terminal_nodes()[node_num]->prediction =
-            maxval - max_vec[node_num];
+        tree.get_terminal_nodes()[node_num]->set_prediction(
+            maxval - max_vec[node_num]);
       }
-      if (min_vec[node_num] + tree.get_terminal_nodes()[node_num]->prediction <
+      if (min_vec[node_num] + tree.get_terminal_nodes()[node_num]->get_prediction() <
           minval) {
-        tree.get_terminal_nodes()[node_num]->prediction =
-            minval - min_vec[node_num];
+        tree.get_terminal_nodes()[node_num]->set_prediction(
+            minval - min_vec[node_num]);
       }
     }
   }

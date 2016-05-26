@@ -99,7 +99,7 @@ void CLaplace::FitBestConstant(const CDataset& kData,
   std::vector<double> adW2(kData.get_trainsize());
 
   for (node_num = 0; node_num < num_terminal_nodes; node_num++) {
-    if (tree.get_terminal_nodes()[node_num]->numobs >=
+    if (tree.get_terminal_nodes()[node_num]->get_numobs() >=
         tree.min_num_obs_required()) {
       vec_num = 0;
       for (obs_num = 0; obs_num < kData.get_trainsize(); obs_num++) {
@@ -113,9 +113,9 @@ void CLaplace::FitBestConstant(const CDataset& kData,
         }
       }
 
-      tree.get_terminal_nodes()[node_num]->prediction =
+      tree.get_terminal_nodes()[node_num]->set_prediction(
           mpLocM_.WeightedQuantile(vec_num, &adArr[0], &adW2[0],
-                                   0.5);  // median
+                                   0.5));  // median
     }
   }
 }

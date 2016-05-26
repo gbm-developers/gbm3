@@ -92,7 +92,7 @@ void CTDist::FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
   std::vector<double> arr_vec, weight_vec;
   // Call LocM for the array of values on each node
   for (node_num = 0; node_num < num_terminalnodes; node_num++) {
-    if (tree.get_terminal_nodes()[node_num]->numobs >=
+    if (tree.get_terminal_nodes()[node_num]->get_numobs() >=
         tree.min_num_obs_required()) {
       arr_vec.clear();
       weight_vec.clear();
@@ -107,8 +107,8 @@ void CTDist::FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
         }
       }
 
-      tree.get_terminal_nodes()[node_num]->prediction =
-          mplocm_.LocationM(arr_vec.size(), &arr_vec[0], &weight_vec[0], 0.5);
+      tree.get_terminal_nodes()[node_num]->set_prediction(
+          mplocm_.LocationM(arr_vec.size(), &arr_vec[0], &weight_vec[0], 0.5));
     }
   }
 }

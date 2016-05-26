@@ -39,19 +39,19 @@ class TerminalStrategy : public GenericNodeStrategy {
   void Adjust(unsigned long min_num_node_obs) { return; };
   void Predict(const CDataset& kData, unsigned long rownum,
                double& delta_estimate) {
-    delta_estimate = nodecontext_->prediction;
+    delta_estimate = nodecontext_->get_prediction();
   }
   void GetVarRelativeInfluence(double* relative_influence) { return; }
   void PrintSubTree(unsigned long indent) {
     for (unsigned long i = 0; i < indent; i++) Rprintf("  ");
-    Rprintf("N=%f, Prediction=%f *\n", nodecontext_->totalweight,
-            nodecontext_->prediction);
+    Rprintf("N=%f, Prediction=%f *\n", nodecontext_->get_totalweight(),
+            nodecontext_->get_prediction());
   }
   signed char WhichNode(const CDataset& kData, unsigned long obs_num) {
     signed char returnvalue = 0;
-    double xval = kData.x_value(obs_num, nodecontext_->split_var);
+    double xval = kData.x_value(obs_num, nodecontext_->get_split_var());
     if (!ISNA(xval)) {
-      if (xval < nodecontext_->splitvalue) {
+      if (xval < nodecontext_->get_splitvalue()) {
         returnvalue = -1;
       } else {
         returnvalue = 1;
@@ -68,13 +68,13 @@ class TerminalStrategy : public GenericNodeStrategy {
                            VecOfVectorCategories& splitcodes_vec,
                            int prev_categorical_splits, double shrinkage) {
     splitvar[nodeid] = -1;
-    splitpoint[nodeid] = shrinkage * nodecontext_->prediction;
+    splitpoint[nodeid] = shrinkage * nodecontext_->get_prediction();
     leftnodes[nodeid] = -1;
     rightnodes[nodeid] = -1;
     missingnodes[nodeid] = -1;
     error_reduction[nodeid] = 0.0;
-    weights[nodeid] = nodecontext_->totalweight;
-    predictions[nodeid] = shrinkage * nodecontext_->prediction;
+    weights[nodeid] = nodecontext_->get_totalweight();
+    predictions[nodeid] = shrinkage * nodecontext_->get_prediction();
 
     nodeid++;
   }

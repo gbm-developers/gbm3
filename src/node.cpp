@@ -12,27 +12,27 @@
 // Function Members - Public
 //----------------------------------------
 CNode::CNode(const NodeDef& kDefn)
-    : prediction(kDefn.prediction()),
-      totalweight(kDefn.get_totalweight()),
-      numobs(kDefn.get_num_obs()),
-      leftcategory() {
-  splitvalue = 0.0;
-  split_var = 0;
-  improvement = 0.0;
+    : prediction_(kDefn.prediction()),
+      totalweight_(kDefn.get_totalweight()),
+      numobs_(kDefn.get_num_obs()),
+      leftcategory_() {
+  splitvalue_ = 0.0;
+  split_var_ = 0;
+  improvement_ = 0.0;
 
   // Set children to NULL
-  left_node_ptr = NULL;
-  right_node_ptr = NULL;
-  missing_node_ptr = NULL;
+  left_node_ptr_ = NULL;
+  right_node_ptr_ = NULL;
+  missing_node_ptr_ = NULL;
 
   // Set up split type and strategy
-  splittype = kNone;
+  splittype_ = kNone;
   node_strategy_ = new TerminalStrategy(this);
 }
 
 void CNode::SetStrategy() {
   // delete nodeStrategy;
-  switch (splittype) {
+  switch (splittype_) {
     case kNone:
       node_strategy_ = new TerminalStrategy(this);
       break;
@@ -51,9 +51,9 @@ void CNode::SetStrategy() {
 CNode::~CNode() {
   // Each node is responsible for deleting its
   // children and its strategy
-  delete left_node_ptr;
-  delete right_node_ptr;
-  delete missing_node_ptr;
+  delete left_node_ptr_;
+  delete right_node_ptr_;
+  delete missing_node_ptr_;
   delete node_strategy_;
 }
 
@@ -77,25 +77,25 @@ void CNode::PrintSubtree(unsigned long indent) {
 void CNode::SplitNode(NodeParams& childrenparams) {
   // set up a continuous split
   if (childrenparams.split_class_ == 0) {
-    splittype = kContinuous;
+    splittype_ = kContinuous;
     SetStrategy();
   } else {
-    splittype = kCategorical;
+    splittype_ = kCategorical;
     SetStrategy();
     // the types are confused here
-    leftcategory.resize(1 + (unsigned long)childrenparams.split_value_);
+    leftcategory_.resize(1 + (unsigned long)childrenparams.split_value_);
     std::copy(childrenparams.category_ordering_.begin(),
-              childrenparams.category_ordering_.begin() + leftcategory.size(),
-              leftcategory.begin());
+              childrenparams.category_ordering_.begin() + leftcategory_.size(),
+              leftcategory_.begin());
   }
 
-  split_var = childrenparams.split_var_;
-  splitvalue = childrenparams.split_value_;
-  improvement = childrenparams.improvement_;
+  split_var_ = childrenparams.split_var_;
+  splitvalue_ = childrenparams.split_value_;
+  improvement_ = childrenparams.improvement_;
 
-  left_node_ptr = new CNode(childrenparams.left_);
-  right_node_ptr = new CNode(childrenparams.right_);
-  missing_node_ptr = new CNode(childrenparams.missing_);
+  left_node_ptr_ = new CNode(childrenparams.left_);
+  right_node_ptr_ = new CNode(childrenparams.right_);
+  missing_node_ptr_ = new CNode(childrenparams.missing_);
 }
 
 signed char CNode::WhichNode(const CDataset& kData, unsigned long obs_num) {

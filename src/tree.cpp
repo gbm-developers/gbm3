@@ -117,7 +117,7 @@ void CCARTTree::Adjust(double* delta_estimates) {
   for (unsigned long obs_num = 0; obs_num < data_node_assignment_.size();
        obs_num++) {
     delta_estimates[obs_num] =
-        terminalnode_ptrs_[data_node_assignment_[obs_num]]->prediction;
+        terminalnode_ptrs_[data_node_assignment_[obs_num]]->get_prediction();
   }
 }
 

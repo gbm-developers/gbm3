@@ -67,7 +67,7 @@ class CensoredCoxState : public GenericCoxState {
 
     for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
       if (kData.get_bag_element(i) &&
-          (tree.get_terminal_nodes()[tree.get_node_assignments()[i]]->numobs >=
+          (tree.get_terminal_nodes()[tree.get_node_assignments()[i]]->get_numobs() >=
            tree.min_num_obs_required())) {
         // Cap expected number of events to be at least 0
         expnum_events_in_nodes[tree.get_node_assignments()[i]] +=
@@ -80,8 +80,8 @@ class CensoredCoxState : public GenericCoxState {
     // Update Node predictions
     for (unsigned long nodeNum = 0; nodeNum < num_terminalnodes; nodeNum++) {
       // If there are no data points in node this is 0.0
-      tree.get_terminal_nodes()[nodeNum]->prediction =
-          log(num_events_in_nodes[nodeNum] / expnum_events_in_nodes[nodeNum]);
+      tree.get_terminal_nodes()[nodeNum]->set_prediction(
+          log(num_events_in_nodes[nodeNum] / expnum_events_in_nodes[nodeNum]));
     }
   }
 
