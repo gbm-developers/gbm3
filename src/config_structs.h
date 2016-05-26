@@ -24,8 +24,7 @@
 //------------------------------
 // Struct definitions
 //------------------------------
-class DataDistParams {
- public:
+struct DataDistParams {
   DataDistParams(SEXP response, SEXP offset_vec, SEXP covariates,
                  SEXP covar_order, SEXP sorted_vec, SEXP strata_vec,
                  SEXP obs_weight, SEXP misc, SEXP prior_coeff_var,
