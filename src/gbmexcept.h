@@ -12,11 +12,6 @@ class InvalidArgument : public std::runtime_error {
   InvalidArgument(const std::string& msg) : std::runtime_error(msg){};
 };
 
-class OutOfNodes : public std::runtime_error {
- public:
-  OutOfNodes() : std::runtime_error("factory empty!"){};
-};
-
 class Failure : public std::runtime_error {
  public:
   Failure() : std::runtime_error("unspecified failure"){};
