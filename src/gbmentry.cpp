@@ -288,12 +288,12 @@ SEXP gbm_plot(
       while (!stack.empty()) {
         const std::pair<int, double> top = stack.pop();
         int iCurrentNode = top.first;
-        const double dWeight = top.second;
+        const double kWeight = top.second;
 
         if (kThisSplitVar[iCurrentNode] == -1)  // terminal node
         {
           predicted_func[class_num * kNumRows + obs_num] +=
-              dWeight * kThisSplitCode[iCurrentNode];
+              kWeight * kThisSplitCode[iCurrentNode];
         } else  // non-terminal node
         {
           // is this a split variable that interests me?
@@ -306,14 +306,14 @@ SEXP gbm_plot(
             const double kXValue = kCovarMat(obs_num, kPredVar);
             // missing?
             if (ISNA(kXValue)) {
-              stack.push(kThisMissingNode[iCurrentNode], dWeight);
+              stack.push(kThisMissingNode[iCurrentNode], kWeight);
             }
             // continuous?
             else if (kVarType[kThisSplitVar[iCurrentNode]] == 0) {
               if (kXValue < kThisSplitCode[iCurrentNode]) {
-                stack.push(kThisLeftNode[iCurrentNode], dWeight);
+                stack.push(kThisLeftNode[iCurrentNode], kWeight);
               } else {
-                stack.push(kThisRightNode[iCurrentNode], dWeight);
+                stack.push(kThisRightNode[iCurrentNode], kWeight);
               }
             } else  // categorical
             {
@@ -322,12 +322,12 @@ SEXP gbm_plot(
 
               const int kCatSplitIndicator = kCatSplits[kXValue];
               if (kCatSplitIndicator == -1) {
-                stack.push(kThisLeftNode[iCurrentNode], dWeight);
+                stack.push(kThisLeftNode[iCurrentNode], kWeight);
               } else if (kCatSplitIndicator == 1) {
-                stack.push(kThisRightNode[iCurrentNode], dWeight);
+                stack.push(kThisRightNode[iCurrentNode], kWeight);
               } else  // handle unused level
               {
-                stack.push(kThisMissingNode[iCurrentNode], dWeight);
+                stack.push(kThisMissingNode[iCurrentNode], kWeight);
               }
             }
           }     // iPredVar != -1
@@ -338,9 +338,9 @@ SEXP gbm_plot(
             const double kRightWeight = kThisWeight[kRight];
             const double kLeftWeight = kThisWeight[kLeft];
             stack.push(kRight,
-                       dWeight * kRightWeight / (kRightWeight + kLeftWeight));
+                       kWeight * kRightWeight / (kRightWeight + kLeftWeight));
             stack.push(kLeft,
-                       dWeight * kLeftWeight / (kRightWeight + kLeftWeight));
+                       kWeight * kLeftWeight / (kRightWeight + kLeftWeight));
           }
         }  // non-terminal node
       }    // while(cStackNodes > 0)
