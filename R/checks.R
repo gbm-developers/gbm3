@@ -42,9 +42,9 @@ checkOffset <- function(o, y, dist){
    # Check offset
   if(is.null(o))
       o <- rep(0,length(y))
-   else if((length(o) != length(y)) & dist != "coxph")
+   else if((length(o) != length(y)) & dist$name != "coxph")
       stop("The length of offset does not equal the length of y.")
-   else if ((length(o) != (length(y)/2)) & dist == "coxph")
+   else if ((length(o) != (length(y)/2)) & dist$name == "coxph")
      stop("The length of offset does not equal the length of y.")
    else if(!is.numeric(o))
      stop("offset must be numeric")
