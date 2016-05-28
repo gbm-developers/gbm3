@@ -13,11 +13,10 @@
 
 #include <Rcpp.h>
 
-namespace GBM_FUNC
-{
-	int numGroups(const double* adMisc, int cTrain);
-	bool has_value(const Rcpp::NumericVector& vec);
-	std::ptrdiff_t ptrShuffler(std::ptrdiff_t n);
+namespace gbm_functions {
+int NumGroups(const double* kMisc, int num_training_rows);
+bool has_value(const Rcpp::NumericVector& kVec);
+std::ptrdiff_t PtrShuffler(std::ptrdiff_t n);
 }
 
-#endif // GBMFUNC_H
+#endif  // GBMFUNC_H

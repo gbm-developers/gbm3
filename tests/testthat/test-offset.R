@@ -32,12 +32,12 @@ test_that("Setting the offset to 0 does not alter the initial value - Adaboost",
                   weights=w,
                   var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                   distribution="adaboost",
-                  n.trees=3000,              # number of trees
+                  n.trees=100,              # number of trees
                   shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
                   interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
                   bag.fraction = 0.5,        # subsampling fraction, 0.5 is probably best
                   train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
-                  cv.folds=5,                # do 5-fold cross-validation
+                  cv.folds=1,                # don't do cross-validation
                   n.minobsinnode = 10,       # minimum total weight needed in each node
                   verbose = FALSE)           # don't print progress
   set.seed(15)
@@ -47,12 +47,12 @@ test_that("Setting the offset to 0 does not alter the initial value - Adaboost",
                        offset = offset,
                        var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                        distribution="adaboost",
-                       n.trees=3000,              # number of trees
+                       n.trees=100,              # number of trees
                        shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
                        interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
                        bag.fraction = 0.5,        # subsampling fraction, 0.5 is probably best
                        train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
-                       cv.folds=5,                # do 5-fold cross-validation
+                       cv.folds=1,                # don't do cross-validation
                        n.minobsinnode = 10,       # minimum total weight needed in each node
                        verbose = FALSE)           # don't print progress
   
@@ -86,12 +86,12 @@ test_that("Setting the offset to 0 does not alter the initial value - Bernoulli"
                   weights=w,
                   var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                   distribution="bernoulli",
-                  n.trees=3000,              # number of trees
+                  n.trees=100,              # number of trees
                   shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
                   interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
                   bag.fraction = 0.5,        # subsampling fraction, 0.5 is probably best
                   train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
-                  cv.folds=5,                # do 5-fold cross-validation
+                  cv.folds=1,                # don't do cross-validation
                   n.minobsinnode = 10,       # minimum total weight needed in each node
                   verbose = FALSE)           # don't print progress
   set.seed(15)
@@ -101,12 +101,12 @@ test_that("Setting the offset to 0 does not alter the initial value - Bernoulli"
                        offset=offset,
                        var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                        distribution="bernoulli",
-                       n.trees=3000,              # number of trees
+                       n.trees=100,              # number of trees
                        shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
                        interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
                        bag.fraction = 0.5,        # subsampling fraction, 0.5 is probably best
                        train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
-                       cv.folds=5,                # do 5-fold cross-validation
+                       cv.folds=1,                # don't do cross-validation
                        n.minobsinnode = 10,       # minimum total weight needed in each node
                        verbose = FALSE)           # don't print progress
   
@@ -150,12 +150,12 @@ test_that("Setting the offset to 0 does not alter the initial value - CoxPH",{
                   weights=w,
                   var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                   distribution="coxph",
-                  n.trees=3000,              # number of trees
+                  n.trees=100,              # number of trees
                   shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
                   interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
                   bag.fraction = 0.5,        # subsampling fraction, 0.5 is probably best
                   train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
-                  cv.folds = 5,              # do 5-fold cross-validation
+                  cv.folds = 1,              # don't do cross-validation
                   n.minobsinnode = 10,       # minimum total weight needed in each node
                   keep.data = TRUE,
                   verbose = FALSE)           # don't print progress
@@ -166,12 +166,12 @@ test_that("Setting the offset to 0 does not alter the initial value - CoxPH",{
                        var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                        distribution="coxph",
                        offset=offset,
-                       n.trees=3000,              # number of trees
+                       n.trees=100,              # number of trees
                        shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
                        interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
                        bag.fraction = 0.5,        # subsampling fraction, 0.5 is probably best
                        train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
-                       cv.folds = 5,              # do 5-fold cross-validation
+                       cv.folds = 1,              # don't do cross-validation
                        n.minobsinnode = 10,       # minimum total weight needed in each node
                        keep.data = TRUE,
                        verbose = FALSE)           # don't print progress
@@ -213,7 +213,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Gamma",{
                   var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                   distribution="gamma",     # bernoulli, adaboost, gaussian, poisson, coxph, or
                   # list(name="quantile",alpha=0.05) for quantile regression
-                  n.trees=2000,                 # number of trees
+                  n.trees=100,                 # number of trees
                   shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                   interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
                   bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
@@ -221,7 +221,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Gamma",{
                   mFeatures = 3,               # Number of features to consider at each node.
                   n.minobsinnode = 10,         # minimum number of obs needed in each node
                   keep.data=TRUE,
-                  cv.folds=10,                 # do 10-fold cross-validation
+                  cv.folds=1,                 # don't do cross-validation
                   verbose = FALSE)             # don't print progress
   set.seed(15)
   gbm.zero.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
@@ -229,7 +229,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Gamma",{
                        var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                        distribution="gamma",     # bernoulli, adaboost, gaussian, poisson, coxph, or
                        # list(name="quantile",alpha=0.05) for quantile regression
-                       n.trees=2000,                 # number of trees
+                       n.trees=100,                 # number of trees
                        offset=offset,
                        shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                        interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
@@ -238,7 +238,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Gamma",{
                        mFeatures = 3,               # Number of features to consider at each node.
                        n.minobsinnode = 10,         # minimum number of obs needed in each node
                        keep.data=TRUE,
-                       cv.folds=10,                 # do 10-fold cross-validation
+                       cv.folds=1,                 # don't do cross-validation
                        verbose = FALSE)             # don't print progress
 
     expect_equal(gbm.no.offset$initF, gbm.zero.offset$initF)
@@ -278,7 +278,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Gaussian",
                   var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                   distribution="gaussian",     # bernoulli, adaboost, gaussian, poisson, coxph, or
                   # list(name="quantile",alpha=0.05) for quantile regression
-                  n.trees=2000,                 # number of trees
+                  n.trees=100,                 # number of trees
                   shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                   interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
                   bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
@@ -286,7 +286,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Gaussian",
                   mFeatures = 3,               # Number of features to consider at each node.
                   n.minobsinnode = 10,         # minimum number of obs needed in each node
                   keep.data=TRUE,
-                  cv.folds=10,                 # do 10-fold cross-validation
+                  cv.folds=1,                 # don't do cross-validation
                   verbose = FALSE)             # don't print progress
   set.seed(15)
   gbm.zero.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
@@ -294,7 +294,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Gaussian",
                        var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                        distribution="gaussian",     # bernoulli, adaboost, gaussian, poisson, coxph, or
                        # list(name="quantile",alpha=0.05) for quantile regression
-                       n.trees=2000,                 # number of trees
+                       n.trees=100,                 # number of trees
                        offset=offset,
                        shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                        interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
@@ -303,7 +303,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Gaussian",
                        mFeatures = 3,               # Number of features to consider at each node.
                        n.minobsinnode = 10,         # minimum number of obs needed in each node
                        keep.data=TRUE,
-                       cv.folds=10,                 # do 10-fold cross-validation
+                       cv.folds=1,                 # don't do cross-validation
                        verbose = FALSE)             # don't print progress
   
   expect_equal(gbm.no.offset$initF, gbm.zero.offset$initF)
@@ -343,7 +343,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Laplace",{
                   var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                   distribution="laplace",     # bernoulli, adaboost, gaussian, poisson, coxph, or
                   # list(name="quantile",alpha=0.05) for quantile regression
-                  n.trees=2000,                 # number of trees
+                  n.trees=100,                 # number of trees
                   shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                   interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
                   bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
@@ -351,7 +351,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Laplace",{
                   mFeatures = 3,               # Number of features to consider at each node.
                   n.minobsinnode = 10,         # minimum number of obs needed in each node
                   keep.data=TRUE,
-                  cv.folds=10,                 # do 10-fold cross-validation
+                  cv.folds=1,                 # don't do cross-validation
                   verbose = FALSE)             # don't print progress
   set.seed(15)
   gbm.zero.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
@@ -359,7 +359,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Laplace",{
                        var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                        distribution="laplace",     # bernoulli, adaboost, gaussian, poisson, coxph, or
                        # list(name="quantile",alpha=0.05) for quantile regression
-                       n.trees=2000,                 # number of trees
+                       n.trees=100,                 # number of trees
                        shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                        interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
                        bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
@@ -368,7 +368,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Laplace",{
                        n.minobsinnode = 10,         # minimum number of obs needed in each node
                        keep.data=TRUE,
                        offset=offset,
-                       cv.folds=10,                 # do 10-fold cross-validation
+                       cv.folds=1,                 # don't do cross-validation
                        verbose = FALSE)             # don't print progress
   
   expect_equal(gbm.no.offset$initF, gbm.zero.offset$initF)
@@ -400,12 +400,12 @@ test_that("Setting the offset to 0 does not alter the initial value - Huberized 
                   weights=w,
                   var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                   distribution="huberized",
-                  n.trees=3000,              # number of trees
+                  n.trees=100,              # number of trees
                   shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
                   interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
                   bag.fraction = 0.5,        # subsampling fraction, 0.5 is probably best
                   train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
-                  cv.folds=5,                # do 5-fold cross-validation
+                  cv.folds=1,                # don't do cross-validation
                   n.minobsinnode = 10,       # minimum total weight needed in each node
                   verbose = FALSE)           # don't print progress
   set.seed(15)
@@ -415,12 +415,12 @@ test_that("Setting the offset to 0 does not alter the initial value - Huberized 
                        offset=offset,
                        var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                        distribution="huberized",
-                       n.trees=3000,              # number of trees
+                       n.trees=100,              # number of trees
                        shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
                        interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
                        bag.fraction = 0.5,        # subsampling fraction, 0.5 is probably best
                        train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
-                       cv.folds=5,                # do 5-fold cross-validation
+                       cv.folds=1,                # don't do cross-validation
                        n.minobsinnode = 10,       # minimum total weight needed in each node
                        verbose = FALSE)           # don't print progress
   
@@ -469,14 +469,14 @@ test_that("Setting the offset to 0 does not alter the initial value - Pairwise",
                     name='pairwise',   # pairwise
                     metric="ndcg",     # ranking metric: normalized discounted cumulative gain
                     group='query'),    # column indicating query groups
-                  n.trees=2000,        # number of trees
+                  n.trees=100,        # number of trees
                   shrinkage=0.005,     # learning rate
                   interaction.depth=3, # number per splits per tree
                   bag.fraction = 0.5,  # subsampling fraction
                   train.fraction = 1,  # fraction of data for training
                   n.minobsinnode = 10, # minimum number of obs for split
                   keep.data=TRUE,      # store copy of input data in model
-                  cv.folds=5,          # number of cross validation folds
+                  cv.folds=1,          # number of cross validation folds
                   verbose = FALSE,     # don't print progress
                   n.cores = 1)         # use a single core
   
@@ -486,14 +486,14 @@ test_that("Setting the offset to 0 does not alter the initial value - Pairwise",
                    name='pairwise',   # pairwise
                    metric="mrr",     # ranking metric: normalized discounted cumulative gain
                    group='query'),    # column indicating query groups
-                 n.trees=2000,        # number of trees
+                 n.trees=100,        # number of trees
                  shrinkage=0.005,     # learning rate
                  interaction.depth=3, # number per splits per tree
                  bag.fraction = 0.5,  # subsampling fraction
                  train.fraction = 1,  # fraction of data for training
                  n.minobsinnode = 10, # minimum number of obs for split
                  keep.data=TRUE,      # store copy of input data in model
-                 cv.folds=5,          # number of cross validation folds
+                 cv.folds=1,          # number of cross validation folds
                  verbose = FALSE,     # don't print progress
                  n.cores = 1)         # use a single core
   
@@ -503,14 +503,14 @@ test_that("Setting the offset to 0 does not alter the initial value - Pairwise",
                    name='pairwise',   # pairwise
                    metric="map",     # ranking metric: normalized discounted cumulative gain
                    group='query'),    # column indicating query groups
-                 n.trees=2000,        # number of trees
+                 n.trees=100,        # number of trees
                  shrinkage=0.005,     # learning rate
                  interaction.depth=3, # number per splits per tree
                  bag.fraction = 0.5,  # subsampling fraction
                  train.fraction = 1,  # fraction of data for training
                  n.minobsinnode = 10, # minimum number of obs for split
                  keep.data=TRUE,      # store copy of input data in model
-                 cv.folds=5,          # number of cross validation folds
+                 cv.folds=1,          # number of cross validation folds
                  verbose = FALSE,     # don't print progress
                  n.cores = 1)         # use a single core
   gbm.no.offset.conc <- gbm(Y~X1+X2+X3,          # formula
@@ -519,14 +519,14 @@ test_that("Setting the offset to 0 does not alter the initial value - Pairwise",
                     name='pairwise',   # pairwise
                     metric="conc",     # ranking metric: concordant pairs
                     group='query'),    # column indicating query groups
-                  n.trees=2000,        # number of trees
+                  n.trees=100,        # number of trees
                   shrinkage=0.005,     # learning rate
                   interaction.depth=3, # number per splits per tree
                   bag.fraction = 0.5,  # subsampling fraction
                   train.fraction = 1,  # fraction of data for training
                   n.minobsinnode = 10, # minimum number of obs for split
                   keep.data=TRUE,      # store copy of input data in model
-                  cv.folds=5,          # number of cross validation folds
+                  cv.folds=1,          # number of cross validation folds
                   verbose = FALSE,     # don't print progress
                   n.cores = 1)         # use a single core
   set.seed(15)
@@ -536,14 +536,14 @@ test_that("Setting the offset to 0 does not alter the initial value - Pairwise",
                               name='pairwise',   # pairwise
                               metric="ndcg",     # ranking metric: normalized discounted cumulative gain
                               group='query'),    # column indicating query groups
-                            n.trees=2000,        # number of trees
+                            n.trees=100,        # number of trees
                             shrinkage=0.005,     # learning rate
                             interaction.depth=3, # number per splits per tree
                             bag.fraction = 0.5,  # subsampling fraction
                             train.fraction = 1,  # fraction of data for training
                             n.minobsinnode = 10, # minimum number of obs for split
                             keep.data=TRUE,      # store copy of input data in model
-                            cv.folds=5,          # number of cross validation folds
+                            cv.folds=1,          # number of cross validation folds
                             verbose = FALSE,     # don't print progress
                             offset=rep(0, N),
                             n.cores = 1)         # use a single core
@@ -554,14 +554,14 @@ test_that("Setting the offset to 0 does not alter the initial value - Pairwise",
                              name='pairwise',   # pairwise
                              metric="mrr",     # ranking metric: normalized discounted cumulative gain
                              group='query'),    # column indicating query groups
-                           n.trees=2000,        # number of trees
+                           n.trees=100,        # number of trees
                            shrinkage=0.005,     # learning rate
                            interaction.depth=3, # number per splits per tree
                            bag.fraction = 0.5,  # subsampling fraction
                            train.fraction = 1,  # fraction of data for training
                            n.minobsinnode = 10, # minimum number of obs for split
                            keep.data=TRUE,      # store copy of input data in model
-                           cv.folds=5,          # number of cross validation folds
+                           cv.folds=1,          # number of cross validation folds
                            verbose = FALSE,     # don't print progress
                            offset=rep(0,N),
                            n.cores = 1)         # use a single core
@@ -572,14 +572,14 @@ test_that("Setting the offset to 0 does not alter the initial value - Pairwise",
                              name='pairwise',   # pairwise
                              metric="map",     # ranking metric: normalized discounted cumulative gain
                              group='query'),    # column indicating query groups
-                           n.trees=2000,        # number of trees
+                           n.trees=100,        # number of trees
                            shrinkage=0.005,     # learning rate
                            interaction.depth=3, # number per splits per tree
                            bag.fraction = 0.5,  # subsampling fraction
                            train.fraction = 1,  # fraction of data for training
                            n.minobsinnode = 10, # minimum number of obs for split
                            keep.data=TRUE,      # store copy of input data in model
-                           cv.folds=5,          # number of cross validation folds
+                           cv.folds=1,          # number of cross validation folds
                            verbose = FALSE,     # don't print progress
                            offset=rep(0,N),
                            n.cores = 1)         # use a single core
@@ -589,14 +589,14 @@ test_that("Setting the offset to 0 does not alter the initial value - Pairwise",
                               name='pairwise',   # pairwise
                               metric="conc",     # ranking metric: concordant pairs
                               group='query'),    # column indicating query groups
-                            n.trees=2000,        # number of trees
+                            n.trees=100,        # number of trees
                             shrinkage=0.005,     # learning rate
                             interaction.depth=3, # number per splits per tree
                             bag.fraction = 0.5,  # subsampling fraction
                             train.fraction = 1,  # fraction of data for training
                             n.minobsinnode = 10, # minimum number of obs for split
                             keep.data=TRUE,      # store copy of input data in model
-                            cv.folds=5,          # number of cross validation folds
+                            cv.folds=1,          # number of cross validation folds
                             verbose = FALSE,     # don't print progress
                             offset = rep(0,N),
                             n.cores = 1)         # use a single core
@@ -640,7 +640,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Poisson",{
                   var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                   distribution="poisson",     # bernoulli, adaboost, gaussian, poisson, coxph, or
                   # list(name="quantile",alpha=0.05) for quantile regression
-                  n.trees=2000,                 # number of trees
+                  n.trees=100,                 # number of trees
                   shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                   interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
                   bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
@@ -648,7 +648,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Poisson",{
                   mFeatures = 3,               # Number of features to consider at each node.
                   n.minobsinnode = 10,         # minimum number of obs needed in each node
                   keep.data=TRUE,
-                  cv.folds=10,                 # do 10-fold cross-validation
+                  cv.folds=1,                 # don't do cross-validation
                   verbose = FALSE)             # don't print progress
   set.seed(15)
   gbm.zero.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
@@ -656,7 +656,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Poisson",{
                        var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                        distribution="poisson",     # bernoulli, adaboost, gaussian, poisson, coxph, or
                        # list(name="quantile",alpha=0.05) for quantile regression
-                       n.trees=2000,                 # number of trees
+                       n.trees=100,                 # number of trees
                        offset=offset,
                        shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                        interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
@@ -665,7 +665,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Poisson",{
                        mFeatures = 3,               # Number of features to consider at each node.
                        n.minobsinnode = 10,         # minimum number of obs needed in each node
                        keep.data=TRUE,
-                       cv.folds=10,                 # do 10-fold cross-validation
+                       cv.folds=1,                 # don't do cross-validation
                        verbose = FALSE)             # don't print progress
   
   expect_equal(gbm.no.offset$initF, gbm.zero.offset$initF)
@@ -703,7 +703,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Quantile R
                   data=data,                   # dataset
                   var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                   distribution= list(name="quantile",alpha=0.95), # for quantile regression
-                  n.trees=2000,                 # number of trees
+                  n.trees=100,                 # number of trees
                   shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                   interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
                   bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
@@ -711,14 +711,14 @@ test_that("Setting the offset to 0 does not alter the initial value - Quantile R
                   mFeatures = 3,               # Number of features to consider at each node.
                   n.minobsinnode = 10,         # minimum number of obs needed in each node
                   keep.data=TRUE,
-                  cv.folds=10,                 # do 10-fold cross-validation
+                  cv.folds=1,                 # don't do cross-validation
                   verbose = FALSE)             # don't print progress
   set.seed(15)
   gbm.zero.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
                        data=data,                   # dataset
                        var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                        distribution= list(name="quantile",alpha=0.95), # for quantile regression
-                       n.trees=2000,                 # number of trees
+                       n.trees=100,                 # number of trees
                        shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                        interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
                        bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
@@ -727,7 +727,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Quantile R
                        n.minobsinnode = 10,         # minimum number of obs needed in each node
                        keep.data=TRUE,
                        offset=offset,
-                       cv.folds=10,                 # do 10-fold cross-validation
+                       cv.folds=1,                 # don't do cross-validation
                        verbose = FALSE)             # don't print progress
   
   expect_equal(gbm.no.offset$initF, gbm.zero.offset$initF)
@@ -766,7 +766,7 @@ test_that("Setting the offset to 0 does not alter the initial value - T dist",{
                   var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                   distribution="tdist",     # bernoulli, adaboost, gaussian, poisson, coxph, or
                   # list(name="quantile",alpha=0.05) for quantile regression
-                  n.trees=2000,                 # number of trees
+                  n.trees=100,                 # number of trees
                   shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                   interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
                   bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
@@ -774,7 +774,7 @@ test_that("Setting the offset to 0 does not alter the initial value - T dist",{
                   mFeatures = 3,               # Number of features to consider at each node.
                   n.minobsinnode = 10,         # minimum number of obs needed in each node
                   keep.data=TRUE,
-                  cv.folds=10,                 # do 10-fold cross-validation
+                  cv.folds=1,                 # don't do cross-validation
                   verbose = FALSE)             # don't print progress
   set.seed(15)
   gbm.zero.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
@@ -782,7 +782,7 @@ test_that("Setting the offset to 0 does not alter the initial value - T dist",{
                        var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                        distribution="tdist",     # bernoulli, adaboost, gaussian, poisson, coxph, or
                        # list(name="quantile",alpha=0.05) for quantile regression
-                       n.trees=2000,                 # number of trees
+                       n.trees=100,                 # number of trees
                        shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                        interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
                        bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
@@ -791,7 +791,7 @@ test_that("Setting the offset to 0 does not alter the initial value - T dist",{
                        n.minobsinnode = 10,         # minimum number of obs needed in each node
                        keep.data=TRUE,
                        offset=offset,
-                       cv.folds=10,                 # do 10-fold cross-validation
+                       cv.folds=1,                 # don't do cross-validation
                        verbose = FALSE)             # don't print progress
   
   expect_equal(gbm.no.offset$initF, gbm.zero.offset$initF)
@@ -830,7 +830,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Tweedie",{
                   var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                   distribution="tweedie",     # bernoulli, adaboost, gaussian, poisson, coxph, or
                   # list(name="quantile",alpha=0.05) for quantile regression
-                  n.trees=2000,                 # number of trees
+                  n.trees=100,                 # number of trees
                   shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                   interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
                   bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
@@ -838,7 +838,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Tweedie",{
                   mFeatures = 3,               # Number of features to consider at each node.
                   n.minobsinnode = 10,         # minimum number of obs needed in each node
                   keep.data=TRUE,
-                  cv.folds=10,                 # do 10-fold cross-validation
+                  cv.folds=1,                 # don't do cross-validation
                   verbose = FALSE)             # don't print progress
   set.seed(15)
   gbm.zero.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
@@ -846,7 +846,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Tweedie",{
                        var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                        distribution="tweedie",     # bernoulli, adaboost, gaussian, poisson, coxph, or
                        # list(name="quantile",alpha=0.05) for quantile regression
-                       n.trees=2000,                 # number of trees
+                       n.trees=100,                 # number of trees
                        shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                        interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
                        bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
@@ -855,7 +855,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Tweedie",{
                        n.minobsinnode = 10,         # minimum number of obs needed in each node
                        keep.data=TRUE,
                        offset=offset,
-                       cv.folds=10,                 # do 10-fold cross-validation
+                       cv.folds=1,                 # don't do cross-validation
                        verbose = FALSE)             # don't print progress
   
   expect_equal(gbm.no.offset$initF, gbm.zero.offset$initF)
@@ -888,12 +888,12 @@ test_that("Increasing the offset reduces the initial value - Adaboost", {
                        offset=offset.smaller,
                        var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                        distribution="adaboost",
-                       n.trees=3000,              # number of trees
+                       n.trees=100,              # number of trees
                        shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
                        interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
                        bag.fraction = 0.5,        # subsampling fraction, 0.5 is probably best
                        train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
-                       cv.folds=5,                # do 5-fold cross-validation
+                       cv.folds=1,                # don't do cross-validation
                        n.minobsinnode = 10,       # minimum total weight needed in each node
                        verbose = FALSE)           # don't print progress
   set.seed(15)
@@ -903,12 +903,12 @@ test_that("Increasing the offset reduces the initial value - Adaboost", {
                          offset = offset.larger,
                          var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                          distribution="adaboost",
-                         n.trees=3000,              # number of trees
+                         n.trees=100,              # number of trees
                          shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
                          interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
                          bag.fraction = 0.5,        # subsampling fraction, 0.5 is probably best
                          train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
-                         cv.folds=5,                # do 5-fold cross-validation
+                         cv.folds=1,                # don't do cross-validation
                          n.minobsinnode = 10,       # minimum total weight needed in each node
                          verbose = FALSE)           # don't print progress
   
@@ -949,7 +949,7 @@ test_that("Increasing the offset reduces the initial value - Poisson", {
                             var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                             distribution="poisson",     # bernoulli, adaboost, gaussian, poisson, coxph, or
                             # list(name="quantile",alpha=0.05) for quantile regression
-                            n.trees=2000,                 # number of trees
+                            n.trees=100,                 # number of trees
                             offset=offset.smaller,
                             shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                             interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
@@ -958,7 +958,7 @@ test_that("Increasing the offset reduces the initial value - Poisson", {
                             mFeatures = 3,               # Number of features to consider at each node.
                             n.minobsinnode = 10,         # minimum number of obs needed in each node
                             keep.data=TRUE,
-                            cv.folds=10,                 # do 10-fold cross-validation
+                            cv.folds=1,                 # don't do cross-validation
                             verbose = FALSE)             # don't print progress
   set.seed(15)
   gbm.larger.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
@@ -966,7 +966,7 @@ test_that("Increasing the offset reduces the initial value - Poisson", {
                          var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                          distribution="poisson",     # bernoulli, adaboost, gaussian, poisson, coxph, or
                          # list(name="quantile",alpha=0.05) for quantile regression
-                         n.trees=2000,                 # number of trees
+                         n.trees=100,                 # number of trees
                          offset=offset.larger,
                          shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                          interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
@@ -975,7 +975,7 @@ test_that("Increasing the offset reduces the initial value - Poisson", {
                          mFeatures = 3,               # Number of features to consider at each node.
                          n.minobsinnode = 10,         # minimum number of obs needed in each node
                          keep.data=TRUE,
-                         cv.folds=10,                 # do 10-fold cross-validation
+                         cv.folds=1,                 # don't do cross-validation
                          verbose = FALSE)             # don't print progress
     
   

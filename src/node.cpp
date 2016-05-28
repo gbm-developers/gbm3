@@ -4,230 +4,113 @@
 // Includes
 //-----------------------------------
 #include "node.h"
-#include "terminalStrategy.h"
-#include "continuousStrategy.h"
-#include "categoricalStrategy.h"
+#include "terminal_strategy.h"
+#include "continuous_strategy.h"
+#include "categorical_strategy.h"
 
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CNode::CNode(const NodeDef& defn) :
-  dPrediction(defn.prediction()),
-  dTrainW(defn.getTotalWeight()),
-  cN(defn.getNumObs()),
-  aiLeftCategory() {
+CNode::CNode(const NodeDef& kDefn)
+    : prediction_(kDefn.prediction()),
+      totalweight_(kDefn.get_totalweight()),
+      numobs_(kDefn.get_num_obs()),
+      leftcategory_() {
+  splitvalue_ = 0.0;
+  split_var_ = 0;
+  improvement_ = 0.0;
 
-    dSplitValue = 0.0;
-    iSplitVar = 0;
-    dImprovement = 0.0;
+  // Set children to NULL
+  left_node_ptr_ = NULL;
+  right_node_ptr_ = NULL;
+  missing_node_ptr_ = NULL;
 
-    // Set children to NULL
-	pLeftNode = NULL;
-	pRightNode = NULL;
-	pMissingNode = NULL;
-
-	// Set up split type and strategy
-	splitType = none;
-	splitAssigned = false;
-	nodeStrategy = new TerminalStrategy(this);
-
+  // Set up split type and strategy
+  splittype_ = kNone;
+  node_strategy_ = new TerminalStrategy(this);
 }
 
-void CNode::SetStrategy()
-{
-	//delete nodeStrategy;
-	switch(splitType)
-	{
-	case none:
-		nodeStrategy = new TerminalStrategy(this);
-		break;
-	case continuous:
-		nodeStrategy = new ContinuousStrategy(this);
-		break;
-	case categorical:
-		nodeStrategy = new CategoricalStrategy(this);
-		break;
-	default:
-		throw GBM::failure("Node State not recognised.");
-		break;
-	}
+void CNode::SetStrategy() {
+  // delete nodeStrategy;
+  switch (splittype_) {
+    case kNone:
+      node_strategy_ = new TerminalStrategy(this);
+      break;
+    case kContinuous:
+      node_strategy_ = new ContinuousStrategy(this);
+      break;
+    case kCategorical:
+      node_strategy_ = new CategoricalStrategy(this);
+      break;
+    default:
+      throw gbm_exception::Failure("Node State not recognised.");
+      break;
+  }
 }
 
-CNode::~CNode()
-{
-	// Each node is responsible for deleting its
-	// children and its strategy
-    delete pLeftNode;
-    delete pRightNode;
-    delete pMissingNode;
-    delete nodeStrategy;
+CNode::~CNode() {
+  // Each node is responsible for deleting its
+  // children and its strategy
+  delete left_node_ptr_;
+  delete right_node_ptr_;
+  delete missing_node_ptr_;
+  delete node_strategy_;
 }
 
-void CNode::Adjust
-(
-    unsigned long cMinObsInNode
-)
-{
-	/*switch(splitType)
-	{
-	case none:
-		return;
-		break;
-	case continuous:
-		pLeftNode->Adjust(cMinObsInNode);
-		pRightNode->Adjust(cMinObsInNode);
-
-		if((pMissingNode->splitType == none) && (pMissingNode->cN < cMinObsInNode))
-		{
-			dPrediction = ((pLeftNode->dTrainW)*(pLeftNode->dPrediction) +
-				 (pRightNode->dTrainW)*(pRightNode->dPrediction))/
-			(pLeftNode->dTrainW + pRightNode->dTrainW);
-			pMissingNode->dPrediction = dPrediction;
-		}
-		else
-		{
-			pMissingNode->Adjust(cMinObsInNode);
-			dPrediction =
-			((pLeftNode->dTrainW)*(pLeftNode->dPrediction) +
-			(pRightNode->dTrainW)*  (pRightNode->dPrediction) +
-			(pMissingNode->dTrainW)*(pMissingNode->dPrediction))/
-			(pLeftNode->dTrainW + pRightNode->dTrainW + pMissingNode->dTrainW);
-		}
-		break;
-	case categorical:
-		pLeftNode->Adjust(cMinObsInNode);
-		pRightNode->Adjust(cMinObsInNode);
-
-		if((pMissingNode->splitType == none) && (pMissingNode->cN < cMinObsInNode))
-		{
-			dPrediction = ((pLeftNode->dTrainW)*(pLeftNode->dPrediction) +
-				 (pRightNode->dTrainW)*(pRightNode->dPrediction))/
-			(pLeftNode->dTrainW + pRightNode->dTrainW);
-			pMissingNode->dPrediction = dPrediction;
-		}
-		else
-		{
-			pMissingNode->Adjust(cMinObsInNode);
-			dPrediction =
-			((pLeftNode->dTrainW)*(pLeftNode->dPrediction) +
-			(pRightNode->dTrainW)*  (pRightNode->dPrediction) +
-			(pMissingNode->dTrainW)*(pMissingNode->dPrediction))/
-			(pLeftNode->dTrainW + pRightNode->dTrainW + pMissingNode->dTrainW);
-		}
-		break;
-	default:
-			throw GBM::failure("Node State not recognised.");
-			break;
-	}*/
-	nodeStrategy->Adjust(cMinObsInNode);
+void CNode::Adjust(unsigned long min_num_node_obs) {
+  node_strategy_->Adjust(min_num_node_obs);
 }
 
-void CNode::Predict
-(
-    const CDataset &data,
-    unsigned long iRow,
-    double &dFadj
-)
-{
-	nodeStrategy->Predict(data, iRow, dFadj);
+void CNode::Predict(const CDataset& kData, unsigned long rownum,
+                    double& delta_estimate) {
+  node_strategy_->Predict(kData, rownum, delta_estimate);
 }
 
-
-void CNode::GetVarRelativeInfluence
-(
-    double *adRelInf
-)
-{
-	nodeStrategy->GetVarRelativeInfluence(adRelInf);
+void CNode::GetVarRelativeInfluence(double* relative_influence) {
+  node_strategy_->GetVarRelativeInfluence(relative_influence);
 }
 
-void CNode::PrintSubtree
-(
- unsigned long cIndent
-)
-{
-  nodeStrategy->PrintSubTree(cIndent);
+void CNode::PrintSubtree(unsigned long indent) {
+  node_strategy_->PrintSubTree(indent);
 }
 
-void CNode::SplitNode(NodeParams& childrenParams)
-{
+void CNode::SplitNode(NodeParams& childrenparams) {
+  // set up a continuous split
+  if (childrenparams.split_class_ == 0) {
+    splittype_ = kContinuous;
+    SetStrategy();
+  } else {
+    splittype_ = kCategorical;
+    SetStrategy();
+    // the types are confused here
+    leftcategory_.resize(1 + (unsigned long)childrenparams.split_value_);
+    std::copy(childrenparams.category_ordering_.begin(),
+              childrenparams.category_ordering_.begin() + leftcategory_.size(),
+              leftcategory_.begin());
+  }
 
-	// set up a continuous split
-	if(childrenParams.SplitClass==0)
-	{
-		splitType = continuous;
-		SetStrategy();
-	}
-	else
-	{
-		splitType = categorical;
-		SetStrategy();
-		// the types are confused here
-		aiLeftCategory.resize(1 + (ULONG)childrenParams.SplitValue);
-		std::copy(childrenParams.aiBestCategory.begin(),
-			  childrenParams.aiBestCategory.begin() +
-			  aiLeftCategory.size(),
-			  aiLeftCategory.begin());
-	}
+  split_var_ = childrenparams.split_var_;
+  splitvalue_ = childrenparams.split_value_;
+  improvement_ = childrenparams.improvement_;
 
-
-	iSplitVar = childrenParams.SplitVar;
-	dSplitValue = childrenParams.SplitValue;
-	dImprovement = childrenParams.ImprovedResiduals;
-
-	pLeftNode    = new CNode(childrenParams.left);
-	pRightNode   = new CNode(childrenParams.right);
-	pMissingNode = new CNode(childrenParams.missing);
-
-
-
+  left_node_ptr_ = new CNode(childrenparams.left_);
+  right_node_ptr_ = new CNode(childrenparams.right_);
+  missing_node_ptr_ = new CNode(childrenparams.missing_);
 }
 
-signed char CNode::WhichNode
-(
-    const CDataset &data,
-    unsigned long iObs
-)
-{
-	return nodeStrategy->WhichNode(data, iObs);
+signed char CNode::WhichNode(const CDataset& kData, unsigned long obs_num) {
+  return node_strategy_->WhichNode(kData, obs_num);
 }
 
-
-void CNode::TransferTreeToRList
-(
-    int &iNodeID,
-    const CDataset &data,
-    int *aiSplitVar,
-    double *adSplitPoint,
-    int *aiLeftNode,
-    int *aiRightNode,
-    int *aiMissingNode,
-    double *adErrorReduction,
-    double *adWeight,
-    double *adPred,
-    VEC_VEC_CATEGORIES &vecSplitCodes,
-    int cCatSplitsOld,
-    double dShrinkage
-)
-{
-	nodeStrategy->TransferTreeToRList(iNodeID,
-										data,
-									aiSplitVar,
-									adSplitPoint,
-									aiLeftNode,
-									aiRightNode,
-									aiMissingNode,
-									adErrorReduction,
-									adWeight,
-									adPred,
-									vecSplitCodes,
-									cCatSplitsOld,
-									dShrinkage);
+void CNode::TransferTreeToRList(int& node_id, const CDataset& kData,
+                                int* splivar, double* splitvalues,
+                                int* leftnodes, int* rightnodes,
+                                int* missingnodes, double* error_reduction,
+                                double* weights, double* predictions,
+                                VecOfVectorCategories& splitcodes_vec,
+                                int prev_categorical_split, double shrinkage) {
+  node_strategy_->TransferTreeToRList(
+      node_id, kData, splivar, splitvalues, leftnodes, rightnodes, missingnodes,
+      error_reduction, weights, predictions, splitcodes_vec,
+      prev_categorical_split, shrinkage);
 }
-
-
-
-
-
-
-

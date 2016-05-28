@@ -16,151 +16,112 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CBernoulli::CBernoulli()
-{
+CBernoulli::CBernoulli() {
   // Used to issue warnings to user that at least one terminal node capped
-  fCappedPred = false;
+  terminalnode_capped_ = false;
 }
 
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CBernoulli::Create(DataDistParams& distParams)
-{
-	return new CBernoulli();
+CDistribution* CBernoulli::Create(DataDistParams& distparams) {
+  return new CBernoulli();
 }
 
-CBernoulli::~CBernoulli()
-{
-}
+CBernoulli::~CBernoulli() {}
 
-void CBernoulli::ComputeWorkingResponse
-(
-	const CDataset& data,
-    const double *adF,
-    double *adZ
-)
-{
-  double dProb = 0.0;
-  double dF = 0.0;
+void CBernoulli::ComputeWorkingResponse(const CDataset& kData,
+                                        const double* kFuncEstimate,
+                                        double* residuals) {
+  double prob = 0.0;
+  double deltafunc_est = 0.0;
 
-  for(unsigned long i=0; i<data.get_trainSize(); i++)
-  {
-    dF = adF[i] +  data.offset_ptr()[i];
-    dProb = 1.0/(1.0+std::exp(-dF));
+  for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
+    deltafunc_est = kFuncEstimate[i] + kData.offset_ptr()[i];
+    prob = 1.0 / (1.0 + std::exp(-deltafunc_est));
 
-    adZ[i] = data.y_ptr()[i] - dProb;
+    residuals[i] = kData.y_ptr()[i] - prob;
 #ifdef NOISY_DEBUG
-//  Rprintf("dF=%f, dProb=%f, adZ=%f, data.y_ptr()=%f\n", dF, dProb, adZ[i], data.y_ptr()[i]);
-    if(dProb<  0.0001) Rprintf("Small prob(i=%d)=%f Z=%f\n",i,dProb,adZ[i]);
-    if(dProb>1-0.0001) Rprintf("Large prob(i=%d)=%f Z=%f\n",i,dProb,adZ[i]);
+    //  Rprintf("dF=%f, dProb=%f, adZ=%f, data.y_ptr()=%f\n", dF, prob, adZ[i],
+    //  data.y_ptr()[i]);
+    if (dProb < 0.0001)
+      Rprintf("Small prob(i=%d)=%f Z=%f\n", i, prob, residuals[i]);
+    if (dProb > 1 - 0.0001)
+      Rprintf("Large prob(i=%d)=%f Z=%f\n", i, prob, residuals[i]);
 #endif
   }
 }
 
+double CBernoulli::InitF(const CDataset& kData) {
+  // Newton method for solving for F
+  // should take about 3-6 iterations.
 
-double CBernoulli::InitF
-(
-	const CDataset& data
-)
-{
-    // Newton method for solving for F
-    // should take about 3-6 iterations.
+  double initfunc_est = 0.0;
+  double newtonstep = 1.0;  // set to 1 initially
 
-    double dInitF = 0.0;
-    double dNewtonStep=1.0; // set to 1 initially
+  for (int itcount = 0; (itcount < 6) && (std::abs(newtonstep) > 0.001);
+       ++itcount) {
+    double numerator = 0.0;
+    double denominator = 0.0;
 
-    for (int itCount=0;
-	 (itCount < 6) && (std::abs(dNewtonStep) > 0.001);
-	 ++itCount) {
-
-      double dNum=0.0;
-      double dDen=0.0;
-
-      for(unsigned long i=0; i<data.get_trainSize(); i++)
-	{
-	  const double dTemp = 1.0/(1.0+std::exp(-(data.offset_ptr()[i] + dInitF)));
-	  dNum += data.weight_ptr()[i]*(data.y_ptr()[i]-dTemp);
-	  dDen += data.weight_ptr()[i]*dTemp*(1.0-dTemp);
-	}
-      dNewtonStep = dNum/dDen;
-      dInitF += dNewtonStep;
+    for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
+      const double dTemp =
+          1.0 / (1.0 + std::exp(-(kData.offset_ptr()[i] + initfunc_est)));
+      numerator += kData.weight_ptr()[i] * (kData.y_ptr()[i] - dTemp);
+      denominator += kData.weight_ptr()[i] * dTemp * (1.0 - dTemp);
     }
+    newtonstep = numerator / denominator;
+    initfunc_est += newtonstep;
+  }
 
-
-    return dInitF;
+  return initfunc_est;
 }
 
-double CBernoulli::Deviance
-(
-	const CDataset& data,
-    const double *adF,
-    bool isValidationSet
-)
-{
-   unsigned long i=0;
-   double dL = 0.0;
-   double dF = 0.0;
-   double dW = 0.0;
+double CBernoulli::Deviance(const CDataset& kData,
+                            const double* kFuncEstimate) {
+  unsigned long i = 0;
+  double loss = 0.0;
+  double deltafunc_est = 0.0;
+  double weight = 0.0;
 
-   // Switch to validation set if necessary
-   long cLength = data.get_trainSize();
-   if(isValidationSet)
-   {
-	   data.shift_to_validation();
-	   cLength = data.GetValidSize();
-   }
+  // Switch to validation set if necessary
+  unsigned long num_of_rows_in_set = kData.get_size_of_set();
 
+  for (i = 0; i != num_of_rows_in_set; i++) {
+    deltafunc_est = kFuncEstimate[i] + kData.offset_ptr()[i];
+    loss += kData.weight_ptr()[i] * (kData.y_ptr()[i] * deltafunc_est -
+                                     std::log(1.0 + std::exp(deltafunc_est)));
+    weight += kData.weight_ptr()[i];
+  }
 
-	for(i=0; i!=cLength; i++)
-	{
-	 dF = adF[i] + data.offset_ptr()[i];
-	 dL += data.weight_ptr()[i]*(data.y_ptr()[i]*dF - std::log(1.0+std::exp(dF)));
-	 dW += data.weight_ptr()[i];
-	}
+  // TODO: Check if weights are all zero for validation set
+  if ((weight == 0.0) && (loss == 0.0)) {
+    return nan("");
+  } else if (weight == 0.0) {
+    return copysign(HUGE_VAL, -loss);
+  }
 
-   // Switch back to trainig set if necessary
-   if(isValidationSet)
-   {
-	   data.shift_to_train();
-   }
-
-   //TODO: Check if weights are all zero for validation set
-	if((dW == 0.0) && (dL == 0.0))
-	{
-		return nan("");
-	}
-	else if(dW == 0.0)
-	{
-		return copysign(HUGE_VAL, -dL);
-	}
-
-   return -2*dL/dW;
+  return -2 * loss / weight;
 }
 
+void CBernoulli::FitBestConstant(const CDataset& kData,
+                                 const double* kFuncEstimate,
+                                 unsigned long num_terminalnodes,
+                                 double* residuals, CCARTTree& tree) {
+  unsigned long obs_num = 0;
+  unsigned long node_num = 0;
+  double temp = 0.0;
+  vector<double> numerator_vec(num_terminalnodes, 0.0);
+  vector<double> denom_vec(num_terminalnodes, 0.0);
 
-void CBernoulli::FitBestConstant
-(
-  const CDataset& data,
-  const double *adF,
-  unsigned long cTermNodes,
-  double* adZ,
-  CTreeComps& treeComps
-)
-{
-  unsigned long iObs = 0;
-  unsigned long iNode = 0;
-  double dTemp = 0.0;
-  vector<double> vecdNum(cTermNodes, 0.0);
-  vector<double> vecdDen(cTermNodes, 0.0);
-
-  for(iObs=0; iObs<data.get_trainSize(); iObs++)
-  {
-    if(data.GetBagElem(iObs))
-    {
-      vecdNum[treeComps.GetNodeAssign()[iObs]] += data.weight_ptr()[iObs]*adZ[iObs];
-      vecdDen[treeComps.GetNodeAssign()[iObs]] +=
-          data.weight_ptr()[iObs]*(data.y_ptr()[iObs]-adZ[iObs])*(1-data.y_ptr()[iObs]+adZ[iObs]);
+  for (obs_num = 0; obs_num < kData.get_trainsize(); obs_num++) {
+    if (kData.get_bag_element(obs_num)) {
+      numerator_vec[tree.get_node_assignments()[obs_num]] +=
+          kData.weight_ptr()[obs_num] * residuals[obs_num];
+      denom_vec[tree.get_node_assignments()[obs_num]] +=
+          kData.weight_ptr()[obs_num] *
+          (kData.y_ptr()[obs_num] - residuals[obs_num]) *
+          (1 - kData.y_ptr()[obs_num] + residuals[obs_num]);
 #ifdef NOISY_DEBUG
 /*
       Rprintf("iNode=%d, dNum(%d)=%f, dDen(%d)=%f\n",
@@ -172,65 +133,57 @@ void CBernoulli::FitBestConstant
     }
   }
 
-  for(iNode=0; iNode<cTermNodes; iNode++)
-  {
-    if(treeComps.GetTermNodes()[iNode]!=NULL)
-    {
-      if(vecdDen[iNode] == 0)
-      {
-          treeComps.GetTermNodes()[iNode]->dPrediction = 0.0;
-      }
-      else
-      {
-        dTemp = vecdNum[iNode]/vecdDen[iNode];
+  for (node_num = 0; node_num < num_terminalnodes; node_num++) {
+    if (tree.get_terminal_nodes()[node_num] != NULL) {
+      if (denom_vec[node_num] == 0) {
+        tree.get_terminal_nodes()[node_num]->set_prediction(0.0);
+      } else {
+        temp = numerator_vec[node_num] / denom_vec[node_num];
         // avoid large changes in predictions on log odds scale
-        if(std::abs(dTemp) > 1.0)
-        {
-          if(!fCappedPred)
-          {
+        if (std::abs(temp) > 1.0) {
+          if (!terminalnode_capped_) {
             // set fCappedPred=true so that warning only issued once
-            fCappedPred = true;  
-            Rcpp::warning("Some terminal node predictions were excessively large for Bernoulli and have been capped at 1.0. Likely due to a feature that separates the 0/1 outcomes. Consider reducing shrinkage parameter.");
+            terminalnode_capped_ = true;
+            Rcpp::warning(
+                "Some terminal node predictions were excessively large for "
+                "Bernoulli and have been capped at 1.0. Likely due to a "
+                "feature that separates the 0/1 outcomes. Consider reducing "
+                "shrinkage parameter.");
           }
-          if(dTemp>1.0) dTemp = 1.0;
-          else if(dTemp<-1.0) dTemp = -1.0;
+          if (temp > 1.0)
+            temp = 1.0;
+          else if (temp < -1.0)
+            temp = -1.0;
         }
-        treeComps.GetTermNodes()[iNode]->dPrediction = dTemp;
+        tree.get_terminal_nodes()[node_num]->set_prediction(temp);
       }
     }
   }
 }
 
+double CBernoulli::BagImprovement(const CDataset& kData,
+                                  const double* kFuncEstimate,
+                                  const double kShrinkage,
+                                  const double* kDeltaEstimate) {
+  double returnvalue = 0.0;
+  double deltafunc_est = 0.0;
+  double weight = 0.0;
+  unsigned long i = 0;
 
-double CBernoulli::BagImprovement
-(
-    const CDataset& data,
-    const double *adF,
-    const double shrinkage,
-    const double* adFadj
-)
-{
-    double dReturnValue = 0.0;
-    double dF = 0.0;
-    double dW = 0.0;
-    unsigned long i = 0;
+  for (i = 0; i < kData.get_trainsize(); i++) {
+    if (!kData.get_bag_element(i)) {
+      deltafunc_est = kFuncEstimate[i] + kData.offset_ptr()[i];
 
-    for(i=0; i<data.get_trainSize(); i++)
-    {
-        if(!data.GetBagElem(i))
-        {
-            dF = adF[i] +  data.offset_ptr()[i];
-
-            if(data.y_ptr()[i]==1.0)
-            {
-                dReturnValue += data.weight_ptr()[i]*shrinkage*adFadj[i];
-            }
-            dReturnValue += data.weight_ptr()[i]*
-                            (std::log(1.0+std::exp(dF)) -
-                             std::log(1.0+std::exp(dF+shrinkage*adFadj[i])));
-            dW += data.weight_ptr()[i];
-        }
+      if (kData.y_ptr()[i] == 1.0) {
+        returnvalue += kData.weight_ptr()[i] * kShrinkage * kDeltaEstimate[i];
+      }
+      returnvalue += kData.weight_ptr()[i] *
+                     (std::log(1.0 + std::exp(deltafunc_est)) -
+                      std::log(1.0 + std::exp(deltafunc_est +
+                                              kShrinkage * kDeltaEstimate[i])));
+      weight += kData.weight_ptr()[i];
     }
+  }
 
-    return dReturnValue/dW;
+  return returnvalue / weight;
 }

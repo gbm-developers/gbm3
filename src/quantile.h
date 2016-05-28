@@ -22,59 +22,47 @@
 //------------------------------
 // Class definition
 //------------------------------
-class CQuantile: public CDistribution
-{
+class CQuantile : public CDistribution {
+ public:
+  //---------------------
+  // Factory Function
+  //---------------------
+  static CDistribution* Create(DataDistParams& distparams);
 
-public:
-	//---------------------
-	// Factory Function
-	//---------------------
-	static CDistribution* Create(DataDistParams& distParams);
+  //---------------------
+  // Public destructor
+  //---------------------
+  virtual ~CQuantile();
 
-	//---------------------
-	// Public destructor
-	//---------------------
-    virtual ~CQuantile();
-  
-    //---------------------
-    // Public Functions
-    //---------------------
-    void ComputeWorkingResponse(const CDataset& data,
-    				  const double *adF,
-			      	  double *adZ);
+  //---------------------
+  // Public Functions
+  //---------------------
+  void ComputeWorkingResponse(const CDataset& kData,
+                              const double* kFuncEstimate, double* residuals);
 
-    double InitF(const CDataset& data);
+  double InitF(const CDataset& kData);
 
-    void FitBestConstant(const CDataset& data,
-    			   const double *adF,
-		       	   unsigned long cTermNodes,
-		       	   double* adZ,
-		       	   CTreeComps& treeComps);
-  
-    double Deviance(const CDataset& data,
-    		const double *adF,
-    		bool isValidationSet=false);
+  void FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
+                       unsigned long num_terminalnodes, double* residuals,
+                       CCARTTree& tree);
 
-    double BagImprovement(const CDataset& data,
-			  const double *adF,
-			  const double shrinkage,
-			  const double* adFadj);
+  double Deviance(const CDataset& kData, const double* kFuncEstimate);
 
-private:
-    //----------------------
-    // Private Constructors
-    //----------------------
-  	CQuantile(double alpha);
+  double BagImprovement(const CDataset& kData, const double* kFuncEstimate,
+                        const double kShrinkage, const double* kDeltaEstimate);
 
-	//-------------------
-	// Private Variables
-	//-------------------
-    vector<double> vecd;
-    double dAlpha;
-    CLocationM mpLocM;
+ private:
+  //----------------------
+  // Private Constructors
+  //----------------------
+  CQuantile(double alpha);
+
+  //-------------------
+  // Private Variables
+  //-------------------
+  vector<double> vecd_;
+  double alpha_;
+  CLocationM mplocm_;
 };
 
-#endif // QUANTILE_H
-
-
-
+#endif  // QUANTILE_H

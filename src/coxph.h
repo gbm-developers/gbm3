@@ -27,91 +27,84 @@ class GenericCoxState;
 //------------------------------
 // Class definition
 //------------------------------
-class CCoxPH : public CDistribution
-{
+class CCoxPH : public CDistribution {
+ public:
+  //---------------------
+  // Factory Function
+  //---------------------
+  static CDistribution* Create(DataDistParams& distparams);
 
-public:
-	//---------------------
-	// Factory Function
-	//---------------------
-	static CDistribution* Create(DataDistParams& distParams);
+  //---------------------
+  // Public destructor
+  //---------------------
+  virtual ~CCoxPH();
 
-	//---------------------
-	// Public destructor
-	//---------------------
-    virtual ~CCoxPH();
+  //---------------------
+  // Public Functions
+  //---------------------
+  void ComputeWorkingResponse(const CDataset& kData,
+                              const double* kFuncEstimate, double* residuals);
 
-    //---------------------
-    // Public Functions
-    //---------------------
-    void ComputeWorkingResponse(const CDataset& data,
-    		const double *adF,
-				double *adZ);
+  double InitF(const CDataset& kData);
 
-    double InitF(const CDataset& data);
-    
-    void FitBestConstant(const CDataset& data,
-    		const double *adF,
-			 unsigned long cTermNodes,
-			 double* adZ,
-			 CTreeComps& treeComps);
-    
-    double Deviance(const CDataset& data,
-    				const double *adF,
-                    bool isValidationSet=false);
+  void FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
+                       unsigned long num_terminalnodes, double* residuals,
+                       CCARTTree& tree);
 
-    double BagImprovement(const CDataset& data,
-			  const double *adF,
-			  const double shrinkage, const double* adFadj);
+  double Deviance(const CDataset& kData, const double* kFuncEstimate);
 
-    // Getters for the internal variables
-    double* StatusVec();
-    const double* StatusVec() const;
+  double BagImprovement(const CDataset& kData, const double* kFuncEstimate,
+                        const double kShrinkage, const double* kDeltaEstimate);
+  void ShiftDistPtrs(unsigned long shift) {
+    status_ = shift_ptr(status_, shift);
+    sortedendtimes_ = shift_ptr(sortedendtimes_, shift);
+    sortedstarttimes_ = shift_ptr(sortedstarttimes_, shift);
+    strata = shift_ptr(strata, shift);
+  }
 
-    int* EndTimeIndices();
-    const int* EndTimeIndices() const;
+  // Getters for the internal variables
+  double* StatusVec() { return &status_[0]; }
+  const double* StatusVec() const { return &status_[0]; }
 
-    int* StartTimeIndices();
-    const int* StartTimeIndices() const;
+  int* EndTimeIndices() { return &sortedendtimes_[0]; }
+  const int* EndTimeIndices() const { return &sortedendtimes_[0]; }
 
-    int* StrataVec();
-    const int* StrataVec() const;
+  int* StartTimeIndices() { return &sortedstarttimes_[0]; }
+  const int* StartTimeIndices() const { return &sortedstarttimes_[0]; }
 
-    int TieApproxMethod() const;
+  int* StrataVec() { return &strata[0]; }
+  const int* StrataVec() const { return &strata[0]; }
 
-    double PriorCoeffVar() const;
+  int TieApproxMethod() const { return tiedtimesmethod_; }
+  double PriorCoeffVar() const { return kPriorCoeffVariation_; }
 
-private:
-    //----------------------
-    // Private Constructors
-    //----------------------
-    CCoxPH(double* stats, int* sortedEnd, int* sortedSt, int* strats,
-	   bool isStartStop, int tiedMethod, double priorCoeff);
+ private:
+  //----------------------
+  // Private Constructors
+  //----------------------
+  CCoxPH(double* stats, int* sorted_end, int* sorted_start, int* strats,
+         bool is_startstop, int tiesmethod, double priorcoeff);
 
-    //----------------------
-    // Private Functions
-    //----------------------
-    double LogLikelihood(const int n, const CDataset& data,
-			 const double* eta, double* resid);
+  //----------------------
+  // Private Functions
+  //----------------------
+  double LogLikelihood(const int n, const CDataset& kData, const double* eta,
+                       double* resid);
 
-    double LogLikelihoodTiedTimes(const int n, const CDataset& data,
-				  const double* eta, double* resid);
+  double LogLikelihoodTiedTimes(const int n, const CDataset& kData,
+                                const double* eta, double* resid);
 
-    //-------------------
-    // Private Variables
-    //-------------------
-    const bool startStopCase;
-    const double priorCoeffVar;
-    GenericCoxState* coxStateMethods;
-
-    double* status;
-	int* sortedEndTimes;
-	int* sortedStartTimes;
-	int* strata;
-	int tiedTimesMethod;
+  //-------------------
+  // Private Variables
+  //-------------------
+  const bool kStartStopCase_;
+  int* sortedendtimes_;
+  int* sortedstarttimes_;
+  int* strata;
+  const double kPriorCoeffVariation_;
+  double* status_;
+  int tiedtimesmethod_;
+  GenericCoxState* coxstate_methods_;
 };
 
-#endif // COXPH_H
-
-
-
+#endif  // COXPH_H

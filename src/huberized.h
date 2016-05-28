@@ -15,58 +15,45 @@
 // Includes
 //------------------------------
 #include "distribution.h"
-#include "buildinfo.h"
 #include <memory>
 
 //------------------------------
 // Class definition
 //------------------------------
-class CHuberized : public CDistribution
-{
+class CHuberized : public CDistribution {
+ public:
+  //---------------------
+  // Factory Function
+  //---------------------
+  static CDistribution* Create(DataDistParams& distparams);
 
-public:
-	//---------------------
-	// Factory Function
-	//---------------------
-	static CDistribution* Create(DataDistParams& distParams);
+  //---------------------
+  // Public destructor
+  //---------------------
+  virtual ~CHuberized();
 
-	//---------------------
-	// Public destructor
-	//---------------------
-    virtual ~CHuberized();
+  //---------------------
+  // Public Functions
+  //---------------------
+  void ComputeWorkingResponse(const CDataset& kData,
+                              const double* kFuncEstimate, double* residuals);
 
-    //---------------------
-    // Public Functions
-    //---------------------
-    void ComputeWorkingResponse(const CDataset& data,
-    			const double *adF,
-				double *adZ);
+  double Deviance(const CDataset& kData, const double* kFuncEstimate);
 
-    double Deviance(const CDataset& data,
-    				const double *adF,
-                    bool isValidationSet=false);
+  double InitF(const CDataset& kData);
 
-    double InitF(const CDataset& data);
+  void FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
+                       unsigned long num_terminalnodes, double* residuals,
+                       CCARTTree& tree);
 
-    void FitBestConstant(const CDataset& data,
-    		const double *adF,
-			 unsigned long cTermNodes,
-			 double* adZ,
-			 CTreeComps& treeComps);
+  double BagImprovement(const CDataset& kData, const double* kFuncEstimates,
+                        const double kShrinkage, const double* kDeltaEstimates);
 
-    double BagImprovement(const CDataset& data,
-			  const double *adF,
-			  const double shrinkage,
-                          const double* adFadj);
-
-private:
-    //----------------------
-    // Private Constructors
-    //----------------------
-    CHuberized();
+ private:
+  //----------------------
+  // Private Constructors
+  //----------------------
+  CHuberized();
 };
 
-#endif // HUBERIZED_H
-
-
-
+#endif  // HUBERIZED_H

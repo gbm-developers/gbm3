@@ -10,7 +10,7 @@
 //-----------------------------------
 // Includes
 //-----------------------------------
-#include "distributionFactory.h"
+#include "distribution_factory.h"
 #include "adaboost.h"
 #include "bernoulli.h"
 #include "coxph.h"
@@ -40,20 +40,19 @@
 // Parameters: none
 //
 //-----------------------------------
-DistributionFactory::DistributionFactory()
-{
-	RegisterDist("adaboost", &CAdaBoost::Create);
-	RegisterDist("bernoulli", &CBernoulli::Create);
-	RegisterDist("coxph", &CCoxPH::Create);
-	RegisterDist("gamma", &CGamma::Create);
-	RegisterDist("gaussian", &CGaussian::Create);
-	RegisterDist("huberized", &CHuberized::Create);
-	RegisterDist("laplace", &CLaplace::Create);
-	RegisterDist("pairwise", &CPairwise::Create);
-	RegisterDist("poisson", &CPoisson::Create);
-	RegisterDist("quantile", &CQuantile::Create);
-	RegisterDist("tdist", &CTDist::Create);
-	RegisterDist("tweedie", &CTweedie::Create);
+DistributionFactory::DistributionFactory() {
+  RegisterDist("adaboost", &CAdaBoost::Create);
+  RegisterDist("bernoulli", &CBernoulli::Create);
+  RegisterDist("coxph", &CCoxPH::Create);
+  RegisterDist("gamma", &CGamma::Create);
+  RegisterDist("gaussian", &CGaussian::Create);
+  RegisterDist("huberized", &CHuberized::Create);
+  RegisterDist("laplace", &CLaplace::Create);
+  RegisterDist("pairwise", &CPairwise::Create);
+  RegisterDist("poisson", &CPoisson::Create);
+  RegisterDist("quantile", &CQuantile::Create);
+  RegisterDist("tdist", &CTDist::Create);
+  RegisterDist("tweedie", &CTweedie::Create);
 }
 
 //----------------------------------------
@@ -65,14 +64,15 @@ DistributionFactory::DistributionFactory()
 //   method to factory map for later use.
 //
 // Parameters:
-//  DistFamily - string identifying the distribution to create, IN, const string.
+//  DistFamily - string identifying the distribution to create, IN, const
+//  string.
 //  PtrDistCreateFn - function pointer to distribution create method, IN,
 //                    function pointer.
 //
 //------------------------------------------
-void DistributionFactory::RegisterDist(const string& DistFamily, distCreate PtrDistCreateFn)
-{
-	FactoryMap[DistFamily] = PtrDistCreateFn;
+void DistributionFactory::RegisterDist(const string& kDistFamily,
+                                       DistCreate ptr_to_dist_createfunc) {
+  factorymap_[kDistFamily] = ptr_to_dist_createfunc;
 }
 
 //------------------------------------------
@@ -84,19 +84,18 @@ void DistributionFactory::RegisterDist(const string& DistFamily, distCreate PtrD
 //              distribution.
 //
 // Parameters:
-//   distParams - configuration struct containing parameters for distribution set-up.
+//   distParams - configuration struct containing parameters for distribution
+//   set-up.
 //---------------------------------------------
 
-CDistribution* DistributionFactory::CreateDist(DataDistParams& distParams)
-{
-  std::map<std::string, distCreate>::iterator it = FactoryMap.find(distParams.family);
-	if( it != FactoryMap.end() )
-	{
-		return it -> second(distParams);
-	}
-	else
-	{
-		throw GBM::invalid_argument( "Error: Family string provided not recognised - distribution can't be initialized.");
-	}
-
+CDistribution* DistributionFactory::CreateDist(DataDistParams& distparams) {
+  std::map<std::string, DistCreate>::iterator it =
+      factorymap_.find(distparams.family);
+  if (it != factorymap_.end()) {
+    return it->second(distparams);
+  } else {
+    throw gbm_exception::InvalidArgument(
+        "Error: Family string provided not recognised - distribution can't be "
+        "initialized.");
+  }
 }

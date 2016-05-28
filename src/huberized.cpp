@@ -14,244 +14,181 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CHuberized::CHuberized()
-{
-}
+CHuberized::CHuberized() {}
 
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
 
-CDistribution* CHuberized::Create(DataDistParams& distParams)
-{
-	return new CHuberized();
+CDistribution* CHuberized::Create(DataDistParams& distparams) {
+  return new CHuberized();
 }
 
-CHuberized::~CHuberized()
-{
+CHuberized::~CHuberized() {}
+
+void CHuberized::ComputeWorkingResponse(const CDataset& kData,
+                                        const double* kFuncEstimate,
+                                        double* residuals) {
+  unsigned long i = 0;
+  double delta_func_est = 0.0;
+
+  for (i = 0; i < kData.get_trainsize(); i++) {
+    delta_func_est = kFuncEstimate[i] + kData.offset_ptr()[i];
+    if ((2 * kData.y_ptr()[i] - 1) * delta_func_est < -1) {
+      residuals[i] = -4 * (2 * kData.y_ptr()[i] - 1);
+    } else if (1 - (2 * kData.y_ptr()[i] - 1) * delta_func_est < 0) {
+      residuals[i] = 0;
+    } else {
+      residuals[i] = -2 * (2 * kData.y_ptr()[i] - 1) *
+                     (1 - (2 * kData.y_ptr()[i] - 1) * delta_func_est);
+    }
+  }
 }
 
+double CHuberized::InitF(const CDataset& kData) {
+  unsigned long i = 0;
+  double numerator = 0.0;
+  double denominator = 0.0;
 
-void CHuberized::ComputeWorkingResponse
-(
-	const CDataset& data,
-    const double *adF,
-    double *adZ
-)
-{
-   unsigned long i = 0;
-   double dF = 0.0;
+  for (i = 0; i < kData.get_trainsize(); i++) {
+    if (kData.y_ptr()[i] == 1.0) {
+      numerator += kData.weight_ptr()[i];
+    } else {
+      denominator += kData.weight_ptr()[i];
+    }
+  }
 
-   for(i=0; i<data.get_trainSize(); i++)
-   {
-      dF = adF[i] + data.offset_ptr()[i];
-      if( (2*data.y_ptr()[i]-1)*dF < -1)
-      {
-         adZ[i] = -4 * (2*data.y_ptr()[i]-1);
+  return numerator / denominator;
+}
+
+double CHuberized::Deviance(const CDataset& kData,
+                            const double* kFuncEstimate) {
+  unsigned long i = 0;
+  double loss = 0.0;
+  double delta_func_est = 0.0;
+  double weights = 0.0;
+
+  unsigned long num_rows_in_set = kData.get_size_of_set();
+
+  for (i = 0; i < num_rows_in_set; i++) {
+    delta_func_est = kData.offset_ptr()[i] + kFuncEstimate[i];
+    if ((2 * kData.y_ptr()[i] - 1) * kFuncEstimate[i] < -1) {
+      loss += -kData.weight_ptr()[i] * 4 * (2 * kData.y_ptr()[i] - 1) *
+              delta_func_est;
+      weights += kData.weight_ptr()[i];
+    } else if (1 - (2 * kData.y_ptr()[i] - 1) * delta_func_est < 0) {
+      loss += 0;
+      weights += kData.weight_ptr()[i];
+    } else {
+      loss += kData.weight_ptr()[i] *
+              (1 - (2 * kData.y_ptr()[i] - 1) * delta_func_est) *
+              (1 - (2 * kData.y_ptr()[i] - 1) * delta_func_est);
+      weights += kData.weight_ptr()[i];
+    }
+  }  // close for(
+
+  // TODO: Check if weights are all zero for validation set
+  if ((weights == 0.0) && (loss == 0.0)) {
+    return nan("");
+  } else if (weights == 0.0) {
+    return copysign(HUGE_VAL, loss);
+  }
+
+  return loss / weights;
+}
+
+void CHuberized::FitBestConstant(const CDataset& kData,
+                                 const double* kFuncEstimate,
+                                 unsigned long num_terminalnodes,
+                                 double* residuals, CCARTTree& tree) {
+  double delta_func_est = 0.0;
+  unsigned long obs_num = 0;
+  unsigned long node_num = 0;
+
+  vector<double> numerator_vec(num_terminalnodes, 0.0);
+  vector<double> denominator_vec(num_terminalnodes, 0.0);
+
+  for (obs_num = 0; obs_num < kData.get_trainsize(); obs_num++) {
+    if (kData.get_bag_element(obs_num)) {
+      delta_func_est = kFuncEstimate[obs_num] + kData.offset_ptr()[obs_num];
+      if ((2 * kData.y_ptr()[obs_num] - 1) * kFuncEstimate[obs_num] < -1) {
+        numerator_vec[tree.get_node_assignments()[obs_num]] +=
+            kData.weight_ptr()[obs_num] * 4 * (2 * kData.y_ptr()[obs_num] - 1);
+        denominator_vec[tree.get_node_assignments()[obs_num]] +=
+            -kData.weight_ptr()[obs_num] * 4 *
+            (2 * kData.y_ptr()[obs_num] - 1) * delta_func_est;
+      } else if (1 - (2 * kData.y_ptr()[obs_num] - 1) * kFuncEstimate[obs_num] <
+                 0) {
+        numerator_vec[tree.get_node_assignments()[obs_num]] += 0;
+        denominator_vec[tree.get_node_assignments()[obs_num]] += 0;
+      } else {
+        numerator_vec[tree.get_node_assignments()[obs_num]] +=
+            kData.weight_ptr()[obs_num] * 2 * (2 * kData.y_ptr()[obs_num] - 1) *
+            (1 - (2 * kData.y_ptr()[obs_num] - 1) * kFuncEstimate[obs_num]);
+        denominator_vec[tree.get_node_assignments()[obs_num]] +=
+            kData.weight_ptr()[obs_num] *
+            (1 - (2 * kData.y_ptr()[obs_num] - 1) * kFuncEstimate[obs_num]) *
+            (1 - (2 * kData.y_ptr()[obs_num] - 1) * kFuncEstimate[obs_num]);
       }
-      else if ( 1 - (2*data.y_ptr()[i]-1)*dF < 0 )
-      {
-         adZ[i] = 0;
+    }  // close if(afInBag[obs_num
+  }
+
+  for (node_num = 0; node_num < num_terminalnodes; node_num++) {
+    if (tree.get_terminal_nodes()[node_num] != NULL) {
+      if (denominator_vec[node_num] == 0) {
+        tree.get_terminal_nodes()[node_num]->set_prediction(0.0);
+      } else {
+        tree.get_terminal_nodes()[node_num]->set_prediction(
+            numerator_vec[node_num] / denominator_vec[node_num]);
       }
-      else
-      {
-         adZ[i] = -2 * (2*data.y_ptr()[i]-1) * ( 1 - (2*data.y_ptr()[i]-1)*dF );
+    }
+  }
+}
+
+double CHuberized::BagImprovement(const CDataset& kData,
+                                  const double* kFuncEstimate,
+                                  const double kShrinkage,
+                                  const double* kDeltaEstimate) {
+  double returnvalue = 0.0;
+  double delta_func_est = 0.0;
+  double weight = 0.0;
+  unsigned long i = 0;
+
+  for (i = 0; i < kData.get_trainsize(); i++) {
+    if (!kData.get_bag_element(i)) {
+      delta_func_est = kFuncEstimate[i] + kData.offset_ptr()[i];
+
+      if ((2 * kData.y_ptr()[i] - 1) * delta_func_est < -1) {
+        returnvalue += kData.weight_ptr()[i] *
+                       (-4 * (2 * kData.y_ptr()[i] - 1) * delta_func_est -
+                        -4 * (2 * kData.y_ptr()[i] - 1) *
+                            (delta_func_est + kShrinkage * kDeltaEstimate[i]));
+        weight += kData.weight_ptr()[i];
+      } else if (1 - (2 * kData.y_ptr()[i] - 1) * delta_func_est < 0) {
+        returnvalue += 0;
+        weight += kData.weight_ptr()[i];
+      } else {
+        returnvalue +=
+            kData.weight_ptr()[i] *
+            ((1 - (2 * kData.y_ptr()[i] - 1) * delta_func_est) *
+                 (1 - (2 * kData.y_ptr()[i] - 1) * delta_func_est) -
+             (1 -
+              (2 * kData.y_ptr()[i] - 1) *
+                  (delta_func_est + kShrinkage * kDeltaEstimate[i])) *
+                 (1 -
+                  (2 * kData.y_ptr()[i] - 1) *
+                      (delta_func_est + kShrinkage * kDeltaEstimate[i])));
+        // TODO: Does this require an weight+= ?
       }
-   }
-}
-
-double CHuberized::InitF
-(
-	const CDataset& data
-)
-{
-    unsigned long i=0;
-    double dNum = 0.0;
-    double dDen = 0.0;
-
-    for(i=0; i<data.get_trainSize(); i++)
-    {
-        if(data.y_ptr()[i]==1.0)
-        {
-            dNum += data.weight_ptr()[i];
-        }
-        else
-        {
-            dDen += data.weight_ptr()[i];
-        }
     }
+  }
 
-    return dNum/dDen;
-}
+  // TODO: Check if weights are all zero for validation set
+  if ((weight == 0.0) && (returnvalue == 0.0)) {
+    return nan("");
+  } else if (weight == 0.0) {
+    return copysign(HUGE_VAL, returnvalue);
+  }
 
-
-double CHuberized::Deviance
-(
-	const CDataset& data,
-    const double *adF,
-    bool isValidationSet
-)
-{
-   unsigned long i=0;
-   double dL = 0.0;
-   double dF = 0.0;
-   double dW = 0.0;
-
-   long cLength = data.get_trainSize();
-   if(isValidationSet)
-   {
-	   data.shift_to_validation();
-	   cLength = data.GetValidSize();
-   }
-
-
-  for(i=0; i<cLength; i++)
-  {
-	 dF = data.offset_ptr()[i]+adF[i];
-	 if ( (2*data.y_ptr()[i]-1)*adF[i] < -1 )
-	 {
-		dL += -data.weight_ptr()[i]*4*(2*data.y_ptr()[i]-1)*dF;
-		dW += data.weight_ptr()[i];
-	 }
-	 else if ( 1 - (2*data.y_ptr()[i]-1)*dF < 0 )
-	 {
-		dL += 0;
-		dW += data.weight_ptr()[i];
-	 }
-	 else
-	 {
-		dL += data.weight_ptr()[i] * ( 1 - (2*data.y_ptr()[i]-1)*dF ) *
-							( 1 - (2*data.y_ptr()[i]-1)*dF );
-		dW += data.weight_ptr()[i];
-	 }
-  } // close for(
-
-
-   if(isValidationSet)
-   {
-	   data.shift_to_train();
-   }
-
-   //TODO: Check if weights are all zero for validation set
-	if((dW == 0.0) && (dL == 0.0))
-	{
-		return nan("");
-	}
-	else if(dW == 0.0)
-	{
-		return copysign(HUGE_VAL, dL);
-	}
-
-   return dL/dW;
-}
-
-
-void CHuberized::FitBestConstant
-(
-	const CDataset& data,
-    const double *adF,
-    unsigned long cTermNodes,
-    double* adZ,
-    CTreeComps& treeComps
-)
-{
-  double dF = 0.0;
-  unsigned long iObs = 0;
-  unsigned long iNode = 0;
-  
-  vector<double> vecdNum(cTermNodes, 0.0);
-  vector<double> vecdDen(cTermNodes, 0.0);
-
-  for(iObs=0; iObs<data.get_trainSize(); iObs++)
-    {
-      if(data.GetBagElem(iObs))
-        {
-	  dF = adF[iObs] +  data.offset_ptr()[iObs];
-	  if( (2*data.y_ptr()[iObs]-1)*adF[iObs] < -1 )
-	  {
-	    vecdNum[treeComps.GetNodeAssign()[iObs]] +=
-	      data.weight_ptr()[iObs]*4*(2*data.y_ptr()[iObs]-1);
-	    vecdDen[treeComps.GetNodeAssign()[iObs]] +=
-	      -data.weight_ptr()[iObs]*4*(2*data.y_ptr()[iObs]-1)*dF;
-	  }
-	  else if ( 1 - (2*data.y_ptr()[iObs]-1)*adF[iObs] < 0 ){
-	    vecdNum[treeComps.GetNodeAssign()[iObs]] += 0;
-	    vecdDen[treeComps.GetNodeAssign()[iObs]] += 0;
-	  }
-	  else{
-	    vecdNum[treeComps.GetNodeAssign()[iObs]] += data.weight_ptr()[iObs]*2*(2*data.y_ptr()[iObs]-1)*( 1 - (2*data.y_ptr()[iObs]-1)*adF[iObs] );
-	    vecdDen[treeComps.GetNodeAssign()[iObs]] += data.weight_ptr()[iObs]*( 1 - (2*data.y_ptr()[iObs]-1)*adF[iObs])*( 1 - (2*data.y_ptr()[iObs]-1)*adF[iObs]);
-	  }
-        } // close if(afInBag[iObs
-    }
-  
-  for(iNode=0; iNode<cTermNodes; iNode++)
-    {
-      if(treeComps.GetTermNodes()[iNode]!=NULL)
-        {
-	  if(vecdDen[iNode] == 0)
-            {
-	      treeComps.GetTermNodes()[iNode]->dPrediction = 0.0;
-            }
-	  else
-            {
-	      treeComps.GetTermNodes()[iNode]->dPrediction =
-		vecdNum[iNode]/vecdDen[iNode];
-            }
-        }
-    }
-}
-
-
-double CHuberized::BagImprovement
-(
-    const CDataset& data,
-    const double *adF,
-    const double shrinkage,
-    const double* adFadj
-)
-{
-    double dReturnValue = 0.0;
-    double dF = 0.0;
-    double dW = 0.0;
-    unsigned long i = 0;
-
-    for(i=0; i<data.get_trainSize(); i++)
-    {
-        if(!data.GetBagElem(i))
-        {
-            dF = adF[i] +  data.offset_ptr()[i];
-
-            if( (2*data.y_ptr()[i]-1)*dF < -1 ){
-               dReturnValue += data.weight_ptr()[i]*
-                   (-4*(2*data.y_ptr()[i]-1)*dF -
-                    -4*(2*data.y_ptr()[i]-1)*(dF+shrinkage*adFadj[i]));
-               dW += data.weight_ptr()[i];
-            }
-            else if ( 1 - (2*data.y_ptr()[i]-1)*dF < 0 ){
-               dReturnValue += 0;
-               dW += data.weight_ptr()[i];
-            }
-            else {
-               dReturnValue += data.weight_ptr()[i] *
-                  ( ( 1 - (2*data.y_ptr()[i]-1)*dF )*( 1 - (2*data.y_ptr()[i]-1)*dF ) -
-                    ( 1 - (2*data.y_ptr()[i]-1)*(dF+shrinkage*adFadj[i]) )*( 1 - (2*data.y_ptr()[i]-1)*(dF+shrinkage*adFadj[i]) )
-                  );
-               //TODO: Does this require an dW+= ?
-            }
-        }
-    }
-
-    //TODO: Check if weights are all zero for validation set
-   if((dW == 0.0) && (dReturnValue == 0.0))
-   {
-	   return nan("");
-   }
-   else if(dW == 0.0)
-   {
-
-	   return copysign(HUGE_VAL, dReturnValue);
-   }
-
-    return dReturnValue/dW;
+  return returnvalue / weight;
 }

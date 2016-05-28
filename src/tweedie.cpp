@@ -22,220 +22,194 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CTweedie:: CTweedie(double power)
-{
-	dPower = power;
-}
+CTweedie::CTweedie(double power) { power_ = power; }
 
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CTweedie::Create(DataDistParams& distParams)
-{
-	// Extract misc from second column of response]
-	double power = Rcpp::as<double>(distParams.misc[0]);
-	if(!GBM_FUNC::has_value(power))
-	{
-		throw GBM::failure("Tweedie distribution requires misc to initialization.");
-	}
-	return new CTweedie(power);
+CDistribution* CTweedie::Create(DataDistParams& distparams) {
+  // Extract misc from second column of response]
+  double power = Rcpp::as<double>(distparams.misc[0]);
+  if (!gbm_functions::has_value(power)) {
+    throw gbm_exception::Failure(
+        "Tweedie distribution requires misc to initialization.");
+  }
+  return new CTweedie(power);
 }
 
-CTweedie::~CTweedie()
-{
-}
+CTweedie::~CTweedie() {}
 
-void CTweedie::ComputeWorkingResponse
-(
- const CDataset& data,
- const double *adF, 
- double *adZ
-)
-{
-
+void CTweedie::ComputeWorkingResponse(const CDataset& kData,
+                                      const double* kFuncEstimates,
+                                      double* residuals) {
   unsigned long i = 0;
-  double dF = 0.0;
-    
-  if( ! (data.y_ptr() && adF && adZ && data.weight_ptr()) )
-    {
-      throw GBM::invalid_argument();
-    }
+  double delta_func_est = 0.0;
 
-  for(i=0; i<data.get_trainSize(); i++)
-    {
-      dF = adF[i] + data.offset_ptr()[i];
-      adZ[i] = data.y_ptr()[i]*std::exp(dF*(1.0-dPower)) - exp(dF*(2.0-dPower));
-    }
+  if (!(kData.y_ptr() && kFuncEstimates && residuals && kData.weight_ptr())) {
+    throw gbm_exception::InvalidArgument();
+  }
+
+  for (i = 0; i < kData.get_trainsize(); i++) {
+    delta_func_est = kFuncEstimates[i] + kData.offset_ptr()[i];
+    residuals[i] =
+        kData.y_ptr()[i] * std::exp(delta_func_est * (1.0 - power_)) -
+        exp(delta_func_est * (2.0 - power_));
+  }
 }
 
+double CTweedie::InitF(const CDataset& kData) {
+  double sum = 0.0;
+  double totalweight = 0.0;
+  double min = -19.0;
+  double max = +19.0;
+  unsigned long i = 0;
+  double init_func_est = 0.0;
 
-double CTweedie::InitF
-(
- const CDataset& data
-)
-{	
-    double dSum=0.0;
-    double dTotalWeight = 0.0;
-    double Min = -19.0;
-    double Max = +19.0;
-    unsigned long i=0;
-    double dInitF = 0.0;
+  for (i = 0; i < kData.get_trainsize(); i++) {
+    sum += kData.weight_ptr()[i] * kData.y_ptr()[i] *
+           std::exp(kData.offset_ptr()[i] * (1.0 - power_));
+    totalweight += kData.weight_ptr()[i] *
+                   std::exp(kData.offset_ptr()[i] * (2.0 - power_));
+  }
 
+  if (sum <= 0.0) {
+    init_func_est = min;
+  } else {
+    init_func_est = std::log(sum / totalweight);
+  }
 
+  if (init_func_est < min) {
+    init_func_est = min;
+  }
+  if (init_func_est > max) {
+    init_func_est = max;
+  }
 
-	for(i=0; i<data.get_trainSize(); i++)
-	{
-		dSum += data.weight_ptr()[i]*data.y_ptr()[i]*std::exp(data.offset_ptr()[i]*(1.0-dPower));
-		dTotalWeight += data.weight_ptr()[i]*std::exp(data.offset_ptr()[i]*(2.0-dPower));
-	}
-
-    
-    if (dSum <= 0.0) { dInitF = Min; }
-    else { dInitF = std::log(dSum/dTotalWeight); }
-    
-    if (dInitF < Min) { dInitF = Min; }
-    if (dInitF > Max) { dInitF = Max; }
-
-    return dInitF;
+  return init_func_est;
 }
 
+double CTweedie::Deviance(const CDataset& kData, const double* kFuncEstimate) {
+  double delta_func_est = 0.0;
+  unsigned long i = 0;
+  double loss = 0.0;
+  double weight = 0.0;
 
-double CTweedie::Deviance
-(
-	const CDataset& data,
-    const double *adF,
-    bool isValidationSet
-)
-{
-  double dF = 0.0;
-  unsigned long i=0;
-  double dL = 0.0;
-  double dW = 0.0;
-  
   // Switch to validation set if necessary
-  long cLength = data.get_trainSize();
-  if(isValidationSet)
-  {
-	   data.shift_to_validation();
-	   cLength = data.GetValidSize();
+  unsigned long num_rows_in_set = kData.get_size_of_set();
+
+  for (i = 0; i < num_rows_in_set; i++) {
+    delta_func_est = kFuncEstimate[i] + kData.offset_ptr()[i];
+    loss += kData.weight_ptr()[i] *
+            (pow(kData.y_ptr()[i], 2.0 - power_) /
+                 ((1.0 - power_) * (2.0 - power_)) -
+             kData.y_ptr()[i] * std::exp(delta_func_est * (1.0 - power_)) /
+                 (1.0 - power_) +
+             exp(delta_func_est * (2.0 - power_)) / (2.0 - power_));
+    weight += kData.weight_ptr()[i];
   }
 
-  for(i=0; i<cLength; i++)
-    {
-      dF = adF[i] +  data.offset_ptr()[i];
-      dL += data.weight_ptr()[i]*(pow(data.y_ptr()[i],2.0-dPower)/((1.0-dPower)*(2.0-dPower)) -
-			 data.y_ptr()[i]*std::exp(dF*(1.0-dPower))/(1.0-dPower) + exp(dF*(2.0-dPower))/(2.0-dPower) );
-      dW += data.weight_ptr()[i];
-    }
-  
-  // Switch to training set if necessary
-  if(isValidationSet)
-  {
-	   data.shift_to_train();
+  // TODO: Check if weights are all zero for validation set
+  if ((weight == 0.0) && (loss == 0.0)) {
+    return nan("");
+  } else if (weight == 0.0) {
+    return copysign(HUGE_VAL, loss);
   }
 
-  //TODO: Check if weights are all zero for validation set
-	if((dW == 0.0) && (dL == 0.0))
-	{
-		return nan("");
-	}
-	else if(dW == 0.0)
-	{
-		return copysign(HUGE_VAL, dL);
-	}
-
-  return 2.0*dL/dW;
+  return 2.0 * loss / weight;
 }
 
+void CTweedie::FitBestConstant(const CDataset& kData,
+                               const double* kFuncEstimate,
+                               unsigned long num_terminalnodes,
+                               double* residuals, CCARTTree& tree) {
+  double delta_func_est = 0.0;
+  unsigned long obs_num = 0;
+  unsigned long node_num = 0;
+  double maxval = 19.0;
+  double minval = -19.0;
 
-void CTweedie::FitBestConstant
-(
-	const CDataset& data,
-    const double *adF,
-    unsigned long cTermNodes,
-    double* adZ,
-    CTreeComps& treeComps
-)
-{
-    
-  double dF = 0.0;
-  unsigned long iObs = 0;
-  unsigned long iNode = 0;
-  double MaxVal = 19.0;
-  double MinVal = -19.0;
-  
-  vector<double> vecdNum(cTermNodes, 0.0);
-  vector<double> vecdDen(cTermNodes, 0.0);
-  vector<double> vecdMax(cTermNodes, -HUGE_VAL);
-  vector<double> vecdMin(cTermNodes, HUGE_VAL);
+  vector<double> numerator_vec(num_terminalnodes, 0.0);
+  vector<double> denominator_vec(num_terminalnodes, 0.0);
+  vector<double> max_vec(num_terminalnodes, -HUGE_VAL);
+  vector<double> min_vec(num_terminalnodes, HUGE_VAL);
 
-  for(iObs=0; iObs<data.get_trainSize(); iObs++)
-    {
-      if(data.GetBagElem(iObs))
-	{
-	  dF = adF[iObs] +  data.offset_ptr()[iObs];
-	  vecdNum[treeComps.GetNodeAssign()[iObs]] += data.weight_ptr()[iObs]*data.y_ptr()[iObs]*std::exp(dF*(1.0-dPower));
-	  vecdDen[treeComps.GetNodeAssign()[iObs]] += data.weight_ptr()[iObs]*std::exp(dF*(2.0-dPower));
+  for (obs_num = 0; obs_num < kData.get_trainsize(); obs_num++) {
+    if (kData.get_bag_element(obs_num)) {
+      delta_func_est = kFuncEstimate[obs_num] + kData.offset_ptr()[obs_num];
+      numerator_vec[tree.get_node_assignments()[obs_num]] +=
+          kData.weight_ptr()[obs_num] * kData.y_ptr()[obs_num] *
+          std::exp(delta_func_est * (1.0 - power_));
+      denominator_vec[tree.get_node_assignments()[obs_num]] +=
+          kData.weight_ptr()[obs_num] *
+          std::exp(delta_func_est * (2.0 - power_));
 
-	  // Keep track of largest and smallest prediction in each node
-	  vecdMax[treeComps.GetNodeAssign()[iObs]] = R::fmax2(dF,vecdMax[treeComps.GetNodeAssign()[iObs]]);
-	  vecdMin[treeComps.GetNodeAssign()[iObs]] = R::fmin2(dF,vecdMin[treeComps.GetNodeAssign()[iObs]]);
-	}
+      // Keep track of largest and smallest prediction in each node
+      max_vec[tree.get_node_assignments()[obs_num]] = R::fmax2(
+          delta_func_est, max_vec[tree.get_node_assignments()[obs_num]]);
+      min_vec[tree.get_node_assignments()[obs_num]] = R::fmin2(
+          delta_func_est, min_vec[tree.get_node_assignments()[obs_num]]);
     }
+  }
 
-  for(iNode=0; iNode<cTermNodes; iNode++)
-    {
-      if(treeComps.GetTermNodes()[iNode]!=NULL)
-	{
-	  if(vecdNum[iNode] == 0.0)
-	    {
-	      // Taken from poisson.cpp
-	      
-	      // DEBUG: if vecdNum==0 then prediction = -Inf
-	      // Not sure what else to do except plug in an arbitrary
-	      //   negative number, -1? -10? Let's use -19, then make
-	      //   sure |adF| < 19 always.
-		  treeComps.GetTermNodes()[iNode]->dPrediction = MinVal;
-	    }
-	  
-	  else if(vecdDen[iNode] == 0.0) { treeComps.GetTermNodes()[iNode]->dPrediction = 0.0; }
-	  
-	  else { treeComps.GetTermNodes()[iNode]->dPrediction = std::log(vecdNum[iNode]/vecdDen[iNode]); }
-	  
-	  if (vecdMax[iNode]+treeComps.GetTermNodes()[iNode]->dPrediction > MaxVal)
-	    {treeComps.GetTermNodes()[iNode]->dPrediction = MaxVal - vecdMax[iNode];}
-	  if (vecdMin[iNode]+treeComps.GetTermNodes()[iNode]->dPrediction < MinVal)
-	    {treeComps.GetTermNodes()[iNode]->dPrediction = MinVal - vecdMin[iNode];}
-	  
-	}
+  for (node_num = 0; node_num < num_terminalnodes; node_num++) {
+    if (tree.get_terminal_nodes()[node_num] != NULL) {
+      if (numerator_vec[node_num] == 0.0) {
+        // Taken from poisson.cpp
+
+        // DEBUG: if vecdNum==0 then prediction = -Inf
+        // Not sure what else to do except plug in an arbitrary
+        //   negative number, -1? -10? Let's use -19, then make
+        //   sure |adF| < 19 always.
+        tree.get_terminal_nodes()[node_num]->set_prediction(minval);
+      }
+
+      else if (denominator_vec[node_num] == 0.0) {
+        tree.get_terminal_nodes()[node_num]->set_prediction(0.0);
+      }
+
+      else {
+        tree.get_terminal_nodes()[node_num]->set_prediction(
+            std::log(numerator_vec[node_num] / denominator_vec[node_num]));
+      }
+
+      if (max_vec[node_num] + tree.get_terminal_nodes()[node_num]->get_prediction() >
+          maxval) {
+        tree.get_terminal_nodes()[node_num]->set_prediction(
+            maxval - max_vec[node_num]);
+      }
+      if (min_vec[node_num] + tree.get_terminal_nodes()[node_num]->get_prediction() <
+          minval) {
+        tree.get_terminal_nodes()[node_num]->set_prediction(
+            minval - min_vec[node_num]);
+      }
     }
+  }
 }
 
-double CTweedie::BagImprovement
-(
-	const CDataset& data,
-	const double *adF,
-	const double shrinkage,
-	const double* adFadj
-)
-{
-	double dReturnValue = 0.0;
-	double dF = 0.0;
-	double dW = 0.0;
-	unsigned long i = 0;
+double CTweedie::BagImprovement(const CDataset& kData,
+                                const double* kFuncEstimate,
+                                const double kShrinkage,
+                                const double* kDeltaEstimate) {
+  double returnvalue = 0.0;
+  double delta_func_estimate = 0.0;
+  double weight = 0.0;
+  unsigned long i = 0;
 
-	for(i=0; i<data.get_trainSize(); i++)
-	{
-		if(!data.GetBagElem(i))
-		{
-			dF = adF[i] + data.offset_ptr()[i];
+  for (i = 0; i < kData.get_trainsize(); i++) {
+    if (!kData.get_bag_element(i)) {
+      delta_func_estimate = kFuncEstimate[i] + kData.offset_ptr()[i];
 
-			dReturnValue += data.weight_ptr()[i]*( std::exp(dF*(1.0-dPower))*data.y_ptr()[i]/(1.0-dPower)*
-				(std::exp(shrinkage*adFadj[i]*(1.0-dPower))-1.0) +
-				std::exp(dF*(2.0-dPower))/(2.0-dPower)*(1.0-exp(shrinkage*adFadj[i]*(2.0-dPower))) );
-			dW += data.weight_ptr()[i];
-		}
-	}
+      returnvalue +=
+          kData.weight_ptr()[i] *
+          (std::exp(delta_func_estimate * (1.0 - power_)) * kData.y_ptr()[i] /
+               (1.0 - power_) *
+               (std::exp(kShrinkage * kDeltaEstimate[i] * (1.0 - power_)) -
+                1.0) +
+           std::exp(delta_func_estimate * (2.0 - power_)) / (2.0 - power_) *
+               (1.0 - exp(kShrinkage * kDeltaEstimate[i] * (2.0 - power_))));
+      weight += kData.weight_ptr()[i];
+    }
+  }
 
-	return 2.0*dReturnValue/dW;
+  return 2.0 * returnvalue / weight;
 }

@@ -2,14 +2,14 @@
 //
 //  File:       dataset.h
 //
-//  Description:   Header file for dataset public methods. The dataset
-//    accessed via a pointer to its implementation.
+//  Description:   Header file for dataset public methods.
 //
 //  Owner:      gregr@rand.org
 //
 //  History:    3/26/2001   gregr created
 //              2/14/2003   gregr: adapted for R implementation
 //				31/03/2016  James Hickey: RAII and Pimpled
+//				25/05/2016  James Hickey: Strip out pimpl
 //------------------------------------------------------------------------------
 
 #ifndef DATASET_H
@@ -18,311 +18,166 @@
 //------------------------------
 // Includes
 //------------------------------
-#include "buildinfo.h"
-#include "configStructs.h"
+#include "config_structs.h"
 #include "gbmexcept.h"
-#include "gbmFunc.h"
+#include "gbm_functions.h"
 #include <algorithm>
 #include <memory>
 #include <vector>
 #include <Rcpp.h>
 
-typedef std::vector<int> bag;
-
-//-----------------------------------
-// Class Definition - Private Variable
-//-----------------------------------
-class CDImpl
-{
-public:
-  //----------------------
-  // Public Constructors
-  //----------------------
-  CDImpl(SEXP radY, SEXP radOffset, SEXP radX, SEXP raiXOrder,
-	 SEXP radWeight, SEXP racVarClasses, SEXP ralMonotoneVar,
-	 const int cTrain, const int cFeatures, const double fractionInBag,
-	 const int cTrainPatients, SEXP patientIds) :
-    adY(radY), adOffset(radOffset), adWeight(radWeight), adX(radX),
-    acVarClasses(racVarClasses), alMonotoneVar(ralMonotoneVar),
-    aiXOrder(raiXOrder), numOfTrainData(cTrain), numOfFeatures(cFeatures),
-    numOfTrainPatients(cTrainPatients), patIds(patientIds)
-  {
-    
-    // If you've no offset set to 0
-    if(!GBM_FUNC::has_value(adOffset))
-    {
-      Rcpp::NumericVector new_offset(adX.nrow());
-      std::swap(adOffset, new_offset);
-    }
-    
-    // Set variables
-    bagFraction = fractionInBag;
-    totalInBag = (long) (fractionInBag * cTrainPatients);
-    cValid = adX.nrow() - cTrain;
-    pointAtTrainSet = true;
-    
-    // Set up pointers
-    adWeightPtr = adWeight.begin();
-    adOffsetPtr = adOffset.begin();
-    afInBag.assign(cTrain, false);
-    SetUpYPtrs();
-    
-    // Ensure initialization makes sense
-    if (totalInBag <= 0)
-      {
-	throw GBM::invalid_argument("you have an empty bag!");
-      }
-    if (cTrain <= 0)
-      {
-	throw GBM::invalid_argument("you've <= 0 training instances");
-      }
-    
-  };
-  
-  //---------------------
-  // Public destructor
-  //---------------------
-  ~CDImpl(){};
-  
-  //---------------------
-  // Public Functions
-  //---------------------
-  //-----------------------------------
-  // Function: shift_ptr_to_validation
-  //
-  // Returns:  shifts the ptr to the validation set.
-  //
-  // Parameters: none
-  //
-  //-----------------------------------
-  template<typename T>
-    T* shift_ptr_to_validation(T* x) const
-    {
-      if(x)
-      {
-    	  return x + numOfTrainData;
-      }
-      else
-      {
-    	  return x;
-      }
-    }
-  
-  //-----------------------------------
-  // Function: shift_ptr_to_train
-  //
-  // Returns:  shifts the ptr to the training set.
-  //
-  // Parameters: none
-  //
-  //-----------------------------------
-  template<typename T>
-	T* shift_ptr_to_train(T* x) const
-	{
-	  if(x)
-	  {
-		  return x - numOfTrainData;
-	  }
-	  else
-	  {
-		  return x;
-	  }
-	}
-  
-  //-----------------------------------
-  // Function: SetUpYPtrs
-  //
-  // Returns:  sets up the ptrs to each column of response mat.
-  //
-  // Parameters: none
-  //
-  //-----------------------------------
-  void SetUpYPtrs()
-  {
-    for(long i = 0; i < adY.ncol(); i++)
-      {
-    	yptrs.push_back(adY(Rcpp::_, i).begin());
-      }
-  }
-  
-  void shift_to_train() const
-  {
-    if(!(pointAtTrainSet))
-    {
-      for(int i = 0; i < yptrs.size(); i++)
-      {
-    	  yptrs[i] = shift_ptr_to_train(yptrs[i]);
-      }
-      adOffsetPtr = shift_ptr_to_train(adOffsetPtr);
-      adWeightPtr = shift_ptr_to_train(adWeightPtr);
-      pointAtTrainSet = true;
-    }
-    else
-    {
-      throw GBM::invalid_argument("Data is already the training set.");
-    }
-  }
-
-  //---shift_to_validation() const
-  void shift_to_validation() const
-  {
-    if (pointAtTrainSet)
-    {
-      for(int i = 0; i < yptrs.size(); i++)
-      {
-    	  yptrs[i] = shift_ptr_to_validation(yptrs[i]);
-      }
-      adOffsetPtr = shift_ptr_to_validation(adOffsetPtr);
-      adWeightPtr = shift_ptr_to_validation(adWeightPtr);
-      pointAtTrainSet = false;
-    }
-    else
-    {
-    	throw GBM::invalid_argument("Data is already the validation set.");
-    }
-  }
-
-  // Public Variables
-  //-------------------
-  // Numeric vectors storing data
-  Rcpp::NumericVector adOffset, adWeight;
-  Rcpp::NumericMatrix adX, adY;
-  Rcpp::IntegerVector acVarClasses, alMonotoneVar, aiXOrder, patIds;
-  
-  // Ptrs to numeric vectors - these must be mutable
-  mutable std::vector<double*> yptrs;
-  mutable double* adOffsetPtr;
-  mutable double* adWeightPtr;
-  
-  // Properties of the data
-  long numOfTrainData;
-  long numOfTrainPatients;
-  unsigned long cValid;
-  long numOfFeatures;
-  mutable bool pointAtTrainSet;
-  
-  // Bagged  data
-  bag afInBag;
-  double bagFraction;
-  long totalInBag;
-  
-};
+typedef std::vector<int> Bag;
 
 //------------------------------
 // Class definition
 //------------------------------
-class CDataset
-{
-public:
-
+class CDataset {
+ public:
   //----------------------
   // Public Constructors
   //----------------------
   CDataset(const DataDistParams& dataParams);
-  
+
   //---------------------
   // Public destructor
   //---------------------
   virtual ~CDataset();
-  
+
   //---------------------
   // Public Functions
   //---------------------
-  int nrow() const
-  {
-    return dataImpl.adX.nrow();
-  };
-  int ncol() const
-  {
-    return dataImpl.adX.ncol();
-  };
-  
-  double* y_ptr(long colIndex=0)
-  {
-    return dataImpl.yptrs[colIndex];
-  }; //get iterator to class labels
+  unsigned int nrow() const { return xmatrix_.nrow(); };
+  unsigned int ncol() const { return xmatrix_.ncol(); };
 
-  const double* y_ptr(long colIndex=0) const
-  {
-    return dataImpl.yptrs[colIndex];
-  }; //const overloaded version
-  
-  const double* offset_ptr() const
-  {
-    return dataImpl.adOffsetPtr;
+  double* y_ptr(long colIndex = 0) {
+    return yptrs_[colIndex];
+  };  // get iterator to class labels
+
+  const double* y_ptr(long colIndex = 0) const {
+    return yptrs_[colIndex];
+  };  // const overloaded version
+
+  const double* offset_ptr() const { return offset_ptr_; };
+
+  const double* weight_ptr() const {
+    return weights_ptr_;
+  };  // const overloaded version
+
+  int varclass(int ind) const { return num_variable_classes_[ind]; };
+  int monotone(int ind) const { return variable_monotonicity_[ind]; };
+
+  const int* order_ptr() const { return order_xvals_.begin(); };
+
+  double x_value(const int row, const int col) const {
+    return xmatrix_(row, col);
+  };  // retrieve predictor value
+
+  unsigned long get_trainsize() const {
+    return num_traindata_;
+  };  // get size of training set
+  unsigned long get_num_features() const {
+    return num_features_;
+  };  // get the number of features in data
+
+  void shift_to_validation() {
+    if (point_at_trainingset_) {
+      for (unsigned int i = 0; i < yptrs_.size(); i++) {
+        yptrs_[i] = shift_ptr_to_validation(yptrs_[i]);
+      }
+      offset_ptr_ = shift_ptr_to_validation(offset_ptr_);
+      weights_ptr_ = shift_ptr_to_validation(weights_ptr_);
+      point_at_trainingset_ = false;
+    } else {
+      throw gbm_exception::InvalidArgument(
+          "Data is already the validation set.");
+    }
   };
-  
-  const double* weight_ptr() const
-  {
-    return dataImpl.adWeightPtr;
-  }; //const overloaded version
-  
-  int varclass(int ind) const
-  {
-    return dataImpl.acVarClasses[ind];
-  };
-  int monotone(int ind) const
-  {
-    return dataImpl.alMonotoneVar[ind];
-  };
-  
-  const int* order_ptr() const
-  {
-    return dataImpl.aiXOrder.begin();
+  void shift_to_train() {
+    if (!(point_at_trainingset_)) {
+      for (unsigned int i = 0; i < yptrs_.size(); i++) {
+        yptrs_[i] = shift_ptr_to_train(yptrs_[i]);
+      }
+      offset_ptr_ = shift_ptr_to_train(offset_ptr_);
+      weights_ptr_ = shift_ptr_to_train(weights_ptr_);
+      point_at_trainingset_ = true;
+    } else {
+      throw gbm_exception::InvalidArgument("Data is already the training set.");
+    }
   };
 
-  double x_value(const int row, const int col) const
-  {
-    return dataImpl.adX(row, col);
-  }; // retrieve predictor value
-  
-  long get_trainSize() const { return dataImpl.numOfTrainData; }; // get size of training set
-  long get_numFeatures() const; // get the number of features in data
-  
-  void shift_to_validation() const; // shift all of the ptrs to validation set
-  void shift_to_train() const; // shift all of the ptrs to training set
-  
   typedef std::vector<int> index_vector;
-  index_vector random_order() const;//randomize order of predictor varaiables
-  
-  double GetBagFraction() const;
-  
-  long GetValidSize() const;
-  long GetTotalInBag() const;
+  index_vector RandomOrder() const;  // randomize order of predictor varaiables
 
-  const bag& GetBag() const
-  {
-    return dataImpl.afInBag;
-  };
-  
-  long GetNumPatientsInTraining() const
-  {
-	  return dataImpl.numOfTrainPatients;
+  double get_bagfraction() const { return bagfraction_; };
+  unsigned long get_validsize() const { return num_validationdata_; };
+  unsigned long get_size_of_set() const {
+    if (point_at_trainingset_) return get_trainsize();
+    return get_validsize();
+  }
+  unsigned long get_total_in_bag() const { return totalinbag_; };
+  unsigned long get_num_observations_in_training() const {
+    return num_trainobservations_;
+  }
+  int get_row_observation_id(int row_number) const {
+    return observation_ids_(row_number);
   }
 
-  int GetRowPatientId(int rowNumber) const
-  {
-	  return dataImpl.patIds(rowNumber);
-  }
+  bool get_bag_element(long index) const { return databag_[index]; }
+  void set_bag_element(long index) { databag_[index] = 1; };
+  void clear_bag() { databag_.assign(get_trainsize(), 0); };
 
-  bool GetBagElem(long index) const
-  {
-	return dataImpl.afInBag[index];
-  }
-
-  void SetBagElem(long index) { dataImpl.afInBag[index] = 1; };
-
-  void clearBag()
-  {
-    dataImpl.afInBag.assign(get_trainSize(), 0);
-  };
-  
-private:
+ private:
   //-------------------
   // Private Variables
   //-------------------
-  CDImpl dataImpl;
+  void set_up_yptrs() {
+    for (long i = 0; i < response_.ncol(); i++) {
+      yptrs_.push_back(response_(Rcpp::_, i).begin());
+    }
+  }
+
+  template <typename T>
+  T* shift_ptr_to_validation(T* x) const {
+    if (x) {
+      return x + num_traindata_;
+    } else {
+      return x;
+    }
+  }
+
+  template <typename T>
+  T* shift_ptr_to_train(T* x) const {
+    if (x) {
+      return x - num_traindata_;
+    } else {
+      return x;
+    }
+  }
+  //-------------------
+  // Private Variables
+  //-------------------
+
+  // Numeric vectors storing data
+  Rcpp::NumericMatrix xmatrix_, response_;
+  Rcpp::NumericVector response_offset_, data_weights_;
+  Rcpp::IntegerVector num_variable_classes_, variable_monotonicity_,
+      order_xvals_, observation_ids_;
+
+  // Ptrs to numeric vectors - these must be mutable
+  std::vector<double*> yptrs_;
+  double* offset_ptr_;
+  double* weights_ptr_;
+
+  // Properties of the data
+  unsigned long num_traindata_;
+  unsigned long num_trainobservations_;
+  unsigned long num_validationdata_;
+  unsigned long num_features_;
+  bool point_at_trainingset_;
+
+  // Bagged  data
+  Bag databag_;
+  double bagfraction_;
+  unsigned long totalinbag_;
 };
-#endif // DATASET_H
-
-
+#endif  // DATASET_H

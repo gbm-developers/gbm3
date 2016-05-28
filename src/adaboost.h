@@ -21,50 +21,46 @@
 //------------------------------
 // Class definition
 //------------------------------
-class CAdaBoost : public CDistribution
-{
+class CAdaBoost : public CDistribution {
+ public:
+  //---------------------
+  // Factory Function
+  //---------------------
+  static CDistribution* Create(DataDistParams& distparams);
 
-public:
-	//---------------------
-	// Factory Function
-	//---------------------
-	static CDistribution* Create(DataDistParams& distParams);
+  //---------------------
+  // Public destructor
+  //---------------------
+  virtual ~CAdaBoost();
 
-	//---------------------
-	// Public destructor
-	//---------------------
-    virtual ~CAdaBoost();
+  //---------------------
+  // Public Functions
+  //---------------------
+  void ComputeWorkingResponse(const CDataset& kData,
+                              const double* kFuncEstimate, double* residuals);
 
-    //---------------------
-    // Public Functions
-    //---------------------
-    void ComputeWorkingResponse(const CDataset& data, const double *adF,
-							double *adZ);
+  double InitF(const CDataset& kData);
 
-    double InitF(const CDataset& data);
+  void FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
+                       unsigned long numterminal_nodes, double* residuals,
+                       CCARTTree& tree);
 
-    void FitBestConstant(const CDataset& data, const double *adF,
-			 unsigned long cTermNodes, double* adZ, CTreeComps& treeComps);
-    
-    double Deviance(const CDataset& data, const double *adF,
-				bool isValidationSet=false);
+  double Deviance(const CDataset& kData, const double* kFuncEstimate);
 
-    double BagImprovement(const CDataset& data, const double *adF,
-			  const double shrinkage, const double* adFadj);
+  double BagImprovement(const CDataset& kData, const double* kFuncEstimate,
+                        const double shrinkage, const double* kDeltaEstimate);
 
-private:
-    //----------------------
-    // Private Constructors
-    //----------------------
-    CAdaBoost();
+ private:
+  //----------------------
+  // Private Constructors
+  //----------------------
+  CAdaBoost();
 
-	//-------------------
-	// Private Variables
-	//-------------------
-   vector<double> vecdNum;
-   vector<double> vecdDen;
+  //-------------------
+  // Private Variables
+  //-------------------
+  vector<double> numerator_bestconstant_;
+  vector<double> denominator_bestconstant_;
 };
 
-#endif // ADABOOST_H
-
-
+#endif  // ADABOOST_H

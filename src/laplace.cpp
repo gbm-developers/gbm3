@@ -15,183 +15,131 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CLaplace::CLaplace(): mpLocM("Other")
-{
-}
+CLaplace::CLaplace() : mpLocM_("Other") {}
 
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CDistribution* CLaplace::Create(DataDistParams& distParams)
-{
-	return new CLaplace();
+CDistribution* CLaplace::Create(DataDistParams& distparams) {
+  return new CLaplace();
 }
 
-CLaplace::~CLaplace()
-{
+CLaplace::~CLaplace() {}
+
+void CLaplace::ComputeWorkingResponse(const CDataset& kData,
+                                      const double* kFuncEstimate,
+                                      double* residuals) {
+  unsigned long i = 0;
+  for (i = 0; i < kData.get_trainsize(); i++) {
+    residuals[i] =
+        (kData.y_ptr()[i] - kData.offset_ptr()[i] - kFuncEstimate[i]) > 0.0
+            ? 1.0
+            : -1.0;
+  }
 }
 
-
-void CLaplace::ComputeWorkingResponse
-(
- const CDataset& data,
- const double *adF,
- double *adZ
-)
-{
-    unsigned long i = 0;
-	for(i=0; i<data.get_trainSize(); i++)
-	{
-		adZ[i] = (data.y_ptr()[i] - data.offset_ptr()[i] - adF[i]) > 0.0 ? 1.0 : -1.0;
-	}
-
-}
-
-
-
-double CLaplace::InitF
-(
-	const CDataset& data
-)
-{
-  double dOffset = 0.0;
+double CLaplace::InitF(const CDataset& kData) {
+  double offset = 0.0;
   unsigned long ii = 0;
 
-  std::vector<double> adArr(data.get_trainSize());
-  
-  for (ii = 0; ii < data.get_trainSize(); ii++)
-    {
-      dOffset = data.offset_ptr()[ii];
-      adArr[ii] = data.y_ptr()[ii] - dOffset;
-    }
-  
-  return mpLocM.weightedQuantile(data.get_trainSize(), &adArr[0], data.weight_ptr(), 0.5); // median
+  std::vector<double> arr(kData.get_trainsize());
+
+  for (ii = 0; ii < kData.get_trainsize(); ii++) {
+    offset = kData.offset_ptr()[ii];
+    arr[ii] = kData.y_ptr()[ii] - offset;
+  }
+
+  return mpLocM_.WeightedQuantile(kData.get_trainsize(), &arr[0],
+                                  kData.weight_ptr(), 0.5);  // median
 }
 
+double CLaplace::Deviance(const CDataset& kData, const double* kFuncEstimates) {
+  unsigned long i = 0;
+  double loss = 0.0;
+  double weight = 0.0;
 
-double CLaplace::Deviance
-(
-	const CDataset& data,
-    const double *adF,
-    bool isValidationSet
-)
-{
-    unsigned long i=0;
-    double dL = 0.0;
-    double dW = 0.0;
+  unsigned long num_rows_in_set = kData.get_size_of_set();
 
-    long cLength = data.get_trainSize();
-    if(isValidationSet)
-    {
-    	data.shift_to_validation();
-    	cLength = data.GetValidSize();
+  if (kData.offset_ptr() == NULL) {
+    for (i = 0; i < num_rows_in_set; i++) {
+      loss +=
+          kData.weight_ptr()[i] * fabs(kData.y_ptr()[i] - kFuncEstimates[i]);
+      weight += kData.weight_ptr()[i];
     }
-
-    if(data.offset_ptr() == NULL)
-    {
-        for(i=0; i<cLength; i++)
-        {
-            dL += data.weight_ptr()[i]*fabs(data.y_ptr()[i]-adF[i]);
-            dW += data.weight_ptr()[i];
-        }
+  } else {
+    for (i = 0; i < num_rows_in_set; i++) {
+      loss +=
+          kData.weight_ptr()[i] *
+          fabs(kData.y_ptr()[i] - kData.offset_ptr()[i] - kFuncEstimates[i]);
+      weight += kData.weight_ptr()[i];
     }
-    else
-    {
-        for(i=0; i<cLength; i++)
-        {
-            dL += data.weight_ptr()[i]*fabs(data.y_ptr()[i]-data.offset_ptr()[i]-adF[i]);
-            dW += data.weight_ptr()[i];
-        }
-    }
+  }
 
-    if(isValidationSet)
-    {
-    	data.shift_to_train();
-    }
+  // TODO: Check if weights are all zero for validation set
+  if ((weight == 0.0) && (loss == 0.0)) {
+    return nan("");
+  } else if (weight == 0.0) {
+    return copysign(HUGE_VAL, loss);
+  }
 
-    //TODO: Check if weights are all zero for validation set
-   if((dW == 0.0) && (dL == 0.0))
-   {
-	   return nan("");
-   }
-   else if(dW == 0.0)
-   {
-	   return copysign(HUGE_VAL, dL);
-   }
-
-    return dL/dW;
+  return loss / weight;
 }
-
 
 // DEBUG: needs weighted median
-void CLaplace::FitBestConstant
-(
- const CDataset& data,
- const double *adF,
- unsigned long cTermNodes,
- double* adZ,
- CTreeComps& treeComps
-)
-{
-  unsigned long iNode = 0;
-  unsigned long iObs = 0;
-  unsigned long iVecd = 0;
-  double dOffset;
-  
-//    vecd.resize(nTrain); // should already be this size from InitF
+void CLaplace::FitBestConstant(const CDataset& kData,
+                               const double* kFuncEstimate,
+                               unsigned long num_terminal_nodes,
+                               double* residuals, CCARTTree& tree) {
+  unsigned long node_num = 0;
+  unsigned long obs_num = 0;
+  unsigned long vec_num = 0;
+  double offset;
 
-  std::vector<double> adArr(data.get_trainSize());
-  std::vector<double> adW2(data.get_trainSize());
-  
-  for(iNode=0; iNode<cTermNodes; iNode++)
-    {
-      if(treeComps.GetTermNodes()[iNode]->cN >= treeComps.GetMinNodeObs())
-        {
-	  iVecd = 0;
-	  for(iObs=0; iObs<data.get_trainSize(); iObs++)
-            {
-	      if(data.GetBagElem(iObs) && (treeComps.GetNodeAssign()[iObs] == iNode))
-                {
-		  dOffset =  data.offset_ptr()[iObs];
-		  adArr[iVecd] = data.y_ptr()[iObs] - dOffset - adF[iObs];
-		  adW2[iVecd] = data.weight_ptr()[iObs];
-		  iVecd++;
-		}
-	      
-            }
-	  
-	  treeComps.GetTermNodes()[iNode]->dPrediction = mpLocM.weightedQuantile(iVecd, &adArr[0], &adW2[0], 0.5); // median
-	  
+  std::vector<double> adArr(kData.get_trainsize());
+  std::vector<double> adW2(kData.get_trainsize());
+
+  for (node_num = 0; node_num < num_terminal_nodes; node_num++) {
+    if (tree.get_terminal_nodes()[node_num]->get_numobs() >=
+        tree.min_num_obs_required()) {
+      vec_num = 0;
+      for (obs_num = 0; obs_num < kData.get_trainsize(); obs_num++) {
+        if (kData.get_bag_element(obs_num) &&
+            (tree.get_node_assignments()[obs_num] == node_num)) {
+          offset = kData.offset_ptr()[obs_num];
+          adArr[vec_num] =
+              kData.y_ptr()[obs_num] - offset - kFuncEstimate[obs_num];
+          adW2[vec_num] = kData.weight_ptr()[obs_num];
+          vec_num++;
         }
+      }
+
+      tree.get_terminal_nodes()[node_num]->set_prediction(
+          mpLocM_.WeightedQuantile(vec_num, &adArr[0], &adW2[0],
+                                   0.5));  // median
     }
+  }
 }
 
+double CLaplace::BagImprovement(const CDataset& kData,
+                                const double* kFuncEstimate,
+                                const double kShrinkage,
+                                const double* kDeltaEstimates) {
+  double returnvalue = 0.0;
+  double delta_func_est = 0.0;
+  double weight = 0.0;
+  unsigned long i = 0;
 
+  for (i = 0; i < kData.get_trainsize(); i++) {
+    if (!kData.get_bag_element(i)) {
+      delta_func_est = kFuncEstimate[i] + kData.offset_ptr()[i];
 
-double CLaplace::BagImprovement
-(
-    const CDataset& data,
-    const double *adF,
-    const double shrinkage,
-    const double* adFadj
-)
-{
-    double dReturnValue = 0.0;
-    double dF = 0.0;
-    double dW = 0.0;
-    unsigned long i = 0;
-
-    for(i=0; i<data.get_trainSize(); i++)
-    {
-        if(!data.GetBagElem(i))
-        {
-            dF = adF[i] + data.offset_ptr()[i];
-
-            dReturnValue +=
-                data.weight_ptr()[i]*(fabs(data.y_ptr()[i]-dF) - fabs(data.y_ptr()[i]-dF-shrinkage*adFadj[i]));
-            dW += data.weight_ptr()[i];
-        }
+      returnvalue +=
+          kData.weight_ptr()[i] * (fabs(kData.y_ptr()[i] - delta_func_est) -
+                                   fabs(kData.y_ptr()[i] - delta_func_est -
+                                        kShrinkage * kDeltaEstimates[i]));
+      weight += kData.weight_ptr()[i];
     }
+  }
 
-    return dReturnValue/dW;
+  return returnvalue / weight;
 }

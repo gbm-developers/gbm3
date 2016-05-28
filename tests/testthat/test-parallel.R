@@ -2,6 +2,7 @@ context("test parallelization")
 
 test_that("gaussian works in parallel", {
     skip_on_cran()
+    skip_on_travis()
     ## Based on example in R package
     
     ## test Gaussian distribution gbm model
