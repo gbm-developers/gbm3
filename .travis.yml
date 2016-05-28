@@ -10,4 +10,4 @@ r_packages:
   - covr
 
 after_success:
-  - Rscript -e 'covr::coveralls()'
+  - echo 'covr::coveralls()' | R --vanilla
