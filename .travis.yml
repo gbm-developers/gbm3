@@ -6,8 +6,8 @@ os:
   - linux
   - osx
 
-r_packages:
-  - covr
+r_github_packages:
+  - jimhester/covr
 
 after_success:
   - echo 'covr::coveralls()' | R --vanilla
