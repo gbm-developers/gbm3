@@ -25,17 +25,17 @@
 //------------------------------
 // Class definition
 //------------------------------
-class CGBMDataContainer {
+class CGBMDataDistContainer {
  public:
   //----------------------
   // Public Constructors
   //----------------------
-  CGBMDataContainer(DataDistParams& datadist_config);
+  CGBMDataDistContainer(DataDistParams& datadist_config);
 
   //---------------------
   // Public destructor
   //---------------------
-  ~CGBMDataContainer();
+  ~CGBMDataDistContainer();
 
   //---------------------
   // Public Functions

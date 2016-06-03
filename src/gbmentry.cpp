@@ -62,7 +62,7 @@ SEXP gbm(SEXP response,    // outcome or response
   Rcpp::RNGScope scope;
 
   // Build gbm piece-by-piece
-  CGBM gbm(gbmparams);
+  CGBMEngine gbm(gbmparams);
 
   // Set up the function estimate
   double initial_func_est = gbm.initial_function_estimate();

@@ -9,7 +9,7 @@
 //------------------------------
 // Includes
 //------------------------------
-#include "gbm_datacontainer.h"
+#include "gbm_datadistcontainer.h"
 #include "pairwise.h"
 
 //----------------------------------------
@@ -24,7 +24,7 @@
 //
 // Parameters: ...
 //-----------------------------------
-CGBMDataContainer::CGBMDataContainer(DataDistParams& datadist_config)
+CGBMDataDistContainer::CGBMDataDistContainer(DataDistParams& datadist_config)
     : data_(datadist_config) {
   // Initialize the factory and then use to get the disribution
   distfactory_ = new DistributionFactory();
@@ -41,7 +41,7 @@ CGBMDataContainer::CGBMDataContainer(DataDistParams& datadist_config)
 //
 // Parameters: none
 //-----------------------------------
-CGBMDataContainer::~CGBMDataContainer() {
+CGBMDataDistContainer::~CGBMDataDistContainer() {
   delete distptr_;
   delete distfactory_;
 }
@@ -58,7 +58,7 @@ CGBMDataContainer::~CGBMDataContainer() {
 //    estimates for
 //
 //-----------------------------------
-double CGBMDataContainer::InitialFunctionEstimate() {
+double CGBMDataDistContainer::InitialFunctionEstimate() {
   return get_dist()->InitF(data_);
 }
 
@@ -75,7 +75,7 @@ double CGBMDataContainer::InitialFunctionEstimate() {
 //    CTreeComps ptr - ptr to the tree components container in the gbm.
 //
 //-----------------------------------
-void CGBMDataContainer::ComputeResiduals(const double* kFuncEstimate,
+void CGBMDataDistContainer::ComputeResiduals(const double* kFuncEstimate,
                                          double* residuals) {
   get_dist()->ComputeWorkingResponse(data_, kFuncEstimate, residuals);
 }
@@ -91,7 +91,7 @@ void CGBMDataContainer::ComputeResiduals(const double* kFuncEstimate,
 //    CTreeComps ptr - ptr to the tree components container in the gbm
 //    int& - reference to the number of nodes in the tree.
 //-----------------------------------
-void CGBMDataContainer::ComputeBestTermNodePreds(const double* kFuncEstimate,
+void CGBMDataDistContainer::ComputeBestTermNodePreds(const double* kFuncEstimate,
                                                  double* residuals,
                                                  CCARTTree& tree) {
   get_dist()->FitBestConstant(
@@ -114,7 +114,7 @@ void CGBMDataContainer::ComputeBestTermNodePreds(const double* kFuncEstimate,
 //    used.
 //
 //-----------------------------------
-double CGBMDataContainer::ComputeDeviance(const double* kFuncEstimate,
+double CGBMDataDistContainer::ComputeDeviance(const double* kFuncEstimate,
                                           bool is_validationset) {
   double deviance = 0.0;
   if (!(is_validationset)) {
@@ -140,7 +140,7 @@ double CGBMDataContainer::ComputeDeviance(const double* kFuncEstimate,
 //    CTreeComps ptr - ptr to the tree components container in the gbm
 //
 //-----------------------------------
-double CGBMDataContainer::ComputeBagImprovement(const double* kFuncEstimate,
+double CGBMDataDistContainer::ComputeBagImprovement(const double* kFuncEstimate,
                                                 const double kShrinkage,
                                                 const double* kDeltaEstimate) {
   return get_dist()->BagImprovement(get_data(), &kFuncEstimate[0], kShrinkage,
@@ -158,7 +158,7 @@ double CGBMDataContainer::ComputeBagImprovement(const double* kFuncEstimate,
 //    CDistribution ptr - pointer to the distribution + data
 //
 //-----------------------------------
-void CGBMDataContainer::BagData() {
+void CGBMDataDistContainer::BagData() {
   get_data().clear_bag();
   get_dist()->BagData(get_data());
 }

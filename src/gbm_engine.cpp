@@ -3,14 +3,14 @@
 #include <algorithm>
 #include "gbm_engine.h"
 
-CGBM::CGBM(ConfigStructs& gbmparams)
+CGBMEngine::CGBMEngine(ConfigStructs& gbmparams)
     : datacontainer_(gbmparams.get_data_config()),
       tree_(gbmparams.get_tree_config()),
       residuals_(datacontainer_.get_data().nrow(), 0) {}
 
-CGBM::~CGBM() {}
+CGBMEngine::~CGBMEngine() {}
 
-void CGBM::FitLearner(double* kFuncEstimate, double& trainingerror,
+void CGBMEngine::FitLearner(double* kFuncEstimate, double& trainingerror,
                       double& validationerror, double& outofbag_improvement) {
   trainingerror = 0.0;
   validationerror = 0.0;
@@ -70,7 +70,7 @@ void CGBM::FitLearner(double* kFuncEstimate, double& trainingerror,
   validationerror = datacontainer_.ComputeDeviance(&kFuncEstimate[0], true);
 }
 
-void CGBM::GbmTransferTreeToRList(int* splitvar, double* splitvalues,
+void CGBMEngine::GbmTransferTreeToRList(int* splitvar, double* splitvalues,
                                   int* leftnodes, int* rightnodes,
                                   int* missingnodes, double* error_reduction,
                                   double* weights, double* predictions,

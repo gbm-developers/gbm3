@@ -31,7 +31,8 @@ CNode::CNode(const NodeDef& kDefn)
 }
 
 void CNode::SetStrategy() {
-  // delete nodeStrategy;
+  delete node_strategy_;
+
   switch (splittype_) {
     case kNone:
       node_strategy_ = new TerminalStrategy(this);

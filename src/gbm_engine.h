@@ -18,7 +18,7 @@
 // Includes
 //------------------------------
 #include "config_structs.h"
-#include "gbm_datacontainer.h"
+#include "gbm_datadistcontainer.h"
 #include "tree.h"
 #include <memory>
 #include <Rcpp.h>
@@ -27,17 +27,17 @@
 //------------------------------
 // Class definition
 //------------------------------
-class CGBM {
+class CGBMEngine {
  public:
   //----------------------
   // Public Constructors
   //----------------------
-  CGBM(ConfigStructs& gbmparams);
+  CGBMEngine(ConfigStructs& gbmparams);
 
   //---------------------
   // Public destructor
   //---------------------
-  ~CGBM();
+  ~CGBMEngine();
 
   //---------------------
   // Public Functions
@@ -61,7 +61,7 @@ class CGBM {
   //-------------------
   // Private Variables
   //-------------------
-  CGBMDataContainer datacontainer_;
+  CGBMDataDistContainer datacontainer_;
   CCARTTree tree_;
 
   // Residuals and adjustments to function estimate
