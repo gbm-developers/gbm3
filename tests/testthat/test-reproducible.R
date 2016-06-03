@@ -38,6 +38,7 @@ test_that("Setting different seeds causes result to be different (1 core)", {
 
 test_that("Setting the seed causes result to be reproducible (multicore)", {
   skip_on_cran()
+  skip_on_travis()
   set.seed(18900217)
   mod <- gbm(Species == 'setosa' ~ ., data=iris, distribution="bernoulli",
              cv.folds=3, n.trees=100, shrinkage=.1)
@@ -58,6 +59,7 @@ test_that("Setting the seed causes result to be reproducible (multicore)", {
 
 test_that("Setting different seeds causes result to be different (multicore)", {
   skip_on_cran()
+  skip_on_travis()
   set.seed(18900217)
   mod <- gbm(Species == 'setosa' ~ ., data=iris, distribution="bernoulli",
              cv.folds=3, n.trees=100, shrinkage=.1)
