@@ -12,8 +12,10 @@
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CNodeSearch::CNodeSearch(unsigned long treedepth, unsigned long minobs)
+CNodeSearch::CNodeSearch(unsigned long treedepth, unsigned long minobs,
+                         CNode& rootnode)
     : variable_splitters_(2 * treedepth + 1, VarSplitter(minobs)) {
+  variable_splitters_[0].Set(rootnode);
   num_terminal_nodes_ = 1;
   min_num_node_obs_ = minobs;
 }

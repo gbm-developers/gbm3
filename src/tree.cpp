@@ -9,8 +9,7 @@
 // Function Members - Public
 //----------------------------------------
 CCARTTree::CCARTTree(TreeParams treeconfig)
-    : new_node_searcher_(treeconfig.depth, treeconfig.min_obs_in_node),
-      kTreeDepth_(treeconfig.depth),
+    : kTreeDepth_(treeconfig.depth),
       kShrinkage_(treeconfig.shrinkage) {
   rootnode_ = NULL;
   totalnodecount_ = 1;
@@ -26,7 +25,6 @@ void CCARTTree::Reset() {
   rootnode_ = NULL;
   terminalnode_ptrs_.resize(2 * kTreeDepth_ + 1, NULL);
   totalnodecount_ = 1;
-  new_node_searcher_.reset();
 }
 
 //------------------------------------------------------------------------------
@@ -68,7 +66,7 @@ void CCARTTree::Grow(double* residuals, const CDataset& kData,
   error_ = sum_zsquared - sumz * sumz / totalw;
   rootnode_ = new CNode(NodeDef(sumz, totalw, kData.get_total_in_bag()));
   terminalnode_ptrs_[0] = rootnode_;
-  new_node_searcher_.set_search_rootnode(*rootnode_);
+  CNodeSearch new_node_searcher(kTreeDepth_, min_num_node_obs_, *rootnode_);
 
 // build the tree structure
 #ifdef NOISY_DEBUG
@@ -81,9 +79,9 @@ void CCARTTree::Grow(double* residuals, const CDataset& kData,
 #endif
 
     // Generate all splits
-    new_node_searcher_.GenerateAllSplits(
+    new_node_searcher.GenerateAllSplits(
         terminalnode_ptrs_, kData, &(residuals[0]), data_node_assignment_);
-    double bestImprov = new_node_searcher_.CalcImprovementAndSplit(
+    double bestImprov = new_node_searcher.CalcImprovementAndSplit(
         terminalnode_ptrs_, kData, data_node_assignment_);
 
     // Make the best split if possible

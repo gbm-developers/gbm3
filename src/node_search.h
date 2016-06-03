@@ -36,7 +36,7 @@ class CNodeSearch {
   //----------------------
   // Public Constructors
   //----------------------
-  CNodeSearch(unsigned long treedepth, unsigned long minobs);
+  CNodeSearch(unsigned long treedepth, unsigned long minobs, CNode& rootnode);
 
   //---------------------
   // Public destructor
@@ -52,11 +52,6 @@ class CNodeSearch {
   double CalcImprovementAndSplit(vector<CNode*>& term_nodes_ptrs,
                                  const CDataset& kData,
                                  vector<unsigned long>& data_node_assigns);
-
-  inline void reset() { num_terminal_nodes_ = 1; }
-  void set_search_rootnode(CNode& rootNode) {
-    variable_splitters_[0].Set(rootNode);
-  }
 
  private:
   //---------------------

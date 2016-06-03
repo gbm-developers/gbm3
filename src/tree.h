@@ -81,7 +81,6 @@ class CCARTTree {
   CNode* rootnode_;
   vector<CNode*> terminalnode_ptrs_;
   vector<unsigned long> data_node_assignment_;
-  CNodeSearch new_node_searcher_;
 
   unsigned long min_num_node_obs_;
   const long kTreeDepth_;
