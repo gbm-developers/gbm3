@@ -48,18 +48,7 @@ class TerminalStrategy : public GenericNodeStrategy {
             nodecontext_->get_prediction());
   }
   signed char WhichNode(const CDataset& kData, unsigned long obs_num) {
-    signed char returnvalue = 0;
-    double xval = kData.x_value(obs_num, nodecontext_->get_split_var());
-    if (!ISNA(xval)) {
-      if (xval < nodecontext_->get_splitvalue()) {
-        returnvalue = -1;
-      } else {
-        returnvalue = 1;
-      }
-    }
-    // if missing value returns 0
-
-    return returnvalue;
+	  return 0;
   }
   void TransferTreeToRList(int& nodeid, const CDataset& kData, int* splitvar,
                            double* splitpoint, int* leftnodes, int* rightnodes,
