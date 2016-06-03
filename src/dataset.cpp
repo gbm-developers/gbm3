@@ -39,7 +39,7 @@
 //  monotone increasing (+1), decreasing (-1) or arbitrary (0) with the response
 //  variable.
 //	cTrain		   - int specifiy the number of data points in
-//training set
+// training set
 //
 //-----------------------------------
 CDataset::CDataset(const DataDistParams& dataparams)

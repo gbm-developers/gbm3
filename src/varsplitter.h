@@ -85,7 +85,6 @@ class VarSplitter {
   void WrapUpCurrentVariable();
 
  private:
-
   //---------------------
   // Private Variables
   //---------------------

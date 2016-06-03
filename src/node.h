@@ -11,10 +11,11 @@
 //
 //  History:    3/26/2001   gregr created
 //              2/14/2003   gregr: adapted for R implementation
-//			   16/03/2016   James Hickey: updated to remove terminal and
-//non-terminal nodes
+//			   16/03/2016   James Hickey: updated to remove terminal
+// and
+// non-terminal nodes
 //			   30/03/2016   James Hickey: state pattern to deal with
-//continuous and categorical splits.
+// continuous and categorical splits.
 //------------------------------------------------------------------------------
 
 #ifndef NODE_H
@@ -68,51 +69,21 @@ class CNode {
                            VecOfVectorCategories& splitcodes_vec,
                            int prev_categorical_splits, double shrinkage);
   signed char WhichNode(const CDataset& kData, unsigned long obs_num);
-  CNode* left_child() {
-	  return left_node_ptr_;
-  }
-  const CNode* left_child() const {
-	  return left_node_ptr_;
-  }
-  CNode* right_child() {
-	  return right_node_ptr_;
-  }
-  const CNode* right_child() const {
-	  return right_node_ptr_;
-  }
-  CNode* missing_child() {
-	  return missing_node_ptr_;
-  }
-  const CNode* missing_child() const {
-	  return missing_node_ptr_;
-  }
-  unsigned long get_split_var() const {
-	  return split_var_;
-  }
-  double get_improvement() const {
-	  return improvement_;
-  }
-  SplitType get_splittype() const {
-	  return splittype_;
-  }
-  double get_splitvalue() const {
-	  return splitvalue_;
-  }
-  double get_prediction() const {
-	  return prediction_;
-  }
-  void set_prediction(double pred_val) {
-	  prediction_ = pred_val;
-  }
-  double get_totalweight() const {
-	  return totalweight_;
-  }
-  unsigned long get_numobs() const {
-	  return numobs_;
-  }
-  std::vector<unsigned long>& get_leftcategory() {
-	  return leftcategory_;
-  }
+  CNode* left_child() { return left_node_ptr_; }
+  const CNode* left_child() const { return left_node_ptr_; }
+  CNode* right_child() { return right_node_ptr_; }
+  const CNode* right_child() const { return right_node_ptr_; }
+  CNode* missing_child() { return missing_node_ptr_; }
+  const CNode* missing_child() const { return missing_node_ptr_; }
+  unsigned long get_split_var() const { return split_var_; }
+  double get_improvement() const { return improvement_; }
+  SplitType get_splittype() const { return splittype_; }
+  double get_splitvalue() const { return splitvalue_; }
+  double get_prediction() const { return prediction_; }
+  void set_prediction(double pred_val) { prediction_ = pred_val; }
+  double get_totalweight() const { return totalweight_; }
+  unsigned long get_numobs() const { return numobs_; }
+  std::vector<unsigned long>& get_leftcategory() { return leftcategory_; }
 
  private:
   //---------------------

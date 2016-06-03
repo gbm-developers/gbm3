@@ -4,7 +4,7 @@
 //
 //  Description:   Structs used to wrap up initialization parameters for
 //				both the weak learner container and data/dist
-//container
+// container
 //
 //  Owner:      James Hickey
 //

@@ -67,8 +67,8 @@ class CountingCoxState : public GenericCoxState {
 
     for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
       if (kData.get_bag_element(i) &&
-          (tree.get_terminal_nodes()[tree.get_node_assignments()[i]]->get_numobs() >=
-           tree.min_num_obs_required())) {
+          (tree.get_terminal_nodes()[tree.get_node_assignments()[i]]
+               ->get_numobs() >= tree.min_num_obs_required())) {
         // Cap expected number of events to be at least 0
         expnum_events_in_nodes[tree.get_node_assignments()[i]] +=
             max(0.0, coxph_->StatusVec()[i] - martingale_resid[i]);

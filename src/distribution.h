@@ -10,8 +10,9 @@
 //
 //  History:    3/26/2001   gregr created
 //              2/14/2003   gregr: adapted for R implementation
-//				22/02/2016  jhickey: modified to implement factory
-//pattern
+//				22/02/2016  jhickey: modified to implement
+// factory
+// pattern
 //------------------------------------------------------------------------------
 
 #ifndef DISTRIBUTION_H
