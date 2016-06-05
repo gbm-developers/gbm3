@@ -6,10 +6,6 @@ CDistribution::CDistribution() { num_groups_ = -1; }
 
 CDistribution::~CDistribution() {}
 
-int CDistribution::GetNumGroups() const { return num_groups_; }
-
-void CDistribution::SetNumGroups(int groupval) { num_groups_ = groupval; }
-
 void CDistribution::BagData(CDataset& kData) {
   unsigned long i = 0;
   unsigned long numbagged = 0;

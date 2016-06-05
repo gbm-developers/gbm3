@@ -478,7 +478,7 @@ CPairwise::CPairwise(const double* kGroups, const char* kIrMeasure,
   kGroups_ = kGroups;
 
   // Set up the number of groups - this used externally
-  SetNumGroups(gbm_functions::NumGroups(kGroups, num_training_rows));
+  set_num_groups(gbm_functions::NumGroups(kGroups, num_training_rows));
 
   // Construct the IR Measure
   if (!strcmp(kIrMeasure, "conc")) {
@@ -1003,7 +1003,7 @@ void CPairwise::BagData(CDataset& kData) {
   unsigned int bagged_groups = 0;
   unsigned int seen_groups = 0;
   unsigned int total_groupsinbag =
-      (unsigned long)(kData.get_bagfraction() * GetNumGroups());
+      (unsigned long)(kData.get_bagfraction() * get_num_groups());
 
   if (total_groupsinbag <= 0) {
     total_groupsinbag = 1;
@@ -1018,7 +1018,7 @@ void CPairwise::BagData(CDataset& kData) {
       }
 
       // Group changed, make a new decision
-      is_chosen = (unif_rand() * (GetNumGroups() - seen_groups) <
+      is_chosen = (unif_rand() * (get_num_groups() - seen_groups) <
                    total_groupsinbag - bagged_groups);
       if (is_chosen) {
         bagged_groups++;

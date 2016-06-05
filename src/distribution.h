@@ -45,8 +45,8 @@ class CDistribution {
   //---------------------
   // Public Functions
   //---------------------
-  int GetNumGroups() const;
-  void SetNumGroups(int groupval);
+  int get_num_groups() const { return num_groups_; };
+  void set_num_groups(int groupval) { num_groups_ = groupval; };
 
   // shifts the ptrs() as appropriate
   template <typename T>

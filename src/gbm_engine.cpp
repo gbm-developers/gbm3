@@ -10,7 +10,7 @@ CGBMEngine::CGBMEngine(ConfigStructs& gbmparams)
 
 CGBMEngine::~CGBMEngine() {}
 
-void CGBMEngine::FitLearner(double* kFuncEstimate, double& trainingerror,
+void CGBMEngine::FitLearner(double* func_estimate, double& trainingerror,
                       double& validationerror, double& outofbag_improvement) {
   trainingerror = 0.0;
   validationerror = 0.0;
@@ -30,7 +30,7 @@ void CGBMEngine::FitLearner(double* kFuncEstimate, double& trainingerror,
 #endif
 
   // Compute Residuals and fit tree
-  datacontainer_.ComputeResiduals(&kFuncEstimate[0], &residuals_[0]);
+  datacontainer_.ComputeResiduals(&func_estimate[0], &residuals_[0]);
   tree_.Grow(&residuals_[0], datacontainer_.get_data(), &delta_estimates[0]);
 
 // Now I have adF, adZ, and vecpTermNodes (new node assignments)
@@ -40,22 +40,22 @@ void CGBMEngine::FitLearner(double* kFuncEstimate, double& trainingerror,
 #endif
 
   // Adjust terminal node predictions and shrink
-  datacontainer_.ComputeBestTermNodePreds(&kFuncEstimate[0], &residuals_[0],
+  datacontainer_.ComputeBestTermNodePreds(&func_estimate[0], &residuals_[0],
                                           tree_);
   tree_.Adjust(&delta_estimates[0]);
 
   // Compute the error improvement within bag
   outofbag_improvement = datacontainer_.ComputeBagImprovement(
-      &kFuncEstimate[0], tree_.get_shrinkage_factor(), &delta_estimates[0]);
+      &func_estimate[0], tree_.get_shrinkage_factor(), &delta_estimates[0]);
 
   // Update the function estimate
   unsigned long i = 0;
   for (i = 0; i < datacontainer_.get_data().get_trainsize(); i++) {
-    kFuncEstimate[i] += tree_.get_shrinkage_factor() * delta_estimates[i];
+    func_estimate[i] += tree_.get_shrinkage_factor() * delta_estimates[i];
   }
 
   // Make validation predictions
-  trainingerror = datacontainer_.ComputeDeviance(&kFuncEstimate[0], false);
+  trainingerror = datacontainer_.ComputeDeviance(&func_estimate[0], false);
   tree_.PredictValid(datacontainer_.get_data(),
                      datacontainer_.get_data().get_validsize(),
                      &delta_estimates[0]);
@@ -64,10 +64,10 @@ void CGBMEngine::FitLearner(double* kFuncEstimate, double& trainingerror,
        i < datacontainer_.get_data().get_trainsize() +
                datacontainer_.get_data().get_validsize();
        i++) {
-    kFuncEstimate[i] += delta_estimates[i];
+    func_estimate[i] += delta_estimates[i];
   }
 
-  validationerror = datacontainer_.ComputeDeviance(&kFuncEstimate[0], true);
+  validationerror = datacontainer_.ComputeDeviance(&func_estimate[0], true);
 }
 
 void CGBMEngine::GbmTransferTreeToRList(int* splitvar, double* splitvalues,
