@@ -20,7 +20,6 @@
 //------------------------------
 // Includes
 //------------------------------
-#include "config_structs.h"
 #include "dataset.h"
 #include "node.h"
 #include "tree.h"
@@ -85,7 +84,7 @@ class CDistribution {
   virtual double BagImprovement(const CDataset& kData,
                                 const double* kFuncEstimate,
                                 const double kShrinkage,
-                                const double* kDeltaFunce) = 0;
+                                const double* kDeltaFuncEstimate) = 0;
 
   virtual void BagData(CDataset& kData);
   virtual void ShiftDistPtrs(unsigned long shift){};

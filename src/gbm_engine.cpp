@@ -3,9 +3,10 @@
 #include <algorithm>
 #include "gbm_engine.h"
 
-CGBMEngine::CGBMEngine(ConfigStructs& gbmparams)
-    : datacontainer_(gbmparams.get_data_config()),
-      tree_(gbmparams.get_tree_config()),
+CGBMEngine::CGBMEngine(DataDistParams& datadistparams,
+		TreeParams& treeparams)
+    : datacontainer_(datadistparams),
+      tree_(treeparams),
       residuals_(datacontainer_.get_data().nrow(), 0) {}
 
 CGBMEngine::~CGBMEngine() {}

@@ -18,15 +18,19 @@
 //------------------------------
 // Includes
 //------------------------------
-#include "config_structs.h"
-#include "gbmexcept.h"
+#include "datadistparams.h"
+#include "gbm_exception.h"
 #include "gbm_functions.h"
 #include <algorithm>
 #include <memory>
 #include <vector>
 #include <Rcpp.h>
 
+//------------------------------
+// Type Defs
+//------------------------------
 typedef std::vector<int> Bag;
+typedef std::vector<int> index_vector;
 
 //------------------------------
 // Class definition
@@ -105,7 +109,6 @@ class CDataset {
     }
   };
 
-  typedef std::vector<int> index_vector;
   index_vector RandomOrder() const;  // randomize order of predictor varaiables
 
   double get_bagfraction() const { return bagfraction_; };

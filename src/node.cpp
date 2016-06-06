@@ -15,7 +15,7 @@ CNode::CNode(const NodeDef& kDefn)
     : prediction_(kDefn.prediction()),
       totalweight_(kDefn.get_totalweight()),
       numobs_(kDefn.get_num_obs()),
-      leftcategory_() {
+      leftcategory_(){
   splitvalue_ = 0.0;
   split_var_ = 0;
   improvement_ = 0.0;

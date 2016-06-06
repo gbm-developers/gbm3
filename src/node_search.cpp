@@ -26,11 +26,11 @@ void CNodeSearch::GenerateAllSplits(vector<CNode*>& term_nodes_ptrs,
                                     const CDataset& kData, double* residuals,
                                     vector<unsigned long>& data_node_assigns) {
   unsigned long kWhichObs = 0;
-  const CDataset::index_vector kColNumbers(kData.RandomOrder());
-  const CDataset::index_vector::const_iterator kFinalCol =
+  const index_vector kColNumbers(kData.RandomOrder());
+  const index_vector::const_iterator kFinalCol =
       kColNumbers.begin() + kData.get_num_features();
 
-  for (CDataset::index_vector::const_iterator kIt = kColNumbers.begin();
+  for (index_vector::const_iterator kIt = kColNumbers.begin();
        kIt != kFinalCol; kIt++) {
     const int kVar = *kIt;
     const int KVarClasses = kData.varclass(kVar);

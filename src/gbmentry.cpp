@@ -1,7 +1,8 @@
 // GBM by Greg Ridgeway  Copyright (C) 2003
 
+#include "datadistparams.h"
 #include "gbm_engine.h"
-#include "config_structs.h"
+#include "treeparams.h"
 #include <memory>
 #include <utility>
 #include <Rcpp.h>
@@ -53,20 +54,23 @@ SEXP gbm(SEXP response,    // outcome or response
   const Rcpp::NumericVector kPrevFuncEst(prev_func_estimate);
 
   // Set up parameters for initialization
-  ConfigStructs gbmparams(
-      response, offset_vec, covariates, covar_order, sorted_vec, strata_vec,
-      obs_weight, misc, prior_coeff_var, row_to_obs_id, var_classes,
-      monotonicity_vec, dist_family, num_trees, tree_depth, min_num_node_obs,
-      shrinkageconstant, fraction_inbag, num_rows_in_training,
-      num_obs_in_training, number_offeatures);
+  DataDistParams datadistparams(response, offset_vec, covariates,
+          covar_order, sorted_vec, strata_vec,
+          obs_weight, misc, prior_coeff_var,
+          row_to_obs_id, var_classes, monotonicity_vec,
+          dist_family, fraction_inbag,
+          num_rows_in_training, num_obs_in_training,
+          number_offeatures);
+  TreeParams treeparams(tree_depth, min_num_node_obs,
+		  	 shrinkageconstant, num_rows_in_training);
   Rcpp::RNGScope scope;
 
-  // Build gbm piece-by-piece
-  CGBMEngine gbm(gbmparams);
+  // Initialize GBM engine
+  CGBMEngine gbm(datadistparams, treeparams);
 
   // Set up the function estimate
   double initial_func_est = gbm.initial_function_estimate();
-  Rcpp::NumericMatrix temp_covars(covariates);
+  Rcpp::NumericMatrix temp_covars(covariates); // REMOVE THIS
   Rcpp::NumericVector func_estimate(temp_covars.nrow());
 
   if (ISNA(kPrevFuncEst[0]))  // check for old predictions
@@ -128,7 +132,7 @@ SEXP gbm(SEXP response,    // outcome or response
          (treenum == kNumTrees - 1))) {
       Rprintf("%6d %13.4f %15.4f %10.4f %9.4f\n", treenum + 1 + kTreesOld,
               training_errors[treenum], validation_errors[treenum],
-              gbmparams.get_tree_config().shrinkage,
+              treeparams.shrinkage,
               outofbag_improvement[treenum]);
     }
   }

@@ -17,9 +17,10 @@
 //------------------------------
 // Includes
 //------------------------------
-#include "config_structs.h"
+#include "datadistparams.h"
 #include "gbm_datadistcontainer.h"
 #include "tree.h"
+#include "treeparams.h"
 #include <memory>
 #include <Rcpp.h>
 #include <vector>
@@ -32,7 +33,7 @@ class CGBMEngine {
   //----------------------
   // Public Constructors
   //----------------------
-  CGBMEngine(ConfigStructs& gbmparams);
+  CGBMEngine(DataDistParams& datadistparams, TreeParams& treeparams);
 
   //---------------------
   // Public destructor

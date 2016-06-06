@@ -119,7 +119,6 @@ CDataset::~CDataset() {}
 // Parameters: none
 //
 //-----------------------------------
-typedef std::vector<int> index_vector;
 index_vector CDataset::RandomOrder() const {
   index_vector result(ncol());
 

@@ -26,6 +26,7 @@
 #include <vector>
 #include "dataset.h"
 #include "node_search.h"
+#include "treeparams.h"
 #include <ctime>
 
 //------------------------------

@@ -13,11 +13,12 @@
 //------------------------------
 // Includes
 //------------------------------
-#include "config_structs.h"
+#include "datadistparams.h"
 #include "dataset.h"
 #include "distribution.h"
 #include "distribution_factory.h"
 #include "tree.h"
+#include "treeparams.h"
 #include <Rcpp.h>
 #include <vector>
 #include <memory>
