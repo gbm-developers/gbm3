@@ -70,21 +70,12 @@ class CNode {
   std::auto_ptr<CNode>& left_child() {
 	  return left_node_ptr_;
   }
-/*  const CNode* left_child() const {
-	//  return left_node_ptr_.release();
-}*/
   std::auto_ptr<CNode>& right_child() {
 	  return right_node_ptr_;
   }
-  //const CNode* right_child() const {
-	 // return right_node_ptr_.release();
-  //}
   std::auto_ptr<CNode>& missing_child() {
 	  return missing_node_ptr_;
   }
-  //const CNode* missing_child() const {
-	 // return missing_node_ptr_.release();
-//  }
   unsigned long get_split_var() const {
 	  return split_var_;
   }

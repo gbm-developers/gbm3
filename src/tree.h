@@ -42,7 +42,7 @@ class CCARTTree {
   //---------------------
   // Public destructor
   //---------------------
-  ~CCARTTree();
+  ~CCARTTree() {};
 
   //---------------------
   // Public Functions
@@ -72,14 +72,12 @@ class CCARTTree {
     return min_num_node_obs_;
   }
   const unsigned long& size_of_tree() const { return totalnodecount_; }
-  CNode* get_rootnode() { return rootnode_; }
-  const CNode* get_rootnode() const { return rootnode_; }
 
  private:
   //---------------------
   // Private Variables
   //---------------------
-  CNode* rootnode_;
+  auto_ptr<CNode> rootnode_;
   vector<CNode*> terminalnode_ptrs_;
   vector<unsigned long> data_node_assignment_;
 

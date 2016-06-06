@@ -9,20 +9,16 @@
 // Function Members - Public
 //----------------------------------------
 CCARTTree::CCARTTree(TreeParams treeconfig)
-    : kTreeDepth_(treeconfig.depth),
-      kShrinkage_(treeconfig.shrinkage) {
-  rootnode_ = NULL;
-  totalnodecount_ = 1;
-  error_ = 0.0;
-  min_num_node_obs_ = treeconfig.min_obs_in_node;
+    : rootnode_(),
+      min_num_node_obs_(treeconfig.min_obs_in_node),
+	  kTreeDepth_(treeconfig.depth),
+      kShrinkage_(treeconfig.shrinkage),
+      error_(0.0), totalnodecount_(1){
+
   data_node_assignment_.resize(treeconfig.num_trainrows, 0);
 }
 
-CCARTTree::~CCARTTree() { delete rootnode_; }
-
 void CCARTTree::Reset() {
-  delete rootnode_;
-  rootnode_ = NULL;
   terminalnode_ptrs_.resize(2 * kTreeDepth_ + 1, NULL);
   totalnodecount_ = 1;
 }
@@ -64,9 +60,9 @@ void CCARTTree::Grow(double* residuals, const CDataset& kData,
   }
 
   error_ = sum_zsquared - sumz * sumz / totalw;
-  rootnode_ = new CNode(NodeDef(sumz, totalw, kData.get_total_in_bag()));
-  terminalnode_ptrs_[0] = rootnode_;
-  CNodeSearch new_node_searcher(kTreeDepth_, min_num_node_obs_, *rootnode_);
+  rootnode_.reset(new CNode(NodeDef(sumz, totalw, kData.get_total_in_bag())));
+  terminalnode_ptrs_[0] = rootnode_.get();
+  CNodeSearch new_node_searcher(kTreeDepth_, min_num_node_obs_, *(rootnode_.get()));
 
 // build the tree structure
 #ifdef NOISY_DEBUG
@@ -120,7 +116,7 @@ void CCARTTree::Adjust(double* delta_estimates) {
 }
 
 void CCARTTree::Print() {
-  if (rootnode_) {
+  if (rootnode_.get() != 0) {
     rootnode_->PrintSubtree(0);
     Rprintf("shrinkage: %f\n", kShrinkage_);
     Rprintf("initial error: %f\n\n", error_);
@@ -145,7 +141,7 @@ void CCARTTree::TransferTreeToRList(const CDataset& kData, int* splitvar,
                                     VecOfVectorCategories& splitcodes_vec,
                                     int prev_categorical_splits) {
   int nodeid = 0;
-  if (rootnode_) {
+  if (rootnode_.get() != 0) {
     rootnode_->TransferTreeToRList(
         nodeid, kData, splitvar, splitvalues, leftnodes, rightnodes,
         missingnodes, error_reduction, weights, predictions, splitcodes_vec,
