@@ -22,7 +22,7 @@ CNodeSearch::CNodeSearch(unsigned long treedepth, unsigned long minobs,
 
 CNodeSearch::~CNodeSearch() {}
 
-void CNodeSearch::GenerateAllSplits(vector<CNode*>& term_nodes_ptrs,
+void CNodeSearch::GenerateAllSplits(vector<CNode* >& term_nodes_ptrs,
                                     const CDataset& kData, double* residuals,
                                     vector<unsigned long>& data_node_assigns) {
   unsigned long kWhichObs = 0;
@@ -90,10 +90,10 @@ double CNodeSearch::CalcImprovementAndSplit(
 
     // Add children to terminal node list
     term_nodes_ptrs[num_terminal_nodes_ - 2] =
-        term_nodes_ptrs[bestnode]->right_child();
+        term_nodes_ptrs[bestnode]->right_child().get();
     term_nodes_ptrs[num_terminal_nodes_ - 1] =
-        term_nodes_ptrs[bestnode]->missing_child();
-    term_nodes_ptrs[bestnode] = term_nodes_ptrs[bestnode]->left_child();
+        term_nodes_ptrs[bestnode]->missing_child().get();
+    term_nodes_ptrs[bestnode] = term_nodes_ptrs[bestnode]->left_child().get();
 
     variable_splitters_[num_terminal_nodes_ - 2].Set(
         *term_nodes_ptrs[num_terminal_nodes_ - 2]);
@@ -109,7 +109,7 @@ double CNodeSearch::CalcImprovementAndSplit(
 // Function Members - Private
 //----------------------------------------
 void CNodeSearch::ReassignData(unsigned long splittednode_index,
-                               vector<CNode*>& term_nodes_ptrs,
+                               vector<CNode* >& term_nodes_ptrs,
                                const CDataset& kData,
                                vector<unsigned long>& data_node_assigns) {
   // assign observations to the correct node

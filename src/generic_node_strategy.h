@@ -24,7 +24,7 @@ class GenericNodeStrategy {
   //----------------------
   // Public Constructors
   //----------------------
-  GenericNodeStrategy(){};
+  GenericNodeStrategy(): is_split_(false){};
 
   //---------------------
   // Public destructor
@@ -37,6 +37,7 @@ class GenericNodeStrategy {
   virtual void Adjust(unsigned long min_num_node_obs) = 0;
   virtual void Predict(const CDataset& kData, unsigned long rownum,
                        double& delta_estimate) = 0;
+  bool is_split() const { return is_split_; };
   virtual void GetVarRelativeInfluence(double* relative_influence) = 0;
   virtual void PrintSubTree(unsigned long indent) = 0;
   virtual signed char WhichNode(const CDataset& kData,
@@ -49,5 +50,11 @@ class GenericNodeStrategy {
                                    VecOfVectorCategories& splitcodes_vec,
                                    int prev_categorical_splits,
                                    double shrinkage) = 0;
+
+ protected:
+  //---------------------
+  // Protected Variables
+  //---------------------
+  bool is_split_;
 };
 #endif  // GENERICNODESTRATEGY_H

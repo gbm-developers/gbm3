@@ -66,7 +66,7 @@ class CCARTTree {
   std::vector<unsigned long>& get_node_assignments() {
     return data_node_assignment_;
   }
-  vector<CNode*>& get_terminal_nodes() { return terminalnode_ptrs_; }
+  vector<CNode* >& get_terminal_nodes() { return terminalnode_ptrs_; }
   const double& get_shrinkage_factor() const { return kShrinkage_; }
   const unsigned long& min_num_obs_required() const {
     return min_num_node_obs_;

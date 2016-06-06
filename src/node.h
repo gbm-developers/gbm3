@@ -27,10 +27,9 @@
 #include <vector>
 
 //------------------------------
-// Class Forwards and Enums
+// Class Forwards and Type defs
 //------------------------------
 class GenericNodeStrategy;
-enum SplitType { kCategorical, kContinuous, kNone };
 
 using namespace std;
 typedef vector<int> VectorCategories;
@@ -49,7 +48,7 @@ class CNode {
   //---------------------
   // Public destructor
   //---------------------
-  virtual ~CNode();
+  ~CNode() {};
 
   //---------------------
   // Public Functions
@@ -68,32 +67,29 @@ class CNode {
                            VecOfVectorCategories& splitcodes_vec,
                            int prev_categorical_splits, double shrinkage);
   signed char WhichNode(const CDataset& kData, unsigned long obs_num);
-  CNode* left_child() {
+  std::auto_ptr<CNode>& left_child() {
 	  return left_node_ptr_;
   }
-  const CNode* left_child() const {
-	  return left_node_ptr_;
-  }
-  CNode* right_child() {
+/*  const CNode* left_child() const {
+	//  return left_node_ptr_.release();
+}*/
+  std::auto_ptr<CNode>& right_child() {
 	  return right_node_ptr_;
   }
-  const CNode* right_child() const {
-	  return right_node_ptr_;
-  }
-  CNode* missing_child() {
+  //const CNode* right_child() const {
+	 // return right_node_ptr_.release();
+  //}
+  std::auto_ptr<CNode>& missing_child() {
 	  return missing_node_ptr_;
   }
-  const CNode* missing_child() const {
-	  return missing_node_ptr_;
-  }
+  //const CNode* missing_child() const {
+	 // return missing_node_ptr_.release();
+//  }
   unsigned long get_split_var() const {
 	  return split_var_;
   }
   double get_improvement() const {
 	  return improvement_;
-  }
-  SplitType get_splittype() const {
-	  return splittype_;
   }
   double get_splitvalue() const {
 	  return splitvalue_;
@@ -113,22 +109,23 @@ class CNode {
   std::vector<unsigned long>& get_leftcategory() {
 	  return leftcategory_;
   }
+  bool is_terminal() const;
 
  private:
   //---------------------
   // Private Functions
   //---------------------
-  void SetStrategy();
+  void SetStrategy(bool is_continuous_split);
 
   //---------------------
   // Private Variables
   //---------------------
-  GenericNodeStrategy* node_strategy_;
+  std::auto_ptr<GenericNodeStrategy> node_strategy_;
 
   // Pointers to the Node's children
-  CNode* left_node_ptr_;
-  CNode* right_node_ptr_;
-  CNode* missing_node_ptr_;
+  std::auto_ptr<CNode> left_node_ptr_;
+  std::auto_ptr<CNode> right_node_ptr_;
+  std::auto_ptr<CNode> missing_node_ptr_;
 
   // TODO: Currently most useful in printing out tree
   // This nodes parameters
@@ -139,9 +136,6 @@ class CNode {
   double prediction_;
   double totalweight_;    // total training weight in node
   unsigned long numobs_;  // number of training observations in node
-
-  // ENUM FOR strategy
-  SplitType splittype_;
 
   // VARIABLES USED IN NODE SPLITTING
   std::vector<unsigned long> leftcategory_;
