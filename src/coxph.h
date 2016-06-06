@@ -37,7 +37,7 @@ class CCoxPH : public CDistribution {
   //---------------------
   // Public destructor
   //---------------------
-  virtual ~CCoxPH();
+  ~CCoxPH() {};
 
   //---------------------
   // Public Functions
@@ -104,7 +104,7 @@ class CCoxPH : public CDistribution {
   const double kPriorCoeffVariation_;
   double* status_;
   int tiedtimesmethod_;
-  GenericCoxState* coxstate_methods_;
+  std::auto_ptr<GenericCoxState> coxstate_methods_;
 };
 
 #endif  // COXPH_H

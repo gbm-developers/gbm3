@@ -42,9 +42,9 @@ CCoxPH::CCoxPH(double* stats, int* sorted_end, int* sorted_start, int* strats,
 
   // Set up which methods CoxPh will use
   if (kStartStopCase_) {
-    coxstate_methods_ = new CountingCoxState(this);
+    coxstate_methods_.reset(new CountingCoxState(this));
   } else {
-    coxstate_methods_ = new CensoredCoxState(this);
+    coxstate_methods_.reset(new CensoredCoxState(this));
   }
 }
 
@@ -85,7 +85,6 @@ CDistribution* CCoxPH::Create(DataDistParams& distparams) {
                     tiesmethod, distparams.prior_coefficient_variation);
 }
 
-CCoxPH::~CCoxPH() { delete coxstate_methods_; }
 
 void CCoxPH::ComputeWorkingResponse(const CDataset& kData,
                                     const double* kFuncEstimate,
