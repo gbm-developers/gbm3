@@ -116,7 +116,7 @@ void CAdaBoost::FitBestConstant(const CDataset& kData,
 double CAdaBoost::BagImprovement(const CDataset& kData,
                                  const double* kFuncEstimate,
                                  const double kShrinkage,
-                                 const double* kDeltaEstimate) {
+                                 const std::vector<double>& kDeltaEstimate) {
   double returnvalue = 0.0;
   double func_est = 0.0;
   double weight = 0.0;

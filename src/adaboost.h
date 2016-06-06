@@ -48,7 +48,7 @@ class CAdaBoost : public CDistribution {
   double Deviance(const CDataset& kData, const double* kFuncEstimate);
 
   double BagImprovement(const CDataset& kData, const double* kFuncEstimate,
-                        const double shrinkage, const double* kDeltaEstimate);
+                        const double shrinkage, const std::vector<double>& kDeltaEstimate);
 
  private:
   //----------------------

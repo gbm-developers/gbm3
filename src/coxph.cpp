@@ -115,7 +115,7 @@ void CCoxPH::FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
 double CCoxPH::BagImprovement(const CDataset& kData,
                               const double* kFuncEstimate,
                               const double kShrinkage,
-                              const double* kDeltaEstimate) {
+                              const std::vector<double>& kDeltaEstimate) {
   return coxstate_methods_->BagImprovement(kData, kFuncEstimate, kShrinkage,
                                            kDeltaEstimate);
 }

@@ -99,7 +99,7 @@ class CountingCoxState : public GenericCoxState {
   }
 
   double BagImprovement(const CDataset& kData, const double* kFuncEstimate,
-                        const double kShrinkage, const double* kDeltaEstimate) {
+                        const double kShrinkage, const std::vector<double>& kDeltaEstimate) {
     // Initialize Parameters
     double loglike_no_adj = 0.0;
     double loglike_with_adj = 0.0;

@@ -129,7 +129,7 @@ double CGBMDataDistContainer::ComputeDeviance(const double* kFuncEstimate,
 //-----------------------------------
 double CGBMDataDistContainer::ComputeBagImprovement(const double* kFuncEstimate,
                                                 const double kShrinkage,
-                                                const double* kDeltaEstimate) {
+                                                const std::vector<double>& kDeltaEstimate) {
   return get_dist()->BagImprovement(get_data(), &kFuncEstimate[0], kShrinkage,
                                     kDeltaEstimate);
 }

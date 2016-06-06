@@ -860,7 +860,7 @@ void CPairwise::FitBestConstant(const CDataset& kData,
 double CPairwise::BagImprovement(const CDataset& kData,
                                  const double* kFuncEstimate,
                                  const double kShrinkage,
-                                 const double* kDeltaEstimates) {
+                                 const std::vector<double>& kDeltaEstimate) {
 
   if (kData.get_trainsize() <= 0) {
     return 0;
@@ -910,7 +910,7 @@ double CPairwise::BagImprovement(const CDataset& kData,
         // Compute score according to new score: adF' =  adF + dStepSize *
         // adFadj
         for (unsigned int i = 0; i < kNumItems; i++) {
-          ranker_.AddToScore(i, kDeltaEstimates[i + item_start] * kShrinkage);
+          ranker_.AddToScore(i, kDeltaEstimate[i + item_start] * kShrinkage);
         }
 
         const double kWi = kData.weight_ptr()[item_start];

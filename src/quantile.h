@@ -49,7 +49,7 @@ class CQuantile : public CDistribution {
   double Deviance(const CDataset& kData, const double* kFuncEstimate);
 
   double BagImprovement(const CDataset& kData, const double* kFuncEstimate,
-                        const double kShrinkage, const double* kDeltaEstimate);
+                        const double kShrinkage, const std::vector<double>& kDeltaEstimate);
 
  private:
   //----------------------

@@ -48,12 +48,12 @@ class CCARTTree {
   // Public Functions
   //---------------------
   void Grow(std::vector<double>& residuals, const CDataset& kData,
-            const double* kFuncEstimate);
+            const std::vector<double>& kDeltaEstimate);
   void Reset();
 
   void PredictValid(const CDataset& kData, unsigned long num_validation_points,
-                    double* delta_estimates);
-  void Adjust(double* delta_estimates);
+                    std::vector<double>& delta_estimates);
+  void Adjust(std::vector<double>& delta_estimates);
 
   void TransferTreeToRList(const CDataset& kData, int* splitvar,
                            double* splitvalues, int* leftnodes, int* rightnodes,

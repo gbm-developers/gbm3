@@ -28,7 +28,7 @@ void CGBMEngine::FitLearner(double* func_estimate, double& trainingerror,
 
   // Compute Residuals and fit tree
   datacontainer_.ComputeResiduals(&func_estimate[0], residuals_);
-  tree_.Grow(residuals_, datacontainer_.get_data(), &delta_estimates[0]);
+  tree_.Grow(residuals_, datacontainer_.get_data(), delta_estimates);
 
   // Now I have adF, adZ, and vecpTermNodes (new node assignments)
   // Fit the best constant within each terminal node
@@ -36,11 +36,11 @@ void CGBMEngine::FitLearner(double* func_estimate, double& trainingerror,
   // Adjust terminal node predictions and shrink
   datacontainer_.ComputeBestTermNodePreds(&func_estimate[0], residuals_,
                                           tree_);
-  tree_.Adjust(&delta_estimates[0]);
+  tree_.Adjust(delta_estimates);
 
   // Compute the error improvement within bag
   outofbag_improvement = datacontainer_.ComputeBagImprovement(
-      &func_estimate[0], tree_.get_shrinkage_factor(), &delta_estimates[0]);
+      &func_estimate[0], tree_.get_shrinkage_factor(), delta_estimates);
 
   // Update the function estimate
   unsigned long i = 0;
@@ -52,7 +52,7 @@ void CGBMEngine::FitLearner(double* func_estimate, double& trainingerror,
   trainingerror = datacontainer_.ComputeDeviance(&func_estimate[0], false);
   tree_.PredictValid(datacontainer_.get_data(),
                      datacontainer_.get_data().get_validsize(),
-                     &delta_estimates[0]);
+                     delta_estimates);
 
   for (i = datacontainer_.get_data().get_trainsize();
        i < datacontainer_.get_data().get_trainsize() +

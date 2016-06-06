@@ -50,7 +50,7 @@ class CGBMDataDistContainer {
                          bool is_validationset = false);
   double ComputeBagImprovement(const double* kFuncEstimate,
                                const double kShrinkage,
-                               const double* kDeltaEstimate);
+                               const std::vector<double>& kDeltaEstimate);
   void BagData();
 
   std::auto_ptr<CDistribution>& get_dist() { return distptr_; }

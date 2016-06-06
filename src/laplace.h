@@ -50,7 +50,7 @@ class CLaplace : public CDistribution {
 
   double BagImprovement(const CDataset& kData, const double* kFuncEstimate,
                         const double kShrinkage,
-                        const double* kFuncEstimateadj);
+                        const std::vector<double>& kDeltaEstimate);
 
  private:
   //----------------------

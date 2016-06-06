@@ -27,9 +27,9 @@ void CCARTTree::Reset() {
 // Grows a regression tree
 //------------------------------------------------------------------------------
 void CCARTTree::Grow(std::vector<double>& residuals, const CDataset& kData,
-                     const double* kFuncEstimates) {
+                     const std::vector<double>& kDeltaEstimate) {
   if ((&(residuals[0]) == NULL) || (kData.weight_ptr() == NULL) ||
-      (kFuncEstimates == NULL) || (kTreeDepth_ < 1)) {
+      (&kDeltaEstimate[0] == NULL) || (kTreeDepth_ < 1)) {
     throw gbm_exception::InvalidArgument();
   }
 
@@ -81,7 +81,7 @@ void CCARTTree::Grow(std::vector<double>& residuals, const CDataset& kData,
 
 void CCARTTree::PredictValid(const CDataset& kData,
                              unsigned long num_validation_points,
-                             double* delta_estimates) {
+                             std::vector<double>& delta_estimates) {
   unsigned int i = 0;
   for (i = kData.nrow() - num_validation_points; i < kData.nrow(); i++) {
     rootnode_->Predict(kData, i, delta_estimates[i]);
@@ -89,7 +89,7 @@ void CCARTTree::PredictValid(const CDataset& kData,
   }
 }
 
-void CCARTTree::Adjust(double* delta_estimates) {
+void CCARTTree::Adjust(std::vector<double>& delta_estimates) {
   rootnode_->Adjust(min_num_node_obs_);
 
   // predict for the training observations

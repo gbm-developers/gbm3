@@ -189,7 +189,7 @@ void CTweedie::FitBestConstant(const CDataset& kData,
 double CTweedie::BagImprovement(const CDataset& kData,
                                 const double* kFuncEstimate,
                                 const double kShrinkage,
-                                const double* kDeltaEstimate) {
+                                const std::vector<double>& kDeltaEstimate) {
   double returnvalue = 0.0;
   double delta_func_estimate = 0.0;
   double weight = 0.0;

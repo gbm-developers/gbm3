@@ -116,7 +116,7 @@ void CTDist::FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
 double CTDist::BagImprovement(const CDataset& kData,
                               const double* kFuncEstimate,
                               const double kShrinkage,
-                              const double* kDeltaEstimate) {
+                              const std::vector<double>& kDeltaEstimate) {
   double returnvalue = 0.0;
   unsigned long i = 0;
   double weight = 0.0;

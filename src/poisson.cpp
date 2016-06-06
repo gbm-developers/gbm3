@@ -123,7 +123,7 @@ void CPoisson::FitBestConstant(const CDataset& kData,
 double CPoisson::BagImprovement(const CDataset& kData,
                                 const double* kFuncEstimate,
                                 const double kShrinkage,
-                                const double* kDeltaEstimate) {
+                                const std::vector<double>& kDeltaEstimate) {
   double returnvalue = 0.0;
   double delta_func_est = 0.0;
   double weight = 0.0;

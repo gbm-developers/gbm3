@@ -56,6 +56,6 @@ class GenericCoxState {
   virtual double BagImprovement(const CDataset& kData,
                                 const double* kFuncEstimate,
                                 const double kShrinkage,
-                                const double* kDeltaEstimate) = 0;
+                                const std::vector<double>& kDeltaEstimate) = 0;
 };
 #endif  // GENERICCOXSTATE_H

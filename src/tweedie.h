@@ -47,7 +47,7 @@ class CTweedie : public CDistribution {
   double Deviance(const CDataset& kData, const double* kFuncEstimate);
 
   double BagImprovement(const CDataset& kData, const double* kFuncEstimate,
-                        const double kShrinkage, const double* kDeltaEstimates);
+                        const double kShrinkage, const std::vector<double>& kDeltaEstimates);
 
  private:
   //----------------------

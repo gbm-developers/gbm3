@@ -54,7 +54,7 @@ class CCoxPH : public CDistribution {
   double Deviance(const CDataset& kData, const double* kFuncEstimate);
 
   double BagImprovement(const CDataset& kData, const double* kFuncEstimate,
-                        const double kShrinkage, const double* kDeltaEstimate);
+                        const double kShrinkage, const std::vector<double>& kDeltaEstimate);
   void ShiftDistPtrs(unsigned long shift) {
     status_ = shift_ptr(status_, shift);
     sortedendtimes_ = shift_ptr(sortedendtimes_, shift);

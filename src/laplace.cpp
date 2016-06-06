@@ -123,7 +123,7 @@ void CLaplace::FitBestConstant(const CDataset& kData,
 double CLaplace::BagImprovement(const CDataset& kData,
                                 const double* kFuncEstimate,
                                 const double kShrinkage,
-                                const double* kDeltaEstimates) {
+                                const std::vector<double>& kDeltaEstimate) {
   double returnvalue = 0.0;
   double delta_func_est = 0.0;
   double weight = 0.0;
@@ -136,7 +136,7 @@ double CLaplace::BagImprovement(const CDataset& kData,
       returnvalue +=
           kData.weight_ptr()[i] * (fabs(kData.y_ptr()[i] - delta_func_est) -
                                    fabs(kData.y_ptr()[i] - delta_func_est -
-                                        kShrinkage * kDeltaEstimates[i]));
+                                        kShrinkage * kDeltaEstimate[i]));
       weight += kData.weight_ptr()[i];
     }
   }

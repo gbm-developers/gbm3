@@ -307,7 +307,7 @@ class CPairwise : public CDistribution {
                        CCARTTree& tree);
 
   double BagImprovement(const CDataset& kData, const double* kFuncEstimate,
-                        const double kShrinkage, const double* kDeltaEstimates);
+                        const double kShrinkage, const std::vector<double>& kDeltaEstimate);
 
   void BagData(CDataset& kData);
   void ShiftDistPtrs(unsigned long shift) {

@@ -120,7 +120,7 @@ void CQuantile::FitBestConstant(const CDataset& kData,
 double CQuantile::BagImprovement(const CDataset& kData,
                                  const double* kFuncEstimate,
                                  const double kShrinkage,
-                                 const double* kDeltaEstimate) {
+                                 const std::vector<double>& kDeltaEstimate) {
   double returnvalue = 0.0;
 
   double delta_func_est = 0.0;

@@ -84,7 +84,7 @@ class CDistribution {
   virtual double BagImprovement(const CDataset& kData,
                                 const double* kFuncEstimate,
                                 const double kShrinkage,
-                                const double* kDeltaFuncEstimate) = 0;
+                                const std::vector<double>& kDeltaFuncEstimate) = 0;
 
   virtual void BagData(CDataset& kData);
   virtual void ShiftDistPtrs(unsigned long shift){};

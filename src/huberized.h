@@ -47,7 +47,7 @@ class CHuberized : public CDistribution {
                        CCARTTree& tree);
 
   double BagImprovement(const CDataset& kData, const double* kFuncEstimates,
-                        const double kShrinkage, const double* kDeltaEstimates);
+                        const double kShrinkage, const std::vector<double>& kDeltaEstimates);
 
  private:
   //----------------------
