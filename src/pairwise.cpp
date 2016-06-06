@@ -491,16 +491,25 @@ CPairwise::CPairwise(const double* kGroups, const char* kIrMeasure,
 }
 
 CDistribution* CPairwise::Create(DataDistParams& distparams) {
+
   // Create pointers to pairwise
   Rcpp::NumericVector misc_vec(distparams.misc[0]);
   const double* kGroup = 0;
+
+  std::size_t offset_tomeasure = distparams.family.find("_");
+  if (offset_tomeasure == std::string::npos) {
+    throw gbm_exception::Failure(
+  			"Unable to locate IR metric required for pairwise");
+  }
+  const char* kIrMeasure =
+  		  distparams.family.c_str() + offset_tomeasure + 1;
 
   if (!gbm_functions::has_value(misc_vec)) {
     throw gbm_exception::Failure("Pairwise requires misc to initialize");
   } else {
     kGroup = misc_vec.begin();
   }
-  return new CPairwise(kGroup, distparams.irmeasure, distparams.num_trainrows);
+  return new CPairwise(kGroup, kIrMeasure, distparams.num_trainrows);
 }
 
 CPairwise::~CPairwise() {}

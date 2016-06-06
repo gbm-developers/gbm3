@@ -48,12 +48,13 @@ public:
     num_features = Rcpp::as<unsigned long>(number_offeatures);
     bagfraction = Rcpp::as<double>(fraction_inbag);
     prior_coefficient_variation = Rcpp::as<double>(prior_coeff_var);
+
+    // Set up distribution family
     family = Rcpp::as<std::string>(dist_family);
-
-    // Set up IR measure
-    irmeasure = NULL;
-    InitIRMeasure();
-
+    if (family.empty()) {
+    	  throw gbm_exception::Failure(
+    		  "configStructs - Can't specify IR metric as family not initialized.");
+	}
   }
 
   //-------------------
@@ -76,12 +77,6 @@ public:
   double bagfraction;
   double prior_coefficient_variation;
   std::string family;
-  const char* irmeasure;
 
-private:
-  //-------------------
-  // Private Methods
-  //-------------------
-  void InitIRMeasure();
 };
 #endif  // DATADISTPARAMS_H

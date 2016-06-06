@@ -70,8 +70,7 @@ SEXP gbm(SEXP response,    // outcome or response
 
   // Set up the function estimate
   double initial_func_est = gbm.initial_function_estimate();
-  Rcpp::NumericMatrix temp_covars(covariates); // REMOVE THIS
-  Rcpp::NumericVector func_estimate(temp_covars.nrow());
+  Rcpp::NumericVector func_estimate(datadistparams.response.nrow());
 
   if (ISNA(kPrevFuncEst[0]))  // check for old predictions
   {
