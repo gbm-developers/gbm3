@@ -9,10 +9,6 @@
 #include <vector>
 #include <algorithm>
 
-//#define NOISY_DEBUG
-#ifdef NOISY_DEBUG
-#endif
-
 void CRanker::Init(unsigned int max_items_per_group) {
   // Allocate sorting buffers
   score_rank_vec_.resize(max_items_per_group);
@@ -532,11 +528,7 @@ inline const double* OffsetVector(const double* const kCovariates,
 
 void CPairwise::ComputeWorkingResponse(const CDataset& kData,
                                        const double* kFuncEstimate,
-                                       double* residuals) {
-#ifdef NOISY_DEBUG
-  Rprintf("compute working response, nTrain = %u\n", nTrain);
-#endif
-
+                                       std::vector<double>& residuals) {
   if (kData.get_trainsize() <= 0) return;
 
   // Iterate through all groups, compute gradients
@@ -559,15 +551,6 @@ void CPairwise::ComputeWorkingResponse(const CDataset& kData,
       hessian_[item_end] = 0;
     }
 
-#ifdef NOISY_DEBUG
-    // Check sorting
-    for (unsigned int i = item_start; i < item_end - 1; i++) {
-      if (kData.y_ptr()[i] < kData.y_ptr()[i + 1]) {
-        throw gbm_exception::Failure("sorting failed in pairwise?");
-      }
-    }
-#endif
-
     if (kData.get_bag_element(item_start)) {
       // Group is part of the training set
 
@@ -589,7 +572,7 @@ void CPairwise::ComputeWorkingResponse(const CDataset& kData,
 
       ComputeLambdas(int_group, kNumItems, kData.y_ptr() + item_start,
                      kFuncPlusOffset, kData.weight_ptr() + item_start,
-                     residuals + item_start, &hessian_[item_start]);
+                     &residuals[item_start], &hessian_[item_start]);
     }
 
     // Next group
@@ -839,7 +822,7 @@ double CPairwise::Deviance(const CDataset& kData, const double* kfuncEstimate) {
 void CPairwise::FitBestConstant(const CDataset& kData,
                                 const double* kFuncEstimate,
                                 unsigned long num_terminalnodes,
-                                double* residuals, CCARTTree& tree) {
+                                std::vector<double>& residuals, CCARTTree& tree) {
 
   // Assumption: ComputeWorkingResponse() has been executed before with
   // the same arguments

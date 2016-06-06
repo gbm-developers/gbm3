@@ -28,7 +28,7 @@ CAdaBoost::~CAdaBoost() {}
 
 void CAdaBoost::ComputeWorkingResponse(const CDataset& kData,
                                        const double* kFuncEstimate,
-                                       double* residuals) {
+                                       std::vector<double>& residuals) {
   for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     residuals[i] = -(2 * kData.y_ptr()[i] - 1) *
                    std::exp(-(2 * kData.y_ptr()[i] - 1) *
@@ -79,7 +79,7 @@ double CAdaBoost::Deviance(const CDataset& kData, const double* kFuncEstimate) {
 void CAdaBoost::FitBestConstant(const CDataset& kData,
                                 const double* kFuncEstimate,
                                 unsigned long num_terminalnodes,
-                                double* residuals, CCARTTree& tree) {
+                                std::vector<double>& residuals, CCARTTree& tree) {
   double deltafunc_est = 0.0;
   unsigned long obs_num = 0;
   unsigned long node_num = 0;

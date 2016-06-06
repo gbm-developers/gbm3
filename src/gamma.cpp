@@ -32,11 +32,11 @@ CGamma::~CGamma() {}
 
 void CGamma::ComputeWorkingResponse(const CDataset& kData,
                                     const double* kFuncEstimate,
-                                    double* residuals) {
+                                    std::vector<double>& residuals) {
   unsigned long i = 0;
   double deltafunc_est = 0.0;
 
-  if (!(kData.y_ptr() && kFuncEstimate && residuals && kData.weight_ptr())) {
+  if (!(kData.y_ptr() && kFuncEstimate && &(residuals[0]) && kData.weight_ptr())) {
     throw gbm_exception::InvalidArgument();
   }
 
@@ -101,7 +101,7 @@ double CGamma::Deviance(const CDataset& kData, const double* kFuncEstimate) {
 }
 
 void CGamma::FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
-                             unsigned long num_terminalnodes, double* residuals,
+                             unsigned long num_terminalnodes, std::vector<double>& residuals,
                              CCARTTree& tree) {
   double deltafunc_estimate = 0.0;
   unsigned long obs_num = 0;

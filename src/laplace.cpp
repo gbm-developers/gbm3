@@ -28,7 +28,7 @@ CLaplace::~CLaplace() {}
 
 void CLaplace::ComputeWorkingResponse(const CDataset& kData,
                                       const double* kFuncEstimate,
-                                      double* residuals) {
+                                      std::vector<double>& residuals) {
   unsigned long i = 0;
   for (i = 0; i < kData.get_trainsize(); i++) {
     residuals[i] =
@@ -89,7 +89,7 @@ double CLaplace::Deviance(const CDataset& kData, const double* kFuncEstimates) {
 void CLaplace::FitBestConstant(const CDataset& kData,
                                const double* kFuncEstimate,
                                unsigned long num_terminal_nodes,
-                               double* residuals, CCARTTree& tree) {
+                               std::vector<double>& residuals, CCARTTree& tree) {
   unsigned long node_num = 0;
   unsigned long obs_num = 0;
   unsigned long vec_num = 0;

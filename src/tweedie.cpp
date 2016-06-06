@@ -41,11 +41,11 @@ CTweedie::~CTweedie() {}
 
 void CTweedie::ComputeWorkingResponse(const CDataset& kData,
                                       const double* kFuncEstimates,
-                                      double* residuals) {
+                                      std::vector<double>& residuals) {
   unsigned long i = 0;
   double delta_func_est = 0.0;
 
-  if (!(kData.y_ptr() && kFuncEstimates && residuals && kData.weight_ptr())) {
+  if (!(kData.y_ptr() && kFuncEstimates && &(residuals[0]) && kData.weight_ptr())) {
     throw gbm_exception::InvalidArgument();
   }
 
@@ -121,7 +121,7 @@ double CTweedie::Deviance(const CDataset& kData, const double* kFuncEstimate) {
 void CTweedie::FitBestConstant(const CDataset& kData,
                                const double* kFuncEstimate,
                                unsigned long num_terminalnodes,
-                               double* residuals, CCARTTree& tree) {
+                               std::vector<double>& residuals, CCARTTree& tree) {
   double delta_func_est = 0.0;
   unsigned long obs_num = 0;
   unsigned long node_num = 0;

@@ -27,10 +27,10 @@ CGaussian::~CGaussian() {}
 
 void CGaussian::ComputeWorkingResponse(const CDataset& kData,
                                        const double* kFuncEstimate,
-                                       double* residuals) {
+                                       std::vector<double>& residuals) {
   unsigned long i = 0;
 
-  if (!(kData.y_ptr() && kFuncEstimate && residuals && kData.weight_ptr())) {
+  if (!(kData.y_ptr() && kFuncEstimate && &(residuals[0]) && kData.weight_ptr())) {
     throw gbm_exception::InvalidArgument();
   }
 
@@ -80,7 +80,7 @@ double CGaussian::Deviance(const CDataset& kData, const double* kFuncEstimate) {
 void CGaussian::FitBestConstant(const CDataset& kData,
                                 const double* kFuncEstimate,
                                 unsigned long num_terminalnodes,
-                                double* residuals, CCARTTree& tree) {
+                                std::vector<double>& residuals, CCARTTree& tree) {
   // the tree aready stores the mean prediction
   // no refitting necessary
 }

@@ -37,7 +37,7 @@ class CensoredCoxState : public GenericCoxState {
   // Public Functions
   //---------------------
   void ComputeWorkingResponse(const CDataset& kData,
-                              const double* kFuncEstimate, double* residuals) {
+                              const double* kFuncEstimate, std::vector<double>& residuals) {
     // Initialize parameters
     std::vector<double> martingale_resid(kData.get_trainsize(), 0.0);
     LogLikelihood(kData.get_trainsize(), kData, kFuncEstimate,
@@ -53,7 +53,7 @@ class CensoredCoxState : public GenericCoxState {
   }
 
   void FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
-                       unsigned long num_terminalnodes, double* residuals,
+                       unsigned long num_terminalnodes, std::vector<double>& residuals,
                        CCARTTree& tree) {
     // Calculate the expected number of events and actual number of events in
     // terminal nodes

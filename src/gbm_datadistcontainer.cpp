@@ -63,7 +63,7 @@ double CGBMDataDistContainer::InitialFunctionEstimate() {
 //
 //-----------------------------------
 void CGBMDataDistContainer::ComputeResiduals(const double* kFuncEstimate,
-                                         double* residuals) {
+                                         std::vector<double>& residuals) {
   get_dist()->ComputeWorkingResponse(data_, kFuncEstimate, residuals);
 }
 
@@ -79,12 +79,12 @@ void CGBMDataDistContainer::ComputeResiduals(const double* kFuncEstimate,
 //    int& - reference to the number of nodes in the tree.
 //-----------------------------------
 void CGBMDataDistContainer::ComputeBestTermNodePreds(const double* kFuncEstimate,
-                                                 double* residuals,
+                                                 std::vector<double>& residuals,
                                                  CCARTTree& tree) {
   get_dist()->FitBestConstant(
       get_data(), &kFuncEstimate[0],
       (2 * tree.size_of_tree() + 1) / 3,  // number of terminal nodes
-      &residuals[0], tree);
+      residuals, tree);
 }
 
 //-----------------------------------

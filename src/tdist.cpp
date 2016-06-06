@@ -34,7 +34,7 @@ CTDist::~CTDist() {}
 
 void CTDist::ComputeWorkingResponse(const CDataset& kData,
                                     const double* kFuncEstimate,
-                                    double* residuals) {
+                                    std::vector<double>& residuals) {
   unsigned long i = 0;
   double du = 0.0;
 
@@ -83,7 +83,7 @@ double CTDist::Deviance(const CDataset& kData, const double* kFuncEstimate) {
 }
 
 void CTDist::FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
-                             unsigned long num_terminalnodes, double* residuals,
+                             unsigned long num_terminalnodes, std::vector<double>& residuals,
                              CCARTTree& tree) {
   // Local variables
   unsigned long node_num = 0;

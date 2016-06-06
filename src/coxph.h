@@ -43,12 +43,12 @@ class CCoxPH : public CDistribution {
   // Public Functions
   //---------------------
   void ComputeWorkingResponse(const CDataset& kData,
-                              const double* kFuncEstimate, double* residuals);
+                              const double* kFuncEstimate, std::vector<double>& residuals);
 
   double InitF(const CDataset& kData);
 
   void FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
-                       unsigned long num_terminalnodes, double* residuals,
+                       unsigned long num_terminalnodes, std::vector<double>& residuals,
                        CCARTTree& tree);
 
   double Deviance(const CDataset& kData, const double* kFuncEstimate);

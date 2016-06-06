@@ -33,7 +33,7 @@ CQuantile::~CQuantile() {}
 
 void CQuantile::ComputeWorkingResponse(const CDataset& kData,
                                        const double* kFuncEstimate,
-                                       double* residuals) {
+                                       std::vector<double>& residuals) {
   unsigned long i = 0;
   for (i = 0; i < kData.get_trainsize(); i++) {
     residuals[i] = (kData.y_ptr()[i] > kFuncEstimate[i] + kData.offset_ptr()[i])
@@ -85,7 +85,7 @@ double CQuantile::Deviance(const CDataset& kData, const double* kFuncEstimate) {
 void CQuantile::FitBestConstant(const CDataset& kData,
                                 const double* kFuncEstimate,
                                 unsigned long num_terminalnodes,
-                                double* residuals, CCARTTree& tree) {
+                                std::vector<double>& residuals, CCARTTree& tree) {
   unsigned long node_num = 0;
   unsigned long obs_num = 0;
   unsigned long vec_num = 0;

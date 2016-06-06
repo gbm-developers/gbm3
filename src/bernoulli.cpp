@@ -32,7 +32,7 @@ CBernoulli::~CBernoulli() {}
 
 void CBernoulli::ComputeWorkingResponse(const CDataset& kData,
                                         const double* kFuncEstimate,
-                                        double* residuals) {
+                                        std::vector<double>& residuals) {
   double prob = 0.0;
   double deltafunc_est = 0.0;
 
@@ -99,7 +99,7 @@ double CBernoulli::Deviance(const CDataset& kData,
 void CBernoulli::FitBestConstant(const CDataset& kData,
                                  const double* kFuncEstimate,
                                  unsigned long num_terminalnodes,
-                                 double* residuals, CCARTTree& tree) {
+                                 std::vector<double>& residuals, CCARTTree& tree) {
   unsigned long obs_num = 0;
   unsigned long node_num = 0;
   double temp = 0.0;

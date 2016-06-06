@@ -43,8 +43,8 @@ class CGBMDataDistContainer {
   //---------------------
   void Initialize();
   double InitialFunctionEstimate();
-  void ComputeResiduals(const double* kFuncEstimate, double* residuals);
-  void ComputeBestTermNodePreds(const double* kFuncEstimate, double* residuals,
+  void ComputeResiduals(const double* kFuncEstimate, std::vector<double>& residuals);
+  void ComputeBestTermNodePreds(const double* kFuncEstimate, std::vector<double>& residuals,
                                 CCARTTree& tree);
   double ComputeDeviance(const double* kFuncEstimate,
                          bool is_validationset = false);

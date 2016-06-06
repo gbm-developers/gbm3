@@ -43,12 +43,12 @@ class GenericCoxState {
   //---------------------
   virtual void ComputeWorkingResponse(const CDataset& kData,
                                       const double* kFuncEstimate,
-                                      double* residuals) = 0;
+                                      std::vector<double>& residuals) = 0;
 
   virtual void FitBestConstant(const CDataset& kData,
                                const double* kFuncEstimate,
                                unsigned long num_terminalnodes,
-                               double* residuals, CCARTTree& tree) = 0;
+                               std::vector<double>& residuals, CCARTTree& tree) = 0;
 
   virtual double Deviance(const long kNumRowsInSet, const CDataset& kData,
                           const double* kFuncEstimate) = 0;

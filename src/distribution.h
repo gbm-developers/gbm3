@@ -69,7 +69,7 @@ class CDistribution {
   };
   virtual void ComputeWorkingResponse(const CDataset& kData,
                                       const double* kFuncEstimate,
-                                      double* residuals) = 0;
+                                      std::vector<double>& residuals) = 0;
 
   virtual double InitF(const CDataset& kData) = 0;
 
@@ -79,7 +79,7 @@ class CDistribution {
   virtual void FitBestConstant(const CDataset& kData,
                                const double* kFuncEstimate,
                                unsigned long num_terminalnodes,
-                               double* residuals, CCARTTree& tree) = 0;
+                               std::vector<double>& residuals, CCARTTree& tree) = 0;
 
   virtual double BagImprovement(const CDataset& kData,
                                 const double* kFuncEstimate,

@@ -26,9 +26,9 @@ void CCARTTree::Reset() {
 //------------------------------------------------------------------------------
 // Grows a regression tree
 //------------------------------------------------------------------------------
-void CCARTTree::Grow(double* residuals, const CDataset& kData,
+void CCARTTree::Grow(std::vector<double>& residuals, const CDataset& kData,
                      const double* kFuncEstimates) {
-  if ((residuals == NULL) || (kData.weight_ptr() == NULL) ||
+  if ((&(residuals[0]) == NULL) || (kData.weight_ptr() == NULL) ||
       (kFuncEstimates == NULL) || (kTreeDepth_ < 1)) {
     throw gbm_exception::InvalidArgument();
   }

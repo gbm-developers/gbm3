@@ -47,7 +47,7 @@ class CCARTTree {
   //---------------------
   // Public Functions
   //---------------------
-  void Grow(double* residuals, const CDataset& kData,
+  void Grow(std::vector<double>& residuals, const CDataset& kData,
             const double* kFuncEstimate);
   void Reset();
 

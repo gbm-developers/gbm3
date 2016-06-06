@@ -27,14 +27,14 @@ void CGBMEngine::FitLearner(double* func_estimate, double& trainingerror,
   tree_.Reset();
 
   // Compute Residuals and fit tree
-  datacontainer_.ComputeResiduals(&func_estimate[0], &residuals_[0]);
-  tree_.Grow(&residuals_[0], datacontainer_.get_data(), &delta_estimates[0]);
+  datacontainer_.ComputeResiduals(&func_estimate[0], residuals_);
+  tree_.Grow(residuals_, datacontainer_.get_data(), &delta_estimates[0]);
 
   // Now I have adF, adZ, and vecpTermNodes (new node assignments)
   // Fit the best constant within each terminal node
 
   // Adjust terminal node predictions and shrink
-  datacontainer_.ComputeBestTermNodePreds(&func_estimate[0], &residuals_[0],
+  datacontainer_.ComputeBestTermNodePreds(&func_estimate[0], residuals_,
                                           tree_);
   tree_.Adjust(&delta_estimates[0]);
 

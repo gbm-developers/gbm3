@@ -28,7 +28,7 @@ CHuberized::~CHuberized() {}
 
 void CHuberized::ComputeWorkingResponse(const CDataset& kData,
                                         const double* kFuncEstimate,
-                                        double* residuals) {
+                                        std::vector<double>& residuals) {
   unsigned long i = 0;
   double delta_func_est = 0.0;
 
@@ -100,7 +100,7 @@ double CHuberized::Deviance(const CDataset& kData,
 void CHuberized::FitBestConstant(const CDataset& kData,
                                  const double* kFuncEstimate,
                                  unsigned long num_terminalnodes,
-                                 double* residuals, CCARTTree& tree) {
+                                 std::vector<double>& residuals, CCARTTree& tree) {
   double delta_func_est = 0.0;
   unsigned long obs_num = 0;
   unsigned long node_num = 0;

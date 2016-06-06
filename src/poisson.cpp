@@ -27,7 +27,7 @@ CPoisson::~CPoisson() {}
 
 void CPoisson::ComputeWorkingResponse(const CDataset& kData,
                                       const double* kFuncEstimate,
-                                      double* residuals) {
+                                      std::vector<double>& residuals) {
   unsigned long i = 0;
   double delta_func_est = 0.0;
 
@@ -78,7 +78,7 @@ double CPoisson::Deviance(const CDataset& kData, const double* kFuncEstimate) {
 void CPoisson::FitBestConstant(const CDataset& kData,
                                const double* kFuncEstimate,
                                unsigned long num_terminalnodes,
-                               double* residuals, CCARTTree& tree) {
+                               std::vector<double>& residuals, CCARTTree& tree) {
   unsigned long obs_num = 0;
   unsigned long node_num = 0;
   vector<double> numerator_vec(num_terminalnodes, 0.0);
