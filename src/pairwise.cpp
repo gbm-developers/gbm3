@@ -269,13 +269,6 @@ double CNDCG::MaxMeasure(unsigned int group, const double* const kResponse,
 
       maxdcg_vec_[group] = dScore;
 
-#ifdef NOISY_DEBUG
-      if (maxdcg_vec_[group] == 0) {
-        Rprintf("max score is 0: iGroup = %d, maxScore = %f\n", group,
-                maxdcg_vec_[group]);
-        throw gbm_exception::Failure();
-      }
-#endif
     }
   }
 
@@ -668,10 +661,6 @@ void CPairwise::ComputeLambdas(int group, unsigned int num_items,
   // Number of pairs with unequal labels
   unsigned int pairs = 0;
 
-#ifdef NOISY_DEBUG
-  double measure_before = pirm_->Measure(kResponse, ranker_);
-#endif
-
   for (unsigned int j = 1; j < num_items; j++) {
     const double kYj = kResponse[j];
 
@@ -685,31 +674,6 @@ void CPairwise::ComputeLambdas(int group, unsigned int num_items,
 
       const double kSwapCost = fabs(pirm_->SwapCost(i, j, kResponse, ranker_));
 
-#ifdef NOISY_DEBUG
-      double delta = fabs(pirm_->SwapCost(i, j, kResponse, ranker_));
-      const int kRanki = ranker_.GetRank(i);
-      const int kRankj = ranker_.GetRank(j);
-      ranker_.SetRank(i, cRankj);
-      ranker_.SetRank(j, cRanki);
-      double measure_after = pirm_->Measure(kResponse, ranker_);
-
-      if (fabs(measure_before - measure_after) - dDelta > 1e-5) {
-        Rprintf("%f %f %f %f %f %d %d\n",
-                pirm_->SwapCost(i, j, kResponse, ranker_), measure_before,
-                measure_after, measure_before - measure_after, delta, i, j);
-        for (unsigned int k = 0; k < num_items_; k++) {
-          Rprintf("%d\t%d\t%f\t%f\n", k, ranker_.GetRank(k), kResponse[k],
-                  kFuncEstimate[k]);
-        }
-        throw gbm_exception::Failure("the impossible happened");
-      }
-      if (fabs(measure_before - measure_after) - fabs(dDelta) >= 1e-5) {
-        throw gbm_exception::Failure("the impossible happened");
-      }
-      ranker_.SetRank(j, cRankj);
-      ranker_.SetRank(i, cRanki);
-
-#endif
       if (!isfinite(kSwapCost)) {
         throw gbm_exception::Failure("infinite swap cost");
       }
@@ -802,13 +766,6 @@ void CPairwise::Initialize(const CDataset& kData) {
     max_group_unsigned_long = (unsigned long)max_group;
   }
   pirm_->Init(max_group_unsigned_long, max_items_per_group, rank_cutoff);
-#ifdef NOISY_DEBUG
-  Rprintf(
-      "Initialization: instances=%ld, groups=%u, max items per group=%u, rank "
-      "cutoff=%u, offset specified: %d\n",
-      cLength, (unsigned long)max_group, max_items_per_group, rank_cutoff,
-      (kData.offset_ptr() != NULL));
-#endif
 }
 
 double CPairwise::InitF(const CDataset& kData) { return 0.0; }
@@ -874,10 +831,6 @@ void CPairwise::FitBestConstant(const CDataset& kData,
                                 const double* kFuncEstimate,
                                 unsigned long num_terminalnodes,
                                 double* residuals, CCARTTree& tree) {
-#ifdef NOISY_DEBUG
-  Rprintf("FitBestConstant, nTrain = %u,  cTermNodes = %d, \n", nTrain,
-          num_terminalnodes);
-#endif
 
   // Assumption: ComputeWorkingResponse() has been executed before with
   // the same arguments
@@ -892,12 +845,6 @@ void CPairwise::FitBestConstant(const CDataset& kData,
 
   for (unsigned int obs_num = 0; obs_num < kData.get_trainsize(); obs_num++) {
     if (kData.get_bag_element(obs_num)) {
-#ifdef NOISY_DEBUG
-      if (!(isfinite(kData.weight_ptr()[obs_num]) &&
-            isfinite(residuals[obs_num]) && isfinite(hessian_[obs_num]))) {
-        throw gbm_exception::Failure("unanticipated infinities");
-      };
-#endif
 
       fit_numerator_[tree.get_node_assignments()[obs_num]] +=
           kData.weight_ptr()[obs_num] * residuals[obs_num];
@@ -922,9 +869,6 @@ double CPairwise::BagImprovement(const CDataset& kData,
                                  const double* kFuncEstimate,
                                  const double kShrinkage,
                                  const double* kDeltaEstimates) {
-#ifdef NOISY_DEBUG
-  Rprintf("BagImprovement, nTrain = %u\n", nTrain);
-#endif
 
   if (kData.get_trainsize() <= 0) {
     return 0;

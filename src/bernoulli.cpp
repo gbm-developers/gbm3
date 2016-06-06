@@ -41,14 +41,6 @@ void CBernoulli::ComputeWorkingResponse(const CDataset& kData,
     prob = 1.0 / (1.0 + std::exp(-deltafunc_est));
 
     residuals[i] = kData.y_ptr()[i] - prob;
-#ifdef NOISY_DEBUG
-    //  Rprintf("dF=%f, dProb=%f, adZ=%f, data.y_ptr()=%f\n", dF, prob, adZ[i],
-    //  data.y_ptr()[i]);
-    if (dProb < 0.0001)
-      Rprintf("Small prob(i=%d)=%f Z=%f\n", i, prob, residuals[i]);
-    if (dProb > 1 - 0.0001)
-      Rprintf("Large prob(i=%d)=%f Z=%f\n", i, prob, residuals[i]);
-#endif
   }
 }
 
@@ -122,14 +114,6 @@ void CBernoulli::FitBestConstant(const CDataset& kData,
           kData.weight_ptr()[obs_num] *
           (kData.y_ptr()[obs_num] - residuals[obs_num]) *
           (1 - kData.y_ptr()[obs_num] + residuals[obs_num]);
-#ifdef NOISY_DEBUG
-/*
-      Rprintf("iNode=%d, dNum(%d)=%f, dDen(%d)=%f\n",
-              aiNodeAssign[iObs],
-              iObs,vecdNum[aiNodeAssign[iObs]],
-              iObs,vecdDen[aiNodeAssign[iObs]]);
-*/
-#endif
     }
   }
 

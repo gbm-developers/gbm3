@@ -28,10 +28,6 @@ void CCARTTree::Reset() {
 //------------------------------------------------------------------------------
 void CCARTTree::Grow(double* residuals, const CDataset& kData,
                      const double* kFuncEstimates) {
-#ifdef NOISY_DEBUG
-  Rprintf("Growing tree\n");
-#endif
-
   if ((residuals == NULL) || (kData.weight_ptr() == NULL) ||
       (kFuncEstimates == NULL) || (kTreeDepth_ < 1)) {
     throw gbm_exception::InvalidArgument();
@@ -40,10 +36,6 @@ void CCARTTree::Grow(double* residuals, const CDataset& kData,
   double sumz = 0.0;
   double sum_zsquared = 0.0;
   double totalw = 0.0;
-
-#ifdef NOISY_DEBUG
-  Rprintf("initial tree calcs\n");
-#endif
 
   // Move to data -- FOR TIME BEING
   for (unsigned long obs_num = 0; obs_num < kData.get_trainsize(); obs_num++) {
@@ -64,15 +56,8 @@ void CCARTTree::Grow(double* residuals, const CDataset& kData,
   terminalnode_ptrs_[0] = rootnode_.get();
   CNodeSearch new_node_searcher(kTreeDepth_, min_num_node_obs_, *(rootnode_.get()));
 
-// build the tree structure
-#ifdef NOISY_DEBUG
-  Rprintf("Building tree 1 ");
-#endif
-
+  // build the tree structure
   for (long cDepth = 0; cDepth < kTreeDepth_; cDepth++) {
-#ifdef NOISY_DEBUG
-    Rprintf("%d ", cDepth);
-#endif
 
     // Generate all splits
     new_node_searcher.GenerateAllSplits(
