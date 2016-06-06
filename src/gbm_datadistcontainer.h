@@ -36,7 +36,7 @@ class CGBMDataDistContainer {
   //---------------------
   // Public destructor
   //---------------------
-  ~CGBMDataDistContainer();
+  ~CGBMDataDistContainer() {};
 
   //---------------------
   // Public Functions
@@ -53,7 +53,7 @@ class CGBMDataDistContainer {
                                const double* kDeltaEstimate);
   void BagData();
 
-  CDistribution* get_dist() { return distptr_; }
+  std::auto_ptr<CDistribution>& get_dist() { return distptr_; }
   const CDataset& get_data() const { return data_; }
   CDataset& get_data() { return data_; }
 
@@ -74,8 +74,8 @@ class CGBMDataDistContainer {
   // Private Variables
   //-------------------
   CDataset data_;
-  CDistribution* distptr_;
-  DistributionFactory* distfactory_;
+  std::auto_ptr<DistributionFactory> distfactory_;
+  std::auto_ptr<CDistribution> distptr_;
 };
 
 #endif  // GBMDATACONTAINER_H

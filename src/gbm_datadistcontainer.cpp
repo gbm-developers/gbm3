@@ -25,26 +25,13 @@
 // Parameters: ...
 //-----------------------------------
 CGBMDataDistContainer::CGBMDataDistContainer(DataDistParams& datadist_config)
-    : data_(datadist_config) {
+    : data_(datadist_config),
+      distfactory_(new DistributionFactory()),
+      distptr_(distfactory_->CreateDist(datadist_config)) {
   // Initialize the factory and then use to get the disribution
-  distfactory_ = new DistributionFactory();
-  distptr_ = distfactory_->CreateDist(datadist_config);
   distptr_->Initialize(data_);
 }
 
-//-----------------------------------
-// Function: ~CGBMDataContainer
-//
-// Returns: none
-//
-// Description: Default destructor for GBM Data Container
-//
-// Parameters: none
-//-----------------------------------
-CGBMDataDistContainer::~CGBMDataDistContainer() {
-  delete distptr_;
-  delete distfactory_;
-}
 
 //-----------------------------------
 // Function: InitializeFunctionEstimate
