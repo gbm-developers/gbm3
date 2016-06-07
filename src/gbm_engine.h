@@ -18,6 +18,7 @@
 // Includes
 //------------------------------
 #include "datadistparams.h"
+#include "fitstruct.h"
 #include "gbm_datadistcontainer.h"
 #include "tree.h"
 #include "treeparams.h"
@@ -43,14 +44,7 @@ class CGBMEngine {
   //---------------------
   // Public Functions
   //---------------------
-  std::vector<double> FitLearner(double* func_estimate);
-  void GbmTransferTreeToRList(int* splitvar, double* splitvalues,
-                              int* leftnodes, int* rightnodes,
-                              int* missingnodes, double* error_reduction,
-                              double* weights, double* predictions,
-                              VecOfVectorCategories& splitcodes_vec,
-                              int prev_categorical_splits);
-  const long size_of_fitted_tree() const { return tree_.size_of_tree(); }
+  FitStruct FitLearner(double* func_estimate);
   double initial_function_estimate() {
     return datacontainer_.InitialFunctionEstimate();
   };
@@ -60,7 +54,7 @@ class CGBMEngine {
   // Private Variables
   //-------------------
   CGBMDataDistContainer datacontainer_;
-  CCARTTree tree_;
+  TreeParams& tree_params_;
 
   // Residuals and adjustments to function estimate
   std::vector<double> residuals_;

@@ -41,26 +41,21 @@ class GbmFit {
   //---------------------
   // Public Functions
   //---------------------
-  void AccumulateErrors(const int kTree, CGBMEngine& gbm);
-  void CreateTrees(const int kTree, const int kCatSplitsOld, const CGBMEngine& gbm);
-  Rcpp::List ROutput() {
-	return  Rcpp::List::create(
-	       _["initF"] = initial_estimate_, _["fit"] = func_estimate_,
-	       _["train.error"] = training_errors_, _["valid.error"] = validation_errors_,
-	       _["oobag.improve"] = outofbag_improvement_, _["trees"] = set_of_trees_,
-	       _["c.splits"] = split_codes_);
-  }
+  void accumulate(CGBMEngine& gbm);
+  void CreateTreeRepresentation(const int kCatSplitsOld);
+  Rcpp::List ROutput();
 
-  // Inlined Getters
-  double get_tree_training_error(const int kTree) const {
-	  return training_errors_[kTree];
+  // Inlined functions
+  double get_tree_training_error() const {
+	  return current_fit_[tree_count_].training_error;
   }
-  double get_tree_valid_error(const int kTree) const {
-	  return validation_errors_[kTree];
+  double get_tree_valid_error() const {
+	  return current_fit_[tree_count_].validation_error;
   }
-  double get_tree_oobag_improv(const int kTree) const {
-	  return outofbag_improvement_[kTree];
+  double get_tree_oobag_improv() const {
+	  return current_fit_[tree_count_].oobag_improvement;
   }
+  void increment_count() { tree_count_++; }
 
 
  private:
@@ -68,12 +63,11 @@ class GbmFit {
   // Private Variables
   //---------------------
   VecOfVectorCategories split_codes_;
+  std::vector<FitStruct> current_fit_;
   Rcpp::NumericVector func_estimate_; // Fitted function
-  Rcpp::NumericVector training_errors_;
-  Rcpp::NumericVector validation_errors_;
-  Rcpp::NumericVector outofbag_improvement_;
   Rcpp::GenericVector set_of_trees_;
   double initial_estimate_;
+  unsigned long tree_count_;
 };
 
 #endif  // GBMFIT_H

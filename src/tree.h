@@ -49,7 +49,6 @@ class CCARTTree {
   //---------------------
   void Grow(std::vector<double>& residuals, const CDataset& kData,
             const std::vector<double>& kDeltaEstimate);
-  void Reset();
 
   void PredictValid(const CDataset& kData, unsigned long num_validation_points,
                     std::vector<double>& delta_estimates);

@@ -138,21 +138,25 @@ SEXP gbm(SEXP response,
     Rcpp::checkUserInterrupt();
 
     // Calculate Errors
-    gbmfit.AccumulateErrors(treenum, gbm);
+    gbmfit.accumulate(gbm);
 
     // Create Trees
-    gbmfit.CreateTrees(treenum, kCatSplitsOld, gbm);
+    gbmfit.CreateTreeRepresentation(kCatSplitsOld);
 
     // print the information
     if ((kIsVerbose) &&
         ((treenum <= 9) || (0 == (treenum + 1 + kTreesOld) % 20) ||
          (treenum == kNumTrees - 1))) {
       Rprintf("%6d %13.4f %15.4f %10.4f %9.4f\n", treenum + 1 + kTreesOld,
-              gbmfit.get_tree_training_error(treenum),
-              gbmfit.get_tree_valid_error(treenum),
+              gbmfit.get_tree_training_error(),
+              gbmfit.get_tree_valid_error(),
               treeparams.shrinkage,
-              gbmfit.get_tree_oobag_improv(treenum));
+              gbmfit.get_tree_oobag_improv());
     }
+
+
+    // Increment internal count
+    gbmfit.increment_count();
   }
   if (kIsVerbose) Rprintf("\n");
 

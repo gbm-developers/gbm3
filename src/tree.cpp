@@ -16,11 +16,7 @@ CCARTTree::CCARTTree(TreeParams treeconfig)
       error_(0.0), totalnodecount_(1){
 
   data_node_assignment_.resize(treeconfig.num_trainrows, 0);
-}
-
-void CCARTTree::Reset() {
   terminalnode_ptrs_.resize(2 * kTreeDepth_ + 1, NULL);
-  totalnodecount_ = 1;
 }
 
 //------------------------------------------------------------------------------
