@@ -43,16 +43,13 @@ class CGBMEngine {
   //---------------------
   // Public Functions
   //---------------------
-  void FitLearner(double* func_estimate, double& training_error,
-                  double& validation_error, double& outofbag_improv);
-
+  std::vector<double> FitLearner(double* func_estimate);
   void GbmTransferTreeToRList(int* splitvar, double* splitvalues,
                               int* leftnodes, int* rightnodes,
                               int* missingnodes, double* error_reduction,
                               double* weights, double* predictions,
                               VecOfVectorCategories& splitcodes_vec,
                               int prev_categorical_splits);
-
   const long size_of_fitted_tree() const { return tree_.size_of_tree(); }
   double initial_function_estimate() {
     return datacontainer_.InitialFunctionEstimate();

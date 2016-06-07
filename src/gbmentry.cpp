@@ -2,6 +2,7 @@
 
 #include "datadistparams.h"
 #include "gbm_engine.h"
+#include "gbm_fit.h"
 #include "treeparams.h"
 #include <memory>
 #include <utility>
@@ -104,7 +105,6 @@ SEXP gbm(SEXP response,
   BEGIN_RCPP
 
   // Set up consts for tree fitting and transfer to R API
-  VecOfVectorCategories splitcodes;
   const int kNumTrees = Rcpp::as<int>(num_trees);
   const int kCatSplitsOld = Rcpp::as<int>(prev_category_splits);
   const int kTreesOld = Rcpp::as<int>(prev_trees_fitted);
@@ -126,26 +126,10 @@ SEXP gbm(SEXP response,
   // Initialize GBM engine
   CGBMEngine gbm(datadistparams, treeparams);
 
-  // Set up the function estimate
-  double initial_func_est = gbm.initial_function_estimate();
-  Rcpp::NumericVector func_estimate(datadistparams.response.nrow());
-
-  if (ISNA(kPrevFuncEst[0]))  // check for old predictions
-  {
-    // set the initial value of F as a constant
-    func_estimate.fill(initial_func_est);
-  } else {
-    if (kPrevFuncEst.size() != func_estimate.size()) {
-      throw gbm_exception::InvalidArgument(
-          "old predictions are the wrong shape");
-    }
-    std::copy(kPrevFuncEst.begin(), kPrevFuncEst.end(), func_estimate.begin());
-  }
-
-  Rcpp::NumericVector training_errors(kNumTrees, 0.0);
-  Rcpp::NumericVector validation_errors(kNumTrees, 0.0);
-  Rcpp::NumericVector outofbag_improvement(kNumTrees, 0.0);
-  Rcpp::GenericVector set_of_trees(kNumTrees);
+  // Initialize the output object
+  GbmFit gbmfit(datadistparams.response.nrow(),
+		  	  gbm.initial_function_estimate(),
+		  	  kNumTrees, kPrevFuncEst);
 
   if (kIsVerbose) {
     Rprintf("Iter   TrainDeviance   ValidDeviance   StepSize   Improve\n");
@@ -153,55 +137,26 @@ SEXP gbm(SEXP response,
   for (int treenum = 0; treenum < kNumTrees; treenum++) {
     Rcpp::checkUserInterrupt();
 
-    double tree_training_error = 0.0;
-    double tree_validation_error = 0.0;
-    double tree_out_of_bagimprov = 0.0;
+    // Calculate Errors
+    gbmfit.AccumulateErrors(treenum, gbm);
 
-    gbm.FitLearner(func_estimate.begin(), tree_training_error,
-                   tree_validation_error, tree_out_of_bagimprov);
-
-    // store the performance measures
-    training_errors[treenum] += tree_training_error;
-    validation_errors[treenum] += tree_validation_error;
-    outofbag_improvement[treenum] += tree_out_of_bagimprov;
-
-    Rcpp::IntegerVector split_vars(gbm.size_of_fitted_tree());
-    Rcpp::NumericVector split_values(gbm.size_of_fitted_tree());
-    Rcpp::IntegerVector left_nodes(gbm.size_of_fitted_tree());
-    Rcpp::IntegerVector right_nodes(gbm.size_of_fitted_tree());
-    Rcpp::IntegerVector missing_nodes(gbm.size_of_fitted_tree());
-    Rcpp::NumericVector error_reduction(gbm.size_of_fitted_tree());
-    Rcpp::NumericVector weights(gbm.size_of_fitted_tree());
-    Rcpp::NumericVector node_predictions(gbm.size_of_fitted_tree());
-
-    gbm.GbmTransferTreeToRList(
-        split_vars.begin(), split_values.begin(), left_nodes.begin(),
-        right_nodes.begin(), missing_nodes.begin(), error_reduction.begin(),
-        weights.begin(), node_predictions.begin(), splitcodes, kCatSplitsOld);
-
-    set_of_trees[treenum] = Rcpp::List::create(
-        split_vars, split_values, left_nodes, right_nodes, missing_nodes,
-        error_reduction, weights, node_predictions);
+    // Create Trees
+    gbmfit.CreateTrees(treenum, kCatSplitsOld, gbm);
 
     // print the information
     if ((kIsVerbose) &&
         ((treenum <= 9) || (0 == (treenum + 1 + kTreesOld) % 20) ||
          (treenum == kNumTrees - 1))) {
       Rprintf("%6d %13.4f %15.4f %10.4f %9.4f\n", treenum + 1 + kTreesOld,
-              training_errors[treenum], validation_errors[treenum],
+              gbmfit.get_tree_training_error(treenum),
+              gbmfit.get_tree_valid_error(treenum),
               treeparams.shrinkage,
-              outofbag_improvement[treenum]);
+              gbmfit.get_tree_oobag_improv(treenum));
     }
   }
-
   if (kIsVerbose) Rprintf("\n");
-  using Rcpp::_;
-  return Rcpp::List::create(
-      _["initF"] = initial_func_est, _["fit"] = func_estimate,
-      _["train.error"] = training_errors, _["valid.error"] = validation_errors,
-      _["oobag.improve"] = outofbag_improvement, _["trees"] = set_of_trees,
-      _["c.splits"] = splitcodes);
 
+  return gbmfit.ROutput();
   END_RCPP
 }
 

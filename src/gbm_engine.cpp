@@ -11,11 +11,9 @@ CGBMEngine::CGBMEngine(DataDistParams& datadistparams,
 
 CGBMEngine::~CGBMEngine() {}
 
-void CGBMEngine::FitLearner(double* func_estimate, double& trainingerror,
-                      double& validationerror, double& outofbag_improvement) {
-  trainingerror = 0.0;
-  validationerror = 0.0;
-  outofbag_improvement = 0.0;
+std::vector<double> CGBMEngine::FitLearner(double* func_estimate) {
+  const int number_of_errors = 3;
+  std::vector<double> metrics(number_of_errors, 0.0);
 
   // Initialize adjustments to function estimate
   std::vector<double> delta_estimates(datacontainer_.get_data().nrow(), 0);
@@ -39,7 +37,7 @@ void CGBMEngine::FitLearner(double* func_estimate, double& trainingerror,
   tree_.Adjust(delta_estimates);
 
   // Compute the error improvement within bag
-  outofbag_improvement = datacontainer_.ComputeBagImprovement(
+  metrics[2] = datacontainer_.ComputeBagImprovement(
       &func_estimate[0], tree_.get_shrinkage_factor(), delta_estimates);
 
   // Update the function estimate
@@ -49,7 +47,7 @@ void CGBMEngine::FitLearner(double* func_estimate, double& trainingerror,
   }
 
   // Make validation predictions
-  trainingerror = datacontainer_.ComputeDeviance(&func_estimate[0], false);
+  metrics[0] = datacontainer_.ComputeDeviance(&func_estimate[0], false);
   tree_.PredictValid(datacontainer_.get_data(),
                      datacontainer_.get_data().get_validsize(),
                      delta_estimates);
@@ -61,7 +59,8 @@ void CGBMEngine::FitLearner(double* func_estimate, double& trainingerror,
     func_estimate[i] += delta_estimates[i];
   }
 
-  validationerror = datacontainer_.ComputeDeviance(&func_estimate[0], true);
+  metrics[1] = datacontainer_.ComputeDeviance(&func_estimate[0], true);
+  return metrics;
 }
 
 void CGBMEngine::GbmTransferTreeToRList(int* splitvar, double* splitvalues,
