@@ -27,8 +27,10 @@ class NodeStack {
 };
 }
 //----------------------------------------
-// Function Members - Public
+// Functions- Public
 //----------------------------------------
+extern "C" {
+
 //-----------------------------------
 // Function: gbm
 //
@@ -42,7 +44,7 @@ class NodeStack {
 //  response  - SEXP containing the response of each data-point - accessed via
 //				double ptr
 //  offset_vec - SEXP containing the offset applied to each response - accessed via
-//				double ptr
+//				double ptr - NA for no offset
 //  covariates - SEXP containing the predictor values - becomes Rcpp::NumericMatrix
 //  covar_order - SEXP containing the order of predictor values to
 //  			be used in GBM formula - accessed via int ptr.
@@ -54,6 +56,7 @@ class NodeStack {
 //  				process - accessed via double ptr.
 //  misc - SEXP list object containing distribution dependent data
 //		   , depending on the distribution this may be a double or int.
+//		   It is NA if there is no misc.
 // prior_coeff_var - SEXP containing a double specifying a prior node
 //					prediction value for the CoxPH model.
 //  row_to_obs_id - SEXP storing integer ids mapping each row to
@@ -64,6 +67,12 @@ class NodeStack {
 //  					variables are:
 //  monotone increasing (+1), decreasing (-1) or arbitrary (0) with the response
 // 					 variable. - accessed via int ptr
+//  dist_family - SEXP specifying which distribution is used to model data - string.
+//  num_trees - SEXP specifying how many trees to fit in model - ulong.
+//  tree_depth - SEXP defining maximum depth of each tree - ulong.
+//  min_num_node_obs - SEXP specifying minimum num of obs a node must have - ulong.
+//  shrinkageconstant - SEXP defining the shrinkage applied to each tree fit - double.
+//  fraction_inbag - SEXP, the fraction of observations to be used in tree fitting - double.
 //	num_rows_in_training - SEXP containing ulong specify the number of data points in
 //							training set
 //  num_obs_in_training - SEXP containing ulong specifying number of unique observations
@@ -78,19 +87,16 @@ class NodeStack {
 //  isverbose - SEXP which is a const bool specifying whether the fitting should be
 //				silent or not.
 //-----------------------------------
-
-extern "C" {
-
-SEXP gbm(SEXP response,    // outcome or response
-         SEXP offset_vec,  // offset for f(x), NA for no offset
+SEXP gbm(SEXP response,
+         SEXP offset_vec,
          SEXP covariates, SEXP covar_order, SEXP sorted_vec, SEXP strata_vec,
          SEXP obs_weight,
-         SEXP misc,  // other row specific data (eg failure time), NA=no Misc
-         SEXP prior_coeff_var,  // Prior coefficient of variation in Cox PH fit.
-         SEXP row_to_obs_id,    // Used in the bagging process
+         SEXP misc,
+         SEXP prior_coeff_var,
+         SEXP row_to_obs_id,
          SEXP var_classes, SEXP monotonicity_vec, SEXP dist_family,
          SEXP num_trees,
-         SEXP tree_depth,  // interaction depth
+         SEXP tree_depth,
          SEXP min_num_node_obs, SEXP shrinkageconstant, SEXP fraction_inbag,
          SEXP num_rows_in_training, SEXP num_obs_in_training,
          SEXP number_offeatures, SEXP prev_func_estimate,
