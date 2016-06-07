@@ -26,6 +26,58 @@ class NodeStack {
   std::vector<std::pair<int, double> > stack;
 };
 }
+//----------------------------------------
+// Function Members - Public
+//----------------------------------------
+//-----------------------------------
+// Function: gbm
+//
+// Returns: R List containing: the initial function estimate,
+//			the fit, training errors, validation errors, out of bag
+//			improvement, the trees and the categorical splits.
+//
+// Description: Fits a gbm model to data.
+//
+// Parameters:
+//  response  - SEXP containing the response of each data-point - accessed via
+//				double ptr
+//  offset_vec - SEXP containing the offset applied to each response - accessed via
+//				double ptr
+//  covariates - SEXP containing the predictor values - becomes Rcpp::NumericMatrix
+//  covar_order - SEXP containing the order of predictor values to
+//  			be used in GBM formula - accessed via int ptr.
+//  sorted_vec - SEXP indicating the ordering of observations for CoxPH
+//				 , this is stored an int ptr in CoxPH.
+//  strata_vec - SEXP indicating which strata observations are in -
+//				 this is used with CoxPH as an int ptr.
+//  obs_weight  - SEXP containing weights to be used in fitting
+//  				process - accessed via double ptr.
+//  misc - SEXP list object containing distribution dependent data
+//		   , depending on the distribution this may be a double or int.
+// prior_coeff_var - SEXP containing a double specifying a prior node
+//					prediction value for the CoxPH model.
+//  row_to_obs_id - SEXP storing integer ids mapping each row to
+//          		its observation - becomes Rcpp::IntegerVector.
+//  var_classes  - R object (SEXP) containing the variable classes,
+//				  this is stored as a Rcpp::IntegerVector in dataset.cpp.
+//  monotonicity_vec - SEXP containing +-1/0 indicating whether the
+//  					variables are:
+//  monotone increasing (+1), decreasing (-1) or arbitrary (0) with the response
+// 					 variable. - accessed via int ptr
+//	num_rows_in_training - SEXP containing ulong specify the number of data points in
+//							training set
+//  num_obs_in_training - SEXP containing ulong specifying number of unique observations
+//						  that make up training set
+//  number_offeatures - SEXP containing ulong specifying number of features for use in
+//						tree growing.
+//  prev_func_estimate - SEXP containing previous function estimate -const Rcpp::NumericVector
+//  prev_category_splits - SEXP containing const int specifying the last categorical
+//						 split code of a previous fit for further fitting - if
+//						 first fit it is 0.
+//  prev_trees_fitted -  SEXP containing const int - number of previous trees fitted.
+//  isverbose - SEXP which is a const bool specifying whether the fitting should be
+//				silent or not.
+//-----------------------------------
 
 extern "C" {
 
@@ -147,14 +199,38 @@ SEXP gbm(SEXP response,    // outcome or response
   END_RCPP
 }
 
-SEXP gbm_pred(SEXP covariates,          // the data matrix
-              SEXP num_trees,           // number of trees, may be a vector
-              SEXP initial_func_est,    // the initial value
-              SEXP fitted_trees,        // the list of trees
-              SEXP categorical_splits,  // the list of categorical splits
-              SEXP variable_type,       // indicator of continuous/nominal
-              SEXP ret_single_tree_res  // boolean whether to return only
-                                        // results for one tree
+
+//-----------------------------------
+// Function: gbm_pred
+//
+// Returns: predicted function - a Rcpp::NumericVector
+//
+// Description: Makes predictions using a previously fit
+//			gbm model and data.
+//
+// Parameters:
+//  covariates - SEXP containing the predictor values - becomes
+//				  const Rcpp::NumericMatrix.
+//  num_trees - SEXP containing an int or vector of ints specifying the number of
+//				  trees to make predictions on - stored as const Rcpp::IntegerVector.
+//  initial_func_est - SEXP specifying initial prediction estimate - double.
+//  fitted_trees - SEXP containing lists defining the previously fitted trees -
+//					stored as const Rcpp::GenericVector.
+//  categorical_splits - SEXP containing  list of the categories of the split variables
+//						defining a tree - stored as a const Rcpp::GenericVector.
+//  variable_type -  SEXP containing integers specifying whether the variable
+//					is continuous/nominal- stored as const Rcpp::IntegerVector.
+//  ret_single_tree_res - SEXP which is a const bool specifying whether the fitting should be
+//				only a single tree.
+//-----------------------------------
+
+SEXP gbm_pred(SEXP covariates,
+              SEXP num_trees,
+              SEXP initial_func_est,
+              SEXP fitted_trees,
+              SEXP categorical_splits,
+              SEXP variable_type,
+              SEXP ret_single_tree_res
               ) {
   BEGIN_RCPP
   int tree_num = 0;
@@ -249,6 +325,31 @@ SEXP gbm_pred(SEXP covariates,          // the data matrix
   return Rcpp::wrap(predicted_func);
   END_RCPP
 }
+
+//-----------------------------------
+// Function: gbm_plot
+//
+// Returns: predicted function - a Rcpp::NumericVector
+//
+// Description: Calculates predictions using only
+//				effects of specific variables.
+//
+// Parameters:
+//  covariates - SEXP containing the predictor values - becomes
+//				  const Rcpp::NumericMatrix.
+//  whichvar- SEXP containing indices specifying which var columns of the
+//			  covariates are important - const Rcpp::IntegerVector.
+//  num_trees - SEXP containing an int or vector of ints specifying the number of
+//				  trees to make predictions on - stored as const Rcpp::IntegerVector.
+//				  trees to make predictions on - stored as const Rcpp::IntegerVector.
+//  init_func_est - SEXP specifying initial prediction estimate - double.
+//  fitted_trees - SEXP containing lists defining the previously fitted trees -
+//					stored as const Rcpp::GenericVector.
+//  categorical_splits - SEXP containing  list of the categories of the split variables
+//						defining a tree - stored as a const Rcpp::GenericVector.
+//  var_types -  SEXP containing integers specifying whether the variables of interest are
+//				continuous/nominal- stored as const Rcpp::IntegerVector.
+//-----------------------------------
 
 SEXP gbm_plot(
     SEXP covariates,          // vector or matrix of points to make predictions

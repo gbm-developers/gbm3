@@ -27,6 +27,23 @@ struct TreeParams {
   //----------------------
   // Public Constructors
   //----------------------
+  //-----------------------------------
+  // Function: TreeParams
+  //
+  // Returns: None
+  //
+  // Description: Constructor for TreeParams struc.
+  //
+  // Parameters:
+  //  tree_depth - SEXP specifying the maximum depth of each tree - ulong.
+  //  min_num_node_obs - SEXP specifying the minimum number of obs.
+  //					a node must have - ulong.
+  //  shrinkageconstant - SEXP defining the shrinkage applied to
+  //				  each tree fit - double.
+  //  num_rows_in_training - SEXP containing ulong specify the number of data points in
+  //							training set
+  //-----------------------------------
+
   TreeParams(SEXP tree_depth, SEXP min_num_node_obs,
 		  	 SEXP shrinkageconstant, SEXP num_rows_in_training) {
 

@@ -59,9 +59,6 @@ CDistribution* CCoxPH::Create(DataDistParams& distparams) {
   bool isstartstop = false;
   int tiesmethod = GetTiesMethod(Rcpp::as<string>(distparams.misc[0]));
 
-  // Switch on misc to set up ties method
-  std::string miscstring = Rcpp::as<std::string>(distparams.misc[0]);
-
   // Set up strata
   Rcpp::IntegerVector strats(distparams.strata);
 

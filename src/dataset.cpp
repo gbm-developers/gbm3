@@ -21,26 +21,11 @@
 //
 // Returns: none
 //
-// Description:
+// Description: Constructs a d
 //
 // Parameters:
-//  radY           - R object (SEXP) containing the response of each data-point
-//  radOffset      - R object (SEXP) containing the offset applied to each
-//  prediction
-//  radX           - R object (SEXP) containing the predictor values.
-//  raiXOrder      - R object (SEXP) containing the order of predictor values to
-//  be
-//  used in GBM formula
-//  radWeight      - R object (SEXP) containing weights to be used in fitting
-//  process
-//  racVarClasses  - R object (SEXP) containing the variable classes
-//  ralMonotoneVar - R object (SEXP) containing +-1/9 indicating whether the
-//  variables are:
-//  monotone increasing (+1), decreasing (-1) or arbitrary (0) with the response
-//  variable.
-//	cTrain		   - int specifiy the number of data points in
-//training set
-//
+//  dataparams - a struct containing all of the data parameters
+//				required to make a dataset object.
 //-----------------------------------
 CDataset::CDataset(const DataDistParams& dataparams)
     : xmatrix_(dataparams.xvalues),
