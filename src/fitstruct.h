@@ -45,8 +45,25 @@ struct FitStruct {
 	//----------------------
 	// Public Destructors
 	//----------------------
-	~FitStruct() {};
+	~FitStruct() {
+		if(fitted_tree) delete fitted_tree;
+		fitted_tree = NULL;
+		data_for_fit = NULL;
+	};
 
+	//----------------------
+	// Public Functions
+	//----------------------
+	void operator=(FitStruct rhs) {
+		fitted_tree = rhs.fitted_tree;
+		training_error = rhs.training_error;
+		validation_error = rhs.validation_error;
+		oobag_improvement = rhs.oobag_improvement;
+		data_for_fit = rhs.data_for_fit;
+
+		// Set to NULL so as to avoid memory leak
+		rhs.fitted_tree = NULL;
+	}
 	CCARTTree* fitted_tree;
 	CDataset* data_for_fit;
 	double training_error;
