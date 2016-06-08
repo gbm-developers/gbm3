@@ -369,7 +369,7 @@
 #' best.iter <- gbm.perf(gbm1,method="test")
 #' print(best.iter)
 #' 
-#' # check performance using 5-fold cross-validation
+#' # check performance using 3-fold cross-validation
 #' best.iter <- gbm.perf(gbm1,method="cv")
 #' print(best.iter)
 #' 

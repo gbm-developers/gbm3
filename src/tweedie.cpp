@@ -174,15 +174,17 @@ void CTweedie::FitBestConstant(const CDataset& kData,
             std::log(numerator_vec[node_num] / denominator_vec[node_num]));
       }
 
-      if (max_vec[node_num] + tree.get_terminal_nodes()[node_num]->get_prediction() >
+      if (max_vec[node_num] +
+              tree.get_terminal_nodes()[node_num]->get_prediction() >
           maxval) {
-        tree.get_terminal_nodes()[node_num]->set_prediction(
-            maxval - max_vec[node_num]);
+        tree.get_terminal_nodes()[node_num]->set_prediction(maxval -
+                                                            max_vec[node_num]);
       }
-      if (min_vec[node_num] + tree.get_terminal_nodes()[node_num]->get_prediction() <
+      if (min_vec[node_num] +
+              tree.get_terminal_nodes()[node_num]->get_prediction() <
           minval) {
-        tree.get_terminal_nodes()[node_num]->set_prediction(
-            minval - min_vec[node_num]);
+        tree.get_terminal_nodes()[node_num]->set_prediction(minval -
+                                                            min_vec[node_num]);
       }
     }
   }

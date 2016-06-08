@@ -9,9 +9,9 @@ Imports:
     lattice,
     splines,
     parallel,
-    Rcpp
+    Rcpp (>= 0.11.0)
 Suggests:
-    testthat,
+    testthat (>= 0.11.0),
     knitr
 VignetteBuilder: knitr
 Description: Extensions
@@ -25,3 +25,4 @@ Description: Extensions
 License: GPL (>= 2) | file LICENSE
 URL: https://github.com/gbm-developers/gbm
 RoxygenNote: 5.0.1
+LinkingTo: Rcpp

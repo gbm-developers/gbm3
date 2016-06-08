@@ -61,6 +61,7 @@ class CBernoulli : public CDistribution {
   // Private Variables
   //-------------------
   bool terminalnode_capped_;
+  double terminalnode_cap_level_;
 };
 
 #endif  // BERNOULLI_H

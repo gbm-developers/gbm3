@@ -49,7 +49,8 @@ class ContinuousStrategy : public GenericNodeStrategy {
                (node_context_->right_child()->get_prediction())) /
           (node_context_->left_child()->get_totalweight() +
            node_context_->right_child()->get_totalweight()));
-      node_context_->missing_child()->set_prediction(node_context_->get_prediction());
+      node_context_->missing_child()->set_prediction(
+          node_context_->get_prediction());
     } else {
       node_context_->missing_child()->Adjust(min_num_node_obs);
       node_context_->set_prediction(
@@ -76,7 +77,8 @@ class ContinuousStrategy : public GenericNodeStrategy {
     }
   }
   void GetVarRelativeInfluence(double* relative_influence) {
-    relative_influence[node_context_->get_split_var()] += node_context_->get_improvement();
+    relative_influence[node_context_->get_split_var()] +=
+        node_context_->get_improvement();
     node_context_->left_child()->GetVarRelativeInfluence(relative_influence);
     node_context_->right_child()->GetVarRelativeInfluence(relative_influence);
   }
