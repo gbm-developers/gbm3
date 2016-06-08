@@ -18,14 +18,14 @@ void CDistribution::BagData(const CDataset& kData, Bag& bag) {
        obs_it = row_it) {
     // Check if we've filled the bag or have left the training set
     if ((i >= kData.get_num_observations_in_training()) ||
-        (numbagged >= kData.get_total_in_bag()))
+        (numbagged >= bag.get_total_in_bag()))
       break;
 
     keyrange = obsid_to_row_.equal_range(obs_it->first);
 
     // Check if that patient should be bagged - bag corresponding rows
     if (unif_rand() * (kData.get_num_observations_in_training() - i) <
-        kData.get_total_in_bag() - numbagged) {
+        bag.get_total_in_bag() - numbagged) {
       numbagged++;
       for (row_it = keyrange.first; row_it != keyrange.second; ++row_it) {
         bag.set_element((*row_it).second);

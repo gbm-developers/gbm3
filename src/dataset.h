@@ -109,14 +109,11 @@ class CDataset {
   };
 
   index_vector RandomOrder() const;  // randomize order of predictor varaiables
-
-  double get_bagfraction() const { return bagfraction_; };
   unsigned long get_validsize() const { return num_validationdata_; };
   unsigned long get_size_of_set() const {
     if (point_at_trainingset_) return get_trainsize();
     return get_validsize();
   }
-  unsigned long get_total_in_bag() const { return totalinbag_; };
   unsigned long get_num_observations_in_training() const {
     return num_trainobservations_;
   }
@@ -173,8 +170,5 @@ class CDataset {
   unsigned long num_features_;
   bool point_at_trainingset_;
 
-  // Bagged  data - properties
-  double bagfraction_;
-  unsigned long totalinbag_;
 };
 #endif  // DATASET_H

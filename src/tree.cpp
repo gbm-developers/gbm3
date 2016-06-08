@@ -49,7 +49,7 @@ void CCARTTree::Grow(std::vector<double>& residuals, const CDataset& kData,
   }
 
   error_ = sum_zsquared - sumz * sumz / totalw;
-  rootnode_.reset(new CNode(NodeDef(sumz, totalw, kData.get_total_in_bag())));
+  rootnode_.reset(new CNode(NodeDef(sumz, totalw, kBag.get_total_in_bag())));
   terminalnode_ptrs_[0] = rootnode_.get();
   CNodeSearch new_node_searcher(kTreeDepth_, min_num_node_obs_, *(rootnode_.get()));
 

@@ -942,7 +942,7 @@ void CPairwise::BagData(const CDataset& kData, Bag& bag) {
   unsigned int bagged_groups = 0;
   unsigned int seen_groups = 0;
   unsigned int total_groupsinbag =
-      (unsigned long)(kData.get_bagfraction() * get_num_groups());
+      (unsigned long)(bag.get_bagfraction() * get_num_groups());
 
   if (total_groupsinbag <= 0) {
     total_groupsinbag = 1;

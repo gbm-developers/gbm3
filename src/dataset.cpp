@@ -54,15 +54,8 @@ CDataset::CDataset(const DataDistParams& dataparams)
   num_features_ = dataparams.num_features;
   point_at_trainingset_ = true;
 
-  // Set-up Bags
-  bagfraction_ = dataparams.bagfraction;
-  totalinbag_ =
-      (long)(dataparams.bagfraction * dataparams.num_trainobservations);
 
   // Ensure initialization makes sense
-  if (totalinbag_ <= 0) {
-    throw gbm_exception::InvalidArgument("you have an empty bag!");
-  }
   if (num_traindata_ <= 0) {
     throw gbm_exception::InvalidArgument("you've <= 0 training instances");
   }
