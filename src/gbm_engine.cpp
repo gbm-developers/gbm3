@@ -24,7 +24,8 @@ FitStruct CGBMEngine::FitLearner(double* func_estimate) {
 
   // Compute Residuals and fit tree
   datacontainer_.ComputeResiduals(&func_estimate[0], residuals_);
-  tree->Grow(residuals_, datacontainer_.get_data(), delta_estimates);
+  tree->Grow(residuals_, datacontainer_.get_data(),
+		  datacontainer_.get_bag(), delta_estimates);
 
   // Now I have adF, adZ, and vecpTermNodes (new node assignments)
   // Fit the best constant within each terminal node

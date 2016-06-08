@@ -27,6 +27,7 @@ CDistribution* CLaplace::Create(DataDistParams& distparams) {
 CLaplace::~CLaplace() {}
 
 void CLaplace::ComputeWorkingResponse(const CDataset& kData,
+									  const Bag& kBag,
                                       const double* kFuncEstimate,
                                       std::vector<double>& residuals) {
   unsigned long i = 0;
@@ -53,7 +54,7 @@ double CLaplace::InitF(const CDataset& kData) {
                                   kData.weight_ptr(), 0.5);  // median
 }
 
-double CLaplace::Deviance(const CDataset& kData, const double* kFuncEstimates) {
+double CLaplace::Deviance(const CDataset& kData, const Bag& kBag, const double* kFuncEstimates) {
   unsigned long i = 0;
   double loss = 0.0;
   double weight = 0.0;
@@ -87,6 +88,7 @@ double CLaplace::Deviance(const CDataset& kData, const double* kFuncEstimates) {
 
 // DEBUG: needs weighted median
 void CLaplace::FitBestConstant(const CDataset& kData,
+							   const Bag& kBag,
                                const double* kFuncEstimate,
                                unsigned long num_terminal_nodes,
                                std::vector<double>& residuals, CCARTTree& tree) {
@@ -103,7 +105,7 @@ void CLaplace::FitBestConstant(const CDataset& kData,
         tree.min_num_obs_required()) {
       vec_num = 0;
       for (obs_num = 0; obs_num < kData.get_trainsize(); obs_num++) {
-        if (kData.get_bag_element(obs_num) &&
+        if (kBag.get_element(obs_num) &&
             (tree.get_node_assignments()[obs_num] == node_num)) {
           offset = kData.offset_ptr()[obs_num];
           adArr[vec_num] =
@@ -121,6 +123,7 @@ void CLaplace::FitBestConstant(const CDataset& kData,
 }
 
 double CLaplace::BagImprovement(const CDataset& kData,
+								const Bag& kBag,
                                 const double* kFuncEstimate,
                                 const double kShrinkage,
                                 const std::vector<double>& kDeltaEstimate) {
@@ -130,7 +133,7 @@ double CLaplace::BagImprovement(const CDataset& kData,
   unsigned long i = 0;
 
   for (i = 0; i < kData.get_trainsize(); i++) {
-    if (!kData.get_bag_element(i)) {
+    if (!kBag.get_element(i)) {
       delta_func_est = kFuncEstimate[i] + kData.offset_ptr()[i];
 
       returnvalue +=

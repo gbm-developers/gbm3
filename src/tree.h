@@ -20,14 +20,15 @@
 //------------------------------
 // Includes
 //------------------------------
-#include <cstdio>
-#include <cfloat>
-#include <algorithm>
-#include <vector>
+#include "databag.h"
 #include "dataset.h"
 #include "node_search.h"
 #include "treeparams.h"
+#include <algorithm>
 #include <ctime>
+#include <cstdio>
+#include <cfloat>
+#include <vector>
 
 //------------------------------
 // Class definition
@@ -37,7 +38,7 @@ class CCARTTree {
   //----------------------
   // Public Constructors
   //----------------------
-  CCARTTree(TreeParams treeconfig);
+  CCARTTree(const TreeParams& treeconfig);
 
   //---------------------
   // Public destructor
@@ -48,6 +49,7 @@ class CCARTTree {
   // Public Functions
   //---------------------
   void Grow(std::vector<double>& residuals, const CDataset& kData,
+		  	    const Bag& kBag,
             const std::vector<double>& kDeltaEstimate);
 
   void PredictValid(const CDataset& kData, unsigned long num_validation_points,

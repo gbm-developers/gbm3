@@ -40,6 +40,7 @@ CDistribution* CTweedie::Create(DataDistParams& distparams) {
 CTweedie::~CTweedie() {}
 
 void CTweedie::ComputeWorkingResponse(const CDataset& kData,
+									  const Bag& kBag,
                                       const double* kFuncEstimates,
                                       std::vector<double>& residuals) {
   unsigned long i = 0;
@@ -88,7 +89,7 @@ double CTweedie::InitF(const CDataset& kData) {
   return init_func_est;
 }
 
-double CTweedie::Deviance(const CDataset& kData, const double* kFuncEstimate) {
+double CTweedie::Deviance(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate) {
   double delta_func_est = 0.0;
   unsigned long i = 0;
   double loss = 0.0;
@@ -119,6 +120,7 @@ double CTweedie::Deviance(const CDataset& kData, const double* kFuncEstimate) {
 }
 
 void CTweedie::FitBestConstant(const CDataset& kData,
+							   const Bag& kBag,
                                const double* kFuncEstimate,
                                unsigned long num_terminalnodes,
                                std::vector<double>& residuals, CCARTTree& tree) {
@@ -134,7 +136,7 @@ void CTweedie::FitBestConstant(const CDataset& kData,
   vector<double> min_vec(num_terminalnodes, HUGE_VAL);
 
   for (obs_num = 0; obs_num < kData.get_trainsize(); obs_num++) {
-    if (kData.get_bag_element(obs_num)) {
+    if (kBag.get_element(obs_num)) {
       delta_func_est = kFuncEstimate[obs_num] + kData.offset_ptr()[obs_num];
       numerator_vec[tree.get_node_assignments()[obs_num]] +=
           kData.weight_ptr()[obs_num] * kData.y_ptr()[obs_num] *
@@ -187,6 +189,7 @@ void CTweedie::FitBestConstant(const CDataset& kData,
 }
 
 double CTweedie::BagImprovement(const CDataset& kData,
+								const Bag& kBag,
                                 const double* kFuncEstimate,
                                 const double kShrinkage,
                                 const std::vector<double>& kDeltaEstimate) {
@@ -196,7 +199,7 @@ double CTweedie::BagImprovement(const CDataset& kData,
   unsigned long i = 0;
 
   for (i = 0; i < kData.get_trainsize(); i++) {
-    if (!kData.get_bag_element(i)) {
+    if (!kBag.get_element(i)) {
       delta_func_estimate = kFuncEstimate[i] + kData.offset_ptr()[i];
 
       returnvalue +=

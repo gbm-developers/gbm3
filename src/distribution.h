@@ -21,6 +21,7 @@
 // Includes
 //------------------------------
 #include "dataset.h"
+#include "databag.h"
 #include "node.h"
 #include "tree.h"
 #include <vector>
@@ -68,25 +69,29 @@ class CDistribution {
     }
   };
   virtual void ComputeWorkingResponse(const CDataset& kData,
+		  	  	  	  	  	  	  	  const Bag& kBag,
                                       const double* kFuncEstimate,
                                       std::vector<double>& residuals) = 0;
 
   virtual double InitF(const CDataset& kData) = 0;
 
   virtual double Deviance(const CDataset& kData,
+		  	  	  	  	  const Bag& kBag,
                           const double* kFuncEstimate) = 0;
 
   virtual void FitBestConstant(const CDataset& kData,
+		  	  	  	  	  	   const Bag& kBag,
                                const double* kFuncEstimate,
                                unsigned long num_terminalnodes,
                                std::vector<double>& residuals, CCARTTree& tree) = 0;
 
   virtual double BagImprovement(const CDataset& kData,
+		  	  	  	  	  	  	const Bag& kBag,
                                 const double* kFuncEstimate,
                                 const double kShrinkage,
                                 const std::vector<double>& kDeltaFuncEstimate) = 0;
 
-  virtual void BagData(CDataset& kData);
+  virtual void BagData(const CDataset& kData, Bag& bag);
   virtual void ShiftDistPtrs(unsigned long shift){};
 
  private:

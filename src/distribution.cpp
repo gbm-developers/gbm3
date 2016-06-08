@@ -6,7 +6,7 @@ CDistribution::CDistribution() { num_groups_ = -1; }
 
 CDistribution::~CDistribution() {}
 
-void CDistribution::BagData(CDataset& kData) {
+void CDistribution::BagData(const CDataset& kData, Bag& bag) {
   unsigned long i = 0;
   unsigned long numbagged = 0;
 
@@ -28,7 +28,7 @@ void CDistribution::BagData(CDataset& kData) {
         kData.get_total_in_bag() - numbagged) {
       numbagged++;
       for (row_it = keyrange.first; row_it != keyrange.second; ++row_it) {
-        kData.set_bag_element((*row_it).second);
+        bag.set_element((*row_it).second);
       }
     } else {
       row_it = keyrange.second;

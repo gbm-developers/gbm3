@@ -23,7 +23,8 @@ CNodeSearch::CNodeSearch(unsigned long treedepth, unsigned long minobs,
 CNodeSearch::~CNodeSearch() {}
 
 void CNodeSearch::GenerateAllSplits(vector<CNode* >& term_nodes_ptrs,
-                                    const CDataset& kData, double* residuals,
+                                    const CDataset& kData, const Bag& kBag,
+                                    double* residuals,
                                     vector<unsigned long>& data_node_assigns) {
   unsigned long kWhichObs = 0;
   const index_vector kColNumbers(kData.RandomOrder());
@@ -44,7 +45,7 @@ void CNodeSearch::GenerateAllSplits(vector<CNode* >& term_nodes_ptrs,
     for (unsigned long iOrderObs = 0; iOrderObs < kData.get_trainsize();
          iOrderObs++) {
       kWhichObs = kData.order_ptr()[kVar * kData.get_trainsize() + iOrderObs];
-      if (kData.get_bag_element(kWhichObs)) {
+      if (kBag.get_element(kWhichObs)) {
         const int kNode = data_node_assigns[kWhichObs];
         const double kXVal = kData.x_value(kWhichObs, kVar);
         variable_splitters_[kNode].IncorporateObs(kXVal, residuals[kWhichObs],

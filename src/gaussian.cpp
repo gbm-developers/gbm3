@@ -26,6 +26,7 @@ CDistribution* CGaussian::Create(DataDistParams& distparams) {
 CGaussian::~CGaussian() {}
 
 void CGaussian::ComputeWorkingResponse(const CDataset& kData,
+									   const Bag& kBag,
                                        const double* kFuncEstimate,
                                        std::vector<double>& residuals) {
   unsigned long i = 0;
@@ -54,7 +55,7 @@ double CGaussian::InitF(const CDataset& kData) {
   return sum / totalweight;
 }
 
-double CGaussian::Deviance(const CDataset& kData, const double* kFuncEstimate) {
+double CGaussian::Deviance(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate) {
   unsigned long i = 0;
   double loss = 0.0;
   double weight = 0.0;
@@ -78,6 +79,7 @@ double CGaussian::Deviance(const CDataset& kData, const double* kFuncEstimate) {
 }
 
 void CGaussian::FitBestConstant(const CDataset& kData,
+								const Bag& kBag,
                                 const double* kFuncEstimate,
                                 unsigned long num_terminalnodes,
                                 std::vector<double>& residuals, CCARTTree& tree) {
@@ -86,6 +88,7 @@ void CGaussian::FitBestConstant(const CDataset& kData,
 }
 
 double CGaussian::BagImprovement(const CDataset& kData,
+								 const Bag& kBag,
                                  const double* kFuncEstimate,
                                  const double kShrinkage,
                                  const std::vector<double>& kDeltaEstimate) {
@@ -95,7 +98,7 @@ double CGaussian::BagImprovement(const CDataset& kData,
   unsigned long i = 0;
 
   for (i = 0; i < kData.get_trainsize(); i++) {
-    if (!kData.get_bag_element(i)) {
+    if (!kBag.get_element(i)) {
       deltafunc_est = kFuncEstimate[i] + kData.offset_ptr()[i];
 
       returnvalue += kData.weight_ptr()[i] * kShrinkage * kDeltaEstimate[i] *

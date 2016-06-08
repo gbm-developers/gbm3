@@ -8,7 +8,7 @@
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CCARTTree::CCARTTree(TreeParams treeconfig)
+CCARTTree::CCARTTree(const TreeParams& treeconfig)
     : rootnode_(),
       min_num_node_obs_(treeconfig.min_obs_in_node),
 	  kTreeDepth_(treeconfig.depth),
@@ -23,6 +23,7 @@ CCARTTree::CCARTTree(TreeParams treeconfig)
 // Grows a regression tree
 //------------------------------------------------------------------------------
 void CCARTTree::Grow(std::vector<double>& residuals, const CDataset& kData,
+					 const Bag& kBag,
                      const std::vector<double>& kDeltaEstimate) {
   if ((&(residuals[0]) == NULL) || (kData.weight_ptr() == NULL) ||
       (&kDeltaEstimate[0] == NULL) || (kTreeDepth_ < 1)) {
@@ -38,7 +39,7 @@ void CCARTTree::Grow(std::vector<double>& residuals, const CDataset& kData,
     // aiNodeAssign tracks to which node each training obs belongs
     data_node_assignment_[obs_num] = 0;
 
-    if (kData.get_bag_element(obs_num)) {
+    if (kBag.get_element(obs_num)) {
       // get the initial sums and sum of squares and total weight
       sumz += kData.weight_ptr()[obs_num] * residuals[obs_num];
       sum_zsquared +=
@@ -57,7 +58,7 @@ void CCARTTree::Grow(std::vector<double>& residuals, const CDataset& kData,
 
     // Generate all splits
     new_node_searcher.GenerateAllSplits(
-        terminalnode_ptrs_, kData, &(residuals[0]), data_node_assignment_);
+        terminalnode_ptrs_, kData, kBag, &(residuals[0]), data_node_assignment_);
     double bestImprov = new_node_searcher.CalcImprovementAndSplit(
         terminalnode_ptrs_, kData, data_node_assignment_);
 

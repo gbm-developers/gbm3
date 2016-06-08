@@ -31,6 +31,7 @@ CDistribution* CBernoulli::Create(DataDistParams& distparams) {
 CBernoulli::~CBernoulli() {}
 
 void CBernoulli::ComputeWorkingResponse(const CDataset& kData,
+										const Bag& kBag,
                                         const double* kFuncEstimate,
                                         std::vector<double>& residuals) {
   double prob = 0.0;
@@ -70,6 +71,7 @@ double CBernoulli::InitF(const CDataset& kData) {
 }
 
 double CBernoulli::Deviance(const CDataset& kData,
+							const Bag& kBag,
                             const double* kFuncEstimate) {
   unsigned long i = 0;
   double loss = 0.0;
@@ -97,6 +99,7 @@ double CBernoulli::Deviance(const CDataset& kData,
 }
 
 void CBernoulli::FitBestConstant(const CDataset& kData,
+								 const Bag& kBag,
                                  const double* kFuncEstimate,
                                  unsigned long num_terminalnodes,
                                  std::vector<double>& residuals, CCARTTree& tree) {
@@ -107,7 +110,7 @@ void CBernoulli::FitBestConstant(const CDataset& kData,
   vector<double> denom_vec(num_terminalnodes, 0.0);
 
   for (obs_num = 0; obs_num < kData.get_trainsize(); obs_num++) {
-    if (kData.get_bag_element(obs_num)) {
+    if (kBag.get_element(obs_num)) {
       numerator_vec[tree.get_node_assignments()[obs_num]] +=
           kData.weight_ptr()[obs_num] * residuals[obs_num];
       denom_vec[tree.get_node_assignments()[obs_num]] +=
@@ -146,6 +149,7 @@ void CBernoulli::FitBestConstant(const CDataset& kData,
 }
 
 double CBernoulli::BagImprovement(const CDataset& kData,
+								  const Bag& kBag,
                                   const double* kFuncEstimate,
                                   const double kShrinkage,
                                   const std::vector<double>& kDeltaEstimate) {
@@ -155,7 +159,7 @@ double CBernoulli::BagImprovement(const CDataset& kData,
   unsigned long i = 0;
 
   for (i = 0; i < kData.get_trainsize(); i++) {
-    if (!kData.get_bag_element(i)) {
+    if (!kBag.get_element(i)) {
       deltafunc_est = kFuncEstimate[i] + kData.offset_ptr()[i];
 
       if (kData.y_ptr()[i] == 1.0) {

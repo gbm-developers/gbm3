@@ -29,7 +29,6 @@
 //------------------------------
 // Type Defs
 //------------------------------
-typedef std::vector<int> Bag;
 typedef std::vector<int> index_vector;
 
 //------------------------------
@@ -125,10 +124,6 @@ class CDataset {
     return observation_ids_(row_number);
   }
 
-  bool get_bag_element(long index) const { return databag_[index]; }
-  void set_bag_element(long index) { databag_[index] = 1; };
-  void clear_bag() { databag_.assign(get_trainsize(), 0); };
-
  private:
   //-------------------
   // Private Variables
@@ -178,8 +173,7 @@ class CDataset {
   unsigned long num_features_;
   bool point_at_trainingset_;
 
-  // Bagged  data
-  Bag databag_;
+  // Bagged  data - properties
   double bagfraction_;
   unsigned long totalinbag_;
 };

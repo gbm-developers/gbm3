@@ -15,6 +15,7 @@
 //------------------------------
 #include "datadistparams.h"
 #include "dataset.h"
+#include "databag.h"
 #include "distribution.h"
 #include "distribution_factory.h"
 #include "tree.h"
@@ -56,6 +57,8 @@ class CGBMDataDistContainer {
   std::auto_ptr<CDistribution>& get_dist() { return distptr_; }
   const CDataset& get_data() const { return data_; }
   CDataset& get_data() { return data_; }
+  const Bag& get_bag() const{ return databag_; }
+  Bag& get_bag() { return databag_; }
 
  private:
   //-------------------
@@ -74,6 +77,7 @@ class CGBMDataDistContainer {
   // Private Variables
   //-------------------
   CDataset data_;
+  Bag databag_;
   std::auto_ptr<DistributionFactory> distfactory_;
   std::auto_ptr<CDistribution> distptr_;
 };

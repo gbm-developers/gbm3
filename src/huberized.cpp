@@ -27,6 +27,7 @@ CDistribution* CHuberized::Create(DataDistParams& distparams) {
 CHuberized::~CHuberized() {}
 
 void CHuberized::ComputeWorkingResponse(const CDataset& kData,
+										const Bag& kBag,
                                         const double* kFuncEstimate,
                                         std::vector<double>& residuals) {
   unsigned long i = 0;
@@ -62,6 +63,7 @@ double CHuberized::InitF(const CDataset& kData) {
 }
 
 double CHuberized::Deviance(const CDataset& kData,
+							const Bag& kBag,
                             const double* kFuncEstimate) {
   unsigned long i = 0;
   double loss = 0.0;
@@ -98,6 +100,7 @@ double CHuberized::Deviance(const CDataset& kData,
 }
 
 void CHuberized::FitBestConstant(const CDataset& kData,
+								 const Bag& kBag,
                                  const double* kFuncEstimate,
                                  unsigned long num_terminalnodes,
                                  std::vector<double>& residuals, CCARTTree& tree) {
@@ -109,7 +112,7 @@ void CHuberized::FitBestConstant(const CDataset& kData,
   vector<double> denominator_vec(num_terminalnodes, 0.0);
 
   for (obs_num = 0; obs_num < kData.get_trainsize(); obs_num++) {
-    if (kData.get_bag_element(obs_num)) {
+    if (kBag.get_element(obs_num)) {
       delta_func_est = kFuncEstimate[obs_num] + kData.offset_ptr()[obs_num];
       if ((2 * kData.y_ptr()[obs_num] - 1) * kFuncEstimate[obs_num] < -1) {
         numerator_vec[tree.get_node_assignments()[obs_num]] +=
@@ -146,6 +149,7 @@ void CHuberized::FitBestConstant(const CDataset& kData,
 }
 
 double CHuberized::BagImprovement(const CDataset& kData,
+								  const Bag& kBag,
                                   const double* kFuncEstimate,
                                   const double kShrinkage,
                                   const std::vector<double>& kDeltaEstimate) {
@@ -155,7 +159,7 @@ double CHuberized::BagImprovement(const CDataset& kData,
   unsigned long i = 0;
 
   for (i = 0; i < kData.get_trainsize(); i++) {
-    if (!kData.get_bag_element(i)) {
+    if (!kBag.get_element(i)) {
       delta_func_est = kFuncEstimate[i] + kData.offset_ptr()[i];
 
       if ((2 * kData.y_ptr()[i] - 1) * delta_func_est < -1) {

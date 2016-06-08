@@ -38,17 +38,18 @@ class CPoisson : public CDistribution {
   // Public Functions
   //---------------------
   void ComputeWorkingResponse(const CDataset& kData,
+		  	  	  	  	  	  const Bag& kBag,
                               const double* kFuncEstimate, std::vector<double>& residual);
 
-  double Deviance(const CDataset& kData, const double* kFuncEstimate);
+  double Deviance(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate);
 
   double InitF(const CDataset& kData);
 
-  void FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
+  void FitBestConstant(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate,
                        unsigned long num_terminalnodes, std::vector<double>& residual,
                        CCARTTree& tree);
 
-  double BagImprovement(const CDataset& kData, const double* kFuncEstimate,
+  double BagImprovement(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate,
                         const double kShrinkage,
                         const std::vector<double>& kDeltaEstimate);
 

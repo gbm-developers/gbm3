@@ -55,7 +55,6 @@ CDataset::CDataset(const DataDistParams& dataparams)
   point_at_trainingset_ = true;
 
   // Set-up Bags
-  databag_.assign(dataparams.num_trainrows, false);
   bagfraction_ = dataparams.bagfraction;
   totalinbag_ =
       (long)(dataparams.bagfraction * dataparams.num_trainobservations);

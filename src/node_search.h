@@ -20,11 +20,12 @@
 //------------------------------
 // Includes
 //------------------------------
-#include <vector>
+#include "databag.h"
 #include "dataset.h"
 #include "node.h"
 #include "varsplitter.h"
 #include "node_parameters.h"
+#include <vector>
 
 using namespace std;
 
@@ -47,6 +48,7 @@ class CNodeSearch {
   // Public Functions
   //---------------------
   void GenerateAllSplits(vector<CNode* >& term_nodes_ptrs, const CDataset& kData,
+		  	  	  	  	 const Bag& kBag,
                          double* residuals,
                          vector<unsigned long>& data_node_assigns);
   double CalcImprovementAndSplit(vector<CNode*>& term_nodes_ptrs,

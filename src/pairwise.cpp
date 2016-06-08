@@ -527,6 +527,7 @@ inline const double* OffsetVector(const double* const kCovariates,
 }
 
 void CPairwise::ComputeWorkingResponse(const CDataset& kData,
+									   const Bag& kBag,
                                        const double* kFuncEstimate,
                                        std::vector<double>& residuals) {
   if (kData.get_trainsize() <= 0) return;
@@ -551,7 +552,7 @@ void CPairwise::ComputeWorkingResponse(const CDataset& kData,
       hessian_[item_end] = 0;
     }
 
-    if (kData.get_bag_element(item_start)) {
+    if (kBag.get_element(item_start)) {
       // Group is part of the training set
 
       const int kNumItems = item_end - item_start;
@@ -762,7 +763,7 @@ void CPairwise::Initialize(const CDataset& kData) {
 
 double CPairwise::InitF(const CDataset& kData) { return 0.0; }
 
-double CPairwise::Deviance(const CDataset& kData, const double* kfuncEstimate) {
+double CPairwise::Deviance(const CDataset& kData, const Bag& kBag, const double* kfuncEstimate) {
   // Shift adGroup to validation set if necessary
   long num_rows_in_set = kData.get_size_of_set();
   if (num_rows_in_set <= 0) {
@@ -820,6 +821,7 @@ double CPairwise::Deviance(const CDataset& kData, const double* kfuncEstimate) {
 }
 
 void CPairwise::FitBestConstant(const CDataset& kData,
+								const Bag& kBag,
                                 const double* kFuncEstimate,
                                 unsigned long num_terminalnodes,
                                 std::vector<double>& residuals, CCARTTree& tree) {
@@ -836,7 +838,7 @@ void CPairwise::FitBestConstant(const CDataset& kData,
   }
 
   for (unsigned int obs_num = 0; obs_num < kData.get_trainsize(); obs_num++) {
-    if (kData.get_bag_element(obs_num)) {
+    if (kBag.get_element(obs_num)) {
 
       fit_numerator_[tree.get_node_assignments()[obs_num]] +=
           kData.weight_ptr()[obs_num] * residuals[obs_num];
@@ -858,6 +860,7 @@ void CPairwise::FitBestConstant(const CDataset& kData,
 }
 
 double CPairwise::BagImprovement(const CDataset& kData,
+								 const Bag& kBag,
                                  const double* kFuncEstimate,
                                  const double kShrinkage,
                                  const std::vector<double>& kDeltaEstimate) {
@@ -881,7 +884,7 @@ double CPairwise::BagImprovement(const CDataset& kData,
          item_end++)
       ;
 
-    if (!kData.get_bag_element(item_start)) {
+    if (!kBag.get_element(item_start)) {
       // Group was held out of training set
 
       const unsigned int kNumItems = item_end - item_start;
@@ -932,7 +935,7 @@ double CPairwise::BagImprovement(const CDataset& kData,
   return loss / weight;
 }
 
-void CPairwise::BagData(CDataset& kData) {
+void CPairwise::BagData(const CDataset& kData, Bag& bag) {
   double last_group = -1;
   bool is_chosen = false;
   unsigned int bagged = 0;
@@ -964,7 +967,7 @@ void CPairwise::BagData(CDataset& kData) {
     }
 
     if (is_chosen) {
-      kData.set_bag_element(i);
+      bag.set_element(i);
       bagged++;
     }
   }
