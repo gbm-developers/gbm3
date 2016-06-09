@@ -69,12 +69,12 @@ class CNode {
                            int prev_categorical_splits, double shrinkage);
   signed char WhichNode(const CDataset& kData, unsigned long obs_num);
 
-  std::auto_ptr<CNode>& left_child() { return left_node_ptr_; }
-  const std::auto_ptr<CNode>& left_child() const { return left_node_ptr_; }
-  std::auto_ptr<CNode>& right_child() { return right_node_ptr_; }
-  const std::auto_ptr<CNode>& right_child() const { return right_node_ptr_; }
-  std::auto_ptr<CNode>& missing_child() { return missing_node_ptr_; }
-  const std::auto_ptr<CNode>& missing_child() const { return missing_node_ptr_; }
+  CNode* left_child() { return left_node_ptr_.get(); }
+  const CNode* left_child() const { return left_node_ptr_.get(); }
+  CNode* right_child() { return right_node_ptr_.get(); }
+  const CNode* right_child() const { return right_node_ptr_.get(); }
+  CNode* missing_child() { return missing_node_ptr_.get(); }
+  const CNode* missing_child() const { return missing_node_ptr_.get(); }
   unsigned long get_split_var() const { return split_var_; }
   double get_improvement() const { return improvement_; }
   double get_splitvalue() const { return splitvalue_; }
@@ -83,6 +83,7 @@ class CNode {
   double get_totalweight() const { return totalweight_; }
   unsigned long get_numobs() const { return numobs_; }
   std::vector<unsigned long>& get_leftcategory() { return leftcategory_; }
+  bool is_terminal() const;
 
  private:
   //---------------------

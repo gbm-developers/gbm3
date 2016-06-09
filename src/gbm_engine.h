@@ -44,7 +44,7 @@ class CGBMEngine {
   //---------------------
   // Public Functions
   //---------------------
-  FitStruct FitLearner(double* func_estimate);
+  std::auto_ptr<FitStruct> FitLearner(double* func_estimate);
   double initial_function_estimate() {
     return datacontainer_.InitialFunctionEstimate();
   };

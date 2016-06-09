@@ -46,15 +46,9 @@ class GbmFit {
   Rcpp::List ROutput();
 
   // Inlined functions
-  double get_tree_training_error() const {
-	  return current_fit_[tree_count_].training_error;
-  }
-  double get_tree_valid_error() const {
-	  return current_fit_[tree_count_].validation_error;
-  }
-  double get_tree_oobag_improv() const {
-	  return current_fit_[tree_count_].oobag_improvement;
-  }
+  double get_tree_training_error() { return training_errors_[tree_count_]; }
+  double get_tree_valid_error() { return validation_errors_[tree_count_]; }
+  double get_tree_oobag_improv() { return outofbag_improvement_[tree_count_]; }
   void increment_count() { tree_count_++; }
 
 
@@ -63,7 +57,10 @@ class GbmFit {
   // Private Variables
   //---------------------
   VecOfVectorCategories split_codes_;
-  std::vector<FitStruct> current_fit_;
+  std::auto_ptr<FitStruct> current_fit_;
+  Rcpp::NumericVector training_errors_;
+  Rcpp::NumericVector validation_errors_;
+  Rcpp::NumericVector outofbag_improvement_;
   Rcpp::NumericVector func_estimate_; // Fitted function
   Rcpp::GenericVector set_of_trees_;
   double initial_estimate_;

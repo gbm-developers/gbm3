@@ -89,7 +89,7 @@ class CategoricalStrategy : public GenericNodeStrategy {
     Rprintf("N=%f, Improvement=%f, Prediction=%f, NA pred=%f\n",
             node_context_->get_totalweight(), node_context_->get_improvement(),
             node_context_->get_prediction(),
-            (node_context_->missing_child().get() == 0
+            (node_context_->missing_child() == NULL
                  ? 0.0
                  : node_context_->missing_child()->get_prediction()));
 

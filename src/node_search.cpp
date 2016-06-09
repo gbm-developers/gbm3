@@ -91,10 +91,10 @@ double CNodeSearch::CalcImprovementAndSplit(
 
     // Add children to terminal node list
     term_nodes_ptrs[num_terminal_nodes_ - 2] =
-        term_nodes_ptrs[bestnode]->right_child().get();
+        term_nodes_ptrs[bestnode]->right_child();
     term_nodes_ptrs[num_terminal_nodes_ - 1] =
-        term_nodes_ptrs[bestnode]->missing_child().get();
-    term_nodes_ptrs[bestnode] = term_nodes_ptrs[bestnode]->left_child().get();
+        term_nodes_ptrs[bestnode]->missing_child();
+    term_nodes_ptrs[bestnode] = term_nodes_ptrs[bestnode]->left_child();
 
     variable_splitters_[num_terminal_nodes_ - 2].Set(
         *term_nodes_ptrs[num_terminal_nodes_ - 2]);
