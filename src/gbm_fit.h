@@ -57,7 +57,7 @@ class GbmFit {
   // Private Variables
   //---------------------
   VecOfVectorCategories split_codes_;
-  std::auto_ptr<FitStruct> current_fit_;
+  std::auto_ptr<FittedLearner> current_fit_;
   Rcpp::NumericVector training_errors_;
   Rcpp::NumericVector validation_errors_;
   Rcpp::NumericVector outofbag_improvement_;

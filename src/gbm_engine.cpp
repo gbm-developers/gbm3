@@ -11,7 +11,7 @@ CGBMEngine::CGBMEngine(DataDistParams& datadistparams,
 
 CGBMEngine::~CGBMEngine() {}
 
-std::auto_ptr<FitStruct> CGBMEngine::FitLearner(double* func_estimate) {
+FittedLearner* CGBMEngine::FitLearner(double* func_estimate) {
 
   // Initialize adjustments to function estimate
   std::vector<double> delta_estimates(datacontainer_.get_data().nrow(), 0);
@@ -59,7 +59,7 @@ std::auto_ptr<FitStruct> CGBMEngine::FitLearner(double* func_estimate) {
   }
 
   double valid_error = datacontainer_.ComputeDeviance(&func_estimate[0], true);
-  std::auto_ptr<FitStruct> fit(new FitStruct(tree, datacontainer_.get_data(),
+  std::auto_ptr<FittedLearner> fit(new FittedLearner(tree, datacontainer_.get_data(),
 		  	  	  	  train_error, valid_error, oobag_improv));
-  return fit;
+  return fit.release();
 }

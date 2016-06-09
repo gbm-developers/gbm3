@@ -51,25 +51,25 @@ GbmFit::GbmFit(const int kNumDataRows, const double kInitEstimate,
 
 
 void GbmFit::accumulate(CGBMEngine& gbm) {
-	current_fit_.reset(gbm.FitLearner(func_estimate_.begin()).release());
-	training_errors_[tree_count_] += current_fit_->training_error;
-	validation_errors_[tree_count_] += current_fit_->validation_error;
-	outofbag_improvement_[tree_count_] += current_fit_->oobag_improvement;
+	current_fit_.reset(gbm.FitLearner(func_estimate_.begin()));
+	training_errors_[tree_count_] += current_fit_->get_training_error();
+	validation_errors_[tree_count_] += current_fit_->get_valid_error();
+	outofbag_improvement_[tree_count_] += current_fit_->get_oobag_improv();
 }
 
 void GbmFit::CreateTreeRepresentation(const int kCatSplitsOld) {
 
     // Vectors defining a tree
-	Rcpp::IntegerVector split_vars(current_fit_->fitted_tree->size_of_tree());
-	Rcpp::NumericVector split_values(current_fit_->fitted_tree->size_of_tree());
-	Rcpp::IntegerVector left_nodes(current_fit_->fitted_tree->size_of_tree());
-	Rcpp::IntegerVector right_nodes(current_fit_->fitted_tree->size_of_tree());
-	Rcpp::IntegerVector missing_nodes(current_fit_->fitted_tree->size_of_tree());
-	Rcpp::NumericVector error_reduction(current_fit_->fitted_tree->size_of_tree());
-	Rcpp::NumericVector weights(current_fit_->fitted_tree->size_of_tree());
-	Rcpp::NumericVector node_predictions(current_fit_->fitted_tree->size_of_tree());
+	Rcpp::IntegerVector split_vars(current_fit_->get_size_of_tree());
+	Rcpp::NumericVector split_values(current_fit_->get_size_of_tree());
+	Rcpp::IntegerVector left_nodes(current_fit_->get_size_of_tree());
+	Rcpp::IntegerVector right_nodes(current_fit_->get_size_of_tree());
+	Rcpp::IntegerVector missing_nodes(current_fit_->get_size_of_tree());
+	Rcpp::NumericVector error_reduction(current_fit_->get_size_of_tree());
+	Rcpp::NumericVector weights(current_fit_->get_size_of_tree());
+	Rcpp::NumericVector node_predictions(current_fit_->get_size_of_tree());
 
-	current_fit_->fitted_tree->TransferTreeToRList(*current_fit_->data_for_fit,
+	current_fit_->get_tree()->TransferTreeToRList(*current_fit_->get_data_for_fit(),
 			split_vars.begin(), split_values.begin(), left_nodes.begin(),
 			right_nodes.begin(), missing_nodes.begin(), error_reduction.begin(),
 			weights.begin(), node_predictions.begin(), split_codes_, kCatSplitsOld);

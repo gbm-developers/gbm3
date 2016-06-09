@@ -18,7 +18,7 @@
 // Includes
 //------------------------------
 #include "datadistparams.h"
-#include "fitstruct.h"
+#include "fitted_learner.h"
 #include "gbm_datadistcontainer.h"
 #include "tree.h"
 #include "treeparams.h"
@@ -44,7 +44,7 @@ class CGBMEngine {
   //---------------------
   // Public Functions
   //---------------------
-  std::auto_ptr<FitStruct> FitLearner(double* func_estimate);
+  FittedLearner* FitLearner(double* func_estimate);
   double initial_function_estimate() {
     return datacontainer_.InitialFunctionEstimate();
   };
