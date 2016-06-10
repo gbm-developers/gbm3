@@ -37,7 +37,8 @@ void CNodeSearch::GenerateAllSplits(vector<CNode* >& term_nodes_ptrs,
     VecVarSplitters variable_splitters(num_terminal_nodes_);;
     for (unsigned long node_num = 0; node_num < num_terminal_nodes_;
          node_num++) {
-    	variable_splitters.push_back(VarSplitter(*term_nodes_ptrs[node_num], min_num_node_obs_, kVar, KVarClasses));
+    	variable_splitters.push_back(VarSplitter(*term_nodes_ptrs[node_num],
+    					min_num_node_obs_, kVar, KVarClasses));
     }
 
     // distribute the observations in order to the correct node search
