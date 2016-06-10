@@ -28,21 +28,21 @@ VarSplitter::VarSplitter()
 VarSplitter::VarSplitter(CNode& nodetosplit,
 		unsigned long min_num_node_obs,
 		unsigned long whichvar, unsigned long numvar_classes)
-    : initial_sumresiduals(nodetosplit.get_prediction() * nodetosplit.get_totalweight()),
-      initial_totalweight(nodetosplit.get_totalweight()),
-      initial_numobs(nodetosplit.get_numobs()),
+    : initial_sumresiduals_(nodetosplit.get_prediction() * nodetosplit.get_totalweight()),
+      initial_totalweight_(nodetosplit.get_totalweight()),
+      initial_numobs_(nodetosplit.get_numobs()),
       proposedsplit_(),
       group_sumresid_(1024),
       group_weight_(1024),
       group_num_obs_(1024),
       groupMeanAndCat(1024) {
 
-  proposedsplit_.ResetSplitProperties(initial_sumresiduals,
-		  initial_totalweight, initial_numobs,
+  proposedsplit_.ResetSplitProperties(initial_sumresiduals_,
+		  initial_totalweight_, initial_numobs_,
 	      numvar_classes, whichvar);
 
-  bestsplit_.ResetSplitProperties(initial_sumresiduals, initial_totalweight,
-		  initial_numobs);
+  bestsplit_.ResetSplitProperties(initial_sumresiduals_, initial_totalweight_,
+		  initial_numobs_);
 
   std::fill(group_sumresid_.begin(), group_sumresid_.begin() + numvar_classes,
             0);
@@ -59,11 +59,10 @@ VarSplitter::~VarSplitter() {}
 void VarSplitter::IncorporateObs(double xval, double residval, double weight,
                                  long monotonicity) {
   if (issplit_) return;
-
   if (ISNA(xval)) {
     proposedsplit_.UpdateMissingNode(weight * residval, weight);
 
-  } else if (proposedsplit_.split_class_ == 0)  // variable is continuous
+  } else if (proposedsplit_.split_class() == 0)  // variable is continuous
   {
     if (last_xvalue_ > xval) {
       throw gbm_exception::Failure(
@@ -74,13 +73,13 @@ void VarSplitter::IncorporateObs(double xval, double residval, double weight,
 
     // Evaluate the current split
     // the newest observation is still in the right child
-    proposedsplit_.split_value_ = 0.5 * (last_xvalue_ + xval);
+    proposedsplit_.set_split_value(0.5 * (last_xvalue_ + xval));
 
     if ((last_xvalue_ != xval) &&
         proposedsplit_.has_min_num_obs(min_num_node_obs_) &&
         proposedsplit_.split_is_correct_monotonicity(monotonicity)) {
       proposedsplit_.NodeGradResiduals();
-      if (proposedsplit_.improvement_ > bestsplit_.improvement_) {
+      if (proposedsplit_.get_improvement() > bestsplit_.get_improvement()) {
         bestsplit_ = proposedsplit_;
       }
     }
@@ -107,36 +106,36 @@ void VarSplitter::EvaluateCategoricalSplit() {
   for (i = 0;
        (num_finite_means > 1) && ((unsigned long)i < num_finite_means - 1);
        i++) {
-    proposedsplit_.split_value_ = (double)i;
+    proposedsplit_.set_split_value((double)i);
     UpdateLeftNodeWithCat(i);
     proposedsplit_.SetBestCategory(groupMeanAndCat);
     proposedsplit_.NodeGradResiduals();
 
     if (proposedsplit_.has_min_num_obs(min_num_node_obs_) &&
-        (proposedsplit_.improvement_ > bestsplit_.improvement_)) {
+        (proposedsplit_.get_improvement() > bestsplit_.get_improvement())) {
       bestsplit_ = proposedsplit_;
     }
   }
 }
 
 void VarSplitter::Set(CNode& nodetosplit) {
-  initial_sumresiduals =
+  initial_sumresiduals_ =
 		  nodetosplit.get_prediction() * nodetosplit.get_totalweight();
-  initial_totalweight = nodetosplit.get_totalweight();
-  initial_numobs = nodetosplit.get_numobs();
+  initial_totalweight_ = nodetosplit.get_totalweight();
+  initial_numobs_ = nodetosplit.get_numobs();
 
-  bestsplit_.ResetSplitProperties(initial_sumresiduals, initial_totalweight,
-                                    initial_numobs);
+  bestsplit_.ResetSplitProperties(initial_sumresiduals_, initial_totalweight_,
+                                    initial_numobs_);
 }
 
 void VarSplitter::WrapUpCurrentVariable() {
-  if (proposedsplit_.split_var_ == bestsplit_.split_var_) {
-    if (proposedsplit_.missing_.has_obs()) {
-      bestsplit_.missing_ = proposedsplit_.missing_;
+  if (proposedsplit_.split_variable() == bestsplit_.split_variable()) {
+    if (proposedsplit_.has_missing()) {
+      bestsplit_.set_missing_def(proposedsplit_.get_missing_def());
     } else  // DEBUG: consider a weighted average with parent node?
     {
-      bestsplit_.missing_ =
-          NodeDef(initial_sumresiduals, initial_totalweight, 0);
+      bestsplit_.set_missing_def(
+          NodeDef(initial_sumresiduals_, initial_totalweight_, 0));
     }
   }
 }

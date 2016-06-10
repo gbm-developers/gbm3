@@ -41,7 +41,7 @@ class VarSplitter {
   void IncorporateObs(double xval, double residval, double weight,
                       long monotonicity);
   void Set(CNode& nodeToSplit);
-  double best_improvement() const { return bestsplit_.improvement_; }
+  double best_improvement() const { return bestsplit_.get_improvement(); }
   NodeParams best_split() const { return bestsplit_; }
 
   VarSplitter& operator=(const VarSplitter& rhs) {
@@ -50,7 +50,8 @@ class VarSplitter {
   }
 
   VarSplitter& operator+=(const VarSplitter& rhs) {
- 	  if(rhs.best_improvement() > best_improvement()){
+ 	  if((rhs.best_improvement() > best_improvement())
+ 			  || (rhs.best_improvement() == 0.0)){
  		  bestsplit_ = rhs.best_split();
  	  }
  	  return *this;
@@ -59,7 +60,7 @@ class VarSplitter {
   unsigned long SetAndReturnNumGroupMeans() {
     unsigned long num_finite_means = 0;
 
-    for (unsigned long i = 0; i < proposedsplit_.split_class_; i++) {
+    for (unsigned long i = 0; i < proposedsplit_.split_class(); i++) {
       groupMeanAndCat[i].second = i;
 
       if (group_weight_[i] != 0.0) {
@@ -71,7 +72,7 @@ class VarSplitter {
     }
 
     std::sort(groupMeanAndCat.begin(),
-              groupMeanAndCat.begin() + proposedsplit_.split_class_);
+              groupMeanAndCat.begin() + proposedsplit_.split_class());
 
     return num_finite_means;
   }
@@ -97,9 +98,9 @@ class VarSplitter {
   //---------------------
   // Private Variables
   //---------------------
-  double initial_totalweight;
-  double initial_sumresiduals;
-  unsigned long initial_numobs;
+  double initial_sumresiduals_;
+  double initial_totalweight_;
+  unsigned long initial_numobs_;
 
   bool issplit_;
   unsigned long min_num_node_obs_;

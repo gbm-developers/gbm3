@@ -111,7 +111,6 @@ class NodeParams {
     left_.increment(predincrement, trainw_increment, numincrement);
     right_.increment(-predincrement, -trainw_increment, -numincrement);
   }
-  double get_improvement() { return improvement_; };
   bool split_is_correct_monotonicity(long specify_monotone) {
     return ((specify_monotone == 0) ||
             ((specify_monotone * right_.unweighted_gradient(left_)) > 0));
@@ -145,10 +144,25 @@ class NodeParams {
       count++;
     }
   };
-
   bool has_missing() const { return missing_.has_obs(); };
+
+  // Getters
+  const NodeDef& get_left_def() const { return left_; };
+  const NodeDef& get_right_def() const { return right_; };
+  const NodeDef& get_missing_def() const { return missing_; };
+  double split_value() const { return split_value_; };
+  unsigned long split_variable() const { return split_var_; };
+  unsigned long split_class() const { return split_class_; };
+  double get_improvement() const { return improvement_; };
+  const std::vector<int>& get_ordering() const { return category_ordering_; };
+
+  // Setters
+  void set_split_value(double value) { split_value_=value; };
+  void set_missing_def(const NodeDef& missing_def) { missing_ = missing_def; };
+
+ private:
   //---------------------
-  // Public Variables
+  // Private Variables
   //---------------------
   // Left Node Definition
   NodeDef left_, right_, missing_;

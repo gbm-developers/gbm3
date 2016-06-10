@@ -51,24 +51,24 @@ void CNode::PrintSubtree(unsigned long indent) {
 
 void CNode::SplitNode(const NodeParams& childrenparams) {
   // set up a continuous split
-  if (childrenparams.split_class_ == 0) {
+  if (childrenparams.split_class() == 0) {
     SetStrategy(true);
   } else {
     SetStrategy(false);
     // the types are confused here
-    leftcategory_.resize(1 + (unsigned long)childrenparams.split_value_);
-    std::copy(childrenparams.category_ordering_.begin(),
-              childrenparams.category_ordering_.begin() + leftcategory_.size(),
+    leftcategory_.resize(1 + (unsigned long)childrenparams.split_value());
+    std::copy(childrenparams.get_ordering().begin(),
+              childrenparams.get_ordering().begin() + leftcategory_.size(),
               leftcategory_.begin());
   }
 
-  split_var_ = childrenparams.split_var_;
-  splitvalue_ = childrenparams.split_value_;
-  improvement_ = childrenparams.improvement_;
+  split_var_ = childrenparams.split_variable();
+  splitvalue_ = childrenparams.split_value();
+  improvement_ = childrenparams.get_improvement();
 
-  left_node_ptr_.reset(new CNode(childrenparams.left_));
-  right_node_ptr_.reset(new CNode(childrenparams.right_));
-  missing_node_ptr_.reset(new CNode(childrenparams.missing_));
+  left_node_ptr_.reset(new CNode(childrenparams.get_left_def()));
+  right_node_ptr_.reset(new CNode(childrenparams.get_right_def()));
+  missing_node_ptr_.reset(new CNode(childrenparams.get_missing_def()));
 }
 
 signed char CNode::WhichNode(const CDataset& kData, unsigned long obs_num) {
