@@ -48,7 +48,10 @@ DistributionFactory::DistributionFactory() {
   RegisterDist("gaussian", &CGaussian::Create);
   RegisterDist("huberized", &CHuberized::Create);
   RegisterDist("laplace", &CLaplace::Create);
-  RegisterDist("pairwise", &CPairwise::Create);
+  RegisterDist("pairwise_conc", &CPairwise::Create);
+  RegisterDist("pairwise_ndcg", &CPairwise::Create);
+  RegisterDist("pairwise_map", &CPairwise::Create);
+  RegisterDist("pairwise_mrr", &CPairwise::Create);
   RegisterDist("poisson", &CPoisson::Create);
   RegisterDist("quantile", &CQuantile::Create);
   RegisterDist("tdist", &CTDist::Create);
@@ -72,7 +75,7 @@ DistributionFactory::DistributionFactory() {
 //------------------------------------------
 void DistributionFactory::RegisterDist(const string& kDistFamily,
                                        DistCreate ptr_to_dist_createfunc) {
-  factorymap_[kDistFamily] = ptr_to_dist_createfunc;
+  factorymap_.insert(pair<string, DistCreate>(kDistFamily, ptr_to_dist_createfunc));
 }
 
 //------------------------------------------
@@ -89,7 +92,7 @@ void DistributionFactory::RegisterDist(const string& kDistFamily,
 //---------------------------------------------
 
 CDistribution* DistributionFactory::CreateDist(DataDistParams& distparams) {
-  std::map<std::string, DistCreate>::iterator it =
+  std::multimap<std::string, DistCreate>::iterator it =
       factorymap_.find(distparams.family);
   if (it != factorymap_.end()) {
     return it->second(distparams);

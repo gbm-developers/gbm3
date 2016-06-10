@@ -9,7 +9,6 @@
 // Includes
 //---------------------
 #include "node_parameters.h"
-#include "gbmexcept.h"
 
 //---------------------
 // Public Functions

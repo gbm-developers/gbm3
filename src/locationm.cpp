@@ -10,7 +10,7 @@
 //------------------------------------------------------------------------------
 
 #include "locationm.h"
-#include "gbmexcept.h"
+#include "gbm_exception.h"
 
 #include <algorithm>
 

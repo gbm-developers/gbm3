@@ -9,10 +9,6 @@
 #include <vector>
 #include <algorithm>
 
-//#define NOISY_DEBUG
-#ifdef NOISY_DEBUG
-#endif
-
 void CRanker::Init(unsigned int max_items_per_group) {
   // Allocate sorting buffers
   score_rank_vec_.resize(max_items_per_group);
@@ -269,13 +265,6 @@ double CNDCG::MaxMeasure(unsigned int group, const double* const kResponse,
 
       maxdcg_vec_[group] = dScore;
 
-#ifdef NOISY_DEBUG
-      if (maxdcg_vec_[group] == 0) {
-        Rprintf("max score is 0: iGroup = %d, maxScore = %f\n", group,
-                maxdcg_vec_[group]);
-        throw gbm_exception::Failure();
-      }
-#endif
     }
   }
 
@@ -478,7 +467,7 @@ CPairwise::CPairwise(const double* kGroups, const char* kIrMeasure,
   kGroups_ = kGroups;
 
   // Set up the number of groups - this used externally
-  SetNumGroups(gbm_functions::NumGroups(kGroups, num_training_rows));
+  set_num_groups(gbm_functions::NumGroups(kGroups, num_training_rows));
 
   // Construct the IR Measure
   if (!strcmp(kIrMeasure, "conc")) {
@@ -498,16 +487,25 @@ CPairwise::CPairwise(const double* kGroups, const char* kIrMeasure,
 }
 
 CDistribution* CPairwise::Create(DataDistParams& distparams) {
+
   // Create pointers to pairwise
   Rcpp::NumericVector misc_vec(distparams.misc[0]);
   const double* kGroup = 0;
+
+  std::size_t offset_tomeasure = distparams.family.find("_");
+  if (offset_tomeasure == std::string::npos) {
+    throw gbm_exception::Failure(
+  			"Unable to locate IR metric required for pairwise");
+  }
+  const char* kIrMeasure =
+  		  distparams.family.c_str() + offset_tomeasure + 1;
 
   if (!gbm_functions::has_value(misc_vec)) {
     throw gbm_exception::Failure("Pairwise requires misc to initialize");
   } else {
     kGroup = misc_vec.begin();
   }
-  return new CPairwise(kGroup, distparams.irmeasure, distparams.num_trainrows);
+  return new CPairwise(kGroup, kIrMeasure, distparams.num_trainrows);
 }
 
 CPairwise::~CPairwise() {}
@@ -529,12 +527,9 @@ inline const double* OffsetVector(const double* const kCovariates,
 }
 
 void CPairwise::ComputeWorkingResponse(const CDataset& kData,
+									   const Bag& kBag,
                                        const double* kFuncEstimate,
-                                       double* residuals) {
-#ifdef NOISY_DEBUG
-  Rprintf("compute working response, nTrain = %u\n", nTrain);
-#endif
-
+                                       std::vector<double>& residuals) {
   if (kData.get_trainsize() <= 0) return;
 
   // Iterate through all groups, compute gradients
@@ -557,16 +552,7 @@ void CPairwise::ComputeWorkingResponse(const CDataset& kData,
       hessian_[item_end] = 0;
     }
 
-#ifdef NOISY_DEBUG
-    // Check sorting
-    for (unsigned int i = item_start; i < item_end - 1; i++) {
-      if (kData.y_ptr()[i] < kData.y_ptr()[i + 1]) {
-        throw gbm_exception::Failure("sorting failed in pairwise?");
-      }
-    }
-#endif
-
-    if (kData.get_bag_element(item_start)) {
+    if (kBag.get_element(item_start)) {
       // Group is part of the training set
 
       const int kNumItems = item_end - item_start;
@@ -587,7 +573,7 @@ void CPairwise::ComputeWorkingResponse(const CDataset& kData,
 
       ComputeLambdas(int_group, kNumItems, kData.y_ptr() + item_start,
                      kFuncPlusOffset, kData.weight_ptr() + item_start,
-                     residuals + item_start, &hessian_[item_start]);
+                     &residuals[item_start], &hessian_[item_start]);
     }
 
     // Next group
@@ -668,10 +654,6 @@ void CPairwise::ComputeLambdas(int group, unsigned int num_items,
   // Number of pairs with unequal labels
   unsigned int pairs = 0;
 
-#ifdef NOISY_DEBUG
-  double measure_before = pirm_->Measure(kResponse, ranker_);
-#endif
-
   for (unsigned int j = 1; j < num_items; j++) {
     const double kYj = kResponse[j];
 
@@ -685,31 +667,6 @@ void CPairwise::ComputeLambdas(int group, unsigned int num_items,
 
       const double kSwapCost = fabs(pirm_->SwapCost(i, j, kResponse, ranker_));
 
-#ifdef NOISY_DEBUG
-      double delta = fabs(pirm_->SwapCost(i, j, kResponse, ranker_));
-      const int kRanki = ranker_.GetRank(i);
-      const int kRankj = ranker_.GetRank(j);
-      ranker_.SetRank(i, cRankj);
-      ranker_.SetRank(j, cRanki);
-      double measure_after = pirm_->Measure(kResponse, ranker_);
-
-      if (fabs(measure_before - measure_after) - dDelta > 1e-5) {
-        Rprintf("%f %f %f %f %f %d %d\n",
-                pirm_->SwapCost(i, j, kResponse, ranker_), measure_before,
-                measure_after, measure_before - measure_after, delta, i, j);
-        for (unsigned int k = 0; k < num_items_; k++) {
-          Rprintf("%d\t%d\t%f\t%f\n", k, ranker_.GetRank(k), kResponse[k],
-                  kFuncEstimate[k]);
-        }
-        throw gbm_exception::Failure("the impossible happened");
-      }
-      if (fabs(measure_before - measure_after) - fabs(dDelta) >= 1e-5) {
-        throw gbm_exception::Failure("the impossible happened");
-      }
-      ranker_.SetRank(j, cRankj);
-      ranker_.SetRank(i, cRanki);
-
-#endif
       if (!isfinite(kSwapCost)) {
         throw gbm_exception::Failure("infinite swap cost");
       }
@@ -802,18 +759,11 @@ void CPairwise::Initialize(const CDataset& kData) {
     max_group_unsigned_long = (unsigned long)max_group;
   }
   pirm_->Init(max_group_unsigned_long, max_items_per_group, rank_cutoff);
-#ifdef NOISY_DEBUG
-  Rprintf(
-      "Initialization: instances=%ld, groups=%u, max items per group=%u, rank "
-      "cutoff=%u, offset specified: %d\n",
-      cLength, (unsigned long)max_group, max_items_per_group, rank_cutoff,
-      (kData.offset_ptr() != NULL));
-#endif
 }
 
 double CPairwise::InitF(const CDataset& kData) { return 0.0; }
 
-double CPairwise::Deviance(const CDataset& kData, const double* kfuncEstimate) {
+double CPairwise::Deviance(const CDataset& kData, const Bag& kBag, const double* kfuncEstimate) {
   // Shift adGroup to validation set if necessary
   long num_rows_in_set = kData.get_size_of_set();
   if (num_rows_in_set <= 0) {
@@ -871,13 +821,10 @@ double CPairwise::Deviance(const CDataset& kData, const double* kfuncEstimate) {
 }
 
 void CPairwise::FitBestConstant(const CDataset& kData,
+								const Bag& kBag,
                                 const double* kFuncEstimate,
                                 unsigned long num_terminalnodes,
-                                double* residuals, CCARTTree& tree) {
-#ifdef NOISY_DEBUG
-  Rprintf("FitBestConstant, nTrain = %u,  cTermNodes = %d, \n", nTrain,
-          num_terminalnodes);
-#endif
+                                std::vector<double>& residuals, CCARTTree& tree) {
 
   // Assumption: ComputeWorkingResponse() has been executed before with
   // the same arguments
@@ -891,13 +838,7 @@ void CPairwise::FitBestConstant(const CDataset& kData,
   }
 
   for (unsigned int obs_num = 0; obs_num < kData.get_trainsize(); obs_num++) {
-    if (kData.get_bag_element(obs_num)) {
-#ifdef NOISY_DEBUG
-      if (!(isfinite(kData.weight_ptr()[obs_num]) &&
-            isfinite(residuals[obs_num]) && isfinite(hessian_[obs_num]))) {
-        throw gbm_exception::Failure("unanticipated infinities");
-      };
-#endif
+    if (kBag.get_element(obs_num)) {
 
       fit_numerator_[tree.get_node_assignments()[obs_num]] +=
           kData.weight_ptr()[obs_num] * residuals[obs_num];
@@ -919,12 +860,10 @@ void CPairwise::FitBestConstant(const CDataset& kData,
 }
 
 double CPairwise::BagImprovement(const CDataset& kData,
+								 const Bag& kBag,
                                  const double* kFuncEstimate,
                                  const double kShrinkage,
-                                 const double* kDeltaEstimates) {
-#ifdef NOISY_DEBUG
-  Rprintf("BagImprovement, nTrain = %u\n", nTrain);
-#endif
+                                 const std::vector<double>& kDeltaEstimate) {
 
   if (kData.get_trainsize() <= 0) {
     return 0;
@@ -945,7 +884,7 @@ double CPairwise::BagImprovement(const CDataset& kData,
          item_end++)
       ;
 
-    if (!kData.get_bag_element(item_start)) {
+    if (!kBag.get_element(item_start)) {
       // Group was held out of training set
 
       const unsigned int kNumItems = item_end - item_start;
@@ -974,7 +913,7 @@ double CPairwise::BagImprovement(const CDataset& kData,
         // Compute score according to new score: adF' =  adF + dStepSize *
         // adFadj
         for (unsigned int i = 0; i < kNumItems; i++) {
-          ranker_.AddToScore(i, kDeltaEstimates[i + item_start] * kShrinkage);
+          ranker_.AddToScore(i, kDeltaEstimate[i + item_start] * kShrinkage);
         }
 
         const double kWi = kData.weight_ptr()[item_start];
@@ -996,14 +935,14 @@ double CPairwise::BagImprovement(const CDataset& kData,
   return loss / weight;
 }
 
-void CPairwise::BagData(CDataset& kData) {
+void CPairwise::BagData(const CDataset& kData, Bag& bag) {
   double last_group = -1;
   bool is_chosen = false;
   unsigned int bagged = 0;
   unsigned int bagged_groups = 0;
   unsigned int seen_groups = 0;
   unsigned int total_groupsinbag =
-      (unsigned long)(kData.get_bagfraction() * GetNumGroups());
+      (unsigned long)(bag.get_bagfraction() * get_num_groups());
 
   if (total_groupsinbag <= 0) {
     total_groupsinbag = 1;
@@ -1018,7 +957,7 @@ void CPairwise::BagData(CDataset& kData) {
       }
 
       // Group changed, make a new decision
-      is_chosen = (unif_rand() * (GetNumGroups() - seen_groups) <
+      is_chosen = (unif_rand() * (get_num_groups() - seen_groups) <
                    total_groupsinbag - bagged_groups);
       if (is_chosen) {
         bagged_groups++;
@@ -1028,7 +967,7 @@ void CPairwise::BagData(CDataset& kData) {
     }
 
     if (is_chosen) {
-      kData.set_bag_element(i);
+      bag.set_element(i);
       bagged++;
     }
   }

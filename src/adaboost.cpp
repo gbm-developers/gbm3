@@ -27,8 +27,9 @@ CDistribution* CAdaBoost::Create(DataDistParams& distparams) {
 CAdaBoost::~CAdaBoost() {}
 
 void CAdaBoost::ComputeWorkingResponse(const CDataset& kData,
+									   const Bag& kBag,
                                        const double* kFuncEstimate,
-                                       double* residuals) {
+                                       std::vector<double>& residuals) {
   for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     residuals[i] = -(2 * kData.y_ptr()[i] - 1) *
                    std::exp(-(2 * kData.y_ptr()[i] - 1) *
@@ -51,7 +52,7 @@ double CAdaBoost::InitF(const CDataset& kData) {
   return 0.5 * std::log(numerator / denominator);
 }
 
-double CAdaBoost::Deviance(const CDataset& kData, const double* kFuncEstimate) {
+double CAdaBoost::Deviance(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate) {
   unsigned long i = 0;
   double loss = 0.0;
   double weight = 0.0;
@@ -77,9 +78,10 @@ double CAdaBoost::Deviance(const CDataset& kData, const double* kFuncEstimate) {
 }
 
 void CAdaBoost::FitBestConstant(const CDataset& kData,
+								const Bag& kBag,
                                 const double* kFuncEstimate,
                                 unsigned long num_terminalnodes,
-                                double* residuals, CCARTTree& tree) {
+                                std::vector<double>& residuals, CCARTTree& tree) {
   double deltafunc_est = 0.0;
   unsigned long obs_num = 0;
   unsigned long node_num = 0;
@@ -89,7 +91,7 @@ void CAdaBoost::FitBestConstant(const CDataset& kData,
   denominator_bestconstant_.assign(denominator_bestconstant_.size(), 0.0);
 
   for (obs_num = 0; obs_num < kData.get_trainsize(); obs_num++) {
-    if (kData.get_bag_element(obs_num)) {
+    if (kBag.get_element(obs_num)) {
       deltafunc_est = kFuncEstimate[obs_num] + kData.offset_ptr()[obs_num];
       numerator_bestconstant_[tree.get_node_assignments()[obs_num]] +=
           kData.weight_ptr()[obs_num] * (2 * kData.y_ptr()[obs_num] - 1) *
@@ -114,16 +116,17 @@ void CAdaBoost::FitBestConstant(const CDataset& kData,
 }
 
 double CAdaBoost::BagImprovement(const CDataset& kData,
+								 const Bag& kBag,
                                  const double* kFuncEstimate,
                                  const double kShrinkage,
-                                 const double* kDeltaEstimate) {
+                                 const std::vector<double>& kDeltaEstimate) {
   double returnvalue = 0.0;
   double func_est = 0.0;
   double weight = 0.0;
   unsigned long i = 0;
 
   for (i = 0; i < kData.get_trainsize(); i++) {
-    if (!kData.get_bag_element(i)) {
+    if (!kBag.get_element(i)) {
       func_est = kFuncEstimate[i] + kData.offset_ptr()[i];
 
       returnvalue +=

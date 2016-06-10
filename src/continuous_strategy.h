@@ -26,7 +26,7 @@ class ContinuousStrategy : public GenericNodeStrategy {
   //----------------------
   // Public Constructors
   //----------------------
-  ContinuousStrategy(CNode* node) : node_context_(node){};
+  ContinuousStrategy(CNode* node) : node_context_(node) { is_split_=true; };
 
   //---------------------
   // Public destructor
@@ -40,7 +40,7 @@ class ContinuousStrategy : public GenericNodeStrategy {
     node_context_->left_child()->Adjust(min_num_node_obs);
     node_context_->right_child()->Adjust(min_num_node_obs);
 
-    if ((node_context_->missing_child()->get_splittype() == kNone) &&
+    if ((node_context_->missing_child()->is_terminal()) &&
         (node_context_->missing_child()->get_numobs() < min_num_node_obs)) {
       node_context_->set_prediction(
           ((node_context_->left_child()->get_totalweight()) *

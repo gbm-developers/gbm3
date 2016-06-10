@@ -26,7 +26,7 @@ class CategoricalStrategy : public GenericNodeStrategy {
   //----------------------
   // Public Constructors
   //----------------------
-  CategoricalStrategy(CNode* node) : node_context_(node){};
+  CategoricalStrategy(CNode* node) : node_context_(node) { is_split_ = true; };
 
   //---------------------
   // Public destructor
@@ -40,7 +40,7 @@ class CategoricalStrategy : public GenericNodeStrategy {
     node_context_->left_child()->Adjust(min_num_node_obs);
     node_context_->right_child()->Adjust(min_num_node_obs);
 
-    if ((node_context_->missing_child()->get_splittype() == kNone) &&
+    if ((node_context_->missing_child()->is_terminal()) &&
         (node_context_->missing_child()->get_numobs() < min_num_node_obs)) {
       node_context_->set_prediction(
           ((node_context_->left_child()->get_totalweight()) *

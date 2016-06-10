@@ -33,8 +33,9 @@ CDistribution* CTDist::Create(DataDistParams& distparams) {
 CTDist::~CTDist() {}
 
 void CTDist::ComputeWorkingResponse(const CDataset& kData,
+									const Bag& kBag,
                                     const double* kFuncEstimate,
-                                    double* residuals) {
+                                    std::vector<double>& residuals) {
   unsigned long i = 0;
   double du = 0.0;
 
@@ -57,7 +58,7 @@ double CTDist::InitF(const CDataset& kData) {
                            0.5);
 }
 
-double CTDist::Deviance(const CDataset& kData, const double* kFuncEstimate) {
+double CTDist::Deviance(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate) {
   unsigned long i = 0;
   double loss = 0.0;
   double weight = 0.0;
@@ -82,8 +83,8 @@ double CTDist::Deviance(const CDataset& kData, const double* kFuncEstimate) {
   return loss / weight;
 }
 
-void CTDist::FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
-                             unsigned long num_terminalnodes, double* residuals,
+void CTDist::FitBestConstant(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate,
+                             unsigned long num_terminalnodes, std::vector<double>& residuals,
                              CCARTTree& tree) {
   // Local variables
   unsigned long node_num = 0;
@@ -98,7 +99,7 @@ void CTDist::FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
       weight_vec.clear();
 
       for (obs_num = 0; obs_num < kData.get_trainsize(); obs_num++) {
-        if (kData.get_bag_element(obs_num) &&
+        if (kBag.get_element(obs_num) &&
             (tree.get_node_assignments()[obs_num] == node_num)) {
           const double dOffset = kData.offset_ptr()[obs_num];
           arr_vec.push_back(kData.y_ptr()[obs_num] - dOffset -
@@ -114,15 +115,16 @@ void CTDist::FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
 }
 
 double CTDist::BagImprovement(const CDataset& kData,
+							  const Bag& kBag,
                               const double* kFuncEstimate,
                               const double kShrinkage,
-                              const double* kDeltaEstimate) {
+                              const std::vector<double>& kDeltaEstimate) {
   double returnvalue = 0.0;
   unsigned long i = 0;
   double weight = 0.0;
 
   for (i = 0; i < kData.get_trainsize(); i++) {
-    if (!kData.get_bag_element(i)) {
+    if (!kBag.get_element(i)) {
       const double dF = kFuncEstimate[i] + kData.offset_ptr()[i];
       const double dU = (kData.y_ptr()[i] - dF);
       const double dV =

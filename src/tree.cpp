@@ -8,38 +8,25 @@
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CCARTTree::CCARTTree(TreeParams treeconfig)
-    : new_node_searcher_(treeconfig.depth, treeconfig.min_obs_in_node),
-      kTreeDepth_(treeconfig.depth),
-      kShrinkage_(treeconfig.shrinkage) {
-  rootnode_ = NULL;
-  totalnodecount_ = 1;
-  error_ = 0.0;
-  min_num_node_obs_ = treeconfig.min_obs_in_node;
+CCARTTree::CCARTTree(const TreeParams& treeconfig)
+    : rootnode_(),
+      min_num_node_obs_(treeconfig.min_obs_in_node),
+	  kTreeDepth_(treeconfig.depth),
+      kShrinkage_(treeconfig.shrinkage),
+      error_(0.0), totalnodecount_(1){
+
   data_node_assignment_.resize(treeconfig.num_trainrows, 0);
-}
-
-CCARTTree::~CCARTTree() { delete rootnode_; }
-
-void CCARTTree::Reset() {
-  delete rootnode_;
-  rootnode_ = NULL;
   terminalnode_ptrs_.resize(2 * kTreeDepth_ + 1, NULL);
-  totalnodecount_ = 1;
-  new_node_searcher_.reset();
 }
 
 //------------------------------------------------------------------------------
 // Grows a regression tree
 //------------------------------------------------------------------------------
-void CCARTTree::Grow(double* residuals, const CDataset& kData,
-                     const double* kFuncEstimates) {
-#ifdef NOISY_DEBUG
-  Rprintf("Growing tree\n");
-#endif
-
-  if ((residuals == NULL) || (kData.weight_ptr() == NULL) ||
-      (kFuncEstimates == NULL) || (kTreeDepth_ < 1)) {
+void CCARTTree::Grow(std::vector<double>& residuals, const CDataset& kData,
+					 const Bag& kBag,
+                     const std::vector<double>& kDeltaEstimate) {
+  if ((&(residuals[0]) == NULL) || (kData.weight_ptr() == NULL) ||
+      (&kDeltaEstimate[0] == NULL) || (kTreeDepth_ < 1)) {
     throw gbm_exception::InvalidArgument();
   }
 
@@ -47,16 +34,12 @@ void CCARTTree::Grow(double* residuals, const CDataset& kData,
   double sum_zsquared = 0.0;
   double totalw = 0.0;
 
-#ifdef NOISY_DEBUG
-  Rprintf("initial tree calcs\n");
-#endif
-
   // Move to data -- FOR TIME BEING
   for (unsigned long obs_num = 0; obs_num < kData.get_trainsize(); obs_num++) {
     // aiNodeAssign tracks to which node each training obs belongs
     data_node_assignment_[obs_num] = 0;
 
-    if (kData.get_bag_element(obs_num)) {
+    if (kBag.get_element(obs_num)) {
       // get the initial sums and sum of squares and total weight
       sumz += kData.weight_ptr()[obs_num] * residuals[obs_num];
       sum_zsquared +=
@@ -66,24 +49,17 @@ void CCARTTree::Grow(double* residuals, const CDataset& kData,
   }
 
   error_ = sum_zsquared - sumz * sumz / totalw;
-  rootnode_ = new CNode(NodeDef(sumz, totalw, kData.get_total_in_bag()));
-  terminalnode_ptrs_[0] = rootnode_;
-  new_node_searcher_.set_search_rootnode(*rootnode_);
+  rootnode_.reset(new CNode(NodeDef(sumz, totalw, kBag.get_total_in_bag())));
+  terminalnode_ptrs_[0] = rootnode_.get();
+  CNodeSearch new_node_searcher(kTreeDepth_, min_num_node_obs_, *(rootnode_.get()));
 
-// build the tree structure
-#ifdef NOISY_DEBUG
-  Rprintf("Building tree 1 ");
-#endif
-
+  // build the tree structure
   for (long cDepth = 0; cDepth < kTreeDepth_; cDepth++) {
-#ifdef NOISY_DEBUG
-    Rprintf("%d ", cDepth);
-#endif
 
     // Generate all splits
-    new_node_searcher_.GenerateAllSplits(
-        terminalnode_ptrs_, kData, &(residuals[0]), data_node_assignment_);
-    double bestImprov = new_node_searcher_.CalcImprovementAndSplit(
+    new_node_searcher.GenerateAllSplits(
+        terminalnode_ptrs_, kData, kBag, &(residuals[0]), data_node_assignment_);
+    double bestImprov = new_node_searcher.CalcImprovementAndSplit(
         terminalnode_ptrs_, kData, data_node_assignment_);
 
     // Make the best split if possible
@@ -102,7 +78,7 @@ void CCARTTree::Grow(double* residuals, const CDataset& kData,
 
 void CCARTTree::PredictValid(const CDataset& kData,
                              unsigned long num_validation_points,
-                             double* delta_estimates) {
+                             std::vector<double>& delta_estimates) {
   unsigned int i = 0;
   for (i = kData.nrow() - num_validation_points; i < kData.nrow(); i++) {
     rootnode_->Predict(kData, i, delta_estimates[i]);
@@ -110,7 +86,7 @@ void CCARTTree::PredictValid(const CDataset& kData,
   }
 }
 
-void CCARTTree::Adjust(double* delta_estimates) {
+void CCARTTree::Adjust(std::vector<double>& delta_estimates) {
   rootnode_->Adjust(min_num_node_obs_);
 
   // predict for the training observations
@@ -122,7 +98,7 @@ void CCARTTree::Adjust(double* delta_estimates) {
 }
 
 void CCARTTree::Print() {
-  if (rootnode_) {
+  if (rootnode_.get() != 0) {
     rootnode_->PrintSubtree(0);
     Rprintf("shrinkage: %f\n", kShrinkage_);
     Rprintf("initial error: %f\n\n", error_);
@@ -147,7 +123,7 @@ void CCARTTree::TransferTreeToRList(const CDataset& kData, int* splitvar,
                                     VecOfVectorCategories& splitcodes_vec,
                                     int prev_categorical_splits) {
   int nodeid = 0;
-  if (rootnode_) {
+  if (rootnode_.get() != 0) {
     rootnode_->TransferTreeToRList(
         nodeid, kData, splitvar, splitvalues, leftnodes, rightnodes,
         missingnodes, error_reduction, weights, predictions, splitcodes_vec,

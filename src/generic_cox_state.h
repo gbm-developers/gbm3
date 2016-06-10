@@ -42,20 +42,24 @@ class GenericCoxState {
   // Public Functions
   //---------------------
   virtual void ComputeWorkingResponse(const CDataset& kData,
+		  	  	  	  	  	  	  	  const Bag& kBag,
                                       const double* kFuncEstimate,
-                                      double* residuals) = 0;
+                                      std::vector<double>& residuals) = 0;
 
   virtual void FitBestConstant(const CDataset& kData,
+		  	  	  	  	  	   const Bag& kBag,
                                const double* kFuncEstimate,
                                unsigned long num_terminalnodes,
-                               double* residuals, CCARTTree& tree) = 0;
+                               std::vector<double>& residuals, CCARTTree& tree) = 0;
 
   virtual double Deviance(const long kNumRowsInSet, const CDataset& kData,
+		  	  	  	  	  const Bag& kBag,
                           const double* kFuncEstimate) = 0;
 
   virtual double BagImprovement(const CDataset& kData,
+		  	  	  	  	  	    const Bag& kBag,
                                 const double* kFuncEstimate,
                                 const double kShrinkage,
-                                const double* kDeltaEstimate) = 0;
+                                const std::vector<double>& kDeltaEstimate) = 0;
 };
 #endif  // GENERICCOXSTATE_H

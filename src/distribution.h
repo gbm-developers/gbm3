@@ -21,8 +21,8 @@
 //------------------------------
 // Includes
 //------------------------------
-#include "config_structs.h"
 #include "dataset.h"
+#include "databag.h"
 #include "node.h"
 #include "tree.h"
 #include <vector>
@@ -46,8 +46,8 @@ class CDistribution {
   //---------------------
   // Public Functions
   //---------------------
-  int GetNumGroups() const;
-  void SetNumGroups(int groupval);
+  int get_num_groups() const { return num_groups_; };
+  void set_num_groups(int groupval) { num_groups_ = groupval; };
 
   // shifts the ptrs() as appropriate
   template <typename T>
@@ -70,25 +70,29 @@ class CDistribution {
     }
   };
   virtual void ComputeWorkingResponse(const CDataset& kData,
+		  	  	  	  	  	  	  	  const Bag& kBag,
                                       const double* kFuncEstimate,
-                                      double* residuals) = 0;
+                                      std::vector<double>& residuals) = 0;
 
   virtual double InitF(const CDataset& kData) = 0;
 
   virtual double Deviance(const CDataset& kData,
+		  	  	  	  	  const Bag& kBag,
                           const double* kFuncEstimate) = 0;
 
   virtual void FitBestConstant(const CDataset& kData,
+		  	  	  	  	  	   const Bag& kBag,
                                const double* kFuncEstimate,
                                unsigned long num_terminalnodes,
-                               double* residuals, CCARTTree& tree) = 0;
+                               std::vector<double>& residuals, CCARTTree& tree) = 0;
 
   virtual double BagImprovement(const CDataset& kData,
+		  	  	  	  	  	  	const Bag& kBag,
                                 const double* kFuncEstimate,
                                 const double kShrinkage,
-                                const double* kDeltaFunce) = 0;
+                                const std::vector<double>& kDeltaFuncEstimate) = 0;
 
-  virtual void BagData(CDataset& kData);
+  virtual void BagData(const CDataset& kData, Bag& bag);
   virtual void ShiftDistPtrs(unsigned long shift){};
 
  private:

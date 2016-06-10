@@ -13,11 +13,13 @@
 //------------------------------
 // Includes
 //------------------------------
-#include "config_structs.h"
+#include "datadistparams.h"
 #include "dataset.h"
+#include "databag.h"
 #include "distribution.h"
 #include "distribution_factory.h"
 #include "tree.h"
+#include "treeparams.h"
 #include <Rcpp.h>
 #include <vector>
 #include <memory>
@@ -25,36 +27,38 @@
 //------------------------------
 // Class definition
 //------------------------------
-class CGBMDataContainer {
+class CGBMDataDistContainer {
  public:
   //----------------------
   // Public Constructors
   //----------------------
-  CGBMDataContainer(DataDistParams& datadist_config);
+  CGBMDataDistContainer(DataDistParams& datadist_config);
 
   //---------------------
   // Public destructor
   //---------------------
-  ~CGBMDataContainer();
+  ~CGBMDataDistContainer() {};
 
   //---------------------
   // Public Functions
   //---------------------
   void Initialize();
   double InitialFunctionEstimate();
-  void ComputeResiduals(const double* kFuncEstimate, double* residuals);
-  void ComputeBestTermNodePreds(const double* kFuncEstimate, double* residuals,
+  void ComputeResiduals(const double* kFuncEstimate, std::vector<double>& residuals);
+  void ComputeBestTermNodePreds(const double* kFuncEstimate, std::vector<double>& residuals,
                                 CCARTTree& tree);
   double ComputeDeviance(const double* kFuncEstimate,
                          bool is_validationset = false);
   double ComputeBagImprovement(const double* kFuncEstimate,
                                const double kShrinkage,
-                               const double* kDeltaEstimate);
+                               const std::vector<double>& kDeltaEstimate);
   void BagData();
 
-  CDistribution* get_dist() { return distptr_; }
+  std::auto_ptr<CDistribution>& get_dist() { return distptr_; }
   const CDataset& get_data() const { return data_; }
   CDataset& get_data() { return data_; }
+  const Bag& get_bag() const{ return databag_; }
+  Bag& get_bag() { return databag_; }
 
  private:
   //-------------------
@@ -73,8 +77,9 @@ class CGBMDataContainer {
   // Private Variables
   //-------------------
   CDataset data_;
-  CDistribution* distptr_;
-  DistributionFactory* distfactory_;
+  Bag databag_;
+  std::auto_ptr<DistributionFactory> distfactory_;
+  std::auto_ptr<CDistribution> distptr_;
 };
 
 #endif  // GBMDATACONTAINER_H

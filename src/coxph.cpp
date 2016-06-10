@@ -42,9 +42,9 @@ CCoxPH::CCoxPH(double* stats, int* sorted_end, int* sorted_start, int* strats,
 
   // Set up which methods CoxPh will use
   if (kStartStopCase_) {
-    coxstate_methods_ = new CountingCoxState(this);
+    coxstate_methods_.reset(new CountingCoxState(this));
   } else {
-    coxstate_methods_ = new CensoredCoxState(this);
+    coxstate_methods_.reset(new CensoredCoxState(this));
   }
 }
 
@@ -58,9 +58,6 @@ CDistribution* CCoxPH::Create(DataDistParams& distparams) {
   int* sortedend = NULL;
   bool isstartstop = false;
   int tiesmethod = GetTiesMethod(Rcpp::as<string>(distparams.misc[0]));
-
-  // Switch on misc to set up ties method
-  std::string miscstring = Rcpp::as<std::string>(distparams.misc[0]);
 
   // Set up strata
   Rcpp::IntegerVector strats(distparams.strata);
@@ -85,38 +82,39 @@ CDistribution* CCoxPH::Create(DataDistParams& distparams) {
                     tiesmethod, distparams.prior_coefficient_variation);
 }
 
-CCoxPH::~CCoxPH() { delete coxstate_methods_; }
 
 void CCoxPH::ComputeWorkingResponse(const CDataset& kData,
+								    const Bag& kBag,
                                     const double* kFuncEstimate,
-                                    double* residuals) {
-  coxstate_methods_->ComputeWorkingResponse(kData, kFuncEstimate, residuals);
+                                    std::vector<double>& residuals) {
+  coxstate_methods_->ComputeWorkingResponse(kData, kBag, kFuncEstimate, residuals);
 }
 
 double CCoxPH::InitF(const CDataset& kData) { return 0.0; }
 
-double CCoxPH::Deviance(const CDataset& kData, const double* kFuncEstimate) {
+double CCoxPH::Deviance(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate) {
   // Set size and move to validation set if necessary
   unsigned long num_rows_in_set = kData.get_size_of_set();
 
   double returnvalue = 0.0;
   returnvalue =
-      coxstate_methods_->Deviance(num_rows_in_set, kData, kFuncEstimate);
+      coxstate_methods_->Deviance(num_rows_in_set, kData, kBag, kFuncEstimate);
 
   return returnvalue;
 }
 
-void CCoxPH::FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
-                             unsigned long num_terminalnodes, double* residuals,
+void CCoxPH::FitBestConstant(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate,
+                             unsigned long num_terminalnodes, std::vector<double>& residuals,
                              CCARTTree& tree) {
-  coxstate_methods_->FitBestConstant(kData, kFuncEstimate, num_terminalnodes,
+  coxstate_methods_->FitBestConstant(kData, kBag, kFuncEstimate, num_terminalnodes,
                                      residuals, tree);
 }
 
 double CCoxPH::BagImprovement(const CDataset& kData,
+							  const Bag& kBag,
                               const double* kFuncEstimate,
                               const double kShrinkage,
-                              const double* kDeltaEstimate) {
-  return coxstate_methods_->BagImprovement(kData, kFuncEstimate, kShrinkage,
+                              const std::vector<double>& kDeltaEstimate) {
+  return coxstate_methods_->BagImprovement(kData, kBag, kFuncEstimate, kShrinkage,
                                            kDeltaEstimate);
 }

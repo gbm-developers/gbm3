@@ -12,23 +12,26 @@
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CNodeSearch::CNodeSearch(unsigned long treedepth, unsigned long minobs)
+CNodeSearch::CNodeSearch(unsigned long treedepth, unsigned long minobs,
+                         CNode& rootnode)
     : variable_splitters_(2 * treedepth + 1, VarSplitter(minobs)) {
+  variable_splitters_[0].Set(rootnode);
   num_terminal_nodes_ = 1;
   min_num_node_obs_ = minobs;
 }
 
 CNodeSearch::~CNodeSearch() {}
 
-void CNodeSearch::GenerateAllSplits(vector<CNode*>& term_nodes_ptrs,
-                                    const CDataset& kData, double* residuals,
+void CNodeSearch::GenerateAllSplits(vector<CNode* >& term_nodes_ptrs,
+                                    const CDataset& kData, const Bag& kBag,
+                                    double* residuals,
                                     vector<unsigned long>& data_node_assigns) {
   unsigned long kWhichObs = 0;
-  const CDataset::index_vector kColNumbers(kData.RandomOrder());
-  const CDataset::index_vector::const_iterator kFinalCol =
+  const index_vector kColNumbers(kData.RandomOrder());
+  const index_vector::const_iterator kFinalCol =
       kColNumbers.begin() + kData.get_num_features();
 
-  for (CDataset::index_vector::const_iterator kIt = kColNumbers.begin();
+  for (index_vector::const_iterator kIt = kColNumbers.begin();
        kIt != kFinalCol; kIt++) {
     const int kVar = *kIt;
     const int KVarClasses = kData.varclass(kVar);
@@ -42,7 +45,7 @@ void CNodeSearch::GenerateAllSplits(vector<CNode*>& term_nodes_ptrs,
     for (unsigned long iOrderObs = 0; iOrderObs < kData.get_trainsize();
          iOrderObs++) {
       kWhichObs = kData.order_ptr()[kVar * kData.get_trainsize() + iOrderObs];
-      if (kData.get_bag_element(kWhichObs)) {
+      if (kBag.get_element(kWhichObs)) {
         const int kNode = data_node_assigns[kWhichObs];
         const double kXVal = kData.x_value(kWhichObs, kVar);
         variable_splitters_[kNode].IncorporateObs(kXVal, residuals[kWhichObs],
@@ -107,7 +110,7 @@ double CNodeSearch::CalcImprovementAndSplit(
 // Function Members - Private
 //----------------------------------------
 void CNodeSearch::ReassignData(unsigned long splittednode_index,
-                               vector<CNode*>& term_nodes_ptrs,
+                               vector<CNode* >& term_nodes_ptrs,
                                const CDataset& kData,
                                vector<unsigned long>& data_node_assigns) {
   // assign observations to the correct node

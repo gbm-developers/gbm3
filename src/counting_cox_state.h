@@ -37,23 +37,24 @@ class CountingCoxState : public GenericCoxState {
   // Public Functions
   //---------------------
   void ComputeWorkingResponse(const CDataset& kData,
-                              const double* kFuncEstimate, double* residuals) {
+		  	  	  	  	  	  const Bag& kBag,
+                              const double* kFuncEstimate, std::vector<double>& residuals) {
     // Initialize parameters
     std::vector<double> martingale_resid(kData.get_trainsize(), 0.0);
-    LogLikelihoodTiedTimes(kData.get_trainsize(), kData, kFuncEstimate,
+    LogLikelihoodTiedTimes(kData.get_trainsize(), kData, kBag, kFuncEstimate,
                            &martingale_resid[0], false);
 
     // Fill up response
     for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
-      if (kData.get_bag_element(i)) {
+      if (kBag.get_element(i)) {
         residuals[i] =
             kData.weight_ptr()[i] * martingale_resid[i];  // From chain rule
       }
     }
   }
 
-  void FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
-                       unsigned long num_terminalnodes, double* residuals,
+  void FitBestConstant(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate,
+                       unsigned long num_terminalnodes, std::vector<double>& residuals,
                        CCARTTree& tree) {
     // Calculate the expected number of events and actual number of events in
     // terminal nodes
@@ -62,13 +63,13 @@ class CountingCoxState : public GenericCoxState {
                                                1.0 / coxph_->PriorCoeffVar());
     std::vector<double> num_events_in_nodes(num_terminalnodes,
                                             1.0 / coxph_->PriorCoeffVar());
-    LogLikelihoodTiedTimes(kData.get_trainsize(), kData, kFuncEstimate,
+    LogLikelihoodTiedTimes(kData.get_trainsize(), kData, kBag, kFuncEstimate,
                            &martingale_resid[0], false);
 
     for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
-      if (kData.get_bag_element(i) &&
-          (tree.get_terminal_nodes()[tree.get_node_assignments()[i]]
-               ->get_numobs() >= tree.min_num_obs_required())) {
+      if (kBag.get_element(i) &&
+          (tree.get_terminal_nodes()[tree.get_node_assignments()[i]]->get_numobs() >=
+           tree.min_num_obs_required())) {
         // Cap expected number of events to be at least 0
         expnum_events_in_nodes[tree.get_node_assignments()[i]] +=
             max(0.0, coxph_->StatusVec()[i] - martingale_resid[i]);
@@ -86,20 +87,21 @@ class CountingCoxState : public GenericCoxState {
   }
 
   double Deviance(const long kNumRowsInSet, const CDataset& kData,
+		  	  	  const Bag& kBag,
                   const double* kFuncEstimate) {
     // Initialize Parameters
     double loglik = 0.0;
     std::vector<double> martingale_resid(kNumRowsInSet, 0.0);
 
     // Calculate Deviance
-    loglik = LogLikelihoodTiedTimes(kNumRowsInSet, kData, kFuncEstimate,
+    loglik = LogLikelihoodTiedTimes(kNumRowsInSet, kData, kBag, kFuncEstimate,
                                     &martingale_resid[0]);
 
     return -loglik;
   }
 
-  double BagImprovement(const CDataset& kData, const double* kFuncEstimate,
-                        const double kShrinkage, const double* kDeltaEstimate) {
+  double BagImprovement(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate,
+                        const double kShrinkage, const std::vector<double>& kDeltaEstimate) {
     // Initialize Parameters
     double loglike_no_adj = 0.0;
     double loglike_with_adj = 0.0;
@@ -109,7 +111,7 @@ class CountingCoxState : public GenericCoxState {
 
     // Fill up the adjusted and shrunk eta
     for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
-      if (!kData.get_bag_element(i)) {
+      if (!kBag.get_element(i)) {
         eta_adj[i] = kFuncEstimate[i] + kShrinkage * kDeltaEstimate[i];
 
       } else {
@@ -119,10 +121,10 @@ class CountingCoxState : public GenericCoxState {
 
     // Calculate likelihoods - data not in bags
     loglike_no_adj =
-        LogLikelihoodTiedTimes(kData.get_trainsize(), kData, kFuncEstimate,
+        LogLikelihoodTiedTimes(kData.get_trainsize(), kData, kBag, kFuncEstimate,
                                &martingale_resid_no_adj[0], false, false);
     loglike_with_adj =
-        LogLikelihoodTiedTimes(kData.get_trainsize(), kData, &eta_adj[0],
+        LogLikelihoodTiedTimes(kData.get_trainsize(), kData, kBag, &eta_adj[0],
                                &martingale_resid_with_adj[0], false, false);
 
     return (loglike_with_adj - loglike_no_adj);
@@ -131,6 +133,7 @@ class CountingCoxState : public GenericCoxState {
  private:
   CCoxPH* coxph_;
   double LogLikelihoodTiedTimes(const int n, const CDataset& kData,
+		  	  	  	  	  	  	const Bag& kBag,
                                 const double* eta, double* resid,
                                 bool skipbag = true, bool checkinbag = true) {
     int k, ksave;
@@ -174,7 +177,7 @@ class CountingCoxState : public GenericCoxState {
 
     for (person = 0; person < n; person++) {
       p2 = coxph_->EndTimeIndices()[person];
-      if (skipbag || (kData.get_bag_element(p2) == checkinbag)) {
+      if (skipbag || (kBag.get_element(p2) == checkinbag)) {
         newcenter = eta[coxph_->EndTimeIndices()[p2]] +
                     kData.offset_ptr()[coxph_->EndTimeIndices()[p2]];
         if (newcenter > center) {
@@ -187,7 +190,7 @@ class CountingCoxState : public GenericCoxState {
       p2 = coxph_->EndTimeIndices()[person];
 
       // Check if bagging is required
-      if (skipbag || (kData.get_bag_element(p2) == checkinbag)) {
+      if (skipbag || (kBag.get_element(p2) == checkinbag)) {
         if (coxph_->StatusVec()[p2] == 0) {
           // add the subject to the risk set
           resid[p2] = exp(eta[p2] + kData.offset_ptr()[p2] - center) * cumhaz;
@@ -205,7 +208,7 @@ class CountingCoxState : public GenericCoxState {
           temp = denom;
           for (; indx1 < person; indx1++) {
             p1 = coxph_->StartTimeIndices()[indx1];
-            if (skipbag || (kData.get_bag_element(p1) == checkinbag)) {
+            if (skipbag || (kBag.get_element(p1) == checkinbag)) {
               if (kData.y_ptr(0)[p1] < dtime) break; /* still in the risk set */
               nrisk--;
               resid[p1] -=
@@ -230,7 +233,7 @@ class CountingCoxState : public GenericCoxState {
           d_denom = 0;  // contribution to denominator for the deaths
           for (k = person; k < coxph_->StrataVec()[istrat]; k++) {
             p2 = coxph_->EndTimeIndices()[k];
-            if (skipbag || (kData.get_bag_element(p2) == checkinbag)) {
+            if (skipbag || (kBag.get_element(p2) == checkinbag)) {
               if (kData.y_ptr(1)[p2] < dtime) break;  // only tied times
               nrisk++;
               denom += kData.weight_ptr()[p2] *
@@ -275,7 +278,7 @@ class CountingCoxState : public GenericCoxState {
           temp = cumhaz + (hazard - e_hazard);
           for (; person < ksave; person++) {
             p2 = coxph_->EndTimeIndices()[person];
-            if (skipbag || (kData.get_bag_element(p2) == checkinbag)) {
+            if (skipbag || (kBag.get_element(p2) == checkinbag)) {
               if (coxph_->StatusVec()[p2] == 1)
                 resid[p2] =
                     1 + temp * exp(eta[p2] + kData.offset_ptr()[p2] - center);
@@ -298,7 +301,7 @@ class CountingCoxState : public GenericCoxState {
         if (person == coxph_->StrataVec()[istrat]) {
           for (; indx1 < coxph_->StrataVec()[istrat]; indx1++) {
             p1 = coxph_->StartTimeIndices()[indx1];
-            if (skipbag || (kData.get_bag_element(p1) == checkinbag)) {
+            if (skipbag || (kBag.get_element(p1) == checkinbag)) {
               resid[p1] -=
                   cumhaz * exp(eta[p1] + kData.offset_ptr()[p1] - center);
             }

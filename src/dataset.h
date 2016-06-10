@@ -18,15 +18,18 @@
 //------------------------------
 // Includes
 //------------------------------
-#include "config_structs.h"
-#include "gbmexcept.h"
+#include "datadistparams.h"
+#include "gbm_exception.h"
 #include "gbm_functions.h"
 #include <algorithm>
 #include <memory>
 #include <vector>
 #include <Rcpp.h>
 
-typedef std::vector<int> Bag;
+//------------------------------
+// Type Defs
+//------------------------------
+typedef std::vector<int> index_vector;
 
 //------------------------------
 // Class definition
@@ -105,26 +108,18 @@ class CDataset {
     }
   };
 
-  typedef std::vector<int> index_vector;
   index_vector RandomOrder() const;  // randomize order of predictor varaiables
-
-  double get_bagfraction() const { return bagfraction_; };
   unsigned long get_validsize() const { return num_validationdata_; };
   unsigned long get_size_of_set() const {
     if (point_at_trainingset_) return get_trainsize();
     return get_validsize();
   }
-  unsigned long get_total_in_bag() const { return totalinbag_; };
   unsigned long get_num_observations_in_training() const {
     return num_trainobservations_;
   }
   int get_row_observation_id(int row_number) const {
     return observation_ids_(row_number);
   }
-
-  bool get_bag_element(long index) const { return databag_[index]; }
-  void set_bag_element(long index) { databag_[index] = 1; };
-  void clear_bag() { databag_.assign(get_trainsize(), 0); };
 
  private:
   //-------------------
@@ -175,9 +170,5 @@ class CDataset {
   unsigned long num_features_;
   bool point_at_trainingset_;
 
-  // Bagged  data
-  Bag databag_;
-  double bagfraction_;
-  unsigned long totalinbag_;
 };
 #endif  // DATASET_H

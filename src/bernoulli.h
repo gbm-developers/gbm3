@@ -37,18 +37,19 @@ class CBernoulli : public CDistribution {
   // Public Functions
   //---------------------
   void ComputeWorkingResponse(const CDataset& kData,
-                              const double* kFuncEstimate, double* residuals);
+		  	  	  	  	  	  const Bag& kBag,
+                              const double* kFuncEstimate, std::vector<double>& residuals);
 
-  double Deviance(const CDataset& kData, const double* kFuncEstimate);
+  double Deviance(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate);
 
   double InitF(const CDataset& kData);
 
-  void FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
-                       unsigned long num_terminalnodes, double* residuals,
+  void FitBestConstant(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate,
+                       unsigned long num_terminalnodes, std::vector<double>& residuals,
                        CCARTTree& tree);
 
-  double BagImprovement(const CDataset& kData, const double* kFuncEstimate,
-                        const double kShrinkage, const double* kDeltaEstimate);
+  double BagImprovement(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate,
+                        const double kShrinkage, const std::vector<double>& kDeltaEstimate);
 
  private:
   //----------------------

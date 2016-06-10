@@ -13,7 +13,7 @@
 //------------------------------
 // Includes
 //------------------------------
-#include "config_structs.h"
+#include "datadistparams.h"
 #include "distribution.h"
 #include "dataset.h"
 #include <map>
@@ -39,7 +39,7 @@ class DistributionFactory {
   // Private Variables
   //-------------------
   typedef CDistribution* (*DistCreate)(DataDistParams&);
-  std::map<std::string, DistCreate> factorymap_;
+  std::multimap<std::string, DistCreate> factorymap_;
 
  public:
   //---------------------

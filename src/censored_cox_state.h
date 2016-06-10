@@ -37,23 +37,24 @@ class CensoredCoxState : public GenericCoxState {
   // Public Functions
   //---------------------
   void ComputeWorkingResponse(const CDataset& kData,
-                              const double* kFuncEstimate, double* residuals) {
+		  	  	  	  	  	  const Bag& kBag,
+                              const double* kFuncEstimate, std::vector<double>& residuals) {
     // Initialize parameters
     std::vector<double> martingale_resid(kData.get_trainsize(), 0.0);
-    LogLikelihood(kData.get_trainsize(), kData, kFuncEstimate,
+    LogLikelihood(kData.get_trainsize(), kData, kBag, kFuncEstimate,
                   &martingale_resid[0], false);
 
     // Fill up response
     for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
-      if (kData.get_bag_element(i)) {
+      if (kBag.get_element(i)) {
         residuals[i] =
             kData.weight_ptr()[i] * martingale_resid[i];  // From chain rule
       }
     }
   }
 
-  void FitBestConstant(const CDataset& kData, const double* kFuncEstimate,
-                       unsigned long num_terminalnodes, double* residuals,
+  void FitBestConstant(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate,
+                       unsigned long num_terminalnodes, std::vector<double>& residuals,
                        CCARTTree& tree) {
     // Calculate the expected number of events and actual number of events in
     // terminal nodes
@@ -62,13 +63,13 @@ class CensoredCoxState : public GenericCoxState {
                                                1.0 / coxph_->PriorCoeffVar());
     std::vector<double> num_events_in_nodes(num_terminalnodes,
                                             1.0 / coxph_->PriorCoeffVar());
-    LogLikelihood(kData.get_trainsize(), kData, kFuncEstimate,
+    LogLikelihood(kData.get_trainsize(), kData, kBag, kFuncEstimate,
                   &martingale_resid[0], false);
 
     for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
-      if (kData.get_bag_element(i) &&
-          (tree.get_terminal_nodes()[tree.get_node_assignments()[i]]
-               ->get_numobs() >= tree.min_num_obs_required())) {
+      if (kBag.get_element(i) &&
+          (tree.get_terminal_nodes()[tree.get_node_assignments()[i]]->get_numobs() >=
+           tree.min_num_obs_required())) {
         // Cap expected number of events to be at least 0
         expnum_events_in_nodes[tree.get_node_assignments()[i]] +=
             max(0.0, coxph_->StatusVec()[i] - martingale_resid[i]);
@@ -86,20 +87,21 @@ class CensoredCoxState : public GenericCoxState {
   }
 
   double Deviance(const long kNumRowsInSet, const CDataset& kData,
+		  	  	  const Bag& kBag,
                   const double* kFuncEstimate) {
     // Initialize Parameters
     double loglik = 0.0;
     std::vector<double> martingale_resid(kNumRowsInSet, 0.0);
 
     // Calculate Deviance - skip bag as pointing at validation set
-    loglik = LogLikelihood(kNumRowsInSet, kData, kFuncEstimate,
+    loglik = LogLikelihood(kNumRowsInSet, kData, kBag, kFuncEstimate,
                            &martingale_resid[0]);
 
     return -loglik;
   }
 
-  double BagImprovement(const CDataset& kData, const double* kFuncEstimate,
-                        const double kShrinkage, const double* kDeltaEstimate) {
+  double BagImprovement(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate,
+                        const double kShrinkage, const std::vector<double>& kDeltaEstimate) {
     // Initialize Parameters
     double loglike_no_adj = 0.0;
     double loglike_with_adj = 0.0;
@@ -109,7 +111,7 @@ class CensoredCoxState : public GenericCoxState {
 
     // Fill up the adjusted and shrunk eta
     for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
-      if (!kData.get_bag_element(i)) {
+      if (!kBag.get_element(i)) {
         eta_adj[i] = kFuncEstimate[i] + kShrinkage * kDeltaEstimate[i];
 
       } else {
@@ -118,10 +120,10 @@ class CensoredCoxState : public GenericCoxState {
     }
 
     // Calculate likelihoods - data not in bags
-    loglike_no_adj = LogLikelihood(kData.get_trainsize(), kData, kFuncEstimate,
+    loglike_no_adj = LogLikelihood(kData.get_trainsize(), kData, kBag, kFuncEstimate,
                                    &martingale_resid_no_adj[0], false, false);
     loglike_with_adj =
-        LogLikelihood(kData.get_trainsize(), kData, &eta_adj[0],
+        LogLikelihood(kData.get_trainsize(), kData, kBag, &eta_adj[0],
                       &martingale_resid_with_adj[0], false, false);
 
     return (loglike_with_adj - loglike_no_adj);
@@ -130,7 +132,7 @@ class CensoredCoxState : public GenericCoxState {
  private:
   CCoxPH* coxph_;
 
-  double LogLikelihood(const int n, const CDataset& kData, const double* eta,
+  double LogLikelihood(const int n, const CDataset& kData, const Bag& kBag, const double* eta,
                        double* resid, bool skipbag = true,
                        bool checkinbag = true) {
     int k, ksave;
@@ -160,7 +162,7 @@ class CensoredCoxState : public GenericCoxState {
 
     for (person = 0; person < n; person++) {
       p2 = coxph_->EndTimeIndices()[person];
-      if (skipbag || (kData.get_bag_element(p2) == checkinbag)) {
+      if (skipbag || (kBag.get_element(p2) == checkinbag)) {
         new_center = eta[coxph_->EndTimeIndices()[p2]] +
                      kData.offset_ptr()[coxph_->EndTimeIndices()[p2]];
         if (new_center > center) {
@@ -174,7 +176,7 @@ class CensoredCoxState : public GenericCoxState {
       p2 = coxph_->EndTimeIndices()[person];
 
       // Check if bagging is required - p2 gives the within strata order
-      if (skipbag || (kData.get_bag_element(p2) == checkinbag)) {
+      if (skipbag || (kBag.get_element(p2) == checkinbag)) {
         if (coxph_->StatusVec()[p2] == 0) {
           /* add the subject to the risk set */
           resid[p2] = exp(eta[p2] + kData.offset_ptr()[p2] - center) * cumhaz;
@@ -194,7 +196,7 @@ class CensoredCoxState : public GenericCoxState {
             p2 = coxph_->EndTimeIndices()[k];
             // Check in loop over stratum that person in stratum has correct bag
             // properties
-            if (skipbag || (kData.get_bag_element(p2) == checkinbag)) {
+            if (skipbag || (kBag.get_element(p2) == checkinbag)) {
               if (kData.y_ptr()[p2] < dtime) {
                 break;  // only tied times
               }
@@ -241,7 +243,7 @@ class CensoredCoxState : public GenericCoxState {
           for (; person < ksave; person++) {
             p2 = coxph_->EndTimeIndices()[person];
             // Check if person in stratum in/out of bag
-            if (skipbag || (kData.get_bag_element(p2) == checkinbag)) {
+            if (skipbag || (kBag.get_element(p2) == checkinbag)) {
               if (coxph_->StatusVec()[p2] == 1)
                 resid[p2] =
                     1 + temp * exp(eta[p2] + kData.offset_ptr()[p2] - center);
@@ -266,7 +268,7 @@ class CensoredCoxState : public GenericCoxState {
             p2 = coxph_->EndTimeIndices()[indx1];
 
             // Check bagging status
-            if (skipbag || (kData.get_bag_element(p2) == checkinbag)) {
+            if (skipbag || (kBag.get_element(p2) == checkinbag)) {
               resid[p2] -=
                   cumhaz * exp(eta[p2] + kData.offset_ptr()[p2] - center);
             }

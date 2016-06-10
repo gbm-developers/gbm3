@@ -17,9 +17,11 @@
 //------------------------------
 // Includes
 //------------------------------
-#include "config_structs.h"
-#include "gbm_datacontainer.h"
+#include "datadistparams.h"
+#include "fitted_learner.h"
+#include "gbm_datadistcontainer.h"
 #include "tree.h"
+#include "treeparams.h"
 #include <memory>
 #include <Rcpp.h>
 #include <vector>
@@ -27,32 +29,22 @@
 //------------------------------
 // Class definition
 //------------------------------
-class CGBM {
+class CGBMEngine {
  public:
   //----------------------
   // Public Constructors
   //----------------------
-  CGBM(ConfigStructs& gbmparams);
+  CGBMEngine(DataDistParams& datadistparams, TreeParams& treeparams);
 
   //---------------------
   // Public destructor
   //---------------------
-  ~CGBM();
+  ~CGBMEngine();
 
   //---------------------
   // Public Functions
   //---------------------
-  void FitLearner(double* func_estimate, double& training_error,
-                  double& validation_error, double& outofbag_improv);
-
-  void GbmTransferTreeToRList(int* splitvar, double* splitvalues,
-                              int* leftnodes, int* rightnodes,
-                              int* missingnodes, double* error_reduction,
-                              double* weights, double* predictions,
-                              VecOfVectorCategories& splitcodes_vec,
-                              int prev_categorical_splits);
-
-  const long size_of_fitted_tree() const { return tree_.size_of_tree(); }
+  FittedLearner* FitLearner(double* func_estimate);
   double initial_function_estimate() {
     return datacontainer_.InitialFunctionEstimate();
   };
@@ -61,8 +53,8 @@ class CGBM {
   //-------------------
   // Private Variables
   //-------------------
-  CGBMDataContainer datacontainer_;
-  CCARTTree tree_;
+  CGBMDataDistContainer datacontainer_;
+  TreeParams& tree_params_;
 
   // Residuals and adjustments to function estimate
   std::vector<double> residuals_;
