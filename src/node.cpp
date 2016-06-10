@@ -20,7 +20,7 @@ CNode::CNode(const NodeDef& kDefn)
       prediction_(kDefn.prediction()),
       totalweight_(kDefn.get_totalweight()),
       numobs_(kDefn.get_num_obs()),
-      leftcategory_(), splitvalue_(0.0) {}
+      leftcategory_(), splitvalue_(0.0), splitdetermined_(false) {}
 
 void CNode::SetStrategy(bool is_continuous_split) {
 

@@ -25,6 +25,35 @@ VarSplitter::VarSplitter(unsigned long min_num_node_obs)
   issplit_ = false;
 }
 
+VarSplitter::VarSplitter(CNode& nodetosplit,
+		unsigned long min_num_node_obs,
+		unsigned long whichvar, unsigned long numvar_classes)
+    : initial_sumresiduals(nodetosplit.get_prediction() * nodetosplit.get_totalweight()),
+      initial_totalweight(nodetosplit.get_totalweight()),
+      initial_numobs(nodetosplit.get_numobs()),
+      proposedsplit_(),
+      group_sumresid_(1024),
+      group_weight_(1024),
+      group_num_obs_(1024),
+      groupMeanAndCat(1024) {
+
+  proposedsplit_.ResetSplitProperties(initial_sumresiduals,
+		  initial_totalweight, initial_numobs,
+	      numvar_classes, whichvar);
+
+  bestsplit_.ResetSplitProperties(initial_sumresiduals, initial_totalweight,
+		  initial_numobs);
+
+  std::fill(group_sumresid_.begin(), group_sumresid_.begin() + numvar_classes,
+            0);
+  std::fill(group_weight_.begin(), group_weight_.begin() + numvar_classes, 0);
+  std::fill(group_num_obs_.begin(), group_num_obs_.begin() + numvar_classes, 0);
+
+  min_num_node_obs_ = min_num_node_obs;
+  last_xvalue_ = -HUGE_VAL;
+  issplit_ = nodetosplit.is_split_determined();
+}
+
 VarSplitter::~VarSplitter() {}
 
 void VarSplitter::IncorporateObs(double xval, double residval, double weight,
@@ -90,29 +119,14 @@ void VarSplitter::EvaluateCategoricalSplit() {
   }
 }
 
-void VarSplitter::Set(CNode& node_to_split) {
+void VarSplitter::Set(CNode& nodetosplit) {
   initial_sumresiduals =
-      node_to_split.get_prediction() * node_to_split.get_totalweight();
-  initial_totalweight = node_to_split.get_totalweight();
-  initial_numobs = node_to_split.get_numobs();
+		  nodetosplit.get_prediction() * nodetosplit.get_totalweight();
+  initial_totalweight = nodetosplit.get_totalweight();
+  initial_numobs = nodetosplit.get_numobs();
 
   bestsplit_.ResetSplitProperties(initial_sumresiduals, initial_totalweight,
-                                  initial_numobs);
-  issplit_ = false;
-}
-
-void VarSplitter::ResetForNewVar(unsigned long whichvar, long numvar_classes) {
-  if (issplit_) return;
-  proposedsplit_.ResetSplitProperties(
-      initial_sumresiduals, initial_totalweight, initial_numobs,
-      proposedsplit_.split_value_, numvar_classes, whichvar);
-
-  std::fill(group_sumresid_.begin(), group_sumresid_.begin() + numvar_classes,
-            0);
-  std::fill(group_weight_.begin(), group_weight_.begin() + numvar_classes, 0);
-  std::fill(group_num_obs_.begin(), group_num_obs_.begin() + numvar_classes, 0);
-
-  last_xvalue_ = -HUGE_VAL;
+                                    initial_numobs);
 }
 
 void VarSplitter::WrapUpCurrentVariable() {

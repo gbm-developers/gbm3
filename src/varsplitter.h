@@ -25,6 +25,8 @@ class VarSplitter {
   // Public Constructors
   //----------------------
   VarSplitter(unsigned long min_num_node_obs);
+  VarSplitter(CNode& nodetosplit, unsigned long min_num_node_obs,
+   		  	  unsigned long whichvar, unsigned long numvar_classes);
 
   //---------------------
   // Public destructor
@@ -39,12 +41,15 @@ class VarSplitter {
   void IncorporateObs(double xval, double residval, double weight,
                       long monotonicity);
   void Set(CNode& nodeToSplit);
-  void ResetForNewVar(unsigned long whichvar, long numvar_classes);
-
-  inline double best_improvement() { return bestsplit_.improvement_; }
-  inline NodeParams best_split() { return bestsplit_; }
+  double best_improvement() const { return bestsplit_.improvement_; }
+  NodeParams best_split() const { return bestsplit_; }
   void SetupNewNodes(CNode& node_to_split) {
     node_to_split.SplitNode(bestsplit_);
+  }
+
+  VarSplitter& operator=(const VarSplitter& rhs) {
+	  bestsplit_ = rhs.bestsplit_;
+	  return *this;
   }
 
   unsigned long SetAndReturnNumGroupMeans() {

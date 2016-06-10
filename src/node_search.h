@@ -37,7 +37,7 @@ class CNodeSearch {
   //----------------------
   // Public Constructors
   //----------------------
-  CNodeSearch(unsigned long treedepth, unsigned long minobs, CNode& rootnode);
+  CNodeSearch(unsigned long treedepth, unsigned long minobs);
 
   //---------------------
   // Public destructor
@@ -67,7 +67,7 @@ class CNodeSearch {
   // Private Variables
   //---------------------
   // Splitters for variable sets
-  std::vector<VarSplitter> variable_splitters_;
+  std::vector<VarSplitter> best_splitters_;
 
   // Number of terminal nodes
   unsigned long num_terminal_nodes_;

@@ -96,7 +96,7 @@ class NodeParams {
   // Public Functions
   //---------------------
   void ResetSplitProperties(double weightedresiduals, double trainingweight,
-                            unsigned long numobs, double splitvalue = -HUGE_VAL,
+                            unsigned long numobs,
                             unsigned long variable_classes = 1,
                             unsigned long splitvar = UINT_MAX);
   void UpdateMissingNode(double predincrement, double trainw_increment,

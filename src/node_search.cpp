@@ -12,10 +12,8 @@
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CNodeSearch::CNodeSearch(unsigned long treedepth, unsigned long minobs,
-                         CNode& rootnode)
-    : variable_splitters_(2 * treedepth + 1, VarSplitter(minobs)) {
-  variable_splitters_[0].Set(rootnode);
+CNodeSearch::CNodeSearch(unsigned long treedepth, unsigned long minobs)
+    : best_splitters_(2 * treedepth + 1, VarSplitter(minobs)) {
   num_terminal_nodes_ = 1;
   min_num_node_obs_ = minobs;
 }
@@ -36,9 +34,11 @@ void CNodeSearch::GenerateAllSplits(vector<CNode* >& term_nodes_ptrs,
     const int kVar = *kIt;
     const int KVarClasses = kData.varclass(kVar);
 
+    std::vector<VarSplitter> variable_splitters;
+    variable_splitters.reserve(num_terminal_nodes_);
     for (unsigned long node_num = 0; node_num < num_terminal_nodes_;
          node_num++) {
-      variable_splitters_[node_num].ResetForNewVar(kVar, KVarClasses);
+    	variable_splitters.push_back(VarSplitter(*term_nodes_ptrs[node_num], min_num_node_obs_, kVar, KVarClasses));
     }
 
     // distribute the observations in order to the correct node search
@@ -48,7 +48,7 @@ void CNodeSearch::GenerateAllSplits(vector<CNode* >& term_nodes_ptrs,
       if (kBag.get_element(kWhichObs)) {
         const int kNode = data_node_assigns[kWhichObs];
         const double kXVal = kData.x_value(kWhichObs, kVar);
-        variable_splitters_[kNode].IncorporateObs(kXVal, residuals[kWhichObs],
+        variable_splitters[kNode].IncorporateObs(kXVal, residuals[kWhichObs],
                                                   kData.weight_ptr()[kWhichObs],
                                                   kData.monotone(kVar));
       }
@@ -58,9 +58,14 @@ void CNodeSearch::GenerateAllSplits(vector<CNode* >& term_nodes_ptrs,
          node_num++) {
       if (KVarClasses != 0)  // evaluate if categorical split
       {
-        variable_splitters_[node_num].EvaluateCategoricalSplit();
+        variable_splitters[node_num].EvaluateCategoricalSplit();
       }
-      variable_splitters_[node_num].WrapUpCurrentVariable();
+      variable_splitters[node_num].WrapUpCurrentVariable();
+
+      if(variable_splitters[node_num].best_improvement() > best_splitters_[node_num].best_improvement()) {
+    	  best_splitters_[node_num] = variable_splitters[node_num];
+      }
+
     }
   }
 }
@@ -72,18 +77,18 @@ double CNodeSearch::CalcImprovementAndSplit(
   unsigned long bestnode = 0;
   double bestnode_improvement = 0.0;
   for (unsigned long node_num = 0; node_num < num_terminal_nodes_; node_num++) {
-    variable_splitters_[node_num].SetToSplit();
-    if (variable_splitters_[node_num].best_improvement() >
+    term_nodes_ptrs[node_num]->SetToSplit();
+    if (best_splitters_[node_num].best_improvement() >
         bestnode_improvement) {
       bestnode = node_num;
-      bestnode_improvement = variable_splitters_[node_num].best_improvement();
+      bestnode_improvement = best_splitters_[node_num].best_improvement();
     }
   }
 
   // Split Node if improvement is non-zero
   if (bestnode_improvement != 0.0) {
     // Split Node
-    variable_splitters_[bestnode].SetupNewNodes(*term_nodes_ptrs[bestnode]);
+    best_splitters_[bestnode].SetupNewNodes(*term_nodes_ptrs[bestnode]);
     num_terminal_nodes_ += 2;
 
     // Move kData to children nodes
@@ -96,11 +101,11 @@ double CNodeSearch::CalcImprovementAndSplit(
         term_nodes_ptrs[bestnode]->missing_child();
     term_nodes_ptrs[bestnode] = term_nodes_ptrs[bestnode]->left_child();
 
-    variable_splitters_[num_terminal_nodes_ - 2].Set(
+    best_splitters_[num_terminal_nodes_ - 2].Set(
         *term_nodes_ptrs[num_terminal_nodes_ - 2]);
-    variable_splitters_[num_terminal_nodes_ - 1].Set(
+    best_splitters_[num_terminal_nodes_ - 1].Set(
         *term_nodes_ptrs[num_terminal_nodes_ - 1]);
-    variable_splitters_[bestnode].Set(*term_nodes_ptrs[bestnode]);
+    best_splitters_[bestnode].Set(*term_nodes_ptrs[bestnode]);
   }
 
   return bestnode_improvement;

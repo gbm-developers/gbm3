@@ -84,6 +84,8 @@ class CNode {
   unsigned long get_numobs() const { return numobs_; }
   std::vector<unsigned long>& get_leftcategory() { return leftcategory_; }
   bool is_terminal() const;
+  void SetToSplit() { splitdetermined_ = true; };
+  bool is_split_determined() const { return splitdetermined_; };
 
  private:
   //---------------------
@@ -114,6 +116,7 @@ class CNode {
   // VARIABLES USED IN NODE SPLITTING
   std::vector<unsigned long> leftcategory_;
   double splitvalue_;
+  bool splitdetermined_;
 };
 
 #endif  // NODE_H
