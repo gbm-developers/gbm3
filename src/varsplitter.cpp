@@ -14,14 +14,14 @@
 //---------------------
 // Public Functions
 //---------------------
-VarSplitter::VarSplitter(unsigned long min_num_node_obs)
+VarSplitter::VarSplitter()
     : bestsplit_(),
       proposedsplit_(),
       group_sumresid_(1024),
       group_weight_(1024),
       group_num_obs_(1024),
       groupMeanAndCat(1024) {
-  min_num_node_obs_ = min_num_node_obs;
+  min_num_node_obs_ = 0;
   issplit_ = false;
 }
 

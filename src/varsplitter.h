@@ -24,7 +24,7 @@ class VarSplitter {
   //----------------------
   // Public Constructors
   //----------------------
-  VarSplitter(unsigned long min_num_node_obs);
+  VarSplitter();
   VarSplitter(CNode& nodetosplit, unsigned long min_num_node_obs,
    		  	  unsigned long whichvar, unsigned long numvar_classes);
 
@@ -43,9 +43,6 @@ class VarSplitter {
   void Set(CNode& nodeToSplit);
   double best_improvement() const { return bestsplit_.improvement_; }
   NodeParams best_split() const { return bestsplit_; }
-  void SetupNewNodes(CNode& node_to_split) {
-    node_to_split.SplitNode(bestsplit_);
-  }
 
   VarSplitter& operator=(const VarSplitter& rhs) {
 	  bestsplit_ = rhs.bestsplit_;

@@ -71,7 +71,7 @@ void CCARTTree::Grow(std::vector<double>& residuals, const CDataset& kData,
     totalnodecount_ += 3;
 
   }  // end tree growing
-  throw gbm_exception::Failure("Here");
+  //throw gbm_exception::Failure("Here");
   // DEBUG
   // Print();
 }

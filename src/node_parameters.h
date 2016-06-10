@@ -111,7 +111,7 @@ class NodeParams {
     left_.increment(predincrement, trainw_increment, numincrement);
     right_.increment(-predincrement, -trainw_increment, -numincrement);
   }
-  inline double get_improvement() { return improvement_; };
+  double get_improvement() { return improvement_; };
   bool split_is_correct_monotonicity(long specify_monotone) {
     return ((specify_monotone == 0) ||
             ((specify_monotone * right_.unweighted_gradient(left_)) > 0));
@@ -134,7 +134,7 @@ class NodeParams {
     return (left_.has_min_obs(min_num_node_obs) &&
             right_.has_min_obs(min_num_node_obs));
   }
-  inline void SetBestCategory(
+  void SetBestCategory(
       std::vector<std::pair<double, int> >& groupmean_and_cat) {
     int count = 0;
     category_ordering_.resize(groupmean_and_cat.size());

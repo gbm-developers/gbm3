@@ -59,7 +59,7 @@ class CNode {
                double& delta_estimate);
 
   void GetVarRelativeInfluence(double* relative_influence);
-  void SplitNode(NodeParams& childrenparams);
+  void SplitNode(const NodeParams& childrenparams);
   void PrintSubtree(unsigned long indent);
   void TransferTreeToRList(int& node_iD, const CDataset& kData, int* splitvar,
                            double* splitvalues, int* leftnodes, int* rightnodes,

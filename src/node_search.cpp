@@ -13,7 +13,7 @@
 // Function Members - Public
 //----------------------------------------
 CNodeSearch::CNodeSearch(unsigned long treedepth, unsigned long minobs)
-    : best_splitters_(2 * treedepth + 1, VarSplitter(minobs)) {
+    : best_splits_(2 * treedepth + 1, VarSplitter()) {
   num_terminal_nodes_ = 1;
   min_num_node_obs_ = minobs;
 }
@@ -62,7 +62,7 @@ void CNodeSearch::GenerateAllSplits(vector<CNode* >& term_nodes_ptrs,
       variable_splitters[node_num].WrapUpCurrentVariable();
     }
 
-    best_splitters_ += variable_splitters;
+    best_splits_ += variable_splitters;
   }
 }
 
@@ -74,17 +74,17 @@ double CNodeSearch::CalcImprovementAndSplit(
   double bestnode_improvement = 0.0;
   for (unsigned long node_num = 0; node_num < num_terminal_nodes_; node_num++) {
     term_nodes_ptrs[node_num]->SetToSplit();
-    if (best_splitters_[node_num].best_improvement() >
+    if (best_splits_[node_num].best_improvement() >
         bestnode_improvement) {
       bestnode = node_num;
-      bestnode_improvement = best_splitters_[node_num].best_improvement();
+      bestnode_improvement = best_splits_[node_num].best_improvement();
     }
   }
 
   // Split Node if improvement is non-zero
   if (bestnode_improvement != 0.0) {
     // Split Node
-    best_splitters_[bestnode].SetupNewNodes(*term_nodes_ptrs[bestnode]);
+	term_nodes_ptrs[bestnode]->SplitNode(best_splits_[bestnode].best_split());
     num_terminal_nodes_ += 2;
 
     // Move kData to children nodes
@@ -97,11 +97,11 @@ double CNodeSearch::CalcImprovementAndSplit(
         term_nodes_ptrs[bestnode]->missing_child();
     term_nodes_ptrs[bestnode] = term_nodes_ptrs[bestnode]->left_child();
 
-    best_splitters_[num_terminal_nodes_ - 2].Set(
+    best_splits_[num_terminal_nodes_ - 2].Set(
         *term_nodes_ptrs[num_terminal_nodes_ - 2]);
-    best_splitters_[num_terminal_nodes_ - 1].Set(
+    best_splits_[num_terminal_nodes_ - 1].Set(
         *term_nodes_ptrs[num_terminal_nodes_ - 1]);
-    best_splitters_[bestnode].Set(*term_nodes_ptrs[bestnode]);
+    best_splits_[bestnode].Set(*term_nodes_ptrs[bestnode]);
   }
 
   return bestnode_improvement;

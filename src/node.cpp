@@ -49,7 +49,7 @@ void CNode::PrintSubtree(unsigned long indent) {
   node_strategy_->PrintSubTree(indent);
 }
 
-void CNode::SplitNode(NodeParams& childrenparams) {
+void CNode::SplitNode(const NodeParams& childrenparams) {
   // set up a continuous split
   if (childrenparams.split_class_ == 0) {
     SetStrategy(true);

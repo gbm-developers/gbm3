@@ -67,7 +67,7 @@ class CNodeSearch {
   // Private Variables
   //---------------------
   // Splitters for variable sets
-   VecVarSplitters best_splitters_;
+   VecVarSplitters best_splits_;
 
   // Number of terminal nodes
   unsigned long num_terminal_nodes_;
