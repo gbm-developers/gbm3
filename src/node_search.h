@@ -23,7 +23,7 @@
 #include "databag.h"
 #include "dataset.h"
 #include "node.h"
-#include "varsplitter.h"
+#include "vec_varsplitters.h"
 #include "node_parameters.h"
 #include <vector>
 
@@ -67,7 +67,7 @@ class CNodeSearch {
   // Private Variables
   //---------------------
   // Splitters for variable sets
-  std::vector<VarSplitter> best_splitters_;
+   VecVarSplitters best_splitters_;
 
   // Number of terminal nodes
   unsigned long num_terminal_nodes_;

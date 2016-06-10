@@ -52,6 +52,13 @@ class VarSplitter {
 	  return *this;
   }
 
+  VarSplitter& operator+=(const VarSplitter& rhs) {
+ 	  if(rhs.best_improvement() > best_improvement()){
+ 		  bestsplit_ = rhs.best_split();
+ 	  }
+ 	  return *this;
+  }
+
   unsigned long SetAndReturnNumGroupMeans() {
     unsigned long num_finite_means = 0;
 

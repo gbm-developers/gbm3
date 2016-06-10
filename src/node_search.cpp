@@ -34,8 +34,7 @@ void CNodeSearch::GenerateAllSplits(vector<CNode* >& term_nodes_ptrs,
     const int kVar = *kIt;
     const int KVarClasses = kData.varclass(kVar);
 
-    std::vector<VarSplitter> variable_splitters;
-    variable_splitters.reserve(num_terminal_nodes_);
+    VecVarSplitters variable_splitters(num_terminal_nodes_);;
     for (unsigned long node_num = 0; node_num < num_terminal_nodes_;
          node_num++) {
     	variable_splitters.push_back(VarSplitter(*term_nodes_ptrs[node_num], min_num_node_obs_, kVar, KVarClasses));
@@ -61,12 +60,9 @@ void CNodeSearch::GenerateAllSplits(vector<CNode* >& term_nodes_ptrs,
         variable_splitters[node_num].EvaluateCategoricalSplit();
       }
       variable_splitters[node_num].WrapUpCurrentVariable();
-
-      if(variable_splitters[node_num].best_improvement() > best_splitters_[node_num].best_improvement()) {
-    	  best_splitters_[node_num] = variable_splitters[node_num];
-      }
-
     }
+
+    best_splitters_ += variable_splitters;
   }
 }
 
