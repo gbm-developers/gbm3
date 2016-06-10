@@ -66,6 +66,11 @@ void CNode::SplitNode(const NodeParams& childrenparams) {
   splitvalue_ = childrenparams.split_value();
   improvement_ = childrenparams.get_improvement();
 
+  // Check that our nodes are defined
+  if(!childrenparams.nodes_have_obs()) {
+	  throw gbm_exception::Failure("Best split has no observations!");
+  }
+
   left_node_ptr_.reset(new CNode(childrenparams.get_left_def()));
   right_node_ptr_.reset(new CNode(childrenparams.get_right_def()));
   missing_node_ptr_.reset(new CNode(childrenparams.get_missing_def()));

@@ -145,6 +145,8 @@ class NodeParams {
     }
   };
   bool has_missing() const { return missing_.has_obs(); };
+  bool nodes_have_obs() const { return left_.has_obs() ||
+		  	  	  	  right_.has_obs() || missing_.has_obs(); };
 
   // Getters
   const NodeDef& get_left_def() const { return left_; };

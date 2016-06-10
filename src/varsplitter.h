@@ -50,6 +50,8 @@ class VarSplitter {
   }
 
   VarSplitter& operator+=(const VarSplitter& rhs) {
+	  // If no split is identified keep everything
+	  // in right node.
  	  if((rhs.best_improvement() > best_improvement())
  			  || (rhs.best_improvement() == 0.0)){
  		  bestsplit_ = rhs.best_split();
