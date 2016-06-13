@@ -53,7 +53,8 @@ class VarSplitter {
 	  // If no split is identified keep everything
 	  // in right node.
  	  if((rhs.best_improvement() > best_improvement())
- 			  || (rhs.best_improvement() == 0.0)){
+ 			  || (fabs(rhs.best_improvement() - best_improvement())
+ 					  <= std::numeric_limits<double>::epsilon())){
  		  bestsplit_ = rhs.best_split();
  	  }
  	  return *this;
