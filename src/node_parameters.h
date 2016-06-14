@@ -158,11 +158,6 @@ class NodeParams {
   bool has_missing() const { return missing_.has_obs(); };
   bool nodes_have_obs() const { return left_.has_obs() ||
 		  	  	  	  right_.has_obs() || missing_.has_obs(); };
-  void print() {
-	  std::cout << "left: " << left_.get_num_obs() << "\n";
-	  std::cout << "right: " << right_.get_num_obs() << "\n";
-	  std::cout << "missing: " << missing_.get_num_obs() << "\n";
-  }
 
   // Getters
   const NodeDef& get_left_def() const { return left_; };
