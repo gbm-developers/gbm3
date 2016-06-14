@@ -13,7 +13,7 @@
 // Function Members - Public
 //----------------------------------------
 CNodeSearch::CNodeSearch(unsigned long treedepth, unsigned long minobs)
-    : best_splits_(2 * treedepth + 1, VarSplitter()) {
+    : best_splits_(2 * treedepth + 1) {
   num_terminal_nodes_ = 1;
   min_num_node_obs_ = minobs;
 }
@@ -35,12 +35,8 @@ void CNodeSearch::GenerateAllSplits(vector<CNode* >& term_nodes_ptrs,
     const int kVar = *kIt;
     const int KVarClasses = kData.varclass(kVar);
 
-    VecVarSplitters variable_splitters(num_terminal_nodes_);
-    for (unsigned long node_num = 0; node_num < num_terminal_nodes_;
-         node_num++) {
-    	variable_splitters.push_back(VarSplitter(*term_nodes_ptrs[node_num],
-    					min_num_node_obs_, kVar, KVarClasses));
-    }
+    VecVarSplitters variable_splitters(num_terminal_nodes_, term_nodes_ptrs,
+    								   min_num_node_obs_, kVar, KVarClasses);
 
     // distribute the observations in order to the correct node search
     for (unsigned long iOrderObs = 0; iOrderObs < kData.get_trainsize();
@@ -68,6 +64,7 @@ void CNodeSearch::GenerateAllSplits(vector<CNode* >& term_nodes_ptrs,
   }
 
   best_splits_ = best_splits_updates;
+
 }
 
 double CNodeSearch::CalcImprovementAndSplit(

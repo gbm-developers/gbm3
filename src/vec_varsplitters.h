@@ -26,8 +26,7 @@ class VecVarSplitters {
   //----------------------
   // Public Constructors
   //----------------------
-  VecVarSplitters() {};
-  VecVarSplitters(unsigned long memory_space) { varsplitters_.reserve(memory_space); };
+  VecVarSplitters(unsigned long memory_space): varsplitters_(memory_space) {};
   VecVarSplitters(unsigned long memory_space, const VarSplitter& varsplitter) :
 	  varsplitters_(memory_space, varsplitter) {};
 
@@ -69,7 +68,7 @@ class VecVarSplitters {
   VecVarSplitters& operator+=(const VecVarSplitters& rhs) {
 	  if(rhs.size() > size()) {
 		  throw gbm_exception::Failure("VecVarSplitters do not"
-				  " have compatibale sizes");
+				  " have compatible sizes");
 	  }
 	  for(unsigned long node_num = 0; node_num < rhs.size(); node_num++) {
 		  varsplitters_[node_num] += rhs.varsplitters_[node_num];
