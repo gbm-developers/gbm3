@@ -86,11 +86,19 @@ class NodeParams {
   // Public Constructors
   //----------------------
   NodeParams() : category_ordering_(1024){};
-
+  NodeParams(double weightedresiduals,
+             double trainingweight,
+             unsigned long numobs,
+             unsigned long variableclasses=1,
+             unsigned long splitvar=UINT_MAX):
+             left_(),
+             right_(NodeDef(weightedresiduals, trainingweight, numobs)),
+             missing_(), split_value_(-HUGE_VAL), split_var_(splitvar),
+             split_class_(variableclasses), improvement_(0.0) {}
   //---------------------
   // Public destructor
   //---------------------
-  ~NodeParams();
+  ~NodeParams() {};
 
   //---------------------
   // Public Functions

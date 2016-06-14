@@ -9,15 +9,12 @@
 // Function Members - Public
 //----------------------------------------
 CCARTTree::CCARTTree(const TreeParams& treeconfig)
-    : rootnode_(),
-      min_num_node_obs_(treeconfig.min_obs_in_node),
+    : min_num_node_obs_(treeconfig.min_obs_in_node),
 	  kTreeDepth_(treeconfig.depth),
       kShrinkage_(treeconfig.shrinkage),
-      error_(0.0), totalnodecount_(1){
-
-  data_node_assignment_.resize(treeconfig.num_trainrows, 0);
-  terminalnode_ptrs_.resize(2 * kTreeDepth_ + 1, NULL);
-}
+      error_(0.0), totalnodecount_(1), rootnode_(),
+      terminalnode_ptrs_(2*kTreeDepth_+1, NULL),
+      data_node_assignment_(treeconfig.num_trainrows, 0){}
 
 //------------------------------------------------------------------------------
 // Grows a regression tree

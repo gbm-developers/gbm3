@@ -31,23 +31,13 @@ VarSplitter::VarSplitter(CNode& nodetosplit,
     : initial_sumresiduals_(nodetosplit.get_prediction() * nodetosplit.get_totalweight()),
       initial_totalweight_(nodetosplit.get_totalweight()),
       initial_numobs_(nodetosplit.get_numobs()),
-      proposedsplit_(),
+      bestsplit_(initial_sumresiduals_, initial_totalweight_, initial_numobs_),
+      proposedsplit_(initial_sumresiduals_, initial_totalweight_, initial_numobs_,
+    		  numvar_classes, whichvar),
       group_sumresid_(1024),
       group_weight_(1024),
       group_num_obs_(1024),
       groupMeanAndCat(1024) {
-
-  proposedsplit_.ResetSplitProperties(initial_sumresiduals_,
-		  initial_totalweight_, initial_numobs_,
-	      numvar_classes, whichvar);
-
-  bestsplit_.ResetSplitProperties(initial_sumresiduals_, initial_totalweight_,
-		  initial_numobs_);
-
-  std::fill(group_sumresid_.begin(), group_sumresid_.begin() + numvar_classes,
-            0);
-  std::fill(group_weight_.begin(), group_weight_.begin() + numvar_classes, 0);
-  std::fill(group_num_obs_.begin(), group_num_obs_.begin() + numvar_classes, 0);
 
   min_num_node_obs_ = min_num_node_obs;
   last_xvalue_ = -HUGE_VAL;

@@ -13,8 +13,6 @@
 //---------------------
 // Public Functions
 //---------------------
-NodeParams::~NodeParams() {}
-
 void NodeParams::ResetSplitProperties(double weightedresiduals,
                                       double trainingweight,
                                       unsigned long numobs,

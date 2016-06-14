@@ -78,15 +78,15 @@ class CCARTTree {
   //---------------------
   // Private Variables
   //---------------------
-  auto_ptr<CNode> rootnode_;
-  vector<CNode*> terminalnode_ptrs_;
-  vector<unsigned long> data_node_assignment_;
-
   unsigned long min_num_node_obs_;
   const long kTreeDepth_;
   const double kShrinkage_;
   double error_;  // total squared error before carrying out the splits
   unsigned long totalnodecount_;
+
+  auto_ptr<CNode> rootnode_;
+  vector<CNode*> terminalnode_ptrs_;
+  vector<unsigned long> data_node_assignment_;
 };
 
 #endif  // TREE_H
