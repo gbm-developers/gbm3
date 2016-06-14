@@ -40,26 +40,7 @@ class VarSplitter {
 
   void IncorporateObs(double xval, double residval, double weight,
                       long monotonicity);
-  void Set(CNode& nodeToSplit);
-  double best_improvement() const { return bestsplit_.get_improvement(); }
   NodeParams best_split() const { return bestsplit_; }
-
-  VarSplitter& operator=(const VarSplitter& rhs) {
-	  bestsplit_ = rhs.bestsplit_;
-	  return *this;
-  }
-
-  VarSplitter& operator+=(const VarSplitter& rhs) {
-	  // If no split is identified keep everything
-	  // in right node.
- 	  if((rhs.best_improvement() > best_improvement())
- 			  || (fabs(rhs.best_improvement() - best_improvement())
- 					  <= std::numeric_limits<double>::epsilon())){
- 		  bestsplit_ = rhs.best_split();
- 	  }
- 	  return *this;
-  }
-
   unsigned long SetAndReturnNumGroupMeans() {
     unsigned long num_finite_means = 0;
 

@@ -98,6 +98,7 @@ class NodeParams {
              right_(NodeDef(weightedresiduals, trainingweight, numobs)),
              missing_(), split_value_(-HUGE_VAL), split_var_(splitvar),
              split_class_(variableclasses), improvement_(0.0) {}
+
   //---------------------
   // Public destructor
   //---------------------
@@ -106,6 +107,17 @@ class NodeParams {
   //---------------------
   // Public Functions
   //---------------------
+  NodeParams& operator+=(const NodeParams& rhs) {
+	  // If no split is identified keep everything
+	  // in right node.
+	  if((rhs.get_improvement() > get_improvement())
+	     || (fabs(rhs.get_improvement() - get_improvement())
+	   			<= std::numeric_limits<double>::epsilon())){
+	   		  *this = rhs;
+	  }
+	   	  return *this;
+  }
+
   void ResetSplitProperties(double weightedresiduals, double trainingweight,
                             unsigned long numobs,
                             unsigned long variable_classes = 1,
@@ -144,6 +156,7 @@ class NodeParams {
     return (left_.has_min_obs(min_num_node_obs) &&
             right_.has_min_obs(min_num_node_obs));
   }
+
   void SetBestCategory(
       std::vector<std::pair<double, int> >& groupmean_and_cat) {
     int count = 0;

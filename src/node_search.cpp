@@ -29,7 +29,7 @@ void CNodeSearch::GenerateAllSplits(vector<CNode* >& term_nodes_ptrs,
   const index_vector::const_iterator kFinalCol =
       kColNumbers.begin() + kData.get_num_features();
 
-  VecVarSplitters best_splits_updates(best_splits_);
+  VecNodeParams best_splits_updates = best_splits_;
   for (index_vector::const_iterator kIt = kColNumbers.begin();
        kIt != kFinalCol; kIt++) {
     const int kVar = *kIt;
@@ -60,7 +60,7 @@ void CNodeSearch::GenerateAllSplits(vector<CNode* >& term_nodes_ptrs,
       variable_splitters[node_num].WrapUpCurrentVariable();
     }
 
-    best_splits_updates += variable_splitters;
+    best_splits_updates += variable_splitters.proposal();
   }
 
   best_splits_ = best_splits_updates;
@@ -75,17 +75,17 @@ double CNodeSearch::CalcImprovementAndSplit(
   double bestnode_improvement = 0.0;
   for (unsigned long node_num = 0; node_num < num_terminal_nodes_; node_num++) {
     term_nodes_ptrs[node_num]->SetToSplit();
-    if (best_splits_[node_num].best_improvement() >
+    if (best_splits_[node_num].get_improvement() >
         bestnode_improvement) {
       bestnode = node_num;
-      bestnode_improvement = best_splits_[node_num].best_improvement();
+      bestnode_improvement = best_splits_[node_num].get_improvement();
     }
   }
 
   // Split Node if improvement is non-zero
   if (bestnode_improvement != 0.0) {
     // Split Node
-	term_nodes_ptrs[bestnode]->SplitNode(best_splits_[bestnode].best_split());
+	term_nodes_ptrs[bestnode]->SplitNode(best_splits_[bestnode]);
     num_terminal_nodes_ += 2;
 
     // Move kData to children nodes
@@ -98,11 +98,21 @@ double CNodeSearch::CalcImprovementAndSplit(
         term_nodes_ptrs[bestnode]->missing_child();
     term_nodes_ptrs[bestnode] = term_nodes_ptrs[bestnode]->left_child();
 
-    best_splits_[num_terminal_nodes_ - 2].Set(
-        *term_nodes_ptrs[num_terminal_nodes_ - 2]);
-    best_splits_[num_terminal_nodes_ - 1].Set(
-        *term_nodes_ptrs[num_terminal_nodes_ - 1]);
-    best_splits_[bestnode].Set(*term_nodes_ptrs[bestnode]);
+    best_splits_[num_terminal_nodes_ - 2].ResetSplitProperties(
+        term_nodes_ptrs[num_terminal_nodes_ - 2]->get_prediction() *
+        term_nodes_ptrs[num_terminal_nodes_ - 2]->get_totalweight(),
+	  	term_nodes_ptrs[num_terminal_nodes_ - 2]->get_totalweight(),
+	  	term_nodes_ptrs[num_terminal_nodes_ - 2]->get_numobs());
+    best_splits_[num_terminal_nodes_ - 1].ResetSplitProperties(
+            term_nodes_ptrs[num_terminal_nodes_ - 1]->get_prediction() *
+            term_nodes_ptrs[num_terminal_nodes_ - 1]->get_totalweight(),
+    	  	term_nodes_ptrs[num_terminal_nodes_ - 1]->get_totalweight(),
+    	  	term_nodes_ptrs[num_terminal_nodes_ - 1]->get_numobs());
+    best_splits_[bestnode].ResetSplitProperties(
+            term_nodes_ptrs[bestnode]->get_prediction() *
+            term_nodes_ptrs[bestnode]->get_totalweight(),
+    	  	term_nodes_ptrs[bestnode]->get_totalweight(),
+    	  	term_nodes_ptrs[bestnode]->get_numobs());
   }
 
   return bestnode_improvement;

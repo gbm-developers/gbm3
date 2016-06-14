@@ -109,16 +109,6 @@ void VarSplitter::EvaluateCategoricalSplit() {
   }
 }
 
-void VarSplitter::Set(CNode& nodetosplit) {
-  initial_sumresiduals_ =
-		  nodetosplit.get_prediction() * nodetosplit.get_totalweight();
-  initial_totalweight_ = nodetosplit.get_totalweight();
-  initial_numobs_ = nodetosplit.get_numobs();
-
-  bestsplit_.ResetSplitProperties(initial_sumresiduals_, initial_totalweight_,
-                                    initial_numobs_);
-}
-
 void VarSplitter::WrapUpCurrentVariable() {
   if (proposedsplit_.split_variable() == bestsplit_.split_variable()) {
     if (proposedsplit_.has_missing()) {

@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  File:    vec_varsplitters.h
 //
-//	Description: header file for class specifying the vector of
+//	Description: header file for class specifying the vector of var splitters
 //
 //  Created on: 10 Jun 2016
 //
@@ -16,6 +16,7 @@
 // Includes
 //------------------------------
 #include "varsplitter.h"
+#include "vec_nodeparams.h"
 #include <Rcpp.h>
 
 //------------------------------
@@ -65,15 +66,15 @@ class VecVarSplitters {
   };
   unsigned long size() const { return varsplitters_.size(); };
   VarSplitter& operator[](unsigned long node_num) { return varsplitters_[node_num]; };
-  VecVarSplitters& operator+=(const VecVarSplitters& rhs) {
-	  if(rhs.size() > size()) {
-		  throw gbm_exception::Failure("VecVarSplitters do not"
-				  " have compatible sizes");
+  VecNodeParams proposal() {
+	  VecNodeParams proposed_splits;
+	  proposed_splits.reserve(varsplitters_.size());
+
+	  for(unsigned long node_num = 0; node_num < varsplitters_.size();
+			  node_num++) {
+		  proposed_splits.push_back(varsplitters_[node_num].best_split());
 	  }
-	  for(unsigned long node_num = 0; node_num < rhs.size(); node_num++) {
-		  varsplitters_[node_num] += rhs.varsplitters_[node_num];
-	  }
-	  return *this;
+	  return proposed_splits;
   }
 
 
