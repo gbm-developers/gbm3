@@ -22,6 +22,7 @@ VarSplitter::VarSplitter()
       group_num_obs_(1024),
       groupMeanAndCat(1024) {
   min_num_node_obs_ = 0;
+  last_xvalue_ = -HUGE_VAL;
   issplit_ = false;
 }
 

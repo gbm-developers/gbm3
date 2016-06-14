@@ -29,12 +29,13 @@ void CNodeSearch::GenerateAllSplits(vector<CNode* >& term_nodes_ptrs,
   const index_vector::const_iterator kFinalCol =
       kColNumbers.begin() + kData.get_num_features();
 
+  VecVarSplitters best_splits_updates(best_splits_);
   for (index_vector::const_iterator kIt = kColNumbers.begin();
        kIt != kFinalCol; kIt++) {
     const int kVar = *kIt;
     const int KVarClasses = kData.varclass(kVar);
 
-    VecVarSplitters variable_splitters(num_terminal_nodes_);;
+    VecVarSplitters variable_splitters(num_terminal_nodes_);
     for (unsigned long node_num = 0; node_num < num_terminal_nodes_;
          node_num++) {
     	variable_splitters.push_back(VarSplitter(*term_nodes_ptrs[node_num],
@@ -63,8 +64,10 @@ void CNodeSearch::GenerateAllSplits(vector<CNode* >& term_nodes_ptrs,
       variable_splitters[node_num].WrapUpCurrentVariable();
     }
 
-    best_splits_ += variable_splitters;
+    best_splits_updates += variable_splitters;
   }
+
+  best_splits_ = best_splits_updates;
 }
 
 double CNodeSearch::CalcImprovementAndSplit(
