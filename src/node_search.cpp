@@ -54,11 +54,7 @@ void CNodeSearch::GenerateAllSplits(vector<CNode* >& term_nodes_ptrs,
 
     for (unsigned long node_num = 0; node_num < num_terminal_nodes_;
          node_num++) {
-      if (KVarClasses != 0)  // evaluate if categorical split
-      {
-        variable_splitters[node_num].EvaluateCategoricalSplit();
-      }
-      variable_splitters[node_num].WrapUpCurrentVariable();
+       variable_splitters[node_num].WrapUpCurrentVariable();
     }
 
     best_splits_updates += variable_splitters.proposal();
