@@ -26,10 +26,10 @@ VarSplitter::VarSplitter(CNode& nodetosplit,
       bestsplit_(initial_sumresiduals_, initial_totalweight_, initial_numobs_),
       proposedsplit_(initial_sumresiduals_, initial_totalweight_, initial_numobs_,
     		  numvar_classes, whichvar),
-      group_sumresid_(1024),
-      group_weight_(1024),
-      group_num_obs_(1024),
-      groupMeanAndCat(1024),
+      group_sumresid_(numvar_classes),
+      group_weight_(numvar_classes),
+      group_num_obs_(numvar_classes),
+      groupMeanAndCat(numvar_classes),
       monotonicity_(monotone) {
 
   min_num_node_obs_ = min_num_node_obs;
