@@ -88,13 +88,16 @@ void VarSplitter::EvaluateCategoricalSplit() {
        i++) {
     proposedsplit_.set_split_value((double)i);
     UpdateLeftNodeWithCat(i);
-    proposedsplit_.SetBestCategory(groupMeanAndCat);
     proposedsplit_.NodeGradResiduals();
 
     if (proposedsplit_.has_min_num_obs(min_num_node_obs_) &&
         (proposedsplit_.get_improvement() > bestsplit_.get_improvement())) {
       bestsplit_ = proposedsplit_;
     }
+  }
+
+  if (num_finite_means > 1) {
+    bestsplit_.SetBestCategory(groupMeanAndCat);
   }
 }
 
