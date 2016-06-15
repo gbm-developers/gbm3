@@ -46,10 +46,7 @@ class categorical_splitter_strategy : public generic_splitter_strategy {
          (num_finite_means > 1) && (1 + ind < num_finite_means); ind++) {
       proposedsplit.set_split_value(ind);
 
-      const NodeDef& weights = group_[groupMeanAndCat[ind].second];
-      proposedsplit.UpdateLeftNode(weights.get_weightresid(),
-                                   weights.get_totalweight(),
-                                   weights.get_num_obs());
+      proposedsplit.UpdateLeftNode(group_[groupMeanAndCat[ind].second]);
       proposedsplit.NodeGradResiduals();
 
       if (proposedsplit.has_min_num_obs(min_num_node_obs_) &&

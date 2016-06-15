@@ -91,15 +91,13 @@ class NodeParams {
     split_value_(-HUGE_VAL), split_var_(0),
     split_class_(0),
     category_ordering_(), improvement_(0.0) {};
-  NodeParams(double weightedresiduals,
-             double trainingweight,
-             unsigned long numobs,
-             unsigned long variableclasses=1,
-             unsigned long splitvar=UINT_MAX):
-             left_(),
-             right_(weightedresiduals, trainingweight, numobs),
-             missing_(), split_value_(-HUGE_VAL), split_var_(splitvar),
-             split_class_(variableclasses), improvement_(0.0) {}
+ NodeParams(const NodeDef& initial,
+	    unsigned long variableclasses=1,
+	    unsigned long splitvar=UINT_MAX):
+   left_(),
+   right_(initial),
+   missing_(), split_value_(-HUGE_VAL), split_var_(splitvar),
+   split_class_(variableclasses), improvement_(0.0) {}
 
   //---------------------
   // Public destructor
@@ -136,6 +134,12 @@ class NodeParams {
     left_.increment(predincrement, trainw_increment, numincrement);
     right_.increment(-predincrement, -trainw_increment, -numincrement);
   }
+  void UpdateLeftNode(const NodeDef& update) {
+    UpdateLeftNode(update.get_weightresid(),
+		   update.get_totalweight(),
+		   update.get_num_obs());
+  }
+  
   bool split_is_correct_monotonicity(long specify_monotone) {
     return ((specify_monotone == 0) ||
             ((specify_monotone * right_.unweighted_gradient(left_)) > 0));

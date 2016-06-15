@@ -30,9 +30,7 @@ class VarSplitter {
 	      long monotone);
   
   VarSplitter(const VarSplitter& rhs) :
-    initial_sumresiduals_(rhs.initial_sumresiduals_),
-    initial_totalweight_(rhs.initial_totalweight_),
-    initial_numobs_(rhs.initial_numobs_),
+    initial_(rhs.initial_),
     bestsplit_(rhs.bestsplit_),
     proposedsplit_(rhs.proposedsplit_) {
     splitter_.reset(rhs.splitter_->clone());
@@ -42,9 +40,7 @@ class VarSplitter {
     if (this == &rhs) {
       return *this;
     }
-    initial_sumresiduals_ = rhs.initial_sumresiduals_;
-    initial_totalweight_ = rhs.initial_totalweight_;
-    initial_numobs_ = rhs.initial_numobs_;
+    initial_ = rhs.initial_;
     bestsplit_ = rhs.bestsplit_;
     proposedsplit_ = rhs.proposedsplit_;
     splitter_.reset(rhs.splitter_->clone());
@@ -63,10 +59,8 @@ class VarSplitter {
   //---------------------
   // Private Variables
   //---------------------
-  double initial_sumresiduals_;
-  double initial_totalweight_;
-  unsigned long initial_numobs_;
-
+  NodeDef initial_;
+  
   NodeParams bestsplit_, proposedsplit_;
   std::auto_ptr<generic_splitter_strategy> splitter_;
 };

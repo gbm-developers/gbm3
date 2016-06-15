@@ -21,13 +21,9 @@ VarSplitter::VarSplitter(CNode& nodetosplit,
 			 unsigned long whichvar,
 			 unsigned long numvar_classes,
 			 long monotone)
-    : initial_sumresiduals_(nodetosplit.get_prediction() * nodetosplit.get_totalweight()),
-      initial_totalweight_(nodetosplit.get_totalweight()),
-      initial_numobs_(nodetosplit.get_numobs()),
-      bestsplit_(initial_sumresiduals_, initial_totalweight_, initial_numobs_),
-      proposedsplit_(initial_sumresiduals_, initial_totalweight_,
-		     initial_numobs_,
-		     numvar_classes, whichvar) {
+  : initial_(nodetosplit.as_node_def()),
+    bestsplit_(initial_),
+    proposedsplit_(initial_, numvar_classes, whichvar) {
 
   if (nodetosplit.is_split_determined()) {
     splitter_.reset(new presplit_splitter_strategy());
@@ -57,8 +53,9 @@ void VarSplitter::WrapUpCurrentVariable() {
       bestsplit_.set_missing_def(proposedsplit_.get_missing_def());
     } else  // DEBUG: consider a weighted average with parent node?
     {
-      bestsplit_.set_missing_def(
-          NodeDef(initial_sumresiduals_, initial_totalweight_, 0));
+      bestsplit_.set_missing_def(NodeDef(initial_.get_weightresid(),
+					 initial_.get_totalweight(),
+					 0));
     }
   }
 }
