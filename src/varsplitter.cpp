@@ -27,8 +27,10 @@ VarSplitter::VarSplitter()
 }
 
 VarSplitter::VarSplitter(CNode& nodetosplit,
-		unsigned long min_num_node_obs,
-		unsigned long whichvar, unsigned long numvar_classes)
+			 unsigned long min_num_node_obs,
+			 unsigned long whichvar,
+			 unsigned long numvar_classes,
+			 long monotone)
     : initial_sumresiduals_(nodetosplit.get_prediction() * nodetosplit.get_totalweight()),
       initial_totalweight_(nodetosplit.get_totalweight()),
       initial_numobs_(nodetosplit.get_numobs()),
@@ -38,7 +40,8 @@ VarSplitter::VarSplitter(CNode& nodetosplit,
       group_sumresid_(1024),
       group_weight_(1024),
       group_num_obs_(1024),
-      groupMeanAndCat(1024) {
+      groupMeanAndCat(1024),
+      monotonicity_(monotone) {
 
   min_num_node_obs_ = min_num_node_obs;
   last_xvalue_ = -HUGE_VAL;
@@ -47,8 +50,7 @@ VarSplitter::VarSplitter(CNode& nodetosplit,
 
 VarSplitter::~VarSplitter() {}
 
-void VarSplitter::IncorporateObs(double xval, double residval, double weight,
-                                 long monotonicity) {
+void VarSplitter::IncorporateObs(double xval, double residval, double weight) {
   if (issplit_) return;
   if (ISNA(xval)) {
     proposedsplit_.UpdateMissingNode(weight * residval, weight);
@@ -68,7 +70,7 @@ void VarSplitter::IncorporateObs(double xval, double residval, double weight,
 
     if ((last_xvalue_ != xval) &&
         proposedsplit_.has_min_num_obs(min_num_node_obs_) &&
-        proposedsplit_.split_is_correct_monotonicity(monotonicity)) {
+        proposedsplit_.split_is_correct_monotonicity(monotonicity_)) {
       proposedsplit_.NodeGradResiduals();
       if (proposedsplit_.get_improvement() > bestsplit_.get_improvement()) {
         bestsplit_ = proposedsplit_;

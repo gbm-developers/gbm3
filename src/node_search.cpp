@@ -36,7 +36,9 @@ void CNodeSearch::GenerateAllSplits(vector<CNode* >& term_nodes_ptrs,
     const int KVarClasses = kData.varclass(kVar);
 
     VecVarSplitters variable_splitters(num_terminal_nodes_, term_nodes_ptrs,
-    								   min_num_node_obs_, kVar, KVarClasses);
+				       min_num_node_obs_,
+				       kVar, KVarClasses,
+				       kData.monotone(kVar));
 
     // distribute the observations in order to the correct node search
     for (unsigned long iOrderObs = 0; iOrderObs < kData.get_trainsize();
@@ -46,8 +48,7 @@ void CNodeSearch::GenerateAllSplits(vector<CNode* >& term_nodes_ptrs,
         const int kNode = data_node_assigns[kWhichObs];
         const double kXVal = kData.x_value(kWhichObs, kVar);
         variable_splitters[kNode].IncorporateObs(kXVal, residuals[kWhichObs],
-                                                  kData.weight_ptr()[kWhichObs],
-                                                  kData.monotone(kVar));
+                                                  kData.weight_ptr()[kWhichObs]);
       }
     }
 

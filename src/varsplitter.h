@@ -26,7 +26,8 @@ class VarSplitter {
   //----------------------
   VarSplitter();
   VarSplitter(CNode& nodetosplit, unsigned long min_num_node_obs,
-   		  	  unsigned long whichvar, unsigned long numvar_classes);
+	      unsigned long whichvar, unsigned long numvar_classes,
+	      long monotone);
 
   //---------------------
   // Public destructor
@@ -38,8 +39,7 @@ class VarSplitter {
   //---------------------
   void SetToSplit() { issplit_ = true; };
 
-  void IncorporateObs(double xval, double residval, double weight,
-                      long monotonicity);
+  void IncorporateObs(double xval, double residval, double weight);
   NodeParams best_split() const { return bestsplit_; }
   unsigned long SetAndReturnNumGroupMeans() {
     unsigned long num_finite_means = 0;
@@ -88,6 +88,7 @@ class VarSplitter {
 
   bool issplit_;
   unsigned long min_num_node_obs_;
+  long monotonicity_;
   double last_xvalue_;
   NodeParams bestsplit_, proposedsplit_;
   std::vector<double> group_sumresid_;

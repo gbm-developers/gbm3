@@ -27,27 +27,30 @@ class VecVarSplitters {
   //----------------------
   // Public Constructors
   //----------------------
-  VecVarSplitters(unsigned long memory_space): varsplitters_(memory_space) {};
-  VecVarSplitters(unsigned long memory_space, const VarSplitter& varsplitter) :
-	  varsplitters_(memory_space, varsplitter) {};
-
+ VecVarSplitters(unsigned long memory_space): varsplitters_(memory_space) {};
+ VecVarSplitters(unsigned long memory_space, const VarSplitter& varsplitter) :
+  varsplitters_(memory_space, varsplitter) {};
+  
   VecVarSplitters(unsigned long memory_space,
-		  	  	  const std::vector<CNode*>& kVecTermNodePtrs,
-		  	  	  const unsigned long kMinNumNodeObs,
-		  	  	  const unsigned long kVarNum, const unsigned long kVarClasses) {
-	  varsplitters_.reserve(memory_space);
-	  for (unsigned long node_num = 0; node_num < memory_space;
-	          node_num++) {
-	     	varsplitters_.push_back(VarSplitter(*kVecTermNodePtrs[node_num],
-	     					kMinNumNodeObs, kVarNum, kVarClasses));
-	   }
+		  const std::vector<CNode*>& kVecTermNodePtrs,
+		  const unsigned long kMinNumNodeObs,
+		  const unsigned long kVarNum,
+		  const unsigned long kVarClasses,
+		  long monotone) {
+    varsplitters_.reserve(memory_space);
+    for (unsigned long node_num = 0; node_num < memory_space;
+	 node_num++) {
+      varsplitters_.push_back(VarSplitter(*kVecTermNodePtrs[node_num],
+					  kMinNumNodeObs,
+					  kVarNum, kVarClasses, monotone));
+    }
   }
 
   VecVarSplitters(const VecVarSplitters& rhs) {
-	  varsplitters_.reserve(rhs.size());
-	  for(unsigned long node_num = 0; node_num < rhs.size(); node_num++) {
-		  varsplitters_.push_back(rhs.varsplitters_[node_num]);
-	  }
+    varsplitters_.reserve(rhs.size());
+    for(unsigned long node_num = 0; node_num < rhs.size(); node_num++) {
+      varsplitters_.push_back(rhs.varsplitters_[node_num]);
+    }
   }
 
   //---------------------
