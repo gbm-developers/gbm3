@@ -14,17 +14,6 @@
 //---------------------
 // Public Functions
 //---------------------
-VarSplitter::VarSplitter()
-    : bestsplit_(),
-      proposedsplit_(),
-      group_sumresid_(1024),
-      group_weight_(1024),
-      group_num_obs_(1024),
-      groupMeanAndCat(1024) {
-  min_num_node_obs_ = 0;
-  last_xvalue_ = -HUGE_VAL;
-  issplit_ = false;
-}
 
 VarSplitter::VarSplitter(CNode& nodetosplit,
 			 unsigned long min_num_node_obs,
@@ -47,8 +36,6 @@ VarSplitter::VarSplitter(CNode& nodetosplit,
   last_xvalue_ = -HUGE_VAL;
   issplit_ = nodetosplit.is_split_determined();
 }
-
-VarSplitter::~VarSplitter() {}
 
 void VarSplitter::IncorporateObs(double xval, double residval, double weight) {
   if (issplit_) return;

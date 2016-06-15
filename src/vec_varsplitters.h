@@ -27,10 +27,6 @@ class VecVarSplitters {
   //----------------------
   // Public Constructors
   //----------------------
- VecVarSplitters(unsigned long memory_space): varsplitters_(memory_space) {};
- VecVarSplitters(unsigned long memory_space, const VarSplitter& varsplitter) :
-  varsplitters_(memory_space, varsplitter) {};
-  
   VecVarSplitters(unsigned long memory_space,
 		  const std::vector<CNode*>& kVecTermNodePtrs,
 		  const unsigned long kMinNumNodeObs,

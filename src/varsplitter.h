@@ -24,16 +24,9 @@ class VarSplitter {
   //----------------------
   // Public Constructors
   //----------------------
-  VarSplitter();
   VarSplitter(CNode& nodetosplit, unsigned long min_num_node_obs,
 	      unsigned long whichvar, unsigned long numvar_classes,
 	      long monotone);
-
-  //---------------------
-  // Public destructor
-  //---------------------
-  ~VarSplitter();
-
   //---------------------
   // Public Functions
   //---------------------
