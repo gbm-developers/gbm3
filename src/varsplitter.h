@@ -49,7 +49,7 @@ class VarSplitter {
     }
 
     std::sort(groupMeanAndCat.begin(),
-              groupMeanAndCat.begin() + proposedsplit_.split_class());
+              groupMeanAndCat.end());
 
     return num_finite_means;
   }
