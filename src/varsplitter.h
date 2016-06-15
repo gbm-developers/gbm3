@@ -40,8 +40,8 @@ class VarSplitter {
     for (unsigned long i = 0; i < proposedsplit_.split_class(); i++) {
       groupMeanAndCat[i].second = i;
 
-      if (group_weight_[i] != 0.0) {
-        groupMeanAndCat[i].first = group_sumresid_[i] / group_weight_[i];
+      if (group_[i].get_totalweight() != 0.0) {
+        groupMeanAndCat[i].first = group_[i].prediction();
         num_finite_means++;
       } else {
         groupMeanAndCat[i].first = HUGE_VAL;
@@ -56,16 +56,14 @@ class VarSplitter {
 
   void IncrementCategories(unsigned long cat, double pred_increment,
                            double trainw_increment) {
-    group_sumresid_[cat] += pred_increment;
-    group_weight_[cat] += trainw_increment;
-    group_num_obs_[cat]++;
+    group_[cat].increment(pred_increment, trainw_increment, 1);
   }
 
   void UpdateLeftNodeWithCat(long cat_index) {
-    proposedsplit_.UpdateLeftNode(
-        group_sumresid_[groupMeanAndCat[cat_index].second],
-        group_weight_[groupMeanAndCat[cat_index].second],
-        group_num_obs_[groupMeanAndCat[cat_index].second]);
+    const NodeDef& def = group_[groupMeanAndCat[cat_index].second];
+    proposedsplit_.UpdateLeftNode(def.get_weightresid(),
+				  def.get_totalweight(),
+				  def.get_num_obs());
   }
 
   void EvaluateCategoricalSplit();
@@ -84,9 +82,7 @@ class VarSplitter {
   long monotonicity_;
   double last_xvalue_;
   NodeParams bestsplit_, proposedsplit_;
-  std::vector<double> group_sumresid_;
-  std::vector<double> group_weight_;
-  std::vector<unsigned long> group_num_obs_;
+  std::vector<NodeDef> group_;
 
   // Splitting arrays for Categorical variable
   std::vector<std::pair<double, int> > groupMeanAndCat;

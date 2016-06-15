@@ -26,9 +26,7 @@ VarSplitter::VarSplitter(CNode& nodetosplit,
       bestsplit_(initial_sumresiduals_, initial_totalweight_, initial_numobs_),
       proposedsplit_(initial_sumresiduals_, initial_totalweight_, initial_numobs_,
     		  numvar_classes, whichvar),
-      group_sumresid_(numvar_classes),
-      group_weight_(numvar_classes),
-      group_num_obs_(numvar_classes),
+      group_(numvar_classes),
       groupMeanAndCat(numvar_classes),
       monotonicity_(monotone) {
 

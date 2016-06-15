@@ -67,6 +67,8 @@ struct NodeDef {
     return totalweight_ + kNodeOne.sum_weights(kNodeTwo);
   }
 
+  double get_weightresid() const { return weightresid_; }
+              
   double get_totalweight() const { return totalweight_; }
 
   long get_num_obs() const { return numobs_; }
