@@ -48,9 +48,8 @@ class CNodeSearch {
   //---------------------
   // Public Functions
   //---------------------
-  void GenerateAllSplits(vector<CNode* >& term_nodes_ptrs, const CDataset& kData,
-		  	  	  	  	 const Bag& kBag,
-                         double* residuals,
+  void GenerateAllSplits(vector<CNode*>& term_nodes_ptrs, const CDataset& kData,
+                         const Bag& kBag, double* residuals,
                          vector<unsigned long>& data_node_assigns);
   double CalcImprovementAndSplit(vector<CNode*>& term_nodes_ptrs,
                                  const CDataset& kData,

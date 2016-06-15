@@ -8,7 +8,6 @@
 //  Author: jhickey
 //------------------------------------------------------------------------------
 
-
 #ifndef VEC_NODEPARAMS_H_
 #define VEC_NODEPARAMS_H_
 
@@ -25,36 +24,43 @@ class VecNodeParams {
   //----------------------
   // Public Constructors
   //----------------------
-  VecNodeParams() {};
-  VecNodeParams(unsigned long memory_space): nodeparams_(memory_space) {};
+  VecNodeParams(){};
+  VecNodeParams(unsigned long memory_space) : nodeparams_(memory_space){};
   VecNodeParams(const VecNodeParams& rhs) {
- 	  nodeparams_.reserve(rhs.size());
- 	  for(unsigned long node_num = 0; node_num < rhs.size(); node_num++) {
- 		  nodeparams_.push_back(rhs.nodeparams_[node_num]);
- 	  }
-   }
+    nodeparams_.reserve(rhs.size());
+    for (unsigned long node_num = 0; node_num < rhs.size(); node_num++) {
+      nodeparams_.push_back(rhs.nodeparams_[node_num]);
+    }
+  }
 
   //---------------------
   // Public destructor
   //---------------------
-  ~VecNodeParams() {};
+  ~VecNodeParams(){};
 
   //---------------------
   // Public Functions
   //---------------------
   unsigned long size() const { return nodeparams_.size(); };
-  void reserve(unsigned long memory_space) { nodeparams_.reserve(memory_space); };
-  void push_back(const NodeParams& nodeparams) { nodeparams_.push_back(nodeparams); };
-  NodeParams& operator[](unsigned long node_num) { return nodeparams_[node_num]; };
+  void reserve(unsigned long memory_space) {
+    nodeparams_.reserve(memory_space);
+  };
+  void push_back(const NodeParams& nodeparams) {
+    nodeparams_.push_back(nodeparams);
+  };
+  NodeParams& operator[](unsigned long node_num) {
+    return nodeparams_[node_num];
+  };
   VecNodeParams& operator+=(const VecNodeParams& rhs) {
-	  if(rhs.size() > size()) {
-		  throw gbm_exception::Failure("VecNodeParams do not"
-				  " have compatible sizes");
-	  }
-	  for(unsigned long node_num = 0; node_num < rhs.size(); node_num++) {
-		  nodeparams_[node_num] += rhs.nodeparams_[node_num];
-	  }
-	  return *this;
+    if (rhs.size() > size()) {
+      throw gbm_exception::Failure(
+          "VecNodeParams do not"
+          " have compatible sizes");
+    }
+    for (unsigned long node_num = 0; node_num < rhs.size(); node_num++) {
+      nodeparams_[node_num] += rhs.nodeparams_[node_num];
+    }
+    return *this;
   }
 
  private:

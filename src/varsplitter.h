@@ -26,16 +26,16 @@ class VarSplitter {
   // Public Constructors
   //----------------------
   VarSplitter(CNode& nodetosplit, unsigned long min_num_node_obs,
-	      unsigned long whichvar, unsigned long numvar_classes,
-	      long monotone);
-  
-  VarSplitter(const VarSplitter& rhs) :
-    initial_(rhs.initial_),
-    bestsplit_(rhs.bestsplit_),
-    proposedsplit_(rhs.proposedsplit_) {
+              unsigned long whichvar, unsigned long numvar_classes,
+              long monotone);
+
+  VarSplitter(const VarSplitter& rhs)
+      : initial_(rhs.initial_),
+        bestsplit_(rhs.bestsplit_),
+        proposedsplit_(rhs.proposedsplit_) {
     splitter_.reset(rhs.splitter_->clone());
   }
-  
+
   VarSplitter& operator=(const VarSplitter& rhs) {
     if (this == &rhs) {
       return *this;
@@ -46,7 +46,7 @@ class VarSplitter {
     splitter_.reset(rhs.splitter_->clone());
     return *this;
   };
-  
+
   //---------------------
   // Public Functions
   //---------------------
@@ -55,12 +55,13 @@ class VarSplitter {
   void WrapUpCurrentVariable();
 
   const NodeParams& best_split() const { return bestsplit_; };
+
  private:
   //---------------------
   // Private Variables
   //---------------------
   NodeDef initial_;
-  
+
   NodeParams bestsplit_, proposedsplit_;
   std::auto_ptr<generic_splitter_strategy> splitter_;
 };

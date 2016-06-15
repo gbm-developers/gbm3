@@ -54,7 +54,6 @@ CDataset::CDataset(const DataDistParams& dataparams)
   num_features_ = dataparams.num_features;
   point_at_trainingset_ = true;
 
-
   // Ensure initialization makes sense
   if (num_traindata_ <= 0) {
     throw gbm_exception::InvalidArgument("you've <= 0 training instances");

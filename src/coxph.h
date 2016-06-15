@@ -37,25 +37,28 @@ class CCoxPH : public CDistribution {
   //---------------------
   // Public destructor
   //---------------------
-  ~CCoxPH() {};
+  ~CCoxPH(){};
 
   //---------------------
   // Public Functions
   //---------------------
-  void ComputeWorkingResponse(const CDataset& kData,
-		  	  	  	  	  	  const Bag& kBag,
-                              const double* kFuncEstimate, std::vector<double>& residuals);
+  void ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
+                              const double* kFuncEstimate,
+                              std::vector<double>& residuals);
 
   double InitF(const CDataset& kData);
 
-  void FitBestConstant(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate,
-                       unsigned long num_terminalnodes, std::vector<double>& residuals,
-                       CCARTTree& tree);
+  void FitBestConstant(const CDataset& kData, const Bag& kBag,
+                       const double* kFuncEstimate,
+                       unsigned long num_terminalnodes,
+                       std::vector<double>& residuals, CCARTTree& tree);
 
-  double Deviance(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate);
+  double Deviance(const CDataset& kData, const Bag& kBag,
+                  const double* kFuncEstimate);
 
-  double BagImprovement(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate,
-                        const double kShrinkage, const std::vector<double>& kDeltaEstimate);
+  double BagImprovement(const CDataset& kData, const Bag& kBag,
+                        const double* kFuncEstimate, const double kShrinkage,
+                        const std::vector<double>& kDeltaEstimate);
   void ShiftDistPtrs(unsigned long shift) {
     status_ = shift_ptr(status_, shift);
     sortedendtimes_ = shift_ptr(sortedendtimes_, shift);
@@ -86,14 +89,14 @@ class CCoxPH : public CDistribution {
   CCoxPH(double* stats, int* sorted_end, int* sorted_start, int* strats,
          bool is_startstop, int tiesmethod, double priorcoeff);
 
-/*  //----------------------
-  // Private Functions
-  //----------------------
-  double LogLikelihood(const int n, const CDataset& kData,  const double* eta,
-                       double* resid);
+  /*  //----------------------
+    // Private Functions
+    //----------------------
+    double LogLikelihood(const int n, const CDataset& kData,  const double* eta,
+                         double* resid);
 
-  double LogLikelihoodTiedTimes(const int n, const CDataset& kData,
-                                const double* eta, double* resid);*/
+    double LogLikelihoodTiedTimes(const int n, const CDataset& kData,
+                                  const double* eta, double* resid);*/
 
   //-------------------
   // Private Variables

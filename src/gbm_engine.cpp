@@ -3,8 +3,7 @@
 #include <algorithm>
 #include "gbm_engine.h"
 
-CGBMEngine::CGBMEngine(DataDistParams& datadistparams,
-		TreeParams& treeparams)
+CGBMEngine::CGBMEngine(DataDistParams& datadistparams, TreeParams& treeparams)
     : datacontainer_(datadistparams),
       tree_params_(treeparams),
       residuals_(datacontainer_.get_data().nrow(), 0) {}
@@ -12,7 +11,6 @@ CGBMEngine::CGBMEngine(DataDistParams& datadistparams,
 CGBMEngine::~CGBMEngine() {}
 
 FittedLearner* CGBMEngine::FitLearner(double* func_estimate) {
-
   // Initialize adjustments to function estimate
   std::vector<double> delta_estimates(datacontainer_.get_data().nrow(), 0);
 
@@ -24,8 +22,8 @@ FittedLearner* CGBMEngine::FitLearner(double* func_estimate) {
 
   // Compute Residuals and fit tree
   datacontainer_.ComputeResiduals(&func_estimate[0], residuals_);
-  tree->Grow(residuals_, datacontainer_.get_data(),
-		  datacontainer_.get_bag(), delta_estimates);
+  tree->Grow(residuals_, datacontainer_.get_data(), datacontainer_.get_bag(),
+             delta_estimates);
 
   // Now I have adF, adZ, and vecpTermNodes (new node assignments)
   // Fit the best constant within each terminal node
@@ -59,7 +57,7 @@ FittedLearner* CGBMEngine::FitLearner(double* func_estimate) {
   }
 
   double valid_error = datacontainer_.ComputeDeviance(&func_estimate[0], true);
-  std::auto_ptr<FittedLearner> fit(new FittedLearner(tree, datacontainer_.get_data(),
-		  	  	  	  train_error, valid_error, oobag_improv));
+  std::auto_ptr<FittedLearner> fit(new FittedLearner(
+      tree, datacontainer_.get_data(), train_error, valid_error, oobag_improv));
   return fit.release();
 }

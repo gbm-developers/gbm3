@@ -32,8 +32,7 @@ CDistribution* CTDist::Create(DataDistParams& distparams) {
 
 CTDist::~CTDist() {}
 
-void CTDist::ComputeWorkingResponse(const CDataset& kData,
-									const Bag& kBag,
+void CTDist::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
                                     const double* kFuncEstimate,
                                     std::vector<double>& residuals) {
   unsigned long i = 0;
@@ -58,7 +57,8 @@ double CTDist::InitF(const CDataset& kData) {
                            0.5);
 }
 
-double CTDist::Deviance(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate) {
+double CTDist::Deviance(const CDataset& kData, const Bag& kBag,
+                        const double* kFuncEstimate) {
   unsigned long i = 0;
   double loss = 0.0;
   double weight = 0.0;
@@ -83,9 +83,10 @@ double CTDist::Deviance(const CDataset& kData, const Bag& kBag, const double* kF
   return loss / weight;
 }
 
-void CTDist::FitBestConstant(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate,
-                             unsigned long num_terminalnodes, std::vector<double>& residuals,
-                             CCARTTree& tree) {
+void CTDist::FitBestConstant(const CDataset& kData, const Bag& kBag,
+                             const double* kFuncEstimate,
+                             unsigned long num_terminalnodes,
+                             std::vector<double>& residuals, CCARTTree& tree) {
   // Local variables
   unsigned long node_num = 0;
   unsigned long obs_num = 0;
@@ -114,8 +115,7 @@ void CTDist::FitBestConstant(const CDataset& kData, const Bag& kBag, const doubl
   }
 }
 
-double CTDist::BagImprovement(const CDataset& kData,
-							  const Bag& kBag,
+double CTDist::BagImprovement(const CDataset& kData, const Bag& kBag,
                               const double* kFuncEstimate,
                               const double kShrinkage,
                               const std::vector<double>& kDeltaEstimate) {

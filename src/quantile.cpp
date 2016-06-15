@@ -31,8 +31,7 @@ CDistribution* CQuantile::Create(DataDistParams& distparams) {
 
 CQuantile::~CQuantile() {}
 
-void CQuantile::ComputeWorkingResponse(const CDataset& kData,
-									   const Bag& kBag,
+void CQuantile::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
                                        const double* kFuncEstimate,
                                        std::vector<double>& residuals) {
   unsigned long i = 0;
@@ -55,7 +54,8 @@ double CQuantile::InitF(const CDataset& kData) {
                                   kData.weight_ptr(), alpha_);
 }
 
-double CQuantile::Deviance(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate) {
+double CQuantile::Deviance(const CDataset& kData, const Bag& kBag,
+                           const double* kFuncEstimate) {
   unsigned long i = 0;
   double loss = 0.0;
   double weight = 0.0;
@@ -83,11 +83,11 @@ double CQuantile::Deviance(const CDataset& kData, const Bag& kBag, const double*
   return loss / weight;
 }
 
-void CQuantile::FitBestConstant(const CDataset& kData,
-								const Bag& kBag,
+void CQuantile::FitBestConstant(const CDataset& kData, const Bag& kBag,
                                 const double* kFuncEstimate,
                                 unsigned long num_terminalnodes,
-                                std::vector<double>& residuals, CCARTTree& tree) {
+                                std::vector<double>& residuals,
+                                CCARTTree& tree) {
   unsigned long node_num = 0;
   unsigned long obs_num = 0;
   unsigned long vec_num = 0;
@@ -119,8 +119,7 @@ void CQuantile::FitBestConstant(const CDataset& kData,
   }
 }
 
-double CQuantile::BagImprovement(const CDataset& kData,
-								 const Bag& kBag,
+double CQuantile::BagImprovement(const CDataset& kData, const Bag& kBag,
                                  const double* kFuncEstimate,
                                  const double kShrinkage,
                                  const std::vector<double>& kDeltaEstimate) {

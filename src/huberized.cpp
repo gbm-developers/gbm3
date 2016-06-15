@@ -26,8 +26,7 @@ CDistribution* CHuberized::Create(DataDistParams& distparams) {
 
 CHuberized::~CHuberized() {}
 
-void CHuberized::ComputeWorkingResponse(const CDataset& kData,
-										const Bag& kBag,
+void CHuberized::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
                                         const double* kFuncEstimate,
                                         std::vector<double>& residuals) {
   unsigned long i = 0;
@@ -62,8 +61,7 @@ double CHuberized::InitF(const CDataset& kData) {
   return numerator / denominator;
 }
 
-double CHuberized::Deviance(const CDataset& kData,
-							const Bag& kBag,
+double CHuberized::Deviance(const CDataset& kData, const Bag& kBag,
                             const double* kFuncEstimate) {
   unsigned long i = 0;
   double loss = 0.0;
@@ -99,11 +97,11 @@ double CHuberized::Deviance(const CDataset& kData,
   return loss / weights;
 }
 
-void CHuberized::FitBestConstant(const CDataset& kData,
-								 const Bag& kBag,
+void CHuberized::FitBestConstant(const CDataset& kData, const Bag& kBag,
                                  const double* kFuncEstimate,
                                  unsigned long num_terminalnodes,
-                                 std::vector<double>& residuals, CCARTTree& tree) {
+                                 std::vector<double>& residuals,
+                                 CCARTTree& tree) {
   double delta_func_est = 0.0;
   unsigned long obs_num = 0;
   unsigned long node_num = 0;
@@ -148,8 +146,7 @@ void CHuberized::FitBestConstant(const CDataset& kData,
   }
 }
 
-double CHuberized::BagImprovement(const CDataset& kData,
-								  const Bag& kBag,
+double CHuberized::BagImprovement(const CDataset& kData, const Bag& kBag,
                                   const double* kFuncEstimate,
                                   const double kShrinkage,
                                   const std::vector<double>& kDeltaEstimate) {

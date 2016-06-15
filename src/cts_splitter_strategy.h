@@ -5,10 +5,10 @@
 
 class cts_splitter_strategy : public generic_splitter_strategy {
  public:
- cts_splitter_strategy(unsigned long min_num_node_obs,
-		       long monotonicity)
-   : last_xvalue_(-HUGE_VAL), min_num_node_obs_(min_num_node_obs),
-    monotonicity_(monotonicity) {};
+  cts_splitter_strategy(unsigned long min_num_node_obs, long monotonicity)
+      : last_xvalue_(-HUGE_VAL),
+        min_num_node_obs_(min_num_node_obs),
+        monotonicity_(monotonicity){};
 
   generic_splitter_strategy* clone() const {
     return new cts_splitter_strategy(*this);
@@ -47,9 +47,7 @@ class cts_splitter_strategy : public generic_splitter_strategy {
     last_xvalue_ = xval;
   };
 
-  void wrap_up(NodeParams& bestsplit, NodeParams& proposedsplit) {
-    return;
-  };
+  void wrap_up(NodeParams& bestsplit, NodeParams& proposedsplit) { return; };
 
  private:
   double last_xvalue_;

@@ -26,7 +26,7 @@ class ContinuousStrategy : public GenericNodeStrategy {
   //----------------------
   // Public Constructors
   //----------------------
-  ContinuousStrategy(CNode* node) : node_context_(node) { is_split_=true; };
+  ContinuousStrategy(CNode* node) : node_context_(node) { is_split_ = true; };
 
   //---------------------
   // Public destructor

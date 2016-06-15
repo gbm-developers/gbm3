@@ -49,7 +49,7 @@ class CNode {
   //---------------------
   // Public destructor
   //---------------------
-  ~CNode() {};
+  ~CNode(){};
 
   //---------------------
   // Public Functions
@@ -88,11 +88,10 @@ class CNode {
   bool is_split_determined() const { return splitdetermined_; };
 
   NodeDef as_node_def() const {
-    return NodeDef(get_prediction() * get_totalweight(),
-		   get_totalweight(),
-		   get_numobs());
+    return NodeDef(get_prediction() * get_totalweight(), get_totalweight(),
+                   get_numobs());
   }
-  
+
  private:
   //---------------------
   // Private Functions

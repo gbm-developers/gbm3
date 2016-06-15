@@ -26,8 +26,7 @@ CDistribution* CAdaBoost::Create(DataDistParams& distparams) {
 
 CAdaBoost::~CAdaBoost() {}
 
-void CAdaBoost::ComputeWorkingResponse(const CDataset& kData,
-									   const Bag& kBag,
+void CAdaBoost::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
                                        const double* kFuncEstimate,
                                        std::vector<double>& residuals) {
   for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
@@ -52,7 +51,8 @@ double CAdaBoost::InitF(const CDataset& kData) {
   return 0.5 * std::log(numerator / denominator);
 }
 
-double CAdaBoost::Deviance(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate) {
+double CAdaBoost::Deviance(const CDataset& kData, const Bag& kBag,
+                           const double* kFuncEstimate) {
   unsigned long i = 0;
   double loss = 0.0;
   double weight = 0.0;
@@ -77,11 +77,11 @@ double CAdaBoost::Deviance(const CDataset& kData, const Bag& kBag, const double*
   return loss / weight;
 }
 
-void CAdaBoost::FitBestConstant(const CDataset& kData,
-								const Bag& kBag,
+void CAdaBoost::FitBestConstant(const CDataset& kData, const Bag& kBag,
                                 const double* kFuncEstimate,
                                 unsigned long num_terminalnodes,
-                                std::vector<double>& residuals, CCARTTree& tree) {
+                                std::vector<double>& residuals,
+                                CCARTTree& tree) {
   double deltafunc_est = 0.0;
   unsigned long obs_num = 0;
   unsigned long node_num = 0;
@@ -115,8 +115,7 @@ void CAdaBoost::FitBestConstant(const CDataset& kData,
   }
 }
 
-double CAdaBoost::BagImprovement(const CDataset& kData,
-								 const Bag& kBag,
+double CAdaBoost::BagImprovement(const CDataset& kData, const Bag& kBag,
                                  const double* kFuncEstimate,
                                  const double kShrinkage,
                                  const std::vector<double>& kDeltaEstimate) {

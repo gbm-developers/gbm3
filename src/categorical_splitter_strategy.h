@@ -7,7 +7,7 @@ class categorical_splitter_strategy : public generic_splitter_strategy {
  public:
   categorical_splitter_strategy(unsigned long min_num_node_obs,
                                 unsigned long size)
-      : min_num_node_obs_(min_num_node_obs), group_(size) {};
+      : min_num_node_obs_(min_num_node_obs), group_(size){};
 
   generic_splitter_strategy* clone() const {
     return new categorical_splitter_strategy(*this);
@@ -34,7 +34,7 @@ class categorical_splitter_strategy : public generic_splitter_strategy {
       groupMeanAndCat[ind].second = ind;
       if (group_[ind].get_totalweight() > 0) {
         groupMeanAndCat[ind].first = group_[ind].prediction();
-	num_finite_means++;
+        num_finite_means++;
       } else {
         groupMeanAndCat[ind].first = HUGE_VAL;
       }

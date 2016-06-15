@@ -20,7 +20,7 @@ CNodeSearch::CNodeSearch(unsigned long treedepth, unsigned long minobs)
 
 CNodeSearch::~CNodeSearch() {}
 
-void CNodeSearch::GenerateAllSplits(vector<CNode* >& term_nodes_ptrs,
+void CNodeSearch::GenerateAllSplits(vector<CNode*>& term_nodes_ptrs,
                                     const CDataset& kData, const Bag& kBag,
                                     double* residuals,
                                     vector<unsigned long>& data_node_assigns) {
@@ -30,15 +30,14 @@ void CNodeSearch::GenerateAllSplits(vector<CNode* >& term_nodes_ptrs,
       kColNumbers.begin() + kData.get_num_features();
 
   VecNodeParams best_splits_updates = best_splits_;
-  for (index_vector::const_iterator kIt = kColNumbers.begin();
-       kIt != kFinalCol; kIt++) {
+  for (index_vector::const_iterator kIt = kColNumbers.begin(); kIt != kFinalCol;
+       kIt++) {
     const int kVar = *kIt;
     const int KVarClasses = kData.varclass(kVar);
 
     VecVarSplitters variable_splitters(num_terminal_nodes_, term_nodes_ptrs,
-				       min_num_node_obs_,
-				       kVar, KVarClasses,
-				       kData.monotone(kVar));
+                                       min_num_node_obs_, kVar, KVarClasses,
+                                       kData.monotone(kVar));
 
     // distribute the observations in order to the correct node search
     for (unsigned long iOrderObs = 0; iOrderObs < kData.get_trainsize();
@@ -48,20 +47,19 @@ void CNodeSearch::GenerateAllSplits(vector<CNode* >& term_nodes_ptrs,
         const int kNode = data_node_assigns[kWhichObs];
         const double kXVal = kData.x_value(kWhichObs, kVar);
         variable_splitters[kNode].IncorporateObs(kXVal, residuals[kWhichObs],
-                                                  kData.weight_ptr()[kWhichObs]);
+                                                 kData.weight_ptr()[kWhichObs]);
       }
     }
 
     for (unsigned long node_num = 0; node_num < num_terminal_nodes_;
          node_num++) {
-       variable_splitters[node_num].WrapUpCurrentVariable();
+      variable_splitters[node_num].WrapUpCurrentVariable();
     }
 
     best_splits_updates += variable_splitters.proposal();
   }
 
   best_splits_ = best_splits_updates;
-
 }
 
 double CNodeSearch::CalcImprovementAndSplit(
@@ -72,8 +70,7 @@ double CNodeSearch::CalcImprovementAndSplit(
   double bestnode_improvement = 0.0;
   for (unsigned long node_num = 0; node_num < num_terminal_nodes_; node_num++) {
     term_nodes_ptrs[node_num]->SetToSplit();
-    if (best_splits_[node_num].get_improvement() >
-        bestnode_improvement) {
+    if (best_splits_[node_num].get_improvement() > bestnode_improvement) {
       bestnode = node_num;
       bestnode_improvement = best_splits_[node_num].get_improvement();
     }
@@ -82,7 +79,7 @@ double CNodeSearch::CalcImprovementAndSplit(
   // Split Node if improvement is non-zero
   if (bestnode_improvement != 0.0) {
     // Split Node
-	term_nodes_ptrs[bestnode]->SplitNode(best_splits_[bestnode]);
+    term_nodes_ptrs[bestnode]->SplitNode(best_splits_[bestnode]);
     num_terminal_nodes_ += 2;
 
     // Move kData to children nodes
@@ -97,19 +94,19 @@ double CNodeSearch::CalcImprovementAndSplit(
 
     best_splits_[num_terminal_nodes_ - 2].ResetSplitProperties(
         term_nodes_ptrs[num_terminal_nodes_ - 2]->get_prediction() *
+            term_nodes_ptrs[num_terminal_nodes_ - 2]->get_totalweight(),
         term_nodes_ptrs[num_terminal_nodes_ - 2]->get_totalweight(),
-	  	term_nodes_ptrs[num_terminal_nodes_ - 2]->get_totalweight(),
-	  	term_nodes_ptrs[num_terminal_nodes_ - 2]->get_numobs());
+        term_nodes_ptrs[num_terminal_nodes_ - 2]->get_numobs());
     best_splits_[num_terminal_nodes_ - 1].ResetSplitProperties(
-            term_nodes_ptrs[num_terminal_nodes_ - 1]->get_prediction() *
+        term_nodes_ptrs[num_terminal_nodes_ - 1]->get_prediction() *
             term_nodes_ptrs[num_terminal_nodes_ - 1]->get_totalweight(),
-    	  	term_nodes_ptrs[num_terminal_nodes_ - 1]->get_totalweight(),
-    	  	term_nodes_ptrs[num_terminal_nodes_ - 1]->get_numobs());
+        term_nodes_ptrs[num_terminal_nodes_ - 1]->get_totalweight(),
+        term_nodes_ptrs[num_terminal_nodes_ - 1]->get_numobs());
     best_splits_[bestnode].ResetSplitProperties(
-            term_nodes_ptrs[bestnode]->get_prediction() *
+        term_nodes_ptrs[bestnode]->get_prediction() *
             term_nodes_ptrs[bestnode]->get_totalweight(),
-    	  	term_nodes_ptrs[bestnode]->get_totalweight(),
-    	  	term_nodes_ptrs[bestnode]->get_numobs());
+        term_nodes_ptrs[bestnode]->get_totalweight(),
+        term_nodes_ptrs[bestnode]->get_numobs());
   }
 
   return bestnode_improvement;
@@ -119,7 +116,7 @@ double CNodeSearch::CalcImprovementAndSplit(
 // Function Members - Private
 //----------------------------------------
 void CNodeSearch::ReassignData(unsigned long splittednode_index,
-                               vector<CNode* >& term_nodes_ptrs,
+                               vector<CNode*>& term_nodes_ptrs,
                                const CDataset& kData,
                                vector<unsigned long>& data_node_assigns) {
   // assign observations to the correct node

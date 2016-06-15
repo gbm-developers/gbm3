@@ -28,8 +28,7 @@ CDistribution* CBernoulli::Create(DataDistParams& distparams) {
 
 CBernoulli::~CBernoulli() {}
 
-void CBernoulli::ComputeWorkingResponse(const CDataset& kData,
-										const Bag& kBag,
+void CBernoulli::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
                                         const double* kFuncEstimate,
                                         std::vector<double>& residuals) {
   double prob = 0.0;
@@ -68,8 +67,7 @@ double CBernoulli::InitF(const CDataset& kData) {
   return initfunc_est;
 }
 
-double CBernoulli::Deviance(const CDataset& kData,
-							const Bag& kBag,
+double CBernoulli::Deviance(const CDataset& kData, const Bag& kBag,
                             const double* kFuncEstimate) {
   unsigned long i = 0;
   double loss = 0.0;
@@ -96,11 +94,11 @@ double CBernoulli::Deviance(const CDataset& kData,
   return -2 * loss / weight;
 }
 
-void CBernoulli::FitBestConstant(const CDataset& kData,
-								 const Bag& kBag,
+void CBernoulli::FitBestConstant(const CDataset& kData, const Bag& kBag,
                                  const double* kFuncEstimate,
                                  unsigned long num_terminalnodes,
-                                 std::vector<double>& residuals, CCARTTree& tree) {
+                                 std::vector<double>& residuals,
+                                 CCARTTree& tree) {
   unsigned long obs_num = 0;
   unsigned long node_num = 0;
   vector<double> numerator_vec(num_terminalnodes, 0.0);
@@ -147,8 +145,7 @@ void CBernoulli::FitBestConstant(const CDataset& kData,
   }
 }
 
-double CBernoulli::BagImprovement(const CDataset& kData,
-								  const Bag& kBag,
+double CBernoulli::BagImprovement(const CDataset& kData, const Bag& kBag,
                                   const double* kFuncEstimate,
                                   const double kShrinkage,
                                   const std::vector<double>& kDeltaEstimate) {

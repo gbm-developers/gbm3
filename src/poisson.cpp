@@ -25,8 +25,7 @@ CDistribution* CPoisson::Create(DataDistParams& distparams) {
 
 CPoisson::~CPoisson() {}
 
-void CPoisson::ComputeWorkingResponse(const CDataset& kData,
-									  const Bag& kBag,
+void CPoisson::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
                                       const double* kFuncEstimate,
                                       std::vector<double>& residuals) {
   unsigned long i = 0;
@@ -52,7 +51,8 @@ double CPoisson::InitF(const CDataset& kData) {
   return std::log(sum / denom);
 }
 
-double CPoisson::Deviance(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate) {
+double CPoisson::Deviance(const CDataset& kData, const Bag& kBag,
+                          const double* kFuncEstimate) {
   unsigned long i = 0;
   double loss = 0.0;
   double weight = 0.0;
@@ -76,11 +76,11 @@ double CPoisson::Deviance(const CDataset& kData, const Bag& kBag, const double* 
   return -2 * loss / weight;
 }
 
-void CPoisson::FitBestConstant(const CDataset& kData,
-							   const Bag& kBag,
+void CPoisson::FitBestConstant(const CDataset& kData, const Bag& kBag,
                                const double* kFuncEstimate,
                                unsigned long num_terminalnodes,
-                               std::vector<double>& residuals, CCARTTree& tree) {
+                               std::vector<double>& residuals,
+                               CCARTTree& tree) {
   unsigned long obs_num = 0;
   unsigned long node_num = 0;
   vector<double> numerator_vec(num_terminalnodes, 0.0);
@@ -122,8 +122,7 @@ void CPoisson::FitBestConstant(const CDataset& kData,
   }
 }
 
-double CPoisson::BagImprovement(const CDataset& kData,
-								const Bag& kBag,
+double CPoisson::BagImprovement(const CDataset& kData, const Bag& kBag,
                                 const double* kFuncEstimate,
                                 const double kShrinkage,
                                 const std::vector<double>& kDeltaEstimate) {

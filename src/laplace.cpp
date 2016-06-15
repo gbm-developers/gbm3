@@ -26,8 +26,7 @@ CDistribution* CLaplace::Create(DataDistParams& distparams) {
 
 CLaplace::~CLaplace() {}
 
-void CLaplace::ComputeWorkingResponse(const CDataset& kData,
-									  const Bag& kBag,
+void CLaplace::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
                                       const double* kFuncEstimate,
                                       std::vector<double>& residuals) {
   unsigned long i = 0;
@@ -54,7 +53,8 @@ double CLaplace::InitF(const CDataset& kData) {
                                   kData.weight_ptr(), 0.5);  // median
 }
 
-double CLaplace::Deviance(const CDataset& kData, const Bag& kBag, const double* kFuncEstimates) {
+double CLaplace::Deviance(const CDataset& kData, const Bag& kBag,
+                          const double* kFuncEstimates) {
   unsigned long i = 0;
   double loss = 0.0;
   double weight = 0.0;
@@ -87,11 +87,11 @@ double CLaplace::Deviance(const CDataset& kData, const Bag& kBag, const double* 
 }
 
 // DEBUG: needs weighted median
-void CLaplace::FitBestConstant(const CDataset& kData,
-							   const Bag& kBag,
+void CLaplace::FitBestConstant(const CDataset& kData, const Bag& kBag,
                                const double* kFuncEstimate,
                                unsigned long num_terminal_nodes,
-                               std::vector<double>& residuals, CCARTTree& tree) {
+                               std::vector<double>& residuals,
+                               CCARTTree& tree) {
   unsigned long node_num = 0;
   unsigned long obs_num = 0;
   unsigned long vec_num = 0;
@@ -122,8 +122,7 @@ void CLaplace::FitBestConstant(const CDataset& kData,
   }
 }
 
-double CLaplace::BagImprovement(const CDataset& kData,
-								const Bag& kBag,
+double CLaplace::BagImprovement(const CDataset& kData, const Bag& kBag,
                                 const double* kFuncEstimate,
                                 const double kShrinkage,
                                 const std::vector<double>& kDeltaEstimate) {

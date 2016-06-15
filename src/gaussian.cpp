@@ -25,13 +25,13 @@ CDistribution* CGaussian::Create(DataDistParams& distparams) {
 
 CGaussian::~CGaussian() {}
 
-void CGaussian::ComputeWorkingResponse(const CDataset& kData,
-									   const Bag& kBag,
+void CGaussian::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
                                        const double* kFuncEstimate,
                                        std::vector<double>& residuals) {
   unsigned long i = 0;
 
-  if (!(kData.y_ptr() && kFuncEstimate && &(residuals[0]) && kData.weight_ptr())) {
+  if (!(kData.y_ptr() && kFuncEstimate && &(residuals[0]) &&
+        kData.weight_ptr())) {
     throw gbm_exception::InvalidArgument();
   }
 
@@ -55,7 +55,8 @@ double CGaussian::InitF(const CDataset& kData) {
   return sum / totalweight;
 }
 
-double CGaussian::Deviance(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate) {
+double CGaussian::Deviance(const CDataset& kData, const Bag& kBag,
+                           const double* kFuncEstimate) {
   unsigned long i = 0;
   double loss = 0.0;
   double weight = 0.0;
@@ -78,17 +79,16 @@ double CGaussian::Deviance(const CDataset& kData, const Bag& kBag, const double*
   return loss / weight;
 }
 
-void CGaussian::FitBestConstant(const CDataset& kData,
-								const Bag& kBag,
+void CGaussian::FitBestConstant(const CDataset& kData, const Bag& kBag,
                                 const double* kFuncEstimate,
                                 unsigned long num_terminalnodes,
-                                std::vector<double>& residuals, CCARTTree& tree) {
+                                std::vector<double>& residuals,
+                                CCARTTree& tree) {
   // the tree aready stores the mean prediction
   // no refitting necessary
 }
 
-double CGaussian::BagImprovement(const CDataset& kData,
-								 const Bag& kBag,
+double CGaussian::BagImprovement(const CDataset& kData, const Bag& kBag,
                                  const double* kFuncEstimate,
                                  const double kShrinkage,
                                  const std::vector<double>& kDeltaEstimate) {

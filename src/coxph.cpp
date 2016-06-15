@@ -82,17 +82,17 @@ CDistribution* CCoxPH::Create(DataDistParams& distparams) {
                     tiesmethod, distparams.prior_coefficient_variation);
 }
 
-
-void CCoxPH::ComputeWorkingResponse(const CDataset& kData,
-								    const Bag& kBag,
+void CCoxPH::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
                                     const double* kFuncEstimate,
                                     std::vector<double>& residuals) {
-  coxstate_methods_->ComputeWorkingResponse(kData, kBag, kFuncEstimate, residuals);
+  coxstate_methods_->ComputeWorkingResponse(kData, kBag, kFuncEstimate,
+                                            residuals);
 }
 
 double CCoxPH::InitF(const CDataset& kData) { return 0.0; }
 
-double CCoxPH::Deviance(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate) {
+double CCoxPH::Deviance(const CDataset& kData, const Bag& kBag,
+                        const double* kFuncEstimate) {
   // Set size and move to validation set if necessary
   unsigned long num_rows_in_set = kData.get_size_of_set();
 
@@ -103,18 +103,18 @@ double CCoxPH::Deviance(const CDataset& kData, const Bag& kBag, const double* kF
   return returnvalue;
 }
 
-void CCoxPH::FitBestConstant(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate,
-                             unsigned long num_terminalnodes, std::vector<double>& residuals,
-                             CCARTTree& tree) {
-  coxstate_methods_->FitBestConstant(kData, kBag, kFuncEstimate, num_terminalnodes,
-                                     residuals, tree);
+void CCoxPH::FitBestConstant(const CDataset& kData, const Bag& kBag,
+                             const double* kFuncEstimate,
+                             unsigned long num_terminalnodes,
+                             std::vector<double>& residuals, CCARTTree& tree) {
+  coxstate_methods_->FitBestConstant(kData, kBag, kFuncEstimate,
+                                     num_terminalnodes, residuals, tree);
 }
 
-double CCoxPH::BagImprovement(const CDataset& kData,
-							  const Bag& kBag,
+double CCoxPH::BagImprovement(const CDataset& kData, const Bag& kBag,
                               const double* kFuncEstimate,
                               const double kShrinkage,
                               const std::vector<double>& kDeltaEstimate) {
-  return coxstate_methods_->BagImprovement(kData, kBag, kFuncEstimate, kShrinkage,
-                                           kDeltaEstimate);
+  return coxstate_methods_->BagImprovement(kData, kBag, kFuncEstimate,
+                                           kShrinkage, kDeltaEstimate);
 }
