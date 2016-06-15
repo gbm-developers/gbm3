@@ -29,11 +29,11 @@ void CPoisson::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
                                       const double* kFuncEstimate,
                                       std::vector<double>& residuals) {
   unsigned long i = 0;
-  double delta_func_est = 0.0;
 
-  // compute working response
+// compute working response
+#pragma omp parallel for schedule(static)
   for (i = 0; i < kData.get_trainsize(); i++) {
-    delta_func_est = kFuncEstimate[i] + kData.offset_ptr()[i];
+    const double delta_func_est = kFuncEstimate[i] + kData.offset_ptr()[i];
     residuals[i] = kData.y_ptr()[i] - std::exp(delta_func_est);
   }
 }
@@ -41,9 +41,9 @@ void CPoisson::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
 double CPoisson::InitF(const CDataset& kData) {
   double sum = 0.0;
   double denom = 0.0;
-  unsigned long i = 0;
 
-  for (i = 0; i < kData.get_trainsize(); i++) {
+#pragma omp parallel for schedule(static) reduction(+ : sum, denom)
+  for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     sum += kData.weight_ptr()[i] * kData.y_ptr()[i];
     denom += kData.weight_ptr()[i] * std::exp(kData.offset_ptr()[i]);
   }
@@ -53,14 +53,14 @@ double CPoisson::InitF(const CDataset& kData) {
 
 double CPoisson::Deviance(const CDataset& kData, const Bag& kBag,
                           const double* kFuncEstimate) {
-  unsigned long i = 0;
   double loss = 0.0;
   double weight = 0.0;
 
   // Switch to validation set if necessary
   unsigned long num_rows_in_set = kData.get_size_of_set();
 
-  for (i = 0; i < num_rows_in_set; i++) {
+#pragma omp parallel for schedule(static) reduction(+ : loss, weight)
+  for (unsigned long i = 0; i < num_rows_in_set; i++) {
     loss += kData.weight_ptr()[i] *
             (kData.y_ptr()[i] * (kData.offset_ptr()[i] + kFuncEstimate[i]) -
              std::exp(kData.offset_ptr()[i] + kFuncEstimate[i]));
@@ -127,13 +127,12 @@ double CPoisson::BagImprovement(const CDataset& kData, const Bag& kBag,
                                 const double kShrinkage,
                                 const std::vector<double>& kDeltaEstimate) {
   double returnvalue = 0.0;
-  double delta_func_est = 0.0;
   double weight = 0.0;
-  unsigned long i = 0;
 
-  for (i = 0; i < kData.get_trainsize(); i++) {
+#pragma omp parallel for schedule(static) reduction(+ : returnvalue, weight)
+  for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     if (!kBag.get_element(i)) {
-      delta_func_est = kFuncEstimate[i] + kData.offset_ptr()[i];
+      const double delta_func_est = kFuncEstimate[i] + kData.offset_ptr()[i];
 
       returnvalue +=
           kData.weight_ptr()[i] *

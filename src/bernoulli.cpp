@@ -31,12 +31,10 @@ CBernoulli::~CBernoulli() {}
 void CBernoulli::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
                                         const double* kFuncEstimate,
                                         std::vector<double>& residuals) {
-  double prob = 0.0;
-  double deltafunc_est = 0.0;
-
+#pragma omp parallel for schedule(static)
   for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
-    deltafunc_est = kFuncEstimate[i] + kData.offset_ptr()[i];
-    prob = 1.0 / (1.0 + std::exp(-deltafunc_est));
+    const double deltafunc_est = kFuncEstimate[i] + kData.offset_ptr()[i];
+    const double prob = 1.0 / (1.0 + std::exp(-deltafunc_est));
 
     residuals[i] = kData.y_ptr()[i] - prob;
   }
@@ -60,6 +58,7 @@ double CBernoulli::InitF(const CDataset& kData) {
       numerator += kData.weight_ptr()[i] * (kData.y_ptr()[i] - dTemp);
       denominator += kData.weight_ptr()[i] * dTemp * (1.0 - dTemp);
     }
+
     newtonstep = numerator / denominator;
     initfunc_est += newtonstep;
   }
@@ -69,16 +68,15 @@ double CBernoulli::InitF(const CDataset& kData) {
 
 double CBernoulli::Deviance(const CDataset& kData, const Bag& kBag,
                             const double* kFuncEstimate) {
-  unsigned long i = 0;
   double loss = 0.0;
-  double deltafunc_est = 0.0;
   double weight = 0.0;
 
   // Switch to validation set if necessary
   unsigned long num_of_rows_in_set = kData.get_size_of_set();
 
-  for (i = 0; i != num_of_rows_in_set; i++) {
-    deltafunc_est = kFuncEstimate[i] + kData.offset_ptr()[i];
+#pragma omp parallel for schedule(static) reduction(+ : loss, weight)
+  for (unsigned long i = 0; i < num_of_rows_in_set; i++) {
+    const double deltafunc_est = kFuncEstimate[i] + kData.offset_ptr()[i];
     loss += kData.weight_ptr()[i] * (kData.y_ptr()[i] * deltafunc_est -
                                      std::log(1.0 + std::exp(deltafunc_est)));
     weight += kData.weight_ptr()[i];
@@ -150,13 +148,12 @@ double CBernoulli::BagImprovement(const CDataset& kData, const Bag& kBag,
                                   const double kShrinkage,
                                   const std::vector<double>& kDeltaEstimate) {
   double returnvalue = 0.0;
-  double deltafunc_est = 0.0;
   double weight = 0.0;
-  unsigned long i = 0;
 
-  for (i = 0; i < kData.get_trainsize(); i++) {
+#pragma omp parallel for schedule(static) reduction(+ : returnvalue, weight)
+  for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     if (!kBag.get_element(i)) {
-      deltafunc_est = kFuncEstimate[i] + kData.offset_ptr()[i];
+      const double deltafunc_est = kFuncEstimate[i] + kData.offset_ptr()[i];
 
       if (kData.y_ptr()[i] == 1.0) {
         returnvalue += kData.weight_ptr()[i] * kShrinkage * kDeltaEstimate[i];

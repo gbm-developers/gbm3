@@ -29,14 +29,14 @@ class VecVarSplitters {
   //----------------------
   VecVarSplitters(unsigned long memory_space,
                   const std::vector<CNode*>& kVecTermNodePtrs,
-                  const unsigned long kMinNumNodeObs,
+                  const unsigned long kMinNumNodeObs, unsigned long bias,
                   const unsigned long kVarNum, const unsigned long kVarClasses,
                   long monotone) {
     varsplitters_.reserve(memory_space);
     for (unsigned long node_num = 0; node_num < memory_space; node_num++) {
       varsplitters_.push_back(VarSplitter(*kVecTermNodePtrs[node_num],
-                                          kMinNumNodeObs, kVarNum, kVarClasses,
-                                          monotone));
+                                          kMinNumNodeObs, bias, kVarNum,
+                                          kVarClasses, monotone));
     }
   }
 

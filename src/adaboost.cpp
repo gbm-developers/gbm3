@@ -29,6 +29,7 @@ CAdaBoost::~CAdaBoost() {}
 void CAdaBoost::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
                                        const double* kFuncEstimate,
                                        std::vector<double>& residuals) {
+#pragma omp parallel for schedule(static)
   for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     residuals[i] = -(2 * kData.y_ptr()[i] - 1) *
                    std::exp(-(2 * kData.y_ptr()[i] - 1) *
@@ -40,6 +41,7 @@ double CAdaBoost::InitF(const CDataset& kData) {
   double numerator = 0.0;
   double denominator = 0.0;
 
+#pragma omp parallel for schedule(static) reduction(+ : numerator, denominator)
   for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     if (kData.y_ptr()[i] == 1.0) {
       numerator += kData.weight_ptr()[i] * std::exp(-kData.offset_ptr()[i]);
@@ -53,14 +55,14 @@ double CAdaBoost::InitF(const CDataset& kData) {
 
 double CAdaBoost::Deviance(const CDataset& kData, const Bag& kBag,
                            const double* kFuncEstimate) {
-  unsigned long i = 0;
   double loss = 0.0;
   double weight = 0.0;
 
   // Switch to validation set if necessary
   unsigned long num_of_rows_in_set = kData.get_size_of_set();
 
-  for (i = 0; i != num_of_rows_in_set; i++) {
+#pragma omp parallel for schedule(static) reduction(+ : loss, weight)
+  for (unsigned long i = 0; i < num_of_rows_in_set; i++) {
     loss += kData.weight_ptr()[i] *
             std::exp(-(2 * kData.y_ptr()[i] - 1) *
                      (kData.offset_ptr()[i] + kFuncEstimate[i]));
@@ -82,7 +84,6 @@ void CAdaBoost::FitBestConstant(const CDataset& kData, const Bag& kBag,
                                 unsigned long num_terminalnodes,
                                 std::vector<double>& residuals,
                                 CCARTTree& tree) {
-  double deltafunc_est = 0.0;
   unsigned long obs_num = 0;
   unsigned long node_num = 0;
   numerator_bestconstant_.resize(num_terminalnodes);
@@ -92,7 +93,8 @@ void CAdaBoost::FitBestConstant(const CDataset& kData, const Bag& kBag,
 
   for (obs_num = 0; obs_num < kData.get_trainsize(); obs_num++) {
     if (kBag.get_element(obs_num)) {
-      deltafunc_est = kFuncEstimate[obs_num] + kData.offset_ptr()[obs_num];
+      const double deltafunc_est =
+          kFuncEstimate[obs_num] + kData.offset_ptr()[obs_num];
       numerator_bestconstant_[tree.get_node_assignments()[obs_num]] +=
           kData.weight_ptr()[obs_num] * (2 * kData.y_ptr()[obs_num] - 1) *
           std::exp(-(2 * kData.y_ptr()[obs_num] - 1) * deltafunc_est);
@@ -120,13 +122,12 @@ double CAdaBoost::BagImprovement(const CDataset& kData, const Bag& kBag,
                                  const double kShrinkage,
                                  const std::vector<double>& kDeltaEstimate) {
   double returnvalue = 0.0;
-  double func_est = 0.0;
   double weight = 0.0;
-  unsigned long i = 0;
 
-  for (i = 0; i < kData.get_trainsize(); i++) {
+#pragma omp parallel for schedule(static) reduction(+ : returnvalue, weight)
+  for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     if (!kBag.get_element(i)) {
-      func_est = kFuncEstimate[i] + kData.offset_ptr()[i];
+      const double func_est = kFuncEstimate[i] + kData.offset_ptr()[i];
 
       returnvalue +=
           kData.weight_ptr()[i] *

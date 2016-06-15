@@ -17,11 +17,11 @@
 //---------------------
 
 VarSplitter::VarSplitter(CNode& nodetosplit, unsigned long min_num_node_obs,
-                         unsigned long whichvar, unsigned long numvar_classes,
-                         long monotone)
+                         unsigned long bias, unsigned long whichvar,
+                         unsigned long numvar_classes, long monotone)
     : initial_(nodetosplit.as_node_def()),
-      bestsplit_(initial_),
-      proposedsplit_(initial_, numvar_classes, whichvar) {
+      bestsplit_(initial_, bias),
+      proposedsplit_(initial_, bias, numvar_classes, whichvar) {
   if (nodetosplit.is_split_determined()) {
     splitter_.reset(new presplit_splitter_strategy());
   } else if (proposedsplit_.split_class() == 0) {

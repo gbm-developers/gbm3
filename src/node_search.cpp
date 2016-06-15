@@ -24,42 +24,43 @@ void CNodeSearch::GenerateAllSplits(vector<CNode*>& term_nodes_ptrs,
                                     const CDataset& kData, const Bag& kBag,
                                     double* residuals,
                                     vector<unsigned long>& data_node_assigns) {
-  unsigned long kWhichObs = 0;
   const index_vector kColNumbers(kData.RandomOrder());
-  const index_vector::const_iterator kFinalCol =
-      kColNumbers.begin() + kData.get_num_features();
 
-  VecNodeParams best_splits_updates = best_splits_;
-  for (index_vector::const_iterator kIt = kColNumbers.begin(); kIt != kFinalCol;
-       kIt++) {
-    const int kVar = *kIt;
-    const int KVarClasses = kData.varclass(kVar);
+#pragma omp parallel
+  {
+    VecNodeParams best_splits_updates(best_splits_);
+#pragma omp for schedule(guided) nowait
+    for (unsigned long ind = 0; ind < kData.get_num_features(); ++ind) {
+      const int kVar = kColNumbers[ind];
+      const int KVarClasses = kData.varclass(kVar);
 
-    VecVarSplitters variable_splitters(num_terminal_nodes_, term_nodes_ptrs,
-                                       min_num_node_obs_, kVar, KVarClasses,
-                                       kData.monotone(kVar));
+      VecVarSplitters variable_splitters(num_terminal_nodes_, term_nodes_ptrs,
+                                         min_num_node_obs_, ind, kVar,
+                                         KVarClasses, kData.monotone(kVar));
 
-    // distribute the observations in order to the correct node search
-    for (unsigned long iOrderObs = 0; iOrderObs < kData.get_trainsize();
-         iOrderObs++) {
-      kWhichObs = kData.order_ptr()[kVar * kData.get_trainsize() + iOrderObs];
-      if (kBag.get_element(kWhichObs)) {
-        const int kNode = data_node_assigns[kWhichObs];
-        const double kXVal = kData.x_value(kWhichObs, kVar);
-        variable_splitters[kNode].IncorporateObs(kXVal, residuals[kWhichObs],
-                                                 kData.weight_ptr()[kWhichObs]);
+      // distribute the observations in order to the correct node search
+      for (unsigned long iOrderObs = 0; iOrderObs < kData.get_trainsize();
+           iOrderObs++) {
+        const unsigned long kWhichObs =
+            kData.order_ptr()[kVar * kData.get_trainsize() + iOrderObs];
+        if (kBag.get_element(kWhichObs)) {
+          const int kNode = data_node_assigns[kWhichObs];
+          const double kXVal = kData.x_value(kWhichObs, kVar);
+          variable_splitters[kNode].IncorporateObs(
+              kXVal, residuals[kWhichObs], kData.weight_ptr()[kWhichObs]);
+        }
       }
-    }
 
-    for (unsigned long node_num = 0; node_num < num_terminal_nodes_;
-         node_num++) {
-      variable_splitters[node_num].WrapUpCurrentVariable();
-    }
+      for (unsigned long node_num = 0; node_num < num_terminal_nodes_;
+           node_num++) {
+        variable_splitters[node_num].WrapUpCurrentVariable();
+      }
 
-    best_splits_updates += variable_splitters.proposal();
+      best_splits_updates += variable_splitters.proposal();
+    }
+#pragma omp critical
+    best_splits_ += best_splits_updates;
   }
-
-  best_splits_ = best_splits_updates;
 }
 
 double CNodeSearch::CalcImprovementAndSplit(
@@ -119,7 +120,8 @@ void CNodeSearch::ReassignData(unsigned long splittednode_index,
                                vector<CNode*>& term_nodes_ptrs,
                                const CDataset& kData,
                                vector<unsigned long>& data_node_assigns) {
-  // assign observations to the correct node
+// assign observations to the correct node
+#pragma omp parallel for schedule(static)
   for (unsigned long iObs = 0; iObs < kData.get_trainsize(); iObs++) {
     if (data_node_assigns[iObs] == splittednode_index) {
       signed char schWhichNode =

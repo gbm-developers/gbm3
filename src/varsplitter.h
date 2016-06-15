@@ -26,8 +26,8 @@ class VarSplitter {
   // Public Constructors
   //----------------------
   VarSplitter(CNode& nodetosplit, unsigned long min_num_node_obs,
-              unsigned long whichvar, unsigned long numvar_classes,
-              long monotone);
+              unsigned long bias, unsigned long whichvar,
+              unsigned long numvar_classes, long monotone);
 
   VarSplitter(const VarSplitter& rhs)
       : initial_(rhs.initial_),

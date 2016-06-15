@@ -91,20 +91,23 @@ class NodeParams {
       : left_(),
         right_(),
         missing_(),
+        bias_(0),
         split_value_(-HUGE_VAL),
         split_var_(0),
         split_class_(0),
         category_ordering_(),
-        improvement_(0.0){};
-  NodeParams(const NodeDef& initial, unsigned long variableclasses = 1,
+        improvement_(-HUGE_VAL){};
+  NodeParams(const NodeDef& initial, unsigned long bias = 0,
+             unsigned long variableclasses = 1,
              unsigned long splitvar = UINT_MAX)
       : left_(),
         right_(initial),
         missing_(),
+        bias_(bias),
         split_value_(-HUGE_VAL),
         split_var_(splitvar),
         split_class_(variableclasses),
-        improvement_(0.0) {}
+        improvement_(-HUGE_VAL) {}
 
   //---------------------
   // Public destructor
@@ -115,18 +118,25 @@ class NodeParams {
   // Public Functions
   //---------------------
   NodeParams& operator+=(const NodeParams& rhs) {
-    // If no split is identified keep everything
-    // in right node.
-    if ((rhs.get_improvement() > get_improvement()) ||
-        (fabs(rhs.get_improvement() - get_improvement()) <=
-         std::numeric_limits<double>::epsilon())) {
-      *this = rhs;
+    if (rhs.get_improvement() > get_improvement()) {
+      *this = rhs;  // other node better than us, take it
+    } else if ((rhs.get_improvement() < 0) && (get_improvement() < 0)) {
+      // no split identified, take later
+      if (rhs.bias_ >= bias_) {
+        *this = rhs;
+      }
+    } else if (rhs.get_improvement() == get_improvement()) {
+      // take the first of a draw to ensure reproducibility
+      if (rhs.bias_ < bias_) {
+        *this = rhs;
+      }
     }
+
     return *this;
   }
 
   void ResetSplitProperties(double weightedresiduals, double trainingweight,
-                            unsigned long numobs,
+                            unsigned long numobs, unsigned long bias = 0,
                             unsigned long variable_classes = 1,
                             unsigned long splitvar = UINT_MAX);
   void UpdateMissingNode(double predincrement, double trainw_increment,
@@ -205,6 +215,9 @@ class NodeParams {
   //---------------------
   // Left Node Definition
   NodeDef left_, right_, missing_;
+
+  // bias comparison for reproduciblity in parallel
+  unsigned long bias_;
 
   // Splitting values
   double split_value_;                  // Continuous Split Value

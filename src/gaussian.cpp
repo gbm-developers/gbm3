@@ -35,6 +35,7 @@ void CGaussian::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
     throw gbm_exception::InvalidArgument();
   }
 
+#pragma omp parallel for schedule(static)
   for (i = 0; i < kData.get_trainsize(); i++) {
     residuals[i] = kData.y_ptr()[i] - kData.offset_ptr()[i] - kFuncEstimate[i];
   }
@@ -43,11 +44,11 @@ void CGaussian::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
 double CGaussian::InitF(const CDataset& kData) {
   double sum = 0.0;
   double totalweight = 0.0;
-  unsigned long i = 0;
 
-  // compute the mean
+// compute the mean
 
-  for (i = 0; i < kData.get_trainsize(); i++) {
+#pragma omp parallel for schedule(static) reduction(+ : sum, totalweight)
+  for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     sum += kData.weight_ptr()[i] * (kData.y_ptr()[i] - kData.offset_ptr()[i]);
     totalweight += kData.weight_ptr()[i];
   }
@@ -57,15 +58,15 @@ double CGaussian::InitF(const CDataset& kData) {
 
 double CGaussian::Deviance(const CDataset& kData, const Bag& kBag,
                            const double* kFuncEstimate) {
-  unsigned long i = 0;
   double loss = 0.0;
   double weight = 0.0;
 
   unsigned long num_rows_in_set = kData.get_size_of_set();
-  for (i = 0; i < num_rows_in_set; i++) {
-    loss += kData.weight_ptr()[i] *
-            (kData.y_ptr()[i] - kData.offset_ptr()[i] - kFuncEstimate[i]) *
-            (kData.y_ptr()[i] - kData.offset_ptr()[i] - kFuncEstimate[i]);
+#pragma omp parallel for schedule(static) reduction(+ : loss, weight)
+  for (unsigned long i = 0; i < num_rows_in_set; i++) {
+    const double tmp =
+        (kData.y_ptr()[i] - kData.offset_ptr()[i] - kFuncEstimate[i]);
+    loss += kData.weight_ptr()[i] * tmp * tmp;
     weight += kData.weight_ptr()[i];
   }
 
@@ -93,13 +94,12 @@ double CGaussian::BagImprovement(const CDataset& kData, const Bag& kBag,
                                  const double kShrinkage,
                                  const std::vector<double>& kDeltaEstimate) {
   double returnvalue = 0.0;
-  double deltafunc_est = 0.0;
   double weight = 0.0;
-  unsigned long i = 0;
 
-  for (i = 0; i < kData.get_trainsize(); i++) {
+#pragma omp parallel for schedule(static) reduction(+ : returnvalue, weight)
+  for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     if (!kBag.get_element(i)) {
-      deltafunc_est = kFuncEstimate[i] + kData.offset_ptr()[i];
+      const double deltafunc_est = kFuncEstimate[i] + kData.offset_ptr()[i];
 
       returnvalue += kData.weight_ptr()[i] * kShrinkage * kDeltaEstimate[i] *
                      (2.0 * (kData.y_ptr()[i] - deltafunc_est) -
