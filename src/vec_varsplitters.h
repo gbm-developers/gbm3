@@ -42,13 +42,9 @@ class VecVarSplitters {
     }
   }
 
-  VecVarSplitters(const VecVarSplitters& rhs) {
-    varsplitters_.reserve(rhs.size());
-    for(unsigned long node_num = 0; node_num < rhs.size(); node_num++) {
-      varsplitters_.push_back(rhs.varsplitters_[node_num]);
-    }
-  }
-
+ VecVarSplitters(const VecVarSplitters& rhs) :
+  varsplitters_(rhs.varsplitters_) {}
+  
   //---------------------
   // Public destructor
   //---------------------
