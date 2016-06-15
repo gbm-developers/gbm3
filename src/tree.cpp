@@ -13,7 +13,7 @@ CCARTTree::CCARTTree(const TreeParams& treeconfig)
 	  kTreeDepth_(treeconfig.depth),
       kShrinkage_(treeconfig.shrinkage),
       error_(0.0), totalnodecount_(1), rootnode_(),
-      terminalnode_ptrs_(2*kTreeDepth_+1, NULL),
+      terminalnode_ptrs_(2 * kTreeDepth_ + 1, 0),
       data_node_assignment_(treeconfig.num_trainrows, 0){}
 
 //------------------------------------------------------------------------------
