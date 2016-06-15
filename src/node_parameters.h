@@ -88,16 +88,16 @@ class NodeParams {
   // Public Constructors
   //----------------------
   NodeParams() : left_(), right_(), missing_(),
-  	  	  	  	 split_value_(-HUGE_VAL), split_var_(0),
-  	  	  	  	 split_class_(0),
-  	  	  	  	 category_ordering_(1024), improvement_(0.0) {};
+    split_value_(-HUGE_VAL), split_var_(0),
+    split_class_(0),
+    category_ordering_(), improvement_(0.0) {};
   NodeParams(double weightedresiduals,
              double trainingweight,
              unsigned long numobs,
              unsigned long variableclasses=1,
              unsigned long splitvar=UINT_MAX):
              left_(),
-             right_(NodeDef(weightedresiduals, trainingweight, numobs)),
+             right_(weightedresiduals, trainingweight, numobs),
              missing_(), split_value_(-HUGE_VAL), split_var_(splitvar),
              split_class_(variableclasses), improvement_(0.0) {}
 
