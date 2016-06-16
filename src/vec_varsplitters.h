@@ -51,16 +51,11 @@ class VecVarSplitters {
   //---------------------
   // Public Functions
   //---------------------
-  void reserve(const unsigned long memory_space) {
-    varsplitters_.reserve(memory_space);
-  }
-  void push_back(const VarSplitter& varsplitter) {
-    varsplitters_.push_back(varsplitter);
-  };
   unsigned long size() const { return varsplitters_.size(); };
   VarSplitter& operator[](unsigned long node_num) {
     return varsplitters_[node_num];
   };
+  
   VecNodeParams proposal() {
     VecNodeParams proposed_splits;
     proposed_splits.reserve(varsplitters_.size());

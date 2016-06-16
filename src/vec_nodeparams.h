@@ -25,14 +25,8 @@ class VecNodeParams {
   // Public Constructors
   //----------------------
   VecNodeParams(){};
-  VecNodeParams(unsigned long memory_space) : nodeparams_(memory_space){};
-  VecNodeParams(const VecNodeParams& rhs) {
-    nodeparams_.reserve(rhs.size());
-    for (unsigned long node_num = 0; node_num < rhs.size(); node_num++) {
-      nodeparams_.push_back(rhs.nodeparams_[node_num]);
-    }
-  }
-
+  VecNodeParams(unsigned long memory_space) : nodeparams_(memory_space) {};
+  VecNodeParams(const VecNodeParams& rhs) : nodeparams_(rhs.nodeparams_) {};
   //---------------------
   // Public destructor
   //---------------------
