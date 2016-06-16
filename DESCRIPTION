@@ -1,9 +1,29 @@
 Package: gbm
-Version: 2.1-06
-Date: 2014-04-19
+Version: 2.1.06.9000
+Date: 2016-06-16
 Title: Generalized Boosted Regression Models
-Author: Greg Ridgeway <gregridgeway@gmail.com> with contributions from others
-Maintainer: Harry Southworth <harry.southworth@gmail.com>
+Authors@R: c(
+    person("James", "Hickey",
+           email="james.hickey@cantab.net",
+           role="aut"),
+    person("Paul", "Metcalfe",
+           email="paul.metcalfe@gmail.com",
+           role="aut"),
+    person("Greg", "Ridgeway",
+           email="greg.ridgeway@gmail.com",
+           role="aut"),
+    person("Stefan", "Schroedl",
+           email="schroedl@a9.com",
+           role="aut"),
+    person("Harry", "Southworth",
+           email="harry.southworth@gmail.com",
+           role=c("aut", "cre")),
+    person("Terry", "Therneau",
+           email="therneau.terry@mayo.edu",
+           role="aut")
+    )
+Depends:
+    R (>= 3.0.2)
 Imports:
     survival,
     lattice,
