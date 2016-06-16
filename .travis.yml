@@ -10,4 +10,4 @@ r_github_packages:
   - jimhester/covr
 
 after_success:
-  - if [ "${TRAVIS_OS_NAME}" == "linux" ]; then echo 'covr::coveralls()' | R --vanilla; fi
+  - if [ "${TRAVIS_OS_NAME}" == "linux" ]; then echo 'covr::coveralls(quiet=FALSE)' | R --vanilla; fi
