@@ -68,7 +68,7 @@ double CNodeSearch::CalcImprovementAndSplit(
     vector<unsigned long>& data_node_assigns) {
   // search for the best split
   unsigned long bestnode = 0;
-  double bestnode_improvement = 0.0;
+  double bestnode_improvement = -HUGE_VAL;
   for (unsigned long node_num = 0; node_num < num_terminal_nodes_; node_num++) {
     term_nodes_ptrs[node_num]->SetToSplit();
     if (best_splits_[node_num].get_improvement() > bestnode_improvement) {
@@ -78,7 +78,7 @@ double CNodeSearch::CalcImprovementAndSplit(
   }
 
   // Split Node if improvement is non-zero
-  if (bestnode_improvement != 0.0) {
+  if (bestnode_improvement > 0.0) {
     // Split Node
     term_nodes_ptrs[bestnode]->SplitNode(best_splits_[bestnode]);
     num_terminal_nodes_ += 2;
