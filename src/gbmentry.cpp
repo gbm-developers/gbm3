@@ -35,9 +35,10 @@ extern "C" {
 //-----------------------------------
 // Function: gbm
 //
-// Returns: R List containing: the initial function estimate,
-//			the fit, training errors, validation errors, out of bag
-//			improvement, the trees and the categorical splits.
+// Returns: R List containing: the initial function estimate, the fit,
+//			training errors, validation errors, out of bag
+//			improvement, the trees and the categorical
+//			splits.
 //
 // Description: Fits a gbm model to data.
 //
@@ -95,7 +96,7 @@ extern "C" {
 //  prev_category_splits - SEXP containing const int specifying the last
 //  categorical
 //						 split code of a previous fit
-//for
+// for
 // further
 // fitting - if
 //						 first fit it is 0.

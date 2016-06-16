@@ -55,7 +55,7 @@ class VecVarSplitters {
   VarSplitter& operator[](unsigned long node_num) {
     return varsplitters_[node_num];
   };
-  
+
   VecNodeParams proposal() {
     VecNodeParams proposed_splits;
     proposed_splits.reserve(varsplitters_.size());

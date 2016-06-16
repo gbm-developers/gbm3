@@ -25,8 +25,8 @@ class VecNodeParams {
   // Public Constructors
   //----------------------
   VecNodeParams(){};
-  VecNodeParams(unsigned long memory_space) : nodeparams_(memory_space) {};
-  VecNodeParams(const VecNodeParams& rhs) : nodeparams_(rhs.nodeparams_) {};
+  VecNodeParams(unsigned long memory_space) : nodeparams_(memory_space){};
+  VecNodeParams(const VecNodeParams& rhs) : nodeparams_(rhs.nodeparams_){};
   //---------------------
   // Public destructor
   //---------------------
