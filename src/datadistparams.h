@@ -23,7 +23,7 @@
 // class definition
 //------------------------------
 class DataDistParams {
-public:
+ public:
   //----------------------
   // Public Constructors
   //----------------------
@@ -37,9 +37,11 @@ public:
   // Parameters:
   //  response  - SEXP containing the response of each data-point - accessed via
   //				double ptr
-  //  offset_vec - SEXP containing the offset applied to each response - accessed via
+  //  offset_vec - SEXP containing the offset applied to each response -
+  //  accessed via
   //				double ptr
-  //  covariates - SEXP containing the predictor values - becomes Rcpp::NumericMatrix
+  //  covariates - SEXP containing the predictor values - becomes
+  //  Rcpp::NumericMatrix
   //  covar_order - SEXP containing the order of predictor values to
   //  			be used in GBM formula - accessed via int ptr.
   //  sorted_vec - SEXP indicating the ordering of observations for CoxPH
@@ -55,19 +57,25 @@ public:
   //  row_to_obs_id - SEXP storing integer ids mapping each row to
   //          		its observation - becomes Rcpp::IntegerVector.
   //  var_classes  - R object (SEXP) containing the variable classes,
-  //				  this is stored as a Rcpp::IntegerVector in dataset.cpp.
+  //				  this is stored as a Rcpp::IntegerVector in
+  // dataset.cpp.
   //  monotonicity_vec - SEXP containing +-1/0 indicating whether the
   //  					variables are:
-  //  monotone increasing (+1), decreasing (-1) or arbitrary (0) with the response
+  //  monotone increasing (+1), decreasing (-1) or arbitrary (0) with the
+  //  response
   // 					 variable. - accessed via int ptr
   //  dist_family - SEXP specifying distribution to instantiate - string.
-  //  fraction_in_bag - SEXP specifying the fraction of observations to be bagged -
+  //  fraction_in_bag - SEXP specifying the fraction of observations to be
+  //  bagged -
   //  				   which is a double.
-  //  num_rows_in_training - SEXP containing ulong specify the number of data points in
+  //  num_rows_in_training - SEXP containing ulong specify the number of data
+  //  points in
   //							training set
-  //  unique_training_obs - SEXP containing ulong specifying number of unique observations
+  //  unique_training_obs - SEXP containing ulong specifying number of unique
+  //  observations
   //						  that make up training set
-  //  number_offeatures - SEXP containing ulong specifying number of features for use in
+  //  number_offeatures - SEXP containing ulong specifying number of features
+  //  for use in
   //						tree growing.
   //-----------------------------------
   DataDistParams(SEXP response, SEXP offset_vec, SEXP covariates,
@@ -95,9 +103,9 @@ public:
     // Set up distribution family
     family = Rcpp::as<std::string>(dist_family);
     if (family.empty()) {
-    	  throw gbm_exception::Failure(
-    		  "configStructs - Can't specify IR metric as family not initialized.");
-	}
+      throw gbm_exception::Failure(
+          "configStructs - Can't specify IR metric as family not initialized.");
+    }
   }
 
   //-------------------
@@ -120,6 +128,5 @@ public:
   double bagfraction;
   double prior_coefficient_variation;
   std::string family;
-
 };
 #endif  // DATADISTPARAMS_H

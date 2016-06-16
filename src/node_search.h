@@ -23,8 +23,9 @@
 #include "databag.h"
 #include "dataset.h"
 #include "node.h"
-#include "varsplitter.h"
 #include "node_parameters.h"
+#include "vec_varsplitters.h"
+#include "vec_nodeparams.h"
 #include <vector>
 
 using namespace std;
@@ -37,7 +38,7 @@ class CNodeSearch {
   //----------------------
   // Public Constructors
   //----------------------
-  CNodeSearch(unsigned long treedepth, unsigned long minobs, CNode& rootnode);
+  CNodeSearch(unsigned long treedepth, unsigned long minobs);
 
   //---------------------
   // Public destructor
@@ -47,9 +48,8 @@ class CNodeSearch {
   //---------------------
   // Public Functions
   //---------------------
-  void GenerateAllSplits(vector<CNode* >& term_nodes_ptrs, const CDataset& kData,
-		  	  	  	  	 const Bag& kBag,
-                         double* residuals,
+  void GenerateAllSplits(vector<CNode*>& term_nodes_ptrs, const CDataset& kData,
+                         const Bag& kBag, double* residuals,
                          vector<unsigned long>& data_node_assigns);
   double CalcImprovementAndSplit(vector<CNode*>& term_nodes_ptrs,
                                  const CDataset& kData,
@@ -66,8 +66,8 @@ class CNodeSearch {
   //---------------------
   // Private Variables
   //---------------------
-  // Splitters for variable sets
-  std::vector<VarSplitter> variable_splitters_;
+  // Best Splits
+  VecNodeParams best_splits_;
 
   // Number of terminal nodes
   unsigned long num_terminal_nodes_;

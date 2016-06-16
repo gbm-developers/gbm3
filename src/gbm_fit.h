@@ -19,7 +19,7 @@
 #include "gbm_engine.h"
 #include <Rcpp.h>
 
-using Rcpp::_ ;
+using Rcpp::_;
 
 //------------------------------
 // Class definition
@@ -30,13 +30,12 @@ class GbmFit {
   // Public Constructors
   //----------------------
   GbmFit(const int kNumDataRows, const double kInitEstimate,
-		  const int kNumTrees,
-		  const Rcpp::NumericVector kPrevFuncEstimate);
+         const int kNumTrees, const Rcpp::NumericVector kPrevFuncEstimate);
 
   //---------------------
   // Public destructor
   //---------------------
-  ~GbmFit() {};
+  ~GbmFit(){};
 
   //---------------------
   // Public Functions
@@ -51,7 +50,6 @@ class GbmFit {
   double get_tree_oobag_improv() { return outofbag_improvement_[tree_count_]; }
   void increment_count() { tree_count_++; }
 
-
  private:
   //---------------------
   // Private Variables
@@ -61,7 +59,7 @@ class GbmFit {
   Rcpp::NumericVector training_errors_;
   Rcpp::NumericVector validation_errors_;
   Rcpp::NumericVector outofbag_improvement_;
-  Rcpp::NumericVector func_estimate_; // Fitted function
+  Rcpp::NumericVector func_estimate_;  // Fitted function
   Rcpp::GenericVector set_of_trees_;
   double initial_estimate_;
   unsigned long tree_count_;

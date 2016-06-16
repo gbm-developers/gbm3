@@ -30,14 +30,14 @@ CDistribution* CGamma::Create(DataDistParams& distparams) {
 
 CGamma::~CGamma() {}
 
-void CGamma::ComputeWorkingResponse(const CDataset& kData,
-									const Bag& kBag,
+void CGamma::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
                                     const double* kFuncEstimate,
                                     std::vector<double>& residuals) {
   unsigned long i = 0;
   double deltafunc_est = 0.0;
 
-  if (!(kData.y_ptr() && kFuncEstimate && &(residuals[0]) && kData.weight_ptr())) {
+  if (!(kData.y_ptr() && kFuncEstimate && &(residuals[0]) &&
+        kData.weight_ptr())) {
     throw gbm_exception::InvalidArgument();
   }
 
@@ -76,7 +76,8 @@ double CGamma::InitF(const CDataset& kData) {
   return initfunc_est;
 }
 
-double CGamma::Deviance(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate) {
+double CGamma::Deviance(const CDataset& kData, const Bag& kBag,
+                        const double* kFuncEstimate) {
   unsigned long i = 0;
   double loss = 0.0;
   double weight = 0.0;
@@ -101,9 +102,10 @@ double CGamma::Deviance(const CDataset& kData, const Bag& kBag, const double* kF
   return 2 * loss / weight;
 }
 
-void CGamma::FitBestConstant(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate,
-                             unsigned long num_terminalnodes, std::vector<double>& residuals,
-                             CCARTTree& tree) {
+void CGamma::FitBestConstant(const CDataset& kData, const Bag& kBag,
+                             const double* kFuncEstimate,
+                             unsigned long num_terminalnodes,
+                             std::vector<double>& residuals, CCARTTree& tree) {
   double deltafunc_estimate = 0.0;
   unsigned long obs_num = 0;
   unsigned long node_num = 0;
@@ -169,8 +171,7 @@ void CGamma::FitBestConstant(const CDataset& kData, const Bag& kBag, const doubl
   }
 }
 
-double CGamma::BagImprovement(const CDataset& kData,
-							  const Bag& kBag,
+double CGamma::BagImprovement(const CDataset& kData, const Bag& kBag,
                               const double* kFuncEstimate,
                               const double kShrinkage,
                               const std::vector<double>& kDeltaEstimate) {

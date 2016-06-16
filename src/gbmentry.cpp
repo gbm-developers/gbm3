@@ -35,18 +35,21 @@ extern "C" {
 //-----------------------------------
 // Function: gbm
 //
-// Returns: R List containing: the initial function estimate,
-//			the fit, training errors, validation errors, out of bag
-//			improvement, the trees and the categorical splits.
+// Returns: R List containing: the initial function estimate, the fit,
+//			training errors, validation errors, out of bag
+//			improvement, the trees and the categorical
+//			splits.
 //
 // Description: Fits a gbm model to data.
 //
 // Parameters:
 //  response  - SEXP containing the response of each data-point - accessed via
 //				double ptr
-//  offset_vec - SEXP containing the offset applied to each response - accessed via
+//  offset_vec - SEXP containing the offset applied to each response - accessed
+//  via
 //				double ptr - NA for no offset
-//  covariates - SEXP containing the predictor values - becomes Rcpp::NumericMatrix
+//  covariates - SEXP containing the predictor values - becomes
+//  Rcpp::NumericMatrix
 //  covar_order - SEXP containing the order of predictor values to
 //  			be used in GBM formula - accessed via int ptr.
 //  sorted_vec - SEXP indicating the ordering of observations for CoxPH
@@ -63,45 +66,55 @@ extern "C" {
 //  row_to_obs_id - SEXP storing integer ids mapping each row to
 //          		its observation - becomes Rcpp::IntegerVector.
 //  var_classes  - R object (SEXP) containing the variable classes,
-//				  this is stored as a Rcpp::IntegerVector in dataset.cpp.
+//				  this is stored as a Rcpp::IntegerVector in
+// dataset.cpp.
 //  monotonicity_vec - SEXP containing +-1/0 indicating whether the
 //  					variables are:
 //  monotone increasing (+1), decreasing (-1) or arbitrary (0) with the response
 // 					 variable. - accessed via int ptr
-//  dist_family - SEXP specifying which distribution is used to model data - string.
+//  dist_family - SEXP specifying which distribution is used to model data -
+//  string.
 //  num_trees - SEXP specifying how many trees to fit in model - ulong.
 //  tree_depth - SEXP defining maximum depth of each tree - ulong.
-//  min_num_node_obs - SEXP specifying minimum num of obs a node must have - ulong.
-//  shrinkageconstant - SEXP defining the shrinkage applied to each tree fit - double.
-//  fraction_inbag - SEXP, the fraction of observations to be used in tree fitting - double.
-//	num_rows_in_training - SEXP containing ulong specify the number of data points in
+//  min_num_node_obs - SEXP specifying minimum num of obs a node must have -
+//  ulong.
+//  shrinkageconstant - SEXP defining the shrinkage applied to each tree fit -
+//  double.
+//  fraction_inbag - SEXP, the fraction of observations to be used in tree
+//  fitting - double.
+//	num_rows_in_training - SEXP containing ulong specify the number of data
+// points in
 //							training set
-//  num_obs_in_training - SEXP containing ulong specifying number of unique observations
+//  num_obs_in_training - SEXP containing ulong specifying number of unique
+//  observations
 //						  that make up training set
-//  number_offeatures - SEXP containing ulong specifying number of features for use in
+//  number_offeatures - SEXP containing ulong specifying number of features for
+//  use in
 //						tree growing.
-//  prev_func_estimate - SEXP containing previous function estimate -const Rcpp::NumericVector
-//  prev_category_splits - SEXP containing const int specifying the last categorical
-//						 split code of a previous fit for further fitting - if
+//  prev_func_estimate - SEXP containing previous function estimate -const
+//  Rcpp::NumericVector
+//  prev_category_splits - SEXP containing const int specifying the last
+//  categorical
+//						 split code of a previous fit
+// for
+// further
+// fitting - if
 //						 first fit it is 0.
-//  prev_trees_fitted -  SEXP containing const int - number of previous trees fitted.
-//  isverbose - SEXP which is a const bool specifying whether the fitting should be
+//  prev_trees_fitted -  SEXP containing const int - number of previous trees
+//  fitted.
+//  isverbose - SEXP which is a const bool specifying whether the fitting should
+//  be
 //				silent or not.
 //-----------------------------------
-SEXP gbm(SEXP response,
-         SEXP offset_vec,
-         SEXP covariates, SEXP covar_order, SEXP sorted_vec, SEXP strata_vec,
-         SEXP obs_weight,
-         SEXP misc,
-         SEXP prior_coeff_var,
-         SEXP row_to_obs_id,
-         SEXP var_classes, SEXP monotonicity_vec, SEXP dist_family,
-         SEXP num_trees,
-         SEXP tree_depth,
-         SEXP min_num_node_obs, SEXP shrinkageconstant, SEXP fraction_inbag,
-         SEXP num_rows_in_training, SEXP num_obs_in_training,
-         SEXP number_offeatures, SEXP prev_func_estimate,
-         SEXP prev_category_splits, SEXP prev_trees_fitted, SEXP isverbose) {
+SEXP gbm(SEXP response, SEXP offset_vec, SEXP covariates, SEXP covar_order,
+         SEXP sorted_vec, SEXP strata_vec, SEXP obs_weight, SEXP misc,
+         SEXP prior_coeff_var, SEXP row_to_obs_id, SEXP var_classes,
+         SEXP monotonicity_vec, SEXP dist_family, SEXP num_trees,
+         SEXP tree_depth, SEXP min_num_node_obs, SEXP shrinkageconstant,
+         SEXP fraction_inbag, SEXP num_rows_in_training,
+         SEXP num_obs_in_training, SEXP number_offeatures,
+         SEXP prev_func_estimate, SEXP prev_category_splits,
+         SEXP prev_trees_fitted, SEXP isverbose) {
   BEGIN_RCPP
 
   // Set up consts for tree fitting and transfer to R API
@@ -112,24 +125,21 @@ SEXP gbm(SEXP response,
   const Rcpp::NumericVector kPrevFuncEst(prev_func_estimate);
 
   // Set up parameters for initialization
-  DataDistParams datadistparams(response, offset_vec, covariates,
-          covar_order, sorted_vec, strata_vec,
-          obs_weight, misc, prior_coeff_var,
-          row_to_obs_id, var_classes, monotonicity_vec,
-          dist_family, fraction_inbag,
-          num_rows_in_training, num_obs_in_training,
-          number_offeatures);
-  TreeParams treeparams(tree_depth, min_num_node_obs,
-		  	 shrinkageconstant, num_rows_in_training);
+  DataDistParams datadistparams(
+      response, offset_vec, covariates, covar_order, sorted_vec, strata_vec,
+      obs_weight, misc, prior_coeff_var, row_to_obs_id, var_classes,
+      monotonicity_vec, dist_family, fraction_inbag, num_rows_in_training,
+      num_obs_in_training, number_offeatures);
+  TreeParams treeparams(tree_depth, min_num_node_obs, shrinkageconstant,
+                        num_rows_in_training);
   Rcpp::RNGScope scope;
 
   // Initialize GBM engine
   CGBMEngine gbm(datadistparams, treeparams);
 
   // Initialize the output object
-  GbmFit gbmfit(datadistparams.response.nrow(),
-		  	  gbm.initial_function_estimate(),
-		  	  kNumTrees, kPrevFuncEst);
+  GbmFit gbmfit(datadistparams.response.nrow(), gbm.initial_function_estimate(),
+                kNumTrees, kPrevFuncEst);
 
   if (kIsVerbose) {
     Rprintf("Iter   TrainDeviance   ValidDeviance   StepSize   Improve\n");
@@ -148,12 +158,9 @@ SEXP gbm(SEXP response,
         ((treenum <= 9) || (0 == (treenum + 1 + kTreesOld) % 20) ||
          (treenum == kNumTrees - 1))) {
       Rprintf("%6d %13.4f %15.4f %10.4f %9.4f\n", treenum + 1 + kTreesOld,
-              gbmfit.get_tree_training_error(),
-              gbmfit.get_tree_valid_error(),
-              treeparams.shrinkage,
-              gbmfit.get_tree_oobag_improv());
+              gbmfit.get_tree_training_error(), gbmfit.get_tree_valid_error(),
+              treeparams.shrinkage, gbmfit.get_tree_oobag_improv());
     }
-
 
     // Increment internal count
     gbmfit.increment_count();
@@ -163,7 +170,6 @@ SEXP gbm(SEXP response,
   return gbmfit.ROutput();
   END_RCPP
 }
-
 
 //-----------------------------------
 // Function: gbm_pred
@@ -176,27 +182,29 @@ SEXP gbm(SEXP response,
 // Parameters:
 //  covariates - SEXP containing the predictor values - becomes
 //				  const Rcpp::NumericMatrix.
-//  num_trees - SEXP containing an int or vector of ints specifying the number of
-//				  trees to make predictions on - stored as const Rcpp::IntegerVector.
+//  num_trees - SEXP containing an int or vector of ints specifying the number
+//  of
+//				  trees to make predictions on - stored as const
+// Rcpp::IntegerVector.
 //  initial_func_est - SEXP specifying initial prediction estimate - double.
 //  fitted_trees - SEXP containing lists defining the previously fitted trees -
 //					stored as const Rcpp::GenericVector.
-//  categorical_splits - SEXP containing  list of the categories of the split variables
-//						defining a tree - stored as a const Rcpp::GenericVector.
+//  categorical_splits - SEXP containing  list of the categories of the split
+//  variables
+//						defining a tree - stored as a
+// const
+// Rcpp::GenericVector.
 //  variable_type -  SEXP containing integers specifying whether the variable
-//					is continuous/nominal- stored as const Rcpp::IntegerVector.
-//  ret_single_tree_res - SEXP which is a const bool specifying whether the fitting should be
+//					is continuous/nominal- stored as const
+// Rcpp::IntegerVector.
+//  ret_single_tree_res - SEXP which is a const bool specifying whether the
+//  fitting should be
 //				only a single tree.
 //-----------------------------------
 
-SEXP gbm_pred(SEXP covariates,
-              SEXP num_trees,
-              SEXP initial_func_est,
-              SEXP fitted_trees,
-              SEXP categorical_splits,
-              SEXP variable_type,
-              SEXP ret_single_tree_res
-              ) {
+SEXP gbm_pred(SEXP covariates, SEXP num_trees, SEXP initial_func_est,
+              SEXP fitted_trees, SEXP categorical_splits, SEXP variable_type,
+              SEXP ret_single_tree_res) {
   BEGIN_RCPP
   int tree_num = 0;
   int obs_num = 0;
@@ -304,16 +312,24 @@ SEXP gbm_pred(SEXP covariates,
 //				  const Rcpp::NumericMatrix.
 //  whichvar- SEXP containing indices specifying which var columns of the
 //			  covariates are important - const Rcpp::IntegerVector.
-//  num_trees - SEXP containing an int or vector of ints specifying the number of
-//				  trees to make predictions on - stored as const Rcpp::IntegerVector.
-//				  trees to make predictions on - stored as const Rcpp::IntegerVector.
+//  num_trees - SEXP containing an int or vector of ints specifying the number
+//  of
+//				  trees to make predictions on - stored as const
+// Rcpp::IntegerVector.
+//				  trees to make predictions on - stored as const
+// Rcpp::IntegerVector.
 //  init_func_est - SEXP specifying initial prediction estimate - double.
 //  fitted_trees - SEXP containing lists defining the previously fitted trees -
 //					stored as const Rcpp::GenericVector.
-//  categorical_splits - SEXP containing  list of the categories of the split variables
-//						defining a tree - stored as a const Rcpp::GenericVector.
-//  var_types -  SEXP containing integers specifying whether the variables of interest are
-//				continuous/nominal- stored as const Rcpp::IntegerVector.
+//  categorical_splits - SEXP containing  list of the categories of the split
+//  variables
+//						defining a tree - stored as a
+// const
+// Rcpp::GenericVector.
+//  var_types -  SEXP containing integers specifying whether the variables of
+//  interest are
+//				continuous/nominal- stored as const
+// Rcpp::IntegerVector.
 //-----------------------------------
 
 SEXP gbm_plot(

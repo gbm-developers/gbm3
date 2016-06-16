@@ -43,14 +43,13 @@ class CCARTTree {
   //---------------------
   // Public destructor
   //---------------------
-  ~CCARTTree() {};
+  ~CCARTTree(){};
 
   //---------------------
   // Public Functions
   //---------------------
   void Grow(std::vector<double>& residuals, const CDataset& kData,
-		  	    const Bag& kBag,
-            const std::vector<double>& kDeltaEstimate);
+            const Bag& kBag, const std::vector<double>& kDeltaEstimate);
 
   void PredictValid(const CDataset& kData, unsigned long num_validation_points,
                     std::vector<double>& delta_estimates);
@@ -67,7 +66,7 @@ class CCARTTree {
   std::vector<unsigned long>& get_node_assignments() {
     return data_node_assignment_;
   }
-  vector<CNode* >& get_terminal_nodes() { return terminalnode_ptrs_; }
+  vector<CNode*>& get_terminal_nodes() { return terminalnode_ptrs_; }
   const double& get_shrinkage_factor() const { return kShrinkage_; }
   const unsigned long& min_num_obs_required() const {
     return min_num_node_obs_;
@@ -78,15 +77,15 @@ class CCARTTree {
   //---------------------
   // Private Variables
   //---------------------
-  auto_ptr<CNode> rootnode_;
-  vector<CNode*> terminalnode_ptrs_;
-  vector<unsigned long> data_node_assignment_;
-
   unsigned long min_num_node_obs_;
   const long kTreeDepth_;
   const double kShrinkage_;
   double error_;  // total squared error before carrying out the splits
   unsigned long totalnodecount_;
+
+  auto_ptr<CNode> rootnode_;
+  vector<CNode*> terminalnode_ptrs_;
+  vector<unsigned long> data_node_assignment_;
 };
 
 #endif  // TREE_H

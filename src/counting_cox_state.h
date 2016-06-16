@@ -36,9 +36,9 @@ class CountingCoxState : public GenericCoxState {
   //---------------------
   // Public Functions
   //---------------------
-  void ComputeWorkingResponse(const CDataset& kData,
-		  	  	  	  	  	  const Bag& kBag,
-                              const double* kFuncEstimate, std::vector<double>& residuals) {
+  void ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
+                              const double* kFuncEstimate,
+                              std::vector<double>& residuals) {
     // Initialize parameters
     std::vector<double> martingale_resid(kData.get_trainsize(), 0.0);
     LogLikelihoodTiedTimes(kData.get_trainsize(), kData, kBag, kFuncEstimate,
@@ -53,9 +53,10 @@ class CountingCoxState : public GenericCoxState {
     }
   }
 
-  void FitBestConstant(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate,
-                       unsigned long num_terminalnodes, std::vector<double>& residuals,
-                       CCARTTree& tree) {
+  void FitBestConstant(const CDataset& kData, const Bag& kBag,
+                       const double* kFuncEstimate,
+                       unsigned long num_terminalnodes,
+                       std::vector<double>& residuals, CCARTTree& tree) {
     // Calculate the expected number of events and actual number of events in
     // terminal nodes
     std::vector<double> martingale_resid(kData.get_trainsize(), 0.0);
@@ -68,8 +69,8 @@ class CountingCoxState : public GenericCoxState {
 
     for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
       if (kBag.get_element(i) &&
-          (tree.get_terminal_nodes()[tree.get_node_assignments()[i]]->get_numobs() >=
-           tree.min_num_obs_required())) {
+          (tree.get_terminal_nodes()[tree.get_node_assignments()[i]]
+               ->get_numobs() >= tree.min_num_obs_required())) {
         // Cap expected number of events to be at least 0
         expnum_events_in_nodes[tree.get_node_assignments()[i]] +=
             max(0.0, coxph_->StatusVec()[i] - martingale_resid[i]);
@@ -87,8 +88,7 @@ class CountingCoxState : public GenericCoxState {
   }
 
   double Deviance(const long kNumRowsInSet, const CDataset& kData,
-		  	  	  const Bag& kBag,
-                  const double* kFuncEstimate) {
+                  const Bag& kBag, const double* kFuncEstimate) {
     // Initialize Parameters
     double loglik = 0.0;
     std::vector<double> martingale_resid(kNumRowsInSet, 0.0);
@@ -100,8 +100,9 @@ class CountingCoxState : public GenericCoxState {
     return -loglik;
   }
 
-  double BagImprovement(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate,
-                        const double kShrinkage, const std::vector<double>& kDeltaEstimate) {
+  double BagImprovement(const CDataset& kData, const Bag& kBag,
+                        const double* kFuncEstimate, const double kShrinkage,
+                        const std::vector<double>& kDeltaEstimate) {
     // Initialize Parameters
     double loglike_no_adj = 0.0;
     double loglike_with_adj = 0.0;
@@ -120,9 +121,9 @@ class CountingCoxState : public GenericCoxState {
     }
 
     // Calculate likelihoods - data not in bags
-    loglike_no_adj =
-        LogLikelihoodTiedTimes(kData.get_trainsize(), kData, kBag, kFuncEstimate,
-                               &martingale_resid_no_adj[0], false, false);
+    loglike_no_adj = LogLikelihoodTiedTimes(
+        kData.get_trainsize(), kData, kBag, kFuncEstimate,
+        &martingale_resid_no_adj[0], false, false);
     loglike_with_adj =
         LogLikelihoodTiedTimes(kData.get_trainsize(), kData, kBag, &eta_adj[0],
                                &martingale_resid_with_adj[0], false, false);
@@ -133,9 +134,9 @@ class CountingCoxState : public GenericCoxState {
  private:
   CCoxPH* coxph_;
   double LogLikelihoodTiedTimes(const int n, const CDataset& kData,
-		  	  	  	  	  	  	const Bag& kBag,
-                                const double* eta, double* resid,
-                                bool skipbag = true, bool checkinbag = true) {
+                                const Bag& kBag, const double* eta,
+                                double* resid, bool skipbag = true,
+                                bool checkinbag = true) {
     int k, ksave;
     int person, p2, indx1, p1;
     int istrat;

@@ -37,15 +37,17 @@ class CGBMDataDistContainer {
   //---------------------
   // Public destructor
   //---------------------
-  ~CGBMDataDistContainer() {};
+  ~CGBMDataDistContainer(){};
 
   //---------------------
   // Public Functions
   //---------------------
   void Initialize();
   double InitialFunctionEstimate();
-  void ComputeResiduals(const double* kFuncEstimate, std::vector<double>& residuals);
-  void ComputeBestTermNodePreds(const double* kFuncEstimate, std::vector<double>& residuals,
+  void ComputeResiduals(const double* kFuncEstimate,
+                        std::vector<double>& residuals);
+  void ComputeBestTermNodePreds(const double* kFuncEstimate,
+                                std::vector<double>& residuals,
                                 CCARTTree& tree);
   double ComputeDeviance(const double* kFuncEstimate,
                          bool is_validationset = false);
@@ -57,7 +59,7 @@ class CGBMDataDistContainer {
   std::auto_ptr<CDistribution>& get_dist() { return distptr_; }
   const CDataset& get_data() const { return data_; }
   CDataset& get_data() { return data_; }
-  const Bag& get_bag() const{ return databag_; }
+  const Bag& get_bag() const { return databag_; }
   Bag& get_bag() { return databag_; }
 
  private:

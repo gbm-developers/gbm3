@@ -169,6 +169,5 @@ class CDataset {
   unsigned long num_validationdata_;
   unsigned long num_features_;
   bool point_at_trainingset_;
-
 };
 #endif  // DATASET_H

@@ -24,7 +24,7 @@ class GenericNodeStrategy {
   //----------------------
   // Public Constructors
   //----------------------
-  GenericNodeStrategy(): is_split_(false){};
+  GenericNodeStrategy() : is_split_(false){};
 
   //---------------------
   // Public destructor

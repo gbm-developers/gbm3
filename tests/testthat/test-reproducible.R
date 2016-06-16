@@ -32,7 +32,7 @@ test_that("Setting different seeds causes result to be different (1 core)", {
   nt2 <- gbm.perf(mod, method="cv", plot.it=FALSE)
   ri2 <- relative.influence(mod, n.trees=nt2)
 
-  expect_that(ri1, not(equals(ri2)),
+  expect_false(isTRUE(all.equal(ri1, ri2)),
               label="Relative influences don't match when different seeds are used")
 })
 
@@ -72,6 +72,6 @@ test_that("Setting different seeds causes result to be different (multicore)", {
   nt2 <- gbm.perf(mod, method="cv", plot.it=FALSE)
   ri2 <- relative.influence(mod, n.trees=nt2)
 
-  expect_that(ri1, not(equals(ri2)),
+  expect_false(isTRUE(all.equal(ri1, ri2)),
               label="Relative influences don't match when different seeds are used")
 })

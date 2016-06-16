@@ -13,11 +13,9 @@
 //---------------------
 // Public Functions
 //---------------------
-NodeParams::~NodeParams() {}
-
 void NodeParams::ResetSplitProperties(double weightedresiduals,
                                       double trainingweight,
-                                      unsigned long numobs, double splitvalue,
+                                      unsigned long numobs, unsigned long bias,
                                       unsigned long variableclasses,
                                       unsigned long splitvar) {
   right_ = NodeDef(weightedresiduals, trainingweight, numobs);
@@ -26,7 +24,8 @@ void NodeParams::ResetSplitProperties(double weightedresiduals,
   missing_.clear();
 
   split_var_ = splitvar;
-  split_value_ = splitvalue;
-  improvement_ = 0.0;
+  split_value_ = -HUGE_VAL;
+  improvement_ = -HUGE_VAL;
   split_class_ = variableclasses;
+  bias_ = bias;
 }

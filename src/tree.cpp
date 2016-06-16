@@ -9,21 +9,20 @@
 // Function Members - Public
 //----------------------------------------
 CCARTTree::CCARTTree(const TreeParams& treeconfig)
-    : rootnode_(),
-      min_num_node_obs_(treeconfig.min_obs_in_node),
-	  kTreeDepth_(treeconfig.depth),
+    : min_num_node_obs_(treeconfig.min_obs_in_node),
+      kTreeDepth_(treeconfig.depth),
       kShrinkage_(treeconfig.shrinkage),
-      error_(0.0), totalnodecount_(1){
-
-  data_node_assignment_.resize(treeconfig.num_trainrows, 0);
-  terminalnode_ptrs_.resize(2 * kTreeDepth_ + 1, NULL);
-}
+      error_(0.0),
+      totalnodecount_(1),
+      rootnode_(),
+      terminalnode_ptrs_(2 * kTreeDepth_ + 1, 0),
+      data_node_assignment_(treeconfig.num_trainrows, 0) {}
 
 //------------------------------------------------------------------------------
 // Grows a regression tree
 //------------------------------------------------------------------------------
 void CCARTTree::Grow(std::vector<double>& residuals, const CDataset& kData,
-					 const Bag& kBag,
+                     const Bag& kBag,
                      const std::vector<double>& kDeltaEstimate) {
   if ((&(residuals[0]) == NULL) || (kData.weight_ptr() == NULL) ||
       (&kDeltaEstimate[0] == NULL) || (kTreeDepth_ < 1)) {
@@ -51,14 +50,13 @@ void CCARTTree::Grow(std::vector<double>& residuals, const CDataset& kData,
   error_ = sum_zsquared - sumz * sumz / totalw;
   rootnode_.reset(new CNode(NodeDef(sumz, totalw, kBag.get_total_in_bag())));
   terminalnode_ptrs_[0] = rootnode_.get();
-  CNodeSearch new_node_searcher(kTreeDepth_, min_num_node_obs_, *(rootnode_.get()));
+  CNodeSearch new_node_searcher(kTreeDepth_, min_num_node_obs_);
 
   // build the tree structure
   for (long cDepth = 0; cDepth < kTreeDepth_; cDepth++) {
-
     // Generate all splits
-    new_node_searcher.GenerateAllSplits(
-        terminalnode_ptrs_, kData, kBag, &(residuals[0]), data_node_assignment_);
+    new_node_searcher.GenerateAllSplits(terminalnode_ptrs_, kData, kBag,
+                                        &(residuals[0]), data_node_assignment_);
     double bestImprov = new_node_searcher.CalcImprovementAndSplit(
         terminalnode_ptrs_, kData, data_node_assignment_);
 
@@ -71,7 +69,7 @@ void CCARTTree::Grow(std::vector<double>& residuals, const CDataset& kData,
     totalnodecount_ += 3;
 
   }  // end tree growing
-
+  // throw gbm_exception::Failure("Here");
   // DEBUG
   // Print();
 }

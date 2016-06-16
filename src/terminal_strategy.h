@@ -48,7 +48,7 @@ class TerminalStrategy : public GenericNodeStrategy {
             nodecontext_->get_prediction());
   }
   signed char WhichNode(const CDataset& kData, unsigned long obs_num) {
-	  return 0;
+    return 0;
   }
   void TransferTreeToRList(int& nodeid, const CDataset& kData, int* splitvar,
                            double* splitpoint, int* leftnodes, int* rightnodes,
