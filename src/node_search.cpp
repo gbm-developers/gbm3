@@ -25,13 +25,12 @@ void CNodeSearch::GenerateAllSplits(vector<CNode*>& term_nodes_ptrs,
                                     double* residuals,
                                     vector<unsigned long>& data_node_assigns) {
   const index_vector kColNumbers(kData.RandomOrder());
-
-#pragma omp parallel
+  VecNodeParams best_splits_updates(best_splits_);
+  
+#pragma omp parallel firstprivate(best_splits_updates)
   {
     
-    VecNodeParams best_splits_updates(best_splits_);
-
-#pragma omp for schedule(guided)
+#pragma omp for schedule(guided) nowait
     for (unsigned long ind = 0; ind < kData.get_num_features(); ++ind) {
       const int kVar = kColNumbers[ind];
       const int KVarClasses = kData.varclass(kVar);
