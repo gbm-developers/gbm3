@@ -1,3 +1,14 @@
+check_if_natural_number <- function(value, name) {
+  # value - the value of the parameter to check 
+  # name - string specifying the name of the value to appear in
+  #        error message
+  if(is.null(value) || is.infinite(value) 
+     || !(abs(value - round(value)) < .Machine$double.eps^0.5) ||
+     (value < 0) || (length(value) > 1)) {
+    stop("The ", name, " must be a positive whole number")
+  }
+}
+
 checkMissing <- function(x, y){
    nms <- getVarNames(x)
    #### Check for NaNs in x and NAs in response
@@ -57,7 +68,7 @@ checkOffset <- function(o, y, dist){
 getVarNames <- function(x){
    if(is.matrix(x)) { var.names <- colnames(x) }
    else if(is.data.frame(x)) { var.names <- names(x) }
-   else { var.names <- paste("X",1:ncol(x),sep="") }
+   else { var.names <- paste("X", 1:ncol(x),sep="") }
    var.names
 }
 

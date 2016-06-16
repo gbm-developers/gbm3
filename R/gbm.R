@@ -488,7 +488,7 @@ gbm <- function(formula = formula(data),
      {
        if(length(unique(fold.id[patient.id == id])) > 1)
        {
-         stop("Patients are split across multiple folds")
+         stop("Observations are split across multiple folds")
        }
      }
    }
