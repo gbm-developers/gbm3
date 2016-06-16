@@ -28,11 +28,9 @@ CPoisson::~CPoisson() {}
 void CPoisson::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
                                       const double* kFuncEstimate,
                                       std::vector<double>& residuals) {
-  unsigned long i = 0;
-
-// compute working response
+  // compute working response
 #pragma omp parallel for schedule(static)
-  for (i = 0; i < kData.get_trainsize(); i++) {
+  for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     const double delta_func_est = kFuncEstimate[i] + kData.offset_ptr()[i];
     residuals[i] = kData.y_ptr()[i] - std::exp(delta_func_est);
   }
