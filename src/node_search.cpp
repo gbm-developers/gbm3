@@ -28,12 +28,14 @@ void CNodeSearch::GenerateAllSplits(vector<CNode*>& term_nodes_ptrs,
 
 #pragma omp parallel
   {
+    
     VecNodeParams best_splits_updates(best_splits_);
-#pragma omp for schedule(guided) nowait
+
+#pragma omp for schedule(guided)
     for (unsigned long ind = 0; ind < kData.get_num_features(); ++ind) {
       const int kVar = kColNumbers[ind];
       const int KVarClasses = kData.varclass(kVar);
-
+      
       VecVarSplitters variable_splitters(num_terminal_nodes_, term_nodes_ptrs,
                                          min_num_node_obs_, ind, kVar,
                                          KVarClasses, kData.monotone(kVar));
@@ -58,8 +60,11 @@ void CNodeSearch::GenerateAllSplits(vector<CNode*>& term_nodes_ptrs,
 
       best_splits_updates += variable_splitters.proposal();
     }
+
 #pragma omp critical
-    best_splits_ += best_splits_updates;
+    {
+      best_splits_ += best_splits_updates;
+    }
   }
 }
 
