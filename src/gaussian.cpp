@@ -28,15 +28,13 @@ CGaussian::~CGaussian() {}
 void CGaussian::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
                                        const double* kFuncEstimate,
                                        std::vector<double>& residuals) {
-  unsigned long i = 0;
-
   if (!(kData.y_ptr() && kFuncEstimate && &(residuals[0]) &&
         kData.weight_ptr())) {
     throw gbm_exception::InvalidArgument();
   }
 
 #pragma omp parallel for schedule(static)
-  for (i = 0; i < kData.get_trainsize(); i++) {
+  for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     residuals[i] = kData.y_ptr()[i] - kData.offset_ptr()[i] - kFuncEstimate[i];
   }
 }
