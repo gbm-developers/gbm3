@@ -58,7 +58,7 @@ class CBernoulli : public CDistribution {
   //----------------------
   // Private Constructors
   //----------------------
-  CBernoulli();
+  CBernoulli(const parallel_details& parallel);
 
   //-------------------
   // Private Variables

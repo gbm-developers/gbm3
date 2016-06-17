@@ -15,13 +15,14 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CLaplace::CLaplace() : mpLocM_("Other") {}
+CLaplace::CLaplace(const parallel_details& parallel)
+    : CDistribution(parallel), mpLocM_("Other") {}
 
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
 CDistribution* CLaplace::Create(DataDistParams& distparams) {
-  return new CLaplace();
+  return new CLaplace(distparams.parallel);
 }
 
 CLaplace::~CLaplace() {}
@@ -29,7 +30,7 @@ CLaplace::~CLaplace() {}
 void CLaplace::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
                                       const double* kFuncEstimate,
                                       std::vector<double>& residuals) {
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(static) num_threads(get_num_threads())
   for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     residuals[i] =
         (kData.y_ptr()[i] - kData.offset_ptr()[i] - kFuncEstimate[i]) > 0.0
@@ -41,7 +42,7 @@ void CLaplace::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
 double CLaplace::InitF(const CDataset& kData) {
   std::vector<double> arr(kData.get_trainsize());
 
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(static) num_threads(get_num_threads())
   for (unsigned long ii = 0; ii < kData.get_trainsize(); ii++) {
     arr[ii] = kData.y_ptr()[ii] - kData.offset_ptr()[ii];
   }
@@ -57,7 +58,8 @@ double CLaplace::Deviance(const CDataset& kData, const Bag& kBag,
 
   unsigned long num_rows_in_set = kData.get_size_of_set();
 
-#pragma omp parallel for schedule(static) reduction(+ : loss, weight)
+#pragma omp parallel for schedule(static) \
+    reduction(+ : loss, weight) num_threads(get_num_threads())
   for (unsigned long i = 0; i < num_rows_in_set; i++) {
     loss += kData.weight_ptr()[i] *
             fabs(kData.y_ptr()[i] - kData.offset_ptr()[i] - kFuncEstimates[i]);
@@ -117,7 +119,8 @@ double CLaplace::BagImprovement(const CDataset& kData, const Bag& kBag,
   double returnvalue = 0.0;
   double weight = 0.0;
 
-#pragma omp parallel for schedule(static) reduction(+ : returnvalue, weight)
+#pragma omp parallel for schedule(static) \
+    reduction(+ : returnvalue, weight) num_threads(get_num_threads())
   for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     if (!kBag.get_element(i)) {
       const double delta_func_est = kFuncEstimate[i] + kData.offset_ptr()[i];

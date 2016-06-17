@@ -57,7 +57,7 @@ class CGaussian : public CDistribution {
   //----------------------
   // Private Constructors
   //----------------------
-  CGaussian();
+  CGaussian(const parallel_details& parallel);
 };
 
 #endif  // GAUSSIAN_H

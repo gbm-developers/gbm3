@@ -58,7 +58,7 @@ class CAdaBoost : public CDistribution {
   //----------------------
   // Private Constructors
   //----------------------
-  CAdaBoost();
+  CAdaBoost(const parallel_details& parallel);
 
   //-------------------
   // Private Variables

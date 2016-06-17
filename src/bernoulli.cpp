@@ -16,14 +16,16 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CBernoulli::CBernoulli()
-    : terminalnode_capped_(false), terminalnode_cap_level_(10) {}
+CBernoulli::CBernoulli(const parallel_details& parallel)
+    : CDistribution(parallel),
+      terminalnode_capped_(false),
+      terminalnode_cap_level_(10) {}
 
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
 CDistribution* CBernoulli::Create(DataDistParams& distparams) {
-  return new CBernoulli();
+  return new CBernoulli(distparams.parallel);
 }
 
 CBernoulli::~CBernoulli() {}
@@ -31,7 +33,7 @@ CBernoulli::~CBernoulli() {}
 void CBernoulli::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
                                         const double* kFuncEstimate,
                                         std::vector<double>& residuals) {
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(static) num_threads(get_num_threads())
   for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     const double deltafunc_est = kFuncEstimate[i] + kData.offset_ptr()[i];
     const double prob = 1.0 / (1.0 + std::exp(-deltafunc_est));
@@ -74,7 +76,8 @@ double CBernoulli::Deviance(const CDataset& kData, const Bag& kBag,
   // Switch to validation set if necessary
   unsigned long num_of_rows_in_set = kData.get_size_of_set();
 
-#pragma omp parallel for schedule(static) reduction(+ : loss, weight)
+#pragma omp parallel for schedule(static) \
+    reduction(+ : loss, weight) num_threads(get_num_threads())
   for (unsigned long i = 0; i < num_of_rows_in_set; i++) {
     const double deltafunc_est = kFuncEstimate[i] + kData.offset_ptr()[i];
     loss += kData.weight_ptr()[i] * (kData.y_ptr()[i] * deltafunc_est -
@@ -150,7 +153,8 @@ double CBernoulli::BagImprovement(const CDataset& kData, const Bag& kBag,
   double returnvalue = 0.0;
   double weight = 0.0;
 
-#pragma omp parallel for schedule(static) reduction(+ : returnvalue, weight)
+#pragma omp parallel for schedule(static) \
+    reduction(+ : returnvalue, weight) num_threads(get_num_threads())
   for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     if (!kBag.get_element(i)) {
       const double deltafunc_est = kFuncEstimate[i] + kData.offset_ptr()[i];

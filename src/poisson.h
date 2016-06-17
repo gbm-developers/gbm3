@@ -59,7 +59,7 @@ class CPoisson : public CDistribution {
   //----------------------
   // Private Constructors
   //----------------------
-  CPoisson();
+  CPoisson(const parallel_details& parallel);
 };
 
 #endif  // POISSON_H
