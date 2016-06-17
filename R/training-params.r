@@ -3,7 +3,7 @@
 #' Class that contains the training parameters for the gbm model
 #' 
 #' @usage training_params(num_trees=100, interaction_depth=1,
-#'  min_num_obs_in_node=10, shrinkage=0.001, bag_fraction=0.5, id,  num_train)
+#'  min_num_obs_in_node=10, shrinkage=0.001, bag_fraction=0.5, id,  num_train, num_features)
 #' 
 #' @param num_trees Number of trees used in the fit.
 #' 
@@ -57,11 +57,19 @@ training_params <- function(num_trees=100, interaction_depth=1,
     stop("Bag fraction should be a double between 0.0 and 1.0")
   }
   
+  # Order the ids 
+  id <- order(id)
+  num_rows_per_obs <- table(id[id])
+  
+  if(sum(num_rows_per_obs[1:num_train]) * bag.fraction <= 2*n.minobsinnode+1) {
+    stop("The dataset size is too small or subsampling rate is too large: *bag.fraction <= n.minobsinnode")
+  }
+  
   object <- structure(list("num_trees"=num_trees, "interaction_depth"=interaction_depth,
                  "min_num_obs_in_node"=min_num_obs_in_node, "shrinkage"=shrinkage,
                  "bag_fraction"=bag_fraction, "id"= id, "num_train"=num_train,
-                 "num_features"=num_features),
-                 class="trainingParams")
+                 "num_features"=num_features, "num_rows_per_obs"=num_rows_per_obs),
+                 class="GBMTrainParams")
   
   return(object)
 

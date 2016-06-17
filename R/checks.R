@@ -1,3 +1,22 @@
+check_if_gbm_dist <- function(dist_obj) {
+  # Check if GBM dist object
+  if(!match(class(distribution_obj), paste0(available_distributions(), "GBMDist"))) {
+    stop("Function requires a GBMDist object.")
+  }
+}
+
+check_if_gbm_data <- function(data_obj) {
+  if(!match(class(data_obj), "GBMData")) {
+    stop("Function requires a GBMData object.")
+  }
+}
+
+check_if_gbm_params <-function(params_obj) {
+  if(!match(class(params_obj), "GBMTrainParams")) {
+    stop("Function requires a GBMTrainParams object.")
+  }
+}
+
 check_if_natural_number <- function(value, name) {
   # value - the value of the parameter to check 
   # name - string specifying the name of the value to appear in

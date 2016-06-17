@@ -14,13 +14,13 @@
 
 verify_data <- function(x, y) {
   # Check predictor variables are either data-frame or matrix
-  if(!is.matrix(x) || !is.data.frame(x)) {
+  if(!is.matrix(x) && !is.data.frame(x)) {
     stop("Predictor variables, x, must be contained in a dataframe or matrix")
   }
   
   # Check same for y
-  if(!is.matrix(y) || !is.data.frame(y) || !is.atomic(y)) {
-    stop("Response, x, must be contained in a dataframe, matrix or vector")
+  if(!is.matrix(y) && !is.data.frame(y) && !is.atomic(y)) {
+    stop("Response, y, must be contained in a dataframe, matrix or vector")
   }
   
   # Check same length

@@ -27,15 +27,16 @@ create_dist.BernoulliGBMDist <- function(empty_obj, ...) {
   return(empty_obj)
 }
 
-create_dist.CoxPHGBMDist <- function(empty_obj, strata=NULL, ties="efron"
+create_dist.CoxPHGBMDist <- function(empty_obj, strata=NULL, sorted=NULL, ties="efron"
                                      , prior_node_coeff_var=1000, ...) {
-  check_dist_params(empty_obj, strata, ties, prior_node_coeff_var, ...)
+  check_dist_params(empty_obj, strata, sorted, ties, prior_node_coeff_var, ...)
   if(!(ties %in% c("breslow", "efron"))) {
     warning("Ties method not recognised - defaulting to efron")
     ties <- "efron"
   }
   empty_obj$ties <- ties
   empty_obj$strata <- strata
+  empty_obj$sorted <- sorted
   empty_obj$prior_node_coeff <- prior_node_coeff_var
   empty_obj$reorder <- TRUE
   return(empty_obj)

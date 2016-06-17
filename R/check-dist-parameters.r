@@ -49,9 +49,17 @@ check_dist_params.CoxPHGBMDist <- function(empty_obj, strata, ties, prior_node, 
   # Check strata
   if(!exists("strata")) {
     stop("Strata not specified - distribution could not be constructed")
-  } else if(!(is.atomic(strata)) || is.null(strata) || is.finite(strata)
-            || isTRUE(all(strata == as.integer(strata)))) {
+  } else if(!is.null(strata) && (!(is.atomic(strata)) || is.finite(strata)
+            || isTRUE(all(strata == as.integer(strata)))) ) {
     stop("Strata parameter must be an atomic of integers")
+  } 
+  
+  # Check sorted
+  if(!exists("sorted")) {
+    stop("Sorted not specified - distribution could not be constructed")
+  } else if(!is.null(sorted) && (!(is.atomic(sorted)) || is.finite(sorted)
+                                 || isTRUE(all(sorted == as.integer(sorted)))) ) {
+    stop("Sorted parameter must be an atomic of integers")
   } 
   
   # Check coeff

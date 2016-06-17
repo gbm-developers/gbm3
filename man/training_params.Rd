@@ -5,7 +5,7 @@
 \title{Training parameters}
 \usage{
 training_params(num_trees=100, interaction_depth=1,
- min_num_obs_in_node=10, shrinkage=0.001, bag_fraction=0.5, num_train=NULL)
+ min_num_obs_in_node=10, shrinkage=0.001, bag_fraction=0.5, id,  num_train, num_features)
 }
 \arguments{
 \item{num_trees}{Number of trees used in the fit.}
@@ -23,7 +23,12 @@ create the next tree in the expansion.  Introduces randomness in the model fit;
 if bag_fraction < 1 then running the same model twice  will result in similar but different
 fits.}
 
+\item{id}{optional vector of integers, specifying which rows in the data correspond
+to which observations. Individual observations may have many rows of data associated with them.}
+
 \item{num_train}{number of unique observations used in training the model.}
+
+\item{num_features}{number of random features/columns to use in training model}
 }
 \value{
 training parameters object

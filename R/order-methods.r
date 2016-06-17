@@ -1,0 +1,32 @@
+# Ordering functions 
+# A series of functions for ordering gbm_data and
+# training_params objects according to observation id and groupings.
+# The latter is only relevant for the Pairwise distribution.
+
+order_data <- function(gbm_data_obj, distribution_obj) {
+  order_by_groupings(gbm_data_obj, distribution_obj)
+  order_by_id(gbm_data_obj)
+}
+
+order_by_id <- function(gbm_data_obj) {
+  # Check if gbm_data_obj
+  check_if_gbm_data(gbm_data_obj)
+  gbm_data_obj$x <- gbm_data_obj$x[gbm_data_obj$id_order, , drop=FALSE]
+  gbm_data_obj$y <- gbm_data_obj$y[gbm_data_obj$id_order]
+  
+  return(gbm_data_obj)
+}
+
+order_by_groupings <- function(gbm_data_obj, distribution_obj) {
+  # Check if gbm_data_obj
+  check_if_gbm_data(gbm_data_obj)
+  
+  # Check if GBMDist obj
+  check_if_gbm_dist(distribution_obj)
+  if(!is.null(distribution_obj$group)) {
+    gbm_data_obj$y            <- gbm_data_obj$y[distribution_obj$group_order]
+    gbm_data_obj$x            <- gbm_data_obj$x[distribution_obj$group_order,,drop=FALSE]
+    gbm_data_obj$weights      <- gbm_data_obj$weights[distribution_obj$group_order]
+  }
+  return(gbm_data_obj)
+}
