@@ -2,7 +2,10 @@
 
 #include "distribution.h"
 
-CDistribution::CDistribution() { num_groups_ = -1; }
+CDistribution::CDistribution() : parallel_(), num_groups_(-1) {}
+
+CDistribution::CDistribution(const parallel_details& parallel)
+    : parallel_(parallel), num_groups_(-1) {}
 
 CDistribution::~CDistribution() {}
 
