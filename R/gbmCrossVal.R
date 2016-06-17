@@ -14,7 +14,7 @@ gbmCrossVal <- function(cv.folds, nTrainGroups, n.cores,
                         n.trees, interaction.depth, n.minobsinnode,
                         shrinkage, bag.fraction, mFeatures,
                         var.names, response.name, group, lVerbose, keep.data,
-                        fold.id, tied.times.method, prior.node.coeff.var, strata, patient.id) {
+                        fold.id, tied.times.method, prior.node.coeff.var, strata, patient.id, n.threads) {
   i.train <- 1:nTrainGroups
   cv.group <- getCVgroup(distribution$name, class.stratify.cv, y,
                          i.train, cv.folds, group, fold.id)
@@ -26,7 +26,7 @@ gbmCrossVal <- function(cv.folds, nTrainGroups, n.cores,
                                      n.minobsinnode, shrinkage,
                                      bag.fraction, mFeatures, var.names,
                                      response.name, group, lVerbose, keep.data, 
-                                     nTrainGroups, tied.times.method, prior.node.coeff.var, strata, patient.id)
+                                     nTrainGroups, tied.times.method, prior.node.coeff.var, strata, patient.id, n.threads)
 
   # First element is final model
   all.model <- cv.models[[1]]
@@ -100,7 +100,7 @@ gbmCrossValModelBuild <- function(cv.folds, cv.group, n.cores, i.train,
                                   shrinkage, bag.fraction, mFeatures,
                                   var.names, response.name,
                                   group, lVerbose, keep.data, nTrain, tied.times.method,
-                                  prior.node.coeff.var, strata, patient.id) {
+                                  prior.node.coeff.var, strata, patient.id, n.threads) {
   ## set up the cluster and add a finalizer
   cluster <- gbmCluster(n.cores)
   on.exit(if (!is.null(cluster)){ parallel::stopCluster(cluster) })
@@ -110,21 +110,22 @@ gbmCrossValModelBuild <- function(cv.folds, cv.group, n.cores, i.train,
 
   ## now do the cross-validation model builds
   if ( ! is.null(cluster) ){
-    parallel::parLapply(cl=cluster, X=0:cv.folds,
-            gbmDoFold, i.train, x, y, offset, distribution,
-            w, var.monotone, n.trees,
-            interaction.depth, n.minobsinnode, shrinkage,
-            bag.fraction, mFeatures,
-            cv.group, var.names, response.name, group, seeds, lVerbose, keep.data,
-            nTrain, tied.times.method, prior.node.coeff.var, strata, patient.id)
+      parallel::parLapply(cl=cluster, X=0:cv.folds, gbmDoFold, i.train,
+                          x, y, offset, distribution, w, var.monotone,
+                          n.trees, interaction.depth, n.minobsinnode,
+                          shrinkage, bag.fraction, mFeatures,
+                          cv.group, var.names, response.name, group,
+                          seeds, lVerbose, keep.data, nTrain,
+                          tied.times.method, prior.node.coeff.var,
+                          strata, patient.id, n.threads)
   }
   else {
-    lapply(X=0:cv.folds,
-            gbmDoFold, i.train, x, y, offset, distribution,
-            w, var.monotone, n.trees,
-            interaction.depth, n.minobsinnode, shrinkage,
-            bag.fraction, mFeatures,
-            cv.group, var.names, response.name, group, seeds, lVerbose, keep.data,
-           nTrain, tied.times.method, prior.node.coeff.var, strata, patient.id)
+      lapply(X=0:cv.folds,
+             gbmDoFold, i.train, x, y, offset, distribution,
+             w, var.monotone, n.trees,
+             interaction.depth, n.minobsinnode, shrinkage,
+             bag.fraction, mFeatures,
+             cv.group, var.names, response.name, group, seeds, lVerbose, keep.data,
+             nTrain, tied.times.method, prior.node.coeff.var, strata, patient.id, n.threads)
   }
 }

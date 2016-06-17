@@ -12,11 +12,12 @@
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
-CNodeSearch::CNodeSearch(unsigned long treedepth, unsigned long minobs)
-    : best_splits_(2 * treedepth + 1) {
-  num_terminal_nodes_ = 1;
-  min_num_node_obs_ = minobs;
-}
+CNodeSearch::CNodeSearch(unsigned long treedepth, unsigned long minobs,
+                         const parallel_details& parallel)
+    : best_splits_(2 * treedepth + 1),
+      num_terminal_nodes_(1),
+      min_num_node_obs_(minobs),
+      parallel_(parallel) {}
 
 CNodeSearch::~CNodeSearch() {}
 
@@ -27,7 +28,8 @@ void CNodeSearch::GenerateAllSplits(vector<CNode*>& term_nodes_ptrs,
   const index_vector kColNumbers(kData.RandomOrder());
   VecNodeParams best_splits_updates(best_splits_);
 
-#pragma omp parallel firstprivate(best_splits_updates)
+#pragma omp parallel firstprivate(best_splits_updates) \
+    num_threads(parallel_.get_num_threads())
   {
 #pragma omp for schedule(guided) nowait
     for (unsigned long ind = 0; ind < kData.get_num_features(); ++ind) {
@@ -122,7 +124,8 @@ void CNodeSearch::ReassignData(unsigned long splittednode_index,
                                const CDataset& kData,
                                vector<unsigned long>& data_node_assigns) {
 // assign observations to the correct node
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(static) \
+    num_threads(parallel_.get_num_threads())
   for (unsigned long iObs = 0; iObs < kData.get_trainsize(); iObs++) {
     if (data_node_assigns[iObs] == splittednode_index) {
       signed char schWhichNode =

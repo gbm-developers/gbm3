@@ -3,6 +3,7 @@
 #include "datadistparams.h"
 #include "gbm_engine.h"
 #include "gbm_fit.h"
+#include "parallel_details.h"
 #include "treeparams.h"
 #include <memory>
 #include <utility>
@@ -26,7 +27,18 @@ class NodeStack {
  private:
   std::vector<std::pair<int, double> > stack;
 };
+
+class parallel_details_wrap {
+ public:
+  parallel_details_wrap(){};
+  parallel_details_wrap(SEXP src) : parallel_(Rcpp::as<int>(src)){};
+  parallel_details extract() const { return parallel_; }
+
+ private:
+  parallel_details parallel_;
+};
 }
+
 //----------------------------------------
 // Functions- Public
 //----------------------------------------
@@ -102,6 +114,7 @@ extern "C" {
 //						 first fit it is 0.
 //  prev_trees_fitted -  SEXP containing const int - number of previous trees
 //  fitted.
+//  par_details - SEXP giving details about parallelization
 //  isverbose - SEXP which is a const bool specifying whether the fitting should
 //  be
 //				silent or not.
@@ -114,7 +127,7 @@ SEXP gbm(SEXP response, SEXP offset_vec, SEXP covariates, SEXP covar_order,
          SEXP fraction_inbag, SEXP num_rows_in_training,
          SEXP num_obs_in_training, SEXP number_offeatures,
          SEXP prev_func_estimate, SEXP prev_category_splits,
-         SEXP prev_trees_fitted, SEXP isverbose) {
+         SEXP prev_trees_fitted, SEXP par_details, SEXP isverbose) {
   BEGIN_RCPP
 
   // Set up consts for tree fitting and transfer to R API
@@ -124,14 +137,18 @@ SEXP gbm(SEXP response, SEXP offset_vec, SEXP covariates, SEXP covar_order,
   const bool kIsVerbose = Rcpp::as<bool>(isverbose);
   const Rcpp::NumericVector kPrevFuncEst(prev_func_estimate);
 
+  // extract parallelization info in one place
+  // as it's used by both the distribution and the tree
+  const parallel_details parallel(parallel_details_wrap(par_details).extract());
+
   // Set up parameters for initialization
   DataDistParams datadistparams(
       response, offset_vec, covariates, covar_order, sorted_vec, strata_vec,
       obs_weight, misc, prior_coeff_var, row_to_obs_id, var_classes,
       monotonicity_vec, dist_family, fraction_inbag, num_rows_in_training,
-      num_obs_in_training, number_offeatures);
+      num_obs_in_training, number_offeatures, parallel);
   TreeParams treeparams(tree_depth, min_num_node_obs, shrinkageconstant,
-                        num_rows_in_training);
+                        num_rows_in_training, parallel);
   Rcpp::RNGScope scope;
 
   // Initialize GBM engine

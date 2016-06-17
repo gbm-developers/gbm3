@@ -28,8 +28,6 @@
 #' with many variables use \code{gbm.fit}. For general practice
 #' \code{gbm} is preferable.
 #' 
-#' @aliases gbm gbm.more gbm.fit
-#' 
 #' @param formula a symbolic description of the model to be fit. The
 #' formula may include an offset term (e.g. y~offset(n)+x). If
 #' \code{keep.data=FALSE} in the initial call to \code{gbm} then it is
@@ -246,31 +244,14 @@
 #' \code{detectCores} makes clear that it is not reliable and could
 #' return a spurious number of available cores.
 #'
+#' @param n.threads The number of parallel threads to use in the core
+#'     algorithm.
+#' 
 #' @param fold.id An optional vector of values identifying what fold
 #' each observation is in. If supplied, cv.folds can be missing. Note:
 #' Multiple observations to the same patient must have the same fold id.
 #' 
 #' 
-#' @usage
-#' gbm(formula = formula(data), distribution = "bernoulli",
-#' data = list(), weights, subset = NULL, offset = NULL, var.monotone
-#' = NULL, n.trees = 100, interaction.depth = 1, n.minobsinnode = 10,
-#' shrinkage = 0.001, bag.fraction = 0.5, train.fraction = 1,
-#' mFeatures = NULL, cv.folds = 0, keep.data = TRUE, verbose = "CV",
-#' class.stratify.cv = NULL, n.cores = NULL, fold.id=NULL,
-#' tied.times.method = "efron", prior.node.coeff.var = 1000, strata = NULL, 
-#' patient.id = 1:nrow(data))
-#' 
-#' gbm.fit(x, y, offset = NULL, misc = NULL, distribution = "bernoulli", 
-#' w = NULL, var.monotone = NULL, n.trees = 100, interaction.depth = 1, 
-#' n.minobsinnode = 10, shrinkage = 0.001, bag.fraction = 0.5, 
-#' nTrain = NULL, train.fraction = NULL, mFeatures = NULL, keep.data = TRUE, 
-#' verbose = TRUE, var.names = NULL, response.name = "y", group = NULL,
-#' prior.node.coeff.var = 1000, strata = NULL, patient.id = 1:nrow(x))
-#'
-#' gbm.more(object, n.new.trees = 100, data = NULL, weights = NULL, 
-#' offset = NULL, verbose = NULL)
-#'
 #' @return \code{gbm}, \code{gbm.fit}, and \code{gbm.more} return a
 #' \code{\link{gbm.object}}.
 #' @author Greg Ridgeway \email{gregridgeway@@gmail.com}
@@ -445,6 +426,7 @@ gbm <- function(formula = formula(data),
                 verbose = 'CV',
                 class.stratify.cv=NULL,
                 n.cores=NULL,
+                n.threads=1,
                 fold.id = NULL,
                 tied.times.method="efron",
                 prior.node.coeff.var=1000,
@@ -645,7 +627,7 @@ gbm <- function(formula = formula(data),
                                n.trees, interaction.depth, n.minobsinnode,
                                shrinkage, bag.fraction, mFeatures,
                                var.names, response.name, group, lVerbose,
-                               keep.data, fold.id, tied.times.method, prior.node.coeff.var, strata, patient.id)
+                               keep.data, fold.id, tied.times.method, prior.node.coeff.var, strata, patient.id, n.threads)
      cv.error <- cv.results$error
      p        <- cv.results$predictions
      gbm.obj  <- cv.results$all.model
@@ -671,7 +653,8 @@ gbm <- function(formula = formula(data),
                       response.name = response.name,
                       group = group,
                       prior.node.coeff.var = prior.node.coeff.var, 
-                      strata = strata, patient.id = patient.id)
+                      strata = strata, patient.id = patient.id,
+                      n.threads=n.threads)
    }
 
    gbm.obj$patient.id <- patient.id

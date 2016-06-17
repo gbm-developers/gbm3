@@ -50,7 +50,7 @@ void CCARTTree::Grow(std::vector<double>& residuals, const CDataset& kData,
   error_ = sum_zsquared - sumz * sumz / totalw;
   rootnode_.reset(new CNode(NodeDef(sumz, totalw, kBag.get_total_in_bag())));
   terminalnode_ptrs_[0] = rootnode_.get();
-  CNodeSearch new_node_searcher(kTreeDepth_, min_num_node_obs_);
+  CNodeSearch new_node_searcher(kTreeDepth_, min_num_node_obs_, parallel_);
 
   // build the tree structure
   for (long cDepth = 0; cDepth < kTreeDepth_; cDepth++) {
@@ -61,7 +61,7 @@ void CCARTTree::Grow(std::vector<double>& residuals, const CDataset& kData,
         terminalnode_ptrs_, kData, data_node_assignment_);
 
     // Make the best split if possible
-    if (bestImprov == 0.0) {
+    if (bestImprov <= 0) {
       break;
     }
     // setup the new nodes and add them to the tree

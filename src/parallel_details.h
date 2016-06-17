@@ -10,7 +10,8 @@ class parallel_details {
   parallel_details() : num_threads_(1) {}
   parallel_details(int num_threads) : num_threads_(num_threads) {
     if (num_threads_ <= 0) {
-      throw gbm_exception::InvalidArgument("number of threads must be strictly positive");
+      throw gbm_exception::InvalidArgument(
+          "number of threads must be strictly positive");
     }
   }
 
