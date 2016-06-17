@@ -74,6 +74,8 @@ class CCARTTree {
   }
   const unsigned long& size_of_tree() const { return totalnodecount_; }
 
+  int get_num_threads() const { return parallel_.get_num_threads(); }
+
  private:
   //---------------------
   // Private Variables
