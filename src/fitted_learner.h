@@ -29,22 +29,21 @@ class FittedLearner {
   //----------------------
   FittedLearner()
       : fitted_tree_(),
-        data_for_fit_(NULL),
+        data_for_fit_(),
         training_error_(0.0),
         validation_error_(0.0),
         oobag_improvement_(0.0){};
   FittedLearner(std::auto_ptr<CCARTTree>& tree, CDataset& data,
                 double train_error, double valid_error, double oobag_improv)
-      : training_error_(train_error),
-        validation_error_(valid_error),
-        oobag_improvement_(oobag_improv) {
-    fitted_tree_.reset(tree.release());
-    data_for_fit_ = &data;
-  };
+    : fitted_tree_(tree.release()),
+      data_for_fit_(&data),
+      training_error_(train_error),
+      validation_error_(valid_error),
+      oobag_improvement_(oobag_improv) {};
   //----------------------
   // Public Destructors
   //----------------------
-  ~FittedLearner() { data_for_fit_ = NULL; };
+  ~FittedLearner() {};
 
   //----------------------
   // Public Functions

@@ -16,7 +16,11 @@ CCARTTree::CCARTTree(const TreeParams& treeconfig)
       totalnodecount_(1),
       rootnode_(),
       terminalnode_ptrs_(2 * kTreeDepth_ + 1, 0),
-      data_node_assignment_(treeconfig.num_trainrows, 0) {}
+      data_node_assignment_(treeconfig.num_trainrows, 0) {
+  if (kTreeDepth_ < 1) {
+    throw gbm_exception::InvalidArgument();
+  }
+}
 
 //------------------------------------------------------------------------------
 // Grows a regression tree
@@ -24,8 +28,8 @@ CCARTTree::CCARTTree(const TreeParams& treeconfig)
 void CCARTTree::Grow(std::vector<double>& residuals, const CDataset& kData,
                      const Bag& kBag,
                      const std::vector<double>& kDeltaEstimate) {
-  if ((&(residuals[0]) == NULL) || (kData.weight_ptr() == NULL) ||
-      (&kDeltaEstimate[0] == NULL) || (kTreeDepth_ < 1)) {
+  if ((residuals.size() < kData.get_trainsize()) ||
+      (kDeltaEstimate.size() < kData.get_trainsize())) {
     throw gbm_exception::InvalidArgument();
   }
 

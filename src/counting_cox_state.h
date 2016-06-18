@@ -31,7 +31,7 @@ class CountingCoxState : public GenericCoxState {
   //---------------------
   // Public destructor
   //---------------------
-  ~CountingCoxState() { coxph_ = NULL; };
+  ~CountingCoxState() {};
 
   //---------------------
   // Public Functions

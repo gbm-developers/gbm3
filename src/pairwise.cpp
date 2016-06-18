@@ -512,7 +512,7 @@ inline const double* OffsetVector(const double* const kCovariates,
                                   const double* const kOffset,
                                   unsigned int start, unsigned int end,
                                   vector<double>& buffer_vec) {
-  if (kOffset == NULL) {
+  if (!kOffset) {
     // Optional second argument is not set, just return first one
     return kCovariates + start;
   } else {
@@ -843,7 +843,7 @@ void CPairwise::FitBestConstant(const CDataset& kData, const Bag& kBag,
   }
 
   for (unsigned int node_num = 0; node_num < num_terminalnodes; node_num++) {
-    if (tree.get_terminal_nodes()[node_num] != NULL) {
+    if (tree.has_node(node_num)) {
       if (fit_denominator_[node_num] <= 0.0) {
         tree.get_terminal_nodes()[node_num]->set_prediction(0.0);
       } else {

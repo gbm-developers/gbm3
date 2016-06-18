@@ -54,8 +54,8 @@ CCoxPH::CCoxPH(double* stats, int* sorted_end, int* sorted_start, int* strats,
 CDistribution* CCoxPH::Create(DataDistParams& distparams) {
   // Initialize variables to pass to constructor
   double* stat = 0;
-  int* sortedst = NULL;
-  int* sortedend = NULL;
+  int* sortedst = 0;
+  int* sortedend = 0;
   bool isstartstop = false;
   int tiesmethod = GetTiesMethod(Rcpp::as<string>(distparams.misc[0]));
 

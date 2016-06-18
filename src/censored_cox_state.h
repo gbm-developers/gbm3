@@ -31,7 +31,7 @@ class CensoredCoxState : public GenericCoxState {
   //---------------------
   // Public destructor
   //---------------------
-  ~CensoredCoxState() { coxph_ = NULL; };
+  ~CensoredCoxState() {};
 
   //---------------------
   // Public Functions
