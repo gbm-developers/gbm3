@@ -16,7 +16,8 @@ CCARTTree::CCARTTree(const TreeParams& treeconfig)
       totalnodecount_(1),
       rootnode_(),
       terminalnode_ptrs_(2 * kTreeDepth_ + 1, 0),
-      data_node_assignment_(treeconfig.num_trainrows, 0) {
+      data_node_assignment_(treeconfig.num_trainrows, 0),
+      parallel_(treeconfig.parallel) {
   if (kTreeDepth_ < 1) {
     throw gbm_exception::InvalidArgument();
   }
