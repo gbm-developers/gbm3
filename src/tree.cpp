@@ -25,7 +25,8 @@ CCARTTree::CCARTTree(const TreeParams& treeconfig)
 //------------------------------------------------------------------------------
 // Grows a regression tree
 //------------------------------------------------------------------------------
-void CCARTTree::Grow(std::vector<double>& residuals, const CDataset& kData,
+void CCARTTree::Grow(const std::vector<double>& residuals,
+		     const CDataset& kData,
                      const Bag& kBag,
                      const std::vector<double>& kDeltaEstimate) {
   if ((residuals.size() < kData.get_trainsize()) ||
@@ -57,7 +58,7 @@ void CCARTTree::Grow(std::vector<double>& residuals, const CDataset& kData,
   for (long cDepth = 0; cDepth < kTreeDepth_; cDepth++) {
     // Generate all splits
     new_node_searcher.GenerateAllSplits(terminalnode_ptrs_, kData, kBag,
-                                        &(residuals[0]), data_node_assignment_);
+                                        residuals, data_node_assignment_);
     double bestImprov = new_node_searcher.CalcImprovementAndSplit(
         terminalnode_ptrs_, kData, data_node_assignment_);
 

@@ -49,7 +49,7 @@ class CCARTTree {
   //---------------------
   // Public Functions
   //---------------------
-  void Grow(std::vector<double>& residuals, const CDataset& kData,
+  void Grow(const std::vector<double>& residuals, const CDataset& kData,
             const Bag& kBag, const std::vector<double>& kDeltaEstimate);
 
   void PredictValid(const CDataset& kData, unsigned long num_validation_points,

@@ -23,7 +23,7 @@ CNodeSearch::~CNodeSearch() {}
 
 void CNodeSearch::GenerateAllSplits(vector<CNode*>& term_nodes_ptrs,
                                     const CDataset& kData, const Bag& kBag,
-                                    double* residuals,
+                                    const vector<double>& residuals,
                                     vector<unsigned long>& data_node_assigns) {
   const index_vector kColNumbers(kData.RandomOrder());
   VecNodeParams best_splits_updates(best_splits_);
