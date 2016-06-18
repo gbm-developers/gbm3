@@ -100,7 +100,7 @@ void CPoisson::FitBestConstant(const CDataset& kData, const Bag& kBag,
   }
 
   for (node_num = 0; node_num < num_terminalnodes; node_num++) {
-    if (tree.get_terminal_nodes()[node_num] != NULL) {
+    if (tree.has_node(node_num)) {
       if (numerator_vec[node_num] == 0.0) {
         // DEBUG: if vecdNum==0 then prediction = -Inf
         // Not sure what else to do except plug in an arbitrary

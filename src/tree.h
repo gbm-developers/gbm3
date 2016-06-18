@@ -49,7 +49,7 @@ class CCARTTree {
   //---------------------
   // Public Functions
   //---------------------
-  void Grow(std::vector<double>& residuals, const CDataset& kData,
+  void Grow(const std::vector<double>& residuals, const CDataset& kData,
             const Bag& kBag, const std::vector<double>& kDeltaEstimate);
 
   void PredictValid(const CDataset& kData, unsigned long num_validation_points,
@@ -68,6 +68,9 @@ class CCARTTree {
     return data_node_assignment_;
   }
   vector<CNode*>& get_terminal_nodes() { return terminalnode_ptrs_; }
+  bool has_node(unsigned long node_num) const {
+    return terminalnode_ptrs_[node_num];
+  }
   const double& get_shrinkage_factor() const { return kShrinkage_; }
   const unsigned long& min_num_obs_required() const {
     return min_num_node_obs_;

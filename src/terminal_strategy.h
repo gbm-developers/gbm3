@@ -31,7 +31,7 @@ class TerminalStrategy : public GenericNodeStrategy {
   //---------------------
   // Public destructor
   //---------------------
-  ~TerminalStrategy() { nodecontext_ = NULL; };
+  ~TerminalStrategy() {};
 
   //---------------------
   // Public Functions

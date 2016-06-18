@@ -16,16 +16,22 @@ CCARTTree::CCARTTree(const TreeParams& treeconfig)
       totalnodecount_(1),
       rootnode_(),
       terminalnode_ptrs_(2 * kTreeDepth_ + 1, 0),
-      data_node_assignment_(treeconfig.num_trainrows, 0) {}
+      data_node_assignment_(treeconfig.num_trainrows, 0),
+      parallel_(treeconfig.parallel) {
+  if (kTreeDepth_ < 1) {
+    throw gbm_exception::InvalidArgument();
+  }
+}
 
 //------------------------------------------------------------------------------
 // Grows a regression tree
 //------------------------------------------------------------------------------
-void CCARTTree::Grow(std::vector<double>& residuals, const CDataset& kData,
+void CCARTTree::Grow(const std::vector<double>& residuals,
+		     const CDataset& kData,
                      const Bag& kBag,
                      const std::vector<double>& kDeltaEstimate) {
-  if ((&(residuals[0]) == NULL) || (kData.weight_ptr() == NULL) ||
-      (&kDeltaEstimate[0] == NULL) || (kTreeDepth_ < 1)) {
+  if ((residuals.size() < kData.get_trainsize()) ||
+      (kDeltaEstimate.size() < kData.get_trainsize())) {
     throw gbm_exception::InvalidArgument();
   }
 
@@ -35,9 +41,6 @@ void CCARTTree::Grow(std::vector<double>& residuals, const CDataset& kData,
 
   // Move to data -- FOR TIME BEING
   for (unsigned long obs_num = 0; obs_num < kData.get_trainsize(); obs_num++) {
-    // aiNodeAssign tracks to which node each training obs belongs
-    data_node_assignment_[obs_num] = 0;
-
     if (kBag.get_element(obs_num)) {
       // get the initial sums and sum of squares and total weight
       sumz += kData.weight_ptr()[obs_num] * residuals[obs_num];
@@ -56,7 +59,7 @@ void CCARTTree::Grow(std::vector<double>& residuals, const CDataset& kData,
   for (long cDepth = 0; cDepth < kTreeDepth_; cDepth++) {
     // Generate all splits
     new_node_searcher.GenerateAllSplits(terminalnode_ptrs_, kData, kBag,
-                                        &(residuals[0]), data_node_assignment_);
+                                        residuals, data_node_assignment_);
     double bestImprov = new_node_searcher.CalcImprovementAndSplit(
         terminalnode_ptrs_, kData, data_node_assignment_);
 

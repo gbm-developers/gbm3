@@ -13,9 +13,9 @@
 //----------------------------------------
 CNode::CNode(const NodeDef& kDefn)
     : node_strategy_(new TerminalStrategy(this)),
-      left_node_ptr_(NULL),
-      right_node_ptr_(NULL),
-      missing_node_ptr_(NULL),
+      left_node_ptr_(),
+      right_node_ptr_(),
+      missing_node_ptr_(),
       split_var_(0.0),
       improvement_(0.0),
       prediction_(kDefn.prediction()),

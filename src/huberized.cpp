@@ -135,7 +135,7 @@ void CHuberized::FitBestConstant(const CDataset& kData, const Bag& kBag,
   }
 
   for (node_num = 0; node_num < num_terminalnodes; node_num++) {
-    if (tree.get_terminal_nodes()[node_num] != NULL) {
+    if (tree.has_node(node_num)) {
       if (denominator_vec[node_num] == 0) {
         tree.get_terminal_nodes()[node_num]->set_prediction(0.0);
       } else {
