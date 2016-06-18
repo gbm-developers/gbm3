@@ -31,7 +31,7 @@ void CNodeSearch::GenerateAllSplits(vector<CNode*>& term_nodes_ptrs,
 #pragma omp parallel firstprivate(best_splits_updates) \
     num_threads(parallel_.get_num_threads())
   {
-#pragma omp for schedule(guided) nowait
+#pragma omp for schedule(static) nowait
     for (unsigned long ind = 0; ind < kData.get_num_features(); ++ind) {
       const int kVar = kColNumbers[ind];
       const int KVarClasses = kData.varclass(kVar);
