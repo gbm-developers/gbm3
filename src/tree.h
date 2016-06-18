@@ -23,6 +23,7 @@
 #include "databag.h"
 #include "dataset.h"
 #include "node_search.h"
+#include "parallel_details.h"
 #include "treeparams.h"
 #include <algorithm>
 #include <ctime>
@@ -73,6 +74,8 @@ class CCARTTree {
   }
   const unsigned long& size_of_tree() const { return totalnodecount_; }
 
+  int get_num_threads() const { return parallel_.get_num_threads(); }
+
  private:
   //---------------------
   // Private Variables
@@ -86,6 +89,8 @@ class CCARTTree {
   auto_ptr<CNode> rootnode_;
   vector<CNode*> terminalnode_ptrs_;
   vector<unsigned long> data_node_assignment_;
+
+  parallel_details parallel_;
 };
 
 #endif  // TREE_H

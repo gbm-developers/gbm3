@@ -56,7 +56,7 @@ class CGamma : public CDistribution {
   //----------------------
   // Private Constructors
   //----------------------
-  CGamma();
+  CGamma(const parallel_details& parallel);
 };
 
 #endif  // GAMMA_H

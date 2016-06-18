@@ -13,19 +13,18 @@
 //-----------------------------------
 
 #include "gamma.h"
-#include <math.h>
-#include <iostream>
+#include <cmath>
 
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CGamma::CGamma() {}
+CGamma::CGamma(const parallel_details& parallel) : CDistribution(parallel) {}
 
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
 CDistribution* CGamma::Create(DataDistParams& distparams) {
-  return new CGamma();
+  return new CGamma(distparams.parallel);
 }
 
 CGamma::~CGamma() {}
@@ -33,16 +32,14 @@ CGamma::~CGamma() {}
 void CGamma::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
                                     const double* kFuncEstimate,
                                     std::vector<double>& residuals) {
-  unsigned long i = 0;
-  double deltafunc_est = 0.0;
-
   if (!(kData.y_ptr() && kFuncEstimate && &(residuals[0]) &&
         kData.weight_ptr())) {
     throw gbm_exception::InvalidArgument();
   }
 
-  for (i = 0; i < kData.get_trainsize(); i++) {
-    deltafunc_est = kFuncEstimate[i] + kData.offset_ptr()[i];
+#pragma omp parallel for schedule(static) num_threads(get_num_threads())
+  for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
+    const double deltafunc_est = kFuncEstimate[i] + kData.offset_ptr()[i];
     residuals[i] = kData.y_ptr()[i] * std::exp(-deltafunc_est) - 1.0;
   }
 }
@@ -52,10 +49,11 @@ double CGamma::InitF(const CDataset& kData) {
   double totalweight = 0.0;
   double min = -19.0;
   double max = +19.0;
-  unsigned long i = 0;
   double initfunc_est = 0.0;
 
-  for (i = 0; i < kData.get_trainsize(); i++) {
+#pragma omp parallel for schedule(static) \
+    reduction(+ : sum, totalweight) num_threads(get_num_threads())
+  for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     sum += kData.weight_ptr()[i] * kData.y_ptr()[i] *
            std::exp(-kData.offset_ptr()[i]);
     totalweight += kData.weight_ptr()[i];
@@ -78,15 +76,15 @@ double CGamma::InitF(const CDataset& kData) {
 
 double CGamma::Deviance(const CDataset& kData, const Bag& kBag,
                         const double* kFuncEstimate) {
-  unsigned long i = 0;
   double loss = 0.0;
   double weight = 0.0;
-  double deltafunc_est = 0.0;
 
   unsigned long num_rows_in_set = kData.get_size_of_set();
 
-  for (i = 0; i != num_rows_in_set; i++) {
-    deltafunc_est = kFuncEstimate[i] + kData.offset_ptr()[i];
+#pragma omp parallel for schedule(static) \
+    reduction(+ : loss, weight) num_threads(get_num_threads())
+  for (unsigned long i = 0; i < num_rows_in_set; i++) {
+    const double deltafunc_est = kFuncEstimate[i] + kData.offset_ptr()[i];
     loss += kData.weight_ptr()[i] *
             (kData.y_ptr()[i] * std::exp(-deltafunc_est) + deltafunc_est);
     weight += kData.weight_ptr()[i];
@@ -176,13 +174,13 @@ double CGamma::BagImprovement(const CDataset& kData, const Bag& kBag,
                               const double kShrinkage,
                               const std::vector<double>& kDeltaEstimate) {
   double returnvalue = 0.0;
-  double deltafunc_est = 0.0;
   double weight = 0.0;
-  unsigned long i = 0;
 
-  for (i = 0; i < kData.get_trainsize(); i++) {
+#pragma omp parallel for schedule(static) \
+    reduction(+ : returnvalue, weight) num_threads(get_num_threads())
+  for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     if (!kBag.get_element(i)) {
-      deltafunc_est = kFuncEstimate[i] + kData.offset_ptr()[i];
+      const double deltafunc_est = kFuncEstimate[i] + kData.offset_ptr()[i];
       returnvalue += kData.weight_ptr()[i] *
                      (kData.y_ptr()[i] * std::exp(-deltafunc_est) *
                           (1.0 - exp(-kShrinkage * kDeltaEstimate[i])) -

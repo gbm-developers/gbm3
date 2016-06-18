@@ -59,7 +59,7 @@ class CQuantile : public CDistribution {
   //----------------------
   // Private Constructors
   //----------------------
-  CQuantile(double alpha);
+  CQuantile(double alpha, const parallel_details& parallel);
 
   //-------------------
   // Private Variables

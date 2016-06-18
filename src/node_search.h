@@ -26,6 +26,8 @@
 #include "node_parameters.h"
 #include "vec_varsplitters.h"
 #include "vec_nodeparams.h"
+#include "parallel_details.h"
+
 #include <vector>
 
 using namespace std;
@@ -38,7 +40,8 @@ class CNodeSearch {
   //----------------------
   // Public Constructors
   //----------------------
-  CNodeSearch(unsigned long treedepth, unsigned long minobs);
+  CNodeSearch(unsigned long treedepth, unsigned long minobs,
+              const parallel_details& parallel);
 
   //---------------------
   // Public destructor
@@ -72,6 +75,9 @@ class CNodeSearch {
   // Number of terminal nodes
   unsigned long num_terminal_nodes_;
   unsigned long min_num_node_obs_;
+
+  // parallelization
+  parallel_details parallel_;
 };
 
 #endif  // NODESEARCH_H

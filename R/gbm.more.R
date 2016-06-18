@@ -1,10 +1,12 @@
+#' @describeIn gbm add new trees to a gbm object
 #' @export
 gbm.more <- function(object,
                      n.new.trees = 100,
                      data = NULL,
                      weights = NULL,
                      offset = NULL,
-                     verbose = NULL)
+                     verbose = NULL,
+                     n.threads = 1)
 {
    theCall <- match.call()
    
@@ -239,6 +241,7 @@ gbm.more <- function(object,
                     fit.old = as.double(object$fit),
                     n.cat.splits.old = as.integer(length(object$c.splits)),
                     n.trees.old = as.integer(object$n.trees),
+                    n.threads,
                     verbose = as.integer(verbose),
                     PACKAGE = "gbm")
    

@@ -24,6 +24,7 @@
 #include "dataset.h"
 #include "databag.h"
 #include "node.h"
+#include "parallel_details.h"
 #include "tree.h"
 #include <vector>
 #include <Rcpp.h>
@@ -37,6 +38,7 @@ class CDistribution {
   // Public Constructors
   //----------------------
   CDistribution();
+  CDistribution(const parallel_details& parallel);
 
   //---------------------
   // Public destructor
@@ -92,10 +94,13 @@ class CDistribution {
   virtual void BagData(const CDataset& kData, Bag& bag);
   virtual void ShiftDistPtrs(unsigned long shift){};
 
+  int get_num_threads() const { return parallel_.get_num_threads(); }
+
  private:
   //---------------------
   // Private Variables
   //---------------------
+  parallel_details parallel_;
   int num_groups_;
   std::multimap<int, int> obsid_to_row_;  // Map from observation unit to row
 };

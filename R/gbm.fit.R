@@ -1,3 +1,4 @@
+#' @describeIn gbm Core fitting code, for experts only
 #' @export gbm.fit
 gbm.fit <- function(x,y,
                     offset = NULL,
@@ -19,7 +20,9 @@ gbm.fit <- function(x,y,
                     response.name = "y",
                     group = NULL,
                     prior.node.coeff.var = 1000,
-                    strata = NULL, patient.id = 1:nrow(x)){
+                    strata = NULL,
+                    patient.id = 1:nrow(x),
+                    n.threads=1){
 
    if(is.character(distribution)) { distribution <- list(name=distribution) }
   
@@ -406,6 +409,7 @@ gbm.fit <- function(x,y,
                     fit.old=as.double(NA),
                     n.cat.splits.old=as.integer(0),
                     n.trees.old=as.integer(0),
+                    n.threads,
                     verbose=as.integer(verbose),
                     PACKAGE = "gbm")
 

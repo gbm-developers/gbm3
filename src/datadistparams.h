@@ -17,6 +17,8 @@
 // Includes
 //------------------------------
 #include "gbm_exception.h"
+#include "parallel_details.h"
+
 #include <Rcpp.h>
 
 //------------------------------
@@ -77,6 +79,7 @@ class DataDistParams {
   //  number_offeatures - SEXP containing ulong specifying number of features
   //  for use in
   //						tree growing.
+  //  parallel - parallelization-related constants
   //-----------------------------------
   DataDistParams(SEXP response, SEXP offset_vec, SEXP covariates,
                  SEXP covar_order, SEXP sorted_vec, SEXP strata_vec,
@@ -84,8 +87,11 @@ class DataDistParams {
                  SEXP row_to_obs_id, SEXP var_classes, SEXP monotonicity_vec,
                  SEXP dist_family, SEXP fraction_inbag,
                  SEXP num_rows_in_training, SEXP unique_training_obs,
-                 SEXP number_offeatures)
-      : response(response), observationids(row_to_obs_id), misc(misc) {
+                 SEXP number_offeatures, const parallel_details& parallel)
+      : response(response),
+        observationids(row_to_obs_id),
+        misc(misc),
+        parallel(parallel) {
     sorted = sorted_vec;
     strata = strata_vec;
     offset = offset_vec;
@@ -114,6 +120,7 @@ class DataDistParams {
   Rcpp::NumericMatrix response;
   Rcpp::IntegerVector observationids;
   Rcpp::List misc;
+  parallel_details parallel;
   SEXP sorted;
   SEXP strata;
   SEXP offset;

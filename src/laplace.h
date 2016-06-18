@@ -59,7 +59,7 @@ class CLaplace : public CDistribution {
   //----------------------
   // Private Constructors
   //----------------------
-  CLaplace();
+  CLaplace(const parallel_details& parallel);
 
   //-------------------
   // Private Variables

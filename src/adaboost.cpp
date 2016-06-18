@@ -15,13 +15,14 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CAdaBoost::CAdaBoost() {}
+CAdaBoost::CAdaBoost(const parallel_details& parallel)
+    : CDistribution(parallel) {}
 
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
 CDistribution* CAdaBoost::Create(DataDistParams& distparams) {
-  return new CAdaBoost();
+  return new CAdaBoost(distparams.parallel);
 }
 
 CAdaBoost::~CAdaBoost() {}
@@ -29,7 +30,7 @@ CAdaBoost::~CAdaBoost() {}
 void CAdaBoost::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
                                        const double* kFuncEstimate,
                                        std::vector<double>& residuals) {
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(static) num_threads(get_num_threads())
   for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     residuals[i] = -(2 * kData.y_ptr()[i] - 1) *
                    std::exp(-(2 * kData.y_ptr()[i] - 1) *
@@ -41,7 +42,8 @@ double CAdaBoost::InitF(const CDataset& kData) {
   double numerator = 0.0;
   double denominator = 0.0;
 
-#pragma omp parallel for schedule(static) reduction(+ : numerator, denominator)
+#pragma omp parallel for schedule(static) \
+    reduction(+ : numerator, denominator) num_threads(get_num_threads())
   for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     if (kData.y_ptr()[i] == 1.0) {
       numerator += kData.weight_ptr()[i] * std::exp(-kData.offset_ptr()[i]);
@@ -61,7 +63,8 @@ double CAdaBoost::Deviance(const CDataset& kData, const Bag& kBag,
   // Switch to validation set if necessary
   unsigned long num_of_rows_in_set = kData.get_size_of_set();
 
-#pragma omp parallel for schedule(static) reduction(+ : loss, weight)
+#pragma omp parallel for schedule(static) \
+    reduction(+ : loss, weight) num_threads(get_num_threads())
   for (unsigned long i = 0; i < num_of_rows_in_set; i++) {
     loss += kData.weight_ptr()[i] *
             std::exp(-(2 * kData.y_ptr()[i] - 1) *
@@ -124,7 +127,8 @@ double CAdaBoost::BagImprovement(const CDataset& kData, const Bag& kBag,
   double returnvalue = 0.0;
   double weight = 0.0;
 
-#pragma omp parallel for schedule(static) reduction(+ : returnvalue, weight)
+#pragma omp parallel for schedule(static) \
+    reduction(+ : returnvalue, weight) num_threads(get_num_threads())
   for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     if (!kBag.get_element(i)) {
       const double func_est = kFuncEstimate[i] + kData.offset_ptr()[i];
