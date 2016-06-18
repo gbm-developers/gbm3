@@ -35,9 +35,6 @@ void CCARTTree::Grow(std::vector<double>& residuals, const CDataset& kData,
 
   // Move to data -- FOR TIME BEING
   for (unsigned long obs_num = 0; obs_num < kData.get_trainsize(); obs_num++) {
-    // aiNodeAssign tracks to which node each training obs belongs
-    data_node_assignment_[obs_num] = 0;
-
     if (kBag.get_element(obs_num)) {
       // get the initial sums and sum of squares and total weight
       sumz += kData.weight_ptr()[obs_num] * residuals[obs_num];
