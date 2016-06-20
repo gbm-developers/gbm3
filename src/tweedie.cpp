@@ -45,7 +45,7 @@ void CTweedie::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
   unsigned long i = 0;
   double delta_func_est = 0.0;
 
-  if (!(kData.y_ptr() && kFuncEstimates && &(residuals[0]) &&
+  if (!(kData.y_ptr() && kFuncEstimates &&
         kData.weight_ptr())) {
     throw gbm_exception::InvalidArgument();
   }
