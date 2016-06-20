@@ -58,7 +58,7 @@ gbmDoFold <- function(X, i.train, x, y, offset, distribution, w,
                      nTrain=nTrain, mFeatures=mFeatures, keep.data=FALSE,
                      verbose=FALSE, response.name=response.name,
                      group=group, misc=tied.times.method, prior.node.coeff.var=prior.node.coeff.var,
-                     strata = strata, patient.id = patient.id)
+                     strata = strata, patient.id = patient.id, n.threads=n.threads)
   }
   res
 }
