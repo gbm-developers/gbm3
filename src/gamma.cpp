@@ -32,7 +32,7 @@ CGamma::~CGamma() {}
 void CGamma::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
                                     const double* kFuncEstimate,
                                     std::vector<double>& residuals) {
-  if (!(kData.y_ptr() && kFuncEstimate && &(residuals[0]) &&
+  if (!(kData.y_ptr() && kFuncEstimate &&
         kData.weight_ptr())) {
     throw gbm_exception::InvalidArgument();
   }
