@@ -29,7 +29,7 @@ void CNodeSearch::GenerateAllSplits(vector<CNode*>& term_nodes_ptrs,
   VecNodeParams best_splits_updates(best_splits_);
 
 #pragma omp parallel firstprivate(best_splits_updates) \
-    num_threads(parallel_.get_num_threads())
+    num_threads(get_num_threads())
   {
 #pragma omp for schedule(static) nowait
     for (unsigned long ind = 0; ind < kData.get_num_features(); ++ind) {
@@ -124,8 +124,8 @@ void CNodeSearch::ReassignData(unsigned long splittednode_index,
                                const CDataset& kData,
                                vector<unsigned long>& data_node_assigns) {
 // assign observations to the correct node
-#pragma omp parallel for schedule(static) \
-    num_threads(parallel_.get_num_threads())
+#pragma omp parallel for schedule(static, get_array_chunk_size())	\
+    num_threads(get_num_threads())
   for (unsigned long iObs = 0; iObs < kData.get_trainsize(); iObs++) {
     if (data_node_assigns[iObs] == splittednode_index) {
       signed char schWhichNode =

@@ -24,6 +24,7 @@ class parallel_details {
   }
 
   int get_num_threads() const { return num_threads_; }
+  int get_array_chunk_size() const { return array_chunk_size_; }
 
  private:
   int num_threads_;

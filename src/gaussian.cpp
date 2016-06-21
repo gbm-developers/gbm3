@@ -34,7 +34,8 @@ void CGaussian::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
     throw gbm_exception::InvalidArgument();
   }
 
-#pragma omp parallel for schedule(static) num_threads(get_num_threads())
+#pragma omp parallel for schedule(static, get_array_chunk_size()) \
+  num_threads(get_num_threads())
   for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     residuals[i] = kData.y_ptr()[i] - kData.offset_ptr()[i] - kFuncEstimate[i];
   }
@@ -46,7 +47,7 @@ double CGaussian::InitF(const CDataset& kData) {
 
 // compute the mean
 
-#pragma omp parallel for schedule(static) \
+#pragma omp parallel for schedule(static, get_array_chunk_size()) \
     reduction(+ : sum, totalweight) num_threads(get_num_threads())
   for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     sum += kData.weight_ptr()[i] * (kData.y_ptr()[i] - kData.offset_ptr()[i]);
@@ -62,7 +63,7 @@ double CGaussian::Deviance(const CDataset& kData, const Bag& kBag,
   double weight = 0.0;
 
   unsigned long num_rows_in_set = kData.get_size_of_set();
-#pragma omp parallel for schedule(static) \
+#pragma omp parallel for schedule(static, get_array_chunk_size()) \
     reduction(+ : loss, weight) num_threads(get_num_threads())
   for (unsigned long i = 0; i < num_rows_in_set; i++) {
     const double tmp =
@@ -97,7 +98,7 @@ double CGaussian::BagImprovement(const CDataset& kData, const Bag& kBag,
   double returnvalue = 0.0;
   double weight = 0.0;
 
-#pragma omp parallel for schedule(static) \
+#pragma omp parallel for schedule(static, get_array_chunk_size()) \
     reduction(+ : returnvalue, weight) num_threads(get_num_threads())
   for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     if (!kBag.get_element(i)) {
