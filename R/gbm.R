@@ -244,8 +244,8 @@
 #' \code{detectCores} makes clear that it is not reliable and could
 #' return a spurious number of available cores.
 #'
-#' @param n.threads The number of parallel threads to use in the core
-#'     algorithm.
+#' @param par.details Details of the parallelization to use in the
+#'     core algorithm.
 #' 
 #' @param fold.id An optional vector of values identifying what fold
 #' each observation is in. If supplied, cv.folds can be missing. Note:
@@ -265,7 +265,8 @@
 #' Pairwise code developed by Stefan Schroedl \email{schroedl@@a9.com}
 #' @seealso \code{\link{gbm.object}}, \code{\link{gbm.perf}},
 #' \code{\link{plot.gbm}}, \code{\link{predict.gbm}},
-#' \code{\link{summary.gbm}}, \code{\link{pretty.gbm.tree}}.
+#' \code{\link{summary.gbm}}, \code{\link{pretty.gbm.tree}},
+#' \code{\link{gbmParallel}}.
 #' @references Y. Freund and R.E. Schapire (1997) \dQuote{A decision-theoretic
 #' generalization of on-line learning and an application to boosting,}
 #' \emph{Journal of Computer and System Sciences,} 55(1):119-139.
@@ -340,6 +341,30 @@
 #'     verbose=FALSE,               # don't print out progress
 #'     n.cores=1)                   # use only a single core (detecting #cores is
 #'                                  # error-prone, so avoided here)
+#'
+#' \dontrun{
+#' gbm1 <-
+#' gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
+#'     data=data,                   # dataset
+#'     var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease,
+#'                                  # +1: monotone increase,
+#'                                  #  0: no monotone restrictions
+#'     distribution="gaussian",     # see the help for other choices
+#'     n.trees=1000,                # number of trees
+#'     shrinkage=0.05,              # shrinkage or learning rate,
+#'                                  # 0.001 to 0.1 usually work
+#'     interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc.
+#'     bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
+#'     train.fraction = 0.5,        # fraction of data for training,
+#'                                  # first train.fraction*N used for training
+#'     mFeatures = 3,               # half of the features are considered at each node
+#'     n.minobsinnode = 10,         # minimum total weight needed in each node
+#'     cv.folds = 3,                # do 3-fold cross-validation
+#'     keep.data=TRUE,              # keep a copy of the dataset with the object
+#'     verbose=FALSE,               # don't print out progress
+#'     n.cores=1,                   # use only a single CV core
+#'     par.details=gbmParallel(n.threads=15))
+#' }
 #' 
 #' # check performance using an out-of-bag estimator
 #' # OOB underestimates the optimal number of iterations
@@ -426,7 +451,7 @@ gbm <- function(formula = formula(data),
                 verbose = 'CV',
                 class.stratify.cv=NULL,
                 n.cores=NULL,
-                n.threads=1,
+                par.details=getOption('gbm.parallel'),
                 fold.id = NULL,
                 tied.times.method="efron",
                 prior.node.coeff.var=1000,
@@ -627,7 +652,7 @@ gbm <- function(formula = formula(data),
                                n.trees, interaction.depth, n.minobsinnode,
                                shrinkage, bag.fraction, mFeatures,
                                var.names, response.name, group, lVerbose,
-                               keep.data, fold.id, tied.times.method, prior.node.coeff.var, strata, patient.id, n.threads)
+                               keep.data, fold.id, tied.times.method, prior.node.coeff.var, strata, patient.id, par.details)
      cv.error <- cv.results$error
      p        <- cv.results$predictions
      gbm.obj  <- cv.results$all.model
@@ -654,7 +679,7 @@ gbm <- function(formula = formula(data),
                       group = group,
                       prior.node.coeff.var = prior.node.coeff.var, 
                       strata = strata, patient.id = patient.id,
-                      n.threads=n.threads)
+                      par.details=par.details)
    }
 
    gbm.obj$patient.id <- patient.id

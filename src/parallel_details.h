@@ -7,11 +7,19 @@
 
 class parallel_details {
  public:
-  parallel_details() : num_threads_(1) {}
-  parallel_details(int num_threads) : num_threads_(num_threads) {
+  parallel_details() : num_threads_(1), array_chunk_size_(1024) {}
+  parallel_details(int num_threads,
+		   int array_chunk_size)
+    : num_threads_(num_threads),
+      array_chunk_size_(array_chunk_size) {
     if (num_threads_ <= 0) {
       throw gbm_exception::InvalidArgument(
           "number of threads must be strictly positive");
+    }
+
+    if (array_chunk_size_ <= 0) {
+      throw gbm_exception::InvalidArgument(
+	  "array chunk size must be strictly positive");
     }
   }
 
@@ -19,6 +27,7 @@ class parallel_details {
 
  private:
   int num_threads_;
+  int array_chunk_size_;
 };
 
 #endif

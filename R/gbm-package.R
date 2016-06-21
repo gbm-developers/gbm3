@@ -12,6 +12,17 @@
 #' @importFrom stats terms weighted.mean
 NULL
 
+## on package load set default options
+.onLoad <- function(libname, pkgname) {
+    already.set <- options()
+
+    if (!('gbm.parallel' %in% names(already.set))) {
+        options(gbm.parallel=gbmParallel())
+    }
+
+    invisible()
+}
+
 #' gbm internal functions
 #' 
 #' Helper functions for preprocessing data prior to building the model
