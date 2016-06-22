@@ -28,15 +28,14 @@ class NodeStack {
   std::vector<std::pair<int, double> > stack;
 };
 
-class parallel_details_wrap {
- public:
-  parallel_details_wrap(){};
-  parallel_details_wrap(SEXP src) : parallel_(Rcpp::as<int>(src)){};
-  parallel_details extract() const { return parallel_; }
 
- private:
-  parallel_details parallel_;
-};
+  inline parallel_details parallel_details_wrap(SEXP src) {
+    Rcpp::List details(src);
+    int num_threads = details["n.threads"];
+    int array_chunk_size = details["arrayChunkSize"];
+    return parallel_details(num_threads, array_chunk_size);
+  }
+
 }
 
 //----------------------------------------
@@ -139,7 +138,7 @@ SEXP gbm(SEXP response, SEXP offset_vec, SEXP covariates, SEXP covar_order,
 
   // extract parallelization info in one place
   // as it's used by both the distribution and the tree
-  const parallel_details parallel(parallel_details_wrap(par_details).extract());
+  const parallel_details parallel(parallel_details_wrap(par_details));
 
   // Set up parameters for initialization
   DataDistParams datadistparams(

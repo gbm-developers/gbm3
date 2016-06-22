@@ -58,6 +58,9 @@ class CNodeSearch {
                                  const CDataset& kData,
                                  vector<unsigned long>& data_node_assigns);
 
+  int get_num_threads() const { return parallel_.get_num_threads(); }
+  int get_array_chunk_size() const { return parallel_.get_array_chunk_size(); }
+  
  private:
   //---------------------
   // Private Functions

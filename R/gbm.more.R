@@ -6,7 +6,7 @@ gbm.more <- function(object,
                      weights = NULL,
                      offset = NULL,
                      verbose = NULL,
-                     n.threads = 1)
+                     par.details = getOption("gbm.parallel"))
 {
    theCall <- match.call()
    
@@ -241,7 +241,7 @@ gbm.more <- function(object,
                     fit.old = as.double(object$fit),
                     n.cat.splits.old = as.integer(length(object$c.splits)),
                     n.trees.old = as.integer(object$n.trees),
-                    n.threads,
+                    par.details = par.details,
                     verbose = as.integer(verbose),
                     PACKAGE = "gbm")
    

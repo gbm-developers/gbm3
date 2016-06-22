@@ -38,7 +38,8 @@ FittedLearner* CGBMEngine::FitLearner(double* func_estimate) {
       &func_estimate[0], tree->get_shrinkage_factor(), delta_estimates);
 
 // Update the function estimate
-#pragma omp parallel for schedule(static) num_threads(tree->get_num_threads())
+#pragma omp parallel for schedule(static, tree->get_array_chunk_size()) \
+  num_threads(tree->get_num_threads())
   for (unsigned long i = 0; i < datacontainer_.get_data().get_trainsize();
        i++) {
     func_estimate[i] += tree->get_shrinkage_factor() * delta_estimates[i];
@@ -50,7 +51,8 @@ FittedLearner* CGBMEngine::FitLearner(double* func_estimate) {
                      datacontainer_.get_data().get_validsize(),
                      delta_estimates);
 
-#pragma omp parallel for schedule(static) num_threads(tree->get_num_threads())
+#pragma omp parallel for schedule(static, tree->get_array_chunk_size()) \
+  num_threads(tree->get_num_threads())
   for (unsigned long i = datacontainer_.get_data().get_trainsize();
        i < datacontainer_.get_data().get_trainsize() +
                datacontainer_.get_data().get_validsize();

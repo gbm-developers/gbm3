@@ -11,9 +11,10 @@ gbm(formula = formula(data), distribution = "bernoulli", data = list(),
   n.trees = 100, interaction.depth = 1, n.minobsinnode = 10,
   shrinkage = 0.001, bag.fraction = 0.5, train.fraction = 1,
   mFeatures = NULL, cv.folds = 0, keep.data = TRUE, verbose = "CV",
-  class.stratify.cv = NULL, n.cores = NULL, n.threads = 1,
-  fold.id = NULL, tied.times.method = "efron",
-  prior.node.coeff.var = 1000, strata = NULL, patient.id = 1:nrow(data))
+  class.stratify.cv = NULL, n.cores = NULL,
+  par.details = getOption("gbm.parallel"), fold.id = NULL,
+  tied.times.method = "efron", prior.node.coeff.var = 1000, strata = NULL,
+  patient.id = 1:nrow(data))
 
 gbm.fit(x, y, offset = NULL, misc = NULL, distribution = "bernoulli",
   w = NULL, var.monotone = NULL, n.trees = 100, interaction.depth = 1,
@@ -21,10 +22,11 @@ gbm.fit(x, y, offset = NULL, misc = NULL, distribution = "bernoulli",
   nTrain = NULL, train.fraction = NULL, mFeatures = NULL,
   keep.data = TRUE, verbose = TRUE, var.names = NULL,
   response.name = "y", group = NULL, prior.node.coeff.var = 1000,
-  strata = NULL, patient.id = 1:nrow(x), n.threads = 1)
+  strata = NULL, patient.id = 1:nrow(x),
+  par.details = getOption("gbm.parallel"))
 
 gbm.more(object, n.new.trees = 100, data = NULL, weights = NULL,
-  offset = NULL, verbose = NULL, n.threads = 1)
+  offset = NULL, verbose = NULL, par.details = getOption("gbm.parallel"))
 }
 \arguments{
 \item{formula}{a symbolic description of the model to be fit. The
@@ -184,8 +186,8 @@ guessed using the \code{detectCores} function in the
 \code{detectCores} makes clear that it is not reliable and could
 return a spurious number of available cores.}
 
-\item{n.threads}{The number of parallel threads to use in the core
-algorithm.}
+\item{par.details}{Details of the parallelization to use in the
+core algorithm.}
 
 \item{fold.id}{An optional vector of values identifying what fold
 each observation is in. If supplied, cv.folds can be missing. Note:
@@ -336,6 +338,30 @@ gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
     n.cores=1)                   # use only a single core (detecting #cores is
                                  # error-prone, so avoided here)
 
+\dontrun{
+gbm1 <-
+gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
+    data=data,                   # dataset
+    var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease,
+                                 # +1: monotone increase,
+                                 #  0: no monotone restrictions
+    distribution="gaussian",     # see the help for other choices
+    n.trees=1000,                # number of trees
+    shrinkage=0.05,              # shrinkage or learning rate,
+                                 # 0.001 to 0.1 usually work
+    interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc.
+    bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
+    train.fraction = 0.5,        # fraction of data for training,
+                                 # first train.fraction*N used for training
+    mFeatures = 3,               # half of the features are considered at each node
+    n.minobsinnode = 10,         # minimum total weight needed in each node
+    cv.folds = 3,                # do 3-fold cross-validation
+    keep.data=TRUE,              # keep a copy of the dataset with the object
+    verbose=FALSE,               # don't print out progress
+    n.cores=1,                   # use only a single CV core
+    par.details=gbmParallel(n.threads=15))
+}
+
 # check performance using an out-of-bag estimator
 # OOB underestimates the optimal number of iterations
 best.iter <- gbm.perf(gbm1,method="OOB")
@@ -446,7 +472,8 @@ The \href{http://www-stat.stanford.edu/~jhf/R-MART.html}{MART} website.
 \seealso{
 \code{\link{gbm.object}}, \code{\link{gbm.perf}},
 \code{\link{plot.gbm}}, \code{\link{predict.gbm}},
-\code{\link{summary.gbm}}, \code{\link{pretty.gbm.tree}}.
+\code{\link{summary.gbm}}, \code{\link{pretty.gbm.tree}},
+\code{\link{gbmParallel}}.
 }
 \keyword{models}
 \keyword{nonlinear}
