@@ -42,10 +42,8 @@ training_params <- function(num_trees=100, interaction_depth=1,
   check_if_natural_number(num_features, "number of features")
   checkID(interaction_depth)
   
-  if(length(id) < num_train) {
-    stop("Number of unique observation ids is less than the amount of training data")
-  } else if(!is.atomic(id) || !all(id == as.integer(id))) {
-    stop("Observation ids must be a vector of inter")
+  if(!is.atomic(id) || !all(id == as.integer(id))) {
+    stop("Observation ids must be a vector of integers")
   }
   
   if(!is.double(shrinkage) || (shrinkage > 1.0) 
@@ -61,7 +59,7 @@ training_params <- function(num_trees=100, interaction_depth=1,
   id <- order(id)
   num_rows_per_obs <- table(id[id])
   
-  if(sum(num_rows_per_obs[1:num_train]) * bag.fraction <= 2*n.minobsinnode+1) {
+  if(sum(num_rows_per_obs[1:num_train]) * bag_fraction <= 2*min_num_obs_in_node+1) {
     stop("The dataset size is too small or subsampling rate is too large: *bag.fraction <= n.minobsinnode")
   }
   

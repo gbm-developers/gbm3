@@ -44,7 +44,7 @@ determine_groups.PairwiseGBMDist <- function(col_names, gbm_data, distribution_o
   }
   
   # Construct group index
-  distribution_obj$group <- factor(do.call(paste, c(data[,distribution_obj$group, drop=FALSE], sep=":")))
+  distribution_obj$group <- factor(do.call(paste, c(gbm_data[,distribution_obj$group, drop=FALSE], sep=":")))
 
   # Shuffle groups, to remove bias when splitting into train/test set and/or CV folds
   perm.levels  <- levels(distribution_obj$group)[sample(1:nlevels(distribution_obj$group))]

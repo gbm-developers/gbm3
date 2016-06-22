@@ -23,8 +23,6 @@ create_strata <- function(gbm_data_obj, train_params, distribution_obj) {
     num_train_rows <- sum(train_params$num_rows_per_obs[seq_len(train_params$num_train)])
     num_test_rows <- nrow(gbm_data_obj$x) - num_train_rows
       
-    
-    
     # Set up strata 
     if(!is.null(distribution_obj$strata))
     {

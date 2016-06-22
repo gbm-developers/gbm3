@@ -44,6 +44,12 @@ check_response_values.CoxPHGBMDist <-function(distribution_obj, y) {
     stop("Outcome must be a survival object Surv(time1, failure) 
          or Surv(time1, time2, failure)")
   }
+  
+  # Check length
+  if(length(strata) != nrow(y))
+  {
+    stop("Strata indices must be provided for every data point")
+  }
 }
 
 check_response_values.GammaGBMDist <-function(distribution_obj, y) {

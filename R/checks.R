@@ -17,6 +17,13 @@ check_if_gbm_params <-function(params_obj) {
   }
 }
 
+check_id <- function(params_obj, data_obj) {
+  check_if_gbm_params(params_obj)
+  check_if_gbm_data(data_obj)
+  if(length(params_obj$id) < length(data_obj$y))
+    stop("Number of unique observation ids is less than the amount of data")
+}
+
 check_if_natural_number <- function(value, name) {
   # value - the value of the parameter to check 
   # name - string specifying the name of the value to appear in

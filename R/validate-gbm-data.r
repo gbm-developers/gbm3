@@ -1,0 +1,42 @@
+#' Validate data
+#' 
+#' Validates that the data is consistent with the distribution selected.
+#' 
+#' @usage validata_gbm_data(gbm_data_obj, distribution_obj)
+#' 
+#' @param gbm_data_obj A GBMData object created using the function "gbm_data".
+#' 
+#' @param distribution_obj A GBMDist object storing all the parameters which define the model
+#' distribution selected.
+#' 
+#' @return a validated gbm_data_obj
+#' 
+
+validate_gbm_data <- function(gbm_data_obj, distribution_obj) {
+  check_if_gbm_data(gbm_data_obj)
+  check_if_gbm_dist(distribution_obj)
+  
+  # Normalise Weights
+  if(!(distribution_obj$name %in% available_distributions())) {
+    stop("Distribution not recognised - see available_distributions for
+           supported distributions")
+  }
+  gbm_data_obj$weights <- checkWeights(gmb_data_obj$weights, length(gbm_data_obj$y))
+  if(distribution_obj$name != "Pairwise") {
+    gbm_data_obj$weights <- gbm_data_obj$weights*length(gbm_data_obj$weights)/sum(gbm_data_obj$weights)
+    message("Distribution selected is not Pairwise - normalizing weights")
+  } 
+  
+  # Check data ids
+  
+  # Check offset
+  gbm_data_obj$offset <- checkOffset(gbm_data_obj$offset, gbm_data_obj$y, gbm_data_obj$distribution_obj)
+  
+  # Check responses
+  check_response_values(distribution_obj, gbm_data_obj$y)
+  
+  # Check weights
+  gbm_data_obj <- weight_group_consistency(gbm_data_obj, distribution_obj)
+  
+  return(gbm_data_obj)
+}
