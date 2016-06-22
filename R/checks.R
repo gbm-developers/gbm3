@@ -17,6 +17,12 @@ check_if_gbm_params <-function(params_obj) {
   }
 }
 
+check_if_gbm_fit <- function(fit_obj) {
+  if(!match(class(fit_obj), "GBMFit")) {
+    stop("Function requires a GBMFit object.")
+  }
+}
+
 check_id <- function(params_obj, data_obj) {
   check_if_gbm_params(params_obj)
   check_if_gbm_data(data_obj)
