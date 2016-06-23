@@ -62,7 +62,7 @@ create_dist.LaplaceGBMDist <- function(empty_obj, ...) {
   return(empty_obj)
 }
 
-create_dist.PairwiseGBMDist <- function(empty_obj, group, metric="ndcg", max.rank=0,
+create_dist.PairwiseGBMDist <- function(empty_obj, group="query", metric="ndcg", max.rank=0,
                                         ...) {
   check_dist_params(empty_obj, group, metric, max.rank, ...)
   empty_obj$metric <- metric
@@ -78,7 +78,7 @@ create_dist.PoissonGBMDist <- function(empty_obj, ...) {
 }
 
 create_dist.QuantileGBMDist <- function(empty_obj, alpha=0.25, ...) {
-  check_dist_params(empty_obj, ...)
+  check_dist_params(empty_obj, alpha, ...)
   empty_obj$alpha <- alpha 
   return(empty_obj)
 }
@@ -89,7 +89,7 @@ create_dist.TDistGBMDist <- function(empty_obj, df=4, ...) {
   return(empty_obj)
 }
 
-create_dist.TweedieGBMDist <- function(empty_obj, power=1.5, ...) {
+create_dist.TweedieGBMDist <- function(empty_obj, power=1, ...) {
   check_dist_params(empty_obj, power, ...)
   empty_obj$power <- power
   return(empty_obj)

@@ -33,10 +33,10 @@ check_dist_params.BernoulliGBMDist <- function(empty_obj, ...) {
   }
 }
 
-check_dist_params.CoxPHGBMDist <- function(empty_obj, strata, ties, prior_node, ...) {
+check_dist_params.CoxPHGBMDist <- function(empty_obj, strata, sorted, ties, prior_node_coeff, ...) {
   # Check if additional parameters specified
-  if(!(length(list(...)) > 0)) {
-    warning("The ", class(empty_obj)[1], "class only requires 3 additional
+  if((length(list(...)) > 0)) {
+    warning("The ", class(empty_obj)[1], "class only requires 4 additional
             parameters for construction - others provided are ignored.")
   }
   # Check ties
@@ -63,7 +63,7 @@ check_dist_params.CoxPHGBMDist <- function(empty_obj, strata, ties, prior_node, 
   } 
   
   # Check coeff
-  if(!exists(prior_node_coeff)) {
+  if(!exists("prior_node_coeff")) {
     stop("Prior node coefficient of variation not specified - distribution could
          not be constructed")
   } else if(!is.double(prior_node_coeff) || is.infinite(prior_node_coeff) ||
