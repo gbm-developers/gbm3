@@ -72,7 +72,7 @@ double CHuberized::Deviance(const CDataset& kData, const Bag& kBag,
 
   for (i = 0; i < num_rows_in_set; i++) {
     delta_func_est = kData.offset_ptr()[i] + kFuncEstimate[i];
-    if ((2 * kData.y_ptr()[i] - 1) * kFuncEstimate[i] < -1) {
+    if ((2 * kData.y_ptr()[i] - 1) * delta_func_est < -1) {
       loss += -kData.weight_ptr()[i] * 4 * (2 * kData.y_ptr()[i] - 1) *
               delta_func_est;
       weights += kData.weight_ptr()[i];
@@ -112,24 +112,24 @@ void CHuberized::FitBestConstant(const CDataset& kData, const Bag& kBag,
   for (obs_num = 0; obs_num < kData.get_trainsize(); obs_num++) {
     if (kBag.get_element(obs_num)) {
       delta_func_est = kFuncEstimate[obs_num] + kData.offset_ptr()[obs_num];
-      if ((2 * kData.y_ptr()[obs_num] - 1) * kFuncEstimate[obs_num] < -1) {
+      if ((2 * kData.y_ptr()[obs_num] - 1) * delta_func_est < -1) {
         numerator_vec[tree.get_node_assignments()[obs_num]] +=
             kData.weight_ptr()[obs_num] * 4 * (2 * kData.y_ptr()[obs_num] - 1);
         denominator_vec[tree.get_node_assignments()[obs_num]] +=
             -kData.weight_ptr()[obs_num] * 4 *
             (2 * kData.y_ptr()[obs_num] - 1) * delta_func_est;
-      } else if (1 - (2 * kData.y_ptr()[obs_num] - 1) * kFuncEstimate[obs_num] <
+      } else if (1 - (2 * kData.y_ptr()[obs_num] - 1) * delta_func_est <
                  0) {
         numerator_vec[tree.get_node_assignments()[obs_num]] += 0;
         denominator_vec[tree.get_node_assignments()[obs_num]] += 0;
       } else {
         numerator_vec[tree.get_node_assignments()[obs_num]] +=
             kData.weight_ptr()[obs_num] * 2 * (2 * kData.y_ptr()[obs_num] - 1) *
-            (1 - (2 * kData.y_ptr()[obs_num] - 1) * kFuncEstimate[obs_num]);
+            (1 - (2 * kData.y_ptr()[obs_num] - 1) * delta_func_est);
         denominator_vec[tree.get_node_assignments()[obs_num]] +=
             kData.weight_ptr()[obs_num] *
-            (1 - (2 * kData.y_ptr()[obs_num] - 1) * kFuncEstimate[obs_num]) *
-            (1 - (2 * kData.y_ptr()[obs_num] - 1) * kFuncEstimate[obs_num]);
+            (1 - (2 * kData.y_ptr()[obs_num] - 1) * delta_func_est) *
+            (1 - (2 * kData.y_ptr()[obs_num] - 1) * delta_func_est);
       }
     }  // close if(afInBag[obs_num
   }
