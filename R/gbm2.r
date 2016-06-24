@@ -75,7 +75,7 @@ gbm2 <- function(formula, distribution=gbm_dist("Gaussian", ...), data, weights,
   gbm_data_obj <- validate_gbm_data(gbm_data_obj, distribution)
   
   # Set-up variable containers
-  variables<-var_container(gbm_data_obj, var_monotone, var_names)
+  variables <- var_container(gbm_data_obj, var_monotone, var_names)
   
   # Create strata
   distribution <- create_strata(gbm_data_obj, train_params, distribution)

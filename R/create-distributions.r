@@ -89,7 +89,7 @@ create_dist.TDistGBMDist <- function(empty_obj, df=4, ...) {
   return(empty_obj)
 }
 
-create_dist.TweedieGBMDist <- function(empty_obj, power=1, ...) {
+create_dist.TweedieGBMDist <- function(empty_obj, power=1.5, ...) {
   check_dist_params(empty_obj, power, ...)
   empty_obj$power <- power
   return(empty_obj)

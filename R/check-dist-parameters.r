@@ -45,20 +45,23 @@ check_dist_params.CoxPHGBMDist <- function(empty_obj, strata, sorted, ties, prio
   } else if(!is.character(ties)) {
     stop("Ties parameter must be a character vector - distribution
          can't be constructed")
-  } 
+  } else if(!(ties %in% c("breslow", "efron"))) {
+    stop("Ties parameter must be either 'breslow' or 'efron'")
+  }
+  
   # Check strata
   if(!exists("strata")) {
     stop("Strata not specified - distribution could not be constructed")
-  } else if(!is.null(strata) && (!(is.atomic(strata)) || is.finite(strata)
-            || isTRUE(all(strata == as.integer(strata)))) ) {
+  } else if(!is.na(strata) && (is.null(strata)  || (!(is.atomic(strata)) || is.infinite(strata)
+            || !isTRUE(all(strata == as.integer(strata))))) ) {
     stop("Strata parameter must be an atomic of integers")
   } 
   
   # Check sorted
   if(!exists("sorted")) {
     stop("Sorted not specified - distribution could not be constructed")
-  } else if(!is.null(sorted) && (!(is.atomic(sorted)) || is.finite(sorted)
-                                 || isTRUE(all(sorted == as.integer(sorted)))) ) {
+  } else if(!is.na(sorted) && (is.null(sorted) || (!(is.atomic(sorted)) || is.finite(sorted)
+          || !isTRUE(all(sorted == as.integer(sorted)))) ) ) {
     stop("Sorted parameter must be an atomic of integers")
   } 
   
@@ -130,9 +133,10 @@ check_dist_params.PairwiseGBMDist <- function(empty_obj, group, metric,
   if(!exists("max.rank")) {
     stop("Max rank not specified - check default settings")
     
-  } else if(!is.double(max.rank) || is.infinite(max.rank) || (length(max.rank) > 1)) {
-    stop("Max rank provided is not a finite double - distribution cannot be constructed")
-  } else if(is.null(max.rank) && (metric %in% c("conc", "map")) ) {
+  } else if(!is.double(max.rank) || is.infinite(max.rank) || (length(max.rank) > 1)
+            || (max.rank < 0.0)) {
+    stop("Max rank provided is not a finite double greater than zero - distribution cannot be constructed")
+  } else if((metric != 0.0) && metric %in% c("conc", "map")) {
     stop("Max rank cannot be specified for metrics - conc and map")
   }
 }
@@ -169,9 +173,9 @@ check_dist_params.TDistGBMDist <- function(empty_obj, df, ...) {
 
   if(!exists("df")) {
     stop("Degrees of freedom (df) is not specified - distribution cannot be specified")
-  } else if (!(abs(df-round(df)) < .Machine$double.eps^0.5)  || (length(df) > 1) 
+  } else if (!is.double(df) || (length(df) > 1) 
              || is.infinite((df)) || df < 0.0) {
-    stop("df provided is not a finite whole number - distribution 
+    stop("df provided is not a finite double bigger than 0.0 - distribution 
          cannot be constructed")
   }
   
@@ -186,9 +190,9 @@ check_dist_params.TweedieGBMDist <- function(empty_obj, power, ...) {
   
   if(!exists("power")) {
     stop("Power of distribution (power) is not specified - distribution cannot be specified")
-  } else if (!(abs(power-round(power)) < .Machine$double.eps^0.5) || (length(power) > 1)
+  } else if (!(is.double(power)) || (length(power) > 1)
              || is.infinite((power)) || power < 0.0) {
-    stop("Power provided is not a finite whole number  - distribution 
+    stop("Power provided is not a finite double  - distribution 
          cannot be constructed")
   }
 }
