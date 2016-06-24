@@ -55,12 +55,16 @@ training_params <- function(num_trees=100, interaction_depth=1,
     stop("Bag fraction should be a double between 0.0 and 1.0")
   }
   
-  # Order the ids 
-  id <- order(id)
-  num_rows_per_obs <- table(id[id])
+  if(num_train > length(unique(id))) {
+    stop("Number of training observations exceeds number identified")
+  }
   
-  if(sum(num_rows_per_obs[1:num_train]) * bag_fraction <= 2*min_num_obs_in_node+1) {
-    stop("The dataset size is too small or subsampling rate is too large: *bag.fraction <= n.minobsinnode")
+  # Order the ids 
+  id <- id[order(id)]
+  num_rows_per_obs <- table(id)
+  
+  if(sum(num_rows_per_obs[seq_len(num_train)]) * bag_fraction <= 2*min_num_obs_in_node+1) {
+    stop("The dataset size is too small or subsampling rate is too large: num_obs*bag.fraction <= n.minobsinnode")
   }
   
   object <- structure(list("num_trees"=num_trees, "interaction_depth"=interaction_depth,

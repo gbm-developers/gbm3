@@ -5,6 +5,9 @@
 #
 ####################
 
+
+########## Definition ###############
+
 context("Testing GBMDist Object Definition:")
 
 test_that("Default distribution is Gaussian", {
@@ -53,16 +56,19 @@ test_that("Check Laplace Distribution Object has correct class attributes", {
   expect_true("GBMDist" %in% class(gbm_dist_obj))
   expect_true("LaplaceGBMDist" %in% class(gbm_dist_obj))
 })
+
 test_that("Check Pairwise Distribution Object has correct class attributes", {
   gbm_dist_obj <- gbm_dist(name="Pairwise")
   expect_true("GBMDist" %in% class(gbm_dist_obj))
   expect_true("PairwiseGBMDist" %in% class(gbm_dist_obj))
 })
+
 test_that("Check Poisson Distribution Object has correct class attributes", {
   gbm_dist_obj <- gbm_dist(name="Poisson")
   expect_true("GBMDist" %in% class(gbm_dist_obj))
   expect_true("PoissonGBMDist" %in% class(gbm_dist_obj))
 })
+
 test_that("Check Quantile Distribution Object has correct class attributes", {
   gbm_dist_obj <- gbm_dist(name="Quantile")
   expect_true("GBMDist" %in% class(gbm_dist_obj))
@@ -146,7 +152,7 @@ test_that("Check Tweedie distribution has the right elements - in right order", 
   expect_equal(names(gbm_dist_obj), c("name", "reorder", "ordering", "power"))
 })
 
-
+###### Warnings ######
 context("Check warnings are thrown when too many arguments on construction of object")
 test_that("Check warning for too many arguments - AdaBoost", {
   expect_warning(gbm_dist(name="AdaBoost", extra=1.0))
@@ -196,7 +202,7 @@ test_that("Check warning for too many arguments - Tweedie", {
   expect_warning(gbm_dist(name="Tweedie", extra=1.0))
 })
 
-
+##### Error checking ##### 
 context("Check expect errors on construction if incorrect parameters provided")
 test_that("Error thrown if unsupported distribution selected", {
   expect_error(gbm_dist("No sense in believing this will construct"))
@@ -294,6 +300,7 @@ test_that("Error thrown if power specified is not a finite double > 0.0 - Tweedi
   expect_error(gbm_dist(name="Tweedie", power=NULL))
 })
 
+##### Default Parameters #####
 context("Check default values of fields")
 test_that("AdaBoost has no default ordering and reorder is FALSE", {
   expect_true(is.null(gbm_dist(name="AdaBoost")$ordering))
