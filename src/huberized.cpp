@@ -72,7 +72,7 @@ double CHuberized::Deviance(const CDataset& kData, const Bag& kBag,
 
   for (i = 0; i < num_rows_in_set; i++) {
     delta_func_est = kData.offset_ptr()[i] + kFuncEstimate[i];
-    if ((2 * kData.y_ptr()[i] - 1) * kFuncEstimate[i] < -1) {
+    if ((2 * kData.y_ptr()[i] - 1) * delta_func_est < -1) {
       loss += -kData.weight_ptr()[i] * 4 * (2 * kData.y_ptr()[i] - 1) *
               delta_func_est;
       weights += kData.weight_ptr()[i];
