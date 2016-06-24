@@ -22,17 +22,17 @@ gbm_data <- function(x, y, weights, offset) {
     
     # Check weights and offsets are doubles  
     weights <- checkWeights(weights, length(y))
-    if(is.null(weights) && is.infinite(weights) && !is.atomic(weights)
-       && !is.double(weights)) {
+    if(is.null(weights) || is.infinite(weights) || !is.atomic(weights)
+       || !is.double(weights)) {
       stop("Weights must be a vector of doubles")
     }
     
-    if(is.null(offset) && is.infinite(offset) && !is.atomic(offset)
-       && !is.double(offset)) {
+    if(is.null(offset) || is.infinite(offset) || !is.atomic(offset) ||
+       !is.double(offset) || (length(offset) == 1) ) {
       stop("Offsets must be a vector of doubles")
     }
     
     
-    return(structure(list(x=x, y=y, weights=weights, offset=offset, id_order=id_order),
+    return(structure(list(x=x, y=y, weights=weights, offset=offset),
                      class="GBMData"))
 }
