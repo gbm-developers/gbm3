@@ -38,15 +38,18 @@ var_container <- function(gbm_data_obj, var_monotone=NULL, var_names=NULL) {
   # Check names and Get
   if(is.null(var_names)) var_names <- getVarNames(gbm_data_obj$x)
   
-  if(!is.atomic(var_names) || any(var_names != as.character(var_names)) || is.null(var_names)) {
+  if(!is.null(var_names) && (!is.atomic(var_names) || any(var_names != as.character(var_names))
+     || is.null(var_names)) ){
     stop("Names of data must be a vector of strings.")
   }
+  
+  if(!is.null(var_names) && length(var_names)!=cCols) stop("Length of var_names != number of predictors")
   
   # setup variable types
   var_type <- rep(0, cCols)
   var_levels <- vector("list", cCols)
   
-  for(i in seq_len(var.type)) {
+  for(i in seq_len(var_type)) {
     if(is.ordered(gbm_data_obj$x[,i])) {
       
       var_levels[[i]] <- levels(factor(gbm_data_obj$x[,i]))
