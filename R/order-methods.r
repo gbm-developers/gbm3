@@ -14,7 +14,8 @@ reorder_fit.CoxPHGBMDist <- function(gbm_fit, distribution_obj) {
 }
 
 reorder_fit.PairwiseGBMDist <- function(gbm_fit, distribution_obj) {
-  
+  gbm_fit$fit <- gbm_fit$fit[distribution_obj$group_order]
+  return(gbm_fit)
 }
 
 order_data <- function(gbm_data_obj, distribution_obj, train_params) {

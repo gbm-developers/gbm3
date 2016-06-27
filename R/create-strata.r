@@ -90,4 +90,6 @@ create_strata <- function(gbm_data_obj, train_params, distribution_obj) {
     distribution_obj$sorted <- matrix(sortedVec)
     distribution_obj$strata <- as.double(StrataVec)
   }
+  
+  return(distribution_obj)
 }

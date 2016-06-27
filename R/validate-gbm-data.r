@@ -27,8 +27,6 @@ validate_gbm_data <- function(gbm_data_obj, distribution_obj) {
     message("Distribution selected is not Pairwise - normalizing weights")
   } 
   
-  # Check data ids
-  
   # Check offset
   gbm_data_obj$offset <- checkOffset(gbm_data_obj$offset, gbm_data_obj$y, gbm_data_obj$distribution_obj)
   
