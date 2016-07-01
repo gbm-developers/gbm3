@@ -30,6 +30,7 @@
 CDataset::CDataset(const DataDistParams& dataparams)
     : xmatrix_(dataparams.xvalues),
       response_(dataparams.response),
+      intResponse_(dataparams.intResponse),
       response_offset_(dataparams.offset),
       data_weights_(dataparams.variable_weight),
       num_variable_classes_(dataparams.variable_num_classes),

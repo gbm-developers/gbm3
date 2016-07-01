@@ -39,6 +39,7 @@ class DataDistParams {
   // Parameters:
   //  response  - SEXP containing the response of each data-point - accessed via
   //				double ptr
+  //  intResponse - SEXP containing integer component of response
   //  offset_vec - SEXP containing the offset applied to each response -
   //  accessed via
   //				double ptr
@@ -46,10 +47,6 @@ class DataDistParams {
   //  Rcpp::NumericMatrix
   //  covar_order - SEXP containing the order of predictor values to
   //  			be used in GBM formula - accessed via int ptr.
-  //  sorted_vec - SEXP indicating the ordering of observations for CoxPH
-  //				 , this is stored an int ptr in CoxPH.
-  //  strata_vec - SEXP indicating which strata observations are in -
-  //				 this is used with CoxPH as an int ptr.
   //  obs_weight  - SEXP containing weights to be used in fitting
   //  				process - accessed via double ptr.
   //  misc - SEXP list object containing distribution dependent data
@@ -81,19 +78,18 @@ class DataDistParams {
   //						tree growing.
   //  parallel - parallelization-related constants
   //-----------------------------------
-  DataDistParams(SEXP response, SEXP offset_vec, SEXP covariates,
-                 SEXP covar_order, SEXP sorted_vec, SEXP strata_vec,
+  DataDistParams(SEXP response, SEXP intResponse, SEXP offset_vec,
+		 SEXP covariates, SEXP covar_order,
                  SEXP obs_weight, SEXP misc, SEXP prior_coeff_var,
                  SEXP row_to_obs_id, SEXP var_classes, SEXP monotonicity_vec,
                  SEXP dist_family, SEXP fraction_inbag,
                  SEXP num_rows_in_training, SEXP unique_training_obs,
                  SEXP number_offeatures, const parallel_details& parallel)
       : response(response),
+        intResponse(intResponse),
         observationids(row_to_obs_id),
         misc(misc),
         parallel(parallel) {
-    sorted = sorted_vec;
-    strata = strata_vec;
     offset = offset_vec;
     xvalues = covariates;
     xorder = covar_order;
@@ -118,11 +114,10 @@ class DataDistParams {
   // Public Variables
   //-------------------
   Rcpp::NumericMatrix response;
+  Rcpp::IntegerMatrix intResponse;
   Rcpp::IntegerVector observationids;
   Rcpp::List misc;
   parallel_details parallel;
-  SEXP sorted;
-  SEXP strata;
   SEXP offset;
   SEXP xvalues;
   SEXP xorder;

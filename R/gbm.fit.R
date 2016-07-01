@@ -45,9 +45,8 @@ gbm.fit <- function(x,y,
    oldy <- y
    y <- checkY(oldy)
    
-   # Only strata, ties and sorted vecs for CoxPh
-   StrataVec <- NA
-   sortedVec <- NA
+                                        # Only strata, ties and sorted vecs for CoxPh
+   y.integer <- matrix(integer(), nrow=cRowsY, ncol=0)
 
    # the preferred way to specify the number of training instances is via parameter 'nTrain'.
    # parameter 'train.fraction' is only maintained for backward compatibility.
@@ -274,8 +273,7 @@ gbm.fit <- function(x,y,
        }
 
       # Add in sorted column and strata
-      StrataVec <-  nstrat
-      sortedVec <- sorted-1L
+      y.integer <- cbind(nstrat, sorted - 1L)
 
       # Set ties here for the moment
       if(is.null(misc))
@@ -359,7 +357,7 @@ gbm.fit <- function(x,y,
    # create index upfront... subtract one for 0 based order
    x.order <- apply(x[1:nTrainRows,,drop=FALSE],2,order,na.last=FALSE)-1
 
-   x <- as.vector(data.matrix(x))
+   x <- data.matrix(x)
 
    if(is.null(var.monotone)) var.monotone <- rep(0,cCols)
    else if(length(var.monotone)!=cCols)
@@ -370,27 +368,14 @@ gbm.fit <- function(x,y,
    {
       stop("var.monotone must be -1, 0, or 1")
    }
-   
-   # Make sorted vec into a matrix
-   if(cColsY > 2)
-   {
-     cRowsSort <- dim(sortedVec)[1]
-     cColsSort <- dim(sortedVec)[2]
-   }
-   else
-   {
-     cRowsSort <- length(sortedVec)
-     cColsSort <- 1
-   }
-   
+   y <- matrix(y, cRowsY, cColsY)
    # Call GBM fit from C++
    gbm.obj <- .Call("gbm",
-                    Y=matrix(y, cRowsY, cColsY),
+                    Y=y,
+                    y.integer=y.integer,
                     Offset=as.double(offset),
-                    X=matrix(x, cRows, cCols),
+                    X=x,
                     X.order=as.integer(x.order),
-                    sorted=matrix(sortedVec, cRowsSort, cColsSort),
-                    Strata = as.integer(StrataVec),
                     weights=as.double(w),
                     Misc=as.list(Misc),
                     prior.node.coeff.var = as.double(prior.node.coeff.var),
@@ -431,10 +416,7 @@ gbm.fit <- function(x,y,
    gbm.obj$var.type <- var.type
    gbm.obj$verbose <- verbose
    gbm.obj$Terms <- NULL
-   gbm.obj$strata <- StrataVec
-   gbm.obj$sorted <- sortedVec
-   gbm.obj$prior.node.coeff.var <- prior.node.coeff.var
-
+   
    if(distribution$name == "coxph")
    {
       gbm.obj$fit[i.order] <- gbm.obj$fit
@@ -446,11 +428,13 @@ gbm.fit <- function(x,y,
       if(distribution$name == "coxph")
       {
          # put the observations back in order
-         gbm.obj$data <- list(y=oldy,x=x,x.order=x.order,offset=offset,Misc=Misc,w=w,
-                              i.order=i.order)
+    gbm.obj$data <- list(y=oldy,y.integer=y.integer,
+                         x=x,x.order=x.order,offset=offset,Misc=Misc,w=w,
+                         i.order=i.order)
      } else
       {
-         gbm.obj$data <- list(y=oldy,x=x,x.order=x.order,offset=offset,Misc=Misc,w=w)
+    gbm.obj$data <- list(y=oldy,y.integer=y.integer,
+                         x=x,x.order=x.order,offset=offset,Misc=Misc,w=w)
       }
    }
    else

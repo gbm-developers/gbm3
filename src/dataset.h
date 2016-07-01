@@ -60,6 +60,14 @@ class CDataset {
     return yptrs_[colIndex];
   };  // const overloaded version
 
+  int* yint_ptr(long colIndex = 0) {
+    return yintptrs_[colIndex];
+  };  // get iterator to class labels
+
+  const int* yint_ptr(long colIndex = 0) const {
+    return yintptrs_[colIndex];
+  };  // const overloaded version
+
   const double* offset_ptr() const { return offset_ptr_; };
 
   const double* weight_ptr() const {
@@ -87,6 +95,9 @@ class CDataset {
       for (unsigned int i = 0; i < yptrs_.size(); i++) {
         yptrs_[i] = shift_ptr_to_validation(yptrs_[i]);
       }
+      for (unsigned int i = 0; i < yintptrs_.size(); i++) {
+        yintptrs_[i] = shift_ptr_to_validation(yintptrs_[i]);
+      }
       offset_ptr_ = shift_ptr_to_validation(offset_ptr_);
       weights_ptr_ = shift_ptr_to_validation(weights_ptr_);
       point_at_trainingset_ = false;
@@ -99,6 +110,9 @@ class CDataset {
     if (!(point_at_trainingset_)) {
       for (unsigned int i = 0; i < yptrs_.size(); i++) {
         yptrs_[i] = shift_ptr_to_train(yptrs_[i]);
+      }
+      for (unsigned int i = 0; i < yintptrs_.size(); i++) {
+        yintptrs_[i] = shift_ptr_to_train(yintptrs_[i]);
       }
       offset_ptr_ = shift_ptr_to_train(offset_ptr_);
       weights_ptr_ = shift_ptr_to_train(weights_ptr_);
@@ -129,6 +143,9 @@ class CDataset {
     for (long i = 0; i < response_.ncol(); i++) {
       yptrs_.push_back(response_(Rcpp::_, i).begin());
     }
+    for (long i = 0; i < intResponse_.ncol(); i++) {
+      yintptrs_.push_back(intResponse_(Rcpp::_, i).begin());
+    }
   }
 
   template <typename T>
@@ -154,12 +171,14 @@ class CDataset {
 
   // Numeric vectors storing data
   Rcpp::NumericMatrix xmatrix_, response_;
+  Rcpp::IntegerMatrix intResponse_;
   Rcpp::NumericVector response_offset_, data_weights_;
   Rcpp::IntegerVector num_variable_classes_, variable_monotonicity_,
       order_xvals_, observation_ids_;
 
   // Ptrs to numeric vectors - these must be mutable
   std::vector<double*> yptrs_;
+  std::vector<int*> yintptrs_;
   double* offset_ptr_;
   double* weights_ptr_;
 
