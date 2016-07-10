@@ -11,6 +11,7 @@
 #' 
 #' @return a validated gbm_data_obj
 #' 
+#' @export
 
 validate_gbm_data <- function(gbm_data_obj, distribution_obj) {
   check_if_gbm_data(gbm_data_obj)
@@ -21,14 +22,13 @@ validate_gbm_data <- function(gbm_data_obj, distribution_obj) {
     stop("Distribution not recognised - see available_distributions for
            supported distributions")
   }
-  gbm_data_obj$weights <- checkWeights(gmb_data_obj$weights, length(gbm_data_obj$y))
   if(distribution_obj$name != "Pairwise") {
     gbm_data_obj$weights <- gbm_data_obj$weights*length(gbm_data_obj$weights)/sum(gbm_data_obj$weights)
     message("Distribution selected is not Pairwise - normalizing weights")
   } 
   
   # Check offset
-  gbm_data_obj$offset <- checkOffset(gbm_data_obj$offset, gbm_data_obj$y, gbm_data_obj$distribution_obj)
+  gbm_data_obj$offset <- checkOffset(gbm_data_obj$offset, gbm_data_obj$y, distribution_obj)
   
   # Check responses
   check_response_values(distribution_obj, gbm_data_obj$y)

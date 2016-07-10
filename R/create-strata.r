@@ -14,6 +14,7 @@
 #' 
 #' @return updated distribution_obj
 #' 
+#' @export
 
 create_strata <- function(gbm_data_obj, train_params, distribution_obj) {
   check_if_gbm_dist(distribution_obj)
@@ -27,7 +28,7 @@ create_strata <- function(gbm_data_obj, train_params, distribution_obj) {
     if(!is.null(distribution_obj$strata))
     {
       # Sort strata according to patient ID
-      distribution_obj$strata <- distribution_obj$strata[train_params$id]
+      distribution_obj$strata <- distribution_obj$strata[order(train_params$id)]
       
       # Order strata and split into train/test
       strataVecTrain <- distribution_obj$strata[1:num_train_rows]
@@ -48,7 +49,7 @@ create_strata <- function(gbm_data_obj, train_params, distribution_obj) {
     else
     {
       # Put all the train and test data in a single stratum
-      strata <- rep(1, nrow(gbm_data_obj$x))
+      distribution_obj$strata <- rep(1, nrow(gbm_data_obj$x))
       trainStrat <- c(num_train_rows, rep(NA, num_train_rows-1))
       testStrat <- c(num_test_rows, rep(NA, num_test_rows-1))
       nstrat <- c(trainStrat, testStrat)

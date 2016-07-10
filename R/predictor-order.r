@@ -10,6 +10,7 @@
 #'
 #' @return an updated gbm_data_object that now contains the predictor variable order.
 #' 
+#' @export
 
 predictor_order <- function(gbm_data_obj, train_params) {
   gbm_data_obj$x_order <- apply(gbm_data_obj$x[seq_len(sum(train_params$num_rows_each_pat[1:train_params$num_train])),,

@@ -1,4 +1,4 @@
-check_if_gbm_dist <- function(dist_obj) {
+check_if_gbm_dist <- function(distribution_obj) {
   # Check if GBM dist object
   if(!match(class(distribution_obj), paste0(available_distributions(), "GBMDist"))) {
     stop("Function requires a GBMDist object.")
@@ -86,10 +86,10 @@ checkOffset <- function(o, y, dist){
    # Check offset
   if(is.null(o))
       o <- rep(0,length(y))
-   else if((length(o) != length(y)) & dist$name != "coxph")
+   else if((length(o) != length(y)) & dist$name != "CoxPH")
       stop("The length of offset does not equal the length of y.")
-   else if ((length(o) != (length(y)/2)) & dist$name == "coxph")
-     stop("The length of offset does not equal the length of y.")
+   else if ((length(o) != (length(y)/2)) & dist$name == "CoxPH")
+     stop("The length of offset does not equal 1/2 the length of y.")
    else if(!is.numeric(o))
      stop("offset must be numeric")
    else if(sum(is.na(o))>0)

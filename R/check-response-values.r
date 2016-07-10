@@ -8,6 +8,7 @@
 #' 
 #' @param distribution_obj a GBMDist object
 #' 
+#' @export
 
 check_response_values <- function(distribution_obj, y) {
   # Check inputs

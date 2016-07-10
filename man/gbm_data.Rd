@@ -15,8 +15,6 @@ gbm_data(x, y, x_order, weights, offset, id_order)
 \item{weights}{vector containing the weights applied to each data row}
 
 \item{offset}{vector containing the response variables offsets}
-
-\item{id_order}{the ordering of the variables according to the observation id.}
 }
 \value{
 a gbm_data object

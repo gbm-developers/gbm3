@@ -136,7 +136,7 @@ check_dist_params.PairwiseGBMDist <- function(empty_obj, group, metric,
   } else if(!is.double(max.rank) || is.infinite(max.rank) || (length(max.rank) > 1)
             || (max.rank < 0.0)) {
     stop("Max rank provided is not a finite double greater than zero - distribution cannot be constructed")
-  } else if((metric != 0.0) && metric %in% c("conc", "map")) {
+  } else if((max.rank != 0.0) && (metric %in% c("conc", "map"))){
     stop("Max rank cannot be specified for metrics - conc and map")
   }
 }

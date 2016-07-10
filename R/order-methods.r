@@ -2,21 +2,32 @@
 # A series of functions for ordering gbm_data and
 # training_params objects according to observation id and groupings.
 # The latter is only relevant for the Pairwise distribution.
+#' @export
 
 reorder_fit <- function(gbm_fit, distribution_obj) {
   UseMethod("reorder_fit", distribution_obj)
-  return(gbm_fit)
 }
+
+reorder_fit.AdaBoostGBMDist <- function(gbm_fit, distribution_obj) {return(gbm_fit)}
+reorder_fit.BernoulliGBMDist <- function(gbm_fit, distribution_obj) {return(gbm_fit)}
 
 reorder_fit.CoxPHGBMDist <- function(gbm_fit, distribution_obj) {
   gbm_fit$fit[distribution_obj$time_order] <- gbm_fit$fit
   return(gbm_fit)
 }
+reorder_fit.GammaGBMDist <- function(gbm_fit, distribution_obj) {return(gbm_fit)}
+reorder_fit.GaussianGBMDist <- function(gbm_fit, distribution_obj) {return(gbm_fit)}
+reorder_fit.HuberizedGBMDist <- function(gbm_fit, distribution_obj) {return(gbm_fit)}
+reorder_fit.LaplaceGBMDist <- function(gbm_fit, distribution_obj) {return(gbm_fit)}
 
 reorder_fit.PairwiseGBMDist <- function(gbm_fit, distribution_obj) {
   gbm_fit$fit <- gbm_fit$fit[distribution_obj$group_order]
   return(gbm_fit)
 }
+reorder_fit.PoissonGBMDist <- function(gbm_fit, distribution_obj) {return(gbm_fit)}
+reorder_fit.QuantileGBMDist <- function(gbm_fit, distribution_obj) {return(gbm_fit)}
+reorder_fit.TDistGBMDist <- function(gbm_fit, distribution_obj) {return(gbm_fit)}
+reorder_fit.TweedieGBMDist <- function(gbm_fit, distribution_obj) {return(gbm_fit)}
 
 order_data <- function(gbm_data_obj, distribution_obj, train_params) {
   gbm_data_obj <- order_by_groupings(gbm_data_obj, distribution_obj)
