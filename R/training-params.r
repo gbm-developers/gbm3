@@ -23,7 +23,7 @@
 #' @param id optional vector of integers, specifying which rows in the data correspond
 #' to which observations. Individual observations may have many rows of data associated with them.
 #' 
-#' @param num_train number of unique observations used in training the model.
+#' @param num_train number of rows of data used in training the model.
 #' 
 #' @param num_features number of random features/columns to use in training model
 #' 
@@ -55,16 +55,16 @@ training_params <- function(num_trees=100, interaction_depth=1,
     stop("Bag fraction should be a double between 0.0 and 1.0")
   }
   
-  if(num_train > length(unique(id))) {
-    stop("Number of training observations exceeds number identified")
-  }
-  
   # Order the ids 
   id <- id[order(id)]
   num_rows_per_obs <- table(id)
   
-  if(sum(num_rows_per_obs[seq_len(num_train)]) * bag_fraction <= 2*min_num_obs_in_node+1) {
+  if(num_train * bag_fraction <= 2*min_num_obs_in_node+1) {
     stop("The dataset size is too small or subsampling rate is too large: num_obs*bag.fraction <= n.minobsinnode")
+  }
+  
+  if(num_train > sum(num_rows_per_obs)) {
+    stop("Number of training rows selected exceeds number available")
   }
   
   object <- structure(list("num_trees"=num_trees, "interaction_depth"=interaction_depth,

@@ -13,7 +13,6 @@
 #' @export
 
 predictor_order <- function(gbm_data_obj, train_params) {
-  gbm_data_obj$x_order <- apply(gbm_data_obj$x[seq_len(sum(train_params$num_rows_each_pat[1:train_params$num_train])),,
-                                               drop=FALSE], 2, order,na.last=FALSE)-1
+  gbm_data_obj$x_order <- apply(gbm_data_obj$x[seq_len(train_params$num_train),,drop=FALSE],2,order,na.last=FALSE)-1
   return(gbm_data_obj)
 }

@@ -15,7 +15,7 @@
 
 determine_groups <- function(col_names, gbm_data, distribution_obj) {
   # Check names
-  if(!is.atomic(col_names) || any(col_names != as.character(names))
+  if(!is.atomic(col_names) || any(col_names != as.character(col_names))
      || is.null(col_names)) {
     stop("Names of data must be a vector of strings.")
   }

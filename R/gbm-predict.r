@@ -72,7 +72,7 @@ predict.GBMFit <- function(gbm_fit_obj, new_data, num_trees,
 
   if(!is.null(gbm_fit_obj$Terms))
   {
-    x <- model.frame(terms(reformulate(gbm_fit_obj$varaibes$var_names)),
+    x <- model.frame(terms(reformulate(gbm_fit_obj$variables$var_names)),
                      new_data,
                      na.action=na.pass)
   }
@@ -107,10 +107,10 @@ predict.GBMFit <- function(gbm_fit_obj, new_data, num_trees,
     warning("Number of trees exceeded number fit so far. Using ", paste(num_trees,collapse=" "),".")
   }
   
-  i.ntree.order <- order(n.trees)
+  i.ntree.order <- order(num_trees)
   
   predF <- .Call("gbm_pred",
-                 X=matrix(x),
+                 X=as.matrix(as.data.frame(x)),
                  n.trees=as.integer(num_trees[order(num_trees)]),
                  initF=gbm_fit_obj$initF,
                  trees=gbm_fit_obj$trees,
@@ -120,7 +120,7 @@ predict.GBMFit <- function(gbm_fit_obj, new_data, num_trees,
                  PACKAGE = "gbm")
   
   # Convert into matrix of predictions
-  if((length(num_trees) > 1) || (gbm_fit_obj$num.classes > 1))
+  if((length(num_trees) > 1) || (!is.null(gbm_fit_obj$num.classes) && (gbm_fit_obj$num.classes > 1)))
   {
     predF <- matrix(predF, ncol=length(num_trees), byrow=FALSE)
     colnames(predF) <- num_trees

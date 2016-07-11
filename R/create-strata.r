@@ -20,6 +20,10 @@ create_strata <- function(gbm_data_obj, train_params, distribution_obj) {
   check_if_gbm_dist(distribution_obj)
   check_if_gbm_data(gbm_data_obj)
   
+  # Put in defaults
+  distribution_obj$sorted <- NA
+  distribution_obj$strata <- NA
+  
   if(distribution_obj$name == "CoxPH") {
     num_train_rows <- sum(train_params$num_rows_per_obs[seq_len(train_params$num_train)])
     num_test_rows <- nrow(gbm_data_obj$x) - num_train_rows
@@ -88,7 +92,7 @@ create_strata <- function(gbm_data_obj, train_params, distribution_obj) {
     sortedVec <- sorted-1L
     
     distribution_obj$time_order <- i_order
-    distribution_obj$sorted <- matrix(sortedVec)
+    distribution_obj$sorted <- as.matrix(as.data.frame(sortedVec))
     distribution_obj$strata <- as.double(StrataVec)
   }
   

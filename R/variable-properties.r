@@ -49,15 +49,15 @@ var_container <- function(gbm_data_obj, var_monotone=NULL, var_names=NULL) {
   var_type <- rep(0, cCols)
   var_levels <- vector("list", cCols)
   
-  for(i in seq_len(var_type)) {
+  for(i in seq_len(cCols)) {
     if(is.ordered(gbm_data_obj$x[,i])) {
-      
       var_levels[[i]] <- levels(factor(gbm_data_obj$x[,i]))
       var_type[i] <- 0
       
     } else if(is.factor(gbm_data_obj$x[,i])) {
       var_levels[[i]] <- levels(factor(gbm_data_obj$x[,i]))
-      var_type[i] <- max(gbm_data_obj$x[,i],na.rm=TRUE)+1
+      temp_x <- as.numeric(factor(gbm_data_obj$x[,i]))-1
+      var_type[i] <- max(temp_x, na.rm=TRUE)+1
       
     } else if(is.numeric(gbm_data_obj$x[,i])) {
       var_levels[[i]] <- quantile(gbm_data_obj$x[,i],prob=(0:10)/10,na.rm=TRUE)

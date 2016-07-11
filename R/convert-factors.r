@@ -13,6 +13,6 @@
 convert_factors <- function(gbm_data_obj) {
   check_if_gbm_data(gbm_data_obj)
   gbm_data_obj$x <- sapply(gbm_data_obj$x, function(col) if(is.ordered(col) || is.factor(col)){
-                                                         col <- as.numeric(factor(col))-1 } )
+                                                         col <- as.numeric(factor(col))-1 } else { col <- col} )
   return(gbm_data_obj)
 }

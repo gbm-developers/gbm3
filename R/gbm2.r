@@ -39,7 +39,7 @@
 
 gbm2 <- function(formula, distribution=gbm_dist("Gaussian", ...), data, weights, offset,
                  train_params=training_params(num_trees=100, interaction_depth=1, min_num_obs_in_node=10, 
-                 shrinkage=0.001, bag_fraction=0.5, id=seq_len(nrow(data)), num_train=round(0.5 * nrow(data)), num_features), 
+                 shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=1, num_features=ncol(data)-1), num_train=round(0.5 * nrow(data)), num_features, 
                  var_monotone=NULL, var_names=NULL, keep_gbm_data=FALSE, is_verbose=FALSE) {
   theCall <- match.call()
   
@@ -64,19 +64,19 @@ gbm2 <- function(formula, distribution=gbm_dist("Gaussian", ...), data, weights,
                    data,
                    na.action=na.pass)
 
-  # Set up groups
-  distribution <- determine_groups(colnames(data), gbm_data_obj, distribution)
-  
   # Create gbm_data_obj
   gbm_data_obj <- gbm_data(x, y, weights, offset)
   
-  # Process data obj and validate
-  gbm_data_obj <- convert_factors(gbm_data_obj)
-  gbm_data_obj <- validate_gbm_data(gbm_data_obj, distribution)
+  # Set up groups
+  distribution <- determine_groups(colnames(data), gbm_data_obj, distribution)
   
   # Set-up variable containers
   variables <- var_container(gbm_data_obj, var_monotone, var_names)
   
+  # Process data obj and validate
+  gbm_data_obj <- convert_factors(gbm_data_obj)
+  gbm_data_obj <- validate_gbm_data(gbm_data_obj, distribution)
+
   # Create strata
   distribution <- create_strata(gbm_data_obj, train_params, distribution)
   
@@ -85,26 +85,27 @@ gbm2 <- function(formula, distribution=gbm_dist("Gaussian", ...), data, weights,
   
   # Call the method
   gbm_fit <- .Call("gbm",
-                   Y=matrix(gbm_data_obj$y),
+                   Y=as.matrix(as.data.frame(gbm_data_obj$y)),
                    Offset=as.double(gbm_data_obj$offset),
-                   X=matrix(gbm_data_obj$x),
+                   X=as.matrix(as.data.frame(gbm_data_obj$x)),
                    X.order=as.integer(gbm_data_obj$x_order),
-                   sorted=matrix(distribution$sorted),
+                   sorted=as.matrix(as.data.frame(distribution$sorted)),
                    Strata = as.integer(distribution$strata),
                    weights=as.double(gbm_data_obj$weights),
                    Misc=get_misc(distribution),
-                   prior.node.coeff.var = as.double(distribution$prior_node_coeff_var),
+                   prior.node.coeff.var = ifelse(is.null(distribution$prior_node_coeff_var), as.double(0),
+                                                 as.double(distribution$prior_node_coeff_var)),
                    id = as.integer(train_params$id),
                    var.type=as.integer(variables$var_type),
                    var.monotone=as.integer(variables$var_monotone),
-                   distribution=as.character(distribution$name),
+                   distribution=as.character(tolower(distribution$name)),
                    n.trees=as.integer(train_params$num_trees),
                    interaction.depth=as.integer(train_params$interaction_depth),
                    n.minobsinnode=as.integer(train_params$min_num_obs_in_node),
                    shrinkage=as.double(train_params$shrinkage),
                    bag.fraction=as.double(train_params$bag_fraction),
                    nTrainRows=as.integer(train_params$num_train),
-                   nTrainObs = as.integer(sum(train_params$id[seq_len(train_params$num_train)])),
+                   nTrainObs = as.integer(length(unique(train_params$id[seq_len(train_params$num_train)]))),
                    mFeatures=as.integer(train_params$num_features),
                    fit.old=as.double(NA),
                    n.cat.splits.old=as.integer(0),
@@ -117,12 +118,13 @@ gbm2 <- function(formula, distribution=gbm_dist("Gaussian", ...), data, weights,
   gbm_fit$distribution <- distribution
   gbm_fit$params <- train_params
   gbm_fit$variables <- variables
+  gbm_fit$Terms <- Terms
   
-  if(keep_data) {
+  if(keep_gbm_data) {
     gbm_fit$data <- gbm_data_obj
   }
   
   # Reorder if necessary
-  gbm_fit <- reorder_fit(gbm_fit)
+  gbm_fit <- reorder_fit(gbm_fit, distribution)
   return(gbm_fit)
 }
