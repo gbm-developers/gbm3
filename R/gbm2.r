@@ -120,11 +120,7 @@ gbm2 <- function(formula, distribution=gbm_dist("Gaussian", ...), data, weights,
                            cv_folds, cv_groups)
   
   # Wrap up extra pieces
-  gbm_fit$distribution <- distribution
-  gbm_fit$params <- train_params
-  gbm_fit$variables <- variables
   gbm_fit$Terms <- Terms
-  
   if(keep_gbm_data) {
     gbm_fit$data <- gbm_data_obj
   }

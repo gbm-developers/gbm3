@@ -35,9 +35,12 @@ gbm_cross_val <- function(gbm_data_obj, gbm_dist_obj, train_params, var_containe
   gbm_results[[length(gbm_results)+1]] <- gbm_fit(gbm_data_obj, gbm_dist_obj, train_params,
                                                   var_container, is_verbose)
   class(gbm_results[[1]]) <- "GBMFit"
-    
+
   # Check if only need to fit full model
-  if(cv_folds == 1) return(gbm_results[[1]])
+  if(cv_folds == 1) {
+    gbm_results[[1]]$cv_folds <- 1
+    return(gbm_results[[1]])
+  }
 
   # Loop over folds
   for(fold_num in seq_len(cv_fold)) {
@@ -50,18 +53,26 @@ gbm_cross_val <- function(gbm_data_obj, gbm_dist_obj, train_params, var_containe
     # Fit to fold
     gbm_results[[length(gbm_results)+1]] <- gbm_fit(gbm_object_list$data, gbm_object_list$dist, 
                                                     gbm_object_list$params, var_container, is_verbose)
+    class(gbm_results[[length(gbm_results)]]) <- "GBMFit"
   }
   
-  # If have multiple folds then results are of a different class
+  # If have multiple folds then total results object is a different class
   class(gbm_results) <- "GBMCVFit"  
   
   # Calculate errors
-  cv_errors <- gbm_cv_errors(gbm_results, train_params, cv_folds, cv_groups)
+  cv_errors <- gbm_cv_errors(gbm_results, cv_folds, cv_groups)
+  
+  # Best number of trees
+  best_iter_cv <- which.min(cv_errors)
   
   # Calculate predictions
-  predictions <- predict()
+  predictions <- predict(gbm_results, gbm_data_obj, cv_folds, cv_groups, best_iter_cv)
   
-  # Extract relevant parts
+  # Extract relevant parts - all data model
+  gbm_results <- gbm_results[[1]]
+  gbm_results$cv_folds <- 1
+  gbm_results$cv_error <- cv_errors
+  gbm_results$cv_fitted <- predictions
   
   return(gbm_results)
 }

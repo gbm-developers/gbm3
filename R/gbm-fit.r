@@ -52,5 +52,9 @@ gbm_fit <- function(gbm_data_obj, gbm_dist_obj, train_params, var_container, is_
                 n.trees.old=as.integer(0),
                 verbose=as.integer(is_verbose),
                 PACKAGE = "gbm")
+  
+  gbm_fit$distribution <- gbm_dist_obj
+  gbm_fit$params <- train_params
+  gbm_fit$variables <- var_container
   return(fit)
 }
