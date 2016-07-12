@@ -30,6 +30,16 @@
 #' @param keep_gbm_data a bool specifying whether or not the gbm_data object created in this method should be
 #' stored in the results.
 #' 
+#' @param cv_folds a positive integer specifying the number of folds to be used in cross-validation of the gbm
+#' fit. If cv_folds > 1 then cross-validation is performed; the default of cv_folds is 1.
+#' 
+#' @param cv_class_stratify a bool specifying whether or not to stratify via response outcome. Currently only 
+#' applies to "Bernoulli" distribution and defaults to false.
+#' 
+#' @param fold_id An optional vector of values identifying what fold
+#' each observation is in. If supplied, cv_folds can be missing. Note:
+#' Multiple rows of the same observation must have the same fold_id.
+#' 
 #' @param is_verbose if TRUE, gbm2 will print out progress and performance of the fit.
 #' 
 #' @return a gbm2 object.
@@ -40,7 +50,8 @@
 gbm2 <- function(formula, distribution=gbm_dist("Gaussian", ...), data, weights, offset,
                  train_params=training_params(num_trees=100, interaction_depth=1, min_num_obs_in_node=10, 
                  shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=1, num_features=ncol(data)-1), num_train=round(0.5 * nrow(data)), num_features, 
-                 var_monotone=NULL, var_names=NULL, keep_gbm_data=FALSE, is_verbose=FALSE) {
+                 var_monotone=NULL, var_names=NULL,  cv_folds=1, cv_class_stratify=FALSE, fold_id=NULL,
+                 keep_gbm_data=FALSE, is_verbose=FALSE) {
   theCall <- match.call()
   
   mf <- match.call(expand.dots = FALSE)
@@ -63,7 +74,25 @@ gbm2 <- function(formula, distribution=gbm_dist("Gaussian", ...), data, weights,
   x <- model.frame(terms(reformulate(var_names)),
                    data,
                    na.action=na.pass)
-
+  
+  # Check and infer folds if necessary
+  check_cv_parameters(cv_folds, cv_class_stratify, fold_id, train_params)
+  if (!is.null(fold_id)) {
+    if (length(fold_id) != nrow(x)){
+      stop("fold.id inequal to number of rows.")
+    }
+    num_inferred_folds <- length(unique(fold_id))
+    if (cv_folds != num_inferred_folds) {
+      # Warn if cv.folds and fold.id disagree, but take fold.id.
+      warning("CV folds changed from ", cv.folds, " to ", inferred_folds,
+              " because of levels in fold.id.")
+    } 
+    cv_folds <- num_inferred_folds
+    
+    # Set fold_id from whatever it is to an integer ascending from 1. Lazy way.
+    fold_id <- as.numeric(as.factor(fold_id))
+  }
+  
   # Create gbm_data_obj
   gbm_data_obj <- gbm_data(x, y, weights, offset)
   
@@ -83,38 +112,14 @@ gbm2 <- function(formula, distribution=gbm_dist("Gaussian", ...), data, weights,
   # Order the data
   gbm_data_obj <- order_data(gbm_data_obj, distribution, train_params)
   
-  # Call the method
-  gbm_fit <- .Call("gbm",
-                   Y=as.matrix(as.data.frame(gbm_data_obj$y)),
-                   Offset=as.double(gbm_data_obj$offset),
-                   X=as.matrix(as.data.frame(gbm_data_obj$x)),
-                   X.order=as.integer(gbm_data_obj$x_order),
-                   sorted=as.matrix(as.data.frame(distribution$sorted)),
-                   Strata = as.integer(distribution$strata),
-                   weights=as.double(gbm_data_obj$weights),
-                   Misc=get_misc(distribution),
-                   prior.node.coeff.var = ifelse(is.null(distribution$prior_node_coeff_var), as.double(0),
-                                                 as.double(distribution$prior_node_coeff_var)),
-                   id = as.integer(train_params$id),
-                   var.type=as.integer(variables$var_type),
-                   var.monotone=as.integer(variables$var_monotone),
-                   distribution=as.character(tolower(distribution$name)),
-                   n.trees=as.integer(train_params$num_trees),
-                   interaction.depth=as.integer(train_params$interaction_depth),
-                   n.minobsinnode=as.integer(train_params$min_num_obs_in_node),
-                   shrinkage=as.double(train_params$shrinkage),
-                   bag.fraction=as.double(train_params$bag_fraction),
-                   nTrainRows=as.integer(train_params$num_train),
-                   nTrainObs = as.integer(length(unique(train_params$id[seq_len(train_params$num_train)]))),
-                   mFeatures=as.integer(train_params$num_features),
-                   fit.old=as.double(NA),
-                   n.cat.splits.old=as.integer(0),
-                   n.trees.old=as.integer(0),
-                   verbose=as.integer(is_verbose),
-                   PACKAGE = "gbm")
-  class(gbm_fit) <- "GBMFit"
+  # Get CV groups
+  cv_groups <- create_cv_groups(gbm_data_obj, distribution, train_params, cv_folds,
+                                cv_class_stratify, fold_id)
+  # Create fitted object
+  gbm_fit <- gbm_cross_val(gbm_data_obj, distribution, train_params, var_container,
+                           cv_folds, cv_groups)
   
-  # Build up extra pieces
+  # Wrap up extra pieces
   gbm_fit$distribution <- distribution
   gbm_fit$params <- train_params
   gbm_fit$variables <- variables

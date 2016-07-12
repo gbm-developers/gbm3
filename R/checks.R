@@ -1,6 +1,6 @@
 check_if_gbm_dist <- function(distribution_obj) {
   # Check if GBM dist object
-  if(!match(class(distribution_obj), paste0(available_distributions(), "GBMDist"))) {
+  if(!match(class(distribution_obj)[1], paste0(available_distributions(), "GBMDist"))) {
     stop("Function requires a GBMDist object.")
   }
 }
@@ -21,6 +21,38 @@ check_if_gbm_fit <- function(fit_obj) {
   if(!match(class(fit_obj), "GBMFit")) {
     stop("Function requires a GBMFit object.")
   }
+}
+
+check_if_gbm_train_params <- function(params_obj) {
+  if(!match(class(params_obj), "GBMTrainParams")) {
+    stop("Function requires a GBMTrainParams object.")
+  }
+}
+
+check_if_gbm_var_container <- function(var_obj) {
+  if(!match(class(params_obj), "GBMVarCont")) {
+    stop("Function requires a GBMVarCont object.")
+  }
+}
+
+check_cv_parameters <- function(cv_folds, cv_class_stratify, fold_id, train_params) {
+  check_if_natural_number(cv_folds)
+  if(!is.logical(cv_class_stratify)) stop("cv_class_stratify must be a logical")
+  checl_if_gbm_train_params(train_params)
+
+  # Check fold_id does not split observation data up
+  if(!is.null(fold_id))
+  {
+    for(id in train_params$id)
+    {
+      if(length(unique(fold_id[train_params$id == id])) > 1)
+      {
+        stop("Observations are split across multiple folds")
+      }
+    }
+  }
+  
+  
 }
 
 check_id <- function(params_obj, data_obj) {
