@@ -370,29 +370,13 @@ test_that("Gaussian distribution is same for old gbm and new", {
   offset <- rep(0, N)
   data <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3,X4=X4,X5=X5,X6=X6)
   
-  # fit model using original API
-  gbm1 <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
-              data=data,                   # dataset
-              var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-              distribution="gaussian",     # bernoulli, adaboost, gaussian, poisson, coxph, or
-              # list(name="quantile",alpha=0.05) for quantile regression
-              offset=offset,
-              n.trees=2000,                 # number of trees
-              shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
-              interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc.
-              bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
-              train.fraction = 0.5,        # fraction of data for training, first train.fraction*N used for training
-              n.minobsinnode = 10,         # minimum number of obs needed in each node
-              keep.data=TRUE,
-              cv.folds=1, # do 1-fold cross-validation
-              n.cores=1)   
   
   # Set up for new API
   params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
-  gbm_fit_2 <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, formula, distribution=dist, data, weights=w, offset=offset,
-                    train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE)
+  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, formula, distribution=dist, data, weights=w, offset=offset,
+                    train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose = TRUE)
   # Make prediction
   set.seed(2)
   # make some new data

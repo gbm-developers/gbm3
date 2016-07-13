@@ -22,18 +22,27 @@
 extract_obs_in_fold <- function(gbm_data_obj, gbm_dist_obj, train_params, cv_groups, fold_num) {
   # Observations in the training set
   obs_in_training_set <- train_params$id %in% seq_len(train_params$num_train)
-  train_params$id <- train_params$id[patients_in_training_set]
+  train_params$id <- train_params$id[obs_in_training_set]
   
   # Observations in cv_group
-  obs_id_in_cv_group <- train_params %in% train_params$num_train[(cv_groups == fold_num)]
+  obs_id_in_cv_group <- train_params$id %in% seq_len(train_params$num_train)[(cv_groups == fold_num)]
+
+  # Extract relevent data - split into training and validation sets
+  # Calculate new number of training rows
+  train_params$num_train <- length(which(cv_groups != fold_num))
   
-  # Extract relevent data 
+  gbm_data_obj <- split_and_join(gbm_data_obj, train_params, obs_id_in_cv_group)
+  gbm_dist_obj <- split_and_join(gbm_data_obj, train_params, obs_id_in_cv_group)
+  
   gbm_data_obj$x <- gbm_data_obj$x[obs_in_training_set,,drop=FALSE][obs_id_in_cv_group,,drop=FALSE]
   gbm_data_obj$y <- gbm_data_obj$y[obs_in_training_set][obs_id_in_cv_group]
   gbm_data_obj$offset <- gbm_data_obj$offset[obs_in_training_set][obs_id_in_cv_group]
   gbm_data_obj$weights <- gbm_data_obj$weights[obs_in_training_set][obs_id_in_cv_group]
   
-  train_params$num_train <- length(which(cv_groups != fold_num))
   gbm_dist_obj$group <- gbm_dist_obj$group[obs_in_training_set][obs_id_in_cv_group]
+  
+  # Get new x_order
+  gbm_data_obj <- predictor_order(gbm_data_obj, train_params)
+  
   return(list("data"=gbm_data_obj, "dist"=gbm_dist_obj, "params"=train_params))
 }

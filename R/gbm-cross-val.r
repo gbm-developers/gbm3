@@ -43,7 +43,7 @@ gbm_cross_val <- function(gbm_data_obj, gbm_dist_obj, train_params, var_containe
   }
 
   # Loop over folds
-  for(fold_num in seq_len(cv_fold)) {
+  for(fold_num in seq_len(cv_folds)) {
     set.seed(as.integer(runif(1, -(2^31 - 1), 2^31)))
     if(is_verbose) message("CV:", fold_num, "\n")
     

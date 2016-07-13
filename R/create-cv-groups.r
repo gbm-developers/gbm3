@@ -32,7 +32,7 @@ create_cv_groups.AdaBoostGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_p
   if(!is.null(fold_id)) {
     return(fold_id)
   } else {
-    return( sample(rep(seq_len(cv_folds), length=length(train_params$num_train))) )
+    return( sample(rep(seq_len(cv_folds), length=train_params$num_train)) )
   }
 }
 
@@ -54,7 +54,7 @@ create_cv_groups.BernoulliGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_
       )
     }
     
-    cv_group <- vector(length = length(i.train))
+    cv_group <- vector(length =train_params$num_train)
     cv_group[gbm_data_obj$y[seq_len(train_params$num_train)] == 0] <- sample(rep(seq_len(cv_folds), length=Zeros))
     cv_group[gbm_data_obj$y[seq_len(train_params$num_train)] == 1] <- sample(rep(seq_len(cv_folds), length=Ones))
     return(cv_group)
@@ -62,7 +62,7 @@ create_cv_groups.BernoulliGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_
   } else if(!is.null(fold_id)) {
     return(fold_id)
   } else {
-    return( sample(rep(seq_len(cv_folds), length=length(train_params$num_train))) )
+    return( sample(rep(seq_len(cv_folds), length=train_params$num_train)) )
   }
 }
 
@@ -71,7 +71,7 @@ create_cv_groups.CoxPHGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_para
   if(!is.null(fold_id)) {
     return(fold_id)
   } else {
-    return( sample(rep(seq_len(cv_folds), length=length(train_params$num_train))) )
+    return( sample(rep(seq_len(cv_folds), length=train_params$num_train)) )
   }
 }
 
@@ -80,7 +80,7 @@ create_cv_groups.GammaGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_para
   if(!is.null(fold_id)) {
     return(fold_id)
   } else {
-    return( sample(rep(seq_len(cv_folds), length=length(train_params$num_train))) )
+    return( sample(rep(seq_len(cv_folds), length=train_params$num_train)) )
   }
 }
 
@@ -89,7 +89,7 @@ create_cv_groups.GaussianGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_p
   if(!is.null(fold_id)) {
     return(fold_id)
   } else {
-    return( sample(rep(seq_len(cv_folds), length=length(train_params$num_train))) )
+    return( sample(rep(seq_len(cv_folds), length=train_params$num_train)) )
   }
 }
 
@@ -98,7 +98,7 @@ create_cv_groups.HuberizedGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_
   if(!is.null(fold_id)) {
     return(fold_id)
   } else {
-    return( sample(rep(seq_len(cv_folds), length=length(train_params$num_train))) )
+    return( sample(rep(seq_len(cv_folds), length=train_params$num_train)) )
   }
 }
 
@@ -107,7 +107,7 @@ create_cv_groups.LaplaceGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_pa
   if(!is.null(fold_id)) {
     return(fold_id)
   } else {
-    return( sample(rep(seq_len(cv_folds), length=length(train_params$num_train))) )
+    return( sample(rep(seq_len(cv_folds), length=train_params$num_train)) )
   }
 }
 
@@ -124,7 +124,7 @@ create_cv_groups.PoissonGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_pa
   if(!is.null(fold_id)) {
     return(fold_id)
   } else {
-    return( sample(rep(seq_len(cv_folds), length=length(train_params$num_train))) )
+    return( sample(rep(seq_len(cv_folds), length=train_params$num_train)) )
   }
 }
 
@@ -133,7 +133,7 @@ create_cv_groups.QuantileGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_p
   if(!is.null(fold_id)) {
     return(fold_id)
   } else {
-    return( sample(rep(seq_len(cv_folds), length=length(train_params$num_train))) )
+    return( sample(rep(seq_len(cv_folds), length=train_params$num_train)) )
   }
 }
 
@@ -142,7 +142,7 @@ create_cv_groups.TDistGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_para
   if(!is.null(fold_id)) {
     return(fold_id)
   } else {
-    return( sample(rep(seq_len(cv_folds), length=length(train_params$num_train))) )
+    return( sample(rep(seq_len(cv_folds), length=train_params$num_train)) )
   }
 }
 
@@ -151,7 +151,7 @@ create_cv_groups.TweedieGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_pa
   if(!is.null(fold_id)) {
     return(fold_id)
   } else {
-    return( sample(rep(seq_len(cv_folds), length=length(train_params$num_train))) )
+    return( sample(rep(seq_len(cv_folds), length=train_params$num_train)) )
   }
 }
 

@@ -12,6 +12,10 @@
 #' 
 #' @param cv_group vector of integers specifying which row of data belongs to which cv_fold.
 
+gbm_cv_errors <- function(gbm_cv_fit, cv_folds, cv_group) {
+  UseMethod("gbm_cv_errors", gbm_cv_fit)
+}
+
 gbm_cv_errors.GBMCVFit <- function(gbm_cv_fit, cv_folds, cv_group) {
   in_group <- tabulate(cv_group, nbins=cv_folds)
   cv_error <- vapply(1:cv_folds,
