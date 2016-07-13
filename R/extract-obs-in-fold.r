@@ -1,6 +1,6 @@
 #' Extract observations in fold
 #' 
-#' Extract the relevant observations to fit a CV fold
+#' Extract the relevant observations to fit a CV fold - reorders appropriately.
 #' 
 #' @usage extract_obs_in_fold(gbm_data_obj, gbm_dist_obj, train_params, cv_groups, fold_num, is_verbose)
 #' 
@@ -33,16 +33,5 @@ extract_obs_in_fold <- function(gbm_data_obj, gbm_dist_obj, train_params, cv_gro
   
   gbm_data_obj <- split_and_join(gbm_data_obj, train_params, obs_id_in_cv_group)
   gbm_dist_obj <- split_and_join(gbm_data_obj, train_params, obs_id_in_cv_group)
-  
-  gbm_data_obj$x <- gbm_data_obj$x[obs_in_training_set,,drop=FALSE][obs_id_in_cv_group,,drop=FALSE]
-  gbm_data_obj$y <- gbm_data_obj$y[obs_in_training_set][obs_id_in_cv_group]
-  gbm_data_obj$offset <- gbm_data_obj$offset[obs_in_training_set][obs_id_in_cv_group]
-  gbm_data_obj$weights <- gbm_data_obj$weights[obs_in_training_set][obs_id_in_cv_group]
-  
-  gbm_dist_obj$group <- gbm_dist_obj$group[obs_in_training_set][obs_id_in_cv_group]
-  
-  # Get new x_order
-  gbm_data_obj <- predictor_order(gbm_data_obj, train_params)
-  
   return(list("data"=gbm_data_obj, "dist"=gbm_dist_obj, "params"=train_params))
 }

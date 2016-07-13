@@ -1,3 +1,56 @@
 #' Rearrange training set and distribution data for CV
 #' 
-#' Methods th
+#' Methods converts the gbm data and distribution parameters for CV fitting
+#' 
+#' @usage split_and_join(gbm_data_obj, train_params, rows_in_training, rows_in_fold)
+#' 
+#' @param gbm_data_obj  a GBMData  containing correctly ordered and validated data.
+#' 
+#' @param train_params a validated GBMTrainParams object
+#' 
+#' @param rows_in_training vector of logicals that determine what data rows are in the training set.
+#' 
+#' @params rows_in_fold vector of logicals indicating whether a row of training data is in the fold or not.
+#' 
+
+split_and_join <- function(gbm_data_obj, train_params, rows_in_training, rows_in_fold) {
+  # Initial checks
+  check_if_gbm_data(gbm_data_obj)
+  check_if_gbm_train_params(train_params)
+  if(!is.atomic(rows_in_fold) || any(!is.logical(rows_in_fold)) ||
+     (length(rows_in_fold) != train_params$num_train)) {
+    stop("rows_in_fold must be a vector of logicals of length the number of training rows")
+  }
+  
+  # Use correct method
+  UseMethod("split_and_join", gbm_data_obj)
+}
+
+split_and_join.GBMFit <- function(gbm_data_obj, train_params, rows_in_training, rows_in_fold) {
+  # Validation fold
+  x_valid <- as.data.frame(gbm_data_obj$x[rows_in_training,,drop=FALSE][rows_in_fold,,drop=FALSE])
+  y_valid <- as.data.frame(gbm_data_obj$y[rows_in_training][rows_in_fold])
+  offset_valid <- gbm_data_obj$offset[rows_in_training][rows_in_fold]
+  weights_valid <- gbm_data_obj$weights[rows_in_training][rows_in_fold]
+  x_order_valid <- gbm_data_obj$x_order[rows_in_training][rows_in_fold]
+  
+  # Training folds
+  gbm_data_obj_train <- gbm_data_obj
+  gbm_data_obj_train$x <- gbm_data_obj$x[rows_in_training,,drop=FALSE][!rows_in_fold,,drop=FALSE]
+  gbm_data_obj_train$y <- gbm_data_obj$y[rows_in_training][!rows_in_fold]
+  gbm_data_obj_train$offset <- gbm_data_obj$offset[rows_in_training][!rows_in_fold]
+  gbm_data_obj_train$weights <- gbm_data_obj$weights[rows_in_training][!rows_in_fold]
+  
+  # Reorder predictors for fitting
+  gbm_data_obj_train <- predictor_order(gbm_data_obj_train, train_params)
+  
+  # Recombine
+  gbm_data_obj$x <- rbind(as.data.frame(gbm_data_obj_train$x), x_valid)
+  gbm_data_obj$y <- rbind(as.data.frame(gbm_data_obj_train$y), x_valid)
+  gbm_data_obj$offset <- c(gbm_data_obj_train$offset, offset_valid)
+  gbm_data_obj$weights <- c(gbm_data_obj_train$weights, weights_valid)
+  gbm_data_obj$x_order <- rbind(as.data.frame(gbm_data_obj_train$x_order), x_order_valid)
+  
+  return(gbm_data_obj)
+}
+
