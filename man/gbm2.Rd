@@ -30,6 +30,16 @@ each variable has with the outcome.  It have a monotone increasing (+1) or decre
 
 \item{var_names}{a vector of strings of containing the names of the predictor variables.}
 
+\item{cv_folds}{a positive integer specifying the number of folds to be used in cross-validation of the gbm
+fit. If cv_folds > 1 then cross-validation is performed; the default of cv_folds is 1.}
+
+\item{cv_class_stratify}{a bool specifying whether or not to stratify via response outcome. Currently only 
+applies to "Bernoulli" distribution and defaults to false.}
+
+\item{fold_id}{An optional vector of values identifying what fold
+each observation is in. If supplied, cv_folds can be missing. Note:
+Multiple rows of the same observation must have the same fold_id.}
+
 \item{keep_gbm_data}{a bool specifying whether or not the gbm_data object created in this method should be
 stored in the results.}
 

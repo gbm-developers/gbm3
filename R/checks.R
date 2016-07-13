@@ -30,7 +30,7 @@ check_if_gbm_train_params <- function(params_obj) {
 }
 
 check_if_gbm_var_container <- function(var_obj) {
-  if(!match(class(params_obj), "GBMVarCont")) {
+  if(!match(class(var_obj), "GBMVarCont")) {
     stop("Function requires a GBMVarCont object.")
   }
 }
@@ -38,7 +38,7 @@ check_if_gbm_var_container <- function(var_obj) {
 check_cv_parameters <- function(cv_folds, cv_class_stratify, fold_id, train_params) {
   check_if_natural_number(cv_folds)
   if(!is.logical(cv_class_stratify)) stop("cv_class_stratify must be a logical")
-  checl_if_gbm_train_params(train_params)
+  check_if_gbm_train_params(train_params)
 
   # Check fold_id does not split observation data up
   if(!is.null(fold_id))

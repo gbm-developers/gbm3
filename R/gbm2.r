@@ -116,8 +116,8 @@ gbm2 <- function(formula, distribution=gbm_dist("Gaussian", ...), data, weights,
   cv_groups <- create_cv_groups(gbm_data_obj, distribution, train_params, cv_folds,
                                 cv_class_stratify, fold_id)
   # Create fitted object
-  gbm_fit <- gbm_cross_val(gbm_data_obj, distribution, train_params, var_container,
-                           cv_folds, cv_groups)
+  gbm_fit <- gbm_cross_val(gbm_data_obj, distribution, train_params, variables,
+                           cv_folds, cv_groups, is_verbose)
   
   # Wrap up extra pieces
   gbm_fit$Terms <- Terms
