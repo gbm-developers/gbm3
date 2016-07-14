@@ -12,7 +12,7 @@
 #' 
 #' @param rows_in_training vector of logicals that determine what data rows are in the training set.
 #' 
-#' @params rows_in_fold vector of logicals indicating whether a row of training data is in the fold or not.
+#' @param rows_in_fold vector of logicals indicating whether a row of training data is in the fold or not.
 #' 
 #' @return modified \code{GBMDist} object for CV fit.
 
@@ -20,7 +20,7 @@ update_fold_dist_data <- function(gbm_dist_obj, gbm_data_obj, train_params, rows
   check_if_gbm_dist(gbm_dist_obj)
   check_if_gbm_train_params(train_params)
   if(!is.atomic(rows_in_fold) || any(!is.logical(rows_in_fold)) ||
-     (length(rows_in_fold) != train_params$num_train)) {
+     (length(rows_in_fold[rows_in_fold == FALSE]) != train_params$num_train)) {
     stop("rows_in_fold must be a vector of logicals of length the number of training rows")
   }
   UseMethod("update_fold_dist_data", gbm_dist_obj)

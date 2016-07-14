@@ -17,7 +17,7 @@
 #' @param baseline a vector of doubles specifying the baseline from which the loss is calculated.  This
 #' defaults to 0.
 #' 
-#' @results the loss associated with the fit and distribution - vector of doubles
+#' @return the loss associated with the fit and distribution - vector of doubles
 #' 
 
 loss <- function(y, predictions, weights, offset, distribution_obj, baseline=rep(0, length(y))) {

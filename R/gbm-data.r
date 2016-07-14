@@ -32,7 +32,9 @@ gbm_data <- function(x, y, weights, offset) {
       stop("Offsets must be a vector of doubles")
     }
     
+    # Store original data - before any formatting
+    data <- cbind(as.data.frame(y), as.data.frame(x))
     
-    return(structure(list(x=x, y=y, weights=weights, offset=offset),
+    return(structure(list(x=x, y=y, original_data=data, weights=weights, offset=offset),
                      class="GBMData"))
 }

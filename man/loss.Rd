@@ -20,6 +20,9 @@ loss(y, predictions, weights, offset, distribution_obj, baseline=rep(0, length(y
 \item{baseline}{a vector of doubles specifying the baseline from which the loss is calculated.  This
 defaults to 0.}
 }
+\value{
+the loss associated with the fit and distribution - vector of doubles
+}
 \description{
 S3 method for calculating the loss given data and a GBMDist object
 }

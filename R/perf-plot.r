@@ -32,7 +32,7 @@ perf_plot <- function(gbm_fit_obj, best_iter, out_of_bag_curve, overlay, method,
   
   # Get y-axis label and limits
   ylab <- get_ylabel(gbm_fit_obj$distribution)
-  if(gbm_fit_obj$train.fraction==1)
+  if(gbm_fit_obj$params$train_fraction==1)
   {
     ylim <- switch(method,
                    cv=range(gbm_fit_obj$train.error, gbm_fit_obj$cv_error),
@@ -45,26 +45,30 @@ perf_plot <- function(gbm_fit_obj, best_iter, out_of_bag_curve, overlay, method,
   }
   
   # Initial plot
-  plot(object$train.error,
+  plot(gbm_fit_obj$train.error,
        ylim=ylim,
        type="l",
        xlab="Iteration", ylab=ylab, main=main)
   
-  if(object$train.fraction != 1)
+  if(gbm_fit_obj$params$train_fraction != 1)
   {
-    lines(object$valid.error,col="red")
+    lines(gbm_fit_obj$valid.error,col="red")
   }
   if(method=="cv")
   {
-    lines(object$cv.error,col="green")
+    lines(gbm_fit_obj$cv.error,col="green")
   }
-  if(!is.na(best.iter)) abline(v=best.iter,col="blue",lwd=2,lty=2)
+  if(!is.na(best_iter)) abline(v=best_iter,col="blue",lwd=2,lty=2)
   
   # Plot out of bag curve
   if(out_of_bag_curve)
     plot_oobag(gbm_fit_obj, best_iter, overlay, ylab)
 }
 ########## HELPER FUNCTIONS FOR PLOTTING ############
+get_ylabel <- function(distribution) {
+  UseMethod("get_ylabel", distribution)
+}
+
 get_ylabel.AdaBoostGBMDist <-function(distribution) {
   return("AdaBoost exponential bound")
 }

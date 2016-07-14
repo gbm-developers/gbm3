@@ -34,21 +34,28 @@
 #' The method of computation depends on the \code{method} argument.
 #' @seealso \code{\link{gbm2}}
 #' @keywords nonlinear survival nonparametric tree
-#' @export
+#' @export 
 #' 
 
-gbm_perf.GBMFit <- function(gbm_fit_obj, plot_it=TRUE, 
-                            out_of_bag_curve=FALSE,
-                            overlay=TRUE,
-                            method,
-                            main="")
-{
-  if ( missing( method ) ){
+
+gbm_perf <- function(gbm_fit_obj, plot_it=TRUE, 
+                                        out_of_bag_curve=FALSE,
+                                        overlay=TRUE,
+                                        method,
+                                        main="") {
+  # Initial checks
+  check_if_gbm_fit(gbm_fit_obj)
+  if ( missing( method ) )
     stop("requires method parameter to determine performance")
-  }
   
   if(!is.element(method,c("OOB","test","cv")))
     stop("method must be cv, test, or OOB")
+  
+  if(!is.logical(plot_it) || (length(plot_it)) > 1)
+    stop("plot_it must be a logical")
+  
+  if(!is.logical(plot_it) || (length(plot_it)) > 1)
+    stop("plot_it must be a logical")
   
   best_iter <- switch(method,
                       OOB=best_iter_out_of_bag(gbm_fit_obj),
@@ -57,7 +64,7 @@ gbm_perf.GBMFit <- function(gbm_fit_obj, plot_it=TRUE,
   if(plot_it)
     perf_plot(gbm_fit_obj, best_iter, out_of_bag_curve, overlay, method, main)
   
-  return(best_iter)
+  return(best_iter)  
 }
 
 best_iter_test <- function(gbm_fit_obj) {

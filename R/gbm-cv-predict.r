@@ -17,22 +17,24 @@
 
 predict.GBMCVFit <- function(gbm_cv_fit, gbm_data_obj, cv_folds, cv_group, best_iter_cv) {
   
-  # Extractg data
-  data <- gbm_data_obj[seq_len(gbm_cv_fit[[1]]$train_params$num_train), ,drop=FALSE]
+  # Extract data
+  data <- gbm_data_obj$original_data[seq_len(gbm_cv_fit[[1]]$params$num_train), ,drop=FALSE]
   
   ## test cv_group and data match
   if (nrow(data) != length(cv_group)) {
     stop("mismatch between data and cv_group")
   }
   
+  #Flatten data for prediction
   num_cols <- 1
-  result <- matrix(nrow=nrow(data), ncol=num.cols)
+  result <- matrix(nrow=nrow(data), ncol=num_cols)
   data_names <- names(data)
+  
   for (ind in seq_len(cv_folds)) {
     flag <- cv_group == ind
     model <- gbm_cv_fit[[ind+1]]
     my_data  <- data[flag, model$variables$var_names, drop=FALSE]
-    predictions <- predict(model, newdata=my_data, num_trees=best_iter_cv)
+    predictions <- predict(model, new_data=my_data, num_trees=best_iter_cv)
     predictions <- matrix(predictions, ncol=num_cols)
     result[flag,] <- predictions
   }

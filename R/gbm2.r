@@ -119,12 +119,12 @@ gbm2 <- function(formula, distribution=gbm_dist("Gaussian", ...), data, weights,
   gbm_fit <- gbm_cross_val(gbm_data_obj, distribution, train_params, variables,
                            cv_folds, cv_groups, is_verbose)
   
-  # Wrap up extra pieces
+  # Wrap up extra pieces - keep original data
   gbm_fit$Terms <- Terms
+  gbm_fit$original_data <- data
   if(keep_gbm_data) {
-    gbm_fit$data <- gbm_data_obj
+    gbm_fit$gbm_data <- gbm_data_obj
   }
-  
   # Reorder if necessary
   gbm_fit <- reorder_fit(gbm_fit, distribution)
   return(gbm_fit)

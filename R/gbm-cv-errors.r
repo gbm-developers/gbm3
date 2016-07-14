@@ -21,7 +21,7 @@ gbm_cv_errors.GBMCVFit <- function(gbm_cv_fit, cv_folds, cv_group) {
   cv_error <- vapply(1:cv_folds,
                      function(index) {
                        model <- gbm_cv_fit[[index+1]]
-                       model$valid_error * in_group[[index]]
+                       model$valid.error * in_group[[index]]
                      }, double(gbm_cv_fit[[1]]$params$num_trees))
   ## this is now a (num_trees, cv_folds) matrix
   ## and now a n.trees vector

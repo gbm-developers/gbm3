@@ -24,6 +24,6 @@ trained.}
 list of input gbm objects with appropriately extracted observations
 }
 \description{
-Extract the relevant observations to fit a CV fold
+Extract the relevant observations to fit a CV fold - reorders appropriately.
 }
 
