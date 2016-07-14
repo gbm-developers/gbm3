@@ -51,8 +51,7 @@ gbmDoFold <- function(X,
       offset <- offset[patients_in_training_set][i]
       nTrain <- length(which(cv.group != X))
       group <- group[patients_in_training_set][i]
-      patient.id <- patient.id[i]
-      
+
       res <- gbm.fit(x, y,
                      offset=offset, distribution=distribution,
                      w=w, var.monotone=var.monotone, n.trees=n.trees,
