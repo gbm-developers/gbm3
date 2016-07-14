@@ -70,7 +70,7 @@ gbm_cross_val <- function(gbm_data_obj, gbm_dist_obj, train_params, var_containe
   
   # Extract relevant parts - all data model
   gbm_results <- gbm_results[[1]]
-  gbm_results$cv_folds <- 1
+  gbm_results$cv_folds <- cv_folds
   gbm_results$cv_error <- cv_errors
   gbm_results$cv_fitted <- predictions
   

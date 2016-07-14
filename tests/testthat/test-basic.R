@@ -378,7 +378,7 @@ test_that("Gaussian distribution is same for old gbm and new", {
   fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, formula, distribution=dist, data, weights=w, offset=offset,
                     train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose = FALSE)
   
-  best_iter <- gbm_perf(fit,method="cv") # returns test set estimate of best number of trees
+  best_iter <- gbm_perf(fit, method="cv") # returns test set estimate of best number of trees
   
   # Make prediction
   set.seed(2)

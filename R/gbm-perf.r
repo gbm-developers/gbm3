@@ -73,11 +73,10 @@ best_iter_test <- function(gbm_fit_obj) {
 }
 
 best_iter_cv <- function(gbm_fit_obj) {
-  if(is.null(gbm_fit_obj$cv.error))
+  if(is.null(gbm_fit_obj$cv_error))
     stop("In order to use method=\"cv\" gbm must be called with cv.folds>1.")
-  if(length(gbm_fit_obj$cv.error) < gbm_fit_obj$params$num_trees)
     warning("cross-validation error is not computed for any additional iterations run using gbm.more().")
-  best_iter_cv <- which.min(gbm_fit_obj$cv.error)
+  best_iter_cv <- which.min(gbm_fit_obj$cv_error)
   return(best_iter_cv)
 }
 
