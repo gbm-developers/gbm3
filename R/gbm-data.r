@@ -20,6 +20,9 @@ gbm_data <- function(x, y, weights, offset) {
     # Check inputs 
     verify_data(x, y)
     
+    # Convert y if 2-level factor
+    y <- convertY(y)
+  
     # Check weights and offsets are doubles  
     weights <- checkWeights(weights, length(y))
     if(is.null(weights) || is.infinite(weights) || !is.atomic(weights)

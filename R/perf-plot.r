@@ -56,7 +56,7 @@ perf_plot <- function(gbm_fit_obj, best_iter, out_of_bag_curve, overlay, method,
   }
   if(method=="cv")
   {
-    lines(gbm_fit_obj$cv.error,col="green")
+    lines(gbm_fit_obj$cv_error,col="green")
   }
   if(!is.na(best_iter)) abline(v=best_iter,col="blue",lwd=2,lty=2)
   

@@ -22,6 +22,7 @@
 #' 
 #' @return a list mapping each row of data to a cv fold.
 #' 
+#' @export 
 
 create_cv_groups <- function(gbm_data_obj, gbm_dist_obj, train_params, cv_folds, cv_class_stratify, fold_id) {
   UseMethod("create_cv_groups", gbm_dist_obj)

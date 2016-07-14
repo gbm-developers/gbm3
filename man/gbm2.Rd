@@ -19,9 +19,10 @@ an offset term (e.g. y~offset(n) + x).}
 environment.}
 
 \item{weights}{optional vector of weights used in the fitting process.  These weights must be positive but 
-need not be normalized.}
+need not be normalized. By default they are set to 1 for each data row.}
 
-\item{offset}{optional vector specifying the model offset; must be positive.}
+\item{offset}{optional vector specifying the model offset; must be positive.  This defaults to a vector of 0's, the length
+of the rows of data (must be set for CoxPH).}
 
 \item{train_params}{a GBMTrainParams object which specifies the parameters used in growing decision trees.}
 

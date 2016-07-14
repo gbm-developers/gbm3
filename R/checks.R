@@ -120,8 +120,6 @@ checkOffset <- function(o, y, dist){
       o <- rep(0,length(y))
    else if((length(o) != length(y)) & dist$name != "CoxPH")
       stop("The length of offset does not equal the length of y.")
-   else if ((length(o) != (length(y)/2)) & dist$name == "CoxPH")
-     stop("The length of offset does not equal 1/2 the length of y.")
    else if(!is.numeric(o))
      stop("offset must be numeric")
    else if(sum(is.na(o))>0)
@@ -179,8 +177,23 @@ checkVarType <- function(x, y){
 }
 
   
-checkY <- function(y){
+convertY <- function(y){
 
+  FactorsY <- is.factor(y)
+  nLevelsY <- nlevels(y)
+  
+  if(FactorsY & nLevelsY == 2){
+    Y = as.numeric(y == levels(y)[2])
+  } else {
+    Y = y
+  }
+  
+  return(Y)
+  
+}
+
+checkY <- function(y){
+  
   FactorsY <- is.factor(y)
   nLevelsY <- nlevels(y)
   

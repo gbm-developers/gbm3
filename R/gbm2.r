@@ -16,9 +16,10 @@
 #' environment. 
 #' 
 #' @param weights optional vector of weights used in the fitting process.  These weights must be positive but 
-#' need not be normalized.
+#' need not be normalized. By default they are set to 1 for each data row.
 #' 
-#' @param offset  optional vector specifying the model offset; must be positive.
+#' @param offset  optional vector specifying the model offset; must be positive.  This defaults to a vector of 0's, the length
+#' of the rows of data (must be set for CoxPH).
 #' 
 #' @param train_params  a GBMTrainParams object which specifies the parameters used in growing decision trees.
 #' 
@@ -47,7 +48,7 @@
 #' @export gbm2
 #' 
 
-gbm2 <- function(formula, distribution=gbm_dist("Gaussian", ...), data, weights, offset,
+gbm2 <- function(formula, distribution=gbm_dist("Gaussian", ...), data, weights=rep(1, nrow(data)), offset=rep(0, nrow(data)),
                  train_params=training_params(num_trees=100, interaction_depth=1, min_num_obs_in_node=10, 
                  shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=1, num_features=ncol(data)-1), num_train=round(0.5 * nrow(data)), num_features, 
                  var_monotone=NULL, var_names=NULL,  cv_folds=1, cv_class_stratify=FALSE, fold_id=NULL,
@@ -65,7 +66,13 @@ gbm2 <- function(formula, distribution=gbm_dist("Gaussian", ...), data, weights,
   Terms <- attr(mf, "terms")
   y <- model.response(mf)
   w <- model.weights(mf)
-  offset <- model.offset(mf)
+  offset_mf <- model.offset(mf)
+  
+  # Set offset/ weights off defaults if specified
+  if(!is.null(w))
+    weights <- w
+  if(!is.null(offset_mf))
+    offset <- offset_mf
   
   # get the character name of the response variable
   response_name <- as.character(formula[[2]])
@@ -102,13 +109,13 @@ gbm2 <- function(formula, distribution=gbm_dist("Gaussian", ...), data, weights,
   # Set-up variable containers
   variables <- var_container(gbm_data_obj, var_monotone, var_names)
   
+  # Create strata
+  distribution <- create_strata(gbm_data_obj, train_params, distribution)
+  
   # Process data obj and validate
   gbm_data_obj <- convert_factors(gbm_data_obj)
   gbm_data_obj <- validate_gbm_data(gbm_data_obj, distribution)
 
-  # Create strata
-  distribution <- create_strata(gbm_data_obj, train_params, distribution)
-  
   # Order the data
   gbm_data_obj <- order_data(gbm_data_obj, distribution, train_params)
   

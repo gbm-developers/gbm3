@@ -23,9 +23,13 @@ determine_groups <- function(col_names, gbm_data, distribution_obj) {
   check_if_gbm_data(gbm_data)
   check_if_gbm_dist(distribution_obj)
   if(distribution_obj$reorder) {
-   UseMethod("trainig_groups_reorder", distribution_obj) 
+   UseMethod("determine_groups", distribution_obj) 
   }
   
+  return(distribution_obj)
+}
+
+determine_groups.CoxPHGBMDist <- function(col_names, gbm_data, distribution_obj) {
   return(distribution_obj)
 }
 

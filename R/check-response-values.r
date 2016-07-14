@@ -21,8 +21,7 @@ check_response_values <- function(distribution_obj, y) {
      !is.atomic(y)) {
     stop("Responses must be in a dataframe, matrix or vector")
   } 
-  y <- checkY(y)
-
+  
   # Call correct method
   UseMethod("check_response_values", distribution_obj)
   
@@ -35,7 +34,7 @@ check_response_values.AdaBoostGBMDist <-function(distribution_obj, y) {
 }
 
 check_response_values.BernoulliGBMDist <-function(distribution_obj, y) {
-  if(!all(is.element(y,0:1))) {
+  if(!all(is.element(y, 0:1))) {
     stop("Bernoulli requires the response to be in {0,1}")
   }
 }
@@ -47,7 +46,7 @@ check_response_values.CoxPHGBMDist <-function(distribution_obj, y) {
   }
   
   # Check length
-  if(length(strata) != nrow(y))
+  if(length(distribution_obj$row_in_which_stratum) != nrow(y))
   {
     stop("Strata indices must be provided for every data point")
   }

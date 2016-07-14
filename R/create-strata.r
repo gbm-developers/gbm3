@@ -29,7 +29,7 @@ create_strata <- function(gbm_data_obj, train_params, distribution_obj) {
     num_test_rows <- nrow(gbm_data_obj$x) - num_train_rows
       
     # Set up strata 
-    if(!is.null(distribution_obj$strata))
+    if(!is.na(distribution_obj$strata))
     {
       # Sort strata according to patient ID
       distribution_obj$strata <- distribution_obj$strata[order(train_params$id)]
@@ -92,8 +92,10 @@ create_strata <- function(gbm_data_obj, train_params, distribution_obj) {
     sortedVec <- sorted-1L
     
     distribution_obj$time_order <- i_order
+    distribution_obj$row_in_which_stratum <- distribution_obj$strata
     distribution_obj$sorted <- as.matrix(as.data.frame(sortedVec))
     distribution_obj$strata <- as.double(StrataVec)
+    
   }
   
   return(distribution_obj)
