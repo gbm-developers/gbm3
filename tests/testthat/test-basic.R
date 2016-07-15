@@ -95,9 +95,9 @@ test_that("coxph works - efron", {
                             shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=3)
   
   # fit initial model
-  gbm1 <- gbm2(Surv(tt,delta)~X1+X2+X3, data=data, distribution=dist, weights=w, offset=rep(0, N),
-               train_params=params, var_monotone=c(0, 0, 0), keep_gbm_data=TRUE, cv_folds=5, is_verbose = TRUE)
-  
+#   gbm1 <- gbm2(Surv(tt,delta)~X1+X2+X3, data=data, distribution=dist, weights=w, offset=rep(0, N),
+#                train_params=params, var_monotone=c(0, 0, 0), keep_gbm_data=TRUE, cv_folds=5, is_verbose = TRUE)
+#   
   # fit initial model
   gbm1 <- gbm(Surv(tt,delta)~X1+X2+X3,       # formula
               data=data,                 # dataset
