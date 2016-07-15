@@ -232,7 +232,7 @@ gbm.fit <- function(x,y,
          
          # Order strata and split into train/test
          strataVecTrain <- strata[1:nTrainRows]
-         strataVecTest <- strata[(nTrainRows+1): cRows]
+         strataVecTest <- strata[ifelse(n.test==0, 0, (nTrainRows+1): cRows)]
          
          # Cum sum the number in each stratum and pad with NAs
          # between train and test strata
@@ -240,7 +240,7 @@ gbm.fit <- function(x,y,
          strataVecTest <- as.vector(cumsum(table(strataVecTest)))
          
          strataVecTrain <- c(strataVecTrain, rep(NA, nTrainRows-length(strataVecTrain)))
-         strataVecTest <- c(strataVecTest, rep(NA, n.test-length(strataVecTest)))
+         strataVecTest <- c(strataVecTest, rep(NA, max(n.test-length(strataVecTest)), 0))
          
          # Recreate Strata Vec to Pass In
          nstrat <- c(strataVecTrain, strataVecTest)
@@ -251,22 +251,30 @@ gbm.fit <- function(x,y,
          # Put all the train and test data in a single stratum
          strata <- rep(1, cRows)
          trainStrat <- c(nTrainRows, rep(NA, nTrainRows-1))
-         testStrat <- c(n.test, rep(NA, n.test-1))
+         testStrat <- c(n.test, rep(NA, max(n.test-1, 0)))
          nstrat <- c(trainStrat, testStrat)
        }
        
+       
+       
        # Sort response according to strata
        # i.order sets order of outputs
+       if(n.test==0) {
+         test.indices <- 0
+       } else {
+         test.indices <- (nTrainRows+1):cRows
+       }
+       
        if (attr(y, "type") == "right")
        {
-         sorted <- c(order(strata[1:nTrainRows], -y[1:nTrainRows, 1]), order(strata[(nTrainRows+1):cRows], -y[(nTrainRows+1):cRows, 1])) 
-         i.order <- c(order(strata[1:nTrainRows], -y[1:nTrainRows, 1]), order(strata[(nTrainRows+1):cRows], -y[(nTrainRows+1):cRows, 1]) + nTrainRows)
+         sorted <- c(order(strata[1:nTrainRows], -y[1:nTrainRows, 1]), order(strata[test.indices], -y[test.indices, 1])) 
+         i.order <- c(order(strata[1:nTrainRows], -y[1:nTrainRows, 1]), order(strata[test.indices], -y[test.indices, 1]) + nTrainRows)
        }
        else if (attr(y, "type") == "counting") 
        {
-         sorted <- cbind(c(order(strata[1:nTrainRows], -y[1:nTrainRows, 1]), order(strata[(nTrainRows+1):cRows], -y[(nTrainRows+1):cRows, 1])),
-                         c(order(strata[1:nTrainRows], -y[1:nTrainRows, 2]), order(strata[(nTrainRows+1):cRows], -y[(nTrainRows+1):cRows, 2])))
-         i.order <- c(order(strata[1:nTrainRows], -y[1:nTrainRows, 1]), order(strata[(nTrainRows+1):cRows], -y[(nTrainRows+1):cRows, 1]) + nTrainRows)
+         sorted <- cbind(c(order(strata[1:nTrainRows], -y[1:nTrainRows, 1]), order(strata[test.indices], -y[test.indices, 1])),
+                         c(order(strata[1:nTrainRows], -y[1:nTrainRows, 2]), order(strata[test.indices], -y[test.indices, 2])))
+         i.order <- c(order(strata[1:nTrainRows], -y[1:nTrainRows, 1]), order(strata[test.indices], -y[test.indices, 1]) + nTrainRows)
        }
        else
        {
