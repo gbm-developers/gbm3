@@ -44,6 +44,7 @@ gbm.fit <- function(x,y,
    
    oldy <- y
    y <- checkY(oldy)
+   strata <- checkStrata(strata)
    
                                         # Only strata, ties and sorted vecs for CoxPh
    y.integer <- matrix(integer(), nrow=cRowsY, ncol=0)
