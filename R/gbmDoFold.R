@@ -49,7 +49,7 @@ gbmDoFold <- function(X, i.train, x, y, offset, distribution, w,
       group <- group[patients_in_training_set][i]
       
       
-      if(distribution=="coxph") {
+      if(distribution$name=="coxph") {
         strata <- strata[patients_in_training_set][i]
       }
       

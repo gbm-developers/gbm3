@@ -411,7 +411,7 @@ gbm.fit <- function(x,y,
                     par.details,
                     verbose=as.integer(verbose),
                     PACKAGE = "gbm")
-
+   
    gbm.obj$bag.fraction <- bag.fraction
    gbm.obj$distribution <- distribution
    gbm.obj$interaction.depth <- interaction.depth
@@ -421,6 +421,7 @@ gbm.fit <- function(x,y,
    gbm.obj$nTrainPats <- nTrain
    gbm.obj$patient.id <- patient.id
    gbm.obj$mFeatures <- mFeatures
+   gbm.obj$prior.node.coeff.var <- prior.node.coeff.var
    gbm.obj$train.fraction <- train.fraction
    gbm.obj$response.name <- response.name
    gbm.obj$shrinkage <- shrinkage
@@ -431,20 +432,18 @@ gbm.fit <- function(x,y,
    gbm.obj$verbose <- verbose
    gbm.obj$Terms <- NULL
    
-   if(distribution$name == "coxph")
-   {
-      gbm.obj$fit[i.order] <- gbm.obj$fit
-   }
+#    if(distribution$name == "coxph")
+#    {
+#       gbm.obj$fit[i.order] <- gbm.obj$fit
+#    }
    
-
    if(keep.data)
    {
       if(distribution$name == "coxph")
       {
          # put the observations back in order
     gbm.obj$data <- list(y=oldy,y.integer=y.integer,
-                         x=x,x.order=x.order,offset=offset,Misc=Misc,w=w,
-                         i.order=i.order)
+                         x=x,x.order=x.order,offset=offset, Misc=Misc,w=w)
      } else
       {
     gbm.obj$data <- list(y=oldy,y.integer=y.integer,
