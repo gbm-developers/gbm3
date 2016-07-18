@@ -50,6 +50,9 @@ gbm.perf <- function(object,
    if ( missing( method ) ){
       if ( object$train.fraction < 1 ){
          method <- "test"
+         if(object$train.fraction > 0.9) {
+           warning("Testing set < 10% of original dataset")
+         }
       } else if ( !is.null( object$cv.error ) ){
          method <- "cv"
       } else {

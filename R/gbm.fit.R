@@ -256,7 +256,13 @@ gbm.fit <- function(x,y,
          # Put all the train and test data in a single stratum
          strata <- rep(1, cRows)
          trainStrat <- c(nTrainRows, rep(NA, nTrainRows-1))
-         testStrat <- c(n.test, rep(NA, max(n.test-1, 0)))
+         
+         # Ensure test strata component is the correct length
+         if(n.test != 0) {
+           testStrat <- c(n.test, rep(NA, max(n.test-1, 0)))
+         } else {
+           testStrat <- c()
+         }
          nstrat <- c(trainStrat, testStrat)
        }
        
