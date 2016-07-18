@@ -37,7 +37,7 @@ CCoxPH::CCoxPH(bool is_startstop, int tiesmethod, double priorcoeff)
 
   // Set up which methods CoxPh will use
   if (kStartStopCase_) {
-    coxstate_methods_.reset(new CountingCoxState(this));
+	coxstate_methods_.reset(new CountingCoxState(this));
   } else {
     coxstate_methods_.reset(new CensoredCoxState(this));
   }

@@ -92,6 +92,7 @@ gbm.fit <- function(x,y,
    }
    x <- x[order(patient.id), , drop=FALSE]
    num_rows_each_pat <- table(patient.id[order(patient.id)])
+   patient.id <- patient.id[order(patient.id)]
    
    # Calculate the number of rows in training set
    nTrainRows <- sum(num_rows_each_pat[1:nTrain])
@@ -222,7 +223,11 @@ gbm.fit <- function(x,y,
       # strata
        # Define number of tests
        n.test <- cRows - nTrainRows
-       
+       if(n.test==0) {
+         test.indices <- 0
+       } else {
+         test.indices <- (nTrainRows+1):cRows
+       }
        
        # Set up strata 
        if(!is.null(strata))
@@ -232,7 +237,7 @@ gbm.fit <- function(x,y,
          
          # Order strata and split into train/test
          strataVecTrain <- strata[1:nTrainRows]
-         strataVecTest <- strata[ifelse(n.test==0, 0, (nTrainRows+1): cRows)]
+         strataVecTest <- strata[test.indices]
          
          # Cum sum the number in each stratum and pad with NAs
          # between train and test strata
@@ -240,7 +245,7 @@ gbm.fit <- function(x,y,
          strataVecTest <- as.vector(cumsum(table(strataVecTest)))
          
          strataVecTrain <- c(strataVecTrain, rep(NA, nTrainRows-length(strataVecTrain)))
-         strataVecTest <- c(strataVecTest, rep(NA, max(n.test-length(strataVecTest)), 0))
+         strataVecTest <- c(strataVecTest, rep(NA, max(n.test-length(strataVecTest), 0)))
          
          # Recreate Strata Vec to Pass In
          nstrat <- c(strataVecTrain, strataVecTest)
@@ -259,12 +264,6 @@ gbm.fit <- function(x,y,
        
        # Sort response according to strata
        # i.order sets order of outputs
-       if(n.test==0) {
-         test.indices <- 0
-       } else {
-         test.indices <- (nTrainRows+1):cRows
-       }
-       
        if (attr(y, "type") == "right")
        {
          sorted <- c(order(strata[1:nTrainRows], -y[1:nTrainRows, 1]), order(strata[test.indices], -y[test.indices, 1])) 

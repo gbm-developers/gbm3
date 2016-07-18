@@ -190,7 +190,6 @@ class CountingCoxState : public GenericCoxState {
 
     for (person = 0; person < n;) {
       p2 = kData.yint_ptr(2)[person];
-
       // Check if bagging is required
       if (skipbag || (kBag.get_element(p2) == checkinbag)) {
         if (kData.y_ptr(2)[p2] == 0) {
@@ -298,23 +297,23 @@ class CountingCoxState : public GenericCoxState {
             denom /= exp(temp);
           }
         }
-
-        // clean up at the end of a strata
-        if (person == kData.yint_ptr()[istrat]) {
-          for (; indx1 < kData.yint_ptr()[istrat]; indx1++) {
-            p1 = kData.yint_ptr(1)[indx1];
-            if (skipbag || (kBag.get_element(p1) == checkinbag)) {
-              resid[p1] -=
-                  cumhaz * exp(eta[p1] + kData.offset_ptr()[p1] - center);
-            }
-          }
-          cumhaz = 0;
-          denom = 0;
-          istrat++;
-        }
       } else {
         // Increment person if not in bag
         person++;
+      }
+
+      // clean up at the end of a strata
+      if (person == kData.yint_ptr()[istrat]) {
+        for (; indx1 < kData.yint_ptr()[istrat]; indx1++) {
+          p1 = kData.yint_ptr(1)[indx1];
+          if (skipbag || (kBag.get_element(p1) == checkinbag)) {
+            resid[p1] -=
+                cumhaz * exp(eta[p1] + kData.offset_ptr()[p1] - center);
+          }
+        }
+        cumhaz = 0;
+        denom = 0;
+        istrat++;
       }
     }
     return (loglik);

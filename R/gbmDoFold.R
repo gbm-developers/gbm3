@@ -41,12 +41,17 @@ gbmDoFold <- function(X, i.train, x, y, offset, distribution, w,
       # Pulls out patients in cv.group
       i <- order(patient_id_in_cv_group)
       
-      # Get the 
+      # Get the correct cv group 
       x <- x[patients_in_training_set,,drop=FALSE][i,,drop=FALSE]
       y <- y[patients_in_training_set][i]
       offset <- offset[patients_in_training_set][i]
       nTrain <- length(which(cv.group != X))
       group <- group[patients_in_training_set][i]
+      
+      
+      if(distribution=="coxph") {
+        strata <- strata[patients_in_training_set][i]
+      }
       
       res <- gbm.fit(x, y,
                      offset=offset, distribution=distribution,

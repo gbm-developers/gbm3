@@ -176,7 +176,6 @@ class CensoredCoxState : public GenericCoxState {
     // Loop over patients
     for (person = 0; person < n;) {
       p2 = kData.yint_ptr(1)[person];
-
       // Check if bagging is required - p2 gives the within strata order
       if (skipbag || (kBag.get_element(p2) == checkinbag)) {
         if (kData.y_ptr(1)[p2] == 0) {
@@ -263,25 +262,25 @@ class CensoredCoxState : public GenericCoxState {
             denom /= exp(temp);
           }
         }
-
-        // clean up at the end of a strata
-        if (person == kData.yint_ptr()[istrat]) {
-          for (; indx1 < kData.yint_ptr()[istrat]; indx1++) {
-            p2 = kData.yint_ptr(1)[indx1];
-
-            // Check bagging status
-            if (skipbag || (kBag.get_element(p2) == checkinbag)) {
-              resid[p2] -=
-                  cumhaz * exp(eta[p2] + kData.offset_ptr()[p2] - center);
-            }
-          }
-          cumhaz = 0;
-          denom = 0;
-          istrat++;
-        }
       } else {
         // Increment person if not in bag
         person++;
+      }
+
+      // clean up at the end of a strata
+      if (person == kData.yint_ptr()[istrat]) {
+        for (; indx1 < kData.yint_ptr()[istrat]; indx1++) {
+          p2 = kData.yint_ptr(1)[indx1];
+
+          // Check bagging status
+          if (skipbag || (kBag.get_element(p2) == checkinbag)) {
+            resid[p2] -=
+            		    cumhaz * exp(eta[p2] + kData.offset_ptr()[p2] - center);
+          }
+        }
+        cumhaz = 0;
+        denom = 0;
+        istrat++;
       }
     }
     return (loglik);
