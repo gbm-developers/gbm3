@@ -26,7 +26,7 @@ gbm.fit(x, y, offset = NULL, misc = NULL, distribution = "bernoulli",
   par.details = getOption("gbm.parallel"))
 
 gbm.more(object, n.new.trees = 100, data = NULL, weights = NULL,
-  offset = NULL, verbose = NULL, par.details = getOption("gbm.parallel"))
+  offset = NULL, strata = NULL, verbose = NULL, par.details = getOption("gbm.parallel"))
 }
 \arguments{
 \item{formula}{a symbolic description of the model to be fit. The
