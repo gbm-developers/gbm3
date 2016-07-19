@@ -1,3 +1,7 @@
+# Series of internal functions used 
+# to check inputs
+
+##### Check gbm objects #####
 check_if_gbm_dist <- function(distribution_obj) {
   # Check if GBM dist object
   if(!match(class(distribution_obj)[1], paste0(available_distributions(), "GBMDist"))) {
@@ -8,12 +12,6 @@ check_if_gbm_dist <- function(distribution_obj) {
 check_if_gbm_data <- function(data_obj) {
   if(!match(class(data_obj), "GBMData")) {
     stop("Function requires a GBMData object.")
-  }
-}
-
-check_if_gbm_params <-function(params_obj) {
-  if(!match(class(params_obj), "GBMTrainParams")) {
-    stop("Function requires a GBMTrainParams object.")
   }
 }
 
@@ -35,6 +33,7 @@ check_if_gbm_var_container <- function(var_obj) {
   }
 }
 
+#### Check function inputs ####
 check_cv_parameters <- function(cv_folds, cv_class_stratify, fold_id, train_params) {
   check_if_natural_number(cv_folds)
   if(!is.logical(cv_class_stratify)) stop("cv_class_stratify must be a logical")
@@ -51,8 +50,6 @@ check_cv_parameters <- function(cv_folds, cv_class_stratify, fold_id, train_para
       }
     }
   }
-  
-  
 }
 
 check_id <- function(params_obj, data_obj) {
@@ -129,13 +126,11 @@ checkOffset <- function(o, y, dist){
 }
 
 getVarNames <- function(x){
-   if(is.matrix(x)) { var.names <- colnames(x) }
-   else if(is.data.frame(x)) { var.names <- names(x) }
-   else { var.names <- paste("X", 1:ncol(x),sep="") }
-   var.names
+  if(is.matrix(x)) { var.names <- colnames(x) }
+  else if(is.data.frame(x)) { var.names <- names(x) }
+  else { var.names <- paste("X", 1:ncol(x),sep="") }
+  var.names
 }
-
-
 
 checkSanity <- function(x, y){
   
@@ -176,7 +171,7 @@ checkVarType <- function(x, y){
   
 }
 
-  
+#### Data conversion functions ####
 convertY <- function(y){
 
   FactorsY <- is.factor(y)
