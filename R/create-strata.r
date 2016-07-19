@@ -74,17 +74,14 @@ create_strata <- function(gbm_data_obj, train_params, distribution_obj) {
     
     # Sort response according to strata
     # i_order sets order of outputs
-    if (attr(gbm_data_obj$y, "type") == "right")
-    {
+    if (ncol(gbm_data_obj$y)==2) {
       sorted <- c(order(distribution_obj$strata[seq_len(num_train_rows)], -gbm_data_obj$y[seq_len(num_train_rows), 1]),
                   order(distribution_obj$strata[test_indices],
                         -gbm_data_obj$y[test_indices, 1])) 
       i_order <- c(order(distribution_obj$strata[seq_len(num_train_rows)], -gbm_data_obj$y[1:num_train_rows, 1]),
                    order(distribution_obj$strata[test_indices],
                          -gbm_data_obj$y[test_indices, 1]) + num_train_rows)
-    }
-    else if (attr(gbm_data_obj$y, "type") == "counting") 
-    {
+    } else if (ncol(gbm_data_obj$y)==3) {
       sorted <- cbind(c(order(distribution_obj$strata[seq_len(num_train_rows)], -gbm_data_obj$y[seq_len(num_train_rows), 1]),
                         order(distribution_obj$strata[test_indices], -gbm_data_obj$y[test_indices, 1])),
                       c(order(distribution_obj$strata[seq_len(num_train_rows)], -gbm_data_obj$y[seq_len(num_train_rows), 2]),
@@ -96,6 +93,7 @@ create_strata <- function(gbm_data_obj, train_params, distribution_obj) {
     {
       stop("Survival object must be either right or counting type.")
     }
+    
     
     # Add in sorted column and strata
     StrataVec <-  nstrat

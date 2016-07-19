@@ -37,7 +37,7 @@ create_dist.CoxPHGBMDist <- function(empty_obj, strata=NA, sorted=NA, ties="efro
   empty_obj$ties <- ties
   empty_obj$strata <- strata
   empty_obj$sorted <- sorted
-  empty_obj$prior_node_coeff <- prior_node_coeff_var
+  empty_obj$prior_node_coeff_var <- prior_node_coeff_var
   empty_obj$reorder <- TRUE
   return(empty_obj)
 }

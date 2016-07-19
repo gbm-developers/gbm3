@@ -15,6 +15,8 @@
 #' @return gbm_data_obj 
 
 split_and_join <- function(gbm_data_obj, train_params, rows_in_training, rows_in_fold) {
+  require("survival")
+  
   # Initial checks
   check_if_gbm_data(gbm_data_obj)
   check_if_gbm_train_params(train_params)
@@ -23,20 +25,24 @@ split_and_join <- function(gbm_data_obj, train_params, rows_in_training, rows_in
     stop("rows_in_fold must be a vector of logicals of length the number of training rows")
   }
   
-  # Get Validation fold
+  # Get Validation and training folds
+  gbm_data_obj_train <- gbm_data_obj
+  
+  # Predictors
   x_valid <- as.data.frame(gbm_data_obj$x[rows_in_training, ,drop=FALSE][rows_in_fold, ,drop=FALSE])
+  gbm_data_obj_train$x <- as.data.frame(gbm_data_obj$x[rows_in_training, ,drop=FALSE][!rows_in_fold, ,drop=FALSE])
+  
+  # Responses 
   y_valid <- as.data.frame(as.matrix(gbm_data_obj$y)[rows_in_training, ,drop=FALSE][rows_in_fold, ,drop=FALSE])
+  gbm_data_obj_train$y <- as.data.frame(as.matrix(gbm_data_obj$y)[rows_in_training, ,drop=FALSE][!rows_in_fold, ,drop=FALSE])
+  
+  # Offset, weights and predictor order for validation
   offset_valid <- gbm_data_obj$offset[rows_in_training][rows_in_fold]
   weights_valid <- gbm_data_obj$weights[rows_in_training][rows_in_fold]
   x_order_valid <- as.data.frame(subset(gbm_data_obj$x_order, rows_in_fold, drop=FALSE))
-  
-  # Get Training folds
-  gbm_data_obj_train <- gbm_data_obj
-  gbm_data_obj_train$x <- as.data.frame(gbm_data_obj$x[rows_in_training, ,drop=FALSE][!rows_in_fold, ,drop=FALSE])
-  gbm_data_obj_train$y <- as.data.frame(as.matrix(gbm_data_obj$y)[rows_in_training, ,drop=FALSE][!rows_in_fold, ,drop=FALSE])
   gbm_data_obj_train$offset <- gbm_data_obj$offset[rows_in_training][!rows_in_fold]
   gbm_data_obj_train$weights <- gbm_data_obj$weights[rows_in_training][!rows_in_fold]
-  
+
   # Reorder predictors for fitting
   gbm_data_obj_train <- predictor_order(gbm_data_obj_train, train_params)
   
@@ -49,6 +55,8 @@ split_and_join <- function(gbm_data_obj, train_params, rows_in_training, rows_in
   gbm_data_obj$offset <- c(gbm_data_obj_train$offset, offset_valid)
   gbm_data_obj$weights <- c(gbm_data_obj_train$weights, weights_valid)
   gbm_data_obj$x_order <- as.matrix(gbm_data_obj_train$x_order)
+  
+  
   
   return(gbm_data_obj)
 }
