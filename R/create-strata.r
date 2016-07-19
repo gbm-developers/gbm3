@@ -25,8 +25,15 @@ create_strata <- function(gbm_data_obj, train_params, distribution_obj) {
   distribution_obj$strata <- NA
   
   if(distribution_obj$name == "CoxPH") {
-    num_train_rows <- sum(train_params$num_rows_per_obs[seq_len(train_params$num_train)])
+    num_train_rows <- train_params$num_train_rows
     num_test_rows <- nrow(gbm_data_obj$x) - num_train_rows
+    
+    # Determine test indices
+    if(num_test_rows == 0) {
+      test_indices <- 0
+    } else {
+      test_indices <- (num_train_rows+1):nrow(gbm_data_obj$x)
+    }
       
     # Set up strata 
     if(!is.na(distribution_obj$strata))
@@ -35,8 +42,8 @@ create_strata <- function(gbm_data_obj, train_params, distribution_obj) {
       distribution_obj$strata <- distribution_obj$strata[order(train_params$id)]
       
       # Order strata and split into train/test
-      strataVecTrain <- distribution_obj$strata[1:num_train_rows]
-      strataVecTest <- distribution_obj$strata[(num_train_rows+1): nrow(gbm_data_obj$x)]
+      strataVecTrain <- distribution_obj$strata[seq_len(num_train_rows)]
+      strataVecTest <- distribution_obj$strata[test_indices]
       
       # Cum sum the number in each stratum and pad with NAs
       # between train and test strata
@@ -44,8 +51,14 @@ create_strata <- function(gbm_data_obj, train_params, distribution_obj) {
       strataVecTest <- as.vector(cumsum(table(strataVecTest)))
       
       strataVecTrain <- c(strataVecTrain, rep(NA, num_train_rows-length(strataVecTrain)))
-      strataVecTest <- c(strataVecTest, rep(NA, num_test_rows-length(strataVecTest)))
       
+      # If no test set make empty
+      if(num_test_rows == 0) {
+        strataVecTest <- c() 
+      } else {
+        strataVecTest <- c(strataVecTest, rep(NA, max(num_test_rows-length(strataVecTest), 0)))  
+      }
+    
       # Recreate Strata Vec to Pass In
       nstrat <- c(strataVecTrain, strataVecTest)
       
@@ -55,32 +68,29 @@ create_strata <- function(gbm_data_obj, train_params, distribution_obj) {
       # Put all the train and test data in a single stratum
       distribution_obj$strata <- rep(1, nrow(gbm_data_obj$x))
       trainStrat <- c(num_train_rows, rep(NA, num_train_rows-1))
-      testStrat <- c(num_test_rows, rep(NA, num_test_rows-1))
+      testStrat <- c(num_test_rows, rep(NA, max(num_test_rows-1, 0)))
       nstrat <- c(trainStrat, testStrat)
     }
     
     # Sort response according to strata
-    # i.order sets order of outputs
+    # i_order sets order of outputs
     if (attr(gbm_data_obj$y, "type") == "right")
     {
-      sorted <- c(order(distribution_obj$strata[1:num_train_rows], -gbm_data_obj$y[1:num_train_rows, 1]),
-                  order(distribution_obj$strata[(num_train_rows+1):nrow(gbm_data_obj$x)],
-                        -gbm_data_obj$y[(num_train_rows+1):nrow(gbm_data_obj$x), 1])) 
-      i_order <- c(order(distribution_obj$strata[1:num_train_rows], -gbm_data_obj$y[1:num_train_rows, 1]),
-                   order(distribution_obj$strata[(num_train_rows+1):nrow(gbm_data_obj$x)],
-                         -gbm_data_obj$y[(num_train_rows+1):nrow(gbm_data_obj$x), 1]) + num_train_rows)
+      sorted <- c(order(distribution_obj$strata[seq_len(num_train_rows)], -gbm_data_obj$y[seq_len(num_train_rows), 1]),
+                  order(distribution_obj$strata[test_indices],
+                        -gbm_data_obj$y[test_indices, 1])) 
+      i_order <- c(order(distribution_obj$strata[seq_len(num_train_rows)], -gbm_data_obj$y[1:num_train_rows, 1]),
+                   order(distribution_obj$strata[test_indices],
+                         -gbm_data_obj$y[test_indices, 1]) + num_train_rows)
     }
     else if (attr(gbm_data_obj$y, "type") == "counting") 
     {
-      sorted <- cbind(c(order(distribution_obj$strata[1:num_train_rows], -gbm_data_obj$y[1:num_train_rows, 1]),
-                        order(distribution_obj$strata[(num_train_rows+1):nrow(gbm_data_obj$x)],
-                              -gbm_data_obj$y[(num_train_rows+1):nrow(gbm_data_obj$x), 1])),
-                      c(order(distribution_obj$strata[1:num_train_rows], -gbm_data_obj$y[1:num_train_rows, 2]),
-                        order(distribution_obj$strata[(num_train_rows+1):nrow(gbm_data_obj$x)],
-                              -gbm_data_obj$y[(num_train_rows+1):nrow(gbm_data_obj$x), 2])))
-      i_order <- c(order(distribution_obj$strata[1:num_train_rows], -gbm_data_obj$y[1:num_train_rows, 1]),
-                   order(distribution_obj$strata[(num_train_rows+1):nrow(gbm_data_obj$x)], 
-                         -gbm_data_obj$y[(num_train_rows+1):nrow(gbm_data_obj$x), 1]) + num_train_rows)
+      sorted <- cbind(c(order(distribution_obj$strata[seq_len(num_train_rows)], -gbm_data_obj$y[seq_len(num_train_rows), 1]),
+                        order(distribution_obj$strata[test_indices], -gbm_data_obj$y[test_indices, 1])),
+                      c(order(distribution_obj$strata[seq_len(num_train_rows)], -gbm_data_obj$y[seq_len(num_train_rows), 2]),
+                        order(distribution_obj$strata[test_indices], -gbm_data_obj$y[test_indices, 2])))
+      i_order <- c(order(distribution_obj$strata[seq_len(num_train_rows)], -gbm_data_obj$y[seq_len(num_train_rows), 1]),
+                   order(distribution_obj$strata[test_indices], -gbm_data_obj$y[test_indices, 1]) + num_train_rows)
     }
     else
     {

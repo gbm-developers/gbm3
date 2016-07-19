@@ -431,19 +431,12 @@ gbm.fit <- function(x,y,
    gbm.obj$sorted <- sortedVec
    gbm.obj$prior.node.coeff.var <- prior.node.coeff.var
 
-   if(distribution$name == "coxph")
-   {
-      gbm.obj$fit[i.order] <- gbm.obj$fit
-   }
-   
-
    if(keep.data)
    {
       if(distribution$name == "coxph")
       {
          # put the observations back in order
-         gbm.obj$data <- list(y=oldy,x=x,x.order=x.order,offset=offset,Misc=Misc,w=w,
-                              i.order=i.order)
+         gbm.obj$data <- list(y=oldy,x=x,x.order=x.order,offset=offset,Misc=Misc,w=w)
      } else
       {
          gbm.obj$data <- list(y=oldy,x=x,x.order=x.order,offset=offset,Misc=Misc,w=w)

@@ -123,16 +123,16 @@ gbm2 <- function(formula, distribution=gbm_dist("Gaussian", ...), data, weights=
   cv_groups <- create_cv_groups(gbm_data_obj, distribution, train_params, cv_folds,
                                 cv_class_stratify, fold_id)
   # Create fitted object
-  gbm_fit <- gbm_cross_val(gbm_data_obj, distribution, train_params, variables,
+  gbm_fit_obj <- gbm_cross_val(gbm_data_obj, distribution, train_params, variables,
                            cv_folds, cv_groups, is_verbose)
   
   # Wrap up extra pieces - keep original data
-  gbm_fit$Terms <- Terms
-  gbm_fit$original_data <- data
+  gbm_fit_obj$model <- m
+  gbm_fit_obj$Terms <- Terms
   if(keep_gbm_data) {
-    gbm_fit$gbm_data <- gbm_data_obj
+    gbm_fit_obj$gbm_data_obj <- gbm_data_obj
   }
   # Reorder if necessary
-  gbm_fit <- reorder_fit(gbm_fit, distribution)
-  return(gbm_fit)
+  gbm_fit_obj <- reorder_fit(gbm_fit_obj, distribution)
+  return(gbm_fit_obj)
 }

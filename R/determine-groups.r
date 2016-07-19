@@ -48,11 +48,11 @@ determine_groups.PairwiseGBMDist <- function(col_names, gbm_data, distribution_o
   }
   
   # Construct group index
-  distribution_obj$group <- factor(do.call(paste, c(gbm_data[,distribution_obj$group, drop=FALSE], sep=":")))
+  distribution_obj$group_name <- factor(do.call(paste, c(gbm_data[,distribution_obj$group, drop=FALSE], sep=":")))
 
   # Shuffle groups, to remove bias when splitting into train/test set and/or CV folds
-  perm.levels  <- levels(distribution_obj$group)[sample(1:nlevels(distribution_obj$group))]
-  distribution_obj$group        <- factor(distribution_obj$group, levels=perm.levels)
+  perm.levels  <- levels(distribution_obj$group_name)[sample(1:nlevels(distribution_obj$group_name))]
+  distribution_obj$group        <- factor(distribution_obj$group_name, levels=perm.levels)
   
   # The C++ function expects instances to be sorted by group and descending by target
   distribution_obj$group_order    <- order(distribution_obj$group, -gbm_data$y)

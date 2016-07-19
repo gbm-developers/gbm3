@@ -10,15 +10,15 @@ weight_group_consistency <- function(gbm_data, distribution_obj) {
   
   if(distribution_obj$name == "Pairwise") {
     
-    if(is.null(distribution_obj$group)) {
+    if(is.null(distribution_obj$group_name)) {
       stop("Pairwise distribution object has no group defined.")
     }
     
     # Check that weights are constant across groups
     if ((!missing(gbm_data$weights)) && (!is.null(gbm_data$weights)))
     {
-      w.min <- tapply(gbm_data$weights, INDEX=distribution_obj$group, FUN=min)
-      w.max <- tapply(gbm_data$weights, INDEX=distribution_obj$group, FUN=max)
+      w.min <- tapply(gbm_data$weights, INDEX=distribution_obj$group_name, FUN=min)
+      w.max <- tapply(gbm_data$weights, INDEX=distribution_obj$group_name, FUN=max)
       
       if (any(w.min != w.max))
       {

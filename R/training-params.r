@@ -58,19 +58,21 @@ training_params <- function(num_trees=100, interaction_depth=1,
   # Order the ids 
   id <- id[order(id)]
   num_rows_per_obs <- table(id)
-  
-  if(num_train * bag_fraction <= 2*min_num_obs_in_node+1) {
+  num_train_rows <-  sum(num_rows_per_obs[seq_len(num_train)])
+
+  if(num_train_rows * bag_fraction <= 2*min_num_obs_in_node+1) {
     stop("The dataset size is too small or subsampling rate is too large: num_obs*bag.fraction <= n.minobsinnode")
   }
   
-  if(num_train > sum(num_rows_per_obs)) {
+  if(num_train_rows > sum(num_rows_per_obs)) {
     stop("Number of training rows selected exceeds number available")
   }
   
   object <- structure(list("num_trees"=num_trees, "interaction_depth"=interaction_depth,
                  "min_num_obs_in_node"=min_num_obs_in_node, "shrinkage"=shrinkage,
                  "bag_fraction"=bag_fraction, "id"= id, "num_train"=num_train,
-                 "num_features"=num_features, "num_rows_per_obs"=num_rows_per_obs,
+                 "num_train_rows"=num_train_rows, "num_features"=num_features,
+                 "num_rows_per_obs"=num_rows_per_obs,
                  "train_fraction"=num_train/length(unique(id)) ),
                  class="GBMTrainParams")
   
