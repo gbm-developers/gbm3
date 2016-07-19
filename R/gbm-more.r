@@ -133,8 +133,8 @@ gbm_more <- function(gbm_fit_obj, num_new_trees=100, data=NULL, weights=NULL, of
   gbm_more_fit$c.splits      <- c(gbm_fit_obj$c.splits, gbm_more_fit$c.splits)
   
   # cv.error not updated when using gbm.more
-  gbm_more_fit$cv.error      <- gbm_fit_obj$cv.error
-  gbm_more_fit$cv.folds      <- gbm_fit_obj$cv.folds
+  gbm_more_fit$cv_error      <- gbm_fit_obj$cv_error
+  gbm_more_fit$cv_folds      <- gbm_fit_obj$cv_folds
 
   # Reorder if necessary 
   gbm_more_fit <- reorder_fit(gbm_more_fit, distribution)

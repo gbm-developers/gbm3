@@ -12,6 +12,7 @@
 #' 
 #' @param rows_in_fold vector of logicals indicating whether a row of training data is in the fold or not.
 #' 
+#' @return gbm_data_obj 
 
 split_and_join <- function(gbm_data_obj, train_params, rows_in_training, rows_in_fold) {
   # Initial checks
@@ -22,22 +23,17 @@ split_and_join <- function(gbm_data_obj, train_params, rows_in_training, rows_in
     stop("rows_in_fold must be a vector of logicals of length the number of training rows")
   }
   
-  # Use correct method
-  UseMethod("split_and_join", gbm_data_obj)
-}
-
-split_and_join.GBMData <- function(gbm_data_obj, train_params, rows_in_training, rows_in_fold) {
-  # Validation fold
-  x_valid <- as.data.frame(subset(subset(gbm_data_obj$x, rows_in_training, drop=FALSE), rows_in_fold, drop=FALSE))
-  y_valid <- as.data.frame(subset(subset(gbm_data_obj$y, rows_in_training, drop=FALSE), rows_in_fold, drop=FALSE))
+  # Get Validation fold
+  x_valid <- as.data.frame(gbm_data_obj$x[rows_in_training, ,drop=FALSE][rows_in_fold, ,drop=FALSE])
+  y_valid <- as.data.frame(as.matrix(gbm_data_obj$y)[rows_in_training, ,drop=FALSE][rows_in_fold, ,drop=FALSE])
   offset_valid <- gbm_data_obj$offset[rows_in_training][rows_in_fold]
   weights_valid <- gbm_data_obj$weights[rows_in_training][rows_in_fold]
   x_order_valid <- as.data.frame(subset(gbm_data_obj$x_order, rows_in_fold, drop=FALSE))
   
-  # Training folds
+  # Get Training folds
   gbm_data_obj_train <- gbm_data_obj
-  gbm_data_obj_train$x <- as.data.frame(subset(subset(gbm_data_obj$x, rows_in_training, drop=FALSE), !rows_in_fold, drop=FALSE))
-  gbm_data_obj_train$y <- as.data.frame(subset(subset(gbm_data_obj$y, rows_in_training, drop=FALSE), !rows_in_fold, drop=FALSE))
+  gbm_data_obj_train$x <- as.data.frame(gbm_data_obj$x[rows_in_training, ,drop=FALSE][!rows_in_fold, ,drop=FALSE])
+  gbm_data_obj_train$y <- as.data.frame(as.matrix(gbm_data_obj$y)[rows_in_training, ,drop=FALSE][!rows_in_fold, ,drop=FALSE])
   gbm_data_obj_train$offset <- gbm_data_obj$offset[rows_in_training][!rows_in_fold]
   gbm_data_obj_train$weights <- gbm_data_obj$weights[rows_in_training][!rows_in_fold]
   
@@ -56,4 +52,6 @@ split_and_join.GBMData <- function(gbm_data_obj, train_params, rows_in_training,
   
   return(gbm_data_obj)
 }
+
+
 

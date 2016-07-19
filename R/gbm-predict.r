@@ -2,7 +2,7 @@
 #' 
 #' Predicted values based on a generalized boosted model object - from gbm2
 #' 
-#' \code{gbm_predict} produces predicted values for each observation in
+#' \code{gbm_predict} produces predicted values for each observation in a new_data_set
 #' \code{new_data} using the first \code{num_trees} iterations of the boosting
 #' sequence. If \code{num_trees} is a vector than the result is a matrix with
 #' each column representing the predictions from gbm models with
@@ -16,7 +16,7 @@
 #' make sure that \code{new_data} is of the same format (order and number of
 #' variables) as the one originally used to fit the model.
 #' 
-#' @param gbm_fit_obj Object of class inheriting from (\code{GBMFit})
+#' @param gbm_fit_obj Object of class inheriting from \code{GBMFit}.
 #' @param new_data Data frame of observations for which to make predictions
 #' @param num_trees Number of trees used in the prediction. If \code{num_trees} is
 #' a vector, predictions are returned for each iteration specified.
@@ -37,7 +37,6 @@
 #' @keywords models regression
 #' @export
 #' 
-
 
 predict.GBMFit <- function(gbm_fit_obj, new_data, num_trees,
                         type="link", single_tree=FALSE,

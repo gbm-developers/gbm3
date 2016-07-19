@@ -34,8 +34,9 @@ test_that("gaussian works", {
   params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
+  
   fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
-              train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose = FALSE)
+              train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   
   best_iter <- gbm_perf(fit, method="cv") # returns test set estimate of best number of trees
   
