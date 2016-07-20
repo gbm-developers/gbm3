@@ -1,6 +1,6 @@
 #' GBM2 Fit
 #' 
-#' Wrapper function for calling the C++ gbm function
+#' Wrapper function for calling the C++ gbm function.
 #' 
 #' @usage gbm_fit(gbm_data_obj, gbm_dist_obj, train_params, var_container, is_verbose)
 #' 
@@ -16,6 +16,7 @@
 #' @param is_verbose if TRUE, will print out progress and performance of the fitting.
 #'
 #' @return a fitted gbm object
+#' 
 
 gbm_fit <- function(gbm_data_obj, gbm_dist_obj, train_params, var_container, is_verbose) {
   # Check inputs
