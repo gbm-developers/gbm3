@@ -21,20 +21,15 @@
 #' outcomes, and a gradient boosting implementation to minimize the
 #' AdaBoost exponential loss function.
 #' 
-#' \code{gbm.fit} provides the link between R and the C++ gbm engine.
-#' \code{gbm} is a front-end to \code{gbm.fit} that uses the familiar
-#' R modeling formulas. However, \code{\link[stats]{model.frame}} is
-#' very slow if there are many predictor variables. For power-users
-#' with many variables use \code{gbm.fit}. For general practice
-#' \code{gbm} is preferable.
-#' 
-#' @aliases gbm gbm.more gbm.fit
+#' \code{gbm} is a depracated function that now acts as a front-end to \code{gbm2}
+#' that uses the familiar R modeling formulas. However, \code{\link[stats]{model.frame}} is
+#' very slow if there are many predictor variables. 
 #' 
 #' @param formula a symbolic description of the model to be fit. The
 #' formula may include an offset term (e.g. y~offset(n)+x). If
 #' \code{keep.data=FALSE} in the initial call to \code{gbm} then it is
 #' the user's responsibility to resupply the offset to
-#' \code{\link{gbm.more}}.
+#' \code{\link{gbm_more}}.
 #' 
 #' @param distribution either a character string specifying the name
 #' of the distribution to use or a list with a component \code{name}
@@ -45,16 +40,16 @@
 #' otherwise, if the response has class "Surv", coxph is assumed;
 #' otherwise, gaussian is assumed.
 #' 
-#' Available distributions are "gaussian" (squared error), "laplace"
-#' (absolute loss), "tdist" (t-distribution loss), "bernoulli"
-#' (logistic regression for 0-1 outcomes), "huberized" (Huberized
-#' hinge loss for 0-1 outcomes), "adaboost" (the AdaBoost
-#' exponential loss for 0-1 outcomes), "poisson" (count outcomes),
-#' "coxph" (right censored observations), "quantile", or "pairwise"
+#' Available distributions are "Gaussian" (squared error), "Laplace"
+#' (absolute loss), "TDist" (t-distribution loss), "Bernoulli"
+#' (logistic regression for 0-1 outcomes), "Huberized" (Huberized
+#' hinge loss for 0-1 outcomes), "AdaBoost" (the AdaBoost
+#' exponential loss for 0-1 outcomes), "Poisson" (count outcomes),
+#' "CoxPH" (right censored observations), "Quantile", or "Pairwise"
 #' (ranking measure using the LambdaMART algorithm).
 #' 
 #' If quantile regression is specified, \code{distribution} must be a
-#' list of the form \code{list(name="quantile",alpha=0.25)} where
+#' list of the form \code{list(name="Quantile",alpha=0.25)} where
 #' \code{alpha} is the quantile to estimate. Non-constant weights are
 #' unsupported.
 #' 
@@ -64,7 +59,7 @@
 #' your chosen degrees of freedom.
 #' 
 #' If "pairwise" regression is specified, \code{distribution} must be a list of
-#' the form \code{list(name="pairwise",group=...,metric=...,max.rank=...)}
+#' the form \code{list(name="Pairwise",group=...,metric=...,max.rank=...)}
 #' (\code{metric} and \code{max.rank} are optional, see below). \code{group} is
 #' a character vector with the column names of \code{data} that jointly
 #' indicate the group an instance belongs to (typically a query in Information
@@ -113,7 +108,7 @@
 #' fitting process. The weights must be positive but do not need to be
 #' normalized. If \code{keep.data=FALSE} in the initial call to
 #' \code{gbm}, then it is the user's responsibility to resupply the
-#' weights to \code{\link{gbm.more}}.
+#' weights to \code{\link{gbm_more}}.
 #'
 #' @param subset an optional vector defining a subset of the data to be used
 #'
@@ -145,7 +140,7 @@
 #'
 #' @param bag.fraction the fraction of independent training observations (or patients)
 #' randomly selected to propose the next tree in the expansion, depending 
-#' on the patient.id vector multiple training data rows may belong to
+#' on the obs.id vector multiple training data rows may belong to
 #' a single 'patient'. This introduces randomness into the model fit.
 #' If \code{bag.fraction}<1 then running the same model twice will result
 #' in similar but different fits. \code{gbm} uses the R random number generator, so
@@ -160,7 +155,7 @@
 #' @param nTrain An integer representing the number of unique patients,
 #' each patient could have multiple rows associated with them, on which
 #' to train.  This is the preferred way of specification for
-#' \code{gbm.fit}; The option \code{train.fraction} in \code{gbm.fit}
+#' \code{gbm_fit}; The option \code{train.fraction} in \code{gbm_fit}
 #' is deprecated and only maintained for backward compatibility. These
 #' two parameters are mutually exclusive. If both are unspecified, all
 #' data is used for training.
@@ -174,7 +169,7 @@
 #'
 #' @param keep.data a logical variable indicating whether to keep the
 #' data and an index of the data stored with the object. Keeping the
-#' data and index makes subsequent calls to \code{\link{gbm.more}}
+#' data and index makes subsequent calls to \code{\link{gbm_more}}
 #' faster at the cost of storing an extra copy of the dataset.
 #'
 #' @param object a \code{gbm} object created from an initial call to
@@ -193,7 +188,7 @@
 #' the cross-validation is to help avoiding situations in which
 #' training sets do not contain all classes.
 #'
-#' @param x,y For \code{gbm.fit}: \code{x} is a data frame or data
+#' @param x,y For \code{gbm_fit}: \code{x} is a data frame or data
 #' matrix containing the predictor variables and \code{y} is a matrix of outcomes.
 #' Excluding \code{CoxPH} this matrix of outcomes collapses to a vector, in the case of
 #' \code{CoxPH} it is a survival object where the event times fill the first 
@@ -201,7 +196,7 @@
 #' The number of rows in \code{x} must be the same as the length of the 1st dimension
 #' of \code{y}.
 #'
-#' @param misc For \code{gbm.fit}: \code{misc} is an R object that is
+#' @param misc For \code{gbm_fit}: \code{misc} is an R object that is
 #' simply passed on to the gbm engine. It can be used for additional
 #' data for the specific distribution.  Currently it is only used for
 #' with the Cox proportional hazards model to set the tied times method. 
@@ -234,7 +229,7 @@
 #' Each integer in this vector represents the stratum the corresponding row in the data belongs to,
 #' e. g. if the 10th element is 3 then the 10th data row belongs to the 3rd strata.
 #' 
-#' @param patient.id Optional vector of integers used to specify which rows of data belong
+#' @param obs.id Optional vector of integers used to specify which rows of data belong
 #' to individual patients.  Data is then bagged by patient id; the default sets each row of the data
 #' to belong to an individual patient.
 #' 
@@ -256,23 +251,21 @@
 #' data = list(), weights, subset = NULL, offset = NULL, var.monotone
 #' = NULL, n.trees = 100, interaction.depth = 1, n.minobsinnode = 10,
 #' shrinkage = 0.001, bag.fraction = 0.5, train.fraction = 1,
-#' mFeatures = NULL, cv.folds = 0, keep.data = TRUE, verbose = "CV",
+#' mFeatures = NULL, cv.folds = 0, keep.data = TRUE, verbose = FALSE,
 #' class.stratify.cv = NULL, n.cores = NULL, fold.id=NULL,
 #' tied.times.method = "efron", prior.node.coeff.var = 1000, strata = NULL, 
-#' patient.id = 1:nrow(data))
+#' obs.id = 1:nrow(data))
 #' 
 #' gbm.fit(x, y, offset = NULL, misc = NULL, distribution = "bernoulli", 
 #' w = NULL, var.monotone = NULL, n.trees = 100, interaction.depth = 1, 
 #' n.minobsinnode = 10, shrinkage = 0.001, bag.fraction = 0.5, 
 #' nTrain = NULL, train.fraction = NULL, mFeatures = NULL, keep.data = TRUE, 
 #' verbose = TRUE, var.names = NULL, response.name = "y", group = NULL,
-#' prior.node.coeff.var = 1000, strata = NULL, patient.id = 1:nrow(x))
+#' prior.node.coeff.var = 1000, strata = NULL, obs.id = 1:nrow(x))
 #'
-#' gbm.more(object, n.new.trees = 100, data = NULL, weights = NULL, 
-#' offset = NULL, verbose = NULL)
 #'
-#' @return \code{gbm}, \code{gbm.fit}, and \code{gbm.more} return a
-#' \code{\link{gbm.object}}.
+#' @return \code{gbm} and \code{gbm.fit} return a
+#' \code{GBMFit} object.
 #' @author Greg Ridgeway \email{gregridgeway@@gmail.com}
 #' 
 #' Quantile regression code developed by Brian Kriegler
@@ -282,9 +275,9 @@
 #' Daniel Edwards
 #' 
 #' Pairwise code developed by Stefan Schroedl \email{schroedl@@a9.com}
-#' @seealso \code{\link{gbm.object}}, \code{\link{gbm.perf}},
-#' \code{\link{plot.gbm}}, \code{\link{predict.gbm}},
-#' \code{\link{summary.gbm}}, \code{\link{pretty.gbm.tree}}.
+#' @seealso \code{\link{gbm2}}, \code{\link{perf_gbm}},
+#' \code{\link{plot.GBMFit}}, \code{\link{predict.GBMFit}},
+#' \code{\link{summary.GBMFit}}, \code{\link{pretty.gbm.tree}}.
 #' @references Y. Freund and R.E. Schapire (1997) \dQuote{A decision-theoretic
 #' generalization of on-line learning and an application to boosting,}
 #' \emph{Journal of Computer and System Sciences,} 55(1):119-139.
@@ -344,7 +337,7 @@
 #'     var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease,
 #'                                  # +1: monotone increase,
 #'                                  #  0: no monotone restrictions
-#'     distribution="gaussian",     # see the help for other choices
+#'     distribution="Gaussian",     # see the help for other choices
 #'     n.trees=1000,                # number of trees
 #'     shrinkage=0.05,              # shrinkage or learning rate,
 #'                                  # 0.001 to 0.1 usually work
@@ -427,7 +420,7 @@
 #'                  verbose=FALSE) # stop printing detailed progress
 #' @export
 gbm <- function(formula = formula(data),
-                distribution = "bernoulli",
+                distribution = "Bernoulli",
                 data = list(),
                 weights,
                 subset = NULL,
@@ -442,257 +435,50 @@ gbm <- function(formula = formula(data),
                 mFeatures = NULL,
                 cv.folds=0,
                 keep.data = TRUE,
-                verbose = 'CV',
+                verbose = FALSE,
                 class.stratify.cv=NULL,
                 n.cores=NULL,
                 fold.id = NULL,
                 tied.times.method="efron",
                 prior.node.coeff.var=1000,
-                strata=NULL, patient.id=1:nrow(data)){
-   theCall <- match.call()
+                strata=NULL, obs.id=1:nrow(data)) {
+  # Highlight new API
+  warning("gbm is depracated - using gbm2...")
+  
+  # Unravel model 
+  mf <- match.call(expand.dots = FALSE)
+  m <- match(c("formula", "data", "weights", "subset", "offset"), names(mf), 0)
+  mf <- mf[c(1, m)]
+  mf$drop.unused.levels <- TRUE
+  mf$na.action <- na.pass
+  mf[[1]] <- as.name("model.frame")
+  m <- mf
+  mf <- eval(mf, parent.frame())
+  Terms <- attr(mf, "terms")
+  
+  w <- model.weights(mf)
+  offset <- model.offset(mf)
+  var.names <- attributes(Terms)$term.labels
+  
+  # Set distribution object - put in all possible additional parameters (this will generate warnings)
+  if (is.character(distribution)){ distribution <- list(name=distribution) }
+  dist_obj <- gbm_dist(distribution$name, ties=tied.times.method, strata=strata,
+                      group=distribution$group, metric=distribution$metric,
+                      max.rank=distribution$max.rank, prior_node_coeff_var=prior.node.coeff.var,
+                      alpha=distribution$alpha, df=distribution$df, power=distribution$power)
+  
+  # Set up training parameters
+  if(is.null(mFeatures)) mFeatures <- ncol(data)-1
+  params <- training_params(num_trees=n.trees, interaction_depth=interaction.depth, min_num_obs_in_node=n.minobsinnode, 
+                           shrinkage=shrinkage, bag_fraction=bag.fraction, id=obs.id,
+                           num_train=round(train.fraction * length(unqiue(obs.id))),
+                           num_features=mFeatures)
+  
+  # Call gbm2
+  gbm_fit_obj <- gbm2(formula, distribution=dist_obj, data, weights=w, offset=offset,
+                     train_params= params, var_monotone=var.monotone, var_names=var.names,
+                     cv_folds=cv.folds, cv_class_stratify=class.stratify.cv, fold_id=fold.id,
+                     keep_gbm_data=keep.data, is_verbose=verbose)
 
-
-   lVerbose <- if (!is.logical(verbose)) { FALSE }
-               else { verbose }
-
-   mf <- match.call(expand.dots = FALSE)
-   m <- match(c("formula", "data", "weights", "subset", "offset"), names(mf), 0)
-   mf <- mf[c(1, m)]
-   mf$drop.unused.levels <- TRUE
-   mf$na.action <- na.pass
-   mf[[1]] <- as.name("model.frame")
-   m <- mf
-   mf <- eval(mf, parent.frame())
-   Terms <- attr(mf, "terms")
-   y <- model.response(mf)
-
-   if (missing(distribution)){ distribution <- guessDist(y) }
-   else if (is.character(distribution)){ distribution <- list(name=distribution) }
-
-   w <- model.weights(mf)
-   offset <- model.offset(mf)
-
-   # get the character name of the response variable
-   response.name <- as.character(formula[[2]])
-
-   var.names <- attributes(Terms)$term.labels
-   x <- model.frame(terms(reformulate(var.names)),
-                    data,
-                    na.action=na.pass,
-                    subset=subset)
-   
-   # Check fold.id does not split patient data up
-   if(!is.null(fold.id))
-   {
-     for(id in patient.id)
-     {
-       if(length(unique(fold.id[patient.id == id])) > 1)
-       {
-         stop("Observations are split across multiple folds")
-       }
-     }
-   }
-
-#  x <- mf[, !is.element(names(mf), response.name)]
-
-   lVerbose <- if (!is.logical(verbose)) { FALSE }
-               else { verbose }
-
-   class.stratify.cv <- getStratify(class.stratify.cv, distribution)
-
-   # groups (for pairwise distribution only)
-   group      <- NULL
-   num.groups <- 0
-
-   # Check prior coeff var and strata
-   if(distribution$name == "coxph")
-   {
-     if(!is.double(prior.node.coeff.var) || (as.double(prior.node.coeff.var) < 0.0))
-     {
-       stop("Prior on node predictions must be a double and non-negative")
-     }
-     
-     if(!is.null(strata))
-     {
-       
-       # Check if integers
-       if((all.equal(strata, as.integer(strata))==FALSE))
-       {
-         stop("Strata must be a vector of integers")
-       }
-       
-       # Check length
-       if(length(strata) != nrow(y))
-       {
-         stop("Strata indices must be provided for every data point")
-       }
-     }
-     
-   }
-   
-   # Set up tied.times.method for CoxPh
-   if(distribution$name != "coxph")
-   {
-     tied.times.method <- NULL
-   }
-   else
-   {
-     # Check if string
-     if(is.character(tied.times.method))
-     {
-       tied.times.method <- tied.times.method
-     }
-     else
-     {
-       warning("Tied times method must be a string - has been set to NULL")
-       tied.times.method <- NULL
-     }
-   }
-   
-   # determine number of training groups 
-   if (distribution$name != "pairwise")
-   {
-      nTrain <- floor(train.fraction * length(unique(patient.id)))
-   }
-   else {
-      # distribution$name == "pairwise":
-      # Sampling is by group, so we need to calculate them here
-      distribution.group <- distribution[["group"]]
-      if (is.null(distribution.group))
-      {
-         stop("For pairwise regression, the distribution parameter must be a list with a parameter 'group' for the list of the column names indicating groups, for example list(name=\"pairwise\",group=c(\"date\",\"session\",\"category\",\"keywords\")).")
-      }
-
-      # Check if group names are valid
-      i <- match(distribution.group, colnames(data))
-      if (any(is.na(i)))
-      {
-         stop("Group column does not occur in data: ", distribution.group[is.na(i)])
-      }
-
-      # Construct group index
-      group <- factor(do.call(paste, c(data[,distribution.group, drop=FALSE], sep=":")))
-
-      # Check that weights are constant across groups
-      if ((!missing(weights)) && (!is.null(weights)))
-      {
-         w.min <- tapply(w, INDEX=group, FUN=min)
-         w.max <- tapply(w, INDEX=group, FUN=max)
-
-         if (any(w.min != w.max))
-         {
-            stop("For distribution 'pairwise', all instances for the same group must have the same weight")
-         }
-
-         # Normalize across groups
-         w <- w * length(w.min) / sum(w.min)
-      }
-
-      # Shuffle groups, to remove bias when splitting into train/test set and/or CV folds
-      perm.levels  <- levels(group)[sample(1:nlevels(group))]
-      group        <- factor(group, levels=perm.levels)
-
-      # The C function expects instances to be sorted by group and descending by target
-      ord.group    <- order(group, -y)
-      group        <- group[ord.group]
-      y            <- y[ord.group]
-      x            <- x[ord.group,,drop=FALSE]
-      w            <- w[ord.group]
-
-      # Split into train and validation set, at group boundary
-      num.groups.train <- max(1, round(train.fraction * nlevels(group)))
-
-      # include all groups up to the num.groups.train
-      nTrain           <- max(which(group==levels(group)[num.groups.train]))
-      Misc             <- group
-   } # close if(distribution$name=="coxph") ...
-
-    #Determine the number of features to consider at each node
-    if (is.null(mFeatures)) {
-      mFeatures <- ncol(x)
-    } else {
-      if (mFeatures > ncol(x)) {
-        warning("mFeatures was greater than the number of columns. It was reset to the available features.")
-        mFeatures <- ncol(x)
-      } else {
-        mFeatures <- max(mFeatures, 1)
-      }
-    }
-
-   cv.error <- NULL
-
-   # Set cv.folds from fold.id if present.
-   if (!is.null(fold.id)) {
-     if (length(fold.id) != nrow(x)){
-       stop("fold.id inequal to number of rows.")
-     }
-     inferred_folds <- length(unique(fold.id))
-     if (cv.folds > 0 & cv.folds != inferred_folds) {
-       # Warn if cv.folds and fold.id disagree, but take fold.id.
-       warning("CV folds changed from ", cv.folds, " to ", inferred_folds,
-               " because of levels in fold.id.")
-     } 
-     cv.folds <- inferred_folds
-     # Set fold.id from whatever it is to an integer ascending from 1. Lazy way.
-     fold.id <- as.numeric(as.factor(fold.id))
-   }
-
-   # If CV is used, final model is calculated within the cluster
-   if (cv.folds>1 | !is.null(fold.id)) {
-     cv.results <- gbmCrossVal(cv.folds, nTrain, n.cores,
-                               class.stratify.cv, data,
-                               x, y, offset, distribution, w, var.monotone,
-                               n.trees, interaction.depth, n.minobsinnode,
-                               shrinkage, bag.fraction, mFeatures,
-                               var.names, response.name, group, lVerbose,
-                               keep.data, fold.id, tied.times.method, prior.node.coeff.var, strata, patient.id)
-     cv.error <- cv.results$error
-     p        <- cv.results$predictions
-     gbm.obj  <- cv.results$all.model
-   } 
-
-   else {
-   gbm.obj <- gbm.fit(x,y,
-                      offset = offset,
-                      distribution = distribution,
-                      w = w,
-                      misc = tied.times.method,
-                      var.monotone = var.monotone,
-                      n.trees = n.trees,
-                      interaction.depth = interaction.depth,
-                      n.minobsinnode = n.minobsinnode,
-                      shrinkage = shrinkage,
-                      bag.fraction = bag.fraction,
-                      nTrain = nTrain,
-                      mFeatures = mFeatures,
-                      keep.data = keep.data,
-                      verbose = lVerbose,
-                      var.names = var.names,
-                      response.name = response.name,
-                      group = group,
-                      prior.node.coeff.var = prior.node.coeff.var, 
-                      strata = strata, patient.id = patient.id)
-   }
-
-   gbm.obj$patient.id <- patient.id
-   gbm.obj$train.fraction <- train.fraction
-   gbm.obj$Terms <- Terms
-   gbm.obj$cv.error <- cv.error
-   gbm.obj$cv.folds <- cv.folds
-   gbm.obj$call <- theCall
-   gbm.obj$m <- m
-   if (cv.folds > 1){ gbm.obj$cv.fitted <- p }
-
-   if (distribution$name == "pairwise")
-   {
-      # Data has been reordered according to queries.
-      # We need to permute the fitted values to correspond
-      # to the original order.
-      gbm.obj$ord.group <- ord.group
-      gbm.obj$fit <- gbm.obj$fit[order(ord.group)]
-   }else if(distribution$name == "coxph"){
-     gbm.obj$tied.times.method <- tied.times.method
-   }
-
-   return(gbm.obj)
+  return(gbm_fit_obj)
 }

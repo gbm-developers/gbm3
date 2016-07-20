@@ -1,6 +1,8 @@
 #' GBM2
 #' 
-#' Fits generalized boosted regression models - new API.
+#' Fits generalized boosted regression models - new API. This prepares the inputs, performing tasks
+#' such as creating cv folds, before calling \code{gbm_fit} to call the underlying C++ and fit a generalized
+#' boosting model.
 #' 
 #' @usage  gbm2(formula, distribution=gbm_dist("Gaussian", ...), data, weights, offset,
 #' train_params=training_params(num_trees=100, interaction_depth=1, min_num_obs_in_node=10, 
@@ -53,7 +55,6 @@ gbm2 <- function(formula, distribution=gbm_dist("Gaussian", ...), data, weights=
                  shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=1, num_features=ncol(data)-1), num_train=round(0.5 * nrow(data)), num_features, 
                  var_monotone=NULL, var_names=NULL,  cv_folds=1, cv_class_stratify=FALSE, fold_id=NULL,
                  keep_gbm_data=FALSE, is_verbose=FALSE) {
-  theCall <- match.call()
   
   mf <- match.call(expand.dots = FALSE)
   m <- match(c("formula", "data", "weights", "offset"), names(mf), 0)
@@ -82,6 +83,13 @@ gbm2 <- function(formula, distribution=gbm_dist("Gaussian", ...), data, weights=
                    data,
                    na.action=na.pass)
   
+  # Check num_features makes sense
+  if(train_params$num_features > ncol(x)) {
+    warning("Number of features exceeds the number of predictor variables - 
+            setting number of features to number of predictors")
+    train_params$num_features <- ncol(x)
+  }
+  
   # Check and infer folds if necessary
   check_cv_parameters(cv_folds, cv_class_stratify, fold_id, train_params)
   if (!is.null(fold_id)) {
@@ -99,7 +107,7 @@ gbm2 <- function(formula, distribution=gbm_dist("Gaussian", ...), data, weights=
     # Set fold_id from whatever it is to an integer ascending from 1. Lazy way.
     fold_id <- as.numeric(as.factor(fold_id))
   }
-  
+
   # Create gbm_data_obj
   gbm_data_obj <- gbm_data(x, y, weights, offset)
   
