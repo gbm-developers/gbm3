@@ -6,7 +6,7 @@
 #' These functions offer the different
 #' methods for computing the relative influence in \code{\link{summary.GBMFit}}.
 #'
-#'@usage relative_influence(gbm_fit_obj, rescale, sort_it)
+#' @usage relative_influence(gbm_fit_obj, rescale, sort_it)
 #'
 #' @param gbm_fit_obj a \code{GBMFit} object created from an initial call to
 #' \code{\link{gbm2}}.
@@ -36,7 +36,7 @@
 #' Breiman uses for random forests, but \code{gbm2} currently computes using the
 #' entire training dataset (not the out-of-bag observations).
 
-#' @seealso \code{\link{summary.gbm}}
+#' @seealso \code{\link{gbm-summary}}
 #' @references J.H. Friedman (2001). "Greedy Function Approximation: A Gradient
 #' Boosting Machine," Annals of Statistics 29(5):1189-1232.
 #' 
