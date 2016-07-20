@@ -118,3 +118,20 @@ checkY <- function(y){
   
 }
 
+checkStrata <- function(strata) {
+  
+  # If factor then convert to integer
+  if(is.factor(strata)) {
+    strata <- as.integer(strata)
+  }
+  
+  # If it isn't default then check
+  if(!is.null(strata)) {
+    if(!is.atomic(strata) || !(any(strata == as.factor(strata)) || any(strata == as.integer(strata)))) {
+      stop("strata must be an atomic vector of factors or integers")
+    }
+  }
+  
+  return(strata)
+}
+

@@ -214,6 +214,102 @@ test_that("coxph works - breslow", {
     expect_true(sd(data2$f - f.predict) < 0.4)
 })
 
+test_that("coxph - runs to completion with train.fraction of 1.0", {
+  ## Needed packages
+  require(survival)
+  
+  # Given data from the survival data
+  # keep only certain baseline variables, subjects with longitudinal data
+  temp <- subset(pbc, id%in%pbcseq$id, select=c(id:sex, stage))
+  pbc1 <- tmerge(data1=temp, data2=temp, id=id, death = event(time, status))
+
+  pbc2 <- tmerge(pbc1, pbcseq, id=id, ascites = tdc(day, ascites),
+                 bili = tdc(day, bili), albumin = tdc(day, albumin),
+                 protime = tdc(day, protime), alk.phos = tdc(day, alk.phos))
+
+  # Then expect no errors when performing gbm fit with train fraction = 1.0
+  # GBM fit baseline data
+  expect_error(gbm(Surv(time, status==2) ~ bili + protime + albumin + alk.phos, data=pbc,
+               train.fraction=1.0, n.trees=500, shrinkage=.01,  interaction.depth=3), NA)
+  
+  # GBM fit using start/stop times to get time-dependent covariates
+  expect_error(gbm(Surv(tstart, tstop, death==2) ~ bili + protime + albumin + alk.phos, 
+               data=pbc2, train.fraction=1.0, n.trees=500, shrinkage=.01, interaction.depth=3), NA)
+})
+
+test_that("coxph - runs to completion with train.fraction < 1.0 and cv.folds > 1", {
+  ## Needed packages
+  require(survival)
+  
+  # Given data from the survival data
+  # keep only certain baseline variables, subjects with longitudinal data
+  temp <- subset(pbc, id%in%pbcseq$id, select=c(id:sex, stage))
+  pbc1 <- tmerge(data1=temp, data2=temp, id=id, death = event(time, status))
+  
+  pbc2 <- tmerge(pbc1, pbcseq, id=id, ascites = tdc(day, ascites),
+                 bili = tdc(day, bili), albumin = tdc(day, albumin),
+                 protime = tdc(day, protime), alk.phos = tdc(day, alk.phos))
+  
+  # Then expect no errors when performing gbm fit with train fraction < 1.0 and cv.folds > 1
+  # GBM fit baseline data
+  expect_error(gbm(Surv(time, status==2) ~ bili + protime + albumin + alk.phos, data=pbc,
+               train.fraction=0.8, n.trees=500, shrinkage=.01,  interaction.depth=3), NA)
+  expect_error(gbm(Surv(time, status==2) ~ bili + protime + albumin + alk.phos, data=pbc,
+                   train.fraction=0.8, n.trees=500, shrinkage=.01,  cv.folds=5, n.cores=1, interaction.depth=3), NA)
+  
+  # GBM fit using start/stop times to get time-dependent covariates
+  expect_error(gbm(Surv(tstart, tstop, death==2) ~ bili + protime + albumin + alk.phos, 
+               data=pbc2, train.fraction=0.8, n.trees=500, shrinkage=.01, interaction.depth=3), NA)
+  expect_error(gbm(Surv(tstart, tstop, death==2) ~ bili + protime + albumin + alk.phos, 
+                   data=pbc2, train.fraction=0.8, n.trees=500, shrinkage=.01, cv.folds=5, n.cores=1, interaction.depth=3), NA)
+})
+
+test_that("coxph - runs to completion with start-stop, id'ed and stratified dataset", {
+  ## Needed packages
+  require(survival)
+  
+  # Given data from the survival package
+  cgd2 <- cgd[cgd$enum==1,]
+  
+  # Then fitting a gbm model should throw no errors
+  expect_error(gbm(Surv(tstop, status) ~ age + sex + inherit +
+                 steroids + propylac + hos.cat, data=cgd2, 
+               n.trees=500, shrinkage=.01, interaction.depth=1, train.fraction=1.0), NA)
+  expect_error(gbm(Surv(tstop, status) ~ age + sex + inherit +
+                     steroids + propylac + hos.cat, data=cgd2, 
+                   n.trees=500, shrinkage=.01, interaction.depth=1, train.fraction=0.8), NA)
+  
+  expect_error(gbm(Surv(tstart, tstop, status) ~ age + sex + inherit +
+                 steroids + propylac, data=cgd, patient.id=cgd$id,
+               train.fraction=1.0, n.trees=500, strata= cgd$hos.cat, shrinkage=.01,interaction.depth=3), NA)
+  expect_error(gbm(Surv(tstart, tstop, status) ~ age + sex + inherit +
+                     steroids + propylac, data=cgd, patient.id=cgd$id,
+                   train.fraction=0.8, n.trees=500, strata= cgd$hos.cat, shrinkage=.01,interaction.depth=3), NA)
+})
+
+test_that("coxph cv.folds - runs to completion with start-stop, id'ed and stratified dataset", {
+  ## Needed packages
+  require(survival)
+  
+  # Given data from the survival package
+  cgd2 <- cgd[cgd$enum==1,]
+  
+  # Then fitting a gbm model should throw no errors - with cv.folds > 1
+  expect_error(gbm(Surv(tstop, status) ~ age + sex + inherit +
+                     steroids + propylac + hos.cat, data=cgd2, 
+                   n.trees=500, shrinkage=.01, interaction.depth=1, train.fraction=1.0, cv.folds=10, n.cores=1), NA)
+  expect_error(gbm(Surv(tstop, status) ~ age + sex + inherit +
+                     steroids + propylac + hos.cat, data=cgd2, 
+                   n.trees=500, shrinkage=.01, interaction.depth=1, train.fraction=0.8, cv.folds=5, n.cores=1), NA)
+  
+  expect_error(gbm(Surv(tstart, tstop, status) ~ age + sex + inherit +
+                     steroids + propylac, data=cgd, patient.id=cgd$id,
+                   train.fraction=1.0, n.trees=500, strata= cgd$hos.cat, shrinkage=.01,interaction.depth=3, cv.folds=10, n.cores=1), NA)
+  expect_error(gbm(Surv(tstart, tstop, status) ~ age + sex + inherit +
+                     steroids + propylac, data=cgd, patient.id=cgd$id,
+                   train.fraction=0.8, n.trees=500, strata= cgd$hos.cat, shrinkage=.01,interaction.depth=3, cv.folds=10, n.cores=1), NA)
+})
+
 test_that("bernoulli works", {
 
     set.seed(1)

@@ -56,6 +56,7 @@ extern "C" {
 // Parameters:
 //  response  - SEXP containing the response of each data-point - accessed via
 //				double ptr
+//  intResponse - SEXP containing integer components of response
 //  offset_vec - SEXP containing the offset applied to each response - accessed
 //  via
 //				double ptr - NA for no offset
@@ -63,10 +64,6 @@ extern "C" {
 //  Rcpp::NumericMatrix
 //  covar_order - SEXP containing the order of predictor values to
 //  			be used in GBM formula - accessed via int ptr.
-//  sorted_vec - SEXP indicating the ordering of observations for CoxPH
-//				 , this is stored an int ptr in CoxPH.
-//  strata_vec - SEXP indicating which strata observations are in -
-//				 this is used with CoxPH as an int ptr.
 //  obs_weight  - SEXP containing weights to be used in fitting
 //  				process - accessed via double ptr.
 //  misc - SEXP list object containing distribution dependent data
@@ -118,8 +115,8 @@ extern "C" {
 //  be
 //				silent or not.
 //-----------------------------------
-SEXP gbm(SEXP response, SEXP offset_vec, SEXP covariates, SEXP covar_order,
-         SEXP sorted_vec, SEXP strata_vec, SEXP obs_weight, SEXP misc,
+SEXP gbm(SEXP response, SEXP intResponse, SEXP offset_vec, SEXP covariates,
+         SEXP covar_order, SEXP obs_weight, SEXP misc,
          SEXP prior_coeff_var, SEXP row_to_obs_id, SEXP var_classes,
          SEXP monotonicity_vec, SEXP dist_family, SEXP num_trees,
          SEXP tree_depth, SEXP min_num_node_obs, SEXP shrinkageconstant,
@@ -142,7 +139,7 @@ SEXP gbm(SEXP response, SEXP offset_vec, SEXP covariates, SEXP covar_order,
 
   // Set up parameters for initialization
   DataDistParams datadistparams(
-      response, offset_vec, covariates, covar_order, sorted_vec, strata_vec,
+      response, intResponse, offset_vec, covariates, covar_order, 
       obs_weight, misc, prior_coeff_var, row_to_obs_id, var_classes,
       monotonicity_vec, dist_family, fraction_inbag, num_rows_in_training,
       num_obs_in_training, number_offeatures, parallel);

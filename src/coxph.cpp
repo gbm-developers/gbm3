@@ -30,19 +30,14 @@ int GetTiesMethod(const std::string& selection) {
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CCoxPH::CCoxPH(double* stats, int* sorted_end, int* sorted_start, int* strats,
-               bool is_startstop, int tiesmethod, double priorcoeff)
+CCoxPH::CCoxPH(bool is_startstop, int tiesmethod, double priorcoeff)
     : kStartStopCase_(is_startstop),
-      sortedendtimes_(sorted_end),
-      sortedstarttimes_(sorted_start),
-      strata(strats),
       kPriorCoeffVariation_(priorcoeff) {
-  status_ = stats;
   tiedtimesmethod_ = tiesmethod;
 
   // Set up which methods CoxPh will use
   if (kStartStopCase_) {
-    coxstate_methods_.reset(new CountingCoxState(this));
+	coxstate_methods_.reset(new CountingCoxState(this));
   } else {
     coxstate_methods_.reset(new CensoredCoxState(this));
   }
@@ -53,33 +48,11 @@ CCoxPH::CCoxPH(double* stats, int* sorted_end, int* sorted_start, int* strats,
 //----------------------------------------
 CDistribution* CCoxPH::Create(DataDistParams& distparams) {
   // Initialize variables to pass to constructor
-  double* stat = 0;
-  int* sortedst = 0;
-  int* sortedend = 0;
-  bool isstartstop = false;
   int tiesmethod = GetTiesMethod(Rcpp::as<string>(distparams.misc[0]));
 
-  // Set up strata
-  Rcpp::IntegerVector strats(distparams.strata);
-
-  // Check if start/stop case or not
-  Rcpp::IntegerMatrix sortMatrix(distparams.sorted);
-  if (distparams.response.ncol() > 2) {
-    isstartstop = true;
-    stat = distparams.response(Rcpp::_, 2).begin();
-    sortedend = sortMatrix(Rcpp::_, 1).begin();
-    sortedst = sortMatrix(Rcpp::_, 0).begin();
-
-    return new CCoxPH(stat, sortedend, sortedst, strats.begin(), isstartstop,
-                      tiesmethod, distparams.prior_coefficient_variation);
-  }
-
-  // If not start/stop
-  stat = distparams.response(Rcpp::_, 1).begin();
-  sortedend = sortMatrix(Rcpp::_, 0).begin();
-
-  return new CCoxPH(stat, sortedend, sortedst, strats.begin(), isstartstop,
-                    tiesmethod, distparams.prior_coefficient_variation);
+  return new CCoxPH(distparams.response.ncol() > 2,
+		    tiesmethod,
+		    distparams.prior_coefficient_variation);
 }
 
 void CCoxPH::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
