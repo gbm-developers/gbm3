@@ -14,7 +14,7 @@
 #' In addition to many of the features documented in the Gradient
 #' Boosting Machine, \code{gbm} offers additional features including
 #' the out-of-bag estimator for the optimal number of iterations, the
-#' ability to store and manipulate the resulting \code{gbm} object,
+#' ability to store and manipulate the resulting \code{GBMFit} object,
 #' and a variety of other loss functions that had not previously had
 #' associated boosting algorithms, including the Cox partial
 #' likelihood for censored data, the poisson likelihood for count
@@ -23,7 +23,8 @@
 #' 
 #' \code{gbm} is a depracated function that now acts as a front-end to \code{gbm2}
 #' that uses the familiar R modeling formulas. However, \code{\link[stats]{model.frame}} is
-#' very slow if there are many predictor variables. 
+#' very slow if there are many predictor variables. For power users with many variables use \code{gbm.fit} over 
+#' \code{gbm}; however \code{gbm2} is now the current API.
 #' 
 #' @param formula a symbolic description of the model to be fit. The
 #' formula may include an offset term (e.g. y~offset(n)+x). If
@@ -101,7 +102,7 @@
 #' \code{gbm} is called. If \code{keep.data=TRUE} in the initial call
 #' to \code{gbm} then \code{gbm} stores a copy with the object. If
 #' \code{keep.data=FALSE} then subsequent calls to
-#' \code{\link{gbm.more}} must resupply the same dataset. It becomes
+#' \code{\link{gbm_more}} must resupply the same dataset. It becomes
 #' the user's responsibility to resupply the same data at this point.
 #'
 #' @param weights an optional vector of weights to be used in the
@@ -146,7 +147,7 @@
 #' in similar but different fits. \code{gbm} uses the R random number generator, so
 #' \code{set.seed} ensures the same model can be
 #' reconstructed. Preferably, the user can save the returned
-#' \code{\link{gbm.object}} using \code{\link{save}}.
+#' \code{GBMFit} object using \code{\link{save}}.
 #'
 #' @param train.fraction The first \code{train.fraction * nrows(data)}
 #' observations are used to fit the \code{gbm} and the remainder are used for
@@ -155,7 +156,7 @@
 #' @param nTrain An integer representing the number of unique patients,
 #' each patient could have multiple rows associated with them, on which
 #' to train.  This is the preferred way of specification for
-#' \code{gbm_fit}; The option \code{train.fraction} in \code{gbm_fit}
+#' \code{gbm.fit}; The option \code{train.fraction} in \code{gbm.fit}
 #' is deprecated and only maintained for backward compatibility. These
 #' two parameters are mutually exclusive. If both are unspecified, all
 #' data is used for training.
@@ -176,10 +177,10 @@
 #' \code{\link{gbm}}.
 #'
 #' @param n.new.trees the number of additional trees to add to
-#' \code{object} using \code{gbm.more}.
+#' \code{object} using \code{gbm_more}.
 #'
 #' @param verbose If TRUE, gbm will print out progress and performance
-#' indicators. If this option is left unspecified for gbm.more then it uses
+#' indicators. If this option is left unspecified for gbm_more then it uses
 #' \code{verbose} from \code{object}.
 #' 
 #' @param class.stratify.cv whether the cross-validation should be
@@ -188,18 +189,13 @@
 #' the cross-validation is to help avoiding situations in which
 #' training sets do not contain all classes.
 #'
-#' @param x,y For \code{gbm_fit}: \code{x} is a data frame or data
+#' @param x,y For \code{gbm.fit}: \code{x} is a data frame or data
 #' matrix containing the predictor variables and \code{y} is a matrix of outcomes.
 #' Excluding \code{CoxPH} this matrix of outcomes collapses to a vector, in the case of
 #' \code{CoxPH} it is a survival object where the event times fill the first 
 #' one (or two columns) and the status fills the final column. 
 #' The number of rows in \code{x} must be the same as the length of the 1st dimension
 #' of \code{y}.
-#'
-#' @param misc For \code{gbm_fit}: \code{misc} is an R object that is
-#' simply passed on to the gbm engine. It can be used for additional
-#' data for the specific distribution.  Currently it is only used for
-#' with the Cox proportional hazards model to set the tied times method. 
 #'
 #' @param w For \code{gbm.fit}: \code{w} is a vector of weights of the same
 #' length as the 1st dimension of \code{y}.
@@ -256,7 +252,7 @@
 #' tied.times.method = "efron", prior.node.coeff.var = 1000, strata = NULL, 
 #' obs.id = 1:nrow(data))
 #' 
-#' gbm.fit(x, y, offset = NULL, misc = NULL, distribution = "bernoulli", 
+#' gbm.fit(x, y, offset = NULL, distribution = "bernoulli", 
 #' w = NULL, var.monotone = NULL, n.trees = 100, interaction.depth = 1, 
 #' n.minobsinnode = 10, shrinkage = 0.001, bag.fraction = 0.5, 
 #' nTrain = NULL, train.fraction = NULL, mFeatures = NULL, keep.data = TRUE, 

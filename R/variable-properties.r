@@ -35,7 +35,7 @@ var_container <- function(gbm_data_obj, var_monotone=NULL, var_names=NULL) {
     stop("var_monotone must be -1, 0, or 1")
   }
   
-  # Check names and Get
+  # Check names and get if necessary
   if(is.null(var_names)) var_names <- getVarNames(gbm_data_obj$x)
   
   if(!is.null(var_names) && (!is.atomic(var_names) || any(var_names != as.character(var_names))
