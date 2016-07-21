@@ -14,6 +14,7 @@
 #' 
 
 create_dist <- function(empty_obj, ...) {
+  check_if_gbm_dist(empty_obj)
   UseMethod("create_dist", empty_obj)
 }
 

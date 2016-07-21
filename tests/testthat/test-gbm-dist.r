@@ -370,3 +370,123 @@ test_that("TDist df defaults to 4", {
 test_that("Tweedie defaults to dist with power = 1.5", {
   expect_equal(gbm_dist(name="Tweedie")$power, 1.5)
 })
+
+##### Creation #####
+context("Testing creation methods")
+test_that("Can't create empty distribution object without passing a distribution name", {
+  expect_error(empty_distribution())
+})
+
+test_that("Can create empty distribution - AdaBoost", {
+  gbm_dist_obj <- empty_distribution(name="AdaBoost")
+  expect_true("GBMDist" %in% class(gbm_dist_obj))
+  expect_true("AdaBoostGBMDist" %in% class(gbm_dist_obj))
+})
+
+test_that("Can create empty distribution - Bernoulli", {
+  gbm_dist_obj <- empty_distribution(name="Bernoulli")
+  expect_true("GBMDist" %in% class(gbm_dist_obj))
+  expect_true("BernoulliGBMDist" %in% class(gbm_dist_obj))
+})
+
+test_that("Can create empty distribution - CoxPH", {
+  gbm_dist_obj <- empty_distribution(name="CoxPH")
+  expect_true("GBMDist" %in% class(gbm_dist_obj))
+  expect_true("CoxPHGBMDist" %in% class(gbm_dist_obj))
+})
+
+test_that("Can create empty distribution - Gamma", {
+  gbm_dist_obj <- empty_distribution(name="Gamma")
+  expect_true("GBMDist" %in% class(gbm_dist_obj))
+  expect_true("GammaGBMDist" %in% class(gbm_dist_obj))
+})
+
+test_that("Can create empty distribution - Gaussian", {
+  gbm_dist_obj <- empty_distribution(name="Gaussian")
+  expect_true("GBMDist" %in% class(gbm_dist_obj))
+  expect_true("GaussianGBMDist" %in% class(gbm_dist_obj))
+})
+
+test_that("Can create empty distribution - Huberized", {
+  gbm_dist_obj <- empty_distribution(name="Huberized")
+  expect_true("GBMDist" %in% class(gbm_dist_obj))
+  expect_true("HuberizedGBMDist" %in% class(gbm_dist_obj))
+})
+
+test_that("Can create empty distribution - Laplace", {
+  gbm_dist_obj <- empty_distribution(name="Laplace")
+  expect_true("GBMDist" %in% class(gbm_dist_obj))
+  expect_true("LaplaceGBMDist" %in% class(gbm_dist_obj))
+})
+
+test_that("Can create empty distribution - Pairwise", {
+  gbm_dist_obj <- empty_distribution(name="Pairwise")
+  expect_true("GBMDist" %in% class(gbm_dist_obj))
+  expect_true("PairwiseGBMDist" %in% class(gbm_dist_obj))
+})
+
+test_that("Can create empty distribution - Poisson", {
+  gbm_dist_obj <- empty_distribution(name="Poisson")
+  expect_true("GBMDist" %in% class(gbm_dist_obj))
+  expect_true("PoissonGBMDist" %in% class(gbm_dist_obj))
+})
+
+test_that("Can create empty distribution - Quantile", {
+  gbm_dist_obj <- empty_distribution(name="Quantile")
+  expect_true("GBMDist" %in% class(gbm_dist_obj))
+  expect_true("QuantileGBMDist" %in% class(gbm_dist_obj))
+})
+
+test_that("Can create empty distribution - TDist", {
+  gbm_dist_obj <- empty_distribution(name="TDist")
+  expect_true("GBMDist" %in% class(gbm_dist_obj))
+  expect_true("TDistGBMDist" %in% class(gbm_dist_obj))
+})
+
+test_that("Can create empty distribution - Tweedie", {
+  gbm_dist_obj <- empty_distribution(name="Tweedie")
+  expect_true("GBMDist" %in% class(gbm_dist_obj))
+  expect_true("TweedieGBMDist" %in% class(gbm_dist_obj))
+})
+
+test_that("Empty distributions only have reorder and name fields", {
+  dist1 <- empty_distribution("AdaBoost")
+  dist2 <- empty_distribution("Bernoulli")
+  dist3 <- empty_distribution("CoxPH")
+  dist4 <- empty_distribution("Gamma")
+  dist5 <- empty_distribution("Gaussian")
+  dist6 <- empty_distribution("Huberized")
+  dist7 <- empty_distribution("Laplace")
+  dist8 <- empty_distribution("Pairwise")
+  dist9 <- empty_distribution("Poisson")
+  dist10 <- empty_distribution("Quantile")
+  dist11 <- empty_distribution("TDist")
+  dist12 <- empty_distribution("Tweedie")
+  
+  expect_equal(names(dist1), c("name", "reorder"))
+  expect_equal(names(dist2), c("name", "reorder"))
+  expect_equal(names(dist3), c("name", "reorder"))
+  expect_equal(names(dist4), c("name", "reorder"))
+  expect_equal(names(dist5), c("name", "reorder"))
+  expect_equal(names(dist6), c("name", "reorder"))
+  expect_equal(names(dist7), c("name", "reorder"))
+  expect_equal(names(dist8), c("name", "reorder"))
+  expect_equal(names(dist9), c("name", "reorder"))
+  expect_equal(names(dist10), c("name", "reorder"))
+  expect_equal(names(dist11), c("name", "reorder"))
+  expect_equal(names(dist12), c("name", "reorder"))
+})
+
+test_that("Create distribution method breaks if not given a GBMDist object", {
+  # Given two identical empty GBMDist objects
+  dist_a <- empty_distribution("Gaussian")
+  dist_b <- dist_a
+  
+  # When one of the objects has its class removed
+  class(dist_b) <- ""
+  
+  # Then error thrown when trying to create a distribution from the empty 
+  # object whose class has been removed
+  expect_error(create_dist(dist_b))
+  expect_error(create_dist(dist_a), NA)
+})
