@@ -1,18 +1,18 @@
 #' GBM2
 #' 
 #' Fits generalized boosted regression models - new API. This prepares the inputs, performing tasks
-#' such as creating cv folds, before calling \code{gbm_fit} to call the underlying C++ and fit a generalized
+#' such as creating cv folds, before calling \code{gbm2.fit} to call the underlying C++ and fit a generalized
 #' boosting model.
 #' 
-#' @usage  gbm2(formula, distribution=gbm_dist("Gaussian", ...), data, weights, offset,
+#' @usage  gbm2(formula, distribution=gbm_dist("Gaussian", ...), data, weights=rep(1, nrow(data)), offset=rep(0, nrow(data)),
 #' train_params=training_params(num_trees=100, interaction_depth=1, min_num_obs_in_node=10, 
-#' shrinkage=0.001, bag_fraction=0.5, id=seq_len(nrow(data)), num_train=round(0.5 * nrow(data)), num_features) 
+#' shrinkage=0.001, bag_fraction=0.5, id=seq_len(nrow(data)), num_train=round(0.5 * nrow(data)), num_features=ncol(data)-1) ,
 #' var_monotone=NULL, var_names=NULL, cv_folds=1, cv_class_stratify=FALSE, fold_id=NULL, keep_gbm_data=FALSE, is_verbose=FALSE)
 #' 
 #' @param formula a symbolic description of the model to be fit.  The formula may include
 #' an offset term (e.g. y~offset(n) + x).
 #' 
-#' @param  distribution a GBMDist object specifying the distribution and any additional parameters needed.
+#' @param distribution a GBMDist object specifying the distribution and any additional parameters needed.
 #' 
 #' @param data a data frame containing the variables in the model.  By default, the variables are taken from the 
 #' environment. 
@@ -21,7 +21,7 @@
 #' need not be normalized. By default they are set to 1 for each data row.
 #' 
 #' @param offset  optional vector specifying the model offset; must be positive.  This defaults to a vector of 0's, the length
-#' of the rows of data (must be set for CoxPH).
+#' of which is equal to the number rows of data.
 #' 
 #' @param train_params  a GBMTrainParams object which specifies the parameters used in growing decision trees.
 #' 
@@ -45,7 +45,7 @@
 #' 
 #' @param is_verbose if TRUE, gbm2 will print out progress and performance of the fit.
 #' 
-#' @return a gbm2 object.
+#' @return a \code{GBMFit} object.
 #' 
 #' @export gbm2
 #' 
@@ -56,6 +56,7 @@ gbm2 <- function(formula, distribution=gbm_dist("Gaussian", ...), data, weights=
                  var_monotone=NULL, var_names=NULL,  cv_folds=1, cv_class_stratify=FALSE, fold_id=NULL,
                  keep_gbm_data=FALSE, is_verbose=FALSE) {
   
+  # Extract the model
   mf <- match.call(expand.dots = FALSE)
   m <- match(c("formula", "data", "weights", "offset"), names(mf), 0)
   mf <- mf[c(1, m)]
@@ -76,19 +77,10 @@ gbm2 <- function(formula, distribution=gbm_dist("Gaussian", ...), data, weights=
     offset <- offset_mf
   
   # get the character name of the response variable
-  response_name <- as.character(formula[[2]])
-  
   var_names <- attributes(Terms)$term.labels
   x <- model.frame(terms(reformulate(var_names)),
                    data,
                    na.action=na.pass)
-  
-  # Check num_features makes sense
-  if(train_params$num_features > ncol(x)) {
-    warning("Number of features exceeds the number of predictor variables - 
-            setting number of features to number of predictors")
-    train_params$num_features <- ncol(x)
-  }
   
   # Check and infer folds if necessary
   check_cv_parameters(cv_folds, cv_class_stratify, fold_id, train_params)
@@ -107,40 +99,15 @@ gbm2 <- function(formula, distribution=gbm_dist("Gaussian", ...), data, weights=
     # Set fold_id from whatever it is to an integer ascending from 1. Lazy way.
     fold_id <- as.numeric(as.factor(fold_id))
   }
+  
+  # Call gbm2.fit 
+  gbm_fit_obj <- gbm2.fit(x, y, distribution, weights, offset,
+                         train_params, var_monotone, var_names, keep_gbm_data, cv_folds,
+                         cv_class_stratify, fold_id, is_verbose)
 
-  # Create gbm_data_obj
-  gbm_data_obj <- gbm_data(x, y, weights, offset)
-  
-  # Set up groups
-  distribution <- determine_groups(colnames(data), gbm_data_obj, distribution)
-  
-  # Set-up variable containers
-  variables <- var_container(gbm_data_obj, var_monotone, var_names)
-  
-  # Create strata
-  distribution <- create_strata(gbm_data_obj, train_params, distribution)
-  
-  # Process data obj and validate
-  gbm_data_obj <- convert_factors(gbm_data_obj)
-  gbm_data_obj <- validate_gbm_data(gbm_data_obj, distribution)
-
-  # Order the data
-  gbm_data_obj <- order_data(gbm_data_obj, distribution, train_params)
-  
-  # Get CV groups
-  cv_groups <- create_cv_groups(gbm_data_obj, distribution, train_params, cv_folds,
-                                cv_class_stratify, fold_id)
-  # Create fitted object
-  gbm_fit_obj <- gbm_cross_val(gbm_data_obj, distribution, train_params, variables,
-                           cv_folds, cv_groups, is_verbose)
-  
-  # Wrap up extra pieces - keep original data
+  # Wrap up extra pieces 
   gbm_fit_obj$model <- m
   gbm_fit_obj$Terms <- Terms
-  if(keep_gbm_data) {
-    gbm_fit_obj$gbm_data_obj <- gbm_data_obj
-  }
-  # Reorder if necessary
-  gbm_fit_obj <- reorder_fit(gbm_fit_obj, distribution)
+ 
   return(gbm_fit_obj)
 }

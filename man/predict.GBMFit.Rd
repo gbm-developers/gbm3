@@ -8,7 +8,7 @@
   single_tree = FALSE, ...)
 }
 \arguments{
-\item{gbm_fit_obj}{Object of class inheriting from (\code{GBMFit})}
+\item{gbm_fit_obj}{Object of class inheriting from \code{GBMFit}.}
 
 \item{new_data}{Data frame of observations for which to make predictions}
 

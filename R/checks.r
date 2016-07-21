@@ -40,12 +40,9 @@ check_cv_parameters <- function(cv_folds, cv_class_stratify, fold_id, train_para
   check_if_gbm_train_params(train_params)
 
   # Check fold_id does not split observation data up
-  if(!is.null(fold_id))
-  {
-    for(id in train_params$id)
-    {
-      if(length(unique(fold_id[train_params$id == id])) > 1)
-      {
+  if(!is.null(fold_id)) {
+    for(id in train_params$id) {
+      if(length(unique(fold_id[train_params$id == id])) > 1) {
         stop("Observations are split across multiple folds")
       }
     }

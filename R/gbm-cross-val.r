@@ -1,6 +1,7 @@
 #' GBM Cross Validation
 #' 
-#' Create fitted object - Cross Validation built in
+#' Create fitted object - Cross validation is performed if \code{cv_folds > 1}, otherwise only the full model
+#' is fitted.
 #' 
 #' @usage gbm_cross_validation(gbm_data_obj, gbm_dist_obj, train_params, 
 #' var_container, cv_folds, cv_groups, is_verbose)
@@ -21,7 +22,7 @@
 #' 
 #' @param is_verbose if TRUE, will print out progress and performance of the fitting.
 #' 
-#' @return a list of fitted gbm objects
+#' @return a \code{GBMFit} object which contains appropriate CV info is requested.
 #' 
 
 gbm_cross_val <- function(gbm_data_obj, gbm_dist_obj, train_params, var_container, 
@@ -32,9 +33,8 @@ gbm_cross_val <- function(gbm_data_obj, gbm_dist_obj, train_params, var_containe
   # Full model fit
   set.seed(as.integer(runif(1, -(2^31 - 1), 2^31)))
   if(is_verbose) message("Fitting Final Model \n")
-  gbm_results[[length(gbm_results)+1]] <- gbm_fit(gbm_data_obj, gbm_dist_obj, train_params,
+  gbm_results[[length(gbm_results)+1]] <- gbm_call(gbm_data_obj, gbm_dist_obj, train_params,
                                                   var_container, is_verbose)
-  class(gbm_results[[1]]) <- "GBMFit"
 
   # Check if only need to fit full model
   if(cv_folds == 1) {
@@ -51,9 +51,8 @@ gbm_cross_val <- function(gbm_data_obj, gbm_dist_obj, train_params, var_containe
     gbm_object_list <- extract_obs_in_fold(gbm_data_obj, gbm_dist_obj, train_params, cv_groups, fold_num)
     
     # Fit to fold
-    gbm_results[[length(gbm_results)+1]] <- gbm_fit(gbm_object_list$data, gbm_object_list$dist, 
+    gbm_results[[length(gbm_results)+1]] <- gbm_call(gbm_object_list$data, gbm_object_list$dist, 
                                                     gbm_object_list$params, var_container, is_verbose)
-    class(gbm_results[[length(gbm_results)]]) <- "GBMFit"
   }
   
   # If have multiple folds then total results object is a different class

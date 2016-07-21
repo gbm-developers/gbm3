@@ -25,24 +25,20 @@ var_container <- function(gbm_data_obj, var_monotone=NULL, var_names=NULL) {
   
   # Check var_monotone
   cCols <- ncol(gbm_data_obj$x)
-  if(is.null(var_monotone)) var_monotone <- rep(0, cCols)
-  else if(length(var_monotone)!=cCols)
-  {
+  if(is.null(var_monotone)) {
+    var_monotone <- rep(0, cCols)
+  } else if(length(var_monotone)!=cCols) {
     stop("Length of var_monotone != number of predictors")
-  }
-  else if(!all(is.element(var_monotone,-1:1)))
-  {
+  } else if(!all(is.element(var_monotone,-1:1))) {
     stop("var_monotone must be -1, 0, or 1")
   }
   
   # Check names and get if necessary
   if(is.null(var_names)) var_names <- getVarNames(gbm_data_obj$x)
-  
   if(!is.null(var_names) && (!is.atomic(var_names) || any(var_names != as.character(var_names))
      || is.null(var_names)) ){
     stop("Names of data must be a vector of strings.")
   }
-  
   if(!is.null(var_names) && length(var_names)!=cCols) stop("Length of var_names != number of predictors")
   
   # setup variable types

@@ -54,6 +54,10 @@ loss <- function(y, predictions, weights, offset, distribution_obj, baseline=rep
   UseMethod("loss", distribution_obj)
 }
 
+loss.default <- function(y, predictions, weights, offset, distribution_obj, baseline) {
+  stop("loss function not specified for distribution object provided.")
+}
+
 loss.AdaBoostGBMDist <- function(y, predictions, weights, offset, distribution_obj, baseline) {
   return(weighted.mean(exp(-(2*y-1)*predictions), weights) - baseline)
 }

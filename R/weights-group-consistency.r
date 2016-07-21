@@ -15,13 +15,11 @@ weight_group_consistency <- function(gbm_data, distribution_obj) {
     }
     
     # Check that weights are constant across groups
-    if ((!missing(gbm_data$weights)) && (!is.null(gbm_data$weights)))
-    {
+    if ((!missing(gbm_data$weights)) && (!is.null(gbm_data$weights))) {
       w.min <- tapply(gbm_data$weights, INDEX=distribution_obj$group_name, FUN=min)
       w.max <- tapply(gbm_data$weights, INDEX=distribution_obj$group_name, FUN=max)
       
-      if (any(w.min != w.max))
-      {
+      if (any(w.min != w.max)) {
         stop("For distribution 'pairwise', all instances for the same group must have the same weight")
       }
       

@@ -17,6 +17,10 @@ create_dist <- function(empty_obj, ...) {
   UseMethod("create_dist", empty_obj)
 }
 
+create_dist.default <- function(empty_obj, ...) {
+  stop("couldn't create distribution object as creation method for selected distribution not found.")
+}
+
 create_dist.AdaBoostGBMDist <- function(empty_obj, ...) {
   check_dist_params(empty_obj, ...)
   return(empty_obj)

@@ -26,7 +26,7 @@ fits.}
 \item{id}{optional vector of integers, specifying which rows in the data correspond
 to which observations. Individual observations may have many rows of data associated with them.}
 
-\item{num_train}{number of rows of data used in training the model.}
+\item{num_train}{number of obs of data used in training the model.}
 
 \item{num_features}{number of random features/columns to use in training model}
 }

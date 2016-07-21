@@ -25,9 +25,10 @@ fit. If cv_folds > 1 then cross-validation is performed; the default of cv_folds
 \item{is_verbose}{if TRUE, will print out progress and performance of the fitting.}
 }
 \value{
-a list of fitted gbm objects
+a \code{GBMFit} object which contains appropriate CV info is requested.
 }
 \description{
-Create fitted object - Cross Validation built in
+Create fitted object - Cross validation is performed if \code{cv_folds > 1}, otherwise only the full model
+is fitted.
 }
 

@@ -464,7 +464,7 @@ gbm <- function(formula = formula(data),
                       alpha=distribution$alpha, df=distribution$df, power=distribution$power)
   
   # Set up training parameters
-  if(is.null(mFeatures)) mFeatures <- ncol(data)-1
+  if(is.null(mFeatures)) mFeatures <- ncol(data)-1 # NB: THIS IS UPDATED IN GBM
   params <- training_params(num_trees=n.trees, interaction_depth=interaction.depth, min_num_obs_in_node=n.minobsinnode, 
                            shrinkage=shrinkage, bag_fraction=bag.fraction, id=obs.id,
                            num_train=round(train.fraction * length(unqiue(obs.id))),

@@ -8,28 +8,22 @@
 reorder_fit <- function(gbm_fit, distribution_obj) {
   UseMethod("reorder_fit", distribution_obj)
 }
-reorder_fit.AdaBoostGBMDist <- function(gbm_fit, distribution_obj) {return(gbm_fit)}
-reorder_fit.BernoulliGBMDist <- function(gbm_fit, distribution_obj) {return(gbm_fit)}
+
+reorder_fit.default <- function(gbm_fit, distribution_obj) {
+  return(gbm_fit)
+}
 
 reorder_fit.CoxPHGBMDist <- function(gbm_fit, distribution_obj) {
   gbm_fit$fit[distribution_obj$time_order] <- gbm_fit$fit
   return(gbm_fit)
 }
-reorder_fit.GammaGBMDist <- function(gbm_fit, distribution_obj) {return(gbm_fit)}
-reorder_fit.GaussianGBMDist <- function(gbm_fit, distribution_obj) {return(gbm_fit)}
-reorder_fit.HuberizedGBMDist <- function(gbm_fit, distribution_obj) {return(gbm_fit)}
-reorder_fit.LaplaceGBMDist <- function(gbm_fit, distribution_obj) {return(gbm_fit)}
 
 reorder_fit.PairwiseGBMDist <- function(gbm_fit, distribution_obj) {
   gbm_fit$fit <- gbm_fit$fit[order(distribution_obj$group_order)]
   return(gbm_fit)
 }
-reorder_fit.PoissonGBMDist <- function(gbm_fit, distribution_obj) {return(gbm_fit)}
-reorder_fit.QuantileGBMDist <- function(gbm_fit, distribution_obj) {return(gbm_fit)}
-reorder_fit.TDistGBMDist <- function(gbm_fit, distribution_obj) {return(gbm_fit)}
-reorder_fit.TweedieGBMDist <- function(gbm_fit, distribution_obj) {return(gbm_fit)}
 
-#### Data ordering ####
+#### Data ordering - internal methods ####
 order_data <- function(gbm_data_obj, distribution_obj, train_params) {
   gbm_data_obj <- order_by_groupings(gbm_data_obj, distribution_obj)
   gbm_data_obj <- order_by_id(gbm_data_obj, train_params)
@@ -37,7 +31,6 @@ order_data <- function(gbm_data_obj, distribution_obj, train_params) {
   return(gbm_data_obj)
 }
 
-#### Data ordering - internal methods ####
 order_by_id <- function(gbm_data_obj, train_params) {
   # Check if gbm_data_obj
   check_if_gbm_data(gbm_data_obj)

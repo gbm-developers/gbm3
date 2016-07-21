@@ -10,8 +10,8 @@
 #' @param y the outcome 0-1 variable
 #' @param p the predictions estimating E(y|x)
 #' @param distribution the loss function used in creating \code{p}.
-#' \code{bernoulli} and \code{poisson} are currently the only special options.
-#' All others default to squared error assuming \code{gaussian}
+#' \code{Bernoulli} and \code{Poisson} are currently the only special options.
+#' All others default to squared error assuming \code{Gaussian}
 #' @param replace determines whether this plot will replace or overlay the
 #' current plot.  \code{replace=FALSE} is useful for comparing the calibration
 #' of several methods
@@ -60,80 +60,72 @@ calibrate.plot <- function(y, p,
                            ylab="Observed average",
                            xlim=NULL,ylim=NULL,
                            knots=NULL,df=6,
-                           ...)
-{
-   data <- data.frame(y=y,p=p)
-
-   if(is.null(knots) && is.null(df))
-      stop("Either knots or df must be specified")
-   if((df != round(df)) || (df<1))
-      stop("df must be a positive integer")
-
-   if(distribution=="bernoulli")
-   {
-      family1 = binomial
-   } else if(distribution=="poisson")
-   {
-      family1 = poisson
-   } else
-   {
-      family1 = gaussian
-   }
-   gam1 <- glm(y~ns(p,df=df,knots=knots),data=data,family=family1)
-
-   x <- seq(min(p),max(p),length=200)
-   yy <- predict(gam1,newdata=data.frame(p=x),se.fit=TRUE,type="response")
-
-   x <- x[!is.na(yy$fit)]
-   yy$se.fit <- yy$se.fit[!is.na(yy$fit)]
-   yy$fit <- yy$fit[!is.na(yy$fit)]
-
-   if(!is.na(shade.col))
-   {
-      se.lower <- yy$fit-2*yy$se.fit
-      se.upper <- yy$fit+2*yy$se.fit
-      if(distribution=="bernoulli")
-      {
-         se.lower[se.lower < 0] <- 0
-         se.upper[se.upper > 1] <- 1
-      }
-      if(distribution=="poisson")
-      {
-         se.lower[se.lower < 0] <- 0
-      }
-      if(distribution=="gamma")
-      {
-         se.lower[se.lower < 0] <- 0
-      }
-      if(distribution=="tweedie")
-      {
-         se.lower[se.lower < 0] <- 0
-      }
-      if(is.null(xlim)) xlim <- range(se.lower,se.upper,x)
-      if(is.null(ylim)) ylim <- range(se.lower,se.upper,x)
-   }
-   else
-   {
-      if(is.null(xlim)) xlim <- range(yy$fit,x)
-      if(is.null(ylim)) ylim <- range(yy$fit,x)
-   }
-   if(replace)
-   {
-      plot(0,0,
-           type="n",
-           xlab=xlab,ylab=ylab,
-           xlim=xlim,ylim=ylim,
-           ...)
-   }
-   if(!is.na(shade.col))
-   {
-      polygon(c(x,rev(x),x[1]),
-              c(se.lower,rev(se.upper),se.lower[1]),
-              col=shade.col,
-              border=NA,
-              density=shade.density)
-   }
-   lines(x,yy$fit,col=line.par$col)
-   quantile.rug(p,side=rug.par$side)
-   abline(0,1,col="red")
+                           ...) {
+  # Some initial checks
+  if(is.null(knots) && is.null(df))
+    stop("Either knots or df must be specified")
+  if((df != round(df)) || (df<1))
+    stop("df must be a positive integer")
+  
+  # Set up data and family
+  data <- data.frame(y=y,p=p)
+  family1 <- switch(tolower(distribution),
+                    bernoulli=binomial,
+                    poisson=poisson,
+                    gaussian)
+  
+  # Fit a generalized linear model using splined predictions
+  # as predictor variables
+  gam1 <- glm(y~ns(p, df=df, knots=knots), data=data, family=family1)
+  
+  # Set up x and y values (new pre)
+  x <- seq(min(p),max(p),length=200)
+  glm_preds <- predict(gam1, newdata=data.frame(p=x), se.fit=TRUE, type="response")
+  
+  # Remove NAs
+  x <- x[!is.na(glm_preds$fit)]
+  glm_preds$se.fit <- glm_preds$se.fit[!is.na(glm_preds$fit)]
+  glm_preds$fit <- glm_preds$fit[!is.na(glm_preds$fit)]
+  
+  # Set shading limits and 
+  if(!is.na(shade.col)) {
+    se.lower <- glm_preds$fit-2*glm_preds$se.fit
+    se.upper <- glm_preds$fit+2*glm_preds$se.fit
+    
+    # Truncate upper and lower values - so they
+    # make sense for the distribution under consideration
+    if(tolower(distribution) %in% c("bernoulli", "poisson", "gamma", "tweedie"))
+      se.lower[se.lower < 0] <- 0
+    if(tolower(distribution)=="bernoulli") se.upper[se.upper > 1] <- 1
+    
+    # Set x and y limits
+    if(is.null(xlim)) xlim <- range(se.lower,se.upper,x)
+    if(is.null(ylim)) ylim <- range(se.lower,se.upper,x)
+    
+  } else {
+    if(is.null(xlim)) xlim <- range(yy$fit,x)
+    if(is.null(ylim)) ylim <- range(yy$fit,x)
+  }
+  
+  
+  # Plot
+  if(replace) {
+    plot(0,0,
+         type="n",
+         xlab=xlab,ylab=ylab,
+         xlim=xlim,ylim=ylim,
+         ...)
+  }
+  
+  # Add shaded
+  if(!is.na(shade.col)) {
+    polygon(c(x,rev(x),x[1]),
+            c(se.lower,rev(se.upper),se.lower[1]),
+            col=shade.col,
+            border=NA,
+            density=shade.density)
+  }
+  lines(x, glm_preds$fit,col=line.par$col)
+  quantile.rug(p,side=rug.par$side)
+  abline(0,1,col="red")
 }

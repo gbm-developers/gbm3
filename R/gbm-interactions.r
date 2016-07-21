@@ -72,38 +72,7 @@ interact.GBMFit <- function(gbm_fit_obj, data, var_indices=1, num_trees = gbm_fi
              function(x) as.numeric(which(x)))
   
   # Compute predictions and "parity" for all variable combinations  
-  preds_for_comb_vars <- vector("list",length(all_combinations_vars))
-  for(vars in seq_len(length(all_combinations_vars))) {
-    # Get data for combination
-    preds_for_comb_vars[[vars]]$data <- data.frame(table_of_unique_values(data, 
-                                                   gbm_fit_obj$variables$var_names[variables_indices[all_combinations_vars[[vars]]]]))
-    preds_for_comb_vars[[vars]]$num_levels_factors <- as.numeric(preds_for_comb_vars[[vars]]$data$num_levels_factors)
-    preds_for_comb_vars[[vars]]$data$num_levels_factors <- NULL
-    
-    # Make predictions using the current combination of variables
-    preds_for_comb_vars[[vars]]$preds <- .Call("gbm_plot",
-                                                X = data.matrix(preds_for_comb_vars[[vars]]$data),
-                                                i.var = as.integer(variables_indices[all_combinations_vars[[vars]]] - 1),
-                                                n.trees = as.integer(num_trees),
-                                                initF = as.double(gbm_fit_obj$initF),
-                                                trees = gbm_fit_obj$trees,
-                                                c.splits = gbm_fit_obj$c.splits,
-                                                var.type = as.integer(gbm_fit_obj$variables$var_type),
-                                                PACKAGE = "gbm")
-    
-    # Convert predictions to flat matrix
-    preds_for_comb_vars[[vars]]$preds <- matrix(preds_for_comb_vars[[vars]]$preds, ncol=1, byrow=FALSE)
-    
-    # Centre the predictions
-    preds_for_comb_vars[[vars]]$preds <- apply(preds_for_comb_vars[[vars]]$preds, 2, function(x, w){
-      x - weighted.mean(x, w, na.rm=TRUE)
-    }, w=preds_for_comb_vars[[vars]]$num_levels_factors)
-    
-    # precompute the sign of these terms to appear in H - statistic
-    # if same "parity" return 1, else -1
-    preds_for_comb_vars[[vars]]$sign <- ifelse(length((all_combinations_vars[[vars]] %% 2) == 
-                                                     (length(variable_indices) %% 2)), 1, -1)
-  }
+  preds_for_comb_vars <- compute_preds_for_all_var_combinations(gbm_fit_obj, all_combinations_vars, variables_indices)
   
   # Compute H-statistic
   # Set to prediction with all variables
@@ -177,4 +146,41 @@ table_of_unique_values <- function(data, variables_indices) {
   unique_vars$num_levels_factors <- table(factor(apply(data[, variables_indices,drop=FALSE],1,paste,collapse="\r"),
                       levels=apply(unique_vars, 1,paste,collapse="\r")))
   return(unique_vars)
+}
+
+compute_preds_for_all_var_combinations <- function(gbm_fit_obj, all_combinations_vars, variables_indices) {
+  preds_for_comb_vars <- vector("list",length(all_combinations_vars))
+  for(vars in seq_along(all_combinations_vars)) {
+    # Get data for combination
+    preds_for_comb_vars[[vars]]$data <- data.frame(table_of_unique_values(data, 
+                                                                          gbm_fit_obj$variables$var_names[variables_indices[all_combinations_vars[[vars]]]]))
+    preds_for_comb_vars[[vars]]$num_levels_factors <- as.numeric(preds_for_comb_vars[[vars]]$data$num_levels_factors)
+    preds_for_comb_vars[[vars]]$data$num_levels_factors <- NULL
+    
+    # Make predictions using the current combination of variables
+    preds_for_comb_vars[[vars]]$preds <- .Call("gbm_plot",
+                                               X = data.matrix(preds_for_comb_vars[[vars]]$data),
+                                               i.var = as.integer(variables_indices[all_combinations_vars[[vars]]] - 1),
+                                               n.trees = as.integer(num_trees),
+                                               initF = as.double(gbm_fit_obj$initF),
+                                               trees = gbm_fit_obj$trees,
+                                               c.splits = gbm_fit_obj$c.splits,
+                                               var.type = as.integer(gbm_fit_obj$variables$var_type),
+                                               PACKAGE = "gbm")
+    
+    # Convert predictions to flat matrix
+    preds_for_comb_vars[[vars]]$preds <- matrix(preds_for_comb_vars[[vars]]$preds, ncol=1, byrow=FALSE)
+    
+    # Centre the predictions
+    preds_for_comb_vars[[vars]]$preds <- apply(preds_for_comb_vars[[vars]]$preds, 2, function(x, w){
+      x - weighted.mean(x, w, na.rm=TRUE)
+    }, w=preds_for_comb_vars[[vars]]$num_levels_factors)
+    
+    # precompute the sign of these terms to appear in H - statistic
+    # if same "parity" return 1, else -1
+    preds_for_comb_vars[[vars]]$sign <- ifelse(length((all_combinations_vars[[vars]] %% 2) == 
+                                                        (length(variable_indices) %% 2)), 1, -1)
+  }
+  
+  return(preds_for_comb_vars)
 }

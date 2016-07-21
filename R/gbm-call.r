@@ -1,8 +1,8 @@
-#' GBM2 Fit
+#' GBM2 API call to C++
 #' 
 #' Wrapper function for calling the C++ gbm function.
 #' 
-#' @usage gbm_fit(gbm_data_obj, gbm_dist_obj, train_params, var_container, is_verbose)
+#' @usage gbm_call(gbm_data_obj, gbm_dist_obj, train_params, var_container, is_verbose)
 #' 
 #' @param gbm_data_obj a GBMData object containing all of the data used to fit a gbm model. 
 #' 
@@ -18,7 +18,7 @@
 #' @return a fitted gbm object
 #' 
 
-gbm_fit <- function(gbm_data_obj, gbm_dist_obj, train_params, var_container, is_verbose) {
+gbm_call <- function(gbm_data_obj, gbm_dist_obj, train_params, var_container, is_verbose) {
   # Check inputs
   check_if_gbm_data(gbm_data_obj)
   check_if_gbm_dist(gbm_dist_obj)
@@ -57,5 +57,6 @@ gbm_fit <- function(gbm_data_obj, gbm_dist_obj, train_params, var_container, is_
   fit$distribution <- gbm_dist_obj
   fit$params <- train_params
   fit$variables <- var_container
+  class(fit) <- "GBMFit"
   return(fit)
 }

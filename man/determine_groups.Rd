@@ -7,7 +7,7 @@
 determine_groups(col_names, gbm_data, distribution_obj)
 }
 \arguments{
-\item{col_names}{vector of variable names used in fittig - required for Pairwise}
+\item{col_names}{vector of variable names used in fitting - required for Pairwise}
 
 \item{gbm_data}{a GBMData object created using}
 

@@ -20,18 +20,13 @@ gbm.fit <- function(x,y,
                     prior.node.coeff.var = 1000,
                     strata = NULL, obs.id = 1:nrow(x)) {
   # Highlight new API
-  warning("gbm is depracated - using gbm2...")
+  warning("gbm is depracated - using gbm2.fit ...")
   
   # Reconstruct data
-  data <- data.frame(y, x)
   if(is.null(var.names)) {
     var.names <- getVarNames(x)
   }
-  if(length(response.name) != ncol(y)) {
-      response.name <- paste("X", seq_len(ncol(y)) ,sep="")
-  }
-  colnames(data) <- c(response.name, var.names)
-  
+ 
   # Calculate nTrain if necessary 
   if(!is.null(nTrain) && !is.null(train.fraction)) {
     stop("Parameters 'nTrain' and 'train.fraction' cannot both be specified")
@@ -59,9 +54,8 @@ gbm.fit <- function(x,y,
                             num_train=nTrain, num_features=mFeatures)
   
   # Call gbm2 - formula defined from the data
-  gbm_fit_obj <- gbm2(formula(data), distribution=dist_obj, data, weights=w, offset=offset,
+  gbm_fit_obj <- gbm2.fit(x, y, distribution=dist_obj, weights=w, offset=offset,
                       train_params= params, var_monotone=var.monotone, var_names=var.names,
-                      cv_folds=1, cv_class_stratify=FALSE, fold_id=NULL,
                       keep_gbm_data=keep.data, is_verbose=verbose)
   
   return(gbm_fit_obj)
