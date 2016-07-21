@@ -164,7 +164,9 @@ test_that("Can order data by id", {
 test_that("Can order data by groupings", {
   # Given pairwise data and dist
   
-  # When
+  # When order_by_groupings is called
+  
+  # T
   
 })
 
@@ -212,7 +214,7 @@ test_that("Ordering by groupings does nothing if not Pairwise", {
   expect_equal(data, order_by_groupings(data, gbm_dist("Tweedie")))
 })
 
-test_that("Can order by predictors", {
+test_that("Can order by predictors - check predictor_order", {
   # Given gbm data and training parameters
   require(survival)
   
@@ -243,7 +245,5 @@ test_that("Can order by predictors", {
   train_p <- training_params(id=sample(1:5, N, replace=TRUE), num_train = 1, num_features = 3)
   
   # Then can order by predictors
-  data <- predictor_order(data, train_p)
-  expect_equal(data$x_order, apply(data$x[seq_len(sum(train_p$num_rows_each_pat[1:train_p$num_train])),,
-                                                  drop=FALSE], 2, order,na.last=FALSE)-1)
+  data.frame(tt=tt,delta=delta,X1=X1,X2=X2,X3=X3)  expect_equal(data$x_order, apply(data$x[seq_len(train_p$num_train_rows),,drop=FALSE], 2, order,na.last=FALSE)-1)
 })

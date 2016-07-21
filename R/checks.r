@@ -163,7 +163,7 @@ checkVarType <- function(x, y){
   inacceptClassVars <- paste(nms[which(inacceptClass)], collapse = ', ')
   
   if(any(inacceptClass)){
-    stop("variable ", inacceptClassIndex,": ", inacceptClassVars, " is not of type numeric, ordered, or factor.")
+    stop("variable ", inacceptClassIndex,": ", inacceptClassVars, " is not of type - numeric, ordered or factor.")
   }
   
 }
@@ -171,21 +171,6 @@ checkVarType <- function(x, y){
 #### Data conversion functions ####
 convertY <- function(y){
 
-  FactorsY <- is.factor(y)
-  nLevelsY <- nlevels(y)
-  
-  if(FactorsY & nLevelsY == 2){
-    Y = as.numeric(y == levels(y)[2])
-  } else {
-    Y = y
-  }
-  
-  return(Y)
-  
-}
-
-checkY <- function(y){
-  
   FactorsY <- is.factor(y)
   nLevelsY <- nlevels(y)
   

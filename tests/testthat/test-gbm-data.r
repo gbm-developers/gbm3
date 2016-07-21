@@ -30,7 +30,7 @@ test_that("Constructed object has correct fields", {
   offset <- rexp(N)
   
   # Constructed objetc
-  expect_equal(names(gbm_data(matrix(x), y, w, offset)), c("x", "y", "weights", "offset"))
+  expect_equal(names(gbm_data(matrix(x), y, w, offset)), c("x", "y", "original_data", "weights", "offset"))
 })
 
 #### Error Checking #####
@@ -50,7 +50,7 @@ test_that("Predictors must be in a data-frame or matrix", {
   expect_error(gbm_data(data.frame(x), y, w, offset), NA)
 })
 
-test_that("Responses must be in a matrix or vector", {
+test_that("Responses must be a data-frame, matrix or vector", {
   # Given correct data
   N <- 1000
   x <- runif(N)
@@ -63,7 +63,7 @@ test_that("Responses must be in a matrix or vector", {
   expect_error(gbm_data(matrix(x), list(y), w, offset))
   expect_error(gbm_data(matrix(x), y, w, offset), NA)
   expect_error(gbm_data(matrix(x), matrix(y), w, offset), NA)
-  expect_error(gbm_data(matrix(x), data.frame(y), w, offset))
+  expect_error(gbm_data(matrix(x), data.frame(y), w, offset), NA)
 })
 
 test_that("Each predictor row must have a response", {

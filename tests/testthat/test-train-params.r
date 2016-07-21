@@ -26,7 +26,7 @@ test_that("Calculation of number of rows per observation is correct", {
   
   # Calculates number of rows per observation correctly on construction
   expect_equal(training_params(num_train = train_no1, id=id1, num_features = 3)$num_rows_per_obs, table(id=id1[order(id1)]))
-  expect_equal(training_params(num_train = train_no2, id=id2, num_features = 3)$num_rows_per_obs, table(id=id2[order(id2)]))
+  expect_equal(training_params(num_train = train_no2, id=id2, num_features = 3, min_num_obs_in_node = 1)$num_rows_per_obs, table(id=id2[order(id2)]))
 })
 
 test_that("Calculation of training fraction of observations is correct", {

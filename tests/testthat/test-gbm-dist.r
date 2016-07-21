@@ -89,67 +89,67 @@ test_that("Check Tweedie Distribution Object has correct class attributes", {
 
 test_that("Check AdaBoost distribution has the right elements - in right order", {
   gbm_dist_obj <- gbm_dist()
-  expect_equal(names(gbm_dist_obj), c("name", "reorder", "ordering"))
+  expect_equal(names(gbm_dist_obj), c("name", "reorder"))
 })
 
 test_that("Check AdaBoost distribution has the right elements - in right order", {
   gbm_dist_obj <- gbm_dist()
-  expect_equal(names(gbm_dist_obj), c("name", "reorder", "ordering"))
+  expect_equal(names(gbm_dist_obj), c("name", "reorder"))
 })
 
 test_that("Check Bernoulli distribution has the right elements - in right order", {
   gbm_dist_obj <- gbm_dist()
-  expect_equal(names(gbm_dist_obj), c("name", "reorder", "ordering"))
+  expect_equal(names(gbm_dist_obj), c("name", "reorder"))
 })
 
 test_that("Check CoxPH distribution has the right elements - order", {
   gbm_dist_obj <- gbm_dist()
-  expect_equal(names(gbm_dist_obj), c("name", "reorder", "ordering"))
+  expect_equal(names(gbm_dist_obj), c("name", "reorder"))
 })
 
 test_that("Check Gamma distribution has the right elements - in right order", {
   gbm_dist_obj <- gbm_dist()
-  expect_equal(names(gbm_dist_obj), c("name", "reorder", "ordering"))
+  expect_equal(names(gbm_dist_obj), c("name", "reorder"))
 })
 
 test_that("Check Gaussian distribution has the right elements - in right order", {
   gbm_dist_obj <- gbm_dist(name="Gaussian")
-  expect_equal(names(gbm_dist_obj), c("name", "reorder", "ordering"))
+  expect_equal(names(gbm_dist_obj), c("name", "reorder"))
 })
 
 test_that("Check Huberized distribution has the right elements - in right order", {
   gbm_dist_obj <- gbm_dist(name="Huberized")
-  expect_equal(names(gbm_dist_obj), c("name", "reorder", "ordering"))
+  expect_equal(names(gbm_dist_obj), c("name", "reorder"))
 })
 
 test_that("Check Laplace distribution has the right elements - in right order", {
   gbm_dist_obj <- gbm_dist(name="Laplace")
-  expect_equal(names(gbm_dist_obj), c("name", "reorder", "ordering"))
+  expect_equal(names(gbm_dist_obj), c("name", "reorder"))
 })
 
 test_that("Check Pairwise distribution has the right elements - in right order", {
   gbm_dist_obj <- gbm_dist(name="Pairwise")
-  expect_equal(names(gbm_dist_obj), c("name", "reorder", "ordering", "metric", "group", "max.rank"))
+  expect_equal(names(gbm_dist_obj), c("name", "reorder", "metric", "group", "max.rank"))
 })
 
 test_that("Check Poisson distribution has the right elements - in right order", {
   gbm_dist_obj <- gbm_dist(name="Poisson")
-  expect_equal(names(gbm_dist_obj), c("name", "reorder", "ordering"))
+  expect_equal(names(gbm_dist_obj), c("name", "reorder"))
 })
 
 test_that("Check Quantile distribution has the right elements - in right order", {
   gbm_dist_obj <- gbm_dist(name="Quantile")
-  expect_equal(names(gbm_dist_obj), c("name", "reorder", "ordering", "alpha"))
+  expect_equal(names(gbm_dist_obj), c("name", "reorder", "alpha"))
 })
 
 test_that("Check TDist distribution has the right elements - in right order", {
   gbm_dist_obj <- gbm_dist(name="TDist")
-  expect_equal(names(gbm_dist_obj), c("name", "reorder", "ordering", "df"))
+  expect_equal(names(gbm_dist_obj), c("name", "reorder", "df"))
 })
 
 test_that("Check Tweedie distribution has the right elements - in right order", {
   gbm_dist_obj <- gbm_dist(name="Tweedie")
-  expect_equal(names(gbm_dist_obj), c("name", "reorder", "ordering", "power"))
+  expect_equal(names(gbm_dist_obj), c("name", "reorder", "power"))
 })
 
 ###### Warnings ######
@@ -302,58 +302,47 @@ test_that("Error thrown if power specified is not a finite double > 0.0 - Tweedi
 
 ##### Default Parameters #####
 context("Check default values of fields")
-test_that("AdaBoost has no default ordering and reorder is FALSE", {
-  expect_true(is.null(gbm_dist(name="AdaBoost")$ordering))
+test_that("AdaBoost has reorder is FALSE", {
   expect_false(gbm_dist(name="AdaBoost")$reorder)
 })
 
-test_that("Bernoulli has no default ordering and reorder is FALSE", {
-  expect_true(is.null(gbm_dist(name="Bernoulli")$ordering))
+test_that("Bernoulli has reorder is FALSE", {
   expect_false(gbm_dist(name="Bernoulli")$reorder)
 })
 
-test_that("CoxPH has no default ordering and reorder is TRUE", {
-  expect_true(is.null(gbm_dist(name="CoxPH")$ordering))
+test_that("CoxPH has reorder is TRUE", {
   expect_true(gbm_dist(name="CoxPH")$reorder)
 })
 
-test_that("Gamma has no default ordering and reorder is FALSE", {
-  expect_true(is.null(gbm_dist(name="Gamma")$ordering))
+test_that("Gamma has reorder is FALSE", {
   expect_false(gbm_dist(name="Gamma")$reorder)
 })
 
-test_that("Gaussian has no default ordering and reorder is FALSE", {
-  expect_true(is.null(gbm_dist(name="Gaussian")$ordering))
+test_that("Gaussian has reorder is FALSE", {
   expect_false(gbm_dist(name="Gaussian")$reorder)
 })
 
-test_that("Laplace has no default ordering and reorder is FALSE", {
-  expect_true(is.null(gbm_dist(name="Laplace")$ordering))
+test_that("Laplace has reorder is FALSE", {
   expect_false(gbm_dist(name="Laplace")$reorder)
 })
 
-test_that("Pairwise has no default ordering and reorder is TRUE", {
-  expect_true(is.null(gbm_dist(name="Pairwise")$ordering))
+test_that("Pairwise has reorder is TRUE", {
   expect_true(gbm_dist(name="Pairwise")$reorder)
 })
 
-test_that("Poisson has no default ordering and reorder is FALSE", {
-  expect_true(is.null(gbm_dist(name="Poisson")$ordering))
+test_that("Poisson has reorder is FALSE", {
   expect_false(gbm_dist(name="Poisson")$reorder)
 })
 
-test_that("Quantile has no default ordering and reorder is FALSE", {
-  expect_true(is.null(gbm_dist(name="Quantile")$ordering))
+test_that("Quantile has reorder is FALSE", {
   expect_false(gbm_dist(name="Quantile")$reorder)
 })
 
-test_that("TDist has no default ordering and reorder is FALSE", {
-  expect_true(is.null(gbm_dist(name="TDist")$ordering))
+test_that("TDist has reorder is FALSE", {
   expect_false(gbm_dist(name="TDist")$reorder)
 })
 
-test_that("Tweedie has no default ordering and reorder is FALSE", {
-  expect_true(is.null(gbm_dist(name="Tweedie")$ordering))
+test_that("Tweedie has reorder is FALSE", {
   expect_false(gbm_dist(name="Tweedie")$reorder)
 })
 
@@ -371,7 +360,7 @@ test_that("Pairwise params default to - 'ndcg', max.rank=0 and group='query'", {
 })
 
 test_that("Quantile alpha defaults to 0.25", {
-  expect_equal(gbm_dist(name="Quantile"), 0.25)
+  expect_equal(gbm_dist(name="Quantile")$alpha, 0.25)
 })
 
 test_that("TDist df defaults to 4", {

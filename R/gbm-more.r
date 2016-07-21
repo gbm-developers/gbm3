@@ -24,7 +24,7 @@
 #' @param is_verbose a logical specifying whether or not the additional fitting should run "noisely" with feedback on progress provided to the
 #' user.
 #' 
-#' @result the input \code{GBMFit} object with additional iterations provided for the fit.
+#' @return the input \code{GBMFit} object with additional iterations provided for the fit.
 #' 
 #' @export gbm_more
 

@@ -1,11 +1,25 @@
-# Ordering functions 
-# A series of functions for ordering gbm_data and
-# training_params objects according to observation id and groupings.
-# The latter is only relevant for the Pairwise distribution.
-#' @export 
+#' Ordering methods
+#' 
+#' Series of functions that are used to re-order the fitted gbm model,
+#' depending on what distribution was used in the initial call to \code{gbm2}.
+#' Currently reordering only takes place for generalized boosted models produced
+#' using the CoxPH or Pairwise distributions.
+#' 
+#' 
+#' @usage reorder_fit(gbm_fit_obj, distribution_obj)
+#' 
+#' @param gbm_fit_obj a \code{GBMFit} object produced by a previous call to \code{gbm2} or \code{gbm2.fit}.
+#' 
+#' @param distributin_obj the \code{GBMDist} object used to produce the gbm_fit_obj.
+#' 
+#' @return a \code{GBMFit} object with an appropriately order fit.
+#'  
+#' @export reorder_fit reorder_fit.default reorder_fit.CoxPHGBMDist reorder_fit.PairwiseGBMDist
+#' @export order_by_groupings order_by_id 
 
 #### Fit reordering methods ####
 reorder_fit <- function(gbm_fit, distribution_obj) {
+  check_if_gbm_fit(gbm_fit)
   UseMethod("reorder_fit", distribution_obj)
 }
 

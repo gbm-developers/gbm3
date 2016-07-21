@@ -10,7 +10,7 @@ data = list(), weights, subset = NULL, offset = NULL, var.monotone
 shrinkage = 0.001, bag.fraction = 0.5, train.fraction = 1,
 mFeatures = NULL, cv.folds = 0, keep.data = TRUE, verbose = FALSE,
 class.stratify.cv = NULL, n.cores = NULL, fold.id=NULL,
-tied.times.method = "efron", prior.node.coeff.var = 1000, strata = NULL, 
+tied.times.method = "efron", prior.node.coeff.var = 1000, strata = NA, 
 obs.id = 1:nrow(data))
 
 gbm.fit(x, y, offset = NULL, distribution = "bernoulli", 
@@ -18,7 +18,8 @@ w = NULL, var.monotone = NULL, n.trees = 100, interaction.depth = 1,
 n.minobsinnode = 10, shrinkage = 0.001, bag.fraction = 0.5, 
 nTrain = NULL, train.fraction = NULL, mFeatures = NULL, keep.data = TRUE, 
 verbose = TRUE, var.names = NULL, response.name = "y", group = NULL,
-prior.node.coeff.var = 1000, strata = NULL, obs.id = 1:nrow(x))
+tied.times.method="efron", prior.node.coeff.var = 1000, strata = NA,
+ obs.id = 1:nrow(x))
 }
 \arguments{
 \item{formula}{a symbolic description of the model to be fit. The
@@ -182,7 +183,7 @@ return a spurious number of available cores.}
 each observation is in. If supplied, cv.folds can be missing. Note:
 Multiple observations to the same patient must have the same fold id.}
 
-\item{tied.times.method}{For \code{gbm}: This is an optional string used with
+\item{tied.times.method}{For \code{gbm} and \code{gbm.fit}: This is an optional string used with
 \code{CoxPH} distribution specifying what method to employ when dealing with tied times. 
 Currently only "efron" and "breslow" are available; the default value is "efron". 
 Setting the string to any other value reverts the method to the original CoxPH model
@@ -263,10 +264,10 @@ likelihood for censored data, the poisson likelihood for count
 outcomes, and a gradient boosting implementation to minimize the
 AdaBoost exponential loss function.
 
-\code{gbm} is a depracated function that now acts as a front-end to \code{gbm2}
+\code{gbm} is a depracated function that now acts as a front-end to \code{gbm2.fit}
 that uses the familiar R modeling formulas. However, \code{\link[stats]{model.frame}} is
 very slow if there are many predictor variables. For power users with many variables use \code{gbm.fit} over 
-\code{gbm}; however \code{gbm2} is now the current API.
+\code{gbm}; however \code{gbm2} and \code{gbm2.fit} are now the current APIs.
 }
 \examples{
  # A least squares regression example # create some data
@@ -422,7 +423,7 @@ Overview,} Microsoft Research Technical Report MSR-TR-2010-82.
 The \href{http://www-stat.stanford.edu/~jhf/R-MART.html}{MART} website.
 }
 \seealso{
-\code{\link{gbm2}}, \code{\link{perf_gbm}},
+\code{\link{gbm2}}, \code{\link{gbm2.fit}} \code{\link{perf_gbm}},
 \code{\link{plot.GBMFit}}, \code{\link{predict.GBMFit}},
 \code{\link{summary.GBMFit}}, \code{\link{pretty.gbm.tree}}.
 }

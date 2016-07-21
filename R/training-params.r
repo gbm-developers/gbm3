@@ -3,7 +3,8 @@
 #' Class that contains the training parameters for the gbm model
 #' 
 #' @usage training_params(num_trees=100, interaction_depth=1,
-#'  min_num_obs_in_node=10, shrinkage=0.001, bag_fraction=0.5, id,  num_train, num_features)
+#'  min_num_obs_in_node=10, shrinkage=0.001, bag_fraction=0.5, num_train=(2*min_num_obs_in_node+1)/bag_fraction + 1,
+#'  id=seq_len(num_train), num_features=1)
 #' 
 #' @param num_trees Number of trees used in the fit.
 #' 
@@ -20,12 +21,14 @@
 #' if bag_fraction < 1 then running the same model twice  will result in similar but different
 #' fits.
 #' 
+#' @param num_train number of obs of data used in training the model.  This defaults to the minimum number of 
+#' observations allowed - \code{(2*min_num_obs_in_node + 1)/bag_fraction + 1}.
+#' 
 #' @param id optional vector of integers, specifying which rows in the data correspond
-#' to which observations. Individual observations may have many rows of data associated with them.
+#' to which observations. Individual observations may have many rows of data associated with them. This defaults to
+#' \code{seq_len(num_train)}.
 #' 
-#' @param num_train number of obs of data used in training the model.
-#' 
-#' @param num_features number of random features/columns to use in training model
+#' @param num_features number of random features/columns to use in training model.  This defaults to 1.
 #' 
 #' @return training parameters object
 #' 
@@ -33,7 +36,8 @@
 
 training_params <- function(num_trees=100, interaction_depth=1,
                             min_num_obs_in_node=10, shrinkage=0.001, bag_fraction=0.5,
-                            id, num_train, num_features) {
+                            num_train=(2*min_num_obs_in_node+1)/bag_fraction + 1, 
+                            id=seq_len(num_train),  num_features=1) {
   # Check the parameters
   check_if_natural_number(num_trees, "number of trees")
   check_if_natural_number(interaction_depth, "interaction depth")
@@ -58,14 +62,18 @@ training_params <- function(num_trees=100, interaction_depth=1,
   # Order the ids 
   id <- id[order(id)]
   num_rows_per_obs <- table(id)
-  num_train_rows <-  sum(num_rows_per_obs[seq_len(num_train)])
+  num_train_rows <-  sum(num_rows_per_obs[seq_len(min(num_train, length(id)))])
 
-  if(num_train_rows * bag_fraction <= 2*min_num_obs_in_node+1) {
-    stop("The dataset size is too small or subsampling rate is too large: num_obs*bag.fraction <= n.minobsinnode")
+  if(num_train * bag_fraction <= 2*min_num_obs_in_node+1) {
+    stop("The dataset size is too small or subsampling rate is too large: num_obs*bag.fraction <= min_num_obs_in_node")
   }
   
   if(num_train_rows > sum(num_rows_per_obs)) {
     stop("Number of training rows selected exceeds number available")
+  }
+  
+  if(num_train > num_train_rows) {
+    warning("Number of training observations EXCEEDS number of training rows!")
   }
   
   object <- structure(list("num_trees"=num_trees, "interaction_depth"=interaction_depth,

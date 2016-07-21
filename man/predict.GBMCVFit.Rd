@@ -18,6 +18,9 @@ fit.}
 
 \item{best_iter_cv}{number of trees with the smallest cv error}
 }
+\value{
+a matrix of predictions for each cv fold.
+}
 \description{
 Calculate predictions from cross validated generalized boosting model from gbm2.
 }

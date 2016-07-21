@@ -15,7 +15,7 @@
 #' 
 #' @param best_iter_cv number of trees with the smallest cv error
 #' 
-#' @result a matrix of predictions for each cv fold.
+#' @return a matrix of predictions for each cv fold.
 #' 
 
 predict.GBMCVFit <- function(gbm_cv_fit, gbm_data_obj, cv_folds, cv_group, best_iter_cv) {

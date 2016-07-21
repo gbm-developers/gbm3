@@ -26,6 +26,9 @@ If the previous data used is kept within \code{gbm_fit_obj}; then the weights ar
 \item{is_verbose}{a logical specifying whether or not the additional fitting should run "noisely" with feedback on progress provided to the
 user.}
 }
+\value{
+the input \code{GBMFit} object with additional iterations provided for the fit.
+}
 \description{
 Method to perform additional boosting using a \code{GBMFit} object - does not support
 further cross validation.
