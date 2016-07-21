@@ -184,7 +184,7 @@ test_that("coxph works - breslow", {
 
     # predict on the new data using "best" number of trees
     # f.predict will be on the canonical scale (logit,log,etc.)
-    f.predict <- predict(gbm1,data2,best.iter)
+    f.predict <- predict(gbm1, data2, best_iter)
 
     #plot(data2$f,f.predict)
     # Use observed sd

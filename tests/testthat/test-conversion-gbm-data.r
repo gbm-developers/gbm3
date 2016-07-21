@@ -1,7 +1,7 @@
 ####################
 # Author: James Hickey
 #
-# Series of test to check that the conversion of factors 
+# Series of tests to check that the conversion of factors 
 # and that data is data is appropriate for distribution
 #
 ####################
@@ -21,7 +21,7 @@ test_that("Test factor conversion requires GBMData object", {
   data <- gbm_data(matrix(x), y, w, offset)
   attr(data, "class") <- "FAKE"
   
-  # Then error thrown when 
+  # Then error thrown when data is not gbm data 
   expect_error(convert_factors(data))
 })
 
@@ -112,7 +112,7 @@ test_that("Weights will be normalized across GROUP if Pairwise distribution", {
   Y.norm <- round(Y/(max(Y) + 0.001))
   
   # Make data and dist
-  data <- gbm_data(data.frame(X1, X2), )
+  data <- gbm_data(data.frame(X1, X2), Y)
   dist <- gbm_dist("Pairwise", metric="ndcg", group=query)
   dist_2 <- gbm_dist("Pairwise", metric="conc", group=query)
   dist_3 <- gbm_dist("Pairwise", metric="mrr", group=query)

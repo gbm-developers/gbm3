@@ -21,10 +21,10 @@
 #' outcomes, and a gradient boosting implementation to minimize the
 #' AdaBoost exponential loss function.
 #' 
-#' \code{gbm} is a depracated function that now acts as a front-end to \code{gbm2}
+#' \code{gbm} is a depracated function that now acts as a front-end to \code{gbm2.fit}
 #' that uses the familiar R modeling formulas. However, \code{\link[stats]{model.frame}} is
 #' very slow if there are many predictor variables. For power users with many variables use \code{gbm.fit} over 
-#' \code{gbm}; however \code{gbm2} is now the current API.
+#' \code{gbm}; however \code{gbm2} and \code{gbm2.fit} are now the current APIs.
 #' 
 #' @param formula a symbolic description of the model to be fit. The
 #' formula may include an offset term (e.g. y~offset(n)+x). If
@@ -210,7 +210,7 @@
 #' @param group \code{group} used when \code{distribution =
 #' 'pairwise'.}
 #' 
-#' @param tied.times.method For \code{gbm}: This is an optional string used with
+#' @param tied.times.method For \code{gbm} and \code{gbm.fit}: This is an optional string used with
 #' \code{CoxPH} distribution specifying what method to employ when dealing with tied times. 
 #' Currently only "efron" and "breslow" are available; the default value is "efron". 
 #' Setting the string to any other value reverts the method to the original CoxPH model
@@ -249,7 +249,7 @@
 #' shrinkage = 0.001, bag.fraction = 0.5, train.fraction = 1,
 #' mFeatures = NULL, cv.folds = 0, keep.data = TRUE, verbose = FALSE,
 #' class.stratify.cv = NULL, n.cores = NULL, fold.id=NULL,
-#' tied.times.method = "efron", prior.node.coeff.var = 1000, strata = NULL, 
+#' tied.times.method = "efron", prior.node.coeff.var = 1000, strata = NA, 
 #' obs.id = 1:nrow(data))
 #' 
 #' gbm.fit(x, y, offset = NULL, distribution = "bernoulli", 
@@ -257,7 +257,8 @@
 #' n.minobsinnode = 10, shrinkage = 0.001, bag.fraction = 0.5, 
 #' nTrain = NULL, train.fraction = NULL, mFeatures = NULL, keep.data = TRUE, 
 #' verbose = TRUE, var.names = NULL, response.name = "y", group = NULL,
-#' prior.node.coeff.var = 1000, strata = NULL, obs.id = 1:nrow(x))
+#' tied.times.method="efron", prior.node.coeff.var = 1000, strata = NA,
+#'  obs.id = 1:nrow(x))
 #'
 #'
 #' @return \code{gbm} and \code{gbm.fit} return a
@@ -271,7 +272,7 @@
 #' Daniel Edwards
 #' 
 #' Pairwise code developed by Stefan Schroedl \email{schroedl@@a9.com}
-#' @seealso \code{\link{gbm2}}, \code{\link{perf_gbm}},
+#' @seealso \code{\link{gbm2}}, \code{\link{gbm2.fit}} \code{\link{perf_gbm}},
 #' \code{\link{plot.GBMFit}}, \code{\link{predict.GBMFit}},
 #' \code{\link{summary.GBMFit}}, \code{\link{pretty.gbm.tree}}.
 #' @references Y. Freund and R.E. Schapire (1997) \dQuote{A decision-theoretic
@@ -437,13 +438,13 @@ gbm <- function(formula = formula(data),
                 fold.id = NULL,
                 tied.times.method="efron",
                 prior.node.coeff.var=1000,
-                strata=NULL, obs.id=1:nrow(data)) {
+                strata=NA, obs.id=1:nrow(data)) {
   # Highlight new API
-  warning("gbm is depracated - using gbm2...")
+  warning("gbm is depracated - using gbm2.fit...")
   
-  # Unravel model 
+  # Extract the model
   mf <- match.call(expand.dots = FALSE)
-  m <- match(c("formula", "data", "weights", "subset", "offset"), names(mf), 0)
+  m <- match(c("formula", "data", "weights", "offset"), names(mf), 0)
   mf <- mf[c(1, m)]
   mf$drop.unused.levels <- TRUE
   mf$na.action <- na.pass
@@ -451,30 +452,74 @@ gbm <- function(formula = formula(data),
   m <- mf
   mf <- eval(mf, parent.frame())
   Terms <- attr(mf, "terms")
-  
+  y <- model.response(mf)
   w <- model.weights(mf)
-  offset <- model.offset(mf)
+  offset_mf <- model.offset(mf)
+  
+  # Set stratification to FALSE if NULL
+  if(is.null(class.stratify.cv)) class.stratify.cv <- FALSE
+  
+  # get the character name of the response variable
   var.names <- attributes(Terms)$term.labels
+  x <- model.frame(terms(reformulate(var.names)),
+                   data,
+                   na.action=na.pass)
+  
+  # Set offset/ weights if not specified
+  if(!is.null(w)) {
+    weights <- w
+  } else {
+    weights <- rep(1, length(obs.id))
+  } 
+  if(!is.null(offset_mf)){
+    offset <- offset_mf
+  } else {
+    offset <- rep(0, length(obs.id))
+  }
+  
+  # Change cv.folds to correct default
+  if(cv.folds == 0) cv.folds <- 1
   
   # Set distribution object - put in all possible additional parameters (this will generate warnings)
   if (is.character(distribution)){ distribution <- list(name=distribution) }
   dist_obj <- gbm_dist(distribution$name, ties=tied.times.method, strata=strata,
-                      group=distribution$group, metric=distribution$metric,
-                      max.rank=distribution$max.rank, prior_node_coeff_var=prior.node.coeff.var,
-                      alpha=distribution$alpha, df=distribution$df, power=distribution$power)
+                       group=distribution$group, metric=distribution$metric,
+                       max.rank=distribution$max.rank, prior_node_coeff_var=prior.node.coeff.var,
+                       alpha=distribution$alpha, df=distribution$df, power=distribution$power)
   
   # Set up training parameters
-  if(is.null(mFeatures)) mFeatures <- ncol(data)-1 # NB: THIS IS UPDATED IN GBM
+  if(is.null(mFeatures)) mFeatures <- ncol(x) 
   params <- training_params(num_trees=n.trees, interaction_depth=interaction.depth, min_num_obs_in_node=n.minobsinnode, 
-                           shrinkage=shrinkage, bag_fraction=bag.fraction, id=obs.id,
-                           num_train=round(train.fraction * length(unqiue(obs.id))),
-                           num_features=mFeatures)
+                            shrinkage=shrinkage, bag_fraction=bag.fraction, id=obs.id,
+                            num_train=round(train.fraction * length(unique(obs.id))),
+                            num_features=mFeatures)
   
-  # Call gbm2
-  gbm_fit_obj <- gbm2(formula, distribution=dist_obj, data, weights=w, offset=offset,
-                     train_params= params, var_monotone=var.monotone, var_names=var.names,
-                     cv_folds=cv.folds, cv_class_stratify=class.stratify.cv, fold_id=fold.id,
-                     keep_gbm_data=keep.data, is_verbose=verbose)
-
+  # Check and infer folds if necessary
+  check_cv_parameters(cv.folds, class.stratify.cv, fold.id, params)
+  if (!is.null(fold.id)) {
+    if (length(fold.id) != nrow(x)){
+      stop("fold.id inequal to number of rows.")
+    }
+    num_inferred_folds <- length(unique(fold.id))
+    if (cv.folds != num_inferred_folds) {
+      # Warn if cv.folds and fold.id disagree, but take fold.id.
+      warning("CV folds changed from ", cv.folds, " to ", inferred_folds,
+              " because of levels in fold.id.")
+    } 
+    cv.folds <- num_inferred_folds
+    
+    # Set fold_id from whatever it is to an integer ascending from 1. Lazy way.
+    fold.id <- as.numeric(as.factor(fold.id))
+  }
+  
+  # Call gbm2.fit 
+  gbm_fit_obj <- gbm2.fit(x, y, dist_obj, weights, offset,
+                          params, var.monotone, var.names, keep.data, cv.folds,
+                          class.stratify.cv, fold.id, verbose)
+  
+  # Wrap up extra pieces 
+  gbm_fit_obj$model <- m
+  gbm_fit_obj$Terms <- Terms
+  
   return(gbm_fit_obj)
 }

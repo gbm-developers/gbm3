@@ -4,7 +4,7 @@
 \alias{create_strata}
 \title{Create Strata}
 \usage{
-create_strata(gbm_data_obj, train_params distribution_obj)
+create_strata(gbm_data_obj, train_params, distribution_obj)
 }
 \arguments{
 \item{gbm_data_obj}{gbm data object}

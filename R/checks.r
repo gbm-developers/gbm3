@@ -134,7 +134,7 @@ checkSanity <- function(x, y){
   nms <- getVarNames(x)
   
   # x and y are not the same length
-  if(nrow(x) != ifelse("Surv" %in% class(y), nrow(y), length(y))) {
+  if(nrow(x) != ifelse(!is.null(dim(y)), nrow(y), length(y))) {
     stop("The number of rows in x does not equal the length of y.")
   }
   

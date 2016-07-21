@@ -49,12 +49,12 @@ print.GBMFit <- function(gbm_fit_obj, ... ){
   best_iter <- print_perf_measures(gbm_fit_obj)
   
   # Print out relative influence of variables
-  ri <- relative_influence(gbm_fit_obj, num_trees=best_it)
+  ri <- relative_influence(gbm_fit_obj, num_trees=best_iter)
   cat( "There were", length(gbm_fit_obj$variables$var_names), "predictors of which",
        sum(ri > 0), "had non-zero influence.\n" )
   
   # CV confusion matrix and pseudo-R-squared
-  print_confusion_mat(gbm_fit_obj)
+  print_confusion_matrix(gbm_fit_obj)
   
   return(invisible())
 }
@@ -85,7 +85,7 @@ print_perf_measures <- function(gbm_fit_obj) {
   check_if_gbm_fit(gbm_fit_obj)
   
   # Set default answer - final iteration
-  best_iter <- length(gbm_fit_obj$train_error)
+  best_iter <- length(gbm_fit_obj$train.error)
   
   # CV best iteration 
   if (!is.null(gbm_fit_obj$cv_error)) {

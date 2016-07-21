@@ -30,7 +30,7 @@ test_that("Strata creation function requires GBMData and GBMDist objects", {
   
   # random weights if you want to experiment with them
   w <- rep(1,N)
-  offset <- rep(0, N/2)
+  offset <- rep(0, N)
   
   Resp <- Surv(tt, delta)
   data <- gbm_data(data.frame(X1, X2, X3), Resp, w, offset)
@@ -48,7 +48,7 @@ test_that("Strata creation function requires GBMData and GBMDist objects", {
   expect_error(create_strata(copy_data, train_p, dist))
 })
 
-test_that("Distribution object remains unchanged if not CoxPH - strata remain undefined", {
+test_that("Strata are NA if distribution is not CoxPH", {
   # Require Surv to be available
   require(survival)
   
@@ -72,7 +72,7 @@ test_that("Distribution object remains unchanged if not CoxPH - strata remain un
   
   # random weights if you want to experiment with them
   w <- rep(1,N)
-  offset <- rep(0, N/2)
+  offset <- rep(0, N)
   
   Resp <- Surv(tt, delta)
   data <- gbm_data(data.frame(X1, X2, X3), Resp, w, offset)
@@ -82,11 +82,11 @@ test_that("Distribution object remains unchanged if not CoxPH - strata remain un
   dist <- gbm_dist("AdaBoost")
   
   # When strata created
-  copy_dist <- dist
   dist <- create_strata(data, train_p, dist)
   
   # Then dist object is unchanged
-  expect_equal(copy_dist, dist)
+  expect_true(is.na(dist$strata))
+  expect_true(is.na(dist$sorted))
 })
 
 test_that("Creating strata fills strata, time_order and sorted fields - CoxPH", {
@@ -131,10 +131,7 @@ test_that("Creating strata fills strata, time_order and sorted fields - CoxPH", 
   expect_equal(nrow(dist$sorted), N)
 })
 
-test_that("Strata can only be created when response is Survival object - CoxPH", {
-  # Require Surv to be available
-  require(survival)
-  
+test_that("If response is a matrix with more than 3 columns strata cannot be created - CoxPH", {
   # create some data
   set.seed(1)
   N <- 3000
@@ -155,18 +152,18 @@ test_that("Strata can only be created when response is Survival object - CoxPH",
   
   # random weights if you want to experiment with them
   w <- rep(1,N)
-  offset <- rep(0, N/2)
+  offset <- rep(0, N)
   
-  Resp <- Surv(tt, delta)
-  data <- gbm_data(data.frame(X1, X2, X3), Resp, w, offset)
-  train_p <- training_params(id=c(rep(1, N/2), rep(2, N/2)), num_train = 1, num_features = 3)
   
   # GIVEN Dist - COXPH
   dist <- gbm_dist("CoxPH")
   
-  # When response is not a Survival object
-  attr(data$y, "type") <- "Not Right or Counting"
- 
+  # When response has too many columns - set to 4
+  Resp <- data.frame(tt, delta)
+  Resp <- cbind(cbind(Resp, rnorm(N)), rnorm(N))
+  data <- gbm_data(data.frame(X1, X2, X3), Resp, w, offset)
+  train_p <- training_params(id=c(rep(1, N/2), rep(2, N/2)), num_train = 1, num_features = 3)
+
   # Then error thrown when creating strata
   expect_error(create_strata(data, train_p, dist))
 })
@@ -195,7 +192,7 @@ test_that("If strata field in distribution object is NULL, all data are put in s
   
   # random weights if you want to experiment with them
   w <- rep(1,N)
-  offset <- rep(0, N/2)
+  offset <- rep(0, N)
   
   Resp <- Surv(tt, delta)
   data <- gbm_data(data.frame(X1, X2, X3), Resp, w, offset)
@@ -209,7 +206,7 @@ test_that("If strata field in distribution object is NULL, all data are put in s
   dist <- create_strata(data, train_p, dist)
   
   # Then all examples put in same strata
-  expect_equal(dist$strata, N/2)
+  expect_equal(dist$strata[1], N/2)
 })
 
 test_that("The training responses are sorted according to strata and this order is stored in time_order", {
@@ -236,7 +233,7 @@ test_that("The training responses are sorted according to strata and this order 
   
   # random weights if you want to experiment with them
   w <- rep(1,N)
-  offset <- rep(0, N/2)
+  offset <- rep(0, N)
   
   Resp <- Surv(tt, delta)
   data <- gbm_data(data.frame(X1, X2, X3), Resp, w, offset)
@@ -245,11 +242,12 @@ test_that("The training responses are sorted according to strata and this order 
   # GIVEN Dist - COXPH
   dist <- gbm_dist("CoxPH")
   
-  # When strata are created
+  # When strata are created 
   dist <- create_strata(data, train_p, dist)
     
   # Then the training responses are sorted according to strata
-  expect_equal(order(-data$y[1:N/2, 1]), dist$time_order)
+  expect_equal(order(-data$y[seq_len(N/2), 1]), dist$time_order[seq_len(N/2)])
+  expect_equal(order(-data$y[(N/2):N, 1]), dist$time_order[(N/2):N])
 })
 
 test_that("Strata are sorted according to observation id if provided and strata is not NULL- CoxPH", {

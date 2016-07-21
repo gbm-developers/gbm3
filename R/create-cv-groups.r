@@ -22,13 +22,15 @@
 #' 
 #' @return a list mapping each row of data to a cv fold.
 #' 
-#' @export 
+#' @export create_cv_groups
+#' 
 
-create_cv_groups <- function(gbm_data_obj, gbm_dist_obj, train_params, cv_folds, cv_class_stratify, fold_id) {
+create_cv_groups <- function(gbm_data_obj, gbm_dist_obj, train_params, cv_folds,
+                             cv_class_stratify, fold_id) {
   UseMethod("create_cv_groups", gbm_dist_obj)
 }
 
-create_cv_groups.AdaBoostGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_params, cv_folds,
+create_cv_groups.default<- function(gbm_data_obj, gbm_dist_obj, train_params, cv_folds,
                                              cv_class_stratify, fold_id) {
   if(!is.null(fold_id)) {
     return(fold_id)
@@ -67,92 +69,4 @@ create_cv_groups.BernoulliGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_
   }
 }
 
-create_cv_groups.CoxPHGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_params, cv_folds,
-                                             cv_class_stratify, fold_id) {
-  if(!is.null(fold_id)) {
-    return(fold_id)
-  } else {
-    return( sample(rep(seq_len(cv_folds), length=train_params$num_train)) )
-  }
-}
-
-create_cv_groups.GammaGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_params, cv_folds,
-                                             cv_class_stratify, fold_id) {
-  if(!is.null(fold_id)) {
-    return(fold_id)
-  } else {
-    return( sample(rep(seq_len(cv_folds), length=train_params$num_train)) )
-  }
-}
-
-create_cv_groups.GaussianGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_params, cv_folds,
-                                             cv_class_stratify, fold_id) {
-  if(!is.null(fold_id)) {
-    return(fold_id)
-  } else {
-    return( sample(rep(seq_len(cv_folds), length=train_params$num_train)) )
-  }
-}
-
-create_cv_groups.HuberizedGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_params, cv_folds,
-                                             cv_class_stratify, fold_id) {
-  if(!is.null(fold_id)) {
-    return(fold_id)
-  } else {
-    return( sample(rep(seq_len(cv_folds), length=train_params$num_train)) )
-  }
-}
-
-create_cv_groups.LaplaceGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_params, cv_folds,
-                                             cv_class_stratify, fold_id) {
-  if(!is.null(fold_id)) {
-    return(fold_id)
-  } else {
-    return( sample(rep(seq_len(cv_folds), length=train_params$num_train)) )
-  }
-}
-
-create_cv_groups.PairwiseGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_params, cv_folds,
-                                             cv_class_stratify, fold_id) {
-  # Split into CV folds at group boundaries
-  group_labels <- sample(rep(seq_len(cv_folds), length=nlevels(gbm_dist_obj$group)))
-  cv_group <- group_labels[as.integer(gbm_dist_obj$group[seq_len(train_params$num_train)])]
-  return(cv_group)
-}
-
-create_cv_groups.PoissonGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_params, cv_folds,
-                                             cv_class_stratify, fold_id) {
-  if(!is.null(fold_id)) {
-    return(fold_id)
-  } else {
-    return( sample(rep(seq_len(cv_folds), length=train_params$num_train)) )
-  }
-}
-
-create_cv_groups.QuantileGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_params, cv_folds,
-                                             cv_class_stratify, fold_id) {
-  if(!is.null(fold_id)) {
-    return(fold_id)
-  } else {
-    return( sample(rep(seq_len(cv_folds), length=train_params$num_train)) )
-  }
-}
-
-create_cv_groups.TDistGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_params, cv_folds,
-                                             cv_class_stratify, fold_id) {
-  if(!is.null(fold_id)) {
-    return(fold_id)
-  } else {
-    return( sample(rep(seq_len(cv_folds), length=train_params$num_train)) )
-  }
-}
-
-create_cv_groups.TweedieGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_params, cv_folds,
-                                             cv_class_stratify, fold_id) {
-  if(!is.null(fold_id)) {
-    return(fold_id)
-  } else {
-    return( sample(rep(seq_len(cv_folds), length=train_params$num_train)) )
-  }
-}
 

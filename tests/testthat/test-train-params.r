@@ -14,7 +14,7 @@ test_that("Training parameters are of class GBMTrainParams", {
 test_that("GBMTrainParams structure is correct", {
   expect_equal(names(training_params(num_train=100, id=seq_len(100), num_features=3)), 
                c("num_trees", "interaction_depth", "min_num_obs_in_node", "shrinkage",
-                 "bag_fraction", "id", "num_train", "num_features", "num_rows_per_obs", "train_fraction"))
+                 "bag_fraction", "id", "num_train", "num_train_rows", "num_features", "num_rows_per_obs", "train_fraction"))
 })
 
 test_that("Calculation of number of rows per observation is correct", {

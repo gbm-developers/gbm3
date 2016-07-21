@@ -40,11 +40,11 @@ fit. If cv_folds > 1 then cross-validation is performed; the default of cv_folds
 \item{cv_class_stratify}{a bool specifying whether or not to stratify via response outcome. Currently only 
 applies to "Bernoulli" distribution and defaults to false.}
 
-\item{is_verbose}{if TRUE, gbm2 will print out progress and performance of the fit.}
-
 \item{fold_id}{An optional vector of values identifying what fold
 each observation is in. If supplied, cv_folds can be missing. Note:
 Multiple rows of the same observation must have the same fold_id.}
+
+\item{is_verbose}{if TRUE, gbm2 will print out progress and performance of the fit.}
 }
 \value{
 a \code{GBMFit} object.

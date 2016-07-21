@@ -1,5 +1,5 @@
 #' @export gbm.fit
-gbm.fit <- function(x,y,
+gbm.fit <- function(x, y,
                     offset = NULL,
                     distribution = "Bernoulli",
                     w = NULL,
@@ -17,8 +17,9 @@ gbm.fit <- function(x,y,
                     var.names = NULL,
                     response.name = "y",
                     group = NULL,
+                    tied.times.method="efron",
                     prior.node.coeff.var = 1000,
-                    strata = NULL, obs.id = 1:nrow(x)) {
+                    strata = NA, obs.id = 1:nrow(x)) {
   # Highlight new API
   warning("gbm is depracated - using gbm2.fit ...")
   
@@ -38,6 +39,14 @@ gbm.fit <- function(x,y,
   } else if(is.null(nTrain)) {
     # both undefined, use all training data
     nTrain <- length(unique(obs.id))
+  }
+  
+  # Set offset/ weights if not specified
+  if(is.null(w)) {
+    weights <- rep(1, length(obs.id))
+  } 
+  if(is.null(offset)){
+    offset <- rep(0, length(obs.id))
   }
   
   # Set distribution object - put in all possible additional parameters (this will generate warnings)

@@ -52,7 +52,9 @@ check_dist_params.CoxPHGBMDist <- function(empty_obj, strata, sorted, ties, prio
   # Check strata
   if(!exists("strata")) {
     stop("Strata not specified - distribution could not be constructed")
-  } else if(!is.na(strata) && (is.null(strata)  || (!(is.atomic(strata)) || is.infinite(strata)
+  } else if (is.null(strata)) {
+    stop("Strata should not be NULL")
+  } else if(!is.na(strata) && ((!(is.atomic(strata)) || is.infinite(strata)
             || !isTRUE(all(strata == as.integer(strata))))) ) {
     stop("Strata parameter must be an atomic of integers")
   } 
@@ -60,7 +62,9 @@ check_dist_params.CoxPHGBMDist <- function(empty_obj, strata, sorted, ties, prio
   # Check sorted
   if(!exists("sorted")) {
     stop("Sorted not specified - distribution could not be constructed")
-  } else if(!is.na(sorted) && (is.null(sorted) || (!(is.atomic(sorted)) || is.finite(sorted)
+  } else if(is.null(sorted)) {
+    stop("Sorted parameter cannot be NULL")
+  } else if(!is.na(sorted) && ((!(is.atomic(sorted)) || is.finite(sorted)
           || !isTRUE(all(sorted == as.integer(sorted)))) ) ) {
     stop("Sorted parameter must be an atomic of integers")
   } 

@@ -86,13 +86,13 @@ gbm2 <- function(formula, distribution=gbm_dist("Gaussian", ...), data, weights=
   check_cv_parameters(cv_folds, cv_class_stratify, fold_id, train_params)
   if (!is.null(fold_id)) {
     if (length(fold_id) != nrow(x)){
-      stop("fold.id inequal to number of rows.")
+      stop("length(fold_id) inequal to number of rows.")
     }
     num_inferred_folds <- length(unique(fold_id))
     if (cv_folds != num_inferred_folds) {
       # Warn if cv.folds and fold.id disagree, but take fold.id.
       warning("CV folds changed from ", cv.folds, " to ", inferred_folds,
-              " because of levels in fold.id.")
+              " because of levels in fold_id.")
     } 
     cv_folds <- num_inferred_folds
     

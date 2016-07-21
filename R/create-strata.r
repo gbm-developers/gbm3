@@ -3,7 +3,7 @@
 #' Function used to create to appropriate strata vectors -
 #' currently only implemented for the CoxPH distribution.
 #' 
-#' @usage create_strata(gbm_data_obj, train_params distribution_obj)
+#' @usage create_strata(gbm_data_obj, train_params, distribution_obj)
 #' 
 #' @param gbm_data_obj gbm data object
 #' 
@@ -15,6 +15,7 @@
 #' @return updated distribution_obj
 #' 
 #' @export
+#' 
 
 create_strata <- function(gbm_data_obj, train_params, distribution_obj) {
   check_if_gbm_dist(distribution_obj)

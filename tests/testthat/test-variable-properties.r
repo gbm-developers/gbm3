@@ -131,7 +131,7 @@ test_that("Monotonicity must be -1, 0 or 1", {
   expect_error(var_container(data, var_monotone = monotone_4))
 })
 
-test_that("There number of variable names should match the number of predictors", {
+test_that("The number of variable names MUST match the number of predictors", {
   # Given correct gbm-data object
   N <- 1000
   x <- runif(N)

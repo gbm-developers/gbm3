@@ -11,6 +11,6 @@
 #' @export
 
 empty_distribution <- function(name) {
-  return(structure(list(name=name, reorder=FALSE, ordering=NULL),
+  return(structure(list(name=name, reorder=FALSE),
                    class=c(paste0(name, "GBMDist"), "GBMDist")))
 }
