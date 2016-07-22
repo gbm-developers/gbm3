@@ -83,11 +83,11 @@ summary.GBMFit <- function(gbm_fit_obj,
   if(cBars==0) cBars <- min(10, length(gbm_fit_obj$variables$var_names))
   if(cBars>length(gbm_fit_obj$variables$var_names)) cBars <- length(gbm_fit_obj$variables$var_names)
   if(num_trees > gbm_fit_obj$params$num_trees)
-    warning("Exceeded total number of GBM terms. Results use n.trees=",object$n.trees," terms.\n")
+    warning("Exceeded total number of GBM terms. Results use num_trees=", gbm_fit_obj$params$num_trees," terms.\n")
   num_trees <- min(num_trees, gbm_fit_obj$params$num_trees)
   
   # Calculate relative influence and order/normalize
-  rel_inf <- method(object, num_trees=num_trees)
+  rel_inf <- method(gbm_fit_obj, num_trees=num_trees)
   rel_inf[rel_inf<0] <- 0
   if(normalize) rel_inf <- 100*rel_inf/sum(rel_inf)
   

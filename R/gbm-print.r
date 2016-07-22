@@ -126,7 +126,7 @@ binary_response_conf_matrix <- function(response, cv_fit) {
   p <- ifelse(p < .5, 0, 1)
   
   conf_mat <- matrix(table(c(response + 2 * p , 0:3)), ncol=2)
-  conf_mat <- conf.mat - 1
+  conf_mat <- conf_mat - 1
   pred_acc <- round(100 * sum(diag(conf_mat)) / sum(conf_mat),2)
   
   conf_mat <- cbind(conf_mat,  round(100*diag(conf_mat)/rowSums(conf_mat),2))
@@ -139,20 +139,20 @@ binary_response_conf_matrix <- function(response, cv_fit) {
 
 pseudo_r_squared <- function(response, cv_fit, dist_name) {
   # Calculate residuals
-  cv_resids <- response - gbm_fit_obj$cv_fitted
+  cv_resids <- response - cv_fit
   
   cat("\nSummary of cross-validation residuals:\n" )
   print(quantile(cv_resids))
   cat("\n")
   
   # Do pseudo R^2
-  if (dist_name == "Gaussian"){
-    yadj <- response - mean(response[, 1])
-    R2 <- 1 - sum(r^2)/sum(yadj^2)
+  if (dist_name == "Gaussian") {
+    yadj <- response - mean(response)
+    R2 <- 1 - sum(cv_resids^2)/sum(yadj^2)
     cat("Cross-validation pseudo R-squared: ", signif(R2, 3), "\n")
   }
   else { # Rousseeuw & Leroy, page 44
-    R2 <- 1 - (median(abs(cv_resids)) / mad(response[, 1]))^2
+    R2 <- 1 - (median(abs(cv_resids)) / mad(response))^2
     cat("Cross-validation robust pseudo R-squared: ", signif(R2, 3), "\n")
   }
 }
