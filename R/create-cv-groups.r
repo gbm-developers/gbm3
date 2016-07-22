@@ -21,12 +21,19 @@
 #' each observation is in.
 #' 
 #' @return a list mapping each row of data to a cv fold.
-#' 
-#' @export create_cv_groups
-#' 
+#'  
+#' @export create_cv_groups create_cv_groups.default
 
 create_cv_groups <- function(gbm_data_obj, gbm_dist_obj, train_params, cv_folds,
                              cv_class_stratify, fold_id) {
+  # Initial checks
+  check_if_gbm_dist(gbm_dist_obj)
+  check_if_gbm_train_params(train_params)
+  check_if_natural_number(cv_folds)
+  if(!is.logical(cv_class_stratify) || (length(cv_class_stratify) > 1)) {
+    stop("cv_class_stratify must be a logical")
+  }
+  
   UseMethod("create_cv_groups", gbm_dist_obj)
 }
 

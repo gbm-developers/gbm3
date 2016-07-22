@@ -1,7 +1,7 @@
 ####################
 # Author: James Hickey
 #
-# Series of test to check the functionality that creates strata
+# Series of tests to check the functionality that creates strata
 #
 ####################
 
@@ -34,7 +34,7 @@ test_that("Strata creation function requires GBMData and GBMDist objects", {
   
   Resp <- Surv(tt, delta)
   data <- gbm_data(data.frame(X1, X2, X3), Resp, w, offset)
-  train_p <- training_params(id=rep(1, N), num_train = 1, num_features = 3)
+  train_p <- training_params(id=c(rep(1, N/2), rep(2, N/2)), num_train = 2, num_features = 3, bag_fraction = 1, min_num_obs_in_node = 0)
   dist <- gbm_dist("CoxPH")
   
   # When not a GBMData object or GBMDist
@@ -76,7 +76,7 @@ test_that("Strata are NA if distribution is not CoxPH", {
   
   Resp <- Surv(tt, delta)
   data <- gbm_data(data.frame(X1, X2, X3), Resp, w, offset)
-  train_p <- training_params(id=rep(1, N), num_train = 1, num_features = 3)
+  train_p <- training_params(id=c(rep(1, N/2), rep(2, N/2)), num_train = 2, num_features = 3, bag_fraction = 1, min_num_obs_in_node = 0)
   
   # GIVEN Dist Not COXPH
   dist <- gbm_dist("AdaBoost")
@@ -117,7 +117,7 @@ test_that("Creating strata fills strata, time_order and sorted fields - CoxPH", 
   
   Resp <- Surv(tt, delta)
   data <- gbm_data(data.frame(X1, X2, X3), Resp, w, offset)
-  train_p <- training_params(id=c(rep(1, N/2), rep(2, N/2)), num_train = 1, num_features = 3)
+  train_p <- training_params(id=c(rep(1, N/2), rep(2, N/2)), num_train = 2, num_features = 3, bag_fraction = 1, min_num_obs_in_node = 0)
   
   # GIVEN Dist - COXPH
   dist <- gbm_dist("CoxPH")
@@ -162,8 +162,8 @@ test_that("If response is a matrix with more than 3 columns strata cannot be cre
   Resp <- data.frame(tt, delta)
   Resp <- cbind(cbind(Resp, rnorm(N)), rnorm(N))
   data <- gbm_data(data.frame(X1, X2, X3), Resp, w, offset)
-  train_p <- training_params(id=c(rep(1, N/2), rep(2, N/2)), num_train = 1, num_features = 3)
-
+  train_p <- training_params(id=c(rep(1, N/2), rep(2, N/2)), num_train = 2, num_features = 3, bag_fraction = 1, min_num_obs_in_node = 0)
+  
   # Then error thrown when creating strata
   expect_error(create_strata(data, train_p, dist))
 })
@@ -196,7 +196,7 @@ test_that("If strata field in distribution object is NULL, all data are put in s
   
   Resp <- Surv(tt, delta)
   data <- gbm_data(data.frame(X1, X2, X3), Resp, w, offset)
-  train_p <- training_params(id=c(rep(1, N/2), rep(2, N/2)), num_train = 1, num_features = 3)
+  train_p <- training_params(id=c(rep(1, N/2), rep(2, N/2)), num_train = 2, num_features = 3, bag_fraction = 1, min_num_obs_in_node = 0)
   
   # GIVEN Dist - COXPH
   dist <- gbm_dist("CoxPH")
@@ -206,7 +206,7 @@ test_that("If strata field in distribution object is NULL, all data are put in s
   dist <- create_strata(data, train_p, dist)
   
   # Then all examples put in same strata
-  expect_equal(dist$strata[1], N/2)
+  expect_equal(dist$strata[1], N)
 })
 
 test_that("The training responses are sorted according to strata and this order is stored in time_order", {
@@ -237,7 +237,7 @@ test_that("The training responses are sorted according to strata and this order 
   
   Resp <- Surv(tt, delta)
   data <- gbm_data(data.frame(X1, X2, X3), Resp, w, offset)
-  train_p <- training_params(id=c(rep(1, N/2), rep(2, N/2)), num_train = 1, num_features = 3)
+  train_p <- training_params(id=c(rep(1, N/3), rep(2, N/3), rep(3, N/3)), num_train = 2, num_features = 3, bag_fraction = 1, min_num_obs_in_node = 0)
   
   # GIVEN Dist - COXPH
   dist <- gbm_dist("CoxPH")
@@ -246,11 +246,11 @@ test_that("The training responses are sorted according to strata and this order 
   dist <- create_strata(data, train_p, dist)
     
   # Then the training responses are sorted according to strata
-  expect_equal(order(-data$y[seq_len(N/2), 1]), dist$time_order[seq_len(N/2)])
-  expect_equal(order(-data$y[(N/2):N, 1]), dist$time_order[(N/2):N])
+  expect_equal(order(-data$y[seq_len(2*N/3), 1]), dist$time_order[seq_len(2*N/3)])
+  expect_equal(order(-data$y[(2*N/3 + 1):N, 1])+(2*N/3), dist$time_order[(2*N/3 + 1):N])
 })
 
-test_that("Strata are sorted according to observation id if provided and strata is not NULL- CoxPH", {
+test_that("Strata not NULL then observations put in different strata - CoxPH", {
   # Require Surv to be available
   require(survival)
   
@@ -278,17 +278,18 @@ test_that("Strata are sorted according to observation id if provided and strata 
   
   Resp <- Surv(tt, delta)
   data <- gbm_data(data.frame(X1, X2, X3), Resp, w, offset)
-  train_p <- training_params(id=c(rep(1, N/2), rep(2, N/2)), num_train = 1, num_features = 3)
+  train_p <- training_params(id=c(rep(1, N/2), rep(2, N/2)), num_train = 2, num_features = 3, bag_fraction = 1, min_num_obs_in_node = 0)
   
   # GIVEN Dist - COXPH
   dist <- gbm_dist("CoxPH")
-  strata <- sample(1:5, N, replace=TRUE)
+  Num_Strata <- 5
+  strata <- sample(seq_len(Num_Strata), N, replace=TRUE)
   dist$strata <- strata
   
   # When strata are created
   dist <- create_strata(data, train_p, dist)
   
   # Then ordered by id
-  expect_equal(strata[order(train_p$id)], dist$strata)
+  expect_equal(dist$strata[seq_len(Num_Strata)], table(strata))
 })
 

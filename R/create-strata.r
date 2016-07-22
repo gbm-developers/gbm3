@@ -14,16 +14,14 @@
 #' 
 #' @return updated distribution_obj
 #' 
-#' @export
-#' 
 
 create_strata <- function(gbm_data_obj, train_params, distribution_obj) {
   check_if_gbm_dist(distribution_obj)
   check_if_gbm_data(gbm_data_obj)
   
   # Put in defaults
-  distribution_obj$sorted <- NA
-  distribution_obj$strata <- NA
+  if(is.null(distribution_obj$sorted)) distribution_obj$sorted <- NA
+  if(is.null(distribution_obj$strata)) distribution_obj$strata <- NA
   
   if(distribution_obj$name == "CoxPH") {
     num_train_rows <- train_params$num_train_rows
@@ -69,7 +67,11 @@ create_strata <- function(gbm_data_obj, train_params, distribution_obj) {
       # Put all the train and test data in a single stratum
       distribution_obj$strata <- rep(1, nrow(gbm_data_obj$x))
       trainStrat <- c(num_train_rows, rep(NA, num_train_rows-1))
-      testStrat <- c(num_test_rows, rep(NA, max(num_test_rows-1, 0)))
+      if(num_test_rows == 0) {
+        testStrat <- c()
+      } else {
+        testStrat <- c(num_test_rows, rep(NA, num_test_rows-1))
+      }
       nstrat <- c(trainStrat, testStrat)
     }
     
