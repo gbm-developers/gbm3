@@ -67,12 +67,16 @@ gbm_perf <- function(gbm_fit_obj, plot_it=TRUE,
   return(best_iter)  
 }
 
+
+#### Helper functions ####
 best_iter_test <- function(gbm_fit_obj) {
+  check_if_gbm_fit(gbm_fit_obj)
   best_iter_test <- which.min(gbm_fit_obj$valid.error)
   return(best_iter_test)
 }
 
 best_iter_cv <- function(gbm_fit_obj) {
+  check_if_gbm_fit(gbm_fit_obj)
   if(is.null(gbm_fit_obj$cv_error))
     stop("In order to use method=\"cv\" gbm must be called with cv.folds>1.")
     warning("cross-validation error is not computed for any additional iterations run using gbm.more().")
@@ -81,6 +85,7 @@ best_iter_cv <- function(gbm_fit_obj) {
 }
 
 best_iter_out_of_bag <- function(gbm_fit_obj) {
+  check_if_gbm_fit(gbm_fit_obj)
   if(gbm_fit_obj$params$bag_fraction==1)
     stop("Cannot compute OOB estimate or the OOB curve when bag.fraction=1")
   if(all(!is.finite(gbm_fit_obj$oobag.improve)))
@@ -94,6 +99,7 @@ best_iter_out_of_bag <- function(gbm_fit_obj) {
 }
 
 generate_smoother_oobag <- function(gbm_fit_obj) {
+  check_if_gbm_fit(gbm_fit_obj)
   smoother <- NULL
   x <- seq_len(gbm_fit_obj$params$num_trees)
   smoother <- loess(gbm_fit_obj$oobag.improve~x,

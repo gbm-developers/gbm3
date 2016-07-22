@@ -4,31 +4,31 @@
 ##### Check gbm objects #####
 check_if_gbm_dist <- function(distribution_obj) {
   # Check if GBM dist object
-  if(!match(class(distribution_obj)[1], paste0(available_distributions(), "GBMDist"))) {
+  if(!any(class(distribution_obj) %in% paste0(available_distributions(), "GBMDist"))) {
     stop("Function requires a GBMDist object.")
   }
 }
 
 check_if_gbm_data <- function(data_obj) {
-  if(!match(class(data_obj), "GBMData")) {
+  if(!any(class(data_obj) %in% "GBMData")) {
     stop("Function requires a GBMData object.")
   }
 }
 
 check_if_gbm_fit <- function(fit_obj) {
-  if(!match(class(fit_obj), "GBMFit")) {
+  if(!any(class(fit_obj) %in% "GBMFit")) {
     stop("Function requires a GBMFit object.")
   }
 }
 
 check_if_gbm_train_params <- function(params_obj) {
-  if(!match(class(params_obj), "GBMTrainParams")) {
+  if(!any(class(params_obj) %in% "GBMTrainParams")) {
     stop("Function requires a GBMTrainParams object.")
   }
 }
 
 check_if_gbm_var_container <- function(var_obj) {
-  if(!match(class(var_obj), "GBMVarCont")) {
+  if(!any(class(var_obj) %in% "GBMVarCont")) {
     stop("Function requires a GBMVarCont object.")
   }
 }

@@ -19,6 +19,7 @@
 #' 
 #' @return the loss associated with the fit and distribution - vector of doubles
 #' 
+#' @export loss
 
 loss <- function(y, predictions, weights, offset, distribution_obj, baseline=rep(0, length(y))) {
   # Check inputs
@@ -36,9 +37,9 @@ loss <- function(y, predictions, weights, offset, distribution_obj, baseline=rep
     stop("Baseline must consist of doubles")
   }
   
-  if((length(y) != length(predictions)) || (length(predictions) != length(wieghts))
+  if((length(y) != length(predictions)) || (length(predictions) != length(weights))
       || (length(y) != length(baseline))) {
-    stop("Predictions, responses, weightsand baseline all must have the same number
+    stop("Predictions, responses, weights and baseline all must have the same number
          of elements")
   }
   
