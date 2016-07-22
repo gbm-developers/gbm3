@@ -19,7 +19,7 @@
 #' 
 
 predict.GBMCVFit <- function(gbm_cv_fit, gbm_data_obj, cv_folds, cv_group, best_iter_cv) {
-  
+
   # Extract data
   data <- gbm_data_obj$original_data[seq_len(gbm_cv_fit[[1]]$params$num_train), ,drop=FALSE]
   
