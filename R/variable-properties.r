@@ -34,7 +34,7 @@ var_container <- function(gbm_data_obj, var_monotone=NULL, var_names=NULL) {
   }
   
   # Check names and get if necessary
-  if(is.null(var_names)) var_names <- getVarNames(gbm_data_obj$x)
+  if(is.null(var_names)) var_names <- get_var_names(gbm_data_obj$x)
   if(!is.null(var_names) && (!is.atomic(var_names) || any(var_names != as.character(var_names))
      || is.null(var_names)) ){
     stop("Names of data must be a vector of strings.")

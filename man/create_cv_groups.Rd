@@ -24,7 +24,7 @@ applies to "Bernoulli" distribution and defaults to false.}
 each observation is in.}
 }
 \value{
-a list mapping each row of data to a cv fold.
+a vector of numbers mapping each row of data to a cv fold.
 }
 \description{
 Methods that create cv groups for gbm2 fitting.

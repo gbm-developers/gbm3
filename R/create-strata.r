@@ -70,7 +70,7 @@ create_strata <- function(gbm_data_obj, train_params, distribution_obj) {
       if(num_test_rows == 0) {
         testStrat <- c()
       } else {
-        testStrat <- c(num_test_rows, rep(NA, num_test_rows-1))
+        testStrat <- c(num_test_rows, rep(NA, max(num_test_rows-1, 0)))
       }
       nstrat <- c(trainStrat, testStrat)
     }

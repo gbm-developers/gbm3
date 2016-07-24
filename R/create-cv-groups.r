@@ -20,8 +20,10 @@
 #' @param fold_id An optional vector of values identifying what fold
 #' each observation is in.
 #' 
-#' @return a list mapping each row of data to a cv fold.
+#' @return a vector of numbers mapping each row of data to a cv fold.
 #'  
+#'  
+#' @export create_cv_groups create_cv_groups.default create_cv_groups.BernoulliGBMDist
 
 
 create_cv_groups <- function(gbm_data_obj, gbm_dist_obj, train_params, cv_folds,

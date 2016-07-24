@@ -17,7 +17,9 @@
 #'
 #' @param is_verbose if TRUE, will print out progress and performance of the fitting.
 #' 
-#' @return list of input gbm objects with appropriately extracted observations
+#' @return list of input gbm objects updated so cross_validated data is ready for gbm_call
+#' 
+#' @export
 
 extract_obs_in_fold <- function(gbm_data_obj, gbm_dist_obj, train_params, cv_groups, fold_num) {
   # Observations in the training set

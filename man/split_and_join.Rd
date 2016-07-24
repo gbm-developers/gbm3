@@ -16,7 +16,7 @@ split_and_join(gbm_data_obj, train_params, rows_in_training, rows_in_fold)
 \item{rows_in_fold}{vector of logicals indicating whether a row of training data is in the fold or not.}
 }
 \value{
-gbm_data_obj
+gbm_data_obj with validation data moved to end of fields and recalculation of predictor ordering
 }
 \description{
 Methods converts the gbm data and distribution parameters for CV fitting

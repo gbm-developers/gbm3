@@ -1,4 +1,4 @@
-context("fold.id")
+context("fold_id")
 
 test_that("gaussian works in parallel", {
     skip_on_cran()

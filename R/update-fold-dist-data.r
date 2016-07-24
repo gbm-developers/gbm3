@@ -14,10 +14,13 @@
 #' 
 #' @param rows_in_fold vector of logicals indicating whether a row of training data is in the fold or not.
 #' 
-#' @return modified \code{GBMDist} object for CV fit.
+#' @return modified \code{GBMDist} object for CV fit - strata and groupings updated if needed.
+#' 
+#' @export update_fold_dist_data update_fold_dist_data.default update_fold_dist_data.CoxPHGBMDist update_fold_dist_data.PairwiseGBMDist
 
 update_fold_dist_data <- function(gbm_dist_obj, gbm_data_obj, train_params, rows_in_training, rows_in_fold) {
   check_if_gbm_dist(gbm_dist_obj)
+  check_if_gbm_data(gbm_data_obj)
   check_if_gbm_train_params(train_params)
   if(!is.atomic(rows_in_fold) || any(!is.logical(rows_in_fold)) ||
      (length(rows_in_fold[rows_in_fold == FALSE]) != train_params$num_train)) {
@@ -26,12 +29,10 @@ update_fold_dist_data <- function(gbm_dist_obj, gbm_data_obj, train_params, rows
   UseMethod("update_fold_dist_data", gbm_dist_obj)
 }
 
-update_fold_dist_data.AdaBoostGBMDist <- function(gbm_dist_obj, gbm_data_obj, train_params, rows_in_training, rows_in_fold) {
+update_fold_dist_data.default <- function(gbm_dist_obj, gbm_data_obj, train_params, rows_in_training, rows_in_fold) {
   return(gbm_dist_obj)
 }
-update_fold_dist_data.BernoulliGBMDist <- function(gbm_dist_obj, gbm_data_obj, train_params, rows_in_training, rows_in_fold) {
-  return(gbm_dist_obj)
-}
+
 update_fold_dist_data.CoxPHGBMDist <- function(gbm_dist_obj, gbm_data_obj, train_params, rows_in_training, rows_in_fold) {
   # Reset strata using folds
   gbm_dist_obj$strata <- NULL
@@ -40,32 +41,9 @@ update_fold_dist_data.CoxPHGBMDist <- function(gbm_dist_obj, gbm_data_obj, train
   gbm_dist_obj <- create_strata(gbm_data_obj, train_params, gbm_dist_obj)
   return(gbm_dist_obj)
 }
-update_fold_dist_data.GammaGBMDist <- function(gbm_dist_obj, gbm_data_obj, train_params, rows_in_training, rows_in_fold) {
-  return(gbm_dist_obj)
-}
-update_fold_dist_data.GaussianGBMDist <- function(gbm_dist_obj, gbm_data_obj, train_params, rows_in_training, rows_in_fold) {
-  return(gbm_dist_obj)
-}
-update_fold_dist_data.HuberizedGBMDist <- function(gbm_dist_obj, gbm_data_obj, train_params, rows_in_training, rows_in_fold) {
-  return(gbm_dist_obj)
-}
-update_fold_dist_data.LaplaceGBMDist <- function(gbm_dist_obj, gbm_data_obj, train_params, rows_in_training, rows_in_fold) {
-  return(gbm_dist_obj)
-}
+
 update_fold_dist_data.PairwiseGBMDist <- function(gbm_dist_obj, gbm_data_obj, train_params, rows_in_training, rows_in_fold) {
   gbm_dist_obj$group <- c(gbm_dist_obj$group[rows_in_training][!rows_in_fold],
                           gbm_dist_obj$group[rows_in_training][rows_in_fold])
-  return(gbm_dist_obj)
-}
-update_fold_dist_data.PoissonGBMDist <- function(gbm_dist_obj, gbm_data_obj, train_params, rows_in_training, rows_in_fold) {
-  return(gbm_dist_obj)
-}
-update_fold_dist_data.QuantileGBMDist <- function(gbm_dist_obj, gbm_data_obj, train_params, rows_in_training, rows_in_fold) {
-  return(gbm_dist_obj)
-}
-update_fold_dist_data.TDistGBMDist <- function(gbm_dist_obj, gbm_data_obj, train_params, rows_in_training, rows_in_fold) {
-  return(gbm_dist_obj)
-}
-update_fold_dist_data.TweedieGBMDist <- function(gbm_dist_obj, gbm_data_obj, train_params, rows_in_training, rows_in_fold) {
   return(gbm_dist_obj)
 }

@@ -24,10 +24,10 @@ verify_data <- function(x, y) {
   }
   
   # Check same length
-  checkSanity(x, y)
+  check_sanity(x, y)
   
   # Check variables are either numeric, ordered or factor
-  checkVarType(x, y)
+  check_var_type(x, y)
   
   # Check missing values are of correct form
   checkMissing(x, y)

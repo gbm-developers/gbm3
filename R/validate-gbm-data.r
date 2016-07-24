@@ -28,7 +28,7 @@ validate_gbm_data <- function(gbm_data_obj, distribution_obj) {
   } 
   
   # Check offset
-  gbm_data_obj$offset <- checkOffset(gbm_data_obj$offset, gbm_data_obj$y, distribution_obj)
+  gbm_data_obj$offset <- check_offset(gbm_data_obj$offset, gbm_data_obj$y, distribution_obj)
   
   # Check responses
   check_response_values(distribution_obj, gbm_data_obj$y)

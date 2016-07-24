@@ -44,7 +44,7 @@ training_params <- function(num_trees=100, interaction_depth=1,
   check_if_natural_number(min_num_obs_in_node, "minimum number of node obs")
   check_if_natural_number(num_train, "number of training observations")
   check_if_natural_number(num_features, "number of features")
-  checkID(interaction_depth)
+  check_interaction_depth(interaction_depth)
   
   if(!is.atomic(id) || !all(id == as.integer(id))) {
     stop("Observation ids must be a vector of integers")

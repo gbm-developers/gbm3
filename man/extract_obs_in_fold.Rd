@@ -21,7 +21,7 @@ trained.}
 \item{is_verbose}{if TRUE, will print out progress and performance of the fitting.}
 }
 \value{
-list of input gbm objects with appropriately extracted observations
+list of input gbm objects updated so cross_validated data is ready for gbm_call
 }
 \description{
 Extract the relevant observations to fit a CV fold - reorders appropriately.

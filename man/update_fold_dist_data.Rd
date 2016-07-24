@@ -18,7 +18,7 @@ update_fold_dist_data(gbm_dist_obj, gbm_data_obj, train_params, rows_in_training
 \item{rows_in_fold}{vector of logicals indicating whether a row of training data is in the fold or not.}
 }
 \value{
-modified \code{GBMDist} object for CV fit.
+modified \code{GBMDist} object for CV fit - strata and groupings updated if needed.
 }
 \description{
 Modify distribution object data for CV gbm fit.

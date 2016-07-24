@@ -12,7 +12,9 @@
 #' 
 #' @param rows_in_fold vector of logicals indicating whether a row of training data is in the fold or not.
 #' 
-#' @return gbm_data_obj 
+#' @return gbm_data_obj with validation data moved to end of fields and recalculation of predictor ordering
+#' 
+#' @export
 
 split_and_join <- function(gbm_data_obj, train_params, rows_in_training, rows_in_fold) {
   require("survival")
@@ -20,6 +22,9 @@ split_and_join <- function(gbm_data_obj, train_params, rows_in_training, rows_in
   # Initial checks
   check_if_gbm_data(gbm_data_obj)
   check_if_gbm_train_params(train_params)
+  if(!is.atomic(rows_in_training) || any(!is.logical(rows_in_training))) {
+    stop("rows_in_training must be a vector of logicals")
+  }
   if(!is.atomic(rows_in_fold) || any(!is.logical(rows_in_fold)) ||
      (length(rows_in_fold[rows_in_fold==FALSE]) != train_params$num_train)) {
     stop("rows_in_fold must be a vector of logicals of length the number of training rows")
@@ -55,8 +60,6 @@ split_and_join <- function(gbm_data_obj, train_params, rows_in_training, rows_in
   gbm_data_obj$offset <- c(gbm_data_obj_train$offset, offset_valid)
   gbm_data_obj$weights <- c(gbm_data_obj_train$weights, weights_valid)
   gbm_data_obj$x_order <- as.matrix(gbm_data_obj_train$x_order)
-  
-  
   
   return(gbm_data_obj)
 }

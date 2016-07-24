@@ -24,7 +24,7 @@ gbm_data <- function(x, y, weights, offset) {
     y <- convertY(y)
   
     # Check weights and offsets are doubles  
-    weights <- checkWeights(weights, length(y))
+    weights <- check_weights(weights, length(y))
     if(is.null(weights) || is.infinite(weights) || !is.atomic(weights)
        || !is.double(weights)) {
       stop("Weights must be a vector of doubles")

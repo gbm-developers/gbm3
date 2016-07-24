@@ -1,5 +1,5 @@
 # Series of internal functions used 
-# to check inputs
+# to check inputs and convert parameters
 
 ##### Check gbm objects #####
 check_if_gbm_dist <- function(distribution_obj) {
@@ -35,7 +35,7 @@ check_if_gbm_var_container <- function(var_obj) {
 
 #### Check function inputs ####
 check_cv_parameters <- function(cv_folds, cv_class_stratify, fold_id, train_params) {
-  check_if_natural_number(cv_folds)
+  check_if_natural_number(cv_folds, "cv_folds")
   if(!is.logical(cv_class_stratify)) stop("cv_class_stratify must be a logical")
   check_if_gbm_train_params(train_params)
 
@@ -49,26 +49,17 @@ check_cv_parameters <- function(cv_folds, cv_class_stratify, fold_id, train_para
   }
 }
 
-check_id <- function(params_obj, data_obj) {
-  check_if_gbm_params(params_obj)
-  check_if_gbm_data(data_obj)
-  if(length(params_obj$id) < length(data_obj$y))
-    stop("Number of unique observation ids is less than the amount of data")
-}
-
 check_if_natural_number <- function(value, name) {
   # value - the value of the parameter to check 
-  # name - string specifying the name of the value to appear in
-  #        error message
   if(is.null(value) || is.infinite(value) 
      || !(abs(value - round(value)) < .Machine$double.eps^0.5) ||
      (value < 0) || (length(value) > 1)) {
-    stop("The ", name, " must be a positive whole number")
+    stop("The parameter  ", name,  "must be a positive whole number")
   }
 }
 
 checkMissing <- function(x, y){
-   nms <- getVarNames(x)
+   nms <- get_var_names(x)
    #### Check for NaNs in x and NAs in response
    j <- apply(x, 2, function(z) any(is.nan(z)))
    if(any(j)) {
@@ -89,18 +80,18 @@ checkMissing <- function(x, y){
    invisible(NULL)
  }
 
-checkID <- function(id){
+check_interaction_depth <- function(id){
    # Check for disallowed interaction.depth
    if(id < 1) {
-      stop("interaction.depth must be at least 1.")
+      stop("interaction_depth must be at least 1.")
    }
    else if(id > 49) {
-      stop("interaction.depth must be less than 50. You should also ask yourself why you want such large interaction terms. A value between 1 and 5 should be sufficient for most applications.")
+      stop("interaction_depth must be less than 50. You should also ask yourself why you want such large interaction terms. A value between 1 and 5 should be sufficient for most applications.")
    }
    invisible(id)
 }
 
-checkWeights <- function(w, n){
+check_weights <- function(w, n){
    # Logical checks on weights
    if(length(w)==0) { w <- rep(1, n) }
    else if(any(w != as.double(w))) {stop("weights must be doubles")}
@@ -108,11 +99,11 @@ checkWeights <- function(w, n){
    w
 }
 
-checkOffset <- function(o, y, dist){
+check_offset <- function(o, y, dist){
    # Check offset
   if(is.null(o))
       o <- rep(0,length(y))
-   else if((length(o) != length(y)) & dist$name != "CoxPH")
+   else if((length(o) != length(y)) && (dist$name != "CoxPH"))
       stop("The length of offset does not equal the length of y.")
    else if(!is.numeric(o))
      stop("offset must be numeric")
@@ -122,27 +113,23 @@ checkOffset <- function(o, y, dist){
    o
 }
 
-getVarNames <- function(x){
+get_var_names <- function(x){
   if(is.matrix(x)) { var.names <- colnames(x) }
   else if(is.data.frame(x)) { var.names <- names(x) }
   else { var.names <- paste("X", 1:ncol(x),sep="") }
   var.names
 }
 
-checkSanity <- function(x, y){
-  
-  nms <- getVarNames(x)
-  
+check_sanity <- function(x, y){
   # x and y are not the same length
   if(nrow(x) != ifelse(!is.null(dim(y)), nrow(y), length(y))) {
     stop("The number of rows in x does not equal the length of y.")
   }
-  
 }
 
-checkVarType <- function(x, y){
+check_var_type <- function(x, y){
   
-  nms <- getVarNames(x)
+  nms <- get_var_names(x)
   
   # Excessive Factors
   Factors <- vapply(x, is.factor, TRUE)
