@@ -48,7 +48,7 @@
 #' @references J.H. Friedman (2001). "Greedy Function Approximation: A Gradient
 #' Boosting Machine," Annals of Statistics 29(4).
 #' @keywords hplot
-#' @export
+#' @export plot.GBMFit
 plot.GBMFit <- function(gbm_fit_obj,
                         var_index=1,
                         n.trees=gbm_fit_obj$params$num_trees,
@@ -90,45 +90,15 @@ plot.GBMFit <- function(gbm_fit_obj,
   
   # generate grid to evaluate gbm model
   if (is.null(grid_levels)) {
-    grid_levels <- vector("list",length(var_index))
-    for(i in seq_len(length(var_index))) {
-      # continuous
-      if(is.numeric(gbm_fit_obj$variables$var_levels[[var_index[i]]])) {
-        grid_levels[[i]] <- seq(min(gbm_fit_obj$variables$var_levels[[var_index[i]]]),
-                                max(gbm_fit_obj$variables$var_levels[[var_index[i]]]),
-                                length=continuous_resolution)
-      }
-      # categorical or ordered
-      else {
-        grid_levels[[i]] <- as.numeric(factor(gbm_fit_obj$variables$var_levels[[var_index[i]]],
-                                              levels=gbm_fit_obj$variables$var_levels[[var_index[i]]]))-1
-      }
-    }
+   grid_levels <- generate_grid_levels(gbm_fit_obj, var_index, continuous_resolution)
   } else {
-    # allow grid.levels to not be a list when there is only one predictor
-    if (length(var_index) == 1 & !is.list(grid_levels)) {
-      grid_levels <- list(grid_levels)
-    }
-    # check compatibility in length, at least
-    if (length(grid_levels) != length(var_index)) {
-      stop("Need grid_levels for all variables in var_index")
-    }
-    # convert levels for categorical predictors into numbers
-    for(i in seq_len(length(var_index))) {
-      if(!is.numeric(gbm_fit_obj$variables$var_levels[[var_index[i]]])) {
-        grid_levels[[i]] <- as.numeric(grid_levels[[i]]) - 1
-      }
-    }
+    grid_levels <- get_default_grid_levels(gbm_fit_obj, var_index)
   }
   
+  # Expand the grid of variables
   X <- expand.grid(grid_levels)
   names(X) <- paste("X", seq_len(length(var_index)),sep="")
-  
-  # Next if block for compatibility with objects created with 1.6
-  if (is.null(gbm_fit_obj$num.classes)){
-    gbm_fit_obj$num.classes <- 1
-  }
-  
+
   # evaluate at each data point
   y <- .Call("gbm_plot",
              X = data.matrix(X),
@@ -140,22 +110,14 @@ plot.GBMFit <- function(gbm_fit_obj,
              var.type = as.integer(gbm_fit_obj$variables$var_type),
              PACKAGE = "gbm")
   
-  if(is.element(gbm_fit_obj$distribution$name, c("bernoulli", "pairwise")) && type=="response") {
-    X$y <- 1/(1+exp(-y))
-  } else if ((gbm_fit_obj$distribution$name=="poisson") && (type=="response")){
-    X$y <- exp(y)
-  } else if ((gbm_fit_obj$distribution$name=="gamma") && (type=="response")){
-    X$y <- exp(y)
-  } else if ((gbm_fit_obj$distribution$name=="tweedie") && (type=="response")){
-    X$y <- exp(y)
-  } else if (type=="response"){
-    warning("type 'response' only implemented for 'bernoulli', 'poisson', 'gamma', 'tweedie', and 'pairwise'. Ignoring" )
+  if(type=="response") {
+   X$y <- response()
   } else { 
     X$y <- y 
   }
   
   # transform categorical variables back to factors
-  f.factor <- rep(FALSE,length(var_index))
+  f.factor <- rep(FALSE, length(var_index))
   for(i in seq_len(length(var_index))) {
     if(!is.numeric(gbm_fit_obj$variables$var_levels[[var_index[i]]])) {
       X[,i] <- factor(gbm_fit_obj$variables$var_levels[[var_index[i]]][X[,i]+1],
@@ -164,6 +126,7 @@ plot.GBMFit <- function(gbm_fit_obj,
     }
   }
   
+  # Stop if grid is returned
   if(return_grid) {
     names(X)[seq_len(length(var_index))] <- gbm_fit_obj$variables$var_names[var_index]
     return(X)
@@ -171,124 +134,92 @@ plot.GBMFit <- function(gbm_fit_obj,
   
   # create the plots
   if(length(var_index)==1) {
-    if(!f.factor) {
-      j <- order(X$X1)
-      
-      if (is.element(gbm_fit_obj$distribution$name, c("bernoulli", "pairwise"))) {
-        if ( type == "response" ){
-          ylabel <- "Predicted probability"
-        } else {
-          ylabel <- paste("f(", gbm_fit_obj$variables$var_names[var_index],")",sep="")
-        }
-        plot( X$X1, X$y , type = "l", xlab = gbm_fit_obj$variables$var_names[var_index], ylab=ylabel )
-      } else if ( gbm_fit_obj$distribution$name == "poisson" ) {
-        if (type == "response" ) {
-          ylabel <- "Predicted count"
-        } else {
-          ylabel <- paste("f(",gbm_fit_obj$variables$var_names[var_index],")",sep="")
-        }
-        plot( X$X1, X$y , type = "l", xlab = gbm_fit_obj$variables$var_names[var_index], ylab=ylabel )
-      } else {
-        plot(X$X1,X$y,
-             type="l",
-             xlab=gbm_fit_obj$variables$var_names[var_index],
-             ylab=paste("f(", gbm_fit_obj$variables$var_names[var_index],")",sep=""),...)
-      }
-    } else {
-      if (is.element(gbm_fit_obj$distribution$name, c("bernoulli", "pairwise")) && type == "response" ){
-        ylabel <- "Predicted probability"
-        plot( X$X1, X$y, type = "l", xlab=gbm_fit_obj$variables$var_names[var_index], ylab=ylabel )
-      }
-      else if ( gbm_fit_obj$distribution$name == "poisson" & type == "response" ){
-        ylabel <- "Predicted count"
-        plot( X$X1, X$y, type = "l", xlab=gbm_fit_obj$variables$var_names[var_index], ylab=ylabel )
-      }
-      else {
-        plot(X$X1,X$y,
-             type="l",
-             xlab=gbm_fit_obj$variables$var_names[var_index],
-             ylab=paste("f(", gbm_fit_obj$variables$var_names[var_index],")",sep=""),...)
-      }
+      ylabel <- paste("f(", gbm_fit_obj$variables$var_names[var_index],")",sep="")
+      if(type=="response") ylabel <- get_ylabel_one_var(gbm_fit_obj$distribution)
+      plot(X$X1,X$y,
+          type="l",
+          xlab=gbm_fit_obj$variables$var_names[var_index],
+          ylab=ylabel, ...)
+ 
+  } else if(length(var_index)==2) {
+    select_two_var_plot(f.factor, X, gbm_fit_obj, var_index, ...)
+  } else if(length(var_index)==3) {
+    select_three_var_plot(f.factor, X, gbm_fit_obj, var_index, ...)
+  }
+}
+
+
+##### Helper Functions #####
+generate_grid_levels <- function(gbm_fit_obj, var_index, continuous_resolution) {
+  # Vector of lists is output
+  grid_levels <- vector("list",length(var_index))
+  
+  # Loop over variables and get levels
+  for(i in seq_len(length(var_index))) {
+    # continuous
+    if(is.numeric(gbm_fit_obj$variables$var_levels[[var_index[i]]])) {
+      grid_levels[[i]] <- seq(min(gbm_fit_obj$variables$var_levels[[var_index[i]]]),
+                              max(gbm_fit_obj$variables$var_levels[[var_index[i]]]),
+                              length=continuous_resolution)
+    }
+    # categorical or ordered - convert to appropriate numerics
+    else {
+      grid_levels[[i]] <- as.numeric(factor(gbm_fit_obj$variables$var_levels[[var_index[i]]],
+                                            levels=gbm_fit_obj$variables$var_levels[[var_index[i]]]))-1
     }
   }
-  else if(length(var_index)==2)
-  {
-    if(!f.factor[1] && !f.factor[2])
-    {
-      print(levelplot(y~X1*X2,data=X,
-                      xlab=gbm_fit_obj$variables$var_names[var_index[1]],
-                      ylab=gbm_fit_obj$variables$var.names[var_index[2]],...))
-      
-    }
-    else if(f.factor[1] && !f.factor[2])
-    {
-      print(xyplot(y~X2|X1,data=X,
-                   xlab=gbm_fit_obj$variables$var_names[var_index[2]],
-                   ylab=paste("f(", gbm_fit_obj$variables$var_names[var_index[1]],",", gbm_fit_obj$variables$var_names[var_index[2]],")",sep=""),
-                   type="l",
-                   panel = panel.xyplot,
-                   ...))
-    }
-    else if(!f.factor[1] && f.factor[2])
-    {
-      print(xyplot(y~X1|X2,data=X,
-                   xlab=gbm_fit_obj$variables$var_names[var_index[1]],
-                   ylab=paste("f(",gbm_fit_obj$variables$var_names[var_index[1]],",",gbm_fit_obj$variables$var_names[var_index[2]],")",sep=""),
-                   type="l",
-                   panel = panel.xyplot,
-                   ...))
-    }
-    else
-    {
-      print(stripplot(X1~y|X2,data=X,
-                      xlab=gbm_fit_obj$variables$var_names[var[2]],
-                      ylab=paste("f(",gbm_fit_obj$variables$var_names[var_index[1]],",",gbm_fit_obj$variables$var_names[var_index[2]],")",sep=""),
-                      ...))
-      
+  
+  return(grid_levels)
+}
+
+get_default_grid_levels <- function(gbm_fit_obj, var_index) {
+  
+  # Return object
+  grid_levels <- NULL
+  
+  # allow grid.levels to not be a list when there is only one predictor
+  if (length(var_index) == 1 & !is.list(grid_levels)) {
+    grid_levels <- list(grid_levels)
+  }
+  # check compatibility in length, at least
+  if (length(grid_levels) != length(var_index)) {
+    stop("Need grid_levels for all variables in var_index")
+  }
+  # convert levels for categorical predictors into numbers
+  for(i in seq_len(length(var_index))) {
+    if(!is.numeric(gbm_fit_obj$variables$var_levels[[var_index[i]]])) {
+      grid_levels[[i]] <- as.numeric(grid_levels[[i]]) - 1
     }
   }
-  else if(length(var_index)==3)
-  {
-    i <- order(f.factor)
-    X.new <- X[,i]
-    X.new$y <- X$y
-    names(X.new) <- names(X)
-    
-    # 0 factor, 3 continuous
-    if(sum(f.factor)==0)
-    {
-      X.new$X3 <- equal.count(X.new$X3)
-      print(levelplot(y~X1*X2|X3,data=X.new,
-                      xlab=gbm_fit_obj$variables$var_names[var_index[i[1]]],
-                      ylab=gbm_fit_obj$variables$var_names[var_index[i[2]]],...))
-      
-    }
-    # 1 factor, 2 continuous
-    else if(sum(f.factor)==1)
-    {
-      print(levelplot(y~X1*X2|X3,data=X.new,
-                      xlab=gbm_fit_obj$variables$var_names[var_index[i[1]]],
-                      ylab=gbm_fit_obj$variables$var_names[var_index[i[2]]],...))
-      
-    }
-    # 2 factors, 1 continuous
-    else if(sum(f.factor)==2)
-    {
-      print(xyplot(y~X1|X2*X3,data=X.new,
-                   type="l",
-                   xlab=gbm_fit_obj$variables$var_names[var_index[i[1]]],
-                   ylab=paste("f(",paste(gbm_fit_obj$variables$var_names[var_index[1:3]],collapse=","),")",sep=""),
-                   panel = panel.xyplot,
-                   ...))
-    }
-    # 3 factors, 0 continuous
-    else if(sum(f.factor)==3)
-    {
-      print(stripplot(X1~y|X2*X3,data=X.new,
-                      xlab=gbm_fit_obj$variables$var_names[var_index[i[1]]],
-                      ylab=paste("f(",paste(gbm_fit_obj$variables$var_names[var_index[1:3]],collapse=","),")",sep=""),
-                      ...))
-      
-    }
-  }
+  
+  return(grid_levels)
+}
+
+response <- function(resp, gbm_fit_obj) {
+  UseMethod("response", gbm_fit_obj$distribution)
+}
+
+response.default <- function(resp, gbm_fit_obj) {
+  warning("type 'response' only implemented for 'Bernoulli', 'Poisson', 'Gamma', 'Tweedie', and 'Pairwise'. Ignoring" )
+  return(NULL)
+}
+
+response.BernoulliGBMDist <- function(resp, gbm_fit_obj) {
+  return(1/(1+exp(-resp)))
+}
+
+response.GammaGBMDist <- function(resp, gbm_fit_obj) {
+  return(exp(resp))
+}
+
+response.PairwiseGBMDist <- function(resp, gbm_fit_obj) {
+  return(1/(1+exp(-resp)))
+}
+
+response.PoissonGBMDist <- function(resp, gbm_fit_obj) {
+  return(exp(resp))
+}
+
+response.TweedieGBMDist <- function(resp, gbm_fit_obj) {
+  return(exp(resp))
 }
