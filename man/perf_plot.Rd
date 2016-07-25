@@ -13,7 +13,7 @@ perf_plot(gbm_fit_obj, best_iter, out_of_bag_curve, overlay, method, main)
 \item{best_iter}{iteration specifying the optimum number of iterations. This is determined in
 \code{\link{gbm_perf}}.}
 
-\item{out_of_bag_curve}{indicates whether to plot the out-of-bag performance
+\item{out_of_bag_curve}{logical indicating whether to plot the out-of-bag performance
 measures in a second plot.}
 
 \item{overlay}{if TRUE and out_of_bag_curve=TRUE then a right y-axis is added to

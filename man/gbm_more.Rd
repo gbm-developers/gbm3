@@ -14,7 +14,8 @@ model on which to perform additional boosting}
 of \code{100}.}
 
 \item{data}{a \code{data.frame} or \code{matrix} containing the new values for the predictor and response variables for the 
-additional iterations.  The names of the variables must match those appearing in the original fit and this value defaults to \code{NULL}.
+additional iterations.  The names of the variables must match those appearing in the original fit (as well as the number of rows),
+and this value defaults to \code{NULL}.
 With a value of \code{NULL} the original data may be used for the additional boosting, if no original or new data is specified an error
 will be thrown.}
 

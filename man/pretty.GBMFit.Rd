@@ -4,14 +4,14 @@
 \alias{pretty.GBMFit}
 \title{Print gbm tree components}
 \usage{
-\method{pretty}{GBMFit}(object, tree_index = 1)
+\method{pretty}{GBMFit}(gbm_fit_obj, tree_index = 1)
 }
 \arguments{
-\item{tree_index}{the index of the tree component to extract from \code{gbm_fit_obj}
-and display.}
-
 \item{gbm_fit_obj}{a \code{GBMFit} object initially fit using
 \code{\link{gbm2}}.}
+
+\item{tree_index}{the index of the tree component to extract from \code{gbm_fit_obj}
+and display.}
 }
 \value{
 \code{pretty.GBMFit} returns a data frame. Each row corresponds to

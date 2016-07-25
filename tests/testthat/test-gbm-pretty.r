@@ -189,14 +189,14 @@ test_that("default prettified tree is the first one", {
   fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   
-  # When calling pretty on the object and the tree_index 
-  pretty_tree <- pretty(fit, tree_index)
-  tree <- data.frame(fit$trees[[tree_index]])
+  # When calling pretty on the object and with 
+  pretty_tree <- pretty(fit)
+  tree <- data.frame(fit$trees[[1]])
   names(tree) <- c("SplitVar","SplitCodePred","LeftNode",
                    "RightNode","MissingNode","ErrorReduction",
                    "Weight","Prediction")
   row.names(tree) <- 0:(nrow(tree)-1)
   
-  # Then correctly prettifies tree
+  # Then correctly prettifies the first trees
   expect_equal(pretty_tree, tree)
 })
