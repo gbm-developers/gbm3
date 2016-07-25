@@ -55,7 +55,7 @@ predict.GBMFit <- function(gbm_fit_obj, new_data, num_trees,
     stop("Number of trees to be used in prediction must be provided.")
   }
   
-  if (length(num_trees) == 0){
+  if (length(num_trees) == 0) {
     stop("num_trees cannot be NULL or a vector of zero length")
   }
   
@@ -73,8 +73,7 @@ predict.GBMFit <- function(gbm_fit_obj, new_data, num_trees,
     x <- model.frame(terms(reformulate(gbm_fit_obj$variables$var_names)),
                      new_data,
                      na.action=na.pass)
-  }
-  else {
+  } else {
     x <- new_data
   }
   

@@ -64,32 +64,26 @@ plot.GBMFit <- function(gbm_fit_obj,
     stop( "type must be either 'link' or 'response'")
   }
   
-  if(all(is.character(var_index)))
-  {
+  if(all(is.character(var_index))) {
     i <- match(var_index, gbm_fit_obj$variables$var_names)
-    if(any(is.na(i)))
-    {
+    if(any(is.na(i))) {
       stop("Plot variables not used in gbm model fit: ",i.var[is.na(i)])
-    } else
-    {
+    } else {
       var_index <- i
     }
   }
   
-  if((min(var_index)<1) || (max(var_index) > length(gbm_fit_obj$variables$var.names)))
-  {
+  if((min(var_index)<1) || (max(var_index) > length(gbm_fit_obj$variables$var.names))) {
     warning("var_index must be between 1 and ", length(gbm_fit_obj$variables$var.names))
   }
-  if(num_trees > gbm_fit_obj$variables$n.trees)
-  {
+  if(num_trees > gbm_fit_obj$variables$n.trees) {
     warning(paste("num_trees exceeds the number of trees in the model, ", 
                   gbm_fit_obj$variables$num_trees,
                   ". Plotting using ", gbm_fit_obj$variables$n.trees," trees.",sep=""))
     num_trees <- gbm_fit_obj$variables$num_trees
   }
   
-  if(length(var_index) > 3)
-  {
+  if(length(var_index) > 3) {
     warning("gbm.int.plot creates up to 3-way interaction plots.\nplot.gbm will only return the plotting data structure.")
     return_grid = TRUE
   }
@@ -97,25 +91,20 @@ plot.GBMFit <- function(gbm_fit_obj,
   # generate grid to evaluate gbm model
   if (is.null(grid_levels)) {
     grid_levels <- vector("list",length(var_index))
-    for(i in seq_len(length(var_index)))
-    {
+    for(i in seq_len(length(var_index))) {
       # continuous
-      if(is.numeric(gbm_fit_obj$variables$var_levels[[var_index[i]]]))
-      {
+      if(is.numeric(gbm_fit_obj$variables$var_levels[[var_index[i]]])) {
         grid_levels[[i]] <- seq(min(gbm_fit_obj$variables$var_levels[[var_index[i]]]),
                                 max(gbm_fit_obj$variables$var_levels[[var_index[i]]]),
                                 length=continuous_resolution)
       }
       # categorical or ordered
-      else
-      {
+      else {
         grid_levels[[i]] <- as.numeric(factor(gbm_fit_obj$variables$var_levels[[var_index[i]]],
                                               levels=gbm_fit_obj$variables$var_levels[[var_index[i]]]))-1
       }
     }
-  }
-  else
-  {
+  } else {
     # allow grid.levels to not be a list when there is only one predictor
     if (length(var_index) == 1 & !is.list(grid_levels)) {
       grid_levels <- list(grid_levels)
@@ -126,8 +115,7 @@ plot.GBMFit <- function(gbm_fit_obj,
     }
     # convert levels for categorical predictors into numbers
     for(i in seq_len(length(var_index))) {
-      if(!is.numeric(gbm_fit_obj$variables$var_levels[[var_index[i]]]))
-      {
+      if(!is.numeric(gbm_fit_obj$variables$var_levels[[var_index[i]]])) {
         grid_levels[[i]] <- as.numeric(grid_levels[[i]]) - 1
       }
     }
@@ -154,73 +142,59 @@ plot.GBMFit <- function(gbm_fit_obj,
   
   if(is.element(gbm_fit_obj$distribution$name, c("bernoulli", "pairwise")) && type=="response") {
     X$y <- 1/(1+exp(-y))
-  }
-  else if ((gbm_fit_obj$distribution$name=="poisson") && (type=="response")){
+  } else if ((gbm_fit_obj$distribution$name=="poisson") && (type=="response")){
     X$y <- exp(y)
-  }
-  else if ((gbm_fit_obj$distribution$name=="gamma") && (type=="response")){
+  } else if ((gbm_fit_obj$distribution$name=="gamma") && (type=="response")){
     X$y <- exp(y)
-  }
-  else if ((gbm_fit_obj$distribution$name=="tweedie") && (type=="response")){
+  } else if ((gbm_fit_obj$distribution$name=="tweedie") && (type=="response")){
     X$y <- exp(y)
-  }
-  else if (type=="response"){
+  } else if (type=="response"){
     warning("type 'response' only implemented for 'bernoulli', 'poisson', 'gamma', 'tweedie', and 'pairwise'. Ignoring" )
+  } else { 
+    X$y <- y 
   }
-  else { X$y <- y }
   
   # transform categorical variables back to factors
   f.factor <- rep(FALSE,length(var_index))
-  for(i in seq_len(length(var_index)))
-  {
-    if(!is.numeric(gbm_fit_obj$variables$var_levels[[var_index[i]]]))
-    {
+  for(i in seq_len(length(var_index))) {
+    if(!is.numeric(gbm_fit_obj$variables$var_levels[[var_index[i]]])) {
       X[,i] <- factor(gbm_fit_obj$variables$var_levels[[var_index[i]]][X[,i]+1],
                       levels=gbm_fit_obj$variables$var_levels[[var_index[i]]])
       f.factor[i] <- TRUE
     }
   }
   
-  if(return_grid)
-  {
+  if(return_grid) {
     names(X)[seq_len(length(var_index))] <- gbm_fit_obj$variables$var_names[var_index]
     return(X)
   }
   
   # create the plots
-  if(length(var_index)==1)
-  {
-    if(!f.factor)
-    {
+  if(length(var_index)==1) {
+    if(!f.factor) {
       j <- order(X$X1)
       
       if (is.element(gbm_fit_obj$distribution$name, c("bernoulli", "pairwise"))) {
         if ( type == "response" ){
           ylabel <- "Predicted probability"
-        }
-        else {
+        } else {
           ylabel <- paste("f(", gbm_fit_obj$variables$var_names[var_index],")",sep="")
         }
         plot( X$X1, X$y , type = "l", xlab = gbm_fit_obj$variables$var_names[var_index], ylab=ylabel )
-      }
-      else if ( gbm_fit_obj$distribution$name == "poisson" ){
-        if (type == "response" ){
+      } else if ( gbm_fit_obj$distribution$name == "poisson" ) {
+        if (type == "response" ) {
           ylabel <- "Predicted count"
-        }
-        else{
+        } else {
           ylabel <- paste("f(",gbm_fit_obj$variables$var_names[var_index],")",sep="")
         }
         plot( X$X1, X$y , type = "l", xlab = gbm_fit_obj$variables$var_names[var_index], ylab=ylabel )
-      }
-      else {
+      } else {
         plot(X$X1,X$y,
              type="l",
              xlab=gbm_fit_obj$variables$var_names[var_index],
              ylab=paste("f(", gbm_fit_obj$variables$var_names[var_index],")",sep=""),...)
       }
-    }
-    else
-    {
+    } else {
       if (is.element(gbm_fit_obj$distribution$name, c("bernoulli", "pairwise")) && type == "response" ){
         ylabel <- "Predicted probability"
         plot( X$X1, X$y, type = "l", xlab=gbm_fit_obj$variables$var_names[var_index], ylab=ylabel )

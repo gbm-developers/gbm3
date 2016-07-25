@@ -51,7 +51,8 @@ check_cv_parameters <- function(cv_folds, cv_class_stratify, fold_id, train_para
 
 check_if_natural_number <- function(value, name) {
   # value - the value of the parameter to check 
-  if(is.null(value) || is.infinite(value) 
+  if(is.null(value) || is.infinite(value)  || is.logical(value)
+     || !is.double(value)
      || !(abs(value - round(value)) < .Machine$double.eps^0.5) ||
      (value < 0) || (length(value) > 1)) {
     stop("The parameter  ", name,  "must be a positive whole number")

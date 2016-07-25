@@ -51,11 +51,8 @@ gbm_perf <- function(gbm_fit_obj, plot_it=TRUE,
   if(!is.element(method,c("OOB","test","cv")))
     stop("method must be cv, test, or OOB")
   
-  if(!is.logical(plot_it) || (length(plot_it)) > 1)
-    stop("plot_it must be a logical")
-  
-  if(!is.logical(plot_it) || (length(plot_it)) > 1)
-    stop("plot_it must be a logical")
+  if(!is.logical(plot_it) || (length(plot_it)) > 1 || is.na(plot_it))
+    stop("plot_it must be a logical - excluding NA")
   
   best_iter <- switch(method,
                       OOB=best_iter_out_of_bag(gbm_fit_obj),
@@ -94,7 +91,7 @@ best_iter_out_of_bag <- function(gbm_fit_obj) {
   warning("OOB generally underestimates the optimal number of iterations although predictive performance is reasonably competitive.
             Using cv.folds>0 when calling gbm usually results in improved predictive performance.")
   smoother <- generate_smoother_oobag(gbm_fit_obj)
-  best_iter_oob <- x[which.min(-cumsum(smoother$y))]
+  best_iter_oob <- smoother$x[which.min(-cumsum(smoother$y))]
   return(best_iter_oob)
 }
 

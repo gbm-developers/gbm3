@@ -69,14 +69,14 @@ summary.GBMFit <- function(gbm_fit_obj,
   check_if_natural_number(num_trees)
   check_if_natural_number(cBars)
   check_if_gbm_fit(gbm_fit_obj)
-  if(!is.logical(plot_it) || (length(plot_it) > 1)) {
-    stop("argument plot_it must be a logical")
+  if(!is.logical(plot_it) || (length(plot_it) > 1) || is.na(plot_it)) {
+    stop("argument plot_it must be a logical - excluding NA")
   }  
-  if(!is.logical(order_it) || (length(order_it) > 1)) {
-    stop("argument order_it must be a logical")
+  if(!is.logical(order_it) || (length(order_it) > 1) || is.na(order_it)) {
+    stop("argument order_it must be a logical - excluding NA")
   }  
-  if(!is.logical(normalize) || (length(normalize) > 1)) {
-    stop("argument normalize must be a logical")
+  if(!is.logical(normalize) || (length(normalize) > 1) || is.na(normalize)) {
+    stop("argument normalize must be a logical - excluding NA")
   }  
   
   # Set inputs (if required)

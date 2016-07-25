@@ -11,7 +11,7 @@
 #' @param best_iter iteration specifying the optimum number of iterations. This is determined in
 #'  \code{\link{gbm_perf}}.
 #' 
-#' @param out_of_bag_curve indicates whether to plot the out-of-bag performance
+#' @param out_of_bag_curve logical indicating whether to plot the out-of-bag performance
 #' measures in a second plot.
 #' 
 #' @param overlay if TRUE and out_of_bag_curve=TRUE then a right y-axis is added to
@@ -28,19 +28,24 @@
 #' 
 
 perf_plot <- function(gbm_fit_obj, best_iter, out_of_bag_curve, overlay, method, main) {
+  # Check inputs
+  check_if_gbm_fit(gbm_fit_obj)
+  if(!is.logical(overlay) || (length(overlay)) > 1 || is.na(overlay))
+    stop("overlay must be a logical - excluding NA")
+  
+  if(!is.logical(out_of_bag_curve) || (length(out_of_bag_curve)) > 1 || is.na(out_of_bag_curve))
+    stop("out_of_bag_curve must be a logical - excluding NA")
+  
   par(mar=c(5,4,4,4)+.1)
   
   # Get y-axis label and limits
   ylab <- get_ylabel(gbm_fit_obj$distribution)
-  if(gbm_fit_obj$params$train_fraction==1)
-  {
+  if(gbm_fit_obj$params$train_fraction==1) {
     ylim <- switch(method,
                    cv=range(gbm_fit_obj$train.error, gbm_fit_obj$cv_error),
                    test=range(gbm_fit_obj$train.error, gbm_fit_obj$valid.error),
                    OOB=range(gbm_fit_obj$train.error))
-  }
-  else
-  {
+  } else {
     ylim <- range(gbm_fit_obj$train.error, gbm_fit_obj$valid.error)
   }
   
@@ -50,13 +55,11 @@ perf_plot <- function(gbm_fit_obj, best_iter, out_of_bag_curve, overlay, method,
        type="l",
        xlab="Iteration", ylab=ylab, main=main)
   
-  if(gbm_fit_obj$params$train_fraction != 1)
-  {
+  if(gbm_fit_obj$params$train_fraction != 1) {
     lines(gbm_fit_obj$valid.error,col="red")
   }
-  if(method=="cv")
-  {
-    lines(gbm_fit_obj$cv_error,col="green")
+  if(method=="cv") {
+    lines(gbm_fit_obj$cv_error, col="green")
   }
   if(!is.na(best_iter)) abline(v=best_iter,col="blue",lwd=2,lty=2)
   
@@ -67,6 +70,10 @@ perf_plot <- function(gbm_fit_obj, best_iter, out_of_bag_curve, overlay, method,
 ########## HELPER FUNCTIONS FOR PLOTTING ############
 get_ylabel <- function(distribution) {
   UseMethod("get_ylabel", distribution)
+}
+
+get_ylabel.default <- function(distribution) {
+  stop("distribution object not recognised - cannot get y label for plot")
 }
 
 get_ylabel.AdaBoostGBMDist <-function(distribution) {

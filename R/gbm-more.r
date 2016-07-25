@@ -12,7 +12,8 @@
 #' of \code{100}.
 #' 
 #' @param data a \code{data.frame} or \code{matrix} containing the new values for the predictor and response variables for the 
-#' additional iterations.  The names of the variables must match those appearing in the original fit and this value defaults to \code{NULL}.
+#' additional iterations.  The names of the variables must match those appearing in the original fit (as well as the number of rows),
+#' and this value defaults to \code{NULL}.
 #' With a value of \code{NULL} the original data may be used for the additional boosting, if no original or new data is specified an error
 #' will be thrown.
 #' 
@@ -32,19 +33,15 @@ gbm_more <- function(gbm_fit_obj, num_new_trees=100, data=NULL, weights=NULL, of
   # Check inputs
   check_if_gbm_fit(gbm_fit_obj)
   check_if_natural_number(num_new_trees)
-  if(!is.logical(is_verbose) || (length(is_verbose) > 1)) {
-    stop("is_verbose must be a logical")
+  if(!is.logical(is_verbose) || (length(is_verbose) > 1) || is.na(is_verbose)) {
+    stop("is_verbose must be a logical - not NA")
   }
-  if(is.null(gbm_fit_obj$gbm_data) && is.null(data)) {
+  if(is.null(gbm_fit_obj$gbm_data_obj) && is.null(data)) {
     stop("keep_data was set to FALSE on original gbm2 call and argument 'data' is NULL")
   }
   
-  if(nrow(data) > gbm_fit_obj$params$num_train_rows) {
-    warning("data provided has fewer rows than previous fit - all of new data will be in training set")
-  }
-  
   # If no data is stored create appropriate data objects 
-  if(is.null(gbm_fit_obj$gbm_data)) {
+  if(is.null(gbm_fit_obj$gbm_data_obj)) {
     m <- eval(gbm_fit_obj$model, parent.frame())
     Terms <- attr(m, "terms")
     a <- attributes(Terms)
@@ -73,7 +70,7 @@ gbm_more <- function(gbm_fit_obj, num_new_trees=100, data=NULL, weights=NULL, of
     gbm_data_obj <- validate_gbm_data(gbm_data_obj, distribution)
     
     # Order the data
-    gbm_data_obj <- order_data(gbm_data_obj, distribution, train_params)
+    gbm_data_obj <- order_data(gbm_data_obj, distribution, gbm_fit_obj$params)
     
   } else {
     gbm_data_obj <- gbm_fit_obj$gbm_data_obj
@@ -87,7 +84,7 @@ gbm_more <- function(gbm_fit_obj, num_new_trees=100, data=NULL, weights=NULL, of
   } else if (gbm_fit_obj$distribution$name == "CoxPH") {
     gbm_fit_obj$fit <- gbm_fit_obj$fit[gbm_fit_obj$time_order]
   }
-  
+
   # Call GBM package
   gbm_more_fit <- .Call("gbm",
                         Y=as.matrix(as.data.frame(gbm_data_obj$y)),
@@ -104,19 +101,22 @@ gbm_more <- function(gbm_fit_obj, num_new_trees=100, data=NULL, weights=NULL, of
                         var.type=as.integer(gbm_fit_obj$variables$var_type),
                         var.monotone=as.integer(gbm_fit_obj$variables$var_monotone),
                         distribution=as.character(tolower(gbm_fit_obj$distribution$name)),
-                        n.trees=as.integer(new_num_trees),
+                        n.trees=as.integer(num_new_trees),
                         interaction.depth=as.integer(gbm_fit_obj$params$interaction_depth),
                         n.minobsinnode=as.integer(gbm_fit_obj$params$min_num_obs_in_node),
                         shrinkage=as.double(gbm_fit_obj$params$shrinkage),
                         bag.fraction=as.double(gbm_fit_obj$params$bag_fraction),
                         nTrainRows=as.integer(gbm_fit_obj$params$num_train_rows),
-                        nTrainObs = as.integer(gbm_fit_objparams$num_train),
+                        nTrainObs = as.integer(gbm_fit_obj$params$num_train),
                         mFeatures=as.integer(gbm_fit_obj$params$num_features),
                         fit.old=as.double(gbm_fit_obj$fit),
                         n.cat.splits.old=as.integer(length(gbm_fit_obj$c.splits)),
                         n.trees.old=as.integer(length(gbm_fit_obj$params$trees)),
                         verbose=as.integer(is_verbose),
                         PACKAGE = "gbm")
+  
+  # Set class
+  class(gbm_more_fit) <- "GBMFit"
   
   # Store correct parameters
   gbm_more_fit$distribution <- distribution
@@ -132,9 +132,10 @@ gbm_more <- function(gbm_fit_obj, num_new_trees=100, data=NULL, weights=NULL, of
   gbm_more_fit$trees         <- c(gbm_fit_obj$trees, gbm_more_fit$trees)
   gbm_more_fit$c.splits      <- c(gbm_fit_obj$c.splits, gbm_more_fit$c.splits)
   
-  # cv.error not updated when using gbm.more
-  gbm_more_fit$cv_error      <- gbm_fit_obj$cv_error
-  gbm_more_fit$cv_folds      <- gbm_fit_obj$cv_folds
+  # cv_error not updated when using gbm.more
+  gbm_more_fit$cv_error  <- gbm_fit_obj$cv_error
+  gbm_more_fit$cv_folds  <- gbm_fit_obj$cv_folds
+  gbm_more_fit$cv_fitted <- gbm_fit_obj$cv_fitted
 
   # Reorder if necessary 
   gbm_more_fit <- reorder_fit(gbm_more_fit, distribution)
@@ -144,8 +145,7 @@ gbm_more <- function(gbm_fit_obj, num_new_trees=100, data=NULL, weights=NULL, of
     gbm_more_fit$gbm_data_obj <- gbm_fit_obj$gbm_data_obj
   }
   gbm_more_fit$model <- gbm_fit_obj$model
-
-  class(gbm_more_fit) <- "GBMFit"
+  
   return(gbm_more_fit)
   
 }
