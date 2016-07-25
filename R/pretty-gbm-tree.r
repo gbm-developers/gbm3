@@ -27,13 +27,13 @@
 #' @author Greg Ridgeway \email{gregridgeway@@gmail.com}
 #' @seealso \code{\link{gbm}}, \code{\link{gbm.object}}
 #' @keywords print
-#' @export pretty.GBMFit
+#' @export 
 #' 
-pretty.GBMFit <- function(object, tree_index=1)
+pretty.GBMFit <- function(gbm_fit_obj, tree_index=1)
 {
   # Initial checks
   check_if_natural_number(tree_index)
-  if(tree_index >length(obj$trees)) {
+  if(tree_index >length(gbm_fit_obj$trees)) {
     stop("tree_index is out of range. Must be less than ", length(gbm_fit_obj$trees))
   }
   

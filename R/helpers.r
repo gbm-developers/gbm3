@@ -53,7 +53,7 @@ check_if_natural_number <- function(value, name) {
   # value - the value of the parameter to check 
   if(is.null(value) || is.infinite(value)  || is.logical(value)
      || !(abs(value - round(value)) < .Machine$double.eps^0.5) ||
-     (value < 0) || (length(value) > 1)) {
+     (value <= 0) || (length(value) > 1)) {
     stop("The parameter  ", name,  " must be a positive whole number")
   }
 }
