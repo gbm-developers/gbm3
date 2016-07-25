@@ -31,7 +31,8 @@ gbm_cross_val <- function(gbm_data_obj, gbm_dist_obj, train_params, var_containe
   gbm_results <- list() 
   
   # Full model fit
-  set.seed(as.integer(runif(1, -(2^31 - 1), 2^31)))
+  seed <- as.integer(runif(1, -(2^31 - 1), 2^31))
+  set.seed(seed)
   if(is_verbose) message("Fitting Final Model \n")
   gbm_results[[length(gbm_results)+1]] <- gbm_call(gbm_data_obj, gbm_dist_obj, train_params,
                                                   var_container, is_verbose)
@@ -44,8 +45,9 @@ gbm_cross_val <- function(gbm_data_obj, gbm_dist_obj, train_params, var_containe
 
   # Loop over folds
   for(fold_num in seq_len(cv_folds)) {
-    set.seed(as.integer(runif(1, -(2^31 - 1), 2^31)))
-    if(is_verbose) message("CV:", fold_num, "\n")
+    seed <- as.integer(runif(1, -(2^31 - 1), 2^31))
+    set.seed(seed)
+    if(is_verbose) message("CV:", fold_num, "    Seed: ",  seed, "\n")
     
     # Extract observations in cv fold
     gbm_object_list <- extract_obs_in_fold(gbm_data_obj, gbm_dist_obj, train_params, cv_groups, fold_num)

@@ -52,7 +52,7 @@
 
 gbm2 <- function(formula, distribution=gbm_dist("Gaussian", ...), data, weights=rep(1, nrow(data)), offset=rep(0, nrow(data)),
                  train_params=training_params(num_trees=100, interaction_depth=1, min_num_obs_in_node=10, 
-                 shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=1, num_features=ncol(data)-1), 
+                 shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=nrow(data), num_features=ncol(data)-1), 
                  var_monotone=NULL, var_names=NULL,  cv_folds=1, cv_class_stratify=FALSE, fold_id=NULL,
                  keep_gbm_data=FALSE, is_verbose=FALSE) {
   
@@ -90,8 +90,8 @@ gbm2 <- function(formula, distribution=gbm_dist("Gaussian", ...), data, weights=
     }
     num_inferred_folds <- length(unique(fold_id))
     if (cv_folds != num_inferred_folds) {
-      # Warn if cv.folds and fold.id disagree, but take fold.id.
-      warning("CV folds changed from ", cv.folds, " to ", inferred_folds,
+      # Warn if cv_folds and fold_id disagree, but take fold_id.
+      warning("CV folds changed from ", cv_folds, " to ", num_inferred_folds,
               " because of levels in fold_id.")
     } 
     cv_folds <- num_inferred_folds

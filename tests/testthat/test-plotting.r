@@ -281,5 +281,22 @@ test_that("Error thrown if neither the knots or df specified", {
 test_that("Error thrown if df is not a positive integer", {
   
 })
+
+test_that("Error thrown if y and p not same length", {
+  
+})
+
+test_that("Can run with shade.col not NA", {
+  
+})
+
+test_that("Can run with defaults", {
+  
+})
+
+test_that("Can run with replace = TRUE", {
+  
+})
+
 context("Testinng plot methods for GBMFit")
 
