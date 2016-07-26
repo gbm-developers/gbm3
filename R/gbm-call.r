@@ -13,25 +13,27 @@
 #' 
 #' @param var_container a GBMVarCont object which defines the properties of the predictor variables in the data.
 #' 
+#' @param par.details Details of the parallelization to use in the
+#'     core algorithm.
+#' 
 #' @param is_verbose if TRUE, will print out progress and performance of the fitting.
 #'
 #' @return a fitted gbm object
 #' 
 
-gbm_call <- function(gbm_data_obj, gbm_dist_obj, train_params, var_container, is_verbose) {
+gbm_call <- function(gbm_data_obj, gbm_dist_obj, train_params, var_container, par_details, is_verbose) {
   # Check inputs
   check_if_gbm_data(gbm_data_obj)
   check_if_gbm_dist(gbm_dist_obj)
   check_if_gbm_train_params(train_params)
   check_if_gbm_var_container(var_container)
-  
+
   fit <- .Call("gbm",
                 Y=as.matrix(as.data.frame(gbm_data_obj$y)),
+                intResponse = as.matrix(cbind(gbm_dist_obj$strata, gbm_dist_obj$sorted)),
                 Offset=as.double(gbm_data_obj$offset),
                 X=as.matrix(as.data.frame(gbm_data_obj$x)),
                 X.order=as.integer(gbm_data_obj$x_order),
-                sorted=as.matrix(as.data.frame(gbm_dist_obj$sorted)),
-                Strata = as.integer(gbm_dist_obj$strata),
                 weights=as.double(gbm_data_obj$weights),
                 Misc=get_misc(gbm_dist_obj),
                 prior.node.coeff.var = ifelse(is.null(gbm_dist_obj$prior_node_coeff_var), as.double(0),
@@ -51,6 +53,7 @@ gbm_call <- function(gbm_data_obj, gbm_dist_obj, train_params, var_container, is
                 fit.old=as.double(NA),
                 n.cat.splits.old=as.integer(0),
                 n.trees.old=as.integer(0),
+                par_details,
                 verbose=as.integer(is_verbose),
                 PACKAGE = "gbm")
   

@@ -30,9 +30,6 @@
 #' 
 #' @param var_names a vector of strings of containing the names of the predictor variables.
 #' 
-#' @param keep_gbm_data a bool specifying whether or not the gbm_data object created in this method should be
-#' stored in the results.
-#' 
 #' @param cv_folds a positive integer specifying the number of folds to be used in cross-validation of the gbm
 #' fit. If cv_folds > 1 then cross-validation is performed; the default of cv_folds is 1.
 #' 
@@ -43,6 +40,12 @@
 #' each observation is in. If supplied, cv_folds can be missing. Note:
 #' Multiple rows of the same observation must have the same fold_id.
 #' 
+#' @param keep_gbm_data a bool specifying whether or not the gbm_data object created in this method should be
+#' stored in the results.
+#' 
+#' @param par_details Details of the parallelization to use in the
+#'     core algorithm (\code{\link{gbmParallel}}).
+#'     
 #' @param is_verbose if TRUE, gbm2 will print out progress and performance of the fit.
 #' 
 #' @return a \code{GBMFit} object.
@@ -54,7 +57,7 @@ gbm2 <- function(formula, distribution=gbm_dist("Gaussian", ...), data, weights=
                  train_params=training_params(num_trees=100, interaction_depth=1, min_num_obs_in_node=10, 
                  shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=nrow(data), num_features=ncol(data)-1), 
                  var_monotone=NULL, var_names=NULL,  cv_folds=1, cv_class_stratify=FALSE, fold_id=NULL,
-                 keep_gbm_data=FALSE, is_verbose=FALSE) {
+                 keep_gbm_data=FALSE, par_details=getOption('gbm.parallel'), is_verbose=FALSE) {
   
   # Extract the model
   mf <- match.call(expand.dots = FALSE)
@@ -103,7 +106,7 @@ gbm2 <- function(formula, distribution=gbm_dist("Gaussian", ...), data, weights=
   # Call gbm2.fit 
   gbm_fit_obj <- gbm2.fit(x, y, distribution, weights, offset,
                          train_params, var_monotone, var_names, keep_gbm_data, cv_folds,
-                         cv_class_stratify, fold_id, is_verbose)
+                         cv_class_stratify, fold_id, par_details, is_verbose)
 
   # Wrap up extra pieces 
   gbm_fit_obj$model <- m

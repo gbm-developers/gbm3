@@ -264,7 +264,6 @@ double CNDCG::MaxMeasure(unsigned int group, const double* const kResponse,
       }
 
       maxdcg_vec_[group] = dScore;
-
     }
   }
 
@@ -487,7 +486,6 @@ CPairwise::CPairwise(const double* kGroups, const char* kIrMeasure,
 }
 
 CDistribution* CPairwise::Create(DataDistParams& distparams) {
-
   // Create pointers to pairwise
   Rcpp::NumericVector misc_vec(distparams.misc[0]);
   const double* kGroup = 0;
@@ -495,10 +493,9 @@ CDistribution* CPairwise::Create(DataDistParams& distparams) {
   std::size_t offset_tomeasure = distparams.family.find("_");
   if (offset_tomeasure == std::string::npos) {
     throw gbm_exception::Failure(
-  			"Unable to locate IR metric required for pairwise");
+        "Unable to locate IR metric required for pairwise");
   }
-  const char* kIrMeasure =
-  		  distparams.family.c_str() + offset_tomeasure + 1;
+  const char* kIrMeasure = distparams.family.c_str() + offset_tomeasure + 1;
 
   if (!gbm_functions::has_value(misc_vec)) {
     throw gbm_exception::Failure("Pairwise requires misc to initialize");
@@ -515,7 +512,7 @@ inline const double* OffsetVector(const double* const kCovariates,
                                   const double* const kOffset,
                                   unsigned int start, unsigned int end,
                                   vector<double>& buffer_vec) {
-  if (kOffset == NULL) {
+  if (!kOffset) {
     // Optional second argument is not set, just return first one
     return kCovariates + start;
   } else {
@@ -526,8 +523,7 @@ inline const double* OffsetVector(const double* const kCovariates,
   }
 }
 
-void CPairwise::ComputeWorkingResponse(const CDataset& kData,
-									   const Bag& kBag,
+void CPairwise::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
                                        const double* kFuncEstimate,
                                        std::vector<double>& residuals) {
   if (kData.get_trainsize() <= 0) return;
@@ -763,7 +759,8 @@ void CPairwise::Initialize(const CDataset& kData) {
 
 double CPairwise::InitF(const CDataset& kData) { return 0.0; }
 
-double CPairwise::Deviance(const CDataset& kData, const Bag& kBag, const double* kfuncEstimate) {
+double CPairwise::Deviance(const CDataset& kData, const Bag& kBag,
+                           const double* kfuncEstimate) {
   // Shift adGroup to validation set if necessary
   long num_rows_in_set = kData.get_size_of_set();
   if (num_rows_in_set <= 0) {
@@ -820,12 +817,11 @@ double CPairwise::Deviance(const CDataset& kData, const Bag& kBag, const double*
   return 1.0 - loss / weight;
 }
 
-void CPairwise::FitBestConstant(const CDataset& kData,
-								const Bag& kBag,
+void CPairwise::FitBestConstant(const CDataset& kData, const Bag& kBag,
                                 const double* kFuncEstimate,
                                 unsigned long num_terminalnodes,
-                                std::vector<double>& residuals, CCARTTree& tree) {
-
+                                std::vector<double>& residuals,
+                                CCARTTree& tree) {
   // Assumption: ComputeWorkingResponse() has been executed before with
   // the same arguments
 
@@ -839,7 +835,6 @@ void CPairwise::FitBestConstant(const CDataset& kData,
 
   for (unsigned int obs_num = 0; obs_num < kData.get_trainsize(); obs_num++) {
     if (kBag.get_element(obs_num)) {
-
       fit_numerator_[tree.get_node_assignments()[obs_num]] +=
           kData.weight_ptr()[obs_num] * residuals[obs_num];
       fit_denominator_[tree.get_node_assignments()[obs_num]] +=
@@ -848,7 +843,7 @@ void CPairwise::FitBestConstant(const CDataset& kData,
   }
 
   for (unsigned int node_num = 0; node_num < num_terminalnodes; node_num++) {
-    if (tree.get_terminal_nodes()[node_num] != NULL) {
+    if (tree.has_node(node_num)) {
       if (fit_denominator_[node_num] <= 0.0) {
         tree.get_terminal_nodes()[node_num]->set_prediction(0.0);
       } else {
@@ -859,12 +854,10 @@ void CPairwise::FitBestConstant(const CDataset& kData,
   }
 }
 
-double CPairwise::BagImprovement(const CDataset& kData,
-								 const Bag& kBag,
+double CPairwise::BagImprovement(const CDataset& kData, const Bag& kBag,
                                  const double* kFuncEstimate,
                                  const double kShrinkage,
                                  const std::vector<double>& kDeltaEstimate) {
-
   if (kData.get_trainsize() <= 0) {
     return 0;
   }

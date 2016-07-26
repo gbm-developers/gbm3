@@ -37,27 +37,29 @@ class CLaplace : public CDistribution {
   //---------------------
   // Public Functions
   //---------------------
-  void ComputeWorkingResponse(const CDataset& kData,
-		  	  	  	  	  	  const Bag& kBag,
-                              const double* kFuncEstimate, std::vector<double>& residuals);
+  void ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
+                              const double* kFuncEstimate,
+                              std::vector<double>& residuals);
 
   double InitF(const CDataset& kData);
 
-  void FitBestConstant(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate,
-                       unsigned long num_terminalnodes, std::vector<double>& residuals,
-                       CCARTTree& tree);
+  void FitBestConstant(const CDataset& kData, const Bag& kBag,
+                       const double* kFuncEstimate,
+                       unsigned long num_terminalnodes,
+                       std::vector<double>& residuals, CCARTTree& tree);
 
-  double Deviance(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate);
+  double Deviance(const CDataset& kData, const Bag& kBag,
+                  const double* kFuncEstimate);
 
-  double BagImprovement(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate,
-                        const double kShrinkage,
+  double BagImprovement(const CDataset& kData, const Bag& kBag,
+                        const double* kFuncEstimate, const double kShrinkage,
                         const std::vector<double>& kDeltaEstimate);
 
  private:
   //----------------------
   // Private Constructors
   //----------------------
-  CLaplace();
+  CLaplace(const parallel_details& parallel);
 
   //-------------------
   // Private Variables

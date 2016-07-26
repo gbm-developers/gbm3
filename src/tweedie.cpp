@@ -39,14 +39,14 @@ CDistribution* CTweedie::Create(DataDistParams& distparams) {
 
 CTweedie::~CTweedie() {}
 
-void CTweedie::ComputeWorkingResponse(const CDataset& kData,
-									  const Bag& kBag,
+void CTweedie::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
                                       const double* kFuncEstimates,
                                       std::vector<double>& residuals) {
   unsigned long i = 0;
   double delta_func_est = 0.0;
 
-  if (!(kData.y_ptr() && kFuncEstimates && &(residuals[0]) && kData.weight_ptr())) {
+  if (!(kData.y_ptr() && kFuncEstimates &&
+        kData.weight_ptr())) {
     throw gbm_exception::InvalidArgument();
   }
 
@@ -89,7 +89,8 @@ double CTweedie::InitF(const CDataset& kData) {
   return init_func_est;
 }
 
-double CTweedie::Deviance(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate) {
+double CTweedie::Deviance(const CDataset& kData, const Bag& kBag,
+                          const double* kFuncEstimate) {
   double delta_func_est = 0.0;
   unsigned long i = 0;
   double loss = 0.0;
@@ -119,11 +120,11 @@ double CTweedie::Deviance(const CDataset& kData, const Bag& kBag, const double* 
   return 2.0 * loss / weight;
 }
 
-void CTweedie::FitBestConstant(const CDataset& kData,
-							   const Bag& kBag,
+void CTweedie::FitBestConstant(const CDataset& kData, const Bag& kBag,
                                const double* kFuncEstimate,
                                unsigned long num_terminalnodes,
-                               std::vector<double>& residuals, CCARTTree& tree) {
+                               std::vector<double>& residuals,
+                               CCARTTree& tree) {
   double delta_func_est = 0.0;
   unsigned long obs_num = 0;
   unsigned long node_num = 0;
@@ -154,7 +155,7 @@ void CTweedie::FitBestConstant(const CDataset& kData,
   }
 
   for (node_num = 0; node_num < num_terminalnodes; node_num++) {
-    if (tree.get_terminal_nodes()[node_num] != NULL) {
+    if (tree.has_node(node_num)) {
       if (numerator_vec[node_num] == 0.0) {
         // Taken from poisson.cpp
 
@@ -190,8 +191,7 @@ void CTweedie::FitBestConstant(const CDataset& kData,
   }
 }
 
-double CTweedie::BagImprovement(const CDataset& kData,
-								const Bag& kBag,
+double CTweedie::BagImprovement(const CDataset& kData, const Bag& kBag,
                                 const double* kFuncEstimate,
                                 const double kShrinkage,
                                 const std::vector<double>& kDeltaEstimate) {

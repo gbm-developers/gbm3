@@ -26,19 +26,19 @@ class CensoredCoxState : public GenericCoxState {
   //----------------------
   // Public Constructors
   //----------------------
-  CensoredCoxState(CCoxPH* coxPhPtr) : coxph_(coxPhPtr){};
+  CensoredCoxState(CCoxPH* coxph) : coxph_(coxph) {};
 
   //---------------------
   // Public destructor
   //---------------------
-  ~CensoredCoxState() { coxph_ = NULL; };
+  ~CensoredCoxState() {};
 
   //---------------------
   // Public Functions
   //---------------------
-  void ComputeWorkingResponse(const CDataset& kData,
-		  	  	  	  	  	  const Bag& kBag,
-                              const double* kFuncEstimate, std::vector<double>& residuals) {
+  void ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
+                              const double* kFuncEstimate,
+                              std::vector<double>& residuals) {
     // Initialize parameters
     std::vector<double> martingale_resid(kData.get_trainsize(), 0.0);
     LogLikelihood(kData.get_trainsize(), kData, kBag, kFuncEstimate,
@@ -53,9 +53,10 @@ class CensoredCoxState : public GenericCoxState {
     }
   }
 
-  void FitBestConstant(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate,
-                       unsigned long num_terminalnodes, std::vector<double>& residuals,
-                       CCARTTree& tree) {
+  void FitBestConstant(const CDataset& kData, const Bag& kBag,
+                       const double* kFuncEstimate,
+                       unsigned long num_terminalnodes,
+                       std::vector<double>& residuals, CCARTTree& tree) {
     // Calculate the expected number of events and actual number of events in
     // terminal nodes
     std::vector<double> martingale_resid(kData.get_trainsize(), 0.0);
@@ -68,13 +69,13 @@ class CensoredCoxState : public GenericCoxState {
 
     for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
       if (kBag.get_element(i) &&
-          (tree.get_terminal_nodes()[tree.get_node_assignments()[i]]->get_numobs() >=
-           tree.min_num_obs_required())) {
+          (tree.get_terminal_nodes()[tree.get_node_assignments()[i]]
+               ->get_numobs() >= tree.min_num_obs_required())) {
         // Cap expected number of events to be at least 0
         expnum_events_in_nodes[tree.get_node_assignments()[i]] +=
-            max(0.0, coxph_->StatusVec()[i] - martingale_resid[i]);
+	  max(0.0, kData.y_ptr(1)[i] - martingale_resid[i]);
         num_events_in_nodes[tree.get_node_assignments()[i]] +=
-            coxph_->StatusVec()[i];
+            kData.y_ptr(1)[i];
       }
     }
 
@@ -87,8 +88,7 @@ class CensoredCoxState : public GenericCoxState {
   }
 
   double Deviance(const long kNumRowsInSet, const CDataset& kData,
-		  	  	  const Bag& kBag,
-                  const double* kFuncEstimate) {
+                  const Bag& kBag, const double* kFuncEstimate) {
     // Initialize Parameters
     double loglik = 0.0;
     std::vector<double> martingale_resid(kNumRowsInSet, 0.0);
@@ -100,8 +100,9 @@ class CensoredCoxState : public GenericCoxState {
     return -loglik;
   }
 
-  double BagImprovement(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate,
-                        const double kShrinkage, const std::vector<double>& kDeltaEstimate) {
+  double BagImprovement(const CDataset& kData, const Bag& kBag,
+                        const double* kFuncEstimate, const double kShrinkage,
+                        const std::vector<double>& kDeltaEstimate) {
     // Initialize Parameters
     double loglike_no_adj = 0.0;
     double loglike_with_adj = 0.0;
@@ -120,8 +121,9 @@ class CensoredCoxState : public GenericCoxState {
     }
 
     // Calculate likelihoods - data not in bags
-    loglike_no_adj = LogLikelihood(kData.get_trainsize(), kData, kBag, kFuncEstimate,
-                                   &martingale_resid_no_adj[0], false, false);
+    loglike_no_adj =
+        LogLikelihood(kData.get_trainsize(), kData, kBag, kFuncEstimate,
+                      &martingale_resid_no_adj[0], false, false);
     loglike_with_adj =
         LogLikelihood(kData.get_trainsize(), kData, kBag, &eta_adj[0],
                       &martingale_resid_with_adj[0], false, false);
@@ -131,9 +133,9 @@ class CensoredCoxState : public GenericCoxState {
 
  private:
   CCoxPH* coxph_;
-
-  double LogLikelihood(const int n, const CDataset& kData, const Bag& kBag, const double* eta,
-                       double* resid, bool skipbag = true,
+  
+  double LogLikelihood(const int n, const CDataset& kData, const Bag& kBag,
+                       const double* eta, double* resid, bool skipbag = true,
                        bool checkinbag = true) {
     int k, ksave;
     int person, p2;
@@ -161,10 +163,10 @@ class CensoredCoxState : public GenericCoxState {
     center = -10.0E16;
 
     for (person = 0; person < n; person++) {
-      p2 = coxph_->EndTimeIndices()[person];
+      p2 = kData.yint_ptr(1)[person];
       if (skipbag || (kBag.get_element(p2) == checkinbag)) {
-        new_center = eta[coxph_->EndTimeIndices()[p2]] +
-                     kData.offset_ptr()[coxph_->EndTimeIndices()[p2]];
+        new_center = eta[kData.yint_ptr(1)[p2]] +
+                     kData.offset_ptr()[kData.yint_ptr(1)[p2]];
         if (new_center > center) {
           center = new_center;
         }
@@ -173,11 +175,10 @@ class CensoredCoxState : public GenericCoxState {
 
     // Loop over patients
     for (person = 0; person < n;) {
-      p2 = coxph_->EndTimeIndices()[person];
-
+      p2 = kData.yint_ptr(1)[person];
       // Check if bagging is required - p2 gives the within strata order
       if (skipbag || (kBag.get_element(p2) == checkinbag)) {
-        if (coxph_->StatusVec()[p2] == 0) {
+        if (kData.y_ptr(1)[p2] == 0) {
           /* add the subject to the risk set */
           resid[p2] = exp(eta[p2] + kData.offset_ptr()[p2] - center) * cumhaz;
           nrisk++;
@@ -192,8 +193,8 @@ class CensoredCoxState : public GenericCoxState {
           ndeath = 0;
           deathwt = 0;
           d_denom = 0;  // contribution to denominator by death at dtime
-          for (k = person; k < coxph_->StrataVec()[istrat]; k++) {
-            p2 = coxph_->EndTimeIndices()[k];
+          for (k = person; k < kData.yint_ptr()[istrat]; k++) {
+            p2 = kData.yint_ptr(1)[k];
             // Check in loop over stratum that person in stratum has correct bag
             // properties
             if (skipbag || (kBag.get_element(p2) == checkinbag)) {
@@ -204,7 +205,7 @@ class CensoredCoxState : public GenericCoxState {
               denom += kData.weight_ptr()[p2] *
                        exp(eta[p2] + kData.offset_ptr()[p2] - center);
               esum += eta[p2] + kData.offset_ptr()[p2];
-              if (coxph_->StatusVec()[p2] == 1) {
+              if (kData.y_ptr(1)[p2] == 1) {
                 ndeath++;
                 deathwt += kData.weight_ptr()[p2];
                 d_denom += kData.weight_ptr()[p2] *
@@ -241,10 +242,10 @@ class CensoredCoxState : public GenericCoxState {
 
           temp = cumhaz + (hazard - e_hazard);
           for (; person < ksave; person++) {
-            p2 = coxph_->EndTimeIndices()[person];
+            p2 = kData.yint_ptr(1)[person];
             // Check if person in stratum in/out of bag
             if (skipbag || (kBag.get_element(p2) == checkinbag)) {
-              if (coxph_->StatusVec()[p2] == 1)
+              if (kData.y_ptr(1)[p2] == 1)
                 resid[p2] =
                     1 + temp * exp(eta[p2] + kData.offset_ptr()[p2] - center);
               else
@@ -261,25 +262,25 @@ class CensoredCoxState : public GenericCoxState {
             denom /= exp(temp);
           }
         }
-
-        // clean up at the end of a strata
-        if (person == coxph_->StrataVec()[istrat]) {
-          for (; indx1 < coxph_->StrataVec()[istrat]; indx1++) {
-            p2 = coxph_->EndTimeIndices()[indx1];
-
-            // Check bagging status
-            if (skipbag || (kBag.get_element(p2) == checkinbag)) {
-              resid[p2] -=
-                  cumhaz * exp(eta[p2] + kData.offset_ptr()[p2] - center);
-            }
-          }
-          cumhaz = 0;
-          denom = 0;
-          istrat++;
-        }
       } else {
         // Increment person if not in bag
         person++;
+      }
+
+      // clean up at the end of a strata
+      if (person == kData.yint_ptr()[istrat]) {
+        for (; indx1 < kData.yint_ptr()[istrat]; indx1++) {
+          p2 = kData.yint_ptr(1)[indx1];
+
+          // Check bagging status
+          if (skipbag || (kBag.get_element(p2) == checkinbag)) {
+            resid[p2] -=
+            		    cumhaz * exp(eta[p2] + kData.offset_ptr()[p2] - center);
+          }
+        }
+        cumhaz = 0;
+        denom = 0;
+        istrat++;
       }
     }
     return (loglik);

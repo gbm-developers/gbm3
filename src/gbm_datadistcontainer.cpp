@@ -33,7 +33,6 @@ CGBMDataDistContainer::CGBMDataDistContainer(DataDistParams& datadist_config)
   distptr_->Initialize(data_);
 }
 
-
 //-----------------------------------
 // Function: InitializeFunctionEstimate
 //
@@ -64,8 +63,9 @@ double CGBMDataDistContainer::InitialFunctionEstimate() {
 //
 //-----------------------------------
 void CGBMDataDistContainer::ComputeResiduals(const double* kFuncEstimate,
-                                         std::vector<double>& residuals) {
-  get_dist()->ComputeWorkingResponse(get_data(), get_bag(), kFuncEstimate, residuals);
+                                             std::vector<double>& residuals) {
+  get_dist()->ComputeWorkingResponse(get_data(), get_bag(), kFuncEstimate,
+                                     residuals);
 }
 
 //-----------------------------------
@@ -79,9 +79,9 @@ void CGBMDataDistContainer::ComputeResiduals(const double* kFuncEstimate,
 //    CTreeComps ptr - ptr to the tree components container in the gbm
 //    int& - reference to the number of nodes in the tree.
 //-----------------------------------
-void CGBMDataDistContainer::ComputeBestTermNodePreds(const double* kFuncEstimate,
-                                                 std::vector<double>& residuals,
-                                                 CCARTTree& tree) {
+void CGBMDataDistContainer::ComputeBestTermNodePreds(
+    const double* kFuncEstimate, std::vector<double>& residuals,
+    CCARTTree& tree) {
   get_dist()->FitBestConstant(
       get_data(), get_bag(), &kFuncEstimate[0],
       (2 * tree.size_of_tree() + 1) / 3,  // number of terminal nodes
@@ -103,15 +103,15 @@ void CGBMDataDistContainer::ComputeBestTermNodePreds(const double* kFuncEstimate
 //
 //-----------------------------------
 double CGBMDataDistContainer::ComputeDeviance(const double* kFuncEstimate,
-                                          bool is_validationset) {
+                                              bool is_validationset) {
   double deviance = 0.0;
   if (!(is_validationset)) {
     deviance = get_dist()->Deviance(get_data(), get_bag(), kFuncEstimate);
   } else {
     // Shift to validation set, calculate deviance and shift back
     shift_datadist_to_validation();
-    deviance =
-        get_dist()->Deviance(get_data(), get_bag(), kFuncEstimate + data_.get_trainsize());
+    deviance = get_dist()->Deviance(get_data(), get_bag(),
+                                    kFuncEstimate + data_.get_trainsize());
     shift_datadist_to_train();
   }
   return deviance;
@@ -128,11 +128,11 @@ double CGBMDataDistContainer::ComputeDeviance(const double* kFuncEstimate,
 //    CTreeComps ptr - ptr to the tree components container in the gbm
 //
 //-----------------------------------
-double CGBMDataDistContainer::ComputeBagImprovement(const double* kFuncEstimate,
-                                                const double kShrinkage,
-                                                const std::vector<double>& kDeltaEstimate) {
-  return get_dist()->BagImprovement(get_data(), get_bag(), &kFuncEstimate[0], kShrinkage,
-                                    kDeltaEstimate);
+double CGBMDataDistContainer::ComputeBagImprovement(
+    const double* kFuncEstimate, const double kShrinkage,
+    const std::vector<double>& kDeltaEstimate) {
+  return get_dist()->BagImprovement(get_data(), get_bag(), &kFuncEstimate[0],
+                                    kShrinkage, kDeltaEstimate);
 }
 
 //-----------------------------------

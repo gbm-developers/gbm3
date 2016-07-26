@@ -15,23 +15,24 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CLaplace::CLaplace() : mpLocM_("Other") {}
+CLaplace::CLaplace(const parallel_details& parallel)
+    : CDistribution(parallel), mpLocM_("Other") {}
 
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
 CDistribution* CLaplace::Create(DataDistParams& distparams) {
-  return new CLaplace();
+  return new CLaplace(distparams.parallel);
 }
 
 CLaplace::~CLaplace() {}
 
-void CLaplace::ComputeWorkingResponse(const CDataset& kData,
-									  const Bag& kBag,
+void CLaplace::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
                                       const double* kFuncEstimate,
                                       std::vector<double>& residuals) {
-  unsigned long i = 0;
-  for (i = 0; i < kData.get_trainsize(); i++) {
+#pragma omp parallel for schedule(static, get_array_chunk_size()) \
+  num_threads(get_num_threads())
+  for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     residuals[i] =
         (kData.y_ptr()[i] - kData.offset_ptr()[i] - kFuncEstimate[i]) > 0.0
             ? 1.0
@@ -40,40 +41,31 @@ void CLaplace::ComputeWorkingResponse(const CDataset& kData,
 }
 
 double CLaplace::InitF(const CDataset& kData) {
-  double offset = 0.0;
-  unsigned long ii = 0;
-
   std::vector<double> arr(kData.get_trainsize());
 
-  for (ii = 0; ii < kData.get_trainsize(); ii++) {
-    offset = kData.offset_ptr()[ii];
-    arr[ii] = kData.y_ptr()[ii] - offset;
+#pragma omp parallel for schedule(static, get_array_chunk_size()) \
+  num_threads(get_num_threads())
+  for (unsigned long ii = 0; ii < kData.get_trainsize(); ii++) {
+    arr[ii] = kData.y_ptr()[ii] - kData.offset_ptr()[ii];
   }
 
   return mpLocM_.WeightedQuantile(kData.get_trainsize(), &arr[0],
                                   kData.weight_ptr(), 0.5);  // median
 }
 
-double CLaplace::Deviance(const CDataset& kData, const Bag& kBag, const double* kFuncEstimates) {
-  unsigned long i = 0;
+double CLaplace::Deviance(const CDataset& kData, const Bag& kBag,
+                          const double* kFuncEstimates) {
   double loss = 0.0;
   double weight = 0.0;
 
   unsigned long num_rows_in_set = kData.get_size_of_set();
 
-  if (kData.offset_ptr() == NULL) {
-    for (i = 0; i < num_rows_in_set; i++) {
-      loss +=
-          kData.weight_ptr()[i] * fabs(kData.y_ptr()[i] - kFuncEstimates[i]);
-      weight += kData.weight_ptr()[i];
-    }
-  } else {
-    for (i = 0; i < num_rows_in_set; i++) {
-      loss +=
-          kData.weight_ptr()[i] *
-          fabs(kData.y_ptr()[i] - kData.offset_ptr()[i] - kFuncEstimates[i]);
-      weight += kData.weight_ptr()[i];
-    }
+#pragma omp parallel for schedule(static, get_array_chunk_size()) \
+    reduction(+ : loss, weight) num_threads(get_num_threads())
+  for (unsigned long i = 0; i < num_rows_in_set; i++) {
+    loss += kData.weight_ptr()[i] *
+            fabs(kData.y_ptr()[i] - kData.offset_ptr()[i] - kFuncEstimates[i]);
+    weight += kData.weight_ptr()[i];
   }
 
   // TODO: Check if weights are all zero for validation set
@@ -87,11 +79,11 @@ double CLaplace::Deviance(const CDataset& kData, const Bag& kBag, const double* 
 }
 
 // DEBUG: needs weighted median
-void CLaplace::FitBestConstant(const CDataset& kData,
-							   const Bag& kBag,
+void CLaplace::FitBestConstant(const CDataset& kData, const Bag& kBag,
                                const double* kFuncEstimate,
                                unsigned long num_terminal_nodes,
-                               std::vector<double>& residuals, CCARTTree& tree) {
+                               std::vector<double>& residuals,
+                               CCARTTree& tree) {
   unsigned long node_num = 0;
   unsigned long obs_num = 0;
   unsigned long vec_num = 0;
@@ -122,19 +114,18 @@ void CLaplace::FitBestConstant(const CDataset& kData,
   }
 }
 
-double CLaplace::BagImprovement(const CDataset& kData,
-								const Bag& kBag,
+double CLaplace::BagImprovement(const CDataset& kData, const Bag& kBag,
                                 const double* kFuncEstimate,
                                 const double kShrinkage,
                                 const std::vector<double>& kDeltaEstimate) {
   double returnvalue = 0.0;
-  double delta_func_est = 0.0;
   double weight = 0.0;
-  unsigned long i = 0;
 
-  for (i = 0; i < kData.get_trainsize(); i++) {
+#pragma omp parallel for schedule(static, get_array_chunk_size()) \
+    reduction(+ : returnvalue, weight) num_threads(get_num_threads())
+  for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     if (!kBag.get_element(i)) {
-      delta_func_est = kFuncEstimate[i] + kData.offset_ptr()[i];
+      const double delta_func_est = kFuncEstimate[i] + kData.offset_ptr()[i];
 
       returnvalue +=
           kData.weight_ptr()[i] * (fabs(kData.y_ptr()[i] - delta_func_est) -

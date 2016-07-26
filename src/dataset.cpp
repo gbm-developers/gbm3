@@ -30,6 +30,7 @@
 CDataset::CDataset(const DataDistParams& dataparams)
     : xmatrix_(dataparams.xvalues),
       response_(dataparams.response),
+      intResponse_(dataparams.intResponse),
       response_offset_(dataparams.offset),
       data_weights_(dataparams.variable_weight),
       num_variable_classes_(dataparams.variable_num_classes),
@@ -53,7 +54,6 @@ CDataset::CDataset(const DataDistParams& dataparams)
   num_validationdata_ = xmatrix_.nrow() - dataparams.num_trainrows;
   num_features_ = dataparams.num_features;
   point_at_trainingset_ = true;
-
 
   // Ensure initialization makes sense
   if (num_traindata_ <= 0) {

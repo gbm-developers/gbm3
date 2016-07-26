@@ -23,6 +23,7 @@
 #include "databag.h"
 #include "dataset.h"
 #include "node_search.h"
+#include "parallel_details.h"
 #include "treeparams.h"
 #include <algorithm>
 #include <ctime>
@@ -43,14 +44,13 @@ class CCARTTree {
   //---------------------
   // Public destructor
   //---------------------
-  ~CCARTTree() {};
+  ~CCARTTree(){};
 
   //---------------------
   // Public Functions
   //---------------------
-  void Grow(std::vector<double>& residuals, const CDataset& kData,
-		  	    const Bag& kBag,
-            const std::vector<double>& kDeltaEstimate);
+  void Grow(const std::vector<double>& residuals, const CDataset& kData,
+            const Bag& kBag, const std::vector<double>& kDeltaEstimate);
 
   void PredictValid(const CDataset& kData, unsigned long num_validation_points,
                     std::vector<double>& delta_estimates);
@@ -67,13 +67,19 @@ class CCARTTree {
   std::vector<unsigned long>& get_node_assignments() {
     return data_node_assignment_;
   }
-  vector<CNode* >& get_terminal_nodes() { return terminalnode_ptrs_; }
+  vector<CNode*>& get_terminal_nodes() { return terminalnode_ptrs_; }
+  bool has_node(unsigned long node_num) const {
+    return terminalnode_ptrs_[node_num];
+  }
   const double& get_shrinkage_factor() const { return kShrinkage_; }
   const unsigned long& min_num_obs_required() const {
     return min_num_node_obs_;
   }
   const unsigned long& size_of_tree() const { return totalnodecount_; }
 
+  int get_num_threads() const { return parallel_.get_num_threads(); }
+  int get_array_chunk_size() const { return parallel_.get_array_chunk_size(); }
+  
  private:
   //---------------------
   // Private Variables
@@ -87,6 +93,8 @@ class CCARTTree {
   auto_ptr<CNode> rootnode_;
   vector<CNode*> terminalnode_ptrs_;
   vector<unsigned long> data_node_assignment_;
+
+  parallel_details parallel_;
 };
 
 #endif  // TREE_H

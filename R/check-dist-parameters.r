@@ -55,8 +55,8 @@ check_dist_params.CoxPHGBMDist <- function(empty_obj, strata, sorted, ties, prio
   } else if (is.null(strata)) {
     stop("Strata should not be NULL")
   } else if(!is.na(strata) && ((!(is.atomic(strata)) || is.infinite(strata)
-            || !isTRUE(all(strata == as.integer(strata))))) ) {
-    stop("Strata parameter must be an atomic of integers")
+            || !(any(strata == as.integer(strata)) || any(strata == as.factor(strata))) )) ) {
+    stop("Strata parameter must be an atomic of integers or factors")
   } 
   
   # Check sorted

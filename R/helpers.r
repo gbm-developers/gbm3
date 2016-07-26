@@ -196,3 +196,29 @@ warnNoVariation <- function(x, ind, name) {
   invisible(NULL)
 }
 
+convert_strata <- function(strata) {
+  # If factor then convert to integer
+  if(is.factor(strata)) {
+    strata <- as.integer(strata)
+  }
+  
+  # If it isn't default then check
+  if(!is.na(strata[1])) {
+    if(!is.atomic(strata) || !(any(strata == as.factor(strata)) || any(strata == as.integer(strata)))) {
+      stop("strata must be an atomic vector of factors or integers")
+    }
+  }
+  
+  return(strata)
+}
+
+convert_id_to_sequential <- function(id) {
+  # Helper function to convert non-sequential ids
+  # to sequential integers
+  new_id <- c()
+  for(i in seq_along(unique(id))) {
+     new_id[id==i] <- which(id==i) 
+  }
+  return(new_id)
+}
+

@@ -67,6 +67,8 @@ struct NodeDef {
     return totalweight_ + kNodeOne.sum_weights(kNodeTwo);
   }
 
+  double get_weightresid() const { return weightresid_; }
+
   double get_totalweight() const { return totalweight_; }
 
   long get_num_obs() const { return numobs_; }
@@ -85,41 +87,56 @@ class NodeParams {
   //----------------------
   // Public Constructors
   //----------------------
-  NodeParams() : left_(), right_(), missing_(),
-  	  	  	  	 split_value_(-HUGE_VAL), split_var_(0),
-  	  	  	  	 split_class_(0),
-  	  	  	  	 category_ordering_(1024), improvement_(0.0) {};
-  NodeParams(double weightedresiduals,
-             double trainingweight,
-             unsigned long numobs,
-             unsigned long variableclasses=1,
-             unsigned long splitvar=UINT_MAX):
-             left_(),
-             right_(NodeDef(weightedresiduals, trainingweight, numobs)),
-             missing_(), split_value_(-HUGE_VAL), split_var_(splitvar),
-             split_class_(variableclasses), improvement_(0.0) {}
+  NodeParams()
+      : left_(),
+        right_(),
+        missing_(),
+        bias_(0),
+        split_value_(-HUGE_VAL),
+        split_var_(0),
+        split_class_(0),
+        category_ordering_(),
+        improvement_(-HUGE_VAL){};
+  NodeParams(const NodeDef& initial, unsigned long bias = 0,
+             unsigned long variableclasses = 1,
+             unsigned long splitvar = UINT_MAX)
+      : left_(),
+        right_(initial),
+        missing_(),
+        bias_(bias),
+        split_value_(-HUGE_VAL),
+        split_var_(splitvar),
+        split_class_(variableclasses),
+        improvement_(-HUGE_VAL) {}
 
   //---------------------
   // Public destructor
   //---------------------
-  ~NodeParams() {};
+  ~NodeParams(){};
 
   //---------------------
   // Public Functions
   //---------------------
   NodeParams& operator+=(const NodeParams& rhs) {
-	  // If no split is identified keep everything
-	  // in right node.
-	  if((rhs.get_improvement() > get_improvement())
-	     || (fabs(rhs.get_improvement() - get_improvement())
-	   			<= std::numeric_limits<double>::epsilon())){
-	   		  *this = rhs;
-	  }
-	   	  return *this;
+    if (rhs.get_improvement() > get_improvement()) {
+      *this = rhs;  // other node better than us, take it
+    } else if ((rhs.get_improvement() < 0) && (get_improvement() < 0)) {
+      // no split identified, take later
+      if (rhs.bias_ >= bias_) {
+        *this = rhs;
+      }
+    } else if (rhs.get_improvement() == get_improvement()) {
+      // take the first of a draw to ensure reproducibility
+      if (rhs.bias_ < bias_) {
+        *this = rhs;
+      }
+    }
+
+    return *this;
   }
 
   void ResetSplitProperties(double weightedresiduals, double trainingweight,
-                            unsigned long numobs,
+                            unsigned long numobs, unsigned long bias = 0,
                             unsigned long variable_classes = 1,
                             unsigned long splitvar = UINT_MAX);
   void UpdateMissingNode(double predincrement, double trainw_increment,
@@ -134,6 +151,11 @@ class NodeParams {
     left_.increment(predincrement, trainw_increment, numincrement);
     right_.increment(-predincrement, -trainw_increment, -numincrement);
   }
+  void UpdateLeftNode(const NodeDef& update) {
+    UpdateLeftNode(update.get_weightresid(), update.get_totalweight(),
+                   update.get_num_obs());
+  }
+
   bool split_is_correct_monotonicity(long specify_monotone) {
     return ((specify_monotone == 0) ||
             ((specify_monotone * right_.unweighted_gradient(left_)) > 0));
@@ -169,8 +191,9 @@ class NodeParams {
     }
   };
   bool has_missing() const { return missing_.has_obs(); };
-  bool nodes_have_obs() const { return left_.has_obs() ||
-		  	  	  	  right_.has_obs() || missing_.has_obs(); };
+  bool nodes_have_obs() const {
+    return left_.has_obs() || right_.has_obs() || missing_.has_obs();
+  };
 
   // Getters
   const NodeDef& get_left_def() const { return left_; };
@@ -183,7 +206,7 @@ class NodeParams {
   const std::vector<int>& get_ordering() const { return category_ordering_; };
 
   // Setters
-  void set_split_value(double value) { split_value_=value; };
+  void set_split_value(double value) { split_value_ = value; };
   void set_missing_def(const NodeDef& missing_def) { missing_ = missing_def; };
 
  private:
@@ -192,6 +215,9 @@ class NodeParams {
   //---------------------
   // Left Node Definition
   NodeDef left_, right_, missing_;
+
+  // bias comparison for reproduciblity in parallel
+  unsigned long bias_;
 
   // Splitting values
   double split_value_;                  // Continuous Split Value

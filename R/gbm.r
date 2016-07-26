@@ -21,6 +21,7 @@
 #' outcomes, and a gradient boosting implementation to minimize the
 #' AdaBoost exponential loss function.
 #' 
+
 #' \code{gbm} is a depracated function that now acts as a front-end to \code{gbm2.fit}
 #' that uses the familiar R modeling formulas. However, \code{\link[stats]{model.frame}} is
 #' very slow if there are many predictor variables. For power users with many variables use \code{gbm.fit} over 
@@ -54,12 +55,12 @@
 #' \code{alpha} is the quantile to estimate. Non-constant weights are
 #' unsupported.
 #' 
-#' If "tdist" is specified, the default degrees of freedom is four and
+#' If "TDist" is specified, the default degrees of freedom is four and
 #' this can be controlled by specifying
 #' \code{distribution=list(name="tdist", df=DF)} where \code{DF} is
 #' your chosen degrees of freedom.
 #' 
-#' If "pairwise" regression is specified, \code{distribution} must be a list of
+#' If "Pairwise" regression is specified, \code{distribution} must be a list of
 #' the form \code{list(name="Pairwise",group=...,metric=...,max.rank=...)}
 #' (\code{metric} and \code{max.rank} are optional, see below). \code{group} is
 #' a character vector with the column names of \code{data} that jointly
@@ -127,7 +128,7 @@
 #' @param cv.folds Number of cross-validation folds to perform. If
 #' \code{cv.folds}>1 then \code{gbm}, in addition to the usual fit,
 #' will perform a cross-validation and calculate an estimate of
-#' generalization error returned in \code{cv.error}.
+#' generalization error returned in \code{cv_error}.
 #'
 #' @param interaction.depth The maximum depth of variable
 #' interactions: 1 builds an additive model, 2 builds a model with up
@@ -221,7 +222,7 @@
 #' rate assigned to each terminal node when fitting a tree.Increasing its value emphasises 
 #' the importance of the training data in the node when assigning a prediction to said node.
 #'
-#' @param strata Optional vector of integers only used with the \code{CoxPH} distributions.
+#' @param strata Optional vector of integers (or factors) only used with the \code{CoxPH} distributions.
 #' Each integer in this vector represents the stratum the corresponding row in the data belongs to,
 #' e. g. if the 10th element is 3 then the 10th data row belongs to the 3rd strata.
 #' 
@@ -229,14 +230,9 @@
 #' to individual patients.  Data is then bagged by patient id; the default sets each row of the data
 #' to belong to an individual patient.
 #' 
-#' @param n.cores The number of CPU cores to use. The cross-validation
-#' loop will attempt to send different CV folds off to different
-#' cores. If \code{n.cores} is not specified by the user, it is
-#' guessed using the \code{detectCores} function in the
-#' \code{parallel} package. Note that the documentation for
-#' \code{detectCores} makes clear that it is not reliable and could
-#' return a spurious number of available cores.
-#'
+#' @param par.details Details of the parallelization to use in the
+#'     core algorithm.
+#' 
 #' @param fold.id An optional vector of values identifying what fold
 #' each observation is in. If supplied, cv.folds can be missing. Note:
 #' Multiple observations to the same patient must have the same fold id.
@@ -272,9 +268,10 @@
 #' Daniel Edwards
 #' 
 #' Pairwise code developed by Stefan Schroedl \email{schroedl@@a9.com}
+#' 
 #' @seealso \code{\link{gbm2}}, \code{\link{gbm2.fit}} \code{\link{perf_gbm}},
 #' \code{\link{plot.GBMFit}}, \code{\link{predict.GBMFit}},
-#' \code{\link{summary.GBMFit}}, \code{\link{pretty.gbm.tree}}.
+#' \code{\link{summary.GBMFit}}, \code{\link{pretty.gbm.tree}}, \code{\link{gbmParallel}}.
 #' @references Y. Freund and R.E. Schapire (1997) \dQuote{A decision-theoretic
 #' generalization of on-line learning and an application to boosting,}
 #' \emph{Journal of Computer and System Sciences,} 55(1):119-139.
@@ -349,6 +346,30 @@
 #'     verbose=FALSE,               # don't print out progress
 #'     n.cores=1)                   # use only a single core (detecting #cores is
 #'                                  # error-prone, so avoided here)
+#'
+#' \dontrun{
+#' gbm1 <-
+#' gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
+#'     data=data,                   # dataset
+#'     var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease,
+#'                                  # +1: monotone increase,
+#'                                  #  0: no monotone restrictions
+#'     distribution="gaussian",     # see the help for other choices
+#'     n.trees=1000,                # number of trees
+#'     shrinkage=0.05,              # shrinkage or learning rate,
+#'                                  # 0.001 to 0.1 usually work
+#'     interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc.
+#'     bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
+#'     train.fraction = 0.5,        # fraction of data for training,
+#'                                  # first train.fraction*N used for training
+#'     mFeatures = 3,               # half of the features are considered at each node
+#'     n.minobsinnode = 10,         # minimum total weight needed in each node
+#'     cv.folds = 3,                # do 3-fold cross-validation
+#'     keep.data=TRUE,              # keep a copy of the dataset with the object
+#'     verbose=FALSE,               # don't print out progress
+#'     n.cores=1,                   # use only a single CV core
+#'     par.details=gbmParallel(n.threads=15))
+#' }
 #' 
 #' # check performance using an out-of-bag estimator
 #' # OOB underestimates the optimal number of iterations
@@ -434,7 +455,7 @@ gbm <- function(formula = formula(data),
                 keep.data = TRUE,
                 verbose = FALSE,
                 class.stratify.cv=NULL,
-                n.cores=NULL,
+                par.details=getOption('gbm.parallel'),
                 fold.id = NULL,
                 tied.times.method="efron",
                 prior.node.coeff.var=1000,
@@ -500,6 +521,7 @@ gbm <- function(formula = formula(data),
     if (length(fold.id) != nrow(x)){
       stop("fold.id inequal to number of rows.")
     }
+
     num_inferred_folds <- length(unique(fold.id))
     if (cv.folds != num_inferred_folds) {
       # Warn if cv.folds and fold.id disagree, but take fold.id.
@@ -515,7 +537,7 @@ gbm <- function(formula = formula(data),
   # Call gbm2.fit 
   gbm_fit_obj <- gbm2.fit(x, y, dist_obj, weights, offset,
                           params, var.monotone, var.names, keep.data, cv.folds,
-                          class.stratify.cv, fold.id, verbose)
+                          class.stratify.cv, fold.id, par.details, verbose)
   
   # Wrap up extra pieces 
   gbm_fit_obj$model <- m

@@ -40,7 +40,7 @@ create_dist.CoxPHGBMDist <- function(empty_obj, strata=NA, sorted=NA, ties="efro
     ties <- "efron"
   }
   empty_obj$ties <- ties
-  empty_obj$strata <- strata
+  empty_obj$original_strata_id <- convert_strata(strata)
   empty_obj$sorted <- sorted
   empty_obj$prior_node_coeff_var <- prior_node_coeff_var
   empty_obj$reorder <- TRUE

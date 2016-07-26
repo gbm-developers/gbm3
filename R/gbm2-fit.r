@@ -42,6 +42,9 @@
 #' each observation is in. If supplied, cv_folds can be missing. Note:
 #' Multiple rows of the same observation must have the same fold_id.
 #' 
+#' @param par_details Details of the parallelization to use in the
+#'     core algorithm.
+#' 
 #' @param is_verbose if TRUE, gbm2 will print out progress and performance of the fit.
 #' 
 #' @return a \code{GBMFit} object.
@@ -53,7 +56,7 @@ gbm2.fit <- function(x, y, distribution=gbm_dist("Gaussian", ...), weights=rep(1
                      train_params=training_params(num_trees=100, interaction_depth=1, min_num_obs_in_node=10, 
                      shrinkage=0.001, bag_fraction=0.5, id=seq_len(nrow(x)), num_train=round(0.5 * nrow(x)), num_features=ncol(x)), 
                      var_monotone=NULL, var_names=NULL, keep_gbm_data=FALSE, cv_folds=1,
-                     cv_class_stratify=FALSE, fold_id=NULL, is_verbose=FALSE) {
+                     cv_class_stratify=FALSE, fold_id=NULL, par_details=getOption('gbm.parallel'), is_verbose=FALSE) {
   
   # Check num_features makes sense
   if(train_params$num_features > ncol(x)) {
@@ -86,7 +89,7 @@ gbm2.fit <- function(x, y, distribution=gbm_dist("Gaussian", ...), weights=rep(1
                                 cv_class_stratify, fold_id)
   # Create fitted object
   gbm_fit_obj <- gbm_cross_val(gbm_data_obj, distribution, train_params, variables,
-                               cv_folds, cv_groups, is_verbose)
+                               cv_folds, cv_groups, par_details, is_verbose)
   
   # Keep original data
   if(keep_gbm_data) {

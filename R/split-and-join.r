@@ -26,7 +26,7 @@ split_and_join <- function(gbm_data_obj, train_params, rows_in_training, rows_in
     stop("rows_in_training must be a vector of logicals")
   }
   if(!is.atomic(rows_in_fold) || any(!is.logical(rows_in_fold)) ||
-     (length(rows_in_fold[rows_in_fold==FALSE]) != train_params$num_train)) {
+     (length(rows_in_fold[rows_in_fold==FALSE]) != train_params$num_train_rows)) {
     stop("rows_in_fold must be a vector of logicals of length the number of training rows")
   }
   

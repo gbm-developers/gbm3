@@ -75,7 +75,8 @@ DistributionFactory::DistributionFactory() {
 //------------------------------------------
 void DistributionFactory::RegisterDist(const string& kDistFamily,
                                        DistCreate ptr_to_dist_createfunc) {
-  factorymap_.insert(pair<string, DistCreate>(kDistFamily, ptr_to_dist_createfunc));
+  factorymap_.insert(
+      pair<string, DistCreate>(kDistFamily, ptr_to_dist_createfunc));
 }
 
 //------------------------------------------

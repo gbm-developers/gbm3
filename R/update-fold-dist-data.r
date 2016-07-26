@@ -23,7 +23,7 @@ update_fold_dist_data <- function(gbm_dist_obj, gbm_data_obj, train_params, rows
   check_if_gbm_data(gbm_data_obj)
   check_if_gbm_train_params(train_params)
   if(!is.atomic(rows_in_fold) || any(!is.logical(rows_in_fold)) ||
-     (length(rows_in_fold[rows_in_fold == FALSE]) != train_params$num_train)) {
+     (length(rows_in_fold[rows_in_fold == FALSE]) != train_params$num_train_rows)) {
     stop("rows_in_fold must be a vector of logicals of length the number of training rows")
   }
   UseMethod("update_fold_dist_data", gbm_dist_obj)
@@ -35,10 +35,12 @@ update_fold_dist_data.default <- function(gbm_dist_obj, gbm_data_obj, train_para
 
 update_fold_dist_data.CoxPHGBMDist <- function(gbm_dist_obj, gbm_data_obj, train_params, rows_in_training, rows_in_fold) {
   # Reset strata using folds
+  gbm_dist_obj$original_strata_id <- gbm_dist_obj$original_strata_id[order(train_params$id)]
+  gbm_dist_obj$original_strata_id <- c(gbm_dist_obj$original_strata_id[rows_in_training][!rows_in_fold], gbm_dist_obj$original_strata_id[rows_in_training][rows_in_fold])
   gbm_dist_obj$strata <- NULL
   gbm_dist_obj$sorted <- NULL
   gbm_dist_obj$time_order <- NULL
-  gbm_dist_obj <- create_strata(gbm_data_obj, train_params, gbm_dist_obj)
+  gbm_dist_obj <- create_strata(gbm_data_obj, train_params, gbm_dist_obj, order_strata_by_id=FALSE)
   return(gbm_dist_obj)
 }
 

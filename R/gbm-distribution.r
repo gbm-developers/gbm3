@@ -24,7 +24,7 @@
 #' required, these are:
 #' 
 #' \describe{
-#'  \item{\code{strata}}{A vector of integers specifying which strata each data-row belongs to, 
+#'  \item{\code{strata}}{A vector of integers (or factors) specifying which strata each data-row belongs to, 
 #'   if none is specified it is assumed all training data is in the same stratum.}
 #'   \item{\code{ties}}{String specifying the method to be used when dealing with tied
 #'   event times.  Currently only "breslow" and "efron" are available, with the latter

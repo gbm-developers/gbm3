@@ -14,27 +14,26 @@
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
-CPoisson::CPoisson() {}
+CPoisson::CPoisson(const parallel_details& parallel)
+    : CDistribution(parallel) {}
 
 //----------------------------------------
 // Function Members - Public
 //----------------------------------------
 CDistribution* CPoisson::Create(DataDistParams& distparams) {
-  return new CPoisson();
+  return new CPoisson(distparams.parallel);
 }
 
 CPoisson::~CPoisson() {}
 
-void CPoisson::ComputeWorkingResponse(const CDataset& kData,
-									  const Bag& kBag,
+void CPoisson::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
                                       const double* kFuncEstimate,
                                       std::vector<double>& residuals) {
-  unsigned long i = 0;
-  double delta_func_est = 0.0;
-
-  // compute working response
-  for (i = 0; i < kData.get_trainsize(); i++) {
-    delta_func_est = kFuncEstimate[i] + kData.offset_ptr()[i];
+// compute working response
+#pragma omp parallel for schedule(static, get_array_chunk_size()) \
+  num_threads(get_num_threads())
+  for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
+    const double delta_func_est = kFuncEstimate[i] + kData.offset_ptr()[i];
     residuals[i] = kData.y_ptr()[i] - std::exp(delta_func_est);
   }
 }
@@ -42,9 +41,10 @@ void CPoisson::ComputeWorkingResponse(const CDataset& kData,
 double CPoisson::InitF(const CDataset& kData) {
   double sum = 0.0;
   double denom = 0.0;
-  unsigned long i = 0;
 
-  for (i = 0; i < kData.get_trainsize(); i++) {
+#pragma omp parallel for schedule(static, get_array_chunk_size()) \
+    reduction(+ : sum, denom) num_threads(get_num_threads())
+  for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     sum += kData.weight_ptr()[i] * kData.y_ptr()[i];
     denom += kData.weight_ptr()[i] * std::exp(kData.offset_ptr()[i]);
   }
@@ -52,15 +52,17 @@ double CPoisson::InitF(const CDataset& kData) {
   return std::log(sum / denom);
 }
 
-double CPoisson::Deviance(const CDataset& kData, const Bag& kBag, const double* kFuncEstimate) {
-  unsigned long i = 0;
+double CPoisson::Deviance(const CDataset& kData, const Bag& kBag,
+                          const double* kFuncEstimate) {
   double loss = 0.0;
   double weight = 0.0;
 
   // Switch to validation set if necessary
   unsigned long num_rows_in_set = kData.get_size_of_set();
 
-  for (i = 0; i < num_rows_in_set; i++) {
+#pragma omp parallel for schedule(static, get_array_chunk_size()) \
+    reduction(+ : loss, weight) num_threads(get_num_threads())
+  for (unsigned long i = 0; i < num_rows_in_set; i++) {
     loss += kData.weight_ptr()[i] *
             (kData.y_ptr()[i] * (kData.offset_ptr()[i] + kFuncEstimate[i]) -
              std::exp(kData.offset_ptr()[i] + kFuncEstimate[i]));
@@ -76,11 +78,11 @@ double CPoisson::Deviance(const CDataset& kData, const Bag& kBag, const double* 
   return -2 * loss / weight;
 }
 
-void CPoisson::FitBestConstant(const CDataset& kData,
-							   const Bag& kBag,
+void CPoisson::FitBestConstant(const CDataset& kData, const Bag& kBag,
                                const double* kFuncEstimate,
                                unsigned long num_terminalnodes,
-                               std::vector<double>& residuals, CCARTTree& tree) {
+                               std::vector<double>& residuals,
+                               CCARTTree& tree) {
   unsigned long obs_num = 0;
   unsigned long node_num = 0;
   vector<double> numerator_vec(num_terminalnodes, 0.0);
@@ -99,7 +101,7 @@ void CPoisson::FitBestConstant(const CDataset& kData,
   }
 
   for (node_num = 0; node_num < num_terminalnodes; node_num++) {
-    if (tree.get_terminal_nodes()[node_num] != NULL) {
+    if (tree.has_node(node_num)) {
       if (numerator_vec[node_num] == 0.0) {
         // DEBUG: if vecdNum==0 then prediction = -Inf
         // Not sure what else to do except plug in an arbitrary
@@ -122,19 +124,18 @@ void CPoisson::FitBestConstant(const CDataset& kData,
   }
 }
 
-double CPoisson::BagImprovement(const CDataset& kData,
-								const Bag& kBag,
+double CPoisson::BagImprovement(const CDataset& kData, const Bag& kBag,
                                 const double* kFuncEstimate,
                                 const double kShrinkage,
                                 const std::vector<double>& kDeltaEstimate) {
   double returnvalue = 0.0;
-  double delta_func_est = 0.0;
   double weight = 0.0;
-  unsigned long i = 0;
 
-  for (i = 0; i < kData.get_trainsize(); i++) {
+#pragma omp parallel for schedule(static, get_array_chunk_size()) \
+    reduction(+ : returnvalue, weight) num_threads(get_num_threads())
+  for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     if (!kBag.get_element(i)) {
-      delta_func_est = kFuncEstimate[i] + kData.offset_ptr()[i];
+      const double delta_func_est = kFuncEstimate[i] + kData.offset_ptr()[i];
 
       returnvalue +=
           kData.weight_ptr()[i] *

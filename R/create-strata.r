@@ -12,10 +12,13 @@
 #' @param distribution_obj a gbm distribution object - the strata in this object will be
 #' updated if they exist - this is only the case for the CoxPH model at this moment.
 #' 
+#' @param order_strata_by_id indicates whether or not to order the entire strata vector by observation id.
+#' This defaults to \code{TRUE} but should be set to \code{FALSE} for cross-validation strata creation. 
+#' 
 #' @return updated distribution_obj
 #' 
 
-create_strata <- function(gbm_data_obj, train_params, distribution_obj) {
+create_strata <- function(gbm_data_obj, train_params, distribution_obj, order_strata_by_id=TRUE) {
   check_if_gbm_dist(distribution_obj)
   check_if_gbm_data(gbm_data_obj)
   
@@ -35,10 +38,13 @@ create_strata <- function(gbm_data_obj, train_params, distribution_obj) {
     }
       
     # Set up strata 
-    if(!is.na(distribution_obj$strata))
+    if(!is.na(distribution_obj$original_strata_id))
     {
       # Sort strata according to patient ID
-      distribution_obj$strata <- distribution_obj$strata[order(train_params$id)]
+      distribution_obj$strata <- distribution_obj$original_strata_id
+      if(order_strata_by_id) {
+        distribution_obj$strata <- distribution_obj$strata[order(train_params$id)]
+      }
       
       # Order strata and split into train/test
       strataVecTrain <- distribution_obj$strata[seq_len(num_train_rows)]
@@ -111,3 +117,4 @@ create_strata <- function(gbm_data_obj, train_params, distribution_obj) {
   
   return(distribution_obj)
 }
+

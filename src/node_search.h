@@ -26,6 +26,8 @@
 #include "node_parameters.h"
 #include "vec_varsplitters.h"
 #include "vec_nodeparams.h"
+#include "parallel_details.h"
+
 #include <vector>
 
 using namespace std;
@@ -38,7 +40,8 @@ class CNodeSearch {
   //----------------------
   // Public Constructors
   //----------------------
-  CNodeSearch(unsigned long treedepth, unsigned long minobs);
+  CNodeSearch(unsigned long treedepth, unsigned long minobs,
+              const parallel_details& parallel);
 
   //---------------------
   // Public destructor
@@ -48,14 +51,16 @@ class CNodeSearch {
   //---------------------
   // Public Functions
   //---------------------
-  void GenerateAllSplits(vector<CNode* >& term_nodes_ptrs, const CDataset& kData,
-		  	  	  	  	 const Bag& kBag,
-                         double* residuals,
+  void GenerateAllSplits(vector<CNode*>& term_nodes_ptrs, const CDataset& kData,
+                         const Bag& kBag, const vector<double>& residuals,
                          vector<unsigned long>& data_node_assigns);
   double CalcImprovementAndSplit(vector<CNode*>& term_nodes_ptrs,
                                  const CDataset& kData,
                                  vector<unsigned long>& data_node_assigns);
 
+  int get_num_threads() const { return parallel_.get_num_threads(); }
+  int get_array_chunk_size() const { return parallel_.get_array_chunk_size(); }
+  
  private:
   //---------------------
   // Private Functions
@@ -73,6 +78,9 @@ class CNodeSearch {
   // Number of terminal nodes
   unsigned long num_terminal_nodes_;
   unsigned long min_num_node_obs_;
+
+  // parallelization
+  parallel_details parallel_;
 };
 
 #endif  // NODESEARCH_H

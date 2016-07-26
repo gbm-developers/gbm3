@@ -27,6 +27,7 @@
 #' 
 #' @return the input \code{GBMFit} object with additional iterations provided for the fit.
 #' 
+#' 
 #' @export gbm_more
 
 gbm_more <- function(gbm_fit_obj, num_new_trees=100, data=NULL, weights=NULL, offset=NULL, is_verbose=FALSE){

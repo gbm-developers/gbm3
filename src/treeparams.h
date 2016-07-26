@@ -17,13 +17,13 @@
 // Includes
 //------------------------------
 #include "gbm_exception.h"
+#include "parallel_details.h"
 #include <Rcpp.h>
 
 //------------------------------
 // Struct definitions
 //------------------------------
 struct TreeParams {
-
   //----------------------
   // Public Constructors
   //----------------------
@@ -40,18 +40,19 @@ struct TreeParams {
   //					a node must have - ulong.
   //  shrinkageconstant - SEXP defining the shrinkage applied to
   //				  each tree fit - double.
-  //  num_rows_in_training - SEXP containing ulong specify the number of data points in
+  //  num_rows_in_training - SEXP containing ulong specify the number of data
+  //  points in
   //							training set
+  //  parallel - parallelization-related constants
   //-----------------------------------
 
-  TreeParams(SEXP tree_depth, SEXP min_num_node_obs,
-		  	 SEXP shrinkageconstant, SEXP num_rows_in_training) {
-
-	  depth = Rcpp::as<unsigned long>(tree_depth);
-	  min_obs_in_node = Rcpp::as<unsigned long>(min_num_node_obs);
-	  shrinkage = Rcpp::as<double>(shrinkageconstant);
-	  num_trainrows = Rcpp::as<unsigned long>(num_rows_in_training);
-  }
+  TreeParams(SEXP tree_depth, SEXP min_num_node_obs, SEXP shrinkageconstant,
+             SEXP num_rows_in_training, const parallel_details& parallel)
+      : depth(Rcpp::as<unsigned long>(tree_depth)),
+        min_obs_in_node(Rcpp::as<unsigned long>(min_num_node_obs)),
+        shrinkage(Rcpp::as<double>(shrinkageconstant)),
+        num_trainrows(Rcpp::as<unsigned long>(num_rows_in_training)),
+        parallel(parallel) {}
 
   //----------------------
   // Public Constructors
@@ -60,5 +61,6 @@ struct TreeParams {
   unsigned long min_obs_in_node;
   double shrinkage;
   unsigned long num_trainrows;
+  parallel_details parallel;
 };
-#endif // TREEPARAMS_H
+#endif  // TREEPARAMS_H
