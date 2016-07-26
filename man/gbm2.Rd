@@ -44,6 +44,9 @@ Multiple rows of the same observation must have the same fold_id.}
 \item{keep_gbm_data}{a bool specifying whether or not the gbm_data object created in this method should be
 stored in the results.}
 
+\item{par_details}{Details of the parallelization to use in the
+core algorithm (\code{\link{gbmParallel}}).}
+
 \item{is_verbose}{if TRUE, gbm2 will print out progress and performance of the fit.}
 }
 \value{

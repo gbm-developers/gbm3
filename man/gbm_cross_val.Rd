@@ -22,6 +22,9 @@ fit. If cv_folds > 1 then cross-validation is performed; the default of cv_folds
 
 \item{cv_groups}{vector of integers specifying which row of data belongs to which cv_folds.}
 
+\item{par_details}{Details of the parallelization to use in the
+core algorithm.}
+
 \item{is_verbose}{if TRUE, will print out progress and performance of the fitting.}
 }
 \value{

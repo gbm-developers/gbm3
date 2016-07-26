@@ -511,3 +511,8 @@ test_that("check_cv_parameters throws an error if fold_id has observations acros
   expect_error(check_cv_parameters(cv_folds=cv_folds, cv_class_stratify=FALSE, fold_id=fold_id,
                                    train_params=params))
 })
+
+test_that("convert_strata does not alter a NA", {
+  expect_true(is.na(convert_strata(NA)))
+})
+

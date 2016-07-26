@@ -215,7 +215,7 @@ test_that("Error thrown if 'ties' parameter is not a string- CoxPH", {
   expect_error(gbm_dist(name="CoxPH", ties=NULL))
 })
 
-test_that("Error thrown if strata not a vector of integers - CoxPH", {
+test_that("Error thrown if strata not a vector of integers or factors- CoxPH", {
   expect_error(gbm_dist(name="CoxPH", strata=c(1.2, 1.4, 1.5)))
   expect_error(gbm_dist(name="CoxPH", strata=NULL))
   expect_error(gbm_dist(name="CoxPH", strata="String"))
@@ -347,11 +347,12 @@ test_that("Tweedie has reorder is FALSE", {
 })
 
 test_that("CoxPH - defaults to 'efron', a prior coeff var of 1000, with NAs for sorted and strata", {
-  expect_true(is.na(gbm_dist(name="CoxPH")$strata))
+  expect_true(is.na(gbm_dist(name="CoxPH")$original_strata_id))
   expect_true(is.na(gbm_dist(name="CoxPH")$sorted))
   expect_equal(gbm_dist(name="CoxPH")$prior_node_coeff, 1000)
   expect_equal(gbm_dist(name="CoxPH")$ties, "efron")
 })
+
 
 test_that("Pairwise params default to - 'ndcg', max.rank=0 and group='query'", {
   expect_equal(gbm_dist(name="Pairwise")$metric, "ndcg")
@@ -489,4 +490,26 @@ test_that("Create distribution method breaks if not given a GBMDist object", {
   # object whose class has been removed
   expect_error(create_dist(dist_b))
   expect_error(create_dist(dist_a), NA)
+})
+
+#### CoxPH ####
+test_that("CoxPH - stores the original strata observations ids (positive integers) in original_strata_id field", {
+  orig_strat <- c(1, 1, 2, 3, 5, 5)
+  
+  # When a CoxPH is created
+  dist <- gbm_dist("CoxPH", strata=orig_strat)
+  
+  # Then original strata stored in dist
+  expect_equal(dist$original_strata_id, orig_strat)
+})
+
+test_that("CoxPH - convert and store original strata observations (factors) in original_strata_id field", {
+  # Given original strata of factors
+  orig_strat <- as.factor(c("a", "b"))
+  
+  # When a CoxPH is created
+  dist <- gbm_dist("CoxPH", strata=orig_strat)
+  
+  # Then original strata is converted to integers and stored in dist
+  expect_equal(dist$original_strata_id, as.integer(orig_strat))
 })

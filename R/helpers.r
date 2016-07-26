@@ -212,13 +212,3 @@ convert_strata <- function(strata) {
   return(strata)
 }
 
-convert_id_to_sequential <- function(id) {
-  # Helper function to convert non-sequential ids
-  # to sequential integers
-  new_id <- c()
-  for(i in seq_along(unique(id))) {
-     new_id[id==i] <- which(id==i) 
-  }
-  return(new_id)
-}
-

@@ -64,7 +64,6 @@ FittedLearner* CGBMEngine::FitLearner(double* func_estimate) {
   double valid_error = datacontainer_.ComputeDeviance(&func_estimate[0], true);
   std::auto_ptr<FittedLearner> fit(new FittedLearner(
       tree, datacontainer_.get_data(), train_error, valid_error, oobag_improv));
-/* std::auto_ptr<FittedLearner> fit(new FittedLearner(
-        tree, datacontainer_.get_data(), 0.0, 0.0, 0.0));*/
+
   return fit.release();
 }

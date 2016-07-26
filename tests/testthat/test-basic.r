@@ -281,7 +281,7 @@ test_that("coxph cv.folds - runs to completion with start-stop, id'ed and strati
   
   expect_error(gbm(Surv(tstart, tstop, status) ~ age + sex + inherit +
                      steroids + propylac, data=cgd, obs.id=cgd$id,
-                   train.fraction=0.8, n.trees=500, strata= cgd$hos.cat, distribution = "CoxPH", shrinkage=.01, interaction.depth=3, cv.folds=10), NA)
+                   train.fraction=1.0, n.trees=500, strata= cgd$hos.cat, distribution = "CoxPH", shrinkage=.01, interaction.depth=3, cv.folds=10), NA)
   expect_error(gbm(Surv(tstart, tstop, status) ~ age + sex + inherit +
                      steroids + propylac, data=cgd, obs.id=cgd$id,
                    train.fraction=0.8, n.trees=500, strata= cgd$hos.cat, distribution = "CoxPH", shrinkage=.01, interaction.depth=3, cv.folds=10), NA)

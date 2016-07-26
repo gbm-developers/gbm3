@@ -13,6 +13,9 @@ create_strata(gbm_data_obj, train_params, distribution_obj)
 
 \item{distribution_obj}{a gbm distribution object - the strata in this object will be
 updated if they exist - this is only the case for the CoxPH model at this moment.}
+
+\item{order_strata_by_id}{indicates whether or not to order the entire strata vector by observation id.
+This defaults to \code{TRUE} but should be set to \code{FALSE} for cross-validation strata creation.}
 }
 \value{
 updated distribution_obj

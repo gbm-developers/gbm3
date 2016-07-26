@@ -44,6 +44,9 @@ applies to "Bernoulli" distribution and defaults to false.}
 each observation is in. If supplied, cv_folds can be missing. Note:
 Multiple rows of the same observation must have the same fold_id.}
 
+\item{par_details}{Details of the parallelization to use in the
+core algorithm.}
+
 \item{is_verbose}{if TRUE, gbm2 will print out progress and performance of the fit.}
 }
 \value{

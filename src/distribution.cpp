@@ -33,6 +33,9 @@ void CDistribution::BagData(const CDataset& kData, Bag& bag) {
         bag.get_total_in_bag() - numbagged) {
       numbagged++;
       for (row_it = keyrange.first; row_it != keyrange.second; ++row_it) {
+    	  if((*row_it).second > kData.get_trainsize()) {
+    		  throw gbm_exception::Failure("Overflow here");
+    	  }
     	  bag.set_element((*row_it).second);
       }
     } else {

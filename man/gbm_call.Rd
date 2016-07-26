@@ -17,6 +17,9 @@ trained.}
 \item{var_container}{a GBMVarCont object which defines the properties of the predictor variables in the data.}
 
 \item{is_verbose}{if TRUE, will print out progress and performance of the fitting.}
+
+\item{par.details}{Details of the parallelization to use in the
+core algorithm.}
 }
 \value{
 a fitted gbm object

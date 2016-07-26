@@ -41,7 +41,7 @@ void CCARTTree::Grow(const std::vector<double>& residuals,
 
   // Move to data -- FOR TIME BEING
   for (unsigned long obs_num = 0; obs_num < kData.get_trainsize(); obs_num++) {
-    if (kBag.get_element(obs_num)) {
+   if (kBag.get_element(obs_num)) {
       // get the initial sums and sum of squares and total weight
       sumz += kData.weight_ptr()[obs_num] * residuals[obs_num];
       sum_zsquared +=
@@ -50,7 +50,7 @@ void CCARTTree::Grow(const std::vector<double>& residuals,
     }
   }
 
-  error_ = sum_zsquared - sumz * sumz / totalw;
+  error_ = 0.0;//sum_zsquared - sumz * sumz / totalw;
   rootnode_.reset(new CNode(NodeDef(sumz, totalw, kBag.get_total_in_bag())));
   terminalnode_ptrs_[0] = rootnode_.get();
   CNodeSearch new_node_searcher(kTreeDepth_, min_num_node_obs_, parallel_);
