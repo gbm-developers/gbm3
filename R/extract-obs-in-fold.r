@@ -33,7 +33,7 @@ extract_obs_in_fold <- function(gbm_data_obj, gbm_dist_obj, train_params, cv_gro
   # Calculate new number of training rows and observations
   train_params$num_train <- length(unique(train_params$id[!obs_id_in_cv_group]))
   train_params$num_train_rows <- length(train_params$id[!obs_id_in_cv_group])
-  #train_params$id <- train_params$id[!obs_id_in_cv_group]#, train_params$id[obs_id_in_cv_group])
+  train_params$id <- train_params$id[!obs_id_in_cv_group]#, train_params$id[obs_id_in_cv_group])
   
   gbm_data_obj <- split_and_join(gbm_data_obj, train_params, obs_in_training_set, obs_id_in_cv_group)
   gbm_dist_obj <- update_fold_dist_data(gbm_dist_obj, gbm_data_obj, train_params, obs_in_training_set, obs_id_in_cv_group)

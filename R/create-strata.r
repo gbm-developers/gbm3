@@ -38,7 +38,7 @@ create_strata <- function(gbm_data_obj, train_params, distribution_obj, order_st
     }
       
     # Set up strata 
-    if(!is.na(distribution_obj$original_strata_id))
+    if(!is.na(distribution_obj$original_strata_id[1]))
     {
       # Sort strata according to patient ID
       distribution_obj$strata <- distribution_obj$original_strata_id
