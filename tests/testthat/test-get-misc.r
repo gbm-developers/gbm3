@@ -114,7 +114,7 @@ test_that("Can get misc for Pairwise", {
   # Given a pairwise dist
   group <- "query"
   max_rank <- 2
-  dist <- gbm_dist("Pairwise", group="query", max.rank=max_rank)
+  dist <- gbm_dist("Pairwise", group="query", max_rank=max_rank)
   
   # When misc is gotten
   misc <- get_misc(dist)

@@ -6,9 +6,8 @@
 #' 
 #' @param distribution_obj a GBMDist object
 #' 
-#' @return a list of parameters
+#' @return a list of additional parameters specific to the distribution
 #' 
-#' @export
 
 get_misc <- function(distribution_obj) {
   check_if_gbm_dist(distribution_obj)
@@ -48,7 +47,7 @@ get_misc.LaplaceGBMDist <- function(distribution_obj) {
 }
 
 get_misc.PairwiseGBMDist <- function(distribution_obj) {
-  return(list("GroupsAndRanks"=c(distribution_obj$group, distribution_obj$max.rank)))
+  return(list("GroupsAndRanks"=c(distribution_obj$group, distribution_obj$max_rank)))
 }
 
 get_misc.PoissonGBMDist <- function(distribution_obj) {

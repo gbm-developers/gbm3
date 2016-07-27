@@ -814,7 +814,6 @@ double CPairwise::Deviance(const CDataset& kData, const Bag& kBag,
   }
 
   // Loss = 1 - utility
-  std::cout << loss << weight << endl;
   return 1.0 - loss / weight;
 }
 
