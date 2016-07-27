@@ -104,7 +104,7 @@ loss.LaplaceGBMDist <- function(y, predictions, weights, offset, distribution_ob
 #' @name loss
 #' @export
 loss.PairwiseGBMDist <- function(y, predictions, weights, offset, distribution_obj, baseline) {
-  return((1 - perf_pairwise(y, predictions+offset, distribution_obj$group, distribution_obj$metric, 
+  return((1 - perf_pairwise(y, predictions+offset, distribution_obj$group_index, distribution_obj$metric, 
                             weights, distribution_obj$max_rank)) - baseline)
 }
 

@@ -333,26 +333,239 @@ test_that("Correctly calculates Laplace loss", {
   loss_true <- weighted.mean(abs(resps-preds), weights) - baseline
   expect_equal(calc_loss, loss_true)
 })
-test_that("Correctly calculates Pairwise loss", {
+test_that("Correctly calculates Pairwise loss - ndcg", {
   # Given responses, weights, predictions, offset, baseline and
-  # Pairwise dist
-  N <- 100
-  resps <- runif(N)
-  weights <- runif(N)
-  preds <- runif(N)
-  offset <- runif(N)
-  baseline <- runif(N)
-  dist <- gbm_dist("Pairwise")
+  # Given data and a fitted pairwise
+  # create query groups, with an average size of 25 items each
+  N <- 1000
+  num.queries <- floor(N/25)
+  query <- sample(1:num.queries, N, replace=TRUE)
+  
+  # X1 is a variable determined by query group only
+  query.level <- runif(num.queries)
+  X1 <- query.level[query]
+  
+  # X2 varies with each item
+  X2 <- runif(N)
+  
+  # X3 is uncorrelated with target
+  X3 <- runif(N)
+  
+  # The target
+  Y <- X1 + X2
+  
+  # Add some random noise to X2 that is correlated with
+  # queries, but uncorrelated with items
+  
+  X2 <- X2 + scale(runif(num.queries))[query]
+  
+  # Add some random noise to target
+  SNR <- 5 # signal-to-noise ratio
+  sigma <- sqrt(var(Y)/SNR)
+  Y <- Y + runif(N, 0, sigma)
+  
+  data <- data.frame(Y, query=query, X1, X2, X3)
+  dist <- gbm_dist("Pairwise", metric="ndcg", group="query")
+  params <- training_params(num_trees = 2000, num_train = nrow(data), id=seq_len(nrow(data)),
+                            interaction_depth = 3)
+  
+  fit <- gbm2(Y~X1+X2+X3,          # formula
+              data=data,     # dataset
+              distribution=dist,
+              train_params=params,
+              keep_gbm_data=TRUE,      # store copy of input data in model
+              cv_folds=5,          # number of cross validation folds
+              is_verbose = FALSE ,    # don't print progress
+              par_details=gbmParallel())  
+  
+  baseline <- runif(length(fit$fit))
   
   # When calculting loss
-  calc_loss <- loss(resps, preds, weights, offset, dist, baseline)
+  calc_loss <- loss(Y, fit$fit, fit$gbm_data_obj$weights, fit$gbm_data_obj$offset, fit$distribution, baseline)
   
   # Then it is correct
-  preds <- preds + offset
-  loss_true <- (1 - perf_pairwise(y, preds, dist$group, dist$metric, 
-                                  weights, dist$max_rank)) - baseline
-  expect_equal(calc_loss, loss_true)
+  preds <- fit$fit + fit$gbm_data_obj$offset
+  loss_true <- (1 - perf_pairwise(Y, preds, fit$distribution$group_index, dist$metric, 
+                                  fit$gbm_data_obj$weights, fit$distribution$max_rank)) - baseline
+  expect_equal(calc_loss, loss_true, tolerance=10^-4) # tolerance for random tie breaking
 })
+
+test_that("Correctly calculates Pairwise loss - conc", {
+  # Given responses, weights, predictions, offset, baseline and
+  # Given data and a fitted pairwise
+  # create query groups, with an average size of 25 items each
+  N <- 1000
+  num.queries <- floor(N/25)
+  query <- sample(1:num.queries, N, replace=TRUE)
+  
+  # X1 is a variable determined by query group only
+  query.level <- runif(num.queries)
+  X1 <- query.level[query]
+  
+  # X2 varies with each item
+  X2 <- runif(N)
+  
+  # X3 is uncorrelated with target
+  X3 <- runif(N)
+  
+  # The target
+  Y <- X1 + X2
+  
+  # Add some random noise to X2 that is correlated with
+  # queries, but uncorrelated with items
+  
+  X2 <- X2 + scale(runif(num.queries))[query]
+  
+  # Add some random noise to target
+  SNR <- 5 # signal-to-noise ratio
+  sigma <- sqrt(var(Y)/SNR)
+  Y <- Y + runif(N, 0, sigma)
+  
+  data <- data.frame(Y, query=query, X1, X2, X3)
+  dist <- gbm_dist("Pairwise", metric="conc", group="query")
+  params <- training_params(num_trees = 2000, num_train = nrow(data), id=seq_len(nrow(data)),
+                            interaction_depth = 3)
+  
+  fit <- gbm2(Y~X1+X2+X3,          # formula
+              data=data,     # dataset
+              distribution=dist,
+              train_params=params,
+              keep_gbm_data=TRUE,      # store copy of input data in model
+              cv_folds=5,          # number of cross validation folds
+              is_verbose = FALSE ,    # don't print progress
+              par_details=gbmParallel())  
+  
+  baseline <- runif(length(fit$fit))
+  
+  # When calculting loss
+  calc_loss <- loss(Y, fit$fit, fit$gbm_data_obj$weights, fit$gbm_data_obj$offset, fit$distribution, baseline)
+  
+  # Then it is correct
+  preds <- fit$fit + fit$gbm_data_obj$offset
+  loss_true <- (1 - perf_pairwise(Y, preds, fit$distribution$group_index, dist$metric, 
+                                  fit$gbm_data_obj$weights, fit$distribution$max_rank)) - baseline
+  expect_equal(calc_loss, loss_true, tolerance=10^-4) # tolerance for random tie breaking
+})
+
+
+test_that("Correctly calculates Pairwise loss - map", {
+  # Given responses, weights, predictions, offset, baseline and
+  # Given data and a fitted pairwise
+  # create query groups, with an average size of 25 items each
+  N <- 1000
+  num.queries <- floor(N/25)
+  query <- sample(1:num.queries, N, replace=TRUE)
+  
+  # X1 is a variable determined by query group only
+  query.level <- runif(num.queries)
+  X1 <- query.level[query]
+  
+  # X2 varies with each item
+  X2 <- runif(N)
+  
+  # X3 is uncorrelated with target
+  X3 <- runif(N)
+  
+  # The target
+  Y <- X1 + X2
+  
+  # Add some random noise to X2 that is correlated with
+  # queries, but uncorrelated with items
+  
+  X2 <- X2 + scale(runif(num.queries))[query]
+  
+  # Add some random noise to target
+  SNR <- 5 # signal-to-noise ratio
+  sigma <- sqrt(var(Y)/SNR)
+  Y <- Y + runif(N, 0, sigma)
+  Y[Y >= 1] <- 1
+  Y[Y < 1] <- 0
+  
+  data <- data.frame(Y, query=query, X1, X2, X3)
+  dist <- gbm_dist("Pairwise", metric="map", group="query")
+  params <- training_params(num_trees = 2000, num_train = nrow(data), id=seq_len(nrow(data)),
+                            interaction_depth = 3)
+  
+  fit <- gbm2(Y~X1+X2+X3,          # formula
+              data=data,     # dataset
+              distribution=dist,
+              train_params=params,
+              keep_gbm_data=TRUE,      # store copy of input data in model
+              cv_folds=5,          # number of cross validation folds
+              is_verbose = FALSE ,    # don't print progress
+              par_details=gbmParallel())  
+  
+  baseline <- runif(length(fit$fit))
+  
+  # When calculting loss
+  calc_loss <- loss(Y, fit$fit, fit$gbm_data_obj$weights, fit$gbm_data_obj$offset, fit$distribution, baseline)
+  
+  # Then it is correct
+  preds <- fit$fit + fit$gbm_data_obj$offset
+  loss_true <- (1 - perf_pairwise(Y, preds, fit$distribution$group_index, dist$metric, 
+                                  fit$gbm_data_obj$weights, fit$distribution$max_rank)) - baseline
+  expect_equal(calc_loss, loss_true, tolerance=10^-4) # tolerance for random tie breaking
+})
+
+test_that("Correctly calculates Pairwise loss - mrr", {
+  # Given responses, weights, predictions, offset, baseline and
+  # Given data and a fitted pairwise
+  # create query groups, with an average size of 25 items each
+  N <- 1000
+  num.queries <- floor(N/25)
+  query <- sample(1:num.queries, N, replace=TRUE)
+  
+  # X1 is a variable determined by query group only
+  query.level <- runif(num.queries)
+  X1 <- query.level[query]
+  
+  # X2 varies with each item
+  X2 <- runif(N)
+  
+  # X3 is uncorrelated with target
+  X3 <- runif(N)
+  
+  # The target
+  Y <- X1 + X2
+  
+  # Add some random noise to X2 that is correlated with
+  # queries, but uncorrelated with items
+  
+  X2 <- X2 + scale(runif(num.queries))[query]
+  
+  # Add some random noise to target
+  SNR <- 5 # signal-to-noise ratio
+  sigma <- sqrt(var(Y)/SNR)
+  Y <- Y + runif(N, 0, sigma)
+  Y[Y >= 1] <- 1
+  Y[Y < 1] <- 0
+  
+  data <- data.frame(Y, query=query, X1, X2, X3)
+  dist <- gbm_dist("Pairwise", metric="mrr", group="query")
+  params <- training_params(num_trees = 2000, num_train = nrow(data), id=seq_len(nrow(data)),
+                            interaction_depth = 3)
+  
+  fit <- gbm2(Y~X1+X2+X3,          # formula
+              data=data,     # dataset
+              distribution=dist,
+              train_params=params,
+              keep_gbm_data=TRUE,      # store copy of input data in model
+              cv_folds=5,          # number of cross validation folds
+              is_verbose = FALSE ,    # don't print progress
+              par_details=gbmParallel())  
+  
+  baseline <- runif(length(fit$fit))
+  
+  # When calculting loss
+  calc_loss <- loss(Y, fit$fit, fit$gbm_data_obj$weights, fit$gbm_data_obj$offset, fit$distribution, baseline)
+  
+  # Then it is correct
+  preds <- fit$fit + fit$gbm_data_obj$offset
+  loss_true <- (1 - perf_pairwise(Y, preds, fit$distribution$group_index, dist$metric, 
+                                  fit$gbm_data_obj$weights, fit$distribution$max_rank)) - baseline
+  expect_equal(calc_loss, loss_true, tolerance=10^-4) # tolerance for random tie breaking
+})
+
 test_that("Correctly calculates Poisson loss", {
   # Given responses, weights, predictions, offset, baseline and
   # AdaBoost dist

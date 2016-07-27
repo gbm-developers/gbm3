@@ -195,7 +195,7 @@ test_that("Metric conc fit passed to perf_pairwise runs", {
   Y <- Y + runif(N, 0, sigma)
   
   data <- data.frame(Y, query=query, X1, X2, X3)
-  dist <- gbm_dist("Pairwise", metric="ndcg", group="query")
+  dist <- gbm_dist("Pairwise", metric="conc", group="query")
   params <- training_params(num_trees = 2000, num_train = nrow(data), id=seq_len(nrow(data)),
                             interaction_depth = 3)
   

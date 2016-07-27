@@ -8,14 +8,14 @@
 #' 
 #' @param f the predicted responses.
 #' 
-#' @param metric What type of performance measure to compute in \code{perf.pairwise}.
+#' @param metric What type of performance measure to compute in \code{perf_pairwise}.
 #'   Can take values "ir.measure.conc", "ir.measure.mrr", "ir.measure.map" or
 #'   "ir.measure.ndgc".
 #' @param w is the weights of each observation.
 #' 
 #' @param max_rank the maximum rank considered in the groups measure. 
 
-#' @return \code{gbm.perf} returns the estimated optimal number of iterations.
+#' @return \code{gbm_perf} returns the estimated optimal number of iterations.
 #' The method of computation depends on the \code{method} argument.
 #' 
 #' @author Greg Ridgeway \email{gregridgeway@@gmail.com}
@@ -78,7 +78,7 @@ ir.measure.conc <- function(y.f, max_rank=0) {
   if (total.pairs == 0) {
     return (-1.0)
   } else {
-    return (gbm.conc(y[order(-f)]) / total.pairs)
+    return (gbm_conc(y[order(-f)]) / total.pairs)
   }
 }
 
@@ -94,7 +94,7 @@ ir.measure.auc <- function(y.f, max_rank=0){
   }
   else
   {
-    return (gbm.roc.area(obs=y, pred=f))
+    return (gbm_roc_area(obs=y, pred=f))
   }
 }
 
