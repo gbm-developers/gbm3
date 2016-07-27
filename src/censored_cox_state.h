@@ -41,8 +41,8 @@ class CensoredCoxState : public GenericCoxState {
                               std::vector<double>& residuals) {
     // Initialize parameters
     std::vector<double> martingale_resid(kData.get_trainsize(), 0.0);
-    /*LogLikelihood(kData.get_trainsize(), kData, kBag, kFuncEstimate,
-                  &martingale_resid[0], false);*/
+    LogLikelihood(kData.get_trainsize(), kData, kBag, kFuncEstimate,
+                  &martingale_resid[0], false);
 
     // Fill up response
     for (unsigned long i = 0; i < kData.get_trainsize(); i++) {

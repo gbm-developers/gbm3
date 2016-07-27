@@ -50,7 +50,7 @@ void CCARTTree::Grow(const std::vector<double>& residuals,
     }
   }
 
-  error_ = 0.0;//sum_zsquared - sumz * sumz / totalw;
+  error_ = sum_zsquared - sumz * sumz / totalw;
   rootnode_.reset(new CNode(NodeDef(sumz, totalw, kBag.get_total_in_bag())));
   terminalnode_ptrs_[0] = rootnode_.get();
   CNodeSearch new_node_searcher(kTreeDepth_, min_num_node_obs_, parallel_);
@@ -72,7 +72,6 @@ void CCARTTree::Grow(const std::vector<double>& residuals,
     totalnodecount_ += 3;
 
   }  // end tree growing
-  // throw gbm_exception::Failure("Here");
   // DEBUG
   // Print();
 }

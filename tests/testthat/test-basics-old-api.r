@@ -364,29 +364,6 @@ test_that("coxph - runs to completion with train.fraction < 1.0 and cv.folds > 1
                    data=pbc2, distribution="CoxPH", train.fraction=0.8, n.trees=500, shrinkage=.01, cv.folds=5, interaction.depth=3), NA)
 })
 
-test_that("coxph - runs to completion with start-stop, id'ed and stratified dataset", {
-  ## Needed packages
-  require(survival)
-  
-  # Given data from the survival package
-  cgd2 <- cgd[cgd$enum==1,]
-  
-  # Then fitting a gbm model should throw no errors
-  expect_error(gbm(Surv(tstop, status) ~ age + sex + inherit +
-                     steroids + propylac + hos.cat, data=cgd2, distribution = "CoxPH",
-                   n.trees=500, shrinkage=.01, interaction.depth=1, train.fraction=1.0), NA)
-  expect_error(gbm(Surv(tstop, status) ~ age + sex + inherit +
-                     steroids + propylac + hos.cat, distribution="CoxPH", data=cgd2, 
-                   n.trees=500, shrinkage=.01, interaction.depth=1, train.fraction=0.8), NA)
-  
-  expect_error(gbm(Surv(tstart, tstop, status) ~ age + sex + inherit +
-                     steroids + propylac, data=cgd, distribution="CoxPH", obs.id=cgd$id,
-                   train.fraction=1.0, n.trees=500, strata=cgd$hos.cat, shrinkage=.01, interaction.depth=3), NA)
-  expect_error(gbm(Surv(tstart, tstop, status) ~ age + sex + inherit +
-                     steroids + propylac, data=cgd, distribution="CoxPH", obs.id=cgd$id,
-                   train.fraction=0.8, n.trees=500, strata= cgd$hos.cat, shrinkage=.01, interaction.depth=3), NA)
-})
-
 test_that("coxph cv.folds - runs to completion with start-stop, id'ed and stratified dataset", {
   ## Needed packages
   require(survival)

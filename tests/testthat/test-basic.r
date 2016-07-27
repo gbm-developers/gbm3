@@ -192,6 +192,104 @@ test_that("coxph works - breslow", {
 })
 
 
+
+
+test_that("coxph - runs to completion with train_fraction of 1.0", {
+  ## Needed packages
+  require(survival)
+  
+  # Given data from the survival data
+  # keep only certain baseline variables, subjects with longitudinal data
+  temp <- subset(pbc, id%in%pbcseq$id, select=c(id:sex, stage))
+  pbc1 <- tmerge(data1=temp, data2=temp, id=id, death = event(time, status))
+  
+  pbc2 <- tmerge(pbc1, pbcseq, id=id, ascites = tdc(day, ascites),
+                 bili = tdc(day, bili), albumin = tdc(day, albumin),
+                 protime = tdc(day, protime), alk.phos = tdc(day, alk.phos))
+  # Training params
+  params_1 <- training_params(interaction_depth = 3, num_train=round(1.0 * nrow(pbc)), num_trees = 500, id=seq(nrow(pbc)),
+                              shrinkage=.01)
+  params_2 <- training_params(interaction_depth = 3, num_train=round(1.0 * nrow(pbc2)), num_trees = 500, id=seq(nrow(pbc2)),
+                              shrinkage=.01)
+  
+  # Then expect no errors when performing gbm fit with train_fraction = 1.0
+  # GBM fit baseline data
+  expect_error(gbm2(Surv(time, status==2) ~ bili + protime + albumin + alk.phos, data=pbc,
+                    distribution=gbm_dist("CoxPH"), train_params=params_1), NA)
+  
+  # GBM fit using start/stop times to get time-dependent covariates
+  expect_error(gbm(Surv(tstart, tstop, death==2) ~ bili + protime + albumin + alk.phos, 
+                   data=pbc2, distribution=gbm_dist("CoxPH"), train_params=params_2), NA)
+})
+
+test_that("coxph - runs to completion with train_fraction < 1.0 and cv_folds > 1", {
+  ## Needed packages
+  require(survival)
+  
+  # Given data from the survival data
+  # keep only certain baseline variables, subjects with longitudinal data
+  temp <- subset(pbc, id%in%pbcseq$id, select=c(id:sex, stage))
+  pbc1 <- tmerge(data1=temp, data2=temp, id=id, death = event(time, status))
+  
+  pbc2 <- tmerge(pbc1, pbcseq, id=id, ascites = tdc(day, ascites),
+                 bili = tdc(day, bili), albumin = tdc(day, albumin),
+                 protime = tdc(day, protime), alk.phos = tdc(day, alk.phos))
+  
+  # Training params
+  params_1 <- training_params(interaction_depth = 3, num_train=round(0.8 * nrow(pbc)), num_trees = 500, id=seq(nrow(pbc)),
+                              shrinkage=.01)
+  params_2 <- training_params(interaction_depth = 3, num_train=round(0.8 * nrow(pbc2)), num_trees = 500, id=seq(nrow(pbc2)),
+                              shrinkage=.01)
+
+  
+  # Then expect no errors when performing gbm fit with train_fraction < 1.0 and cv_folds > 1
+  # GBM fit baseline data
+  expect_error(gbm2(Surv(time, status==2) ~ bili + protime + albumin + alk.phos, data=pbc,  distribution=gbm_dist("CoxPH"),
+                   train_params=params_1), NA)
+  expect_error(gbm2(Surv(time, status==2) ~ bili + protime + albumin + alk.phos, data=pbc,  distribution=gbm_dist("CoxPH"),
+                   train_params=params_1, cv_folds=5), NA)
+  
+  # GBM fit using start/stop times to get time-dependent covariates
+  expect_error(gbm2(Surv(tstart, tstop, death==2) ~ bili + protime + albumin + alk.phos, 
+                   data=pbc2, distribution=gbm_dist("CoxPH"), train_params=params_2), NA)
+  expect_error(gbm2(Surv(tstart, tstop, death==2) ~ bili + protime + albumin + alk.phos, 
+                    data=pbc2, distribution=gbm_dist("CoxPH"), train_params=params_2, cv_folds=5), NA)
+})
+
+
+test_that("coxph cv_folds - runs to completion with start-stop, id'ed and stratified dataset", {
+  ## Needed packages
+  require(survival)
+  
+  # Given data from the survival package
+  cgd2 <- cgd[cgd$enum==1,]
+  
+  # Training params
+  params_1 <- training_params(interaction_depth = 1, num_train=nrow(cgd2), num_trees = 500, id=seq(nrow(cgd2)),
+                            shrinkage=.01)
+  params_2 <- training_params(interaction_depth = 1, num_train=round(0.8 * nrow(cgd2)), num_trees = 500, id=seq(nrow(cgd2)),
+                              shrinkage=.01)
+  params_3 <- training_params(interaction_depth = 3, num_train=round(1.0 * length(unique(cgd$id))), num_trees = 500, id=cgd$id,
+                              shrinkage=.01)
+  params_4 <- training_params(interaction_depth = 3, num_train=round(0.8 * length(unique(cgd$id))), num_trees = 500, id=cgd$id,
+                              shrinkage=.01)
+  
+  # Then fitting a gbm model should throw no errors - with cv_folds > 1
+  expect_error(gbm2(Surv(tstop, status) ~ age + sex + inherit +
+                     steroids + propylac + hos.cat, data=cgd2, 
+                   distribution = gbm_dist("CoxPH"), train_params=params_1, cv_folds=10), NA)
+  expect_error(gbm2(Surv(tstop, status) ~ age + sex + inherit +
+                     steroids + propylac + hos.cat, data=cgd2, 
+                   distribution = gbm_dist("CoxPH"),  train_params=params_2, cv_folds=5), NA)
+  
+  expect_error(gbm2(Surv(tstart, tstop, status) ~ age + sex + inherit +
+                     steroids + propylac, data=cgd,
+                   distribution = gbm_dist("CoxPH", strata=cgd$hos.cat), train_params=params_3, cv_folds=10), NA)
+  expect_error(gbm2(Surv(tstart, tstop, status) ~ age + sex + inherit +
+                     steroids + propylac, data=cgd, 
+                    distribution = gbm_dist("CoxPH", strata=cgd$hos.cat), train_params=params_4, cv_folds=10), NA)
+})
+
 test_that("bernoulli works", {
     set.seed(1)
 
