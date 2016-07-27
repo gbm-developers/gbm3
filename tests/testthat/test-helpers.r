@@ -516,3 +516,24 @@ test_that("convert_strata does not alter a NA", {
   expect_true(is.na(convert_strata(NA)))
 })
 
+test_that("convert_strata converts a vector of factors to integers", {
+  # Given a vector of factors
+  test_strata <- as.factor(c("a", "b", "b", "a"))
+  
+  # When converted
+  converted <- convert_strata(test_strata)
+  
+  # Then is a vector of integers
+  expect_equal(converted, as.integer(test_strata))
+})
+
+test_that("convert_strata throws an error when not passed a vector of integers or strata", {
+  expect_error(convert_strata(data.frame(FALSE)))
+  expect_error(convert_strata(data.frame(c(1, 2))))
+  expect_error(convert_strata(matrix(FALSE)))
+  expect_error(convert_strata(matrix(c(1, 2))))
+  expect_error(convert_strata(Inf))
+  expect_error(convert_strata(NaN))
+  expect_error(convert_strata("Error"))
+})
+
