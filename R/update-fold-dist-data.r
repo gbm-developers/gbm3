@@ -40,7 +40,7 @@ update_fold_dist_data.CoxPHGBMDist <- function(gbm_dist_obj, gbm_data_obj, train
   gbm_dist_obj$strata <- NULL
   gbm_dist_obj$sorted <- NULL
   gbm_dist_obj$time_order <- NULL
-  gbm_dist_obj <- create_strata(gbm_data_obj, train_params, gbm_dist_obj, order_strata_by_id=FALSE)
+  gbm_dist_obj <- create_strata(gbm_data_obj, train_params, gbm_dist_obj, order_strata_by_id=TRUE)
   return(gbm_dist_obj)
 }
 

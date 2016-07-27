@@ -31,7 +31,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Adaboost",
                   data=data,                 # dataset
                   weights=w,
                   var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                  distribution="Adaboost",
+                  distribution="AdaBoost",
                   n.trees=100,              # number of trees
                   shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
                   interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
@@ -46,7 +46,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Adaboost",
                        weights=w,
                        offset = offset,
                        var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                       distribution="adaboost",
+                       distribution="AdaBoost",
                        n.trees=100,              # number of trees
                        shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
                        interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc

@@ -49,8 +49,8 @@ test_that("Warning thrown - gbm", {
               train.fraction = 0.5,        # fraction of data for training, first train.fraction*N used for training
               n.minobsinnode = 10,         # minimum number of obs needed in each node
               keep.data=TRUE,
-              cv.folds=10, # do 10-fold cross-validation
-              n.cores=1))
+              cv.folds=10 # do 10-fold cross-validation
+              ))
 })
 
 test_that("Warning thrown - gbm.fit", {
@@ -140,8 +140,8 @@ test_that("Gaussian works - gbm", {
               train.fraction = 0.5,        # fraction of data for training, first train.fraction*N used for training
               n.minobsinnode = 10,         # minimum number of obs needed in each node
               keep.data=TRUE,
-              cv.folds=10, # do 10-fold cross-validation
-              n.cores=1)                 
+              cv.folds=10 # do 10-fold cross-validation
+              )                 
   
   # Get best model
   best.iter <- gbm_perf(gbm1,method="cv")   # returns cv estimate of best number of trees
@@ -212,7 +212,7 @@ test_that("CoxPH works - efron - gbm", {
               train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
               cv.folds = 5,              # do 5-fold cross-validation
               n.minobsinnode = 10,       # minimum total weight needed in each node
-              keep.data = TRUE, n.cores=1, tied.times.method = "efron", prior.node.coeff.var = 10)
+              keep.data = TRUE, tied.times.method = "efron", prior.node.coeff.var = 10)
   
   best.iter <- gbm_perf(gbm1, method="test") # returns test set estimate of best number of trees
   
@@ -282,7 +282,7 @@ test_that("CoxPH works - breslow - gbm", {
               train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
               cv.folds = 5,              # do 5-fold cross-validation
               n.minobsinnode = 10,       # minimum total weight needed in each node
-              keep.data = TRUE, n.cores=1, tied.times.method="breslow", prior.node.coeff.var = 10)
+              keep.data = TRUE, tied.times.method="breslow", prior.node.coeff.var = 10)
   
   best.iter <- gbm_perf(gbm1,method="test") # returns test set estimate of best number of trees
   
@@ -310,6 +310,104 @@ test_that("CoxPH works - breslow - gbm", {
   #plot(data2$f,f.predict)
   # Use observed sd
   expect_true(sd(data2$f - f.predict) < 0.4)
+})
+
+
+
+test_that("coxph - runs to completion with train.fraction of 1.0", {
+  ## Needed packages
+  require(survival)
+  
+  # Given data from the survival data
+  # keep only certain baseline variables, subjects with longitudinal data
+  temp <- subset(pbc, id%in%pbcseq$id, select=c(id:sex, stage))
+  pbc1 <- tmerge(data1=temp, data2=temp, id=id, death = event(time, status))
+  
+  pbc2 <- tmerge(pbc1, pbcseq, id=id, ascites = tdc(day, ascites),
+                 bili = tdc(day, bili), albumin = tdc(day, albumin),
+                 protime = tdc(day, protime), alk.phos = tdc(day, alk.phos))
+  
+  # Then expect no errors when performing gbm fit with train fraction = 1.0
+  # GBM fit baseline data
+  expect_error(gbm(Surv(time, status==2) ~ bili + protime + albumin + alk.phos, data=pbc,
+                   train.fraction=1.0, distribution="CoxPH", n.trees=500, shrinkage=.01,  interaction.depth=3), NA)
+  
+  # GBM fit using start/stop times to get time-dependent covariates
+  expect_error(gbm(Surv(tstart, tstop, death==2) ~ bili + protime + albumin + alk.phos, 
+                   data=pbc2, distribution="CoxPH", train.fraction=1.0, n.trees=500, shrinkage=.01, interaction.depth=3), NA)
+})
+
+test_that("coxph - runs to completion with train.fraction < 1.0 and cv.folds > 1", {
+  ## Needed packages
+  require(survival)
+  
+  # Given data from the survival data
+  # keep only certain baseline variables, subjects with longitudinal data
+  temp <- subset(pbc, id%in%pbcseq$id, select=c(id:sex, stage))
+  pbc1 <- tmerge(data1=temp, data2=temp, id=id, death = event(time, status))
+  
+  pbc2 <- tmerge(pbc1, pbcseq, id=id, ascites = tdc(day, ascites),
+                 bili = tdc(day, bili), albumin = tdc(day, albumin),
+                 protime = tdc(day, protime), alk.phos = tdc(day, alk.phos))
+  
+  # Then expect no errors when performing gbm fit with train fraction < 1.0 and cv.folds > 1
+  # GBM fit baseline data
+  expect_error(gbm(Surv(time, status==2) ~ bili + protime + albumin + alk.phos, data=pbc,
+                   train.fraction=0.8, distribution="CoxPH", n.trees=500, shrinkage=.01,  interaction.depth=3), NA)
+  expect_error(gbm(Surv(time, status==2) ~ bili + protime + albumin + alk.phos, data=pbc,
+                   train.fraction=0.8, distribution="CoxPH", n.trees=500, shrinkage=.01,  cv.folds=5, interaction.depth=3), NA)
+  
+  # GBM fit using start/stop times to get time-dependent covariates
+  expect_error(gbm(Surv(tstart, tstop, death==2) ~ bili + protime + albumin + alk.phos, 
+                   data=pbc2, distribution="CoxPH", train.fraction=0.8, n.trees=500, shrinkage=.01, interaction.depth=3), NA)
+  expect_error(gbm(Surv(tstart, tstop, death==2) ~ bili + protime + albumin + alk.phos, 
+                   data=pbc2, distribution="CoxPH", train.fraction=0.8, n.trees=500, shrinkage=.01, cv.folds=5, interaction.depth=3), NA)
+})
+
+test_that("coxph - runs to completion with start-stop, id'ed and stratified dataset", {
+  ## Needed packages
+  require(survival)
+  
+  # Given data from the survival package
+  cgd2 <- cgd[cgd$enum==1,]
+  
+  # Then fitting a gbm model should throw no errors
+  expect_error(gbm(Surv(tstop, status) ~ age + sex + inherit +
+                     steroids + propylac + hos.cat, data=cgd2, distribution = "CoxPH",
+                   n.trees=500, shrinkage=.01, interaction.depth=1, train.fraction=1.0), NA)
+  expect_error(gbm(Surv(tstop, status) ~ age + sex + inherit +
+                     steroids + propylac + hos.cat, distribution="CoxPH", data=cgd2, 
+                   n.trees=500, shrinkage=.01, interaction.depth=1, train.fraction=0.8), NA)
+  
+  expect_error(gbm(Surv(tstart, tstop, status) ~ age + sex + inherit +
+                     steroids + propylac, data=cgd, distribution="CoxPH", obs.id=cgd$id,
+                   train.fraction=1.0, n.trees=500, strata=cgd$hos.cat, shrinkage=.01, interaction.depth=3), NA)
+  expect_error(gbm(Surv(tstart, tstop, status) ~ age + sex + inherit +
+                     steroids + propylac, data=cgd, distribution="CoxPH", obs.id=cgd$id,
+                   train.fraction=0.8, n.trees=500, strata= cgd$hos.cat, shrinkage=.01, interaction.depth=3), NA)
+})
+
+test_that("coxph cv.folds - runs to completion with start-stop, id'ed and stratified dataset", {
+  ## Needed packages
+  require(survival)
+  
+  # Given data from the survival package
+  cgd2 <- cgd[cgd$enum==1,]
+  
+  # Then fitting a gbm model should throw no errors - with cv.folds > 1
+  expect_error(gbm(Surv(tstop, status) ~ age + sex + inherit +
+                     steroids + propylac + hos.cat, data=cgd2, 
+                   n.trees=500, shrinkage=.01, distribution = "CoxPH", interaction.depth=1, train.fraction=1.0, cv.folds=10), NA)
+  expect_error(gbm(Surv(tstop, status) ~ age + sex + inherit +
+                     steroids + propylac + hos.cat, data=cgd2, 
+                   n.trees=500, shrinkage=.01, distribution = "CoxPH", interaction.depth=1, train.fraction=0.8, cv.folds=5), NA)
+  
+  expect_error(gbm(Surv(tstart, tstop, status) ~ age + sex + inherit +
+                     steroids + propylac, data=cgd, obs.id=cgd$id,
+                   train.fraction=1.0, n.trees=500, strata= cgd$hos.cat, distribution = "CoxPH", shrinkage=.01, interaction.depth=3, cv.folds=10), NA)
+  expect_error(gbm(Surv(tstart, tstop, status) ~ age + sex + inherit +
+                     steroids + propylac, data=cgd, obs.id=cgd$id,
+                   train.fraction=0.8, n.trees=500, strata= cgd$hos.cat, distribution = "CoxPH", shrinkage=.01, interaction.depth=3, cv.folds=10), NA)
 })
 
 test_that("Bernoulli works - gbm", {
@@ -344,8 +442,8 @@ test_that("Bernoulli works - gbm", {
               bag.fraction = 0.5,        # subsampling fraction, 0.5 is probably best
               train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
               cv.folds=5,                # do 5-fold cross-validation
-              n.minobsinnode = 10,       # minimum total weight needed in each node
-              n.cores=1)
+              n.minobsinnode = 10      # minimum total weight needed in each node
+              )
   
   best.iter.test <- gbm_perf(gbm1,method="test") # returns test set estimate of best number of trees
   
@@ -384,7 +482,7 @@ test_that("relative influence picks out true predictors", {
   cls <- rep(c(0, 1), ea=500) # Class
   X <- data.frame(cbind(X1, X2, cls))
   mod <- gbm(cls ~ ., data= X, n.trees=1000, cv.folds=5,
-             shrinkage=.01, interaction.depth=2, n.cores=1
+             shrinkage=.01, interaction.depth=2
              ,distribution = 'Bernoulli')
   ri <- relative_influence(mod, sort_it=TRUE, rescale=TRUE)
   

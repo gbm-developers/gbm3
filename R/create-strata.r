@@ -17,7 +17,6 @@
 #' 
 #' @return updated distribution_obj
 #' 
-#' @export create_strata
 
 create_strata <- function(gbm_data_obj, train_params, distribution_obj, order_strata_by_id=TRUE) {
   check_if_gbm_dist(distribution_obj)

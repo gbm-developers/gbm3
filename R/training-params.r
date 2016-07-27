@@ -81,7 +81,7 @@ training_params <- function(num_trees=100, interaction_depth=1,
                  "bag_fraction"=bag_fraction, "id"= id, "num_train"=num_train,
                  "num_train_rows"=num_train_rows, "num_features"=num_features,
                  "num_rows_per_obs"=num_rows_per_obs,
-                 "train_fraction"=num_train/length(unique(id)) ),
+                 "train_fraction"= num_train/length(unique(id)) ),
                  class="GBMTrainParams")
   
   return(object)

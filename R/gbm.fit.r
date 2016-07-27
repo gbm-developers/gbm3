@@ -25,7 +25,7 @@ gbm.fit <- function(x, y,
   
   # Reconstruct data
   if(is.null(var.names)) {
-    var.names <- getVarNames(x)
+    var.names <- get_var_names(x)
   }
  
   # Calculate nTrain if necessary 
