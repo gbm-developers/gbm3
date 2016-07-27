@@ -14,24 +14,29 @@
 #' 
 #' @return a \code{GBMFit} object with an appropriately order fit.
 #'  
-#' @export reorder_fit reorder_fit.default reorder_fit.CoxPHGBMDist reorder_fit.PairwiseGBMDist
-#' @export order_by_groupings order_by_id 
 
 #### Fit reordering methods ####
+#' @export
 reorder_fit <- function(gbm_fit, distribution_obj) {
   check_if_gbm_fit(gbm_fit)
   UseMethod("reorder_fit", distribution_obj)
 }
 
+#' @name reorder_fit
+#' @export
 reorder_fit.default <- function(gbm_fit, distribution_obj) {
   return(gbm_fit)
 }
 
+#' @name reorder_fit
+#' @export
 reorder_fit.CoxPHGBMDist <- function(gbm_fit, distribution_obj) {
   gbm_fit$fit[distribution_obj$time_order] <- gbm_fit$fit
   return(gbm_fit)
 }
 
+#' @name reorder_fit
+#' @export
 reorder_fit.PairwiseGBMDist <- function(gbm_fit, distribution_obj) {
   gbm_fit$fit <- gbm_fit$fit[order(distribution_obj$group_order)]
   return(gbm_fit)

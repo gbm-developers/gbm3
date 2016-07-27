@@ -2,9 +2,61 @@
 % Please edit documentation in R/gbm-loss.r
 \name{loss}
 \alias{loss}
+\alias{loss.AdaBoostGBMDist}
+\alias{loss.BernoulliGBMDist}
+\alias{loss.CoxPHGBMDist}
+\alias{loss.GammaGBMDist}
+\alias{loss.GaussianGBMDist}
+\alias{loss.HuberizedGBMDist}
+\alias{loss.LaplaceGBMDist}
+\alias{loss.PairwiseGBMDist}
+\alias{loss.PoissonGBMDist}
+\alias{loss.QuantileGBMDist}
+\alias{loss.TDistGBMDist}
+\alias{loss.TweedieGBMDist}
+\alias{loss.default}
 \title{GBMFit loss}
 \usage{
 loss(y, predictions, weights, offset, distribution_obj, baseline=rep(0, length(y)))
+
+\method{loss}{default}(y, predictions, weights, offset, distribution_obj,
+  baseline)
+
+\method{loss}{AdaBoostGBMDist}(y, predictions, weights, offset,
+  distribution_obj, baseline)
+
+\method{loss}{BernoulliGBMDist}(y, predictions, weights, offset,
+  distribution_obj, baseline)
+
+\method{loss}{CoxPHGBMDist}(y, predictions, weights, offset, distribution_obj,
+  baseline)
+
+\method{loss}{GammaGBMDist}(y, predictions, weights, offset, distribution_obj,
+  baseline)
+
+\method{loss}{GaussianGBMDist}(y, predictions, weights, offset,
+  distribution_obj, baseline)
+
+\method{loss}{HuberizedGBMDist}(y, predictions, weights, offset,
+  distribution_obj, baseline)
+
+\method{loss}{LaplaceGBMDist}(y, predictions, weights, offset, distribution_obj,
+  baseline)
+
+\method{loss}{PairwiseGBMDist}(y, predictions, weights, offset,
+  distribution_obj, baseline)
+
+\method{loss}{PoissonGBMDist}(y, predictions, weights, offset, distribution_obj,
+  baseline)
+
+\method{loss}{QuantileGBMDist}(y, predictions, weights, offset,
+  distribution_obj, baseline)
+
+\method{loss}{TDistGBMDist}(y, predictions, weights, offset, distribution_obj,
+  baseline)
+
+\method{loss}{TweedieGBMDist}(y, predictions, weights, offset, distribution_obj,
+  baseline)
 }
 \arguments{
 \item{y}{a vector of responses}

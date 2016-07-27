@@ -103,6 +103,15 @@ gbm2 <- function(formula, distribution=gbm_dist("Gaussian"), data, weights=rep(1
     fold_id <- as.numeric(as.factor(fold_id))
   }
   
+  # Update distribution according to groups
+  distribution <- determine_groups(data, y, distribution)
+  
+  # Update weights according to groupings
+  weights <- weight_group_consistency(weights, distribution)
+  
+  # Update number of training rows based off of groups
+  train_params <- update_num_train_groups(train_params, distribution)
+  
   # Call gbm2.fit 
   gbm_fit_obj <- gbm2.fit(x, y, distribution, weights, offset,
                          train_params, var_monotone, var_names, keep_gbm_data, cv_folds,

@@ -331,29 +331,29 @@ gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
     keep.data=TRUE,              # keep a copy of the dataset with the object
     verbose=FALSE,               # don't print out progress
     n.cores=1,                   # use only a single CV core
-    par.details=gbmParallel(n.threads=15))
+    par.details=gbmParallel(num_threads=15))
 }
 
 # check performance using an out-of-bag estimator
 # OOB underestimates the optimal number of iterations
-best.iter <- gbm.perf(gbm1,method="OOB")
-print(best.iter)
+best_iter <- gbm_perf(gbm1,method="OOB")
+print(best_iter)
 
 # check performance using a 50\% heldout test set
-best.iter <- gbm.perf(gbm1,method="test")
-print(best.iter)
+best_iter <- gbm_perf(gbm1,method="test")
+print(best_iter)
 
 # check performance using 3-fold cross-validation
-best.iter <- gbm.perf(gbm1,method="cv")
+best_iter <- gbm_perf(gbm1,method="cv")
 print(best.iter)
 
 # plot the performance # plot variable influence
-summary(gbm1,n.trees=1)         # based on the first tree
-summary(gbm1,n.trees=best.iter) # based on the estimated best number of trees
+summary(gbm1, num_trees=1)         # based on the first tree
+summary(gbm1, num_trees=best.iter) # based on the estimated best number of trees
 
 # compactly print the first and last trees for curiosity
-print(pretty.gbm.tree(gbm1,1))
-print(pretty.gbm.tree(gbm1,gbm1$n.trees))
+print(pretty(gbm1,1))
+print(pretty(gbm1,gbm1$params$num_trees))
 
 # make some new data
 N <- 1000
@@ -371,7 +371,7 @@ data2 <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3,X4=X4,X5=X5,X6=X6)
 
 # predict on the new data using "best" number of trees
 # f.predict generally will be on the canonical scale (logit,log,etc.)
-f.predict <- predict(gbm1,data2,best.iter)
+f.predict <- predict(gbm1,data2,best_iter)
 
 # least squares error
 print(sum((data2$Y-f.predict)^2))
@@ -397,7 +397,7 @@ plot(gbm1,2:4,best.iter)
 plot(gbm1,3:5,best.iter)
 
 # do another 100 iterations
-gbm2 <- gbm.more(gbm1,100,
+gbm2 <- gbm_more(gbm1,100,
                  verbose=FALSE) # stop printing detailed progress
 }
 \author{

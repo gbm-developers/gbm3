@@ -2,9 +2,18 @@
 % Please edit documentation in R/order-methods.r
 \name{reorder_fit}
 \alias{reorder_fit}
+\alias{reorder_fit.CoxPHGBMDist}
+\alias{reorder_fit.PairwiseGBMDist}
+\alias{reorder_fit.default}
 \title{Ordering methods}
 \usage{
 reorder_fit(gbm_fit_obj, distribution_obj)
+
+\method{reorder_fit}{default}(gbm_fit, distribution_obj)
+
+\method{reorder_fit}{CoxPHGBMDist}(gbm_fit, distribution_obj)
+
+\method{reorder_fit}{PairwiseGBMDist}(gbm_fit, distribution_obj)
 }
 \arguments{
 \item{gbm_fit_obj}{a \code{GBMFit} object produced by a previous call to \code{gbm2} or \code{gbm2.fit}.}

@@ -68,9 +68,6 @@ gbm2.fit <- function(x, y, distribution=gbm_dist("Gaussian"), weights=rep(1, nro
   # Create gbm_data_obj
   gbm_data_obj <- gbm_data(x, y, weights, offset)
   
-  # Set up groups
-  distribution <- determine_groups(colnames(x), gbm_data_obj, distribution)
-  
   # Set-up variable containers
   variables <- var_container(gbm_data_obj, var_monotone, var_names)
   

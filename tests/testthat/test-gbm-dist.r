@@ -129,7 +129,7 @@ test_that("Check Laplace distribution has the right elements - in right order", 
 
 test_that("Check Pairwise distribution has the right elements - in right order", {
   gbm_dist_obj <- gbm_dist(name="Pairwise")
-  expect_equal(names(gbm_dist_obj), c("name", "reorder", "metric", "group", "max.rank"))
+  expect_equal(names(gbm_dist_obj), c("name", "reorder", "metric", "group", "max_rank"))
 })
 
 test_that("Check Poisson distribution has the right elements - in right order", {
@@ -238,26 +238,26 @@ test_that("Error thrown if prior coefficient of variation if not a finite double
 })
 
 test_that("Error thrown if max.rank is not a finite double greater than 0.0 - Pairwise", {
-  expect_error(gbm_dist(name="Pairwise", metric="ndcg", max.rank=-0.1))
-  expect_error(gbm_dist(name="Pairwise", metric="ndcg", max.rank=-0.1))
-  expect_error(gbm_dist(name="Pairwise", metric="ndcg", max.rank="Stuff"))
-  expect_error(gbm_dist(name="Pairwise", metric="ndcg", max.rank=c(1.0, 2.0)))
-  expect_error(gbm_dist(name="Pairwise", metric="ndcg", max.rank=Inf))
-  expect_error(gbm_dist(name="Pairwise", metric="ndcg", max.rank=NA))
-  expect_error(gbm_dist(name="Pairwise", metric="ndcg", max.rank=NULL))
+  expect_error(gbm_dist(name="Pairwise", metric="ndcg", max_rank=-0.1))
+  expect_error(gbm_dist(name="Pairwise", metric="ndcg", max_rank=-0.1))
+  expect_error(gbm_dist(name="Pairwise", metric="ndcg", max_rank="Stuff"))
+  expect_error(gbm_dist(name="Pairwise", metric="ndcg", max_rank=c(1.0, 2.0)))
+  expect_error(gbm_dist(name="Pairwise", metric="ndcg", max_rank=Inf))
+  expect_error(gbm_dist(name="Pairwise", metric="ndcg", max_rank=NA))
+  expect_error(gbm_dist(name="Pairwise", metric="ndcg", max_rank=NULL))
   
-  expect_error(gbm_dist(name="Pairwise", metric="mrr", max.rank=-0.1))
-  expect_error(gbm_dist(name="Pairwise", metric="mrr", max.rank=-0.1))
-  expect_error(gbm_dist(name="Pairwise", metric="mrr", max.rank="Stuff"))
-  expect_error(gbm_dist(name="Pairwise", metric="mrr", max.rank=c(1.0, 2.0)))
-  expect_error(gbm_dist(name="Pairwise", metric="mrr", max.rank=Inf))
-  expect_error(gbm_dist(name="Pairwise", metric="mrr", max.rank=NA))
-  expect_error(gbm_dist(name="Pairwise", metric="mrr", max.rank=NULL))
+  expect_error(gbm_dist(name="Pairwise", metric="mrr", max_rank=-0.1))
+  expect_error(gbm_dist(name="Pairwise", metric="mrr", max_rank=-0.1))
+  expect_error(gbm_dist(name="Pairwise", metric="mrr", max_rank="Stuff"))
+  expect_error(gbm_dist(name="Pairwise", metric="mrr", max_rank=c(1.0, 2.0)))
+  expect_error(gbm_dist(name="Pairwise", metric="mrr", max_rank=Inf))
+  expect_error(gbm_dist(name="Pairwise", metric="mrr", max_rank=NA))
+  expect_error(gbm_dist(name="Pairwise", metric="mrr", max_rank=NULL))
 })
 
 test_that("Error thrown if max.rank is non-zero for conc or map - Pairwise", {
-  expect_error(gbm_dist(name="Pairwise", metric="conc", max.rank=1.0))
-  expect_error(gbm_dist(name="Pairwise", metric="map", max.rank=1.0))
+  expect_error(gbm_dist(name="Pairwise", metric="conc", max_rank=1.0))
+  expect_error(gbm_dist(name="Pairwise", metric="map", max_rank=1.0))
 })
 
 test_that("Error thrown if group is not a string - Pairwise", {
@@ -356,7 +356,7 @@ test_that("CoxPH - defaults to 'efron', a prior coeff var of 1000, with NAs for 
 
 test_that("Pairwise params default to - 'ndcg', max.rank=0 and group='query'", {
   expect_equal(gbm_dist(name="Pairwise")$metric, "ndcg")
-  expect_equal(gbm_dist(name="Pairwise")$max.rank, 0)
+  expect_equal(gbm_dist(name="Pairwise")$max_rank, 0)
   expect_equal(gbm_dist(name="Pairwise")$group, "query")
 })
 

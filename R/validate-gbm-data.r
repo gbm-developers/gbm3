@@ -33,8 +33,5 @@ validate_gbm_data <- function(gbm_data_obj, distribution_obj) {
   # Check responses
   check_response_values(distribution_obj, gbm_data_obj$y)
   
-  # Check weights
-  gbm_data_obj <- weight_group_consistency(gbm_data_obj, distribution_obj)
-  
   return(gbm_data_obj)
 }

@@ -4,14 +4,14 @@
 \alias{gbmParallel}
 \title{Control parallelization options}
 \usage{
-gbmParallel(n.threads = 1, arrayChunkSize = 1024)
+gbmParallel(num_threads = 1, array_chunk_size = 1024)
 }
 \arguments{
-\item{n.threads}{the number of threads to use (a positive
+\item{num_threads}{the number of threads to use (a positive
 integer).  The number of cores on your computer is a
 reasonable default.}
 
-\item{arrayChunkSize}{the size of chunks to use in array scans.
+\item{array_chunk_size}{the size of chunks to use in array scans.
 Values that are too small result in a great deal of overhead;
 The default of 1024 appears reasonable, but do experiment.}
 }

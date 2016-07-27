@@ -111,7 +111,7 @@ check_dist_params.LaplaceGBMDist <- function(empty_obj, ...) {
 
 
 check_dist_params.PairwiseGBMDist <- function(empty_obj, group, metric,
-                                              max.rank, ...) {
+                                              max_rank, ...) {
   # Check if parameters are specified
   if(length(list(...)) > 0) {
     warning("The ", class(empty_obj)[1], "class only requires 3 additional
@@ -133,14 +133,14 @@ check_dist_params.PairwiseGBMDist <- function(empty_obj, group, metric,
     stop("Metric specified not supported by gbm package")
   }
     
-  # Check max.rank is specified correctly
-  if(!exists("max.rank")) {
+  # Check max_rank is specified correctly
+  if(!exists("max_rank")) {
     stop("Max rank not specified - check default settings")
     
-  } else if(!is.double(max.rank) || is.infinite(max.rank) || (length(max.rank) > 1)
-            || (max.rank < 0.0)) {
+  } else if(!is.double(max_rank) || is.infinite(max_rank) || (length(max_rank) > 1)
+            || (max_rank < 0.0)) {
     stop("Max rank provided is not a finite double greater than zero - distribution cannot be constructed")
-  } else if((max.rank != 0.0) && (metric %in% c("conc", "map"))){
+  } else if((max_rank != 0.0) && (metric %in% c("conc", "map"))){
     stop("Max rank cannot be specified for metrics - conc and map")
   }
 }

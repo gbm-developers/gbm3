@@ -278,14 +278,14 @@ test_that("Correctly calculates AdaBoost loss", {
 })
 test_that("Correctly calculates Bernoulli loss", {
   # Given responses, weights, predictions, offset, baseline and
-  # AdaBoost dist
+  # Bernoulli dist
   N <- 100
   resps <- runif(N)
   weights <- runif(N)
   preds <- runif(N)
   offset <- runif(N)
   baseline <- runif(N)
-  dist <- gbm_dist("AdaBoost")
+  dist <- gbm_dist("Bernoulli")
   
   # When calculting loss
   calc_loss <- loss(resps, preds, weights, offset, dist, baseline)
@@ -295,17 +295,16 @@ test_that("Correctly calculates Bernoulli loss", {
   loss_true <- -2*weighted.mean(resps*preds - log(1+exp(preds)), weights) - baseline
   expect_equal(calc_loss, loss_true)
 })
-
 test_that("Correctly calculates Gaussian loss", {
   # Given responses, weights, predictions, offset, baseline and
-  # AdaBoost dist
+  # Gaussian dist
   N <- 100
   resps <- runif(N)
   weights <- runif(N)
   preds <- runif(N)
   offset <- runif(N)
   baseline <- runif(N)
-  dist <- gbm_dist("AdaBoost")
+  dist <- gbm_dist("Gaussian")
   
   # When calculting loss
   calc_loss <- loss(resps, preds, weights, offset, dist, baseline)
@@ -315,17 +314,16 @@ test_that("Correctly calculates Gaussian loss", {
   loss_true <- weighted.mean((resps - preds)^2, weights) - baseline
   expect_equal(calc_loss, loss_true)
 })
-
 test_that("Correctly calculates Laplace loss", {
   # Given responses, weights, predictions, offset, baseline and
-  # AdaBoost dist
+  # Laplace dist
   N <- 100
   resps <- runif(N)
   weights <- runif(N)
   preds <- runif(N)
   offset <- runif(N)
   baseline <- runif(N)
-  dist <- gbm_dist("AdaBoost")
+  dist <- gbm_dist("Laplace")
   
   # When calculting loss
   calc_loss <- loss(resps, preds, weights, offset, dist, baseline)
@@ -335,7 +333,26 @@ test_that("Correctly calculates Laplace loss", {
   loss_true <- weighted.mean(abs(resps-preds), weights) - baseline
   expect_equal(calc_loss, loss_true)
 })
-
+test_that("Correctly calculates Pairwise loss", {
+  # Given responses, weights, predictions, offset, baseline and
+  # Pairwise dist
+  N <- 100
+  resps <- runif(N)
+  weights <- runif(N)
+  preds <- runif(N)
+  offset <- runif(N)
+  baseline <- runif(N)
+  dist <- gbm_dist("Pairwise")
+  
+  # When calculting loss
+  calc_loss <- loss(resps, preds, weights, offset, dist, baseline)
+  
+  # Then it is correct
+  preds <- preds + offset
+  loss_true <- (1 - perf_pairwise(y, preds, dist$group, dist$metric, 
+                                  weights, dist$max_rank)) - baseline
+  expect_equal(calc_loss, loss_true)
+})
 test_that("Correctly calculates Poisson loss", {
   # Given responses, weights, predictions, offset, baseline and
   # AdaBoost dist
@@ -345,7 +362,7 @@ test_that("Correctly calculates Poisson loss", {
   preds <- runif(N)
   offset <- runif(N)
   baseline <- runif(N)
-  dist <- gbm_dist("AdaBoost")
+  dist <- gbm_dist("Poisson")
   
   # When calculting loss
   calc_loss <- loss(resps, preds, weights, offset, dist, baseline)
