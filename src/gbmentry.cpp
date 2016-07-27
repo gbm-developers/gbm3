@@ -31,8 +31,8 @@ class NodeStack {
 
   inline parallel_details parallel_details_wrap(SEXP src) {
     Rcpp::List details(src);
-    int num_threads = details["n.threads"];
-    int array_chunk_size = details["arrayChunkSize"];
+    int num_threads = details["num_threads"];
+    int array_chunk_size = details["array_chunk_size"];
     return parallel_details(num_threads, array_chunk_size);
   }
 
