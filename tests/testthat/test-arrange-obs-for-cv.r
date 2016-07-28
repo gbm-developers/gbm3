@@ -38,7 +38,7 @@ test_that("split_and_join throws an error if gbm_data_obj is not GBMData object"
   
   # Set up for new API
   params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
-                            shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
+                            shrinkage=0.005, bag_fraction=0.5, id=seq_len(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   gdata <- gbm_data(data, Y, w, offset)
   cv_folds <- 5
@@ -63,7 +63,6 @@ test_that("split_and_join throws an error if gbm_data_obj is not GBMData object"
   expect_error(split_and_join(gdata, params, rows_in_training_set, rows_in_fold))
   
 })
-
 test_that("split_and_join throws an error if train_params is not GBMTrainParams object", {
   # Given gbm_data, a distribution obj, rows_in_fold and rows_in_training
   ## test Gaussian distribution gbm model
@@ -95,7 +94,7 @@ test_that("split_and_join throws an error if train_params is not GBMTrainParams 
   
   # Set up for new API
   params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
-                            shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
+                            shrinkage=0.005, bag_fraction=0.5, id=seq_len(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   gdata <- gbm_data(data, Y, w, offset)
   cv_folds <- 5
@@ -119,7 +118,6 @@ test_that("split_and_join throws an error if train_params is not GBMTrainParams 
   # Then error is thrown
   expect_error(split_and_join(gdata, params, rows_in_training_set, rows_in_fold))
 })
-
 test_that("split_and_join throws an error if rows_in_training is not an atomic of logicals", {
   # Given gbm_data, a distribution obj, rows_in_fold and rows_in_training
   ## test Gaussian distribution gbm model
@@ -151,7 +149,7 @@ test_that("split_and_join throws an error if rows_in_training is not an atomic o
   
   # Set up for new API
   params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
-                            shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
+                            shrinkage=0.005, bag_fraction=0.5, id=seq_len(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   gdata <- gbm_data(data, Y, w, offset)
   cv_folds <- 5
@@ -161,13 +159,13 @@ test_that("split_and_join throws an error if rows_in_training is not an atomic o
   rows_in_training_set <- params$id %in% seq_len(params$num_train_rows)
   params$id <- params$id[rows_in_training_set]
   
+  # Observations in cv_group - interested in first fold
+  rows_in_fold <- params$id %in% seq_len(params$num_train_rows)[(cv_groups == 1)]
+  
   # Extract relevent data - split into training and validation sets
   # Calculate new number of training rows
   params$num_train_rows <- length(which(cv_groups != 1))
   params$num_train <- length(unique(params$id[!rows_in_fold]))
-  
-  # Observations in cv_group - interested in first fold
-  rows_in_fold <- params$id %in% seq_len(params$num_train_rows)[(cv_groups == 1)]
   
   # When try to split_and_join with rows_in_training_set not an atomic of logicals
   # Then error is thrown
@@ -176,7 +174,6 @@ test_that("split_and_join throws an error if rows_in_training is not an atomic o
   expect_error(split_and_join(gdata, params, rows_in_training_set= NaN, rows_in_fold))
   
 })
-
 test_that("split_and_join throws an error if rows_in_fold is not an atomic of logicals of length num_train", {
   # Given gbm_data, a distribution obj, rows_in_fold and rows_in_training
   ## test Gaussian distribution gbm model
@@ -208,7 +205,7 @@ test_that("split_and_join throws an error if rows_in_fold is not an atomic of lo
   
   # Set up for new API
   params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
-                            shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
+                            shrinkage=0.005, bag_fraction=0.5, id=seq_len(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   gdata <- gbm_data(data, Y, w, offset)
   cv_folds <- 5
@@ -233,7 +230,6 @@ test_that("split_and_join throws an error if rows_in_fold is not an atomic of lo
   expect_error(split_and_join(gdata, params, rows_in_training_set, rows_in_fold=NaN))
   expect_error(split_and_join(gdata, params, rows_in_training_set, rows_in_fold="Where"))  
 })
-
 test_that("update_fold_dist_data throws an error if gbm_data_obj is not GBMData object", {
   # Given gbm_data, a distribution obj, rows_in_fold and rows_in_training
   ## test Gaussian distribution gbm model
@@ -265,7 +261,7 @@ test_that("update_fold_dist_data throws an error if gbm_data_obj is not GBMData 
   
   # Set up for new API
   params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
-                            shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
+                            shrinkage=0.005, bag_fraction=0.5, id=seq_len(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   gdata <- gbm_data(data, Y, w, offset)
   cv_folds <- 5
@@ -289,7 +285,6 @@ test_that("update_fold_dist_data throws an error if gbm_data_obj is not GBMData 
   # Then error is thrown
   expect_error(update_fold_dist_data(dist, gdata, params, rows_in_training_set, rows_in_fold))
 })
-
 test_that("update_fold_dist_data throws an error if gbm_dist_obj is not GBMDist object", {
   # Given gbm_data, a distribution obj, rows_in_fold and rows_in_training
   ## test Gaussian distribution gbm model
@@ -321,7 +316,7 @@ test_that("update_fold_dist_data throws an error if gbm_dist_obj is not GBMDist 
   
   # Set up for new API
   params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
-                            shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
+                            shrinkage=0.005, bag_fraction=0.5, id=seq_len(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   gdata <- gbm_data(data, Y, w, offset)
   cv_folds <- 5
@@ -345,7 +340,6 @@ test_that("update_fold_dist_data throws an error if gbm_dist_obj is not GBMDist 
   # Then error is thrown
   expect_error(update_fold_dist_data(dist, gdata, params, rows_in_training_set, rows_in_fold))
 })
-
 test_that("update_fold_dist_data throws an error if train_params is not GBMTrainParams object", {
   # Given gbm_data, a distribution obj, rows_in_fold and rows_in_training
   ## test Gaussian distribution gbm model
@@ -377,7 +371,7 @@ test_that("update_fold_dist_data throws an error if train_params is not GBMTrain
   
   # Set up for new API
   params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
-                            shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
+                            shrinkage=0.005, bag_fraction=0.5, id=seq_len(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   gdata <- gbm_data(data, Y, w, offset)
   cv_folds <- 5
@@ -434,7 +428,7 @@ test_that("split_and_join returns a GBMData object", {
   
   # Set up for new API
   params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
-                            shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
+                            shrinkage=0.005, bag_fraction=0.5, id=seq_len(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   gdata <- gbm_data(data, Y, w, offset)
   cv_folds <- 5
@@ -458,7 +452,6 @@ test_that("split_and_join returns a GBMData object", {
   # Then returned object is a GBMData object
   expect_error(check_if_gbm_data(returned_obj), NA)
 })
-
 test_that("split_and_join modifies gbm_data_obj so data in validation fold is at the 'end' of each field", {
   # Given gbm_data, a distribution obj, rows_in_fold and rows_in_training
   ## test Gaussian distribution gbm model
@@ -490,7 +483,7 @@ test_that("split_and_join modifies gbm_data_obj so data in validation fold is at
   
   # Set up for new API
   params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
-                            shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
+                            shrinkage=0.005, bag_fraction=0.5, id=seq_len(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   gdata <- gbm_data(data, Y, w, offset)
   cv_folds <- 5
@@ -521,7 +514,6 @@ test_that("split_and_join modifies gbm_data_obj so data in validation fold is at
   expect_equal(returned_obj$offset[rows_in_training_set][(N/2 - length(which(cv_groups==1)) + 1):(N/2)], 
                offset[rows_in_training_set][rows_in_fold])
 })
-
 test_that("split_and_join updates x_order so as to only use data in training folds", {
   # Given gbm_data, a distribution obj, rows_in_fold and rows_in_training
   ## test Gaussian distribution gbm model
@@ -553,7 +545,7 @@ test_that("split_and_join updates x_order so as to only use data in training fol
   
   # Set up for new API
   params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
-                            shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
+                            shrinkage=0.005, bag_fraction=0.5, id=seq_len(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   gdata <- gbm_data(data, Y, w, offset)
   cv_folds <- 5
@@ -585,7 +577,6 @@ test_that("split_and_join updates x_order so as to only use data in training fol
   # Then returned object is a GBMData object with x_order updated so as to only 
   expect_equal(as.matrix(returned_obj$x_order), as.matrix(x_order_with_training_folds))
 })
-
 test_that("update_fold_dist_data returns the original distribution object if NOT Pairwise or CoxPH", {
   # Given gbm_data, a distribution obj, rows_in_fold and rows_in_training
   ## test Gaussian distribution gbm model
@@ -617,7 +608,7 @@ test_that("update_fold_dist_data returns the original distribution object if NOT
   
   # Set up for new API
   params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
-                            shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
+                            shrinkage=0.005, bag_fraction=0.5, id=seq_len(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   gdata <- gbm_data(data, Y, w, offset)
   cv_folds <- 5
@@ -649,7 +640,6 @@ test_that("update_fold_dist_data returns the original distribution object if NOT
   expect_equal(update_fold_dist_data(gbm_dist("TDist"), gdata, params, rows_in_training_set, rows_in_fold), gbm_dist("TDist"))
   expect_equal(update_fold_dist_data(gbm_dist("Tweedie"), gdata, params, rows_in_training_set, rows_in_fold), gbm_dist("Tweedie"))
 })
-
 test_that("update_fold_dist_data updates the dist objects strata and sorted fields if CoxPH", {
   # Given gbm_data, a distribution obj (CoxPH!!), rows_in_fold and rows_in_training
   # Require Surv to be available
@@ -678,9 +668,8 @@ test_that("update_fold_dist_data updates the dist objects strata and sorted fiel
   data <- data.frame(tt=tt,delta=delta,X1=X1,X2=X2,X3=X3)
   
   # Put into new API
-  dist <- gbm_dist("CoxPH", prior_node_coeff_var=10)
   params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
-                            shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=3)
+                            shrinkage=0.001, bag_fraction=0.5, id=seq_len(nrow(data)), num_train=N/2, num_features=3)
   
   
   # Set up for new API
@@ -706,13 +695,68 @@ test_that("update_fold_dist_data updates the dist objects strata and sorted fiel
   
   # Then strata and sorted are updated
   expect_true(length(dist_update$strata) != length(dist$strata))
-  expect_false(is.na(dist_update$sorted))
+  expect_false(all(is.na(dist_update$sorted)))
 })
-
 test_that("update_fold_dist_data updates the dist objects group if Pairwise", {
+  # Given gbm_data, a distribution obj (Pairwise!! + groups), rows_in_fold and rows_in_training
+  # create some data - DOESN'T NEED TO REFLECT DIST
+  set.seed(1)
+  N <- 1000
+  X1 <- runif(N)
+  X2 <- 2*runif(N)
+  X3 <- factor(sample(letters[1:4],N,replace=T))
+  X4 <- ordered(sample(letters[1:6],N,replace=T))
+  X5 <- factor(sample(letters[1:3],N,replace=T))
+  X6 <- 3*runif(N)
+  mu <- c(-1,0,1,2)[as.numeric(X3)]
   
+  SNR <- 10 # signal-to-noise ratio
+  Y <- X1**1.5 + 2 * (X2**.5) + mu
+  sigma <- sqrt(var(Y)/SNR)
+  Y <- Y + rnorm(N,0,sigma)
+  
+  # create a bunch of missing values
+  X1[sample(1:N,size=100)] <- NA
+  X3[sample(1:N,size=300)] <- NA
+  
+  w <- rep(1,N)
+  offset <- rep(0, N)
+  X <- data.frame(X1=X1,X2=X2,X3=X3,X4=X4,X5=X5,X6=X6)
+  
+  data <- gbm_data(X, Y, w, offset)
+  
+  # Put into new API
+  params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
+                            shrinkage=0.001, bag_fraction=0.5, id=seq_len(nrow(X)), num_train=N/2, num_features=3)
+  
+  
+  # Set up for new API
+  dist <- gbm_dist("Pairwise")
+  dist$group <- as.factor(sample(seq_len(5), N, replace=TRUE))
+  cv_folds <- 5
+  cv_groups <- create_cv_groups(gbm_data_obj = data, dist, params, cv_folds, FALSE, NULL)
+ 
+  
+  # DEFINE GROUPINGS
+  # Observations in the training set
+  rows_in_training_set <- params$id %in% seq_len(params$num_train_rows)
+  params$id <- params$id[rows_in_training_set]
+  
+  # Observations in cv_group - interested in first fold
+  rows_in_fold <- params$id %in% seq_len(params$num_train_rows)[(cv_groups == 1)]
+  
+  # Extract relevent data - split into training and validation sets
+  # Calculate new number of training rows
+  params$num_train_rows <- length(which(cv_groups != 1))
+  params$num_train <- length(unique(params$id[!rows_in_fold]))
+  
+  # When try to update_fold_dist_data with distributions 
+  dist_update <- update_fold_dist_data(dist, gdata, params, rows_in_training_set, rows_in_fold)
+  
+  # Then groupings are now updated
+  expect_equal(dist_update$group,  c(dist$group[rows_in_training_set][!rows_in_fold],
+                                     dist$group[rows_in_training_set][rows_in_fold]))
 })
-
 test_that("extract_obs_in_fold updates the training parameters so as to take into account the number of observations in the validation fold", {
   # Given gbm_data, a distribution obj (CoxPH!!), rows_in_fold and rows_in_training
   # Require Surv to be available
@@ -758,7 +802,6 @@ test_that("extract_obs_in_fold updates the training parameters so as to take int
   # Then updates the num of training observations in train_params
   expect_equal(returned_obj$params$num_train, params$num_train * (cv_folds-1)/cv_folds)
 })
-
 test_that("extract_obs_in_fold returns a list of the updated gbm_data_obj, dist obj and training params", {
   # Given gbm_data, a distribution obj (CoxPH!!), rows_in_fold and rows_in_training
   # Require Surv to be available

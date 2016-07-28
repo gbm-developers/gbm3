@@ -30,7 +30,13 @@ test_that("Calculation of number of rows per observation is correct", {
 })
 
 test_that("Calculation of training fraction of observations is correct", {
+  # Given training ids and num_train
+  train_no <- 25
+  id1 <- seq_len(4 * train_no)
   
+  # When training_params called
+  # Then correctly calculates train_fraction
+  expect_equal(training_params(num_train = train_no, id=id1, bag_fraction=1, num_features = 3)$train_fraction, train_no/length(unique(id1)))
 })
 
 ##### Errors #####

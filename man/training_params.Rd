@@ -29,7 +29,7 @@ observations allowed - \code{(2*min_num_obs_in_node + 1)/bag_fraction + 1}.}
 
 \item{id}{optional vector of integers, specifying which rows in the data correspond
 to which observations. Individual observations may have many rows of data associated with them. This defaults to
-\code{seq_len(num_train)}.}
+\code{seq_len(num_train)}. NB: When calling \code{\link{gbm2}} or \code{\link{gbm2.fit}} the id should be the default.}
 
 \item{num_features}{number of random features/columns to use in training model.  This defaults to 1.}
 }

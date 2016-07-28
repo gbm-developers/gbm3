@@ -65,7 +65,7 @@ training_params <- function(num_trees=100, interaction_depth=1,
   num_train_rows <-  sum(num_rows_per_obs[seq_len(min(num_train, length(num_rows_per_obs)))])
 
   if(num_train * bag_fraction <= 2*min_num_obs_in_node+1) {
-    stop("The dataset size is too small or subsampling rate is too large: num_obs*bag.fraction <= min_num_obs_in_node")
+    stop("The dataset size is too small or subsampling rate is too large: num_obs*bag.fraction <= 2*min_num_obs_in_node+1")
   }
   
   if(num_train_rows > sum(num_rows_per_obs)) {

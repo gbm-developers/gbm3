@@ -28,10 +28,10 @@ core algorithm.}
 \item{is_verbose}{if TRUE, will print out progress and performance of the fitting.}
 }
 \value{
-a \code{GBMFit} object which contains appropriate CV info is requested.
+a \code{GBMFit} object which contains appropriate CV info if requested.
 }
 \description{
 Create fitted object - Cross validation is performed if \code{cv_folds > 1}, otherwise only the full model
-is fitted.
+is fitted. This function is called by \code{\link{gbm2}} to perform the model fitting.
 }
 

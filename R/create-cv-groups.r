@@ -1,6 +1,8 @@
 #' Create CV Groups
 #' 
 #' Methods that create cv groups for gbm2 fitting.
+#' Used internally, within \code{\link{gbm_cross_val}}, to split data and distribution specific parameters into
+#' train and test folds.
 #' 
 #' @usage create_cv_groups(gbm_data_obj, gbm_dist_obj, train_params, cv_folds, cv_class_stratify, fold_id)
 #' 
@@ -22,6 +24,7 @@
 #' 
 #' @return a vector of numbers mapping each row of data to a cv fold.
 #'  
+#' @export create_cv_groups
 
 create_cv_groups <- function(gbm_data_obj, gbm_dist_obj, train_params, cv_folds,
                              cv_class_stratify, fold_id) {
@@ -63,7 +66,7 @@ create_cv_groups.BernoulliGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_
       )
     }
     
-    cv_group <- vector(length =train_params$num_train)
+    cv_group <- vector(length=train_params$num_train)
     cv_group[gbm_data_obj$y[seq_len(train_params$num_train)] == 0] <- sample(rep(seq_len(cv_folds), length=Zeros))
     cv_group[gbm_data_obj$y[seq_len(train_params$num_train)] == 1] <- sample(rep(seq_len(cv_folds), length=Ones))
     return(cv_group)
@@ -73,6 +76,13 @@ create_cv_groups.BernoulliGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_
   } else {
     return( sample(rep(seq_len(cv_folds), length=train_params$num_train)) )
   }
+}
+
+create_cv_groups.PairwiseGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_params, cv_folds,
+                                             cv_class_stratify, fold_id) {
+  # Split into CV folds at group boundaries
+  samp <- sample(rep(seq_len(cv_folds), length=nlevels(gbm_dist_obj$group)))
+  return(samp[as.integer(gbm_dist_obj$group[seq_len(train_params$num_train)])])
 }
 
 

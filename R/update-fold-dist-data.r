@@ -16,6 +16,7 @@
 #' 
 #' @return modified \code{GBMDist} object for CV fit - strata and groupings updated if needed.
 #' 
+#' @export update_fold_dist_data
 
 update_fold_dist_data <- function(gbm_dist_obj, gbm_data_obj, train_params, rows_in_training, rows_in_fold) {
   check_if_gbm_dist(gbm_dist_obj)

@@ -26,10 +26,10 @@
 
 perf_pairwise <- function(y, f, group, metric="ndcg", w=NULL, max_rank=0){
   func.name <- switch(metric,
-                      conc = "ir.measure.conc",
-                      mrr  = "ir.measure.mrr",
-                      map  = "ir.measure.map",
-                      ndcg = "ir.measure.ndcg",
+                      conc = "ir_measure_conc",
+                      mrr  = "ir_measure_mrr",
+                      map  = "ir_measure_map",
+                      ndcg = "ir_measure_ndcg",
                       stop(paste("Metric",metric,"is not supported"))
   )
   
@@ -65,7 +65,7 @@ perf_pairwise <- function(y, f, group, metric="ndcg", w=NULL, max_rank=0){
 
 
 #### Helper Functions ####
-ir.measure.conc <- function(y.f, max_rank=0) {
+ir_measure_conc <- function(y.f, max_rank=0) {
   # Note: max_rank is meaningless for CONC
   
   y           <- y.f[[1]]
@@ -82,7 +82,7 @@ ir.measure.conc <- function(y.f, max_rank=0) {
   }
 }
 
-ir.measure.auc <- function(y.f, max_rank=0){
+ir_measure_auc <- function(y.f, max_rank=0){
   # Note: max_rank is meaningless for AUC
   y       <- y.f[[1]]
   f       <- y.f[[2]]
@@ -98,7 +98,7 @@ ir.measure.auc <- function(y.f, max_rank=0){
   }
 }
 
-ir.measure.mrr <- function(y.f, max_rank) {
+ir_measure_mrr <- function(y.f, max_rank) {
   y       <- y.f[[1]]
   f       <- y.f[[2]]
   num.pos <- sum(y>0)
@@ -121,7 +121,7 @@ ir.measure.mrr <- function(y.f, max_rank) {
   }
 }
 
-ir.measure.map <- function(y.f, max_rank=0) {
+ir_measure_map <- function(y.f, max_rank=0) {
   # Note: max_rank is meaningless for MAP
   
   y         <- y.f[[1]]
@@ -140,7 +140,7 @@ ir.measure.map <- function(y.f, max_rank=0) {
   return (sum((1:length(idx.pos))/idx.pos) / num.pos)
 }
 
-ir.measure.ndcg <- function(y.f, max_rank) {
+ir_measure_ndcg <- function(y.f, max_rank) {
   y         <- y.f[[1]]
   f         <- y.f[[2]]
   

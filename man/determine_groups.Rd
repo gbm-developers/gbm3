@@ -4,17 +4,17 @@
 \alias{determine_groups}
 \title{Set Up Groups}
 \usage{
-determine_groups(col_names, gbm_data, distribution_obj)
+determine_groups(original_data, response, distribution_obj)
 }
 \arguments{
-\item{col_names}{vector of variable names used in fitting - required for Pairwise}
+\item{original_data}{the original data used on the initial call to \code{\link{gbm2}}.}
 
-\item{gbm_data}{a GBMData object created using}
+\item{response}{the response data provided on the initial call to \code{\link{gbm2}}.}
 
-\item{distribution_obj}{a GBMDist object created using gbm_dist}
+\item{distribution_obj}{a GBMDist object created using gbm_dist.}
 }
 \value{
-an updated distribution_object
+an updated distribution_object with the group, group_order and group_index updated
 }
 \description{
 Function to set up groups - currently this only

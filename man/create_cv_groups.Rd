@@ -28,5 +28,7 @@ a vector of numbers mapping each row of data to a cv fold.
 }
 \description{
 Methods that create cv groups for gbm2 fitting.
+Used internally, within \code{\link{gbm_cross_val}}, to split data and distribution specific parameters into
+train and test folds.
 }
 

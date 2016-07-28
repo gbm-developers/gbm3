@@ -1,6 +1,8 @@
 #' Predictor Order
 #' 
-#' Function that calculates the predictor variable order for GBM
+#' Function that calculates the predictor variable order for GBM.
+#' This is used internally to create the order of variables when growing
+#' trees in the C++ layer.
 #' 
 #' @usage predictor_order(gbm_data_obj, train_params)
 #' 

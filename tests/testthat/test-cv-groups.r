@@ -296,7 +296,6 @@ test_that("cv groups is an atomic vector of integers whose length is equal to th
   expect_true(is.atomic(cv_groups))
   expect_true(length(cv_groups)== params$num_train)  
 })
-
 test_that("max integer in cv groups produced is = cv_folds parameter", {
   # Given inputs
   # Dist_Obj
@@ -342,8 +341,7 @@ test_that("max integer in cv groups produced is = cv_folds parameter", {
   # Then cv_groups max fold number == cv_folds
   expect_true(max(cv_groups) == cv_folds)
 })
-
-test_that("cv groups is equal to fold_id if not NULL - distributions other than Bernoulli", {
+test_that("cv groups is equal to fold_id if not NULL - distributions other than Bernoulli or Pairwise", {
   # Given inputs - default distributions other than Bernoulli
   # Dist_Objs
   dist_1 <- gbm_dist("AdaBoost")
@@ -352,11 +350,10 @@ test_that("cv groups is equal to fold_id if not NULL - distributions other than 
   dist_4 <- gbm_dist("Gaussian")
   dist_5 <- gbm_dist("Huberized")
   dist_6 <- gbm_dist("Laplace")
-  dist_7 <- gbm_dist("Pairwise")
-  dist_8 <- gbm_dist("Poisson")
-  dist_9 <- gbm_dist("Quantile")
-  dist_10 <- gbm_dist("TDist")
-  dist_11 <- gbm_dist("Tweedie")
+  dist_7 <- gbm_dist("Poisson")
+  dist_8 <- gbm_dist("Quantile")
+  dist_9 <- gbm_dist("TDist")
+  dist_10 <- gbm_dist("Tweedie")
   
   # create some data - DOESN'T NEED TO REFLECT DIST
   set.seed(1)
@@ -403,8 +400,7 @@ test_that("cv groups is equal to fold_id if not NULL - distributions other than 
   cv_groups_8 <- create_cv_groups(data, dist_8, params, cv_folds, cv_class_stratify, fold_id)
   cv_groups_9 <- create_cv_groups(data, dist_9, params, cv_folds, cv_class_stratify, fold_id)
   cv_groups_10 <- create_cv_groups(data, dist_10, params, cv_folds, cv_class_stratify, fold_id)
-  cv_groups_11 <- create_cv_groups(data, dist_11, params, cv_folds, cv_class_stratify, fold_id)
-  
+
     
   # Then cv_groups == fold_id
   expect_equal(cv_groups_1, fold_id)
@@ -417,9 +413,7 @@ test_that("cv groups is equal to fold_id if not NULL - distributions other than 
   expect_equal(cv_groups_8, fold_id)
   expect_equal(cv_groups_9, fold_id)
   expect_equal(cv_groups_10, fold_id)
-  expect_equal(cv_groups_11, fold_id)
 })
-
 test_that("cv groups is equal to fold_id if not NULL - Bernoulli with cv_class_stratify=FALSE", {
   # Given inputs - default distributions for Bernoulli
   # Dist_Objs
@@ -465,7 +459,6 @@ test_that("cv groups is equal to fold_id if not NULL - Bernoulli with cv_class_s
   # Then cv_groups == fold_id
   expect_equal(cv_groups, fold_id)
 })
-
 test_that("cv_class_stratify does nothing for distributions other than Bernoulli - fold_id != NULL", {
   # Given inputs - default distributions other than Bernoulli
   # Dist_Objs
@@ -552,7 +545,6 @@ test_that("cv_class_stratify does nothing for distributions other than Bernoulli
   expect_equal(cv_groups_10_T, cv_groups_10_F)
   expect_equal(cv_groups_11_T, cv_groups_11_F)
 })
-
 test_that("cv_class_stratify does nothing for distributions other than Bernoulli - fold_id == NULL", {
   # Given inputs - default distributions other than Bernoulli
   # Dist_Objs
@@ -628,6 +620,7 @@ test_that("cv_class_stratify does nothing for distributions other than Bernoulli
   cv_groups_10_F <- create_cv_groups(data, dist_10, params, cv_folds, cv_class_stratify=FALSE, fold_id)
   cv_groups_11_F <- create_cv_groups(data, dist_11, params, cv_folds, cv_class_stratify=FALSE, fold_id)
   
+  
   # These groups don't depend on cv_class_stratify
   expect_equal(cv_groups_1_T, cv_groups_1_F)
   expect_equal(cv_groups_2_T, cv_groups_2_F)
@@ -640,8 +633,8 @@ test_that("cv_class_stratify does nothing for distributions other than Bernoulli
   expect_equal(cv_groups_9_T, cv_groups_9_F)
   expect_equal(cv_groups_10_T, cv_groups_10_F)
   expect_equal(cv_groups_11_T, cv_groups_11_F)
+  
 })
-
 test_that("cv_class_stratify changes grouping for Bernoulli distribution", {
   # Given inputs - default distributions for Bernoulli, data
   # now representative of distribution
@@ -692,8 +685,6 @@ test_that("cv_class_stratify changes grouping for Bernoulli distribution", {
   # Then cv_groups are not identical
   expect_true(any(cv_groups_T != cv_groups_F))
 })
-
-
 test_that("Error thrown when number in a certain class is < cv_folds on stratification - Bernoulli", {
   # Given inputs - default distributions for Bernoulli, data
   # now representative of distribution
@@ -738,4 +729,55 @@ test_that("Error thrown when number in a certain class is < cv_folds on stratifi
   
   # Then error will be thrown
   expect_error(create_cv_groups(data, dist, params, cv_folds, cv_class_stratify, fold_id))
+})
+test_that("cv groups are such that folds are split at group boundaries - Pairwise", {
+  # Given a Pairwise distribution object and appropriate
+  # groupings etc.
+  dist <- gbm_dist("Pairwise")
+
+  
+  # create some data - DOESN'T NEED TO REFLECT DIST
+  set.seed(1)
+  N <- 1000
+  X1 <- runif(N)
+  X2 <- 2*runif(N)
+  X3 <- factor(sample(letters[1:4],N,replace=T))
+  X4 <- ordered(sample(letters[1:6],N,replace=T))
+  X5 <- factor(sample(letters[1:3],N,replace=T))
+  X6 <- 3*runif(N)
+  mu <- c(-1,0,1,2)[as.numeric(X3)]
+  
+  SNR <- 10 # signal-to-noise ratio
+  Y <- X1**1.5 + 2 * (X2**.5) + mu
+  sigma <- sqrt(var(Y)/SNR)
+  Y <- Y + rnorm(N,0,sigma)
+  
+  # create a bunch of missing values
+  X1[sample(1:N,size=100)] <- NA
+  X3[sample(1:N,size=300)] <- NA
+  
+  w <- rep(1,N)
+  offset <- rep(0, N)
+  X <- data.frame(X1=X1,X2=X2,X3=X3,X4=X4,X5=X5,X6=X6)
+  
+  data <- gbm_data(X, Y, w, offset)
+  
+  # Params Obj
+  params <- training_params(num_train = N)
+  
+  # Other CV Parameters - NB: fold_id not NULL
+  cv_folds <- 2
+  fold_id <- seq_len(params$num_train)
+  
+  # DEFINE GROUPINGS
+  dist$group <- as.factor(sample(seq_len(5), N, replace=TRUE))
+  
+  # When cv_groups is called and compared to 
+  set.seed(1)
+  cv_groups <- create_cv_groups(data, dist, params, cv_folds, FALSE, fold_id)
+  
+  # Then the splits are at group boundaries
+  set.seed(1)
+  samp <- sample(rep(seq_len(cv_folds), length=nlevels(dist$group)))
+  expect_equal(cv_groups, samp[as.integer(dist$group[seq_len(params$num_train)])])
 })

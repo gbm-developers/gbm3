@@ -10,9 +10,11 @@ get_misc(distribution_obj)
 \item{distribution_obj}{a GBMDist object}
 }
 \value{
-a list of parameters
+a list of additional parameters specific to the distribution
 }
 \description{
-S3 method to get the "misc" objects from GBM distributions
+S3 method to get the "misc" objects from GBM distributions.
+This method (internal) is used with gbm_call to extract the appropriate "misc"
+for passing to the C++ layer.
 }
 

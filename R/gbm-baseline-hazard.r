@@ -44,6 +44,7 @@
 #' 
 #' @keywords methods survival
 #' 
+#' @export
 
 baseline_hazard <- function(surv_times, delta, coxph_preds,
                             eval_times=NULL,
