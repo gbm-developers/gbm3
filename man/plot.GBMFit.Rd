@@ -29,7 +29,7 @@ continuous predictors this is usually a regular sequence of values within
 the range of the variable. For categorical predictors, the points are the
 levels of the factor. When \code{length(var_index)} is one, the values can be
 provided directly, outside a list.  This is NULL by default and generated
-automatically from the data, using \code{continuous.resolution} for
+automatically from the data, using \code{continuous_resolution} for
 continuous predictors. Forcing the values can be useful to evaluate two
 models on the same exact range}
 

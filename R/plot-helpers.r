@@ -1,6 +1,7 @@
 # Series of helper functions for plot.GBMFit
 
 #### One variable helpers ####
+#' @export get_ylabel_one_var
 get_ylabel_one_var <- function(dist_obj) {
   UseMethod("get_ylabel_one_var", dist_obj)
 }
@@ -33,7 +34,7 @@ select_two_var_plot <- function(f.factor, X, gbm_fit_obj, var_index, ...) {
          "1"=two_var_plot_no_factor(X, gbm_fit_obj, var_index, ...),
          "2"=two_var_plot_first_factor(X, gbm_fit_obj, var_index, ...),
          "3"=two_var_plot_second_factor(X, gbm_fit_obj, var_index, ...),
-         "4"=two_var_plot_both_factors(X, gbm_fit_obj, var_index, ...))
+         "4"=two_var_plot_both_factor(X, gbm_fit_obj, var_index, ...))
 }
 
 two_var_plot_no_factor <- function(X, gbm_fit_obj, var_index, ...) {
@@ -62,7 +63,7 @@ two_var_plot_second_factor <- function(X, gbm_fit_obj, var_index, ...) {
 
 two_var_plot_both_factor <- function(X, gbm_fit_obj, var_index, ...) {
   print(stripplot(X1~y|X2,data=X,
-                  xlab=gbm_fit_obj$variables$var_names[var[2]],
+                  xlab=gbm_fit_obj$variables$var_names[var_index[2]],
                   ylab=paste("f(",gbm_fit_obj$variables$var_names[var_index[1]],",",gbm_fit_obj$variables$var_names[var_index[2]],")",sep=""),
                   ...))
 }
@@ -77,10 +78,10 @@ select_three_var_plot <- function(f.factor, X, gbm_fit_obj, var_index, ...) {
   names(X.new) <- names(X)
   
   switch(which_plot,
-         "1"=three_var_plot_no_factor(X.new, gbm_fit_obj, var_index, i,  ...),
-         "2"=three_var_plot_one_factor(X.new, gbm_fit_obj, var_index, i, ...),
-         "3"=three_var_plot_two_factor(X.new, gbm_fit_obj, var_index, i, ...),
-         "4"=three_var_plot_three_factor(X.new, gbm_fit_obj, var_index, i, ...))
+         "0"=three_var_plot_no_factor(X.new, gbm_fit_obj, var_index, i,  ...),
+         "1"=three_var_plot_one_factor(X.new, gbm_fit_obj, var_index, i, ...),
+         "2"=three_var_plot_two_factor(X.new, gbm_fit_obj, var_index, i, ...),
+         "3"=three_var_plot_three_factor(X.new, gbm_fit_obj, var_index, i, ...))
 }
 
 three_var_plot_no_factor <- function(X, gbm_fit_obj, var_index, select_index, ...) {

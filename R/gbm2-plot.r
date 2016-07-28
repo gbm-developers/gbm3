@@ -30,7 +30,7 @@
 #' the range of the variable. For categorical predictors, the points are the
 #' levels of the factor. When \code{length(var_index)} is one, the values can be
 #' provided directly, outside a list.  This is NULL by default and generated
-#' automatically from the data, using \code{continuous.resolution} for
+#' automatically from the data, using \code{continuous_resolution} for
 #' continuous predictors. Forcing the values can be useful to evaluate two
 #' models on the same exact range
 #' @param return_grid if \code{TRUE} then \code{plot.GBMFit} produces no graphics
@@ -75,11 +75,11 @@ plot.GBMFit <- function(gbm_fit_obj,
   if((min(var_index)<1) || (max(var_index) > length(gbm_fit_obj$variables$var_names))) {
     warning("var_index must be between 1 and ", length(gbm_fit_obj$variables$var_names))
   }
-  if(num_trees > gbm_fit_obj$variables$num_trees) {
+  if(num_trees > gbm_fit_obj$params$num_trees) {
     warning(paste("num_trees exceeds the number of trees in the model, ", 
-                  gbm_fit_obj$variables$num_trees,
+                  gbm_fit_obj$params$num_trees,
                   ". Plotting using ", gbm_fit_obj$variables$num_trees," trees.",sep=""))
-    num_trees <- gbm_fit_obj$variables$num_trees
+    num_trees <- gbm_fit_obj$params$num_trees
   }
   
   if(length(var_index) > 3) {

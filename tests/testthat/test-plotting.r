@@ -422,15 +422,95 @@ test_that("Can run  all distributions", {
   expect_error(calibrate_plot(y, p, distribution = "Tweedie"), NA)
 })
 
-context("Testinng plot methods for GBMFit")
+context("Testing plot methods for GBMFit")
 test_that("Error thrown if type of plot not 'link' or 'response' ", {
+  # Given a GBM fit and type not 'link' or 'response'
+  type_plot <- "stuff"
   
+  ## test Gaussian distribution gbm model
+  set.seed(1)
+  
+  # create some data
+  N <- 1000
+  X1 <- runif(N)
+  X2 <- 2*runif(N)
+  X3 <- factor(sample(letters[1:4],N,replace=T))
+  X4 <- ordered(sample(letters[1:6],N,replace=T))
+  X5 <- factor(sample(letters[1:3],N,replace=T))
+  X6 <- 3*runif(N)
+  mu <- c(-1,0,1,2)[as.numeric(X3)]
+  
+  SNR <- 10 # signal-to-noise ratio
+  Y <- X1**1.5 + 2 * (X2**.5) + mu
+  sigma <- sqrt(var(Y)/SNR)
+  Y <- Y + rnorm(N,0,sigma)
+  
+  # create a bunch of missing values
+  X1[sample(1:N,size=100)] <- NA
+  X3[sample(1:N,size=300)] <- NA
+  
+  w <- rep(1,N)
+  offset <- rep(0, N)
+  data <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3,X4=X4,X5=X5,X6=X6)
+  
+  
+  # Set up for new API
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+                            shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
+  dist <- gbm_dist("Gaussian")
+  
+  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+              train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
+  
+  # When plotting fit with unknown type
+  # Then error thrown
+  expect_error(plot(fit, type=type_plot))
 })
-
 test_that("Error thrown if var_index has variable outside range not used in fit", {
+  # Given a GBM fit and var_index outside range of predictors
+  # Used in fit
+  var_ind <- 7
+  
+  ## test Gaussian distribution gbm model
+  set.seed(1)
+  
+  # create some data
+  N <- 1000
+  X1 <- runif(N)
+  X2 <- 2*runif(N)
+  X3 <- factor(sample(letters[1:4],N,replace=T))
+  X4 <- ordered(sample(letters[1:6],N,replace=T))
+  X5 <- factor(sample(letters[1:3],N,replace=T))
+  X6 <- 3*runif(N)
+  mu <- c(-1,0,1,2)[as.numeric(X3)]
+  
+  SNR <- 10 # signal-to-noise ratio
+  Y <- X1**1.5 + 2 * (X2**.5) + mu
+  sigma <- sqrt(var(Y)/SNR)
+  Y <- Y + rnorm(N,0,sigma)
+  
+  # create a bunch of missing values
+  X1[sample(1:N,size=100)] <- NA
+  X3[sample(1:N,size=300)] <- NA
+  
+  w <- rep(1,N)
+  offset <- rep(0, N)
+  data <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3,X4=X4,X5=X5,X6=X6)
+  
+  
+  # Set up for new API
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+                            shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
+  dist <- gbm_dist("Gaussian")
+  
+  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+              train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
+  
+  # When plotting fit with out of range var index
+  # Then error thrown
+  expect_error(plot(fit, var_index = var_ind))
   
 })
-
 test_that("Response throws warning if not Bernoulli, Poisson, Gamma, Pairwise or Tweedie", {
   # Given distribution and response
   dist_1 <- gbm_dist("AdaBoost")
@@ -492,47 +572,433 @@ test_that("Response returns correct answer for Bernoulli, Pairwise, Poisson, Gam
   expect_equal(response(resp, dist_4), exp(resp))
   expect_equal(response(resp, dist_5), exp(resp))
 })
-
-test_that("get_default_grid_levels returns answer of correct type", {
+test_that("get_default_grid_levels returns answer of correct type and size", {
+  # Given a fitted gbm object, var_index and continuous resolution
+  ## test Gaussian distribution gbm model
+  set.seed(1)
   
+  # create some data
+  N <- 1000
+  X1 <- runif(N)
+  X2 <- 2*runif(N)
+  X3 <- factor(sample(letters[1:4],N,replace=T))
+  X4 <- ordered(sample(letters[1:6],N,replace=T))
+  X5 <- factor(sample(letters[1:3],N,replace=T))
+  X6 <- 3*runif(N)
+  mu <- c(-1,0,1,2)[as.numeric(X3)]
+  
+  SNR <- 10 # signal-to-noise ratio
+  Y <- X1**1.5 + 2 * (X2**.5) + mu
+  sigma <- sqrt(var(Y)/SNR)
+  Y <- Y + rnorm(N,0,sigma)
+  
+  # create a bunch of missing values
+  X1[sample(1:N,size=100)] <- NA
+  X3[sample(1:N,size=300)] <- NA
+  
+  w <- rep(1,N)
+  offset <- rep(0, N)
+  data <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3,X4=X4,X5=X5,X6=X6)
+  
+  
+  # Set up for new API
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+                            shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
+  dist <- gbm_dist("Gaussian")
+  
+  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+              train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
+  var_index <- 1
+  continuous_resolution <- 50
+  
+  # When default grids generated
+  # Then output is of correct type and size
+  expect_true(is.list(get_default_grid_levels(fit, var_index, continuous_resolution)))
+  expect_equal(length(get_default_grid_levels(fit, var_index, continuous_resolution)), var_index)
 })
-
 test_that("generate_grid_levels throws an error if length of grid_levels not same length as var_index", {
+  # Given a fitted gbm object, var_index, grid_levels and continuous resolution
+  ## test Gaussian distribution gbm model
+  set.seed(1)
   
+  # create some data
+  N <- 1000
+  X1 <- runif(N)
+  X2 <- 2*runif(N)
+  X3 <- factor(sample(letters[1:4],N,replace=T))
+  X4 <- ordered(sample(letters[1:6],N,replace=T))
+  X5 <- factor(sample(letters[1:3],N,replace=T))
+  X6 <- 3*runif(N)
+  mu <- c(-1,0,1,2)[as.numeric(X3)]
+  
+  SNR <- 10 # signal-to-noise ratio
+  Y <- X1**1.5 + 2 * (X2**.5) + mu
+  sigma <- sqrt(var(Y)/SNR)
+  Y <- Y + rnorm(N,0,sigma)
+  
+  # create a bunch of missing values
+  X1[sample(1:N,size=100)] <- NA
+  X3[sample(1:N,size=300)] <- NA
+  
+  w <- rep(1,N)
+  offset <- rep(0, N)
+  data <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3,X4=X4,X5=X5,X6=X6)
+  
+  
+  # Set up for new API
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+                            shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
+  dist <- gbm_dist("Gaussian")
+  
+  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+              train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
+  var_index <- 1
+  continuous_resolution <- 50
+  grid_levels <- get_default_grid_levels(fit, c(1, 2), continuous_resolution)
+  
+  # When generate_grid_levels called
+  # Then error is thrown
+  expect_error(generate_grid_levels(grid_levels, fit, var_index))
 })
-
 test_that("generate_grid_levels can run without error", {
   
 })
-
-test_that("warning thrown if num_trees exceeds those in fit", {
+test_that("warning thrown if num_trees exceeds those in fit and then uses number of trees in fit to plot", {
+  # Given a GBM fit and num_trees exceeding those in fit
+  num_trees_plot <- 100000 
   
+  ## test Gaussian distribution gbm model
+  set.seed(1)
+  
+  # create some data
+  N <- 1000
+  X1 <- runif(N)
+  X2 <- 2*runif(N)
+  X3 <- factor(sample(letters[1:4],N,replace=T))
+  X4 <- ordered(sample(letters[1:6],N,replace=T))
+  X5 <- factor(sample(letters[1:3],N,replace=T))
+  X6 <- 3*runif(N)
+  mu <- c(-1,0,1,2)[as.numeric(X3)]
+  
+  SNR <- 10 # signal-to-noise ratio
+  Y <- X1**1.5 + 2 * (X2**.5) + mu
+  sigma <- sqrt(var(Y)/SNR)
+  Y <- Y + rnorm(N,0,sigma)
+  
+  # create a bunch of missing values
+  X1[sample(1:N,size=100)] <- NA
+  X3[sample(1:N,size=300)] <- NA
+  
+  w <- rep(1,N)
+  offset <- rep(0, N)
+  data <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3,X4=X4,X5=X5,X6=X6)
+  
+  
+  # Set up for new API
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+                            shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
+  dist <- gbm_dist("Gaussian")
+  
+  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+              train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
+  
+  # When plotting fit with too many trees
+  # Then warning thrown and uses number of trees in fit
+  expect_warning(plot(fit, num_trees=num_trees_plot))
 })
-
 test_that("warning thrown if number var indices > 3", {
+  # Given a GBM fit and more than 3 var indices
+  var_ind <- c(1, 2, 3, 4)
   
+  ## test Gaussian distribution gbm model
+  set.seed(1)
+  
+  # create some data
+  N <- 1000
+  X1 <- runif(N)
+  X2 <- 2*runif(N)
+  X3 <- factor(sample(letters[1:4],N,replace=T))
+  X4 <- ordered(sample(letters[1:6],N,replace=T))
+  X5 <- factor(sample(letters[1:3],N,replace=T))
+  X6 <- 3*runif(N)
+  mu <- c(-1,0,1,2)[as.numeric(X3)]
+  
+  SNR <- 10 # signal-to-noise ratio
+  Y <- X1**1.5 + 2 * (X2**.5) + mu
+  sigma <- sqrt(var(Y)/SNR)
+  Y <- Y + rnorm(N,0,sigma)
+  
+  # create a bunch of missing values
+  X1[sample(1:N,size=100)] <- NA
+  X3[sample(1:N,size=300)] <- NA
+  
+  w <- rep(1,N)
+  offset <- rep(0, N)
+  data <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3,X4=X4,X5=X5,X6=X6)
+  
+  
+  # Set up for new API
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+                            shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
+  dist <- gbm_dist("Gaussian")
+  
+  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+              train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
+  
+  # When plotting fit with too indices
+  # Then warning thrown 
+  expect_warning(plot(fit, var_index = var_ind))
 })
-
 test_that("return_grid=TRUE returns the grid", {
+  # Given a GBM fit and return_grid=TRUE
+  grid_return <- TRUE
   
+  ## test Gaussian distribution gbm model
+  set.seed(1)
+  
+  # create some data
+  N <- 1000
+  X1 <- runif(N)
+  X2 <- 2*runif(N)
+  X3 <- factor(sample(letters[1:4],N,replace=T))
+  X4 <- ordered(sample(letters[1:6],N,replace=T))
+  X5 <- factor(sample(letters[1:3],N,replace=T))
+  X6 <- 3*runif(N)
+  mu <- c(-1,0,1,2)[as.numeric(X3)]
+  
+  SNR <- 10 # signal-to-noise ratio
+  Y <- X1**1.5 + 2 * (X2**.5) + mu
+  sigma <- sqrt(var(Y)/SNR)
+  Y <- Y + rnorm(N,0,sigma)
+  
+  # create a bunch of missing values
+  X1[sample(1:N,size=100)] <- NA
+  X3[sample(1:N,size=300)] <- NA
+  
+  w <- rep(1,N)
+  offset <- rep(0, N)
+  data <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3,X4=X4,X5=X5,X6=X6)
+  
+  
+  # Set up for new API
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+                            shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
+  dist <- gbm_dist("Gaussian")
+  
+  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+              train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
+  
+  # When plotting fit with grid_return returns grid
+  # Then output is same
+  expect_true(is.list(plot(fit, return_grid=grid_return)))
 })
-
 test_that("number of var indices >3 sets return_grid to TRUE", {
+  # Given a GBM fit and more than 3 var indices
+  var_ind <- c(1, 2, 3, 4)
   
+  ## test Gaussian distribution gbm model
+  set.seed(1)
+  
+  # create some data
+  N <- 1000
+  X1 <- runif(N)
+  X2 <- 2*runif(N)
+  X3 <- factor(sample(letters[1:4],N,replace=T))
+  X4 <- ordered(sample(letters[1:6],N,replace=T))
+  X5 <- factor(sample(letters[1:3],N,replace=T))
+  X6 <- 3*runif(N)
+  mu <- c(-1,0,1,2)[as.numeric(X3)]
+  
+  SNR <- 10 # signal-to-noise ratio
+  Y <- X1**1.5 + 2 * (X2**.5) + mu
+  sigma <- sqrt(var(Y)/SNR)
+  Y <- Y + rnorm(N,0,sigma)
+  
+  # create a bunch of missing values
+  X1[sample(1:N,size=100)] <- NA
+  X3[sample(1:N,size=300)] <- NA
+  
+  w <- rep(1,N)
+  offset <- rep(0, N)
+  data <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3,X4=X4,X5=X5,X6=X6)
+  
+  
+  # Set up for new API
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+                            shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
+  dist <- gbm_dist("Gaussian")
+  
+  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+              train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
+  
+  # When plotting fit with too indices and return_grid = TRUE
+  # Then output is same
+  expect_equal(plot(fit, var_index = var_ind, return_grid=FALSE),  plot(fit, var_index = var_ind, return_grid=TRUE))
 })
-
 test_that("can plot with one variable selected", {
+  # Given a GBM fit 
+  ## test Gaussian distribution gbm model
+  set.seed(1)
   
+  # create some data
+  N <- 1000
+  X1 <- runif(N)
+  X2 <- 2*runif(N)
+  X3 <- factor(sample(letters[1:4],N,replace=T))
+  X4 <- ordered(sample(letters[1:6],N,replace=T))
+  X5 <- factor(sample(letters[1:3],N,replace=T))
+  X6 <- 3*runif(N)
+  mu <- c(-1,0,1,2)[as.numeric(X3)]
+  
+  SNR <- 10 # signal-to-noise ratio
+  Y <- X1**1.5 + 2 * (X2**.5) + mu
+  sigma <- sqrt(var(Y)/SNR)
+  Y <- Y + rnorm(N,0,sigma)
+  
+  # create a bunch of missing values
+  X1[sample(1:N,size=100)] <- NA
+  X3[sample(1:N,size=300)] <- NA
+  
+  w <- rep(1,N)
+  offset <- rep(0, N)
+  data <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3,X4=X4,X5=X5,X6=X6)
+  
+  
+  # Set up for new API
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+                            shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
+  dist <- gbm_dist("Gaussian")
+  
+  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+              train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
+  
+  # When plotting fit  - 1 variable
+  # Then no Error thrown 
+  expect_error(plot(fit), NA)
 })
-
 test_that("can correctly get one variable y-label", {
+  # Given an object for each distribution
+  dist_1 <- gbm_dist("AdaBoost")
+  dist_2 <- gbm_dist("Bernoulli")
+  dist_3 <- gbm_dist("CoxPH")
+  dist_4 <- gbm_dist("Gamma")
+  dist_5 <- gbm_dist("Gaussian")
+  dist_6 <- gbm_dist("Huberized")
+  dist_7 <- gbm_dist("Laplace")
+  dist_8 <- gbm_dist("Pairwise")
+  dist_9 <- gbm_dist("Poisson")
+  dist_10 <- gbm_dist("Quantile")
+  dist_11 <- gbm_dist("TDist")
+  dist_12 <- gbm_dist("Tweedie")
   
+  # When y-label retreived
+  # Then correct
+  expect_equal(get_ylabel_one_var(dist_1), "")
+  expect_equal(get_ylabel_one_var(dist_2), "Predicted Probability")
+  expect_equal(get_ylabel_one_var(dist_3), "")
+  expect_equal(get_ylabel_one_var(dist_4), "")
+  expect_equal(get_ylabel_one_var(dist_5), "")
+  expect_equal(get_ylabel_one_var(dist_6), "")
+  expect_equal(get_ylabel_one_var(dist_7), "")
+  expect_equal(get_ylabel_one_var(dist_8), "Predicted Probability")
+  expect_equal(get_ylabel_one_var(dist_9), "Predicted Count")
+  expect_equal(get_ylabel_one_var(dist_10), "")
+  expect_equal(get_ylabel_one_var(dist_11), "")
+  expect_equal(get_ylabel_one_var(dist_12), "")
 })
-
 test_that("can plot with two variables", {
+  # Given a GBM fit and two variables selected - all combinations
+  var_1 <- c(1, 2)
+  var_2 <- c(1, 3)
+  var_3 <- c(3, 5)
   
+  ## test Gaussian distribution gbm model
+  set.seed(1)
+  
+  # create some data
+  N <- 1000
+  X1 <- runif(N)
+  X2 <- 2*runif(N)
+  X3 <- factor(sample(letters[1:4],N,replace=T))
+  X4 <- ordered(sample(letters[1:6],N,replace=T))
+  X5 <- factor(sample(letters[1:3],N,replace=T))
+  X6 <- 3*runif(N)
+  mu <- c(-1,0,1,2)[as.numeric(X3)]
+  
+  SNR <- 10 # signal-to-noise ratio
+  Y <- X1**1.5 + 2 * (X2**.5) + mu
+  sigma <- sqrt(var(Y)/SNR)
+  Y <- Y + rnorm(N,0,sigma)
+  
+  # create a bunch of missing values
+  X1[sample(1:N,size=100)] <- NA
+  X3[sample(1:N,size=300)] <- NA
+  
+  w <- rep(1,N)
+  offset <- rep(0, N)
+  data <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3,X4=X4,X5=X5,X6=X6)
+  
+  
+  # Set up for new API
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+                            shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
+  dist <- gbm_dist("Gaussian")
+  
+  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+              train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
+  
+  # When plotting fit  - 2  variables
+  # Then no Error thrown 
+  expect_error(plot(fit, var_index = var_1), NA)
+  expect_error(plot(fit, var_index = var_2), NA)
+  expect_error(plot(fit, var_index = var_3), NA)
 })
-
 test_that("can plot with 3 variables selected", {
+  # Given a GBM fit and 3 variables selected - all combinations
+  var_1 <- c(1, 2, 6)
+  var_2 <- c(1, 3, 2)
+  var_3 <- c(4, 3, 1)
+  var_4 <- c(3, 4, 5)
   
+  ## test Gaussian distribution gbm model
+  set.seed(1)
+  
+  # create some data
+  N <- 1000
+  X1 <- runif(N)
+  X2 <- 2*runif(N)
+  X3 <- factor(sample(letters[1:4],N,replace=T))
+  X4 <- ordered(sample(letters[1:6],N,replace=T))
+  X5 <- factor(sample(letters[1:3],N,replace=T))
+  X6 <- 3*runif(N)
+  mu <- c(-1,0,1,2)[as.numeric(X3)]
+  
+  SNR <- 10 # signal-to-noise ratio
+  Y <- X1**1.5 + 2 * (X2**.5) + mu
+  sigma <- sqrt(var(Y)/SNR)
+  Y <- Y + rnorm(N,0,sigma)
+  
+  # create a bunch of missing values
+  X1[sample(1:N,size=100)] <- NA
+  X3[sample(1:N,size=300)] <- NA
+  
+  w <- rep(1,N)
+  offset <- rep(0, N)
+  data <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3,X4=X4,X5=X5,X6=X6)
+  
+  
+  # Set up for new API
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+                            shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
+  dist <- gbm_dist("Gaussian")
+  
+  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+              train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
+  
+  # When plotting fit  - 3 variables
+  # Then no Error thrown 
+  expect_error(plot(fit, var_index = var_1), NA)
+  expect_error(plot(fit, var_index = var_2), NA)
+  expect_error(plot(fit, var_index = var_3), NA)
+  expect_error(plot(fit, var_index = var_4), NA)
 })
