@@ -1,7 +1,7 @@
 #' Set Up Groups
 #' 
-#' Function to set up groups - currently this only
-#' applies to the pairwise distribution
+#' Internal S3 method to set up groups - currently this only
+#' applies to the pairwise distribution. 
 #' 
 #' @usage determine_groups(original_data, response, distribution_obj)
 #' 
@@ -13,6 +13,7 @@
 #' 
 #' @return an updated distribution_object with the group, group_order and group_index updated
 #' 
+#' @export determine_groups
 
 determine_groups <- function(original_data, response, distribution_obj) {
   check_if_gbm_dist(distribution_obj)
@@ -20,10 +21,6 @@ determine_groups <- function(original_data, response, distribution_obj) {
 }
 
 determine_groups.default <- function(original_data, response, distribution_obj) {
-  return(distribution_obj)
-}
-
-determine_groups.CoxPHGBMDist <- function(original_data, distribution_obj) {
   return(distribution_obj)
 }
 

@@ -16,11 +16,11 @@
 #' x <- rnorm(100)
 #' y <- rnorm(100)
 #' plot(x,y)
-#' quantile.rug(x)
-#' @export quantile.rug
+#' quantile_rug(x)
+#' @export quantile_rug
 #' 
 
-quantile.rug <- function(x, prob=(0:10)/10, ...)
+quantile_rug <- function(x, prob=(0:10)/10, ...)
 {
   quants <- quantile(x[!is.na(x)], prob=prob)
   if(length(unique(quants)) < length(prob)) {

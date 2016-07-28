@@ -7,7 +7,7 @@
 adjust_pred_scale(gbm_predictions, distribution_obj)
 }
 \arguments{
-\item{gbm_predictions}{a matrix containing predictions generated from \code{\link{predict.GBMFit}}.}
+\item{gbm_predictions}{a matrix containing predictions generated from the C++ function \code{\link{gbm_pred}}.}
 
 \item{distribution_obj}{a GBMDist object used in the fitting a gbm model and generating the gbm_predictions.}
 }
@@ -15,6 +15,6 @@ adjust_pred_scale(gbm_predictions, distribution_obj)
 gbm_predictions scaled to the response of the distribution
 }
 \description{
-S3 method that adjusts the scales of the predictor variables
+S3 method (used internally within predict.GBMFit) that adjusts the scales of the predictor variable.
 }
 

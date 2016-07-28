@@ -5,7 +5,7 @@
 \title{Marginal plots of fitted gbm objects}
 \usage{
 \method{plot}{GBMFit}(gbm_fit_obj, var_index = 1,
-  n.trees = gbm_fit_obj$params$num_trees, continuous_resolution = 100,
+  num_trees = gbm_fit_obj$params$num_trees, continuous_resolution = 100,
   grid_levels = NULL, return_grid = FALSE, type = "link", ...)
 }
 \arguments{
@@ -16,6 +16,9 @@ using indices, the variables are indexed in the same order that they appear
 in the initial \code{gbm2} formula.  If \code{length(var_index)} is between 1 and
 3 then \code{plot.gbm} produces the plots. Otherwise, \code{plot.GBMFit}
 returns only the grid of evaluation points and their average predictions}
+
+\item{num_trees}{the number of trees used to generate the plot. Only the first
+\code{num_trees} trees will be used}
 
 \item{continuous_resolution}{The number of equally space points at which to
 evaluate continuous predictors}
@@ -37,9 +40,6 @@ variable types or for dimensions greater than 3}
 
 \item{type}{the type of prediction to plot on the vertical axis. See
 \code{predict.GBMFit}}
-
-\item{num_trees}{the number of trees used to generate the plot. Only the first
-\code{num_trees} trees will be used}
 
 \item{\dots}{other arguments passed to the plot function}
 }

@@ -17,7 +17,7 @@ determine_groups(original_data, response, distribution_obj)
 an updated distribution_object with the group, group_order and group_index updated
 }
 \description{
-Function to set up groups - currently this only
-applies to the pairwise distribution
+Internal S3 method to set up groups - currently this only
+applies to the pairwise distribution.
 }
 

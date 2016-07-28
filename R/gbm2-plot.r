@@ -51,7 +51,7 @@
 #' @export plot.GBMFit
 plot.GBMFit <- function(gbm_fit_obj,
                         var_index=1,
-                        n.trees=gbm_fit_obj$params$num_trees,
+                        num_trees=gbm_fit_obj$params$num_trees,
                         continuous_resolution=100,
                         grid_levels=NULL,
                         return_grid=FALSE,
@@ -59,7 +59,6 @@ plot.GBMFit <- function(gbm_fit_obj,
                         ...)
 {
   # Check inputs
-  check_if_gbm_fit(gbm_fit_obj)
   if (!is.element(type, c("link", "response"))){
     stop( "type must be either 'link' or 'response'")
   }
@@ -73,13 +72,13 @@ plot.GBMFit <- function(gbm_fit_obj,
     }
   }
   
-  if((min(var_index)<1) || (max(var_index) > length(gbm_fit_obj$variables$var.names))) {
-    warning("var_index must be between 1 and ", length(gbm_fit_obj$variables$var.names))
+  if((min(var_index)<1) || (max(var_index) > length(gbm_fit_obj$variables$var_names))) {
+    warning("var_index must be between 1 and ", length(gbm_fit_obj$variables$var_names))
   }
-  if(num_trees > gbm_fit_obj$variables$n.trees) {
+  if(num_trees > gbm_fit_obj$variables$num_trees) {
     warning(paste("num_trees exceeds the number of trees in the model, ", 
                   gbm_fit_obj$variables$num_trees,
-                  ". Plotting using ", gbm_fit_obj$variables$n.trees," trees.",sep=""))
+                  ". Plotting using ", gbm_fit_obj$variables$num_trees," trees.",sep=""))
     num_trees <- gbm_fit_obj$variables$num_trees
   }
   
@@ -90,9 +89,9 @@ plot.GBMFit <- function(gbm_fit_obj,
   
   # generate grid to evaluate gbm model
   if (is.null(grid_levels)) {
-   grid_levels <- generate_grid_levels(gbm_fit_obj, var_index, continuous_resolution)
+   grid_levels <- get_default_grid_levels(gbm_fit_obj, var_index, continuous_resolution)
   } else {
-    grid_levels <- get_default_grid_levels(gbm_fit_obj, var_index)
+    grid_levels <- generate_grid_levels(grid_levels, gbm_fit_obj, var_index)
   }
   
   # Expand the grid of variables
@@ -103,7 +102,7 @@ plot.GBMFit <- function(gbm_fit_obj,
   y <- .Call("gbm_plot",
              X = data.matrix(X),
              i.var = as.integer(var_index-1),
-             n.trees = as.integer(num_trees) ,
+             num_trees = as.integer(num_trees) ,
              initF = as.double(gbm_fit_obj$initF),
              trees = gbm_fit_obj$trees,
              c.splits = gbm_fit_obj$c.splits,
@@ -111,7 +110,7 @@ plot.GBMFit <- function(gbm_fit_obj,
              PACKAGE = "gbm")
   
   if(type=="response") {
-   X$y <- response()
+   X$y <- response(y, gbm_fit_obj$distribution)
   } else { 
     X$y <- y 
   }
@@ -150,7 +149,8 @@ plot.GBMFit <- function(gbm_fit_obj,
 
 
 ##### Helper Functions #####
-generate_grid_levels <- function(gbm_fit_obj, var_index, continuous_resolution) {
+#' @export
+get_default_grid_levels <- function(gbm_fit_obj, var_index, continuous_resolution) {
   # Vector of lists is output
   grid_levels <- vector("list",length(var_index))
   
@@ -172,10 +172,8 @@ generate_grid_levels <- function(gbm_fit_obj, var_index, continuous_resolution) 
   return(grid_levels)
 }
 
-get_default_grid_levels <- function(gbm_fit_obj, var_index) {
-  
-  # Return object
-  grid_levels <- NULL
+#' @export
+generate_grid_levels <- function(grid_levels, gbm_fit_obj, var_index) {
   
   # allow grid.levels to not be a list when there is only one predictor
   if (length(var_index) == 1 & !is.list(grid_levels)) {
@@ -195,31 +193,32 @@ get_default_grid_levels <- function(gbm_fit_obj, var_index) {
   return(grid_levels)
 }
 
-response <- function(resp, gbm_fit_obj) {
-  UseMethod("response", gbm_fit_obj$distribution)
+#' @export response
+response <- function(resp, dist_obj) {
+  UseMethod("response", dist_obj)
 }
 
-response.default <- function(resp, gbm_fit_obj) {
+response.default <- function(resp, dist_obj) {
   warning("type 'response' only implemented for 'Bernoulli', 'Poisson', 'Gamma', 'Tweedie', and 'Pairwise'. Ignoring" )
   return(NULL)
 }
 
-response.BernoulliGBMDist <- function(resp, gbm_fit_obj) {
+response.BernoulliGBMDist <- function(resp, dist_obj) {
   return(1/(1+exp(-resp)))
 }
 
-response.GammaGBMDist <- function(resp, gbm_fit_obj) {
+response.GammaGBMDist <- function(resp, dist_obj) {
   return(exp(resp))
 }
 
-response.PairwiseGBMDist <- function(resp, gbm_fit_obj) {
+response.PairwiseGBMDist <- function(resp, dist_obj) {
   return(1/(1+exp(-resp)))
 }
 
-response.PoissonGBMDist <- function(resp, gbm_fit_obj) {
+response.PoissonGBMDist <- function(resp, dist_obj) {
   return(exp(resp))
 }
 
-response.TweedieGBMDist <- function(resp, gbm_fit_obj) {
+response.TweedieGBMDist <- function(resp, dist_obj) {
   return(exp(resp))
 }

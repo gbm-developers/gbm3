@@ -25,8 +25,9 @@ a \code{GBMFit} object with an appropriately order fit.
 }
 \description{
 Series of functions that are used to re-order the fitted gbm model,
-depending on what distribution was used in the initial call to \code{gbm2}.
+depending on what distribution was used in the initial call to \code{\link{gbm2.fit}}.
 Currently reordering only takes place for generalized boosted models produced
-using the CoxPH or Pairwise distributions.
+using the CoxPH or Pairwise distributions.  These methods are called internally
+on completion of a call to \code{\link{gbm2.fit}}.
 }
 

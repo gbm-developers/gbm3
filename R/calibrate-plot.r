@@ -16,9 +16,9 @@
 #' current plot.  \code{replace=FALSE} is useful for comparing the calibration
 #' of several methods
 #' @param line.par graphics parameters for the line
-#' @param shade.col color for shading the 2 SE region. \code{shade.col=NA}
+#' @param shade_col color for shading the 2 SE region. \code{shade_col=NA}
 #' implies no 2 SE region
-#' @param shade.density the \code{density} parameter for \code{\link{polygon}}
+#' @param shade_density the \code{density} parameter for \code{\link{polygon}}
 #' @param rug.par graphics parameters passed to \code{\link{rug}}
 #' @param xlab x-axis label corresponding to the predicted values
 #' @param ylab y-axis label corresponding to the observed average
@@ -46,15 +46,15 @@
 #' x <- kyphosis$Age
 #' glm1 <- glm(y~poly(x,2),family=binomial)
 #' p <- predict(glm1,type="response")
-#' calibrate.plot(y, p, xlim=c(0,0.6), ylim=c(0,0.6))
+#' calibrate_plot(y, p, xlim=c(0,0.6), ylim=c(0,0.6))
 #' }
 #' @importFrom splines ns
-calibrate.plot <- function(y, p,
+calibrate_plot <- function(y, p,
                            distribution="Bernoulli",
                            replace=TRUE,
                            line.par=list(col="black"),
-                           shade.col="lightyellow",
-                           shade.density=NULL,
+                           shade_col="lightyellow",
+                           shade_density=NULL,
                            rug.par=list(side=1),
                            xlab="Predicted value",
                            ylab="Observed average",
@@ -88,7 +88,7 @@ calibrate.plot <- function(y, p,
   glm_preds$fit <- glm_preds$fit[!is.na(glm_preds$fit)]
   
   # Set shading limits and 
-  if(!is.na(shade.col)) {
+  if(!is.na(shade_col)) {
     se.lower <- glm_preds$fit-2*glm_preds$se.fit
     se.upper <- glm_preds$fit+2*glm_preds$se.fit
     
@@ -118,14 +118,14 @@ calibrate.plot <- function(y, p,
   }
   
   # Add shaded
-  if(!is.na(shade.col)) {
+  if(!is.na(shade_col)) {
     polygon(c(x,rev(x),x[1]),
             c(se.lower,rev(se.upper),se.lower[1]),
-            col=shade.col,
+            col=shade_col,
             border=NA,
-            density=shade.density)
+            density=shade_density)
   }
   lines(x, glm_preds$fit,col=line.par$col)
-  quantile.rug(p,side=rug.par$side)
-  abline(0,1,col="red")
+  quantile_rug(p,side=rug.par$side)
+  abline(0, 1, col="red")
 }
