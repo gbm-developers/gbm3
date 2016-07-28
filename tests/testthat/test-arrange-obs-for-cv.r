@@ -827,19 +827,18 @@ test_that("extract_obs_in_fold returns a list of the updated gbm_data_obj, dist 
   
   # random weights if you want to experiment with them
   w <- rep(1,N)
-  data <- data.frame(tt=tt,delta=delta,X1=X1,X2=X2,X3=X3)
+  data <- data.frame(X1=X1,X2=X2,X3=X3)
   
   # Put into new API
-  dist <- gbm_dist("CoxPH", prior_node_coeff_var=10)
   params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=3)
   
   
   # Set up for new API
   dist <- gbm_dist("CoxPH")
-  gdata <- gbm_data(data, Surv(tt, delta), w, offset)
+  gdata <- gbm_data(data, Surv(tt, delta), w, rep(0, N))
   cv_folds <- 5
-  cv_groups <- create_cv_groups(gbm_data_obj = gdata, dist, params, cv_folds, FALSE, NULL)
+  cv_groups <- create_cv_groups(gdata, dist, params, cv_folds, FALSE, NULL)
   
   # When extract_obs_in_fold is called
   returned_obj <- extract_obs_in_fold(gdata, dist, params, cv_groups, fold_num=1) 

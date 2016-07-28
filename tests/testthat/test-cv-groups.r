@@ -46,7 +46,7 @@ test_that("create_cv_groups throws an error if not passed a GBMData object", {
   fold_id <- NULL
   
   # When data is stripped of GBMData class
-  class(data) <- ""
+  class(data) <- "wrong"
   
   # Then error thrown when trying to calculate CV groups
   expect_error(create_cv_groups(data, dist, params, cv_folds, cv_class_stratify, fold_id))

@@ -52,7 +52,6 @@ test_that("Warning thrown - gbm", {
               cv.folds=10 # do 10-fold cross-validation
               ))
 })
-
 test_that("Warning thrown - gbm.fit", {
   # Given data for Gaussian example
   set.seed(1)
@@ -171,7 +170,6 @@ test_that("Gaussian works - gbm", {
   expect_true(cor(data2$Y, f.predict) > 0.990)
   expect_true(sd(data2$Y-f.predict) < sigma)
 })
-
 test_that("CoxPH works - efron - gbm", {
   # Require Surv to be available
   require(survival)
@@ -241,7 +239,6 @@ test_that("CoxPH works - efron - gbm", {
   # Use observed sd
   expect_true(sd(data2$f - f.predict) < 0.4)
 })
-
 test_that("CoxPH works - breslow - gbm", {
   # Require Surv to be available
   require(survival)
@@ -311,9 +308,6 @@ test_that("CoxPH works - breslow - gbm", {
   # Use observed sd
   expect_true(sd(data2$f - f.predict) < 0.4)
 })
-
-
-
 test_that("coxph - runs to completion with train.fraction of 1.0", {
   ## Needed packages
   require(survival)
@@ -336,7 +330,6 @@ test_that("coxph - runs to completion with train.fraction of 1.0", {
   expect_error(gbm(Surv(tstart, tstop, death==2) ~ bili + protime + albumin + alk.phos, 
                    data=pbc2, distribution="CoxPH", train.fraction=1.0, n.trees=500, shrinkage=.01, interaction.depth=3), NA)
 })
-
 test_that("coxph - runs to completion with train.fraction < 1.0 and cv.folds > 1", {
   ## Needed packages
   require(survival)
@@ -363,7 +356,6 @@ test_that("coxph - runs to completion with train.fraction < 1.0 and cv.folds > 1
   expect_error(gbm(Surv(tstart, tstop, death==2) ~ bili + protime + albumin + alk.phos, 
                    data=pbc2, distribution="CoxPH", train.fraction=0.8, n.trees=500, shrinkage=.01, cv.folds=5, interaction.depth=3), NA)
 })
-
 test_that("coxph cv.folds - runs to completion with start-stop, id'ed and stratified dataset", {
   ## Needed packages
   require(survival)
@@ -386,7 +378,6 @@ test_that("coxph cv.folds - runs to completion with start-stop, id'ed and strati
                      steroids + propylac, data=cgd, obs.id=cgd$id,
                    train.fraction=0.8, n.trees=500, strata= cgd$hos.cat, distribution = "CoxPH", shrinkage=.01, interaction.depth=3, cv.folds=10), NA)
 })
-
 test_that("Bernoulli works - gbm", {
   
   set.seed(1)
@@ -448,8 +439,6 @@ test_that("Bernoulli works - gbm", {
   # Base the validation tests on observed discrepancies
   expect_true(sd(f.new - f.1.predict) < 1.0)
 })
-
-
 test_that("relative influence picks out true predictors", {
   set.seed(1234)
   X1 <- matrix(nrow=1000, ncol=50)
@@ -467,8 +456,6 @@ test_that("relative influence picks out true predictors", {
   res <- sum(wh %in% paste("V", 51:55, sep = ""))
   expect_equal(res, 5)
 })
-
-
 test_that("Conversion of 2 factor Y is successful", {
   
   NumY <- sample(c(0, 1), size=1000, replace=TRUE)
@@ -632,7 +619,6 @@ test_that("CoxPH works - efron - gbm", {
   # Use observed sd
   expect_true(sd(f - f.predict) < 0.4)
 })
-
 test_that("CoxPH works - breslow - gbm", {
   # Require Surv to be available
   require(survival)
@@ -697,7 +683,6 @@ test_that("CoxPH works - breslow - gbm", {
   # Use observed sd
   expect_true(sd(f - f.predict) < 0.4)
 })
-
 test_that("Bernoulli works - gbm", {
   
   set.seed(1)

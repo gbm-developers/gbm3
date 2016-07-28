@@ -89,11 +89,10 @@ gbm_more <- function(gbm_fit_obj, num_new_trees=100, data=NULL, weights=NULL, of
   # Call GBM package
   gbm_more_fit <- .Call("gbm",
                         Y=as.matrix(as.data.frame(gbm_data_obj$y)),
+                        intResponse = as.matrix(cbind(distribution$strata, distribution$sorted)),
                         Offset=as.double(gbm_data_obj$offset),
                         X=as.matrix(as.data.frame(gbm_data_obj$x)),
                         X.order=as.integer(gbm_data_obj$x_order),
-                        sorted=as.matrix(as.data.frame(distribution$sorted)),
-                        Strata = as.integer(distribution$strata),
                         weights=as.double(gbm_data_obj$weights),
                         Misc=get_misc(distribution),
                         prior.node.coeff.var = ifelse(is.null(distribution$prior_node_coeff_var), as.double(0),
@@ -101,7 +100,9 @@ gbm_more <- function(gbm_fit_obj, num_new_trees=100, data=NULL, weights=NULL, of
                         id = as.integer(gbm_fit_obj$params$id),
                         var.type=as.integer(gbm_fit_obj$variables$var_type),
                         var.monotone=as.integer(gbm_fit_obj$variables$var_monotone),
-                        distribution=as.character(tolower(gbm_fit_obj$distribution$name)),
+                        distribution=ifelse(distribution$name=="Pairwise", paste0(as.character(tolower(distribution$name)),"_",
+                                                                                  as.character(tolower(distribution$metric))),
+                                            as.character(tolower(distribution$name))),
                         n.trees=as.integer(num_new_trees),
                         interaction.depth=as.integer(gbm_fit_obj$params$interaction_depth),
                         n.minobsinnode=as.integer(gbm_fit_obj$params$min_num_obs_in_node),
@@ -113,6 +114,7 @@ gbm_more <- function(gbm_fit_obj, num_new_trees=100, data=NULL, weights=NULL, of
                         fit.old=as.double(gbm_fit_obj$fit),
                         n.cat.splits.old=as.integer(length(gbm_fit_obj$c.splits)),
                         n.trees.old=as.integer(length(gbm_fit_obj$params$trees)),
+                        par_details=gbm_fit_obj$par_details,
                         verbose=as.integer(is_verbose),
                         PACKAGE = "gbm")
   

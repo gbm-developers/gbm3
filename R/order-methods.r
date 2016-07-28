@@ -65,7 +65,7 @@ order_by_groupings <- function(gbm_data_obj, distribution_obj) {
   
   # Check if GBMDist obj
   check_if_gbm_dist(distribution_obj)
-  if(!is.null(distribution_obj$group)) {
+  if(!is.null(distribution_obj$group_order)) {
     gbm_data_obj$y            <- gbm_data_obj$y[distribution_obj$group_order]
     gbm_data_obj$x            <- gbm_data_obj$x[distribution_obj$group_order,,drop=FALSE]
     gbm_data_obj$weights      <- gbm_data_obj$weights[distribution_obj$group_order]

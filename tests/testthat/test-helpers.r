@@ -15,7 +15,6 @@ test_that("check_if_gbm_data throws an error if given an object not of class GBM
   # Then an error is thrown
   expect_error(check_if_gbm_data(obj))
 })
-
 test_that("check_if_gbm_data does not throw an error if given an object of class GBMData", {
   # Given an object of class GBMData
   obj <- list()
@@ -25,7 +24,6 @@ test_that("check_if_gbm_data does not throw an error if given an object of class
   # Then no error is thrown
   expect_error(check_if_gbm_data(obj), NA)
 })
-
 test_that("check_if_gbm_dist throws an error if given an object not of class GBMDist", {
   # Given an object not of class GBMDist
   obj <- list()
@@ -34,17 +32,15 @@ test_that("check_if_gbm_dist throws an error if given an object not of class GBM
   # Then an error is thrown
   expect_error(check_if_gbm_dist(obj))
 })
-
 test_that("check_if_gbm_dist does not throw an error if given an object of class GBMDist", { 
   # Given an object of class GBMDist
   obj <- list()
-  class(obj) <- "GBMDist"
+  class(obj) <- "AdaBoostGBMDist"
   
   # When passed to check_if_gbm_dist
   # Then no error is thrown
   expect_error(check_if_gbm_dist(obj), NA)  
 })
-
 test_that("check_if_gbm_train_params throws an error if given object not of class GBMTrainParams", {
   # Given an object not of class GBMTrainParams
   obj <- list()
@@ -53,7 +49,6 @@ test_that("check_if_gbm_train_params throws an error if given object not of clas
   # Then an error is thrown
   expect_error(check_if_gbm_train_params(obj))
 })
-
 test_that("check_if_gbm_train_params does not throw an error if given object of class GBMTrainParams", {
   # Given an object of class GBMTrainParams
   obj <- list()
@@ -63,7 +58,6 @@ test_that("check_if_gbm_train_params does not throw an error if given object of 
   # Then no error is thrown
   expect_error(check_if_gbm_train_params(obj), NA)
 })
-
 test_that("check_if_gbm_fit throws an error if given an object not of class GBMFit", {
   # Given an object not of class GBMFit
   obj <- list()
@@ -72,7 +66,6 @@ test_that("check_if_gbm_fit throws an error if given an object not of class GBMF
   # Then an error is thrown
   expect_error(check_if_gbm_fit(obj))
 })
-
 test_that("check_if_gbm_fit does not throw an error if given an object of class GBMFit", {
   # Given an object of class GBMFit
   obj <- list()
@@ -82,7 +75,6 @@ test_that("check_if_gbm_fit does not throw an error if given an object of class 
   # Then no error is thrown
   expect_error(check_if_gbm_fit(obj), NA)
 })
-
 test_that("check_if_gbm_var_container throws an error if given an object not of class GBMVarCont", {
   # Given an object not of class GBMVarCont
   obj <- list()
@@ -91,7 +83,6 @@ test_that("check_if_gbm_var_container throws an error if given an object not of 
   # Then an error is thrown
   expect_error(check_if_gbm_var_container(obj))
 })
-
 test_that("check_if_gbm_var_container does not throw an error if given an object of class GBMVarCont", {
   # Given an object of class GBMVarCont
   obj <- list()
@@ -104,7 +95,6 @@ test_that("check_if_gbm_var_container does not throw an error if given an object
 
 
 context("Testing checks on inputs for creation of S3 objects")
-
 test_that("check_weights returns a vector of 1s if passed an obj of length 0", {
   # Given an empty vector
   w <- c()
@@ -116,7 +106,6 @@ test_that("check_weights returns a vector of 1s if passed an obj of length 0", {
   # Then returns a vector of 1s
   expect_equal(w, rep(1, n))
 })
-
 test_that("check_weights throws an error if any not a double", {
   # Given a vector of weights
   n <- 100
@@ -128,7 +117,6 @@ test_that("check_weights throws an error if any not a double", {
   # Then check_weights will throw an error
   expect_error(check_weights(w, n))
 })
-
 test_that("check_weights throws an error if any are < 0", {
   # Given a vector of weights
   w <- rep(1, 100)
@@ -139,7 +127,6 @@ test_that("check_weights throws an error if any are < 0", {
   # Then check_weights will throw an error
   expect_error(check_weights(w, 100))
 })
-
 test_that("check_interaction_depth throws error if < 1 or > 49", {
   # Given interaction depths of 0 and 50
   id1 <- 0
@@ -150,7 +137,6 @@ test_that("check_interaction_depth throws error if < 1 or > 49", {
   expect_error(check_interaction_depth(id1))
   expect_error(check_interaction_depth(id2))
 })
-
 test_that("checkMissing throws error if NaN in predictors", {
   # Given predictors and response
   N <- 100
@@ -175,7 +161,6 @@ test_that("checkMissing throws error if missing value in response", {
   # Then error thrown by checkMissing
   expect_error(checkMissing(x, y))
 })
-
 test_that("warnNoVariation warns if a variable has no variation", {
   x <- c(1.2, 1.2)
   
@@ -183,19 +168,16 @@ test_that("warnNoVariation warns if a variable has no variation", {
                  "variable 1: test has no variation",
                  fixed=TRUE)
 })
-
 test_that("warnNoVariation passes OK if variable does vary", {
   x <- c(0, 1)
   
   expect_warning(warnNoVariation(x, 1, 'test'), regexp=NA)
 })
-
 test_that("warnNoVariation passes OK if variable does vary (with NA)", {
   x <- c(0, 1, NA)
   
   expect_warning(warnNoVariation(x, 1, 'test'), regexp=NA)
 })
-
 test_that("get_var_names gets colnames if passed a matrix", {
   # Given a matrix with 3 columns and names
   x <- matrix(ncol=3)
@@ -205,7 +187,6 @@ test_that("get_var_names gets colnames if passed a matrix", {
   # Then column names returned
   expect_equal(get_var_names(x), colnames(x))
 })
-
 test_that("get_var_names gets the names if passed a data.frame", {
   # Given a data.frame with 3 columns and names
   x <- data.frame(X1=NA, X2=NA, X3=NA)
@@ -214,7 +195,6 @@ test_that("get_var_names gets the names if passed a data.frame", {
   # Then names returned
   expect_equal(get_var_names(x), names(x))
 })
-
 test_that("check_sanity only throws an error if nrows(x) is not equal to the length of y", {
   # Given two sets of predictors one of length y, the other not
   N <- 100
@@ -227,7 +207,6 @@ test_that("check_sanity only throws an error if nrows(x) is not equal to the len
   expect_error(check_sanity(x1, y), NA)
   expect_error(check_sanity(x2, y))
 })
-
 test_that("check_if_natural_number throws error if not passed a whole number >=1" , {
   # When check_if_natural_number is not passed a whole number >= 1
   # Then an error is thrown
@@ -239,7 +218,6 @@ test_that("check_if_natural_number throws error if not passed a whole number >=1
   expect_error(check_if_natural_number(NA, "Arg Name"))
   expect_error(check_if_natural_number(NaN, "Arg Name"))
 })
-
 test_that("convertY changes factors with 2 levels to numeric", {
   # Given a vector of 2-level factors
   N <- 100
@@ -309,18 +287,18 @@ test_that("check_offset default returns a vector of 0s when offset set to NULL -
   
   # Then check_offset returns a vector of zeros
   # equal to length of response
-  expect_error(check_offset(offset, y, dist_1), rep(0, length(y)))
-  expect_error(check_offset(offset, y, dist_2), rep(0, length(y)))
-  expect_error(check_offset(offset, y, dist_3), rep(0, length(y)))
-  expect_error(check_offset(offset, y, dist_4), rep(0, length(y)))
-  expect_error(check_offset(offset, y, dist_5), rep(0, length(y)))
-  expect_error(check_offset(offset, y, dist_6), rep(0, length(y)))
-  expect_error(check_offset(offset, y, dist_7), rep(0, length(y)))
-  expect_error(check_offset(offset, y, dist_8), rep(0, length(y)))
-  expect_error(check_offset(offset, y, dist_9), rep(0, length(y)))
-  expect_error(check_offset(offset, y, dist_10), rep(0, length(y)))
-  expect_error(check_offset(offset, y, dist_11), rep(0, length(y)))
-  expect_error(check_offset(offset, y, dist_12), rep(0, length(y)))
+  expect_equal(check_offset(offset, y, dist_1), rep(0, length(y)))
+  expect_equal(check_offset(offset, y, dist_2), rep(0, length(y)))
+  expect_equal(check_offset(offset, y, dist_3), rep(0, length(y)))
+  expect_equal(check_offset(offset, y, dist_4), rep(0, length(y)))
+  expect_equal(check_offset(offset, y, dist_5), rep(0, length(y)))
+  expect_equal(check_offset(offset, y, dist_6), rep(0, length(y)))
+  expect_equal(check_offset(offset, y, dist_7), rep(0, length(y)))
+  expect_equal(check_offset(offset, y, dist_8), rep(0, length(y)))
+  expect_equal(check_offset(offset, y, dist_9), rep(0, length(y)))
+  expect_equal(check_offset(offset, y, dist_10), rep(0, length(y)))
+  expect_equal(check_offset(offset, y, dist_11), rep(0, length(y)))
+  expect_equal(check_offset(offset, y, dist_12), rep(0, length(y)))
 })
 
 test_that("check_offset throws an error length of offset does not equal the length of the response - and not CoxPH", {
@@ -382,7 +360,7 @@ test_that("check_offset throws an error if the offset contains a NA", {
   # Then check_offset throws an error
   expect_error(check_offset(offset, y, dist_1))
   expect_error(check_offset(offset, y, dist_2))
-  expect_error(check_offset(offset, y, dist_3), NA)
+  expect_error(check_offset(offset, y, dist_3))
   expect_error(check_offset(offset, y, dist_4))
   expect_error(check_offset(offset, y, dist_5))
   expect_error(check_offset(offset, y, dist_6))
@@ -419,7 +397,7 @@ test_that("check_offset throws an error if the offset contains a non-numeric", {
   # Then check_offset throws an error
   expect_error(check_offset(offset, y, dist_1))
   expect_error(check_offset(offset, y, dist_2))
-  expect_error(check_offset(offset, y, dist_3), NA)
+  expect_error(check_offset(offset, y, dist_3))
   expect_error(check_offset(offset, y, dist_4))
   expect_error(check_offset(offset, y, dist_5))
   expect_error(check_offset(offset, y, dist_6))
@@ -468,9 +446,6 @@ test_that("check_cv_parameters throws an error if cv_class_stratify is not a log
                                    train_params=training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                                                                 shrinkage=0.005, bag_fraction=0.5, id=1:1000, num_train=1000, num_features=6)))
   expect_error(check_cv_parameters(cv_folds=5, cv_class_stratify=NULL, fold_id=NULL,
-                                   train_params=training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
-                                                                shrinkage=0.005, bag_fraction=0.5, id=1:1000, num_train=1000, num_features=6)))
-  expect_error(check_cv_parameters(cv_folds=5, cv_class_stratify=NA, fold_id=NULL,
                                    train_params=training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                                                                 shrinkage=0.005, bag_fraction=0.5, id=1:1000, num_train=1000, num_features=6)))
   expect_error(check_cv_parameters(cv_folds=5, cv_class_stratify=NaN, fold_id=NULL,

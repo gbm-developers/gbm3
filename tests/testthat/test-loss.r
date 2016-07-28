@@ -389,7 +389,6 @@ test_that("Correctly calculates Pairwise loss - ndcg", {
                                   fit$gbm_data_obj$weights, fit$distribution$max_rank)) - baseline
   expect_equal(calc_loss, loss_true, tolerance=10^-4) # tolerance for random tie breaking
 })
-
 test_that("Correctly calculates Pairwise loss - conc", {
   # Given responses, weights, predictions, offset, baseline and
   # Given data and a fitted pairwise
@@ -446,8 +445,6 @@ test_that("Correctly calculates Pairwise loss - conc", {
                                   fit$gbm_data_obj$weights, fit$distribution$max_rank)) - baseline
   expect_equal(calc_loss, loss_true, tolerance=10^-4) # tolerance for random tie breaking
 })
-
-
 test_that("Correctly calculates Pairwise loss - map", {
   # Given responses, weights, predictions, offset, baseline and
   # Given data and a fitted pairwise
@@ -506,7 +503,6 @@ test_that("Correctly calculates Pairwise loss - map", {
                                   fit$gbm_data_obj$weights, fit$distribution$max_rank)) - baseline
   expect_equal(calc_loss, loss_true, tolerance=10^-4) # tolerance for random tie breaking
 })
-
 test_that("Correctly calculates Pairwise loss - mrr", {
   # Given responses, weights, predictions, offset, baseline and
   # Given data and a fitted pairwise
@@ -565,7 +561,6 @@ test_that("Correctly calculates Pairwise loss - mrr", {
                                   fit$gbm_data_obj$weights, fit$distribution$max_rank)) - baseline
   expect_equal(calc_loss, loss_true, tolerance=10^-4) # tolerance for random tie breaking
 })
-
 test_that("Correctly calculates Poisson loss", {
   # Given responses, weights, predictions, offset, baseline and
   # AdaBoost dist

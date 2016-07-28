@@ -49,7 +49,6 @@ test_that("Error thrown if gbm_fit_obj is not of class GBMFit", {
   # Then an error is thrown
   expect_error(gbm_more(fit))
 })
-
 test_that("Error thrown if num_new_trees is not a natural number > 1", {
   # Given an appropriate GBMFit object
   ## test Gaussian distribution gbm model
@@ -96,7 +95,6 @@ test_that("Error thrown if num_new_trees is not a natural number > 1", {
   expect_error(gbm_more(fit, num_new_trees = "Eh?"))
   expect_error(gbm_more(fit, num_new_trees = 10.3))
 })
-
 test_that("Error thrown if is_verbose is not a logical", {
   # Given an appropriate GBMFit object
   ## test Gaussian distribution gbm model
@@ -143,7 +141,6 @@ test_that("Error thrown if is_verbose is not a logical", {
   expect_error(gbm_more(fit, is_verbose = "Eh?"))
   expect_error(gbm_more(fit, is_verbose = 10.3))
 })
-
 test_that("Error thrown if data not provided or gbm_data_obj not stored in gbm_fit_obj", {
   # Given an appropriate GBMFit object - DATA NOT KEPT
   keep_data <- FALSE
@@ -186,7 +183,6 @@ test_that("Error thrown if data not provided or gbm_data_obj not stored in gbm_f
   # Then an error is thrown
   expect_error(gbm_more(fit))
 })
-
 test_that("Error thrown if data has different number of rows than the original number of rows in response", {
   # Given an appropriate GBMFit object (DATA NOT KEPT) 
   # and new data with more rows than before
@@ -294,7 +290,6 @@ test_that("Output of gbm_more is GBMFit object", {
   # Then returned object is a GBMFit object
   expect_true(class(fit_2) %in% "GBMFit")
 })
-
 test_that("gbm_more does not update cv properties of GBMFit output", {
   # Given an appropriate GBMFit object (DATA KEPT) 
   # produced from cv
@@ -345,7 +340,6 @@ test_that("gbm_more does not update cv properties of GBMFit output", {
   expect_equal(fit_2$cv_fold, fit$cv_folds)
   expect_equal(fit_2$cv_fitted, fit$cv_fitted)
 })
-
 test_that("gbm_more fits additional trees - reflected in length of fit fields", {
   # Given an appropriate GBMFit object (DATA KEPT) 
   # with number of new trees
@@ -398,7 +392,6 @@ test_that("gbm_more fits additional trees - reflected in length of fit fields", 
   expect_equal(length(fit_2$oobag.improve) - length(fit$oobag.improve), num_trees)
   expect_equal(length(fit_2$trees) - length(fit$trees), num_trees)
 })
-
 test_that("Can run gbm_more with new data", {
   # Given an appropriate GBMFit object (DATA NOT KEPT) 
   # and new data same number of rows as before
@@ -456,7 +449,6 @@ test_that("Can run gbm_more with new data", {
   # Then runs successfully
   expect_error(gbm_more(fit, data=new_data), NA)
 })
-
 test_that("Output of gbm_more DOES NOT contain constructed gbm_data_obj if run with new data", {
   # Given an appropriate GBMFit object (DATA NOT KEPT) 
   # and new data same number of rows as before
@@ -516,7 +508,6 @@ test_that("Output of gbm_more DOES NOT contain constructed gbm_data_obj if run w
   # Then output dpes not store new_data object
   expect_true(is.null(fit_more$gbm_data_obj))
 })
-
 test_that("If run with new data and weights are length 0 then they are set to 1 for each data row", {
   # Given an appropriate GBMFit object (DATA KEPT) 
   # and new data same number of rows as before
@@ -576,7 +567,6 @@ test_that("If run with new data and weights are length 0 then they are set to 1 
   # Then output weights are vector of 1s
   expect_equal(fit_more$gbm_data_obj$weights, rep(1, N))
 })
-
 test_that("If run with new data and offset is length 0 then they are set to 0 for each data row", {
   # Given an appropriate GBMFit object (DATA KEPT) 
   # and new data same number of rows as before

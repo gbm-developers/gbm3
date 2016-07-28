@@ -5,7 +5,7 @@
 #
 ####################
 
-context("Test GBMFit definition:")
+context("Test GBMFit definition")
 test_that("Calling gbm2 creates a GBMFit object", {
   # Given Data from examples
   ## Based on example in R package
@@ -51,7 +51,6 @@ test_that("Calling gbm2 creates a GBMFit object", {
   # Then fit has correct class
   expect_equal(class(fit), "GBMFit")
 })
-
 test_that("GBMFit object has correct fields", {
   # Given Data from examples
   ## Based on example in R package
@@ -96,7 +95,7 @@ test_that("GBMFit object has correct fields", {
   
   # Then fit has names
   expect_equal(names(fit), c("initF", "fit", "train.error", "valid.error", "oobag.improve", "trees", "c.splits", "distribution", "params"       
-               ,"variables", "cv_folds", "cv_error", "cv_fitted", "gbm_data_obj", "model", "Terms"))
+               ,"variables", "cv_folds", "cv_error", "cv_fitted", "gbm_data_obj", "par_details", "model", "Terms"))
 })
 
 test_that("GBMFit contains correct GBM objects", {

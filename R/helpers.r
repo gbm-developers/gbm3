@@ -5,7 +5,7 @@
 check_if_gbm_dist <- function(distribution_obj) {
   # Check if GBM dist object
   if(!any(class(distribution_obj) %in% paste0(available_distributions(), "GBMDist"))) {
-    stop("Function requires a GBMDist object.")
+    stop("Function requires a specific GBMDist object.")
   }
 }
 
@@ -204,7 +204,8 @@ convert_strata <- function(strata) {
   
   # If it isn't default then check
   if(!is.na(strata[1])) {
-    if(!is.vector(strata) || !(any(strata == as.factor(strata)) || any(strata == as.integer(strata)))) {
+    if(!is.vector(strata) || any(is.character(strata)) || any(is.infinite(strata)) || any(is.nan(strata)) ||
+       !(all(strata == as.factor(strata)) || all(strata == as.integer(strata)))) {
       stop("strata must be an atomic vector of factors or integers")
     }
   }

@@ -288,7 +288,6 @@ test_that("Error thrown if degrees of freedom specified is not a finite double >
   expect_error(gbm_dist(name="TDist", df=Inf))
   expect_error(gbm_dist(name="TDist", df=c(0.5, 0.1)))
   expect_error(gbm_dist(name="TDist", df=NA))
-  expect_error(gbm_dist(name="TDist", df=NULL))
 })
 
 test_that("Error thrown if power specified is not a finite double > 0.0 - Tweedie", {
@@ -297,7 +296,6 @@ test_that("Error thrown if power specified is not a finite double > 0.0 - Tweedi
   expect_error(gbm_dist(name="Tweedie", power=Inf))
   expect_error(gbm_dist(name="Tweedie", power=c(0.5, 0.1)))
   expect_error(gbm_dist(name="Tweedie", power=NA))
-  expect_error(gbm_dist(name="Tweedie", power=NULL))
 })
 
 ##### Default Parameters #####

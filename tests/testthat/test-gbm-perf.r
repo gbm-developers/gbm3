@@ -48,7 +48,6 @@ test_that("Error thrown if not passed GBMFit object", {
   # Then an error is thrown
   expect_error(gbm_perf(fit, method="cv"))
 })
-
 test_that("Error thrown if plot_it is not a logical", {
   # Given a fit object
   ## test Gaussian distribution gbm model
@@ -94,7 +93,6 @@ test_that("Error thrown if plot_it is not a logical", {
   expect_error(gbm_perf(fit, method="cv", plot_it=NaN))
   expect_error(gbm_perf(fit, method="cv", plot_it=Inf))
 })
-
 test_that("Error thrown if plot_it is NA", {
   # Given a fit object
   ## test Gaussian distribution gbm model
@@ -136,7 +134,6 @@ test_that("Error thrown if plot_it is NA", {
   # Then error is thrown
   expect_error(gbm_perf(fit, method="cv", plot_it=NA))
 })
-
 test_that("Error thrown if method parameter missing", {
   # Given a fit object
   ## test Gaussian distribution gbm model
@@ -178,7 +175,6 @@ test_that("Error thrown if method parameter missing", {
   # Then expect error
   expect_error(gbm_perf(fit))
 })
-
 test_that("Error thrown  if method not element of c('OOB', 'cv', 'test')", {
   # Given a fit object
   ## test Gaussian distribution gbm model
@@ -220,7 +216,6 @@ test_that("Error thrown  if method not element of c('OOB', 'cv', 'test')", {
   # Then an error is thrown
   expect_error(gbm_perf(fit, method="weird_metric"))
 })
-
 test_that("Warning thrown if method is 'cv", {
   # Given a fit object
   ## test Gaussian distribution gbm model
@@ -262,7 +257,6 @@ test_that("Warning thrown if method is 'cv", {
   # Then a warning is thrown
   expect_warning(gbm_perf(fit, method='cv'))
 })
-
 test_that("Warning thrown if method is 'OOB'", {
   # Given a fit object
   ## test Gaussian distribution gbm model

@@ -534,6 +534,15 @@ gbm <- function(formula = formula(data),
     fold.id <- as.numeric(as.factor(fold.id))
   }
   
+  # Update distribution according to groups
+  dist_obj <- determine_groups(data, y, dist_obj)
+  
+  # Update weights according to groupings
+  weights <- weight_group_consistency(weights, dist_obj)
+  
+  # Update number of training rows based off of groups
+  params <- update_num_train_groups(params, dist_obj)
+  
   # Call gbm2.fit 
   gbm_fit_obj <- gbm2.fit(x, y, dist_obj, weights, offset,
                           params, var.monotone, var.names, keep.data, cv.folds,

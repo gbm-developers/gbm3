@@ -95,6 +95,7 @@ gbm2.fit <- function(x, y, distribution=gbm_dist("Gaussian"), weights=rep(1, nro
   # Reorder if necessary
   gbm_fit_obj <- reorder_fit(gbm_fit_obj, distribution)
   gbm_fit_obj$fold_ids <- fold_id
+  gbm_fit_obj$par_details <- par_details
   
   return(gbm_fit_obj)
 } 

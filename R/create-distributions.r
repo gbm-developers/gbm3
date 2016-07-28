@@ -89,12 +89,14 @@ create_dist.QuantileGBMDist <- function(empty_obj, alpha=0.25, ...) {
 }
 
 create_dist.TDistGBMDist <- function(empty_obj, df=4, ...) {
+  if(is.null(df)) df <- 4
   check_dist_params(empty_obj, df, ...)
   empty_obj$df <- df
   return(empty_obj)
 }
 
 create_dist.TweedieGBMDist <- function(empty_obj, power=1.5, ...) {
+  if(is.null(power)) power <- 1.5
   check_dist_params(empty_obj, power, ...)
   empty_obj$power <- power
   return(empty_obj)

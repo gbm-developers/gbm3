@@ -52,7 +52,6 @@ test_that("error thrown when tree_index is not a positive integer", {
   expect_error(pretty(fit, tree_index=NA))
   expect_error(pretty(fit, tree_index=FALSE))
 })
-
 test_that("error thrown when tree_index exceeds the number of trees fitted", {
   # Given a fitted gbm object
   
@@ -149,7 +148,6 @@ test_that("Tree is prettified correctly", {
   # Then correctly prettifies tree
   expect_equal(pretty_tree, tree)
 })
-
 test_that("default prettified tree is the first one", {
   # Given a fitted gbm object and the default tree_index
   n_trees <- 2000

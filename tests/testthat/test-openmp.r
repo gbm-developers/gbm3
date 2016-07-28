@@ -32,7 +32,6 @@ test_that("gbm refuses to work with insane numbers of threads", {
                "number of threads must be strictly positive",
                fixed=TRUE)
 })
-
 test_that("gbm refuses to work with insane array chunk size - old api", {
   N <- 1000
   X1 <- runif(N)
@@ -106,7 +105,6 @@ test_that("gbm refuses to work with insane numbers of threads - old API", {
                  "number of threads must be strictly positive",
                  fixed=TRUE)
 })
-
 test_that("gbm refuses to work with insane array chunk size - old api", {
     N <- 1000
     X1 <- runif(N)

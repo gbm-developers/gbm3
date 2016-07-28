@@ -63,7 +63,6 @@ test_that("gaussian works", {
   expect_true(cor(data2$Y, f.predict) > 0.990)
   expect_true(sd(data2$Y-f.predict) < sigma)
 })
-
 test_that("coxph works - efron", {
   # Require Surv to be available
   require(survival)
@@ -126,7 +125,6 @@ test_that("coxph works - efron", {
   # Use observed sd
   expect_true(sd(data2$f - f.predict) < 0.4)
 })
-
 test_that("coxph works - breslow", {
     # Require Surv to be available
     require(survival)
@@ -190,10 +188,6 @@ test_that("coxph works - breslow", {
     # Use observed sd
     expect_true(sd(data2$f - f.predict) < 0.4)
 })
-
-
-
-
 test_that("coxph - runs to completion with train_fraction of 1.0", {
   ## Needed packages
   require(survival)
@@ -218,10 +212,9 @@ test_that("coxph - runs to completion with train_fraction of 1.0", {
                     distribution=gbm_dist("CoxPH"), train_params=params_1), NA)
   
   # GBM fit using start/stop times to get time-dependent covariates
-  expect_error(gbm(Surv(tstart, tstop, death==2) ~ bili + protime + albumin + alk.phos, 
+  expect_error(gbm2(Surv(tstart, tstop, death==2) ~ bili + protime + albumin + alk.phos, 
                    data=pbc2, distribution=gbm_dist("CoxPH"), train_params=params_2), NA)
 })
-
 test_that("coxph - runs to completion with train_fraction < 1.0 and cv_folds > 1", {
   ## Needed packages
   require(survival)
@@ -255,8 +248,6 @@ test_that("coxph - runs to completion with train_fraction < 1.0 and cv_folds > 1
   expect_error(gbm2(Surv(tstart, tstop, death==2) ~ bili + protime + albumin + alk.phos, 
                     data=pbc2, distribution=gbm_dist("CoxPH"), train_params=params_2, cv_folds=5), NA)
 })
-
-
 test_that("coxph cv_folds - runs to completion with start-stop, id'ed and stratified dataset", {
   ## Needed packages
   require(survival)
@@ -289,7 +280,6 @@ test_that("coxph cv_folds - runs to completion with start-stop, id'ed and strati
                      steroids + propylac, data=cgd, 
                     distribution = gbm_dist("CoxPH", strata=cgd$hos.cat), train_params=params_4, cv_folds=10), NA)
 })
-
 test_that("bernoulli works", {
     set.seed(1)
 
@@ -341,7 +331,6 @@ test_that("bernoulli works", {
     # Base the validation tests on observed discrepancies
     expect_true(sd(f.new - f.1.predict) < 1.0)
 })
-
 test_that("relative influence picks out true predictors", {
     set.seed(1234)
     X1 <- matrix(nrow=1000, ncol=50)
@@ -364,8 +353,6 @@ test_that("relative influence picks out true predictors", {
     res <- sum(wh %in% paste("V", 51:55, sep = ""))
     expect_equal(res, 5)
 })
- 
- 
 test_that("Conversion of 2 factor Y is successful", {
   
   NumY <- sample(c(0, 1), size=1000, replace=TRUE)
@@ -393,8 +380,6 @@ test_that("Conversion of 2 factor Y is successful", {
   
   expect_equal(rig1, rig2)
 })
-
-
 test_that("Cross Validations group generation - Bernoulli", {
   
   NumY <- sample(rep(c(0,1), 500), size=1000)

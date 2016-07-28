@@ -11,11 +11,3 @@ test_that("area under curve", {
   expect_true(AUC2 == .64)
   
 })
-
-test_that("area under curve and conc related for binary preds", {
-  obs <- c(0, 1, 0, 1, 0, 1)
-  preds <- c(.5, .85, .5, .85, .25, .25)
-  AUC1 <- gbm_roc_area(obs, preds)
-  CONC1 <- gbm_conc(obs[order(-preds)])
-  expect_true(AUC1, CONC1)
-})

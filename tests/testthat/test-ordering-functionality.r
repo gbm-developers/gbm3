@@ -60,7 +60,7 @@ test_that("CoxPH- reorders fit according to time and strata", {
   # random weights if you want to experiment with them
   w <- rep(1,N)
   Resp <- Surv(tt, delta)
-  data <- gbm_data(data.frame(X1, X2, X3), Resp, w, offset)
+  data <- gbm_data(data.frame(X1, X2, X3), Resp, w, offset=rep(0, N))
   train_p <- training_params(id=c(rep(1, N/5), rep(2, N/5), rep(3, N/5), rep(4, N/5), rep(5, N/5)), num_train = 5, num_features = 3,
                              bag_fraction=1, min_num_obs_in_node=1)
   dist <- gbm_dist("CoxPH")

@@ -46,7 +46,6 @@ test_that("gaussian works in parallel - api", {
   
   expect_true(all(gid1$fold.id == gid2$fold.id))
 })
-
 test_that("gaussian works in parallel - old api", {
     skip_on_cran()
     skip_on_travis()

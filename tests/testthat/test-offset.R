@@ -5,7 +5,7 @@
 # Help identify if the refactoring is changing the higher level behaviour.
 #
 ##############
-
+context("Testing 0 offset - old API")
 test_that("Setting the offset to 0 does not alter the initial value - Adaboost",{
   # create some data
   N <- 1000
@@ -58,7 +58,6 @@ test_that("Setting the offset to 0 does not alter the initial value - Adaboost",
   
   expect_equal(gbm.no.offset$initF, gbm.zero.offset$initF)
 })
-
 test_that("Setting the offset to 0 does not alter the initial value - Bernoulli",{
   # create some data
   set.seed(1)
@@ -85,7 +84,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Bernoulli"
                   data=data,                 # dataset
                   weights=w,
                   var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                  distribution="bernoulli",
+                  distribution="Bernoulli",
                   n.trees=100,              # number of trees
                   shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
                   interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
@@ -100,7 +99,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Bernoulli"
                        weights=w,
                        offset=offset,
                        var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                       distribution="bernoulli",
+                       distribution="Bernoulli",
                        n.trees=100,              # number of trees
                        shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
                        interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
@@ -112,7 +111,6 @@ test_that("Setting the offset to 0 does not alter the initial value - Bernoulli"
   
   expect_equal(gbm.no.offset$initF, gbm.zero.offset$initF)
 })
-
 test_that("Setting the offset to 0 does not alter the initial value - CoxPH",{
   require(survival)
   set.seed(1)
@@ -149,7 +147,7 @@ test_that("Setting the offset to 0 does not alter the initial value - CoxPH",{
                   data=data,                 # dataset
                   weights=w,
                   var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                  distribution="coxph",
+                  distribution="CoxPH",
                   n.trees=100,              # number of trees
                   shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
                   interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
@@ -164,7 +162,7 @@ test_that("Setting the offset to 0 does not alter the initial value - CoxPH",{
                        data=data,                 # dataset
                        weights=w,
                        var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                       distribution="coxph",
+                       distribution="CoxPH",
                        offset=offset,
                        n.trees=100,              # number of trees
                        shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
@@ -178,7 +176,6 @@ test_that("Setting the offset to 0 does not alter the initial value - CoxPH",{
   
   expect_equal(gbm.no.offset$initF, gbm.zero.offset$initF)
 })
-
 test_that("Setting the offset to 0 does not alter the initial value - Gamma",{
   # Create data
   set.seed(1)
@@ -211,8 +208,8 @@ test_that("Setting the offset to 0 does not alter the initial value - Gamma",{
   gbm.no.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
                   data=data,                   # dataset
                   var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                  distribution="gamma",     # bernoulli, adaboost, gaussian, poisson, coxph, or
-                  # list(name="quantile",alpha=0.05) for quantile regression
+                  distribution="Gamma",     # bernoulli, adaboost, Gaussian, Poisson, coxph, or
+                  # list(name="Quantilw",alpha=0.05) for Quantilw regression
                   n.trees=100,                 # number of trees
                   shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                   interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
@@ -227,8 +224,8 @@ test_that("Setting the offset to 0 does not alter the initial value - Gamma",{
   gbm.zero.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
                        data=data,                   # dataset
                        var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                       distribution="gamma",     # bernoulli, adaboost, gaussian, poisson, coxph, or
-                       # list(name="quantile",alpha=0.05) for quantile regression
+                       distribution="Gamma",     # bernoulli, adaboost, Gaussian, Poisson, coxph, or
+                       # list(name="Quantilw",alpha=0.05) for Quantilw regression
                        n.trees=100,                 # number of trees
                        offset=offset,
                        shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
@@ -243,7 +240,6 @@ test_that("Setting the offset to 0 does not alter the initial value - Gamma",{
 
     expect_equal(gbm.no.offset$initF, gbm.zero.offset$initF)
 })
-
 test_that("Setting the offset to 0 does not alter the initial value - Gaussian",{
   # Create data
   set.seed(1)
@@ -276,8 +272,8 @@ test_that("Setting the offset to 0 does not alter the initial value - Gaussian",
   gbm.no.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
                   data=data,                   # dataset
                   var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                  distribution="gaussian",     # bernoulli, adaboost, gaussian, poisson, coxph, or
-                  # list(name="quantile",alpha=0.05) for quantile regression
+                  distribution="Gaussian",     # bernoulli, adaboost, Gaussian, Poisson, coxph, or
+                  # list(name="Quantilw",alpha=0.05) for Quantilw regression
                   n.trees=100,                 # number of trees
                   shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                   interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
@@ -292,8 +288,8 @@ test_that("Setting the offset to 0 does not alter the initial value - Gaussian",
   gbm.zero.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
                        data=data,                   # dataset
                        var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                       distribution="gaussian",     # bernoulli, adaboost, gaussian, poisson, coxph, or
-                       # list(name="quantile",alpha=0.05) for quantile regression
+                       distribution="Gaussian",     # bernoulli, adaboost, Gaussian, Poisson, coxph, or
+                       # list(name="Quantilw",alpha=0.05) for Quantilw regression
                        n.trees=100,                 # number of trees
                        offset=offset,
                        shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
@@ -308,7 +304,6 @@ test_that("Setting the offset to 0 does not alter the initial value - Gaussian",
   
   expect_equal(gbm.no.offset$initF, gbm.zero.offset$initF)
 })
-
 test_that("Setting the offset to 0 does not alter the initial value - Laplace",{
   # Create data
   set.seed(1)
@@ -341,8 +336,8 @@ test_that("Setting the offset to 0 does not alter the initial value - Laplace",{
   gbm.no.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
                   data=data,                   # dataset
                   var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                  distribution="laplace",     # bernoulli, adaboost, gaussian, poisson, coxph, or
-                  # list(name="quantile",alpha=0.05) for quantile regression
+                  distribution="Laplace",     # bernoulli, adaboost, Gaussian, Poisson, coxph, or
+                  # list(name="Quantilw",alpha=0.05) for Quantilw regression
                   n.trees=100,                 # number of trees
                   shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                   interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
@@ -357,8 +352,8 @@ test_that("Setting the offset to 0 does not alter the initial value - Laplace",{
   gbm.zero.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
                        data=data,                   # dataset
                        var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                       distribution="laplace",     # bernoulli, adaboost, gaussian, poisson, coxph, or
-                       # list(name="quantile",alpha=0.05) for quantile regression
+                       distribution="Laplace",     # bernoulli, adaboost, Gaussian, Poisson, coxph, or
+                       # list(name="Quantilw",alpha=0.05) for Quantilw regression
                        n.trees=100,                 # number of trees
                        shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                        interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
@@ -399,7 +394,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Huberized 
                   data=data,                 # dataset
                   weights=w,
                   var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                  distribution="huberized",
+                  distribution="Huberized",
                   n.trees=100,              # number of trees
                   shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
                   interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
@@ -414,7 +409,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Huberized 
                        weights=w,
                        offset=offset,
                        var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                       distribution="huberized",
+                       distribution="Huberized",
                        n.trees=100,              # number of trees
                        shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
                        interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
@@ -466,9 +461,9 @@ test_that("Setting the offset to 0 does not alter the initial value - Pairwise",
   gbm.no.offset.ndcg <- gbm(Y~X1+X2+X3,          # formula
                   data=data.train,     # dataset
                   distribution=list(   # loss function:
-                    name='pairwise',   # pairwise
+                    name='Pairwise',   # Pairwise
                     metric="ndcg",     # ranking metric: normalized discounted cumulative gain
-                    group='query'),    # column indicating query groups
+                    group="query"),    # column indicating query groups
                   n.trees=100,        # number of trees
                   shrinkage=0.005,     # learning rate
                   interaction.depth=3, # number per splits per tree
@@ -477,13 +472,13 @@ test_that("Setting the offset to 0 does not alter the initial value - Pairwise",
                   n.minobsinnode = 10, # minimum number of obs for split
                   keep.data=TRUE,      # store copy of input data in model
                   cv.folds=1,          # number of cross validation folds
-                  verbose = FALSE,     # don't print progress
-                  n.cores = 1)         # use a single core
+                  verbose = FALSE     # don't print progress
+                  )         # use a single core
   
   gbm.no.offset.mrr <- gbm(Y.norm~X1+X2+X3,          # formula
                  data=data.train.mrr,     # dataset
                  distribution=list(   # loss function:
-                   name='pairwise',   # pairwise
+                   name='Pairwise',   # Pairwise
                    metric="mrr",     # ranking metric: normalized discounted cumulative gain
                    group='query'),    # column indicating query groups
                  n.trees=100,        # number of trees
@@ -494,13 +489,13 @@ test_that("Setting the offset to 0 does not alter the initial value - Pairwise",
                  n.minobsinnode = 10, # minimum number of obs for split
                  keep.data=TRUE,      # store copy of input data in model
                  cv.folds=1,          # number of cross validation folds
-                 verbose = FALSE,     # don't print progress
-                 n.cores = 1)         # use a single core
+                 verbose = FALSE     # don't print progress
+                 )         # use a single core
   
   gbm.no.offset.map <- gbm(Y.norm~X1+X2+X3,          # formula
                  data=data.train.mrr,     # dataset
                  distribution=list(   # loss function:
-                   name='pairwise',   # pairwise
+                   name='Pairwise',   # Pairwise
                    metric="map",     # ranking metric: normalized discounted cumulative gain
                    group='query'),    # column indicating query groups
                  n.trees=100,        # number of trees
@@ -511,12 +506,12 @@ test_that("Setting the offset to 0 does not alter the initial value - Pairwise",
                  n.minobsinnode = 10, # minimum number of obs for split
                  keep.data=TRUE,      # store copy of input data in model
                  cv.folds=1,          # number of cross validation folds
-                 verbose = FALSE,     # don't print progress
-                 n.cores = 1)         # use a single core
+                 verbose = FALSE     # don't print progress
+                 )         # use a single core
   gbm.no.offset.conc <- gbm(Y~X1+X2+X3,          # formula
                   data=data.train,     # dataset
                   distribution=list(   # loss function:
-                    name='pairwise',   # pairwise
+                    name='Pairwise',   # Pairwise
                     metric="conc",     # ranking metric: concordant pairs
                     group='query'),    # column indicating query groups
                   n.trees=100,        # number of trees
@@ -527,13 +522,13 @@ test_that("Setting the offset to 0 does not alter the initial value - Pairwise",
                   n.minobsinnode = 10, # minimum number of obs for split
                   keep.data=TRUE,      # store copy of input data in model
                   cv.folds=1,          # number of cross validation folds
-                  verbose = FALSE,     # don't print progress
-                  n.cores = 1)         # use a single core
+                  verbose = FALSE     # don't print progress
+                  )         # use a single core
   set.seed(15)
   gbm.zero.offset.ndcg <- gbm(Y~X1+X2+X3,          # formula
                             data=data.train,     # dataset
                             distribution=list(   # loss function:
-                              name='pairwise',   # pairwise
+                              name='Pairwise',   # Pairwise
                               metric="ndcg",     # ranking metric: normalized discounted cumulative gain
                               group='query'),    # column indicating query groups
                             n.trees=100,        # number of trees
@@ -545,13 +540,13 @@ test_that("Setting the offset to 0 does not alter the initial value - Pairwise",
                             keep.data=TRUE,      # store copy of input data in model
                             cv.folds=1,          # number of cross validation folds
                             verbose = FALSE,     # don't print progress
-                            offset=rep(0, N),
-                            n.cores = 1)         # use a single core
+                            offset=rep(0, N)
+                            )         # use a single core
   
   gbm.zero.offset.mrr <- gbm(Y.norm~X1+X2+X3,          # formula
                            data=data.train.mrr,     # dataset
                            distribution=list(   # loss function:
-                             name='pairwise',   # pairwise
+                             name='Pairwise',   # Pairwise
                              metric="mrr",     # ranking metric: normalized discounted cumulative gain
                              group='query'),    # column indicating query groups
                            n.trees=100,        # number of trees
@@ -563,13 +558,13 @@ test_that("Setting the offset to 0 does not alter the initial value - Pairwise",
                            keep.data=TRUE,      # store copy of input data in model
                            cv.folds=1,          # number of cross validation folds
                            verbose = FALSE,     # don't print progress
-                           offset=rep(0,N),
-                           n.cores = 1)         # use a single core
+                           offset=rep(0,N)
+                           )         # use a single core
   
   gbm.zero.offset.map <- gbm(Y.norm~X1+X2+X3,          # formula
                            data=data.train.mrr,     # dataset
                            distribution=list(   # loss function:
-                             name='pairwise',   # pairwise
+                             name='Pairwise',   # Pairwise
                              metric="map",     # ranking metric: normalized discounted cumulative gain
                              group='query'),    # column indicating query groups
                            n.trees=100,        # number of trees
@@ -581,12 +576,12 @@ test_that("Setting the offset to 0 does not alter the initial value - Pairwise",
                            keep.data=TRUE,      # store copy of input data in model
                            cv.folds=1,          # number of cross validation folds
                            verbose = FALSE,     # don't print progress
-                           offset=rep(0,N),
-                           n.cores = 1)         # use a single core
+                           offset=rep(0,N)
+                           )         # use a single core
   gbm.zero.offset.conc <- gbm(Y~X1+X2+X3,          # formula
                             data=data.train,     # dataset
                             distribution=list(   # loss function:
-                              name='pairwise',   # pairwise
+                              name='Pairwise',   # Pairwise
                               metric="conc",     # ranking metric: concordant pairs
                               group='query'),    # column indicating query groups
                             n.trees=100,        # number of trees
@@ -598,8 +593,8 @@ test_that("Setting the offset to 0 does not alter the initial value - Pairwise",
                             keep.data=TRUE,      # store copy of input data in model
                             cv.folds=1,          # number of cross validation folds
                             verbose = FALSE,     # don't print progress
-                            offset = rep(0,N),
-                            n.cores = 1)         # use a single core
+                            offset = rep(0,N)
+                            )         # use a single core
   
   expect_equal(gbm.no.offset.conc$initF, gbm.zero.offset.conc$initF)
   expect_equal(gbm.no.offset.mrr$initF, gbm.zero.offset.mrr$initF)
@@ -638,8 +633,8 @@ test_that("Setting the offset to 0 does not alter the initial value - Poisson",{
   gbm.no.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
                   data=data,                   # dataset
                   var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                  distribution="poisson",     # bernoulli, adaboost, gaussian, poisson, coxph, or
-                  # list(name="quantile",alpha=0.05) for quantile regression
+                  distribution="Poisson",     # bernoulli, adaboost, Gaussian, Poisson, coxph, or
+                  # list(name="Quantilw",alpha=0.05) for Quantilw regression
                   n.trees=100,                 # number of trees
                   shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                   interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
@@ -654,8 +649,8 @@ test_that("Setting the offset to 0 does not alter the initial value - Poisson",{
   gbm.zero.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
                        data=data,                   # dataset
                        var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                       distribution="poisson",     # bernoulli, adaboost, gaussian, poisson, coxph, or
-                       # list(name="quantile",alpha=0.05) for quantile regression
+                       distribution="Poisson",     # bernoulli, adaboost, Gaussian, Poisson, coxph, or
+                       # list(name="Quantilw",alpha=0.05) for Quantilw regression
                        n.trees=100,                 # number of trees
                        offset=offset,
                        shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
@@ -702,7 +697,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Quantile R
   gbm.no.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
                   data=data,                   # dataset
                   var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                  distribution= list(name="quantile",alpha=0.95), # for quantile regression
+                  distribution= list(name="Quantile",alpha=0.95), # for Quantilw regression
                   n.trees=100,                 # number of trees
                   shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                   interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
@@ -717,7 +712,7 @@ test_that("Setting the offset to 0 does not alter the initial value - Quantile R
   gbm.zero.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
                        data=data,                   # dataset
                        var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                       distribution= list(name="quantile",alpha=0.95), # for quantile regression
+                       distribution= list(name="Quantile",alpha=0.95), # for Quantilw regression
                        n.trees=100,                 # number of trees
                        shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                        interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
@@ -764,8 +759,8 @@ test_that("Setting the offset to 0 does not alter the initial value - T dist",{
   gbm.no.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
                   data=data,                   # dataset
                   var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                  distribution="tdist",     # bernoulli, adaboost, gaussian, poisson, coxph, or
-                  # list(name="quantile",alpha=0.05) for quantile regression
+                  distribution="TDist",     # bernoulli, adaboost, Gaussian, Poisson, coxph, or
+                  # list(name="Quantilw",alpha=0.05) for Quantilw regression
                   n.trees=100,                 # number of trees
                   shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                   interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
@@ -780,8 +775,8 @@ test_that("Setting the offset to 0 does not alter the initial value - T dist",{
   gbm.zero.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
                        data=data,                   # dataset
                        var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                       distribution="tdist",     # bernoulli, adaboost, gaussian, poisson, coxph, or
-                       # list(name="quantile",alpha=0.05) for quantile regression
+                       distribution="TDist",     # bernoulli, adaboost, Gaussian, Poisson, coxph, or
+                       # list(name="Quantilw",alpha=0.05) for Quantilw regression
                        n.trees=100,                 # number of trees
                        shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                        interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
@@ -828,8 +823,8 @@ test_that("Setting the offset to 0 does not alter the initial value - Tweedie",{
   gbm.no.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
                   data=data,                   # dataset
                   var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                  distribution="tweedie",     # bernoulli, adaboost, gaussian, poisson, coxph, or
-                  # list(name="quantile",alpha=0.05) for quantile regression
+                  distribution="Tweedie",     # bernoulli, adaboost, Gaussian, Poisson, coxph, or
+                  # list(name="Quantilw",alpha=0.05) for Quantilw regression
                   n.trees=100,                 # number of trees
                   shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                   interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
@@ -844,8 +839,8 @@ test_that("Setting the offset to 0 does not alter the initial value - Tweedie",{
   gbm.zero.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
                        data=data,                   # dataset
                        var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                       distribution="tweedie",     # bernoulli, adaboost, gaussian, poisson, coxph, or
-                       # list(name="quantile",alpha=0.05) for quantile regression
+                       distribution="Tweedie",     # bernoulli, adaboost, Gaussian, Poisson, coxph, or
+                       # list(name="Quantilw",alpha=0.05) for Quantilw regression
                        n.trees=100,                 # number of trees
                        shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                        interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
@@ -887,7 +882,7 @@ test_that("Increasing the offset reduces the initial value - Adaboost", {
                        weights=w,
                        offset=offset.smaller,
                        var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                       distribution="adaboost",
+                       distribution="AdaBoost",
                        n.trees=100,              # number of trees
                        shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
                        interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
@@ -902,7 +897,7 @@ test_that("Increasing the offset reduces the initial value - Adaboost", {
                          weights=w,
                          offset = offset.larger,
                          var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                         distribution="adaboost",
+                         distribution="AdaBoost",
                          n.trees=100,              # number of trees
                          shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
                          interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
@@ -947,8 +942,8 @@ test_that("Increasing the offset reduces the initial value - Poisson", {
   gbm.smaller.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
                             data=data,                   # dataset
                             var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                            distribution="poisson",     # bernoulli, adaboost, gaussian, poisson, coxph, or
-                            # list(name="quantile",alpha=0.05) for quantile regression
+                            distribution="Poisson",     # bernoulli, adaboost, Gaussian, Poisson, coxph, or
+                            # list(name="Quantilw",alpha=0.05) for Quantilw regression
                             n.trees=100,                 # number of trees
                             offset=offset.smaller,
                             shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
@@ -964,8 +959,8 @@ test_that("Increasing the offset reduces the initial value - Poisson", {
   gbm.larger.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
                          data=data,                   # dataset
                          var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                         distribution="poisson",     # bernoulli, adaboost, gaussian, poisson, coxph, or
-                         # list(name="quantile",alpha=0.05) for quantile regression
+                         distribution="Poisson",     # bernoulli, adaboost, Gaussian, Poisson, coxph, or
+                         # list(name="Quantilw",alpha=0.05) for Quantilw regression
                          n.trees=100,                 # number of trees
                          offset=offset.larger,
                          shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
