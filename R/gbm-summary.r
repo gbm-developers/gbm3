@@ -46,7 +46,7 @@
 #' 
 #' @return Returns a data frame where the first component is the variable name
 #' and the second is the computed relative influence, normalized to sum to 100.
-#' @author Greg Ridgeway \email{gregridgeway@@gmail.com}
+#' @author James Hickey, Greg Ridgeway \email{gregridgeway@@gmail.com}
 #' @seealso \code{\link{gbm2}}
 #' @references J.H. Friedman (2001). "Greedy Function Approximation: A Gradient
 #' Boosting Machine," Annals of Statistics 29(5):1189-1232.
@@ -55,7 +55,19 @@
 #' @keywords hplot
 #' @export
 #' 
+summary <- function(gbm_fit_obj,
+                   cBars=length(gbm_fit_obj$variables$var_names),
+                   num_trees=length(gbm_fit_obj$trees),
+                   plot_it=TRUE,
+                   order_it=TRUE,
+                   method=relative_influence,
+                   normalize=TRUE,
+                   ...) {
+  UseMethod("summary", gbm_fit_obj)
+}
 
+#' @name summary
+#' @export 
 summary.GBMFit <- function(gbm_fit_obj,
                         cBars=length(gbm_fit_obj$variables$var_names),
                         num_trees=length(gbm_fit_obj$trees),

@@ -393,13 +393,15 @@ test_that("Correctly calculates Pairwise loss - ndcg", {
   baseline <- runif(length(fit$fit))
   
   # When calculting loss
+  set.seed(1)
   calc_loss <- loss(Y, fit$fit, fit$gbm_data_obj$weights, fit$gbm_data_obj$offset, fit$distribution, baseline)
   
   # Then it is correct
   preds <- fit$fit + fit$gbm_data_obj$offset
+  set.seed(1)
   loss_true <- (1 - perf_pairwise(Y, preds, fit$distribution$group_index, dist$metric, 
                                   fit$gbm_data_obj$weights, fit$distribution$max_rank)) - baseline
-  expect_equal(calc_loss, loss_true, tolerance=10^-4) # tolerance for random tie breaking
+  expect_equal(calc_loss, loss_true) # tolerance for random tie breaking
 })
 test_that("Correctly calculates Pairwise loss - conc", {
   # Given responses, weights, predictions, offset, baseline and
@@ -449,13 +451,15 @@ test_that("Correctly calculates Pairwise loss - conc", {
   baseline <- runif(length(fit$fit))
   
   # When calculting loss
+  set.seed(1)
   calc_loss <- loss(Y, fit$fit, fit$gbm_data_obj$weights, fit$gbm_data_obj$offset, fit$distribution, baseline)
   
   # Then it is correct
   preds <- fit$fit + fit$gbm_data_obj$offset
+  set.seed(1)
   loss_true <- (1 - perf_pairwise(Y, preds, fit$distribution$group_index, dist$metric, 
                                   fit$gbm_data_obj$weights, fit$distribution$max_rank)) - baseline
-  expect_equal(calc_loss, loss_true, tolerance=10^-4) # tolerance for random tie breaking
+  expect_equal(calc_loss, loss_true) # tolerance for random tie breaking
 })
 test_that("Correctly calculates Pairwise loss - map", {
   # Given responses, weights, predictions, offset, baseline and
@@ -507,13 +511,15 @@ test_that("Correctly calculates Pairwise loss - map", {
   baseline <- runif(length(fit$fit))
   
   # When calculting loss
+  set.seed(1)
   calc_loss <- loss(Y, fit$fit, fit$gbm_data_obj$weights, fit$gbm_data_obj$offset, fit$distribution, baseline)
   
   # Then it is correct
   preds <- fit$fit + fit$gbm_data_obj$offset
+  set.seed(1)
   loss_true <- (1 - perf_pairwise(Y, preds, fit$distribution$group_index, dist$metric, 
                                   fit$gbm_data_obj$weights, fit$distribution$max_rank)) - baseline
-  expect_equal(calc_loss, loss_true, tolerance=10^-4) # tolerance for random tie breaking
+  expect_equal(calc_loss, loss_true) # tolerance for random tie breaking
 })
 test_that("Correctly calculates Pairwise loss - mrr", {
   # Given responses, weights, predictions, offset, baseline and
@@ -565,13 +571,15 @@ test_that("Correctly calculates Pairwise loss - mrr", {
   baseline <- runif(length(fit$fit))
   
   # When calculting loss
+  set.seed(1)
   calc_loss <- loss(Y, fit$fit, fit$gbm_data_obj$weights, fit$gbm_data_obj$offset, fit$distribution, baseline)
   
   # Then it is correct
   preds <- fit$fit + fit$gbm_data_obj$offset
+  set.seed(1)
   loss_true <- (1 - perf_pairwise(Y, preds, fit$distribution$group_index, dist$metric, 
                                   fit$gbm_data_obj$weights, fit$distribution$max_rank)) - baseline
-  expect_equal(calc_loss, loss_true, tolerance=10^-4) # tolerance for random tie breaking
+  expect_equal(calc_loss, loss_true) # tolerance for random tie breaking
 })
 test_that("Correctly calculates Poisson loss", {
   # Given responses, weights, predictions, offset, baseline and

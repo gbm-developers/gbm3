@@ -674,7 +674,7 @@ test_that("update_fold_dist_data updates the dist objects strata and sorted fiel
   
   # Set up for new API
   dist <- gbm_dist("CoxPH")
-  gdata <- gbm_data(data, Surv(tt, delta), w, offset)
+  gdata <- gbm_data(data, Surv(tt, delta), w, offset=rep(0, N))
   cv_folds <- 5
   cv_groups <- create_cv_groups(gbm_data_obj = gdata, dist, params, cv_folds, FALSE, NULL)
   
@@ -751,7 +751,7 @@ test_that("update_fold_dist_data updates the dist objects group if Pairwise", {
   params$num_train <- length(unique(params$id[!rows_in_fold]))
   
   # When try to update_fold_dist_data with distributions 
-  dist_update <- update_fold_dist_data(dist, gdata, params, rows_in_training_set, rows_in_fold)
+  dist_update <- update_fold_dist_data(dist, data, params, rows_in_training_set, rows_in_fold)
   
   # Then groupings are now updated
   expect_equal(dist_update$group,  c(dist$group[rows_in_training_set][!rows_in_fold],
@@ -792,7 +792,7 @@ test_that("extract_obs_in_fold updates the training parameters so as to take int
   
   # Set up for new API
   dist <- gbm_dist("CoxPH")
-  gdata <- gbm_data(data, Surv(tt, delta), w, offset)
+  gdata <- gbm_data(data, Surv(tt, delta), w, offset=rep(0, N))
   cv_folds <- 5
   cv_groups <- create_cv_groups(gbm_data_obj = gdata, dist, params, cv_folds, FALSE, NULL)
   

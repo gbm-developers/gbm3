@@ -37,7 +37,14 @@
 #' @keywords models regression
 #' @export
 #' 
+predict <- function(gbm_fit_obj, new_data, num_trees,
+                    type="link", single_tree=FALSE,
+                    ...) {
+  UseMethod("predict", gbm_fit_obj)
+}
 
+#' @name predict
+#' @export 
 predict.GBMFit <- function(gbm_fit_obj, new_data, num_trees,
                         type="link", single_tree=FALSE,
                         ...)

@@ -68,10 +68,11 @@ create_dist.LaplaceGBMDist <- function(empty_obj, ...) {
 }
 
 create_dist.PairwiseGBMDist <- function(empty_obj, group="query", metric="ndcg", max_rank=0,
-                                        ...) {
-  check_dist_params(empty_obj, group, metric, max_rank, ...)
+                                        group_index=NULL, ...) {
+  check_dist_params(empty_obj, group, metric, max_rank, group_index, ...)
   empty_obj$metric <- metric
   empty_obj$group <- group
+  empty_obj$group_index <- group_index
   empty_obj$max_rank <- max_rank
   empty_obj$reorder <- TRUE
   return(empty_obj)

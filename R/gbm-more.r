@@ -31,6 +31,8 @@
 #' @export gbm_more
 
 gbm_more <- function(gbm_fit_obj, num_new_trees=100, data=NULL, weights=NULL, offset=NULL, is_verbose=FALSE){
+  the_call <- match.call()
+  
   # Check inputs
   check_if_gbm_fit(gbm_fit_obj)
   check_if_natural_number(num_new_trees)
@@ -150,6 +152,7 @@ gbm_more <- function(gbm_fit_obj, num_new_trees=100, data=NULL, weights=NULL, of
   }
   gbm_more_fit$model <- gbm_fit_obj$model
   gbm_more_fit$par_details <- gbm_fit_obj$par_details
+  gbm_more_fit$call <- the_call
   
   return(gbm_more_fit)
   

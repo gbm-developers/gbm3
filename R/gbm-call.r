@@ -28,8 +28,15 @@ gbm_call <- function(gbm_data_obj, gbm_dist_obj, train_params, var_container, pa
   check_if_gbm_train_params(train_params)
   check_if_gbm_var_container(var_container)
 
+  # Create y_input - check for factors
+  if(nlevels(gbm_data_obj$y) > 0) {
+    y_input <- as.integer(gbm_data_obj$y)
+  } else { 
+    y_input <-   gbm_data_obj$y
+  }
+  
   fit <- .Call("gbm",
-                Y=as.matrix(as.data.frame(gbm_data_obj$y)),
+                Y=as.matrix(as.data.frame(y_input)),
                 intResponse = as.matrix(cbind(gbm_dist_obj$strata, gbm_dist_obj$sorted)),
                 Offset=as.double(gbm_data_obj$offset),
                 X=as.matrix(as.data.frame(gbm_data_obj$x)),

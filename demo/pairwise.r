@@ -134,11 +134,9 @@ predictions <- data.frame(random=runif(N),
 cat("Computing loss metrics\n")
 dist_1 <- gbm_dist("Gaussian")
 dist_2 <- gbm_dist(name='Pairwise', metric="ndcg", 
-                   group="query", max_rank=5)
+                   group_index=data.test$query, max_rank=5)
 dist_3 <- gbm_dist(name='Pairwise', metric="conc",
-                   group="query", max_rank=0)
-dist_2$group_index <- data.test$query
-dist_3$group_index <- data.test$query
+                   group_index=data.test$query, max_rank=0)
 
 result.table <- data.frame(measure=c('random', 'X2 only', 'gaussian', 'pairwise (ndcg)', 'pairwise (conc)'),
                            squared.loss=sapply(1:length(predictions), FUN=function(i) {

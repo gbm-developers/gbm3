@@ -20,43 +20,43 @@
 loss(y, predictions, weights, offset, distribution_obj, baseline=rep(0, length(y)))
 
 \method{loss}{default}(y, predictions, weights, offset, distribution_obj,
-  baseline)
+  baseline = rep(0, length(y)))
 
 \method{loss}{AdaBoostGBMDist}(y, predictions, weights, offset,
-  distribution_obj, baseline)
+  distribution_obj, baseline = rep(0, length(y)))
 
 \method{loss}{BernoulliGBMDist}(y, predictions, weights, offset,
-  distribution_obj, baseline)
+  distribution_obj, baseline = rep(0, length(y)))
 
 \method{loss}{CoxPHGBMDist}(y, predictions, weights, offset, distribution_obj,
-  baseline)
+  baseline = rep(0, length(y)))
 
 \method{loss}{GammaGBMDist}(y, predictions, weights, offset, distribution_obj,
-  baseline)
+  baseline = rep(0, length(y)))
 
 \method{loss}{GaussianGBMDist}(y, predictions, weights, offset,
-  distribution_obj, baseline)
+  distribution_obj, baseline = rep(0, length(y)))
 
 \method{loss}{HuberizedGBMDist}(y, predictions, weights, offset,
-  distribution_obj, baseline)
+  distribution_obj, baseline = rep(0, length(y)))
 
 \method{loss}{LaplaceGBMDist}(y, predictions, weights, offset, distribution_obj,
-  baseline)
+  baseline = rep(0, length(y)))
 
 \method{loss}{PairwiseGBMDist}(y, predictions, weights, offset,
-  distribution_obj, baseline)
+  distribution_obj, baseline = rep(0, length(y)))
 
 \method{loss}{PoissonGBMDist}(y, predictions, weights, offset, distribution_obj,
-  baseline)
+  baseline = rep(0, length(y)))
 
 \method{loss}{QuantileGBMDist}(y, predictions, weights, offset,
-  distribution_obj, baseline)
+  distribution_obj, baseline = rep(0, length(y)))
 
 \method{loss}{TDistGBMDist}(y, predictions, weights, offset, distribution_obj,
-  baseline)
+  baseline = rep(0, length(y)))
 
 \method{loss}{TweedieGBMDist}(y, predictions, weights, offset, distribution_obj,
-  baseline)
+  baseline = rep(0, length(y)))
 }
 \arguments{
 \item{y}{a vector of responses}

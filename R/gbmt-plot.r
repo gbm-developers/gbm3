@@ -4,9 +4,9 @@
 #' other variables.
 #' 
 #' \code{plot.GBMFit} produces low dimensional projections of the
-#' \code{\link{GBMFit}} object, see \code{\link{gbm2}}, by integrating out the variables not included in
-#' the \code{var_index} argument. The function selects a grid of points and uses
-#' the weighted tree traversal method described in Friedman (2001) to do the
+#' \code{\link{GBMFit}} object, see \code{\link{gbm2}}, by integrating out the variables 
+#' not included in the \code{var_index} argument. The function selects a grid of points 
+#' and uses the weighted tree traversal method described in Friedman (2001) to do the
 #' integration. Based on the variable types included in the projection,
 #' \code{plot.GBMFit} selects an appropriate display choosing amongst line plots,
 #' contour plots, and \code{\link[lattice]{lattice}} plots. If the default
@@ -48,7 +48,21 @@
 #' @references J.H. Friedman (2001). "Greedy Function Approximation: A Gradient
 #' Boosting Machine," Annals of Statistics 29(4).
 #' @keywords hplot
-#' @export plot.GBMFit
+#' @export 
+#'
+plot <- function(gbm_fit_obj,
+                 var_index=1,
+                 num_trees=gbm_fit_obj$params$num_trees,
+                 continuous_resolution=100,
+                 grid_levels=NULL,
+                 return_grid=FALSE,
+                 type="link",
+                 ...) {
+  UseMethod("plot", gbm_fit_obj)
+}
+
+#' @name plot
+#' @export
 plot.GBMFit <- function(gbm_fit_obj,
                         var_index=1,
                         num_trees=gbm_fit_obj$params$num_trees,

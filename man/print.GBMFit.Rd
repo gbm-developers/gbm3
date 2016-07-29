@@ -4,10 +4,10 @@
 \alias{print.GBMFit}
 \title{Print model summary}
 \usage{
-print(gbm_fit_obj, ...)
+print(x, ...)
 }
 \arguments{
-\item{gbm_fit_obj}{is a fitted generalized boosting object of class \code{GBMFit}.}
+\item{x}{is a fitted generalized boosting object of class \code{GBMFit}.}
 
 \item{\dots}{arguments passed to \code{print.default}.}
 }
@@ -16,7 +16,7 @@ Display basic information about a \code{GBMFit} object.
 }
 \details{
 Prints some information about the model object. In particular, this method
-prints the call to \code{gbm2}, the type of loss function that was used,
+prints the call to \code{gbmt}, the type of loss function that was used,
 and the total number of iterations.
 
 If cross-validation was performed, the 'best' number of trees as estimated
@@ -41,14 +41,14 @@ mad(y))^2, following the suggestion of Rousseeuw and Leroy (equation 3.11).
 Note that this definition of a robust R-squared is contentious.
 }
 \author{
-Harry Southworth, Daniel Edwards
+James Hickey, Harry Southworth, Daniel Edwards
 }
 \references{
 P. J. Rousseeuw and A. M. Leroy, Robust Regression and Outlier
 Detection, Wiley, 1987 (2003).
 }
 \seealso{
-\code{\link{gbm2}}
+\code{\link{gbmt}}
 }
 \keyword{models}
 \keyword{nonlinear}

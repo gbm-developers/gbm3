@@ -24,11 +24,17 @@
 #' weight of observations in the node. If weights are all equal to 1 then this
 #' is the number of observations in the node.}
 #' 
-#' @author Greg Ridgeway \email{gregridgeway@@gmail.com}
+#' @author James Hickey, Greg Ridgeway \email{gregridgeway@@gmail.com}
 #' @seealso \code{\link{gbm}}, \code{\link{gbm.object}}
 #' @keywords print
 #' @export 
 #' 
+pretty <- function(gbm_fit_obj, tree_index=1) {
+  UseMethod("pretty", gbm_fit_obj)
+}
+
+#' @name pretty
+#' @export 
 pretty.GBMFit <- function(gbm_fit_obj, tree_index=1)
 {
   # Initial checks

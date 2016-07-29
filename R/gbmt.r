@@ -60,6 +60,7 @@ gbm2 <- function(formula, distribution=gbm_dist("Gaussian"), data, weights=rep(1
                  keep_gbm_data=FALSE, par_details=getOption('gbm.parallel'), is_verbose=FALSE) {
   
   # Extract the model
+  the_call <- match.call()
   mf <- match.call(expand.dots = FALSE)
   m <- match(c("formula", "data", "weights", "offset"), names(mf), 0)
   mf <- mf[c(1, m)]
@@ -103,6 +104,10 @@ gbm2 <- function(formula, distribution=gbm_dist("Gaussian"), data, weights=rep(1
     fold_id <- as.numeric(as.factor(fold_id))
   }
   
+  # If missing guess distribution
+  if(missing(distribution)) {
+    distribution <- gbm_dist(guess_distribution(y))
+  }
   # Update distribution according to groups
   distribution <- determine_groups(data, y, distribution)
   
@@ -120,6 +125,7 @@ gbm2 <- function(formula, distribution=gbm_dist("Gaussian"), data, weights=rep(1
   # Wrap up extra pieces 
   gbm_fit_obj$model <- m
   gbm_fit_obj$Terms <- Terms
+  gbm_fit_obj$call <- the_call
  
   return(gbm_fit_obj)
 }

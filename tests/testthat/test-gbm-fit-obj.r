@@ -95,7 +95,7 @@ test_that("GBMFit object has correct fields", {
   
   # Then fit has names
   expect_equal(names(fit), c("initF", "fit", "train.error", "valid.error", "oobag.improve", "trees", "c.splits", "distribution", "params"       
-               ,"variables", "cv_folds", "cv_error", "cv_fitted", "gbm_data_obj", "par_details", "model", "Terms"))
+               ,"variables", "cv_folds", "cv_error", "cv_fitted", "gbm_data_obj", "par_details", "model", "Terms", "call"))
 })
 
 test_that("GBMFit contains correct GBM objects", {
@@ -144,7 +144,7 @@ test_that("GBMFit contains correct GBM objects", {
   expect_error(check_if_gbm_data(fit$gbm_data_obj), NA)
   expect_error(check_if_gbm_dist(fit$distribution), NA)
   expect_error(check_if_gbm_train_params(fit$params), NA)
-  expect_error(check_if_var_container(fit$variables), NA)  
+  expect_error(check_if_gbm_var_container(fit$variables), NA)  
 })
 
 test_that("GBMFit does not contain gbm_data_obj if keep_gbm_data=FALSE", {

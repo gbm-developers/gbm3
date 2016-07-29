@@ -3,7 +3,7 @@
 #' Display basic information about a \code{GBMFit} object.
 #' 
 #' Prints some information about the model object. In particular, this method
-#' prints the call to \code{gbm2}, the type of loss function that was used,
+#' prints the call to \code{gbmt}, the type of loss function that was used,
 #' and the total number of iterations.
 #' 
 #' If cross-validation was performed, the 'best' number of trees as estimated
@@ -27,95 +27,97 @@
 #' mad(y))^2, following the suggestion of Rousseeuw and Leroy (equation 3.11).
 #' Note that this definition of a robust R-squared is contentious.
 #' 
-#' @usage print(gbm_fit_obj, ...)
+#' @usage print(x, ...)
 #' 
-#' @param gbm_fit_obj is a fitted generalized boosting object of class \code{GBMFit}.
+#' @param x is a fitted generalized boosting object of class \code{GBMFit}.
 #' 
 #' @param \dots arguments passed to \code{print.default}.
 #' 
-#' @author Harry Southworth, Daniel Edwards
-#' @seealso \code{\link{gbm2}}
+#' @author James Hickey, Harry Southworth, Daniel Edwards
+#' @seealso \code{\link{gbmt}}
 #' @references P. J. Rousseeuw and A. M. Leroy, Robust Regression and Outlier
 #' Detection, Wiley, 1987 (2003).
 #' @keywords models nonlinear survival nonparametric
 #' @export print.GBMFit
 #' 
-
-print.GBMFit <- function(gbm_fit_obj, ... ){
+print.GBMFit <- function(x, ... ){
+  # Print call
+  if(!is.null(x$call)) print(x$call)
+  
   #  Print out number of iterations and distribution used
-  print_iters_and_dist(gbm_fit_obj)
+  print_iters_and_dist(x)
   
   # Print out performance measures
-  best_iter <- print_perf_measures(gbm_fit_obj)
+  best_iter <- print_perf_measures(x)
   
   # Print out relative influence of variables
-  ri <- relative_influence(gbm_fit_obj, num_trees=best_iter)
-  cat( "There were", length(gbm_fit_obj$variables$var_names), "predictors of which",
+  ri <- relative_influence(x, num_trees=best_iter)
+  cat( "There were", length(x$variables$var_names), "predictors of which",
        sum(ri > 0), "had non-zero influence.\n" )
   
   # CV confusion matrix and pseudo-R-squared
-  print_confusion_matrix(gbm_fit_obj)
+  print_confusion_matrix(x)
   
   return(invisible())
 }
 
 
 #### Helper Functions ####
-print_iters_and_dist <- function(gbm_fit_obj) {
+print_iters_and_dist <- function(x) {
   # If Pairwise dist extract metric and max_rank
   # else distribution details is just the name
-  check_if_gbm_fit(gbm_fit_obj)
-  if(gbm_fit_obj$distribution$name == "Pairwise") {
-    if (!is.null(gbm_fit_obj$distribution$max.rank) && (gbm_fit_obj$distribution$max.rank > 0)) {
-      distribution_details <- sprintf("pairwise (metric=%s, max.rank=%d)", gbm_fit_obj$distribution$metric,
-                                      gbm_fit_obj$distribution$max.rank)
+  check_if_gbm_fit(x)
+  if(x$distribution$name == "Pairwise") {
+    if (!is.null(x$distribution$max.rank) && (x$distribution$max.rank > 0)) {
+      distribution_details <- sprintf("pairwise (metric=%s, max.rank=%d)", x$distribution$metric,
+                                      x$distribution$max.rank)
     } else {
-      distribution_details <- sprintf("pairwise (metric=%s)", gbm_fit_obj$distribution$metric)
+      distribution_details <- sprintf("pairwise (metric=%s)", x$distribution$metric)
     }
   } else {
-    distribution_details <- gbm_fit_obj$distribution$name
+    distribution_details <- x$distribution$name
   }
   cat( paste( "A gradient boosted model with", distribution_details, "loss function.\n" ))
-  cat( paste( length(gbm_fit_obj$train.error), "iterations were performed.\n" ) )
+  cat( paste( length(x$train.error), "iterations were performed.\n" ) )
 }
 
-print_perf_measures <- function(gbm_fit_obj) {
+print_perf_measures <- function(x) {
   # Calculate the best number of iterations - returns test set if 
   # possible
-  check_if_gbm_fit(gbm_fit_obj)
+  check_if_gbm_fit(x)
   
   # Set default answer - final iteration
-  best_iter <- length(gbm_fit_obj$train.error)
+  best_iter <- length(x$train.error)
   
   # CV best iteration 
-  if (!is.null(gbm_fit_obj$cv_error)) {
-    best_iter <- gbm_perf(gbm_fit_obj, plot_it = FALSE, method="cv" )
+  if (!is.null(x$cv_error)) {
+    best_iter <- gbm_perf(x, plot_it = FALSE, method="cv" )
     cat(paste("The best cross-validation iteration was ", best_iter, ".\n", sep = "" ))
   }
   
   # Test set best iteration
-  if (gbm_fit_obj$params$train_fraction < 1 ) {
-    best_iter <- gbm_perf(gbm_fit_obj, plot_it = FALSE, method="test" )
+  if (x$params$train_fraction < 1 ) {
+    best_iter <- gbm_perf(x, plot_it = FALSE, method="test" )
     cat( paste("The best test-set iteration was ", best_iter, ".\n", sep = "" ) )
   }
   
   return(best_iter)
 }
 
-print_confusion_matrix <- function(gbm_fit_obj) {
+print_confusion_matrix <- function(x) {
   # This prints the confusion matrix based on the
   # cross validated fit - if no cv fit is present - break
-  if(is.null(gbm_fit_obj$cv_fitted)) return(invisible())
+  if(is.null(x$cv_fitted)) return(invisible())
   
   # If data was not kept than can't calculate confusion matrix
-  check_if_gbm_fit(gbm_fit_obj)
-  if(is.null(gbm_fit_obj$gbm_data_obj)) return(invisible())
+  check_if_gbm_fit(x)
+  if(is.null(x$gbm_data_obj)) return(invisible())
   
   # Print off confusion matrix or pseudo R^2
-  if (gbm_fit_obj$distribution$name %in% c("Bernoulli", "AdaBoost", "Huberized")) {
-    binary_response_conf_matrix(gbm_fit_obj$gbm_data_obj$y, gbm_fit_obj$cv_fitted)
-  } else if (gbm_fit_obj$distribution$name %in% c("Gaussian", "Laplace", "Quantile", "TDist")) {
-    pseudo_r_squared(gbm_fit_obj$gbm_data_obj$y, gbm_fit_obj$cv_fitted, gbm_fit_obj$distribution$name)
+  if (x$distribution$name %in% c("Bernoulli", "AdaBoost", "Huberized")) {
+    binary_response_conf_matrix(x$gbm_data_obj$y, x$cv_fitted)
+  } else if (x$distribution$name %in% c("Gaussian", "Laplace", "Quantile", "TDist")) {
+    pseudo_r_squared(x$gbm_data_obj$y, x$cv_fitted, x$distribution$name)
   }
 }
 
@@ -155,5 +157,7 @@ pseudo_r_squared <- function(response, cv_fit, dist_name) {
     R2 <- 1 - (median(abs(cv_resids)) / mad(response))^2
     cat("Cross-validation robust pseudo R-squared: ", signif(R2, 3), "\n")
   }
+  
+  return(R2)
 }
 

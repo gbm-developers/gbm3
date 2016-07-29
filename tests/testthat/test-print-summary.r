@@ -245,7 +245,7 @@ test_that("pseudo_r_squared does not throw error when passed correct inputs", {
 })
 
 test_that("pseudo_r_squared is same for all dists except Gaussian", {
-  # Given a "correct" GBMFit object - using Gauss
+  # Given a "correct" GBMFit object - NOT Gaussian
   set.seed(1)
   
   # create some data
@@ -291,7 +291,7 @@ test_that("pseudo_r_squared is same for all dists except Gaussian", {
 })
 
 
-context("Test Input Error checking")
+context("Test Input Error checking - printing")
 test_that("print_perf_measures throws error if passed an object other than GBMFit class", {
   # Given a "correct" GBMFit objects
   set.seed(1)

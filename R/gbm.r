@@ -464,6 +464,7 @@ gbm <- function(formula = formula(data),
   warning("gbm is depracated - using gbm2.fit...")
   
   # Extract the model
+  the_call <- match.call()
   mf <- match.call(expand.dots = FALSE)
   m <- match(c("formula", "data", "weights", "offset"), names(mf), 0)
   mf <- mf[c(1, m)]
@@ -502,6 +503,7 @@ gbm <- function(formula = formula(data),
   if(cv.folds == 0) cv.folds <- 1
   
   # Set distribution object - put in all possible additional parameters (this will generate warnings)
+  if(missing(distribution)) {distribution <- guess_distribution(y)}
   if (is.character(distribution)){ distribution <- list(name=distribution) }
   dist_obj <- gbm_dist(distribution$name, ties=tied.times.method, strata=strata,
                        group=distribution$group, metric=distribution$metric,
@@ -551,6 +553,7 @@ gbm <- function(formula = formula(data),
   # Wrap up extra pieces 
   gbm_fit_obj$model <- m
   gbm_fit_obj$Terms <- Terms
+  gbm_fit_obj$call <- the_call
   
   return(gbm_fit_obj)
 }

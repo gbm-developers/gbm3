@@ -231,7 +231,7 @@ test_that("convertY changes factors with 2 levels to numeric", {
 test_that("convertY does nothing to factors with levels != 2", {
   # Given of a vector of 3-level factors
   N <- 100
-  y <- as.factor(sample(c(0, 1, 2)), N, replace=TRUE)
+  y <- as.factor(sample(c(0, 1, 2), N, replace=TRUE))
   
   # When convertY is called
   # Then remains the same
@@ -269,7 +269,7 @@ test_that("check_var_type throws an error when passed Inacceptable classes", {
 
 test_that("check_offset default returns a vector of 0s when offset set to NULL - irrespective of distribution", {
   # Given an offset=NULL and responses (and all distributions)
-  N < - 100
+  N <- 100
   y <- runif(N)
   offset <- NULL
   dist_1 <- gbm_dist("AdaBoost")
@@ -304,7 +304,7 @@ test_that("check_offset default returns a vector of 0s when offset set to NULL -
 test_that("check_offset throws an error length of offset does not equal the length of the response - and not CoxPH", {
   # Given an offset and vector of responses
   # offset is different length to responses
-  N < - 100
+  N <- 100
   y <- runif(N)
   offset <- runif(N-2)
   dist_1 <- gbm_dist("AdaBoost")
@@ -337,7 +337,7 @@ test_that("check_offset throws an error length of offset does not equal the leng
 
 test_that("check_offset throws an error if the offset contains a NA", {
   # Given an offset and vector of responses - irrespective of distribution
-  N < - 100
+  N <- 100
   y <- runif(N)
   offset <- runif(N)
   dist_1 <- gbm_dist("AdaBoost")
@@ -374,7 +374,7 @@ test_that("check_offset throws an error if the offset contains a NA", {
 
 test_that("check_offset throws an error if the offset contains a non-numeric", {
   # Given an offset and vector of responses - irrespective of distribution
-  N < - 100
+  N <- 100
   y <- runif(N)
   offset <- runif(N)
   dist_1 <- gbm_dist("AdaBoost")
@@ -391,8 +391,8 @@ test_that("check_offset throws an error if the offset contains a non-numeric", {
   dist_12 <- gbm_dist("Tweedie")
   
   
-  # When an elemenet of offset is NA
-  offset[1] <- TRUE
+  # When an elemenet of offset is non-numeric
+  offset[1] <- "string"
   
   # Then check_offset throws an error
   expect_error(check_offset(offset, y, dist_1))
@@ -510,5 +510,23 @@ test_that("convert_strata throws an error when not passed a vector of integers o
   expect_error(convert_strata(Inf))
   expect_error(convert_strata(NaN))
   expect_error(convert_strata("Error"))
+})
+
+test_that("guess_distribution makes correct guesses and displays message", {
+  require(survival)
+  
+  # Given responses
+  b_resp <- c(0, 1, 0, 1, 0, 1)
+  c_resp <- Surv(c(1.2, 2.3, 4.5, 6.7), c(0, 0, 0, 1))
+  other_resp <- "Default"
+  
+  # When guessing
+  # Then correct guess and message
+  expect_equal(guess_distribution(b_resp)$name, "Bernoulli")
+  expect_equal(guess_distribution(c_resp)$name, "CoxPH")
+  expect_equal(guess_distribution(other_resp)$name, "Gaussian")
+  expect_message(guess_distribution(b_resp), "Distribution not specified, assuming Bernoulli ...")
+  expect_message(guess_distribution(c_resp), "Distribution not specified, assuming CoxPH ...")
+  expect_message(guess_distribution(other_resp), "Distribution not specified, assuming Gaussian ...")
 })
 
