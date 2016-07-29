@@ -30,7 +30,7 @@ gbm1 <- gbm(Surv(tt,delta)~X1+X2+X3,       # formula
             data=data,                 # dataset
             weights=w,
             var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-            distribution="coxph",
+            distribution="CoxPH",
             n.trees=3000,              # number of trees
             shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
             interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
@@ -42,32 +42,32 @@ gbm1 <- gbm(Surv(tt,delta)~X1+X2+X3,       # formula
             verbose = FALSE)           # don't print progress
 
 # plot the performance
-best.iter <- gbm.perf(gbm1,method="OOB")  # returns out-of-bag estimated best number of trees
+best.iter <- gbm_perf(gbm1,method="OOB")  # returns out-of-bag estimated best number of trees
 print(best.iter)
-best.iter <- gbm.perf(gbm1,method="cv") # returns test set estimate of best number of trees
+best.iter <- gbm_perf(gbm1,method="cv") # returns test set estimate of best number of trees
 print(best.iter)
-best.iter <- gbm.perf(gbm1,method="test") # returns test set estimate of best number of trees
+best.iter <- gbm_perf(gbm1,method="test") # returns test set estimate of best number of trees
 print(best.iter)
 
 # plot variable influence
-summary(gbm1,n.trees=1)         # based on the first tree
-summary(gbm1,n.trees=best.iter) # based on the estimated best number of trees
+summary(gbm1,num_trees=1)         # based on the first tree
+summary(gbm1,num_trees=best.iter) # based on the estimated best number of trees
 
 # create marginal plots
 # plot variable X1,X2,X3 after "best" iterations
 par(mfrow=c(1,3))
-plot.gbm(gbm1,1,best.iter)
-plot.gbm(gbm1,2,best.iter)
-plot.gbm(gbm1,3,best.iter)
+plot(gbm1,1,best.iter)
+plot(gbm1,2,best.iter)
+plot(gbm1,3,best.iter)
 par(mfrow=c(1,1))
-plot.gbm(gbm1,1:2,best.iter) # contour plot of variables 1 and 2 after "best" number iterations
+plot(gbm1,1:2,best.iter) # contour plot of variables 1 and 2 after "best" number iterations
 
 # 3-way plots
-plot.gbm(gbm1,1:3,best.iter)
+plot(gbm1,1:3,best.iter)
 
 # print the first and last trees... just for curiosity
-pretty.gbm.tree(gbm1,1)
-pretty.gbm.tree(gbm1,gbm1$n.trees)
+pretty(gbm1,1)
+pretty(gbm1,gbm1$params$num_trees)
 
 # make some new data
 N <- 1000

@@ -25,8 +25,12 @@ get_ylabel_one_var.PoissonGBMDist <- function(dist_obj) {
 #### Two variable helpers ####
 select_two_var_plot <- function(f.factor, X, gbm_fit_obj, var_index, ...) {
   # Set plot identified
-  which_plot <- sum(f.factor) + max(which(f.factor==TRUE))
-  which_plot <- ifelse(length(which_plot)==0, 1, which_plot)
+  if(!any(f.factor)) {
+    which_plot <- 1
+  } else {
+    which_plot <- sum(f.factor) + max(which(f.factor==TRUE))
+    which_plot <- ifelse(length(which_plot)==0, 1, which_plot)
+  }
   which_plot <- toString(which_plot)
   
   # Call

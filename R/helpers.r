@@ -213,3 +213,6 @@ convert_strata <- function(strata) {
   return(strata)
 }
 
+guess_distribution <- function(response) {
+  # This function guesses the distribution if one is not provided
+}

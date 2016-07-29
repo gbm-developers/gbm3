@@ -32,7 +32,7 @@ require(gbm)
 gbm1 <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
             data=data,                   # dataset
             var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-            distribution="gaussian",     # bernoulli, adaboost, gaussian, poisson, coxph, or
+            distribution="Gaussian",     # bernoulli, adaboost, gaussian, poisson, coxph, or
                                          # list(name="quantile",alpha=0.05) for quantile regression
             n.trees=2000,                 # number of trees
             shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
@@ -47,17 +47,17 @@ gbm1 <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
 
 str(gbm1,max.level=1)
 # plot the performance
-best.iter <- gbm.perf(gbm1,method="OOB")  # returns out-of-bag estimated best number of trees
-best.iter <- gbm.perf(gbm1,method="test") # returns test set estimate of best number of trees
-best.iter <- gbm.perf(gbm1,method="cv")   # returns cv estimate of best number of trees
+best.iter <- gbm_perf(gbm1,method="OOB")  # returns out-of-bag estimated best number of trees
+best.iter <- gbm_perf(gbm1,method="test") # returns test set estimate of best number of trees
+best.iter <- gbm_perf(gbm1,method="cv")   # returns cv estimate of best number of trees
 
 # plot variable influence
-summary(gbm1,n.trees=1)         # based on the first tree
-summary(gbm1,n.trees=best.iter) # based on the estimated best number of trees
+summary(gbm1,num_trees=1)         # based on the first tree
+summary(gbm1,num_trees=best.iter) # based on the estimated best number of trees
 
 # print the first and last trees
-print(pretty.gbm.tree(gbm1,1))
-print(pretty.gbm.tree(gbm1,gbm1$n.trees))
+print(pretty(gbm1,1))
+print(pretty(gbm1,gbm1$params$num_trees))
 
 print(gbm1$c.splits[1:3])
 
@@ -101,10 +101,10 @@ plot(gbm1,2:4,best.iter)
 plot(gbm1,3:5,best.iter)
 
 # check interactions
-interact.gbm(gbm1,data=data,i.var=1:2,n.trees=best.iter)
+interact(gbm1,data=data,var_indices=1:2, num_trees=best.iter)
 # get all two way interactions
 i.var <- subset(expand.grid(x1=1:6,x2=1:6), x1<x2)
 rownames(i.var) <- apply(i.var,1,paste,collapse=":",sep="")
 apply(i.var,1,
-      function(i.var) interact.gbm(gbm1,data=data,i.var=i.var,n.trees=best.iter))
+      function(i.var) interact(gbm1,data=data,var_indices=i.var,num_trees=best.iter))
 

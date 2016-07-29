@@ -2,23 +2,13 @@
 % Please edit documentation in R/gbm-interactions.r
 \name{interact}
 \alias{interact}
+\alias{interact.GBMFit}
 \title{Estimate the strength of interaction effects}
 \usage{
 interact(gbm_fit_obj, data, var_indices=1, num_trees=gbm_fit_obj$params$num_trees)
 
-\code{interact.GBMFit} computes Friedman's H-statistic to assess the relative
-strength of interaction effects in non-linear models. H is on the scale of
-[0-1] with higher values indicating larger interaction effects. To connect
-to a more familiar measure, if \eqn{x_1} and \eqn{x_2} are uncorrelated
-covariates with mean 0 and variance 1 and the model is of the form
-\deqn{y=\beta_0+\beta_1x_1+\beta_2x_2+\beta_3x_3} then
-\deqn{H=\frac{\beta_3}{\sqrt{\beta_1^2+\beta_2^2+\beta_3^2}}}
-
-Note that if the main effects are weak, the estimated H will be unstable.
-For example, if (in the case of a two-way interaction) neither main effect
-is in the selected model (relative influence is zero), the result will be
-0/0. Also, with weak main effects, rounding errors can result in values of H
-> 1 which are not possible.
+\method{interact}{GBMFit}(gbm_fit_obj, data, var_indices = 1,
+  num_trees = gbm_fit_obj$params$num_trees)
 }
 \arguments{
 \item{gbm_fit_obj}{a \code{GBMFit} object fitted using a call to \code{\link{gbm2}}.}
@@ -34,11 +24,26 @@ same order that they appear in the initial \code{gbm2} formula.}
 \code{num_trees} trees will be used.}
 }
 \value{
-Returns the value of \eqn{H}.
+Returns the value of \code{H}.
 }
 \description{
 Computes Friedman's H-statistic to assess the strength of variable
 interactions.
+}
+\details{
+\code{interact.GBMFit} computes Friedman's H-statistic to assess the relative
+strength of interaction effects in non-linear models. H is on the scale of
+[0-1] with higher values indicating larger interaction effects. To connect
+to a more familiar measure, if \eqn{x_1} and \eqn{x_2} are uncorrelated
+covariates with mean 0 and variance 1 and the model is of the form
+\deqn{y=\beta_0+\beta_1x_1+\beta_2x_2+\beta_3x_3} then
+\deqn{H=\frac{\beta_3}{\sqrt{\beta_1^2+\beta_2^2+\beta_3^2}}}
+
+Note that if the main effects are weak, the estimated H will be unstable.
+For example, if (in the case of a two-way interaction) neither main effect
+is in the selected model (relative influence is zero), the result will be
+0/0. Also, with weak main effects, rounding errors can result in values of H
+> 1 which are not possible.
 }
 \author{
 Greg Ridgeway \email{gregridgeway@gmail.com}
