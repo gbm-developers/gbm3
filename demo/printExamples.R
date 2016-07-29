@@ -15,7 +15,7 @@ set.seed( 20090417 )
 
 bMod <- gbm( low ~ ., data=birthwt, distribution="Bernoulli",
              n.tree=1000, shrinkage=.01, cv.folds=5,
-            verbose = FALSE, n.cores=1)
+            verbose = FALSE)
 bMod
 
 bwt <- birthwt
@@ -30,42 +30,42 @@ cMod <- gbm( Surv( stime, status ) ~ treat + age + Karn + diag.time + cell + pri
             verbose = FALSE)
 cMod
 
-kMod <- gbm( Species ~ . , data=iris , distribution = "Bernoulli", n.tree=1000, shrinkage=.1,
-             cv.folds=5, train.fraction=.9, n.cores=1 )
+kMod <- gbm( Species ~ . , data=iris , distribution = "Gaussian", n.tree=1000, shrinkage=.1,
+             cv.folds=5, train.fraction=.9)
 kMod
 
-kMod2 <- gbm( type ~ ., data=fgl, n.tree=1000, shrinkage=.01,
-              cv.folds=5, n.cores=1 )
+kMod2 <- gbm( type ~ ., data=fgl, distribution = "Gaussian", n.tree=1000, shrinkage=.01,
+              cv.folds=5)
 kMod2
 
 mycpus <- cpus
 mycpus <- mycpus[, -1 ]
 gMod <- gbm( log( perf ) ~ ., data = mycpus, distribution="Gaussian",
              cv.folds=5, n.trees=1000, shrinkage=.01,
-            verbose = FALSE, n.cores=1)
+            verbose = FALSE)
 gMod
 
-biMod <- gbm( log(perf) ~ ., data=mycpus,
-              cv.folds=5, n.trees=1000, shrinkage=.01, n.cores=1 )
+biMod <- gbm( log(perf) ~ ., data=mycpus, distribution = "Gaussian",
+              cv.folds=5, n.trees=1000, shrinkage=.01)
 biMod
 
-tMod <- gbm( log(perf) ~ ., data=mycpus, distribution="tdist",
+tMod <- gbm( log(perf) ~ ., data=mycpus, distribution="TDist",
              cv.folds=5, n.trees=1000, shrinkage=.01,
-        interaction.depth= 3, n.cores=1)
+        interaction.depth= 3)
 tMod
 
-lMod <- gbm( log(perf) ~ ., data=mycpus, distribution="laplace",
+lMod <- gbm( log(perf) ~ ., data=mycpus, distribution="Laplace",
              cv.folds=5, n.trees=1000, shrinkage=.01,
-        interaction.depth= 3, n.cores=1)
+        interaction.depth= 3)
 lMod
 
 qMod <- gbm( log(perf) ~ ., data=mycpus,
-             distribution=list(name="quantile", alpha=.7 ),
+             distribution=list(name="Quantile", alpha=.7),
              cv.folds=5, n.trees=1000, shrinkage=.01,
-        interaction.depth= 3, verbose = FALSE, n.cores=1)
+        interaction.depth= 3, verbose = FALSE)
 qMod
 
-pMod <- gbm( Freq ~ ., data=housing , distribution="poisson",
+pMod <- gbm( Freq ~ ., data=housing , distribution="Poisson",
              n.trees=1000, cv.folds=5 , shrinkage=.01,
-        interaction.depth = 3, n.cores=1)
+        interaction.depth = 3)
 pMod

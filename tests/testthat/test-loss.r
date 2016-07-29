@@ -255,7 +255,19 @@ test_that("Error thrown when distribution is Tweedie", {
   # Then error thrown when trying to calculate the loss
   expect_error(loss(resps, preds, weights, offset, dist))
 })
-
+test_that("Error thrown if Pairwise but group_index is NULL", {
+  # Given responses, weights, predictions, offset and
+  # Pairwise dist but group_index not specified
+  N <- 100
+  resps <- runif(N)
+  weights <- runif(N)
+  preds <- runif(N)
+  offset <- runif(N)
+  dist <- gbm_dist("Pairwise", group="query")
+  
+  # Then error thrown when trying to calculate the loss
+  expect_error(loss(resps, preds, weights, offset, dist))
+})
 context("Check loss calculation correct for various distributions")
 test_that("Correctly calculates AdaBoost loss", {
   # Given responses, weights, predictions, offset, baseline and

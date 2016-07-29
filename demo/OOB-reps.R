@@ -285,7 +285,7 @@ if(run.all)
 
       # take care of factor binary outcomes
       if( with(dataset[[i.data]],
-         (distribution=="bernoulli") && is.factor(data[,outcome])) )
+         (distribution=="Bernoulli") && is.factor(data[,outcome])) )
       {
          dataset[[i.data]]$data[,dataset[[i.data]]$outcome] <-
                with(dataset[[i.data]], as.numeric(data[,outcome])-1)
@@ -302,9 +302,9 @@ if(run.all)
          dataset[[i.data]]$data <- dataset[[i.data]]$data[,-j]
       }
 
-      dataset[[i.data]]$loss <- switch(dataset[[i.data]]$distribution,
-                                       gaussian=squared.error.loss,
-                                       bernoulli=bernoulli.loglikelihood)
+      dataset[[i.data]]$stored.loss <- switch(dataset[[i.data]]$distribution,
+                                       Gaussian=squared.error.loss,
+                                       Bernoulli=bernoulli.loglikelihood)
 
       cat(nrow(dataset[[i.data]]$data),"\n")
    }
@@ -458,15 +458,15 @@ for(i.data in i.datasets)
 
       # evalute the methods
       dataset[[i.data]]$base.loss[i.rep] <-
-         with(dataset[[i.data]], loss(data[i.valid,outcome],pred.base[i.valid]))
+         with(dataset[[i.data]], stored.loss(data[i.valid,outcome],pred.base[i.valid]))
       dataset[[i.data]]$oob.loss[i.rep]  <-
-         with(dataset[[i.data]], loss(data[i.valid,outcome],pred.oob[i.valid]))
+         with(dataset[[i.data]], stored.loss(data[i.valid,outcome],pred.oob[i.valid]))
       dataset[[i.data]]$test33.loss[i.rep] <-
-         with(dataset[[i.data]], loss(data[i.valid,outcome],pred.test33[i.valid]))
+         with(dataset[[i.data]], stored.loss(data[i.valid,outcome],pred.test33[i.valid]))
       dataset[[i.data]]$test20.loss[i.rep] <-
-         with(dataset[[i.data]], loss(data[i.valid,outcome],pred.test20[i.valid]))
+         with(dataset[[i.data]], stored.loss(data[i.valid,outcome],pred.test20[i.valid]))
       dataset[[i.data]]$cv5.loss[i.rep] <-
-         with(dataset[[i.data]], loss(data[i.valid,outcome],pred.cv5[i.valid]))
+         with(dataset[[i.data]], stored.loss(data[i.valid,outcome],pred.cv5[i.valid]))
 
       with(dataset[[i.data]],
           cat(oob.iter[i.rep],test33.iter[i.rep],test20.iter[i.rep],

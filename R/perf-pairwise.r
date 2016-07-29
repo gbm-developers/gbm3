@@ -36,7 +36,7 @@ perf_pairwise <- function(y, f, group, metric="ndcg", w=NULL, max_rank=0){
   # Optimization: for binary targets,
   # AUC is equivalent but faster than CONC
   if (metric == "conc" && all(is.element(y, 0:1))) {
-    func.name <- "ir.measure.auc"
+    func.name <- "ir_measure_auc"
   }
   
   # Max rank = 0 means no cut off

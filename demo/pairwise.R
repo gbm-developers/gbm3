@@ -114,9 +114,9 @@ title('Training of pairwise model with conc metric')
 
 # plot variable importance
 par.old <- par(mfrow=c(1,3))
-summary(gbm.gaussian, n.trees=best.iter.gaussian, main='gaussian')
-summary(gbm.ndcg, n.trees=best.iter.ndcg, main='pairwise (ndcg)')
-summary(gbm.conc, n.trees=best.iter.conc, main='pairwise (conc)')
+summary(gbm.gaussian, num_trees=best.iter.gaussian, main='gaussian')
+summary(gbm.ndcg, num_trees=best.iter.ndcg, main='pairwise (ndcg)')
+summary(gbm.conc, num_trees=best.iter.conc, main='pairwise (conc)')
 par(par.old)
 
 cat("Generating some new data\n")
@@ -132,16 +132,21 @@ predictions <- data.frame(random=runif(N),
                           pairwise.conc=predict(gbm.conc, data.test, best.iter.conc))
 
 cat("Computing loss metrics\n")
+dist_1 <- gbm_dist("Gaussian")
+dist_2 <- gbm_dist(name='Pairwise', metric="ndcg", 
+                   group="query", max_rank=5)
+dist_3 <- gbm_dist(name='Pairwise', metric="conc",
+                   group="query", max_rank=0)
+dist_2$group_index <- data.test$query
+dist_3$group_index <- data.test$query
 
 result.table <- data.frame(measure=c('random', 'X2 only', 'gaussian', 'pairwise (ndcg)', 'pairwise (conc)'),
                            squared.loss=sapply(1:length(predictions), FUN=function(i) {
-                             gbm.loss(y=data.test$Y, predictions[[i]], w=rep(1,N), offset=NA, dist=list(name="gaussian"), baseline=0) }),
+                             loss(y=data.test$Y, predictions[[i]], w=rep(1,N), offset=rep(0, N), dist=gbm_dist(name="Gaussian")) }),
                            ndcg5.loss=sapply(1:length(predictions), FUN=function(i) {
-                             gbm.loss(y=data.test$Y, predictions[[i]], w=rep(1,N), offset=NA, dist=list(name='pairwise', metric="ndcg"),
-                                      baseline=0, group=data.test$query, max.rank=5) }),
+                             loss(y=data.test$Y, predictions[[i]], w=rep(1,N), offset=rep(0 ,N), distribution_obj=dist_2)}),
                            concordant.pairs.loss=sapply(1:length(predictions), FUN=function(i) {
-                             gbm.loss(y=data.test$Y, predictions[[i]], w=rep(1,N), offset=NA, dist=list(name='pairwise', metric="conc"),
-                                      baseline=0, group=data.test$query, max.rank=0) }),
+                             loss(y=data.test$Y, predictions[[i]], w=rep(1,N), offset=rep(0, N), distribution_obj= dist_3) }),
                             row.names=NULL)
 
 cat('Performance measures for the different models on the test set (smaller is better):\n')
