@@ -113,7 +113,7 @@ gbm_more <- function(gbm_fit_obj, num_new_trees=100, data=NULL, weights=NULL, of
                         mFeatures=as.integer(gbm_fit_obj$params$num_features),
                         fit.old=as.double(gbm_fit_obj$fit),
                         n.cat.splits.old=as.integer(length(gbm_fit_obj$c.splits)),
-                        n.trees.old=as.integer(length(gbm_fit_obj$params$trees)),
+                        n.trees.old=as.integer(length(gbm_fit_obj$trees)),
                         par_details=gbm_fit_obj$par_details,
                         verbose=as.integer(is_verbose),
                         PACKAGE = "gbm")
@@ -134,7 +134,8 @@ gbm_more <- function(gbm_fit_obj, num_new_trees=100, data=NULL, weights=NULL, of
   gbm_more_fit$oobag.improve <- c(gbm_fit_obj$oobag.improve, gbm_more_fit$oobag.improve)
   gbm_more_fit$trees         <- c(gbm_fit_obj$trees, gbm_more_fit$trees)
   gbm_more_fit$c.splits      <- c(gbm_fit_obj$c.splits, gbm_more_fit$c.splits)
-  
+  gbm_more_fit$params$num_trees <- length(gbm_more_fit$trees)
+    
   # cv_error not updated when using gbm.more
   gbm_more_fit$cv_error  <- gbm_fit_obj$cv_error
   gbm_more_fit$cv_folds  <- gbm_fit_obj$cv_folds
@@ -148,6 +149,7 @@ gbm_more <- function(gbm_fit_obj, num_new_trees=100, data=NULL, weights=NULL, of
     gbm_more_fit$gbm_data_obj <- gbm_fit_obj$gbm_data_obj
   }
   gbm_more_fit$model <- gbm_fit_obj$model
+  gbm_more_fit$par_details <- gbm_fit_obj$par_details
   
   return(gbm_more_fit)
   

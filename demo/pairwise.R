@@ -50,7 +50,7 @@ cat('Fitting a model with gaussian loss function\n')
 
 gbm.gaussian <- gbm(Y~X1+X2+X3,      # formula
             data=data.train,         # dataset
-            distribution='gaussian', # loss function: gaussian
+            distribution='Gaussian', # loss function: gaussian
             n.trees=2000,            # number of trees
             shrinkage=0.005,         # learning rate
             interaction.depth=3,     # number per splits per tree
@@ -59,11 +59,11 @@ gbm.gaussian <- gbm(Y~X1+X2+X3,      # formula
             n.minobsinnode = 10,     # minimum number of obs for split
             keep.data=TRUE,          # store copy of input data in model
             cv.folds=5,              # number of cross validation folds
-            verbose = FALSE,         # don't print progress
-            n.cores = 1)             # use a single core (to prevent possible problems caused by wronly detecting cores)
+            verbose = FALSE         # don't print progress
+            )             # use a single core (to prevent possible problems caused by wronly detecting cores)
 
 # estimate number of trees
-best.iter.gaussian <- gbm.perf(gbm.gaussian, method="cv")
+best.iter.gaussian <- gbm_perf(gbm.gaussian, method="cv")
 title('Training of gaussian model')
 
 cat('Fitting a model with pairwise loss function (ranking metric: normalized discounted cumulative gain)\n')
@@ -71,7 +71,7 @@ cat('Fitting a model with pairwise loss function (ranking metric: normalized dis
 gbm.ndcg <- gbm(Y~X1+X2+X3,          # formula
                 data=data.train,     # dataset
                 distribution=list(   # loss function:
-                  name='pairwise',   # pairwise
+                  name='Pairwise',   # pairwise
                   metric="ndcg",     # ranking metric: normalized discounted cumulative gain
                   group='query'),    # column indicating query groups
                 n.trees=2000,        # number of trees
@@ -82,10 +82,10 @@ gbm.ndcg <- gbm(Y~X1+X2+X3,          # formula
                 n.minobsinnode = 10, # minimum number of obs for split
                 keep.data=TRUE,      # store copy of input data in model
                 cv.folds=5,          # number of cross validation folds
-                verbose = FALSE,     # don't print progress
-                n.cores = 1)         # use a single core
+                verbose = FALSE     # don't print progress
+                )         # use a single core
 # estimate number of trees
-best.iter.ndcg <- gbm.perf(gbm.ndcg, method='cv')
+best.iter.ndcg <- gbm_perf(gbm.ndcg, method='cv')
 title('Training of pairwise model with ndcg metric')
 
 cat('Fit a model with pairwise loss function (ranking metric: fraction of concordant pairs)\n')
@@ -93,7 +93,7 @@ cat('Fit a model with pairwise loss function (ranking metric: fraction of concor
 gbm.conc <- gbm(Y~X1+X2+X3,          # formula
                 data=data.train,     # dataset
                 distribution=list(   # loss function:
-                  name='pairwise',   # pairwise
+                  name='Pairwise',   # pairwise
                   metric="conc",     # ranking metric: concordant pairs
                   group='query'),    # column indicating query groups
                 n.trees=2000,        # number of trees
@@ -104,11 +104,11 @@ gbm.conc <- gbm(Y~X1+X2+X3,          # formula
                 n.minobsinnode = 10, # minimum number of obs for split
                 keep.data=TRUE,      # store copy of input data in model
                 cv.folds=5,          # number of cross validation folds
-                verbose = FALSE,     # don't print progress
-                n.cores = 1)         # use a single core
+                verbose = FALSE     # don't print progress
+                )         # use a single core
 
 # estimate number of trees
-best.iter.conc <- gbm.perf(gbm.conc, method='cv')
+best.iter.conc <- gbm_perf(gbm.conc, method='cv')
 title('Training of pairwise model with conc metric')
 
 

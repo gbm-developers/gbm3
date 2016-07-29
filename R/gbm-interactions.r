@@ -85,7 +85,7 @@ interact.GBMFit <- function(gbm_fit_obj, data, var_indices=1, num_trees = gbm_fi
   for(vars in seq_len((length(all_combinations_vars)-1))){
     i1 <- apply(preds_for_comb_vars[[length(all_combinations_vars)]]$data[, all_combinations_vars[[vars]], drop=FALSE],
                 1, paste, collapse="\r")
-    i2 <- apply(preds_for_comb_vars[[length(all_combinations_vars)]]$data, 1, paste,collapse="\r")
+    i2 <- apply(preds_for_comb_vars[[vars]]$data, 1, paste,collapse="\r")
     i <- match(i1, i2)
     
     H_stat_squared <- H_stat_squared + with(preds_for_comb_vars[[vars]], sign*preds[i,])
@@ -180,8 +180,8 @@ compute_preds_for_all_var_combinations <- function(gbm_fit_obj, all_combinations
     
     # precompute the sign of these terms to appear in H - statistic
     # if same "parity" return 1, else -1
-    preds_for_comb_vars[[vars]]$sign <- ifelse(length((all_combinations_vars[[vars]] %% 2) == 
-                                                        (length(variables_indices) %% 2)), 1, -1)
+    preds_for_comb_vars[[vars]]$sign <- ifelse((length(all_combinations_vars[[vars]]) %% 2) == 
+                                                        (length(variables_indices) %% 2), 1, -1)
   }
   
   return(preds_for_comb_vars)

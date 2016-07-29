@@ -31,7 +31,7 @@ if(run.all)
    i.data <- i.data + 1
    dataset[[i.data]] <-
       list(name="Abalone",
-            distribution="gaussian",
+            distribution="Gaussian",
             urlpath="http://ftp.ics.uci.edu/pub/machine-learning-databases/abalone/",
             filename="abalone.data",
             var.names=c("sex","length","diameter","height","whole.weight",
@@ -47,7 +47,7 @@ if(run.all)
    i.data <- i.data + 1
    dataset[[i.data]] <-
       list(name="Adult",
-            distribution="bernoulli",
+            distribution="Bernoulli",
             urlpath="http://ftp.ics.uci.edu/pub/machine-learning-databases/adult/",
             filename="adult.data",
             var.names=c("age","workclass","w","education","education.num",
@@ -65,7 +65,7 @@ if(run.all)
    i.data <- i.data + 1
    dataset[[i.data]] <-
       list(name="Boston housing",
-            distribution="gaussian",
+            distribution="Gaussian",
             urlpath="http://ftp.ics.uci.edu/pub/machine-learning-databases/housing/",
             filename="housing.data",
             var.names=c("CRIM","ZN","INDUS","CHAS","NOX","RM","AGE",
@@ -80,7 +80,7 @@ if(run.all)
    i.data <- i.data + 1
    dataset[[i.data]] <-
       list(name="Mushrooms",
-            distribution="bernoulli",
+            distribution="Bernoulli",
             urlpath="http://ftp.ics.uci.edu/pub/machine-learning-databases/mushroom/",
             filename="agaricus-lepiota.data",
             var.names=c("poisonous","cap-shape","cap-surface","cap-color",
@@ -109,7 +109,7 @@ if(run.all)
    i.data <- i.data + 1
    dataset[[i.data]] <-
       list(name="Auto Prices",
-            distribution="gaussian",
+            distribution="Gaussian",
             urlpath="http://ftp.ics.uci.edu/pub/machine-learning-databases/autos/",
             filename="imports-85.data",
             var.names=c("symboling","normalizedlosses","make","fueltype",
@@ -131,7 +131,7 @@ if(run.all)
    i.data <- i.data + 1
    dataset[[i.data]] <-
       list(name="Auto MPG",
-            distribution="gaussian",
+            distribution="Gaussian",
             urlpath="http://ftp.ics.uci.edu/pub/machine-learning-databases/auto-mpg/",
             filename="auto-mpg.data",
             var.names=c("mpg","cylinders","displacement","horsepower","weight",
@@ -147,7 +147,7 @@ if(run.all)
    i.data <- i.data + 1
    dataset[[i.data]] <-
       list(name="CPU Performance",
-            distribution="gaussian",
+            distribution="Gaussian",
             urlpath="http://ftp.ics.uci.edu/pub/machine-learning-databases/cpu-performance/",
             filename="machine.data",
             var.names=c("vendorname","modelname","myct","mmin","mmax",
@@ -163,7 +163,7 @@ if(run.all)
    i.data <- i.data + 1
    dataset[[i.data]] <-
       list(name="Credit rating",
-            distribution="bernoulli",
+            distribution="Bernoulli",
             urlpath="http://ftp.ics.uci.edu/pub/machine-learning-databases/credit-screening/",
             filename="crx.data",
             var.names=c("A1","A2","A3","A4","A5","A6","A7","A8","A9","A10","A11",
@@ -178,7 +178,7 @@ if(run.all)
    i.data <- i.data + 1
    dataset[[i.data]] <-
       list(name="Haberman",
-            distribution="bernoulli",
+            distribution="Bernoulli",
             urlpath="http://ftp.ics.uci.edu/pub/machine-learning-databases/haberman/",
             filename="haberman.data",
             var.names=c("age","year","nodes","CLASS"),
@@ -192,7 +192,7 @@ if(run.all)
    i.data <- i.data + 1
    dataset[[i.data]] <-
       list(name="Diabetes",
-            distribution="bernoulli",
+            distribution="Bernoulli",
             urlpath="http://ftp.ics.uci.edu/pub/machine-learning-databases/pima-indians-diabetes/",
             filename="pima-indians-diabetes.data",
             var.names=c("n_preg","plasma","blood-pre","triceps","serum",
@@ -207,7 +207,7 @@ if(run.all)
    i.data <- i.data + 1
    dataset[[i.data]] <-
       list(name="Ionosphere",
-            distribution="bernoulli",
+            distribution="Bernoulli",
             urlpath="http://ftp.ics.uci.edu/pub/machine-learning-databases/ionosphere/",
             filename="ionosphere.data",
             var.names=c("A1","A2","A3","A4","A5","A6","A7","A8","A9","A10","A11",
@@ -224,7 +224,7 @@ if(run.all)
    i.data <- i.data + 1
    dataset[[i.data]] <-
       list(name="breast cancer",
-            distribution="bernoulli",
+            distribution="Bernoulli",
             urlpath="http://ftp.ics.uci.edu/pub/machine-learning-databases/breast-cancer-wisconsin/",
             filename="breast-cancer-wisconsin.data",
             var.names=c("CODE","thickness","cellsize","cellshape","adhension",
@@ -243,7 +243,7 @@ if(run.all)
       i.data <- i.data + 1
       dataset[[i.data]] <-
          list(name="time in treatment",
-               distribution="gaussian",
+               distribution="Gaussian",
                urlpath="./",
                filename="txdet.csv",
                var.names=NULL,
@@ -359,16 +359,16 @@ for(i.data in i.datasets)
                   n.trees=1000,
                   verbose = FALSE)
 
-      best.iter.oob <- gbm.perf(gbm1,method="OOB",plot.it=FALSE)
-      while((gbm1$n.trees-best.iter.oob < 1000) &&
-            !all(gbm1$oobag.improve[(gbm1$n.trees-100):gbm1$n.trees] < 1e-6))
+      best.iter.oob <- gbm_perf(gbm1,method="OOB",plot_it=FALSE)
+      while((gbm1$params$num_trees-best.iter.oob < 1000) &&
+            !all(gbm1$oobag.improve[(gbm1$params$num_trees-100):gbm1$params$num_trees] < 1e-6))
       {
-         gbm1 <- gbm.more(gbm1,1000)
-         best.iter.oob <- gbm.perf(gbm1,method="OOB",plot.it=FALSE)
+         gbm1 <- gbm_more(gbm1,1000)
+         best.iter.oob <- gbm_perf(gbm1, method="OOB", plot_it=FALSE)
       }
       pred.oob[i.valid] <- predict(gbm1,
-                                    newdata=dataset[[i.data]]$data[i.valid,],
-                                    n.trees=best.iter.oob)
+                                    new_data=dataset[[i.data]]$data[i.valid,],
+                                    num_trees=best.iter.oob)
       dataset[[i.data]]$oob.iter[i.rep] <- best.iter.oob
 
       # use a 1/3 test set
@@ -381,16 +381,16 @@ for(i.data in i.datasets)
                   shrinkage=dataset[[i.data]]$shrinkage,
                   n.trees=1000,
                   verbose = FALSE)
-      best.iter.test <- gbm.perf(gbm1,method="test",plot.it=FALSE)
-      while((gbm1$n.trees-best.iter.test < 1000) &&
-            !all(abs(gbm1$valid.error[(gbm1$n.trees-100):gbm1$n.trees]) < 1e-6))
+      best.iter.test <- gbm_perf(gbm1, method="test", plot_it=FALSE)
+      while((gbm1$params$num_trees-best.iter.test < 1000) &&
+            !all(abs(gbm1$valid.error[(gbm1$params$num_trees-100):gbm1$params$num_trees]) < 1e-6))
       {
-         gbm1 <- gbm.more(gbm1,1000)
-         best.iter.test <- gbm.perf(gbm1,method="test",plot.it=FALSE)
+         gbm1 <- gbm_more(gbm1,1000)
+         best.iter.test <- gbm_perf(gbm1,method="test",plot_it=FALSE)
       }
       pred.test33[i.valid] <- predict(gbm1,
-                                    newdata=dataset[[i.data]]$data[i.valid,],
-                                    n.trees=best.iter.test)
+                                    new_data=dataset[[i.data]]$data[i.valid,],
+                                    num_trees=best.iter.test)
       dataset[[i.data]]$test33.iter[i.rep] <- best.iter.test
 
       # use a 20% test set
@@ -403,17 +403,17 @@ for(i.data in i.datasets)
                   shrinkage=dataset[[i.data]]$shrinkage,
                   n.trees=1000,
                   verbose = FALSE)
-      best.iter.test <- gbm.perf(gbm1,method="test",plot.it=FALSE)
-      while((gbm1$n.trees-best.iter.test < 1000) &&
-            !all(abs(gbm1$valid.error[(gbm1$n.trees-100):gbm1$n.trees]) < 1e-6))
+      best.iter.test <- gbm_perf(gbm1, method="test", plot_it=FALSE)
+      while((gbm1$params$num_trees-best.iter.test < 1000) &&
+            !all(abs(gbm1$valid.error[(gbm1$params$num_trees-100):gbm1$params$num_trees]) < 1e-6))
       {
-         gbm1 <- gbm.more(gbm1,1000)
-         best.iter.test <- gbm.perf(gbm1,method="test",plot.it=FALSE)
+         gbm1 <- gbm_more(gbm1,1000)
+         best.iter.test <- gbm_perf(gbm1, method="test", plot_it=FALSE)
       }
       pred.test20[i.valid] <-
          predict(gbm1,
-                  newdata=dataset[[i.data]]$data[i.valid,],
-                  n.trees=best.iter.test)
+                  new_data=dataset[[i.data]]$data[i.valid,],
+                  num_trees=best.iter.test)
       dataset[[i.data]]$test20.iter[i.rep] <- best.iter.test
 
       # use 5-fold cross-validation
@@ -449,8 +449,8 @@ for(i.data in i.datasets)
                   verbose = FALSE)
       pred.cv5[i.valid] <-
          predict(gbm1,
-                 newdata=dataset[[i.data]]$data[i.valid,],
-                 n.trees=best.iter.cv)
+                 new_data=dataset[[i.data]]$data[i.valid,],
+                 num_trees=best.iter.cv)
       dataset[[i.data]]$cv5.iter[i.rep] <- best.iter.cv
 
       # baseline prediction
@@ -489,7 +489,7 @@ results <- data.frame(problem=sapply(dataset,function(x){x$name}),
                       test20=sapply(dataset,function(x){mean(x$test20.loss)}),
                       cv5=sapply(dataset,function(x){mean(x$cv5.loss)}))
 j <- match(c("base","oob","test33","test20","cv5"),names(results))
-results[results$loss=="bernoulli",j] <- -2*results[results$loss=="bernoulli",j]
+results[results$loss=="Bernoulli",j] <- -2*results[results$loss=="Bernoulli",j]
 results$win <- c("base","oob","test33","test20","cv5")[apply(results[,j],1,which.min)]
 results$oob.rank <- apply(results[,j],1,rank)[2,]
 results$perf <- (results$base-results$oob)/apply(results$base-results[,j],1,max)

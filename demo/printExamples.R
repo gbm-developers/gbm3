@@ -13,24 +13,24 @@ data( housing )
 set.seed( 20090417 )
 
 
-bMod <- gbm( low ~ ., data=birthwt,
+bMod <- gbm( low ~ ., data=birthwt, distribution="Bernoulli",
              n.tree=1000, shrinkage=.01, cv.folds=5,
             verbose = FALSE, n.cores=1)
 bMod
 
 bwt <- birthwt
 bwt <- bwt[ sample( 1:nrow( bwt ) ),]
-aMod <- gbm( low ~ ., data=bwt, distribution="adaboost",
+aMod <- gbm( low ~ ., data=bwt, distribution="AdaBoost",
              n.trees=1000, shrinkage=.01, cv.folds=10,
-        train.fraction=.9, verbose = FALSE , n.cores=1)
+        train.fraction=.9, verbose = FALSE )
 aMod
 
 cMod <- gbm( Surv( stime, status ) ~ treat + age + Karn + diag.time + cell + prior,
-             data = VA, n.tree = 1000, shrinkage=.1, cv.folds = 5,
-            verbose = FALSE, n.cores=1)
+             data = VA, distribution="CoxPH", n.tree = 1000, shrinkage=.1, cv.folds = 5,
+            verbose = FALSE)
 cMod
 
-kMod <- gbm( Species ~ . , data=iris , n.tree=1000, shrinkage=.1,
+kMod <- gbm( Species ~ . , data=iris , distribution = "Bernoulli", n.tree=1000, shrinkage=.1,
              cv.folds=5, train.fraction=.9, n.cores=1 )
 kMod
 
@@ -40,7 +40,7 @@ kMod2
 
 mycpus <- cpus
 mycpus <- mycpus[, -1 ]
-gMod <- gbm( log( perf ) ~ ., data = mycpus, distribution="gaussian",
+gMod <- gbm( log( perf ) ~ ., data = mycpus, distribution="Gaussian",
              cv.folds=5, n.trees=1000, shrinkage=.01,
             verbose = FALSE, n.cores=1)
 gMod

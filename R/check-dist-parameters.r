@@ -89,7 +89,7 @@ check_dist_params.GammaGBMDist <- function(empty_obj, ...) {
 
 check_dist_params.GaussianGBMDist <- function(empty_obj, ...) {
   if(length(list(...)) > 0) {
-    warning("The ", class(empty_obj)[1], "class does not use any additional
+    warning("The ", class(empty_obj)[1], " class does not use any additional
             parameters in construction.")
   }
 }
