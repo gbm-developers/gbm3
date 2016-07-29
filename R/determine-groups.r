@@ -1,19 +1,20 @@
-#' Set Up Groups
-#' 
-#' Internal S3 method to set up groups - currently this only
-#' applies to the pairwise distribution. 
-#' 
-#' @usage determine_groups(original_data, response, distribution_obj)
-#' 
-#' @param original_data the original data used on the initial call to \code{\link{gbm2}}.
-#' 
-#' @param response the response data provided on the initial call to \code{\link{gbm2}}.
-#' 
-#' @param distribution_obj a GBMDist object created using gbm_dist.
-#' 
-#' @return an updated distribution_object with the group, group_order and group_index updated
-#' 
-#' @export determine_groups
+# Set Up Groups
+# 
+# Internal S3 method to set up groups - currently this only
+# applies to the pairwise distribution. 
+# 
+# @usage determine_groups(original_data, response, distribution_obj)
+# 
+# @param original_data the original data used on the initial call to \code{\link{gbm2}}.
+# 
+# @param response the response data provided on the initial call to \code{\link{gbm2}}.
+# 
+# @param distribution_obj a GBMDist object created using gbm_dist.
+# 
+# @author James Hickey 
+#
+# @return an updated distribution_object with the group, group_order and group_index updated
+# 
 
 determine_groups <- function(original_data, response, distribution_obj) {
   check_if_gbm_dist(distribution_obj)

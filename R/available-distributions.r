@@ -4,9 +4,11 @@
 #' 
 #' @usage available_distributions()
 #' 
-#' @return a vector o
+#' @return a vector containing the names of the available distributions in the package.
 #' 
-#' @export available_distributions
+#' @author James Hickey 
+#' 
+#' @export 
 
 available_distributions <- function() {
   distributions <- c("AdaBoost", "Bernoulli", "CoxPH", "Gamma", "Gaussian",

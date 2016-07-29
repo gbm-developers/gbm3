@@ -6,7 +6,8 @@
 #' Breiman uses for random forests, but \code{gbm2} currently computes using the
 #' entire training dataset (not the out-of-bag observations).
 #' 
-#' @usage permutation_relative_influence(gbm_fit_obj, num_trees, rescale=FALSE, sort_it=FALSE)
+#' @usage permutation_relative_influence(gbm_fit_obj, num_trees, rescale=FALSE, 
+#' sort_it=FALSE)
 #' 
 #' @param gbm_fit_obj a \code{GBMFit} object from an initial call to \code{\link{gbm2}}. This
 #' fitted object requires 

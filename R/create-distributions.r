@@ -10,6 +10,8 @@
 #' @param ...  extra parameters used to define the distribution object,
 #'  see \code{\link{gbm_dist}}.
 #'  
+#' @author James Hickey
+#'  
 #' @return an appropriated gbm distribution object
 #' 
 

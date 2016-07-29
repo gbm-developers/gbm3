@@ -29,7 +29,7 @@
 #' calibration curve
 #' @param ...  other graphics parameters passed on to the plot function
 #' @return \code{calibrate.plot} returns no values.
-#' @author Greg Ridgeway \email{gregridgeway@@gmail.com}
+#' @author James Hickey, Greg Ridgeway \email{gregridgeway@@gmail.com}
 #' @references J.F. Yates (1982). "External correspondence: decomposition of
 #' the mean probability score," Organisational Behaviour and Human Performance
 #' 30:132-156.

@@ -1,25 +1,24 @@
-#' Extract observations in fold
-#' 
-#' Extract the relevant observations to fit a CV fold - reorders appropriately.
-#' 
-#' @usage extract_obs_in_fold(gbm_data_obj, gbm_dist_obj, train_params, cv_groups, fold_num, is_verbose)
-#' 
-#' @param gbm_data_obj a GBMData object containing all of the data used to fit a gbm model. 
-#' 
-#' @param gbm_dist_obj a GBMDist object specifying the distribution and any additional parameters needed.
-#' 
-#' @param train_params a GBMTrainParams object containing generic parameters defining how the model should be
-#' trained.
-#' 
-#' @param cv_groups vector of integers specifying which folds each row of data belongs to.
-#' 
-#' @param fold_num integer (>=1) specifying which fold under consideration.
-#'
-#' @param is_verbose if TRUE, will print out progress and performance of the fitting.
-#' 
-#' @return list of input gbm objects updated so cross_validated data is ready for gbm_call
-#' 
-#' @export
+# Extract observations in fold
+# 
+# Extract the relevant observations to fit a CV fold - reorders appropriately.
+# 
+# @usage extract_obs_in_fold(gbm_data_obj, gbm_dist_obj, train_params, cv_groups, fold_num, is_verbose)
+# 
+# @param gbm_data_obj a GBMData object containing all of the data used to fit a gbm model. 
+# 
+# @param gbm_dist_obj a GBMDist object specifying the distribution and any additional parameters needed.
+# 
+# @param train_params a GBMTrainParams object containing generic parameters defining how the model should be
+# trained.
+# 
+# @param cv_groups vector of integers specifying which folds each row of data belongs to.
+# 
+# @param fold_num integer (>=1) specifying which fold under consideration.
+#
+# @param is_verbose if TRUE, will print out progress and performance of the fitting.
+# 
+# @return list of input gbm objects updated so cross_validated data is ready for gbm_call
+# 
 
 extract_obs_in_fold <- function(gbm_data_obj, gbm_dist_obj, train_params, cv_groups, fold_num) {
   # Observations in the training set

@@ -17,11 +17,10 @@
 #' y <- rnorm(100)
 #' plot(x,y)
 #' quantile_rug(x)
-#' @export quantile_rug
+#' @export 
 #' 
 
-quantile_rug <- function(x, prob=(0:10)/10, ...)
-{
+quantile_rug <- function(x, prob=(0:10)/10, ...) {
   quants <- quantile(x[!is.na(x)], prob=prob)
   if(length(unique(quants)) < length(prob)) {
     quants <- jitter(quants)

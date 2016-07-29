@@ -4,7 +4,8 @@
 \alias{baseline_hazard}
 \title{Baseline hazard function}
 \usage{
-baseline_hazard(surv_times, delta, coxph_pred, eval_times=NULL, smooth=FALSE, cumulative=TRUE)
+baseline_hazard(surv_times, delta, coxph_pred, eval_times=NULL, smooth=FALSE,
+cumulative=TRUE)
 }
 \arguments{
 \item{surv_times}{the survival times - an atomic vector of doubles}
@@ -40,7 +41,7 @@ After estimating f(x), \code{baseline_hazard} can compute a nonparametric
 estimate of lambda(t).
 }
 \author{
-Greg Ridgeway \email{gregridgeway@gmail.com}
+James Hickey, Greg Ridgeway \email{gregridgeway@gmail.com}
 }
 \references{
 N. Breslow (1972). "Discussion of `Regression Models and

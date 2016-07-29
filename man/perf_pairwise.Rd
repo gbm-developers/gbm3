@@ -12,8 +12,8 @@ perf_pairwise(y, f, group, metric='ndcg', w=NULL, max_rank=0)
 \item{f}{the predicted responses.}
 
 \item{metric}{What type of performance measure to compute in \code{perf_pairwise}.
-Can take values "ir.measure.conc", "ir.measure.mrr", "ir.measure.map" or
-"ir.measure.ndgc".}
+Can take values "ir_measure_conc", "ir_measure_mrr", "ir_measure_map" or
+"ir_measure_ndgc".}
 
 \item{w}{is the weights of each observation.}
 

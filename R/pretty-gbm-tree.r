@@ -29,12 +29,6 @@
 #' @keywords print
 #' @export 
 #' 
-pretty <- function(gbm_fit_obj, tree_index=1) {
-  UseMethod("pretty", gbm_fit_obj)
-}
-
-#' @name pretty
-#' @export 
 pretty.GBMFit <- function(gbm_fit_obj, tree_index=1)
 {
   # Initial checks

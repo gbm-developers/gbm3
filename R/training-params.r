@@ -3,7 +3,8 @@
 #' Class that contains the training parameters for the gbm model
 #' 
 #' @usage training_params(num_trees=100, interaction_depth=1,
-#'  min_num_obs_in_node=10, shrinkage=0.001, bag_fraction=0.5, num_train=(2*min_num_obs_in_node+1)/bag_fraction + 1,
+#'  min_num_obs_in_node=10, shrinkage=0.001, bag_fraction=0.5,
+#'  num_train=(2*min_num_obs_in_node+1)/bag_fraction + 1,
 #'  id=seq_len(num_train), num_features=1)
 #' 
 #' @param num_trees Number of trees used in the fit.
@@ -18,21 +19,27 @@
 #' 
 #' @param bag_fraction fraction of independent training observations selected to
 #' create the next tree in the expansion.  Introduces randomness in the model fit; 
-#' if bag_fraction < 1 then running the same model twice  will result in similar but different
-#' fits.
+#' if bag_fraction < 1 then running the same model twice  will result in similar
+#' but different fits.
 #' 
-#' @param num_train number of obs of data used in training the model.  This defaults to the minimum number of 
-#' observations allowed - \code{(2*min_num_obs_in_node + 1)/bag_fraction + 1}.
+#' @param num_train number of obs of data used in training the model.
+#' This defaults to the minimum number of  observations allowed - 
+#' \code{(2*min_num_obs_in_node + 1)/bag_fraction + 1}.
 #' 
 #' @param id optional vector of integers, specifying which rows in the data correspond
-#' to which observations. Individual observations may have many rows of data associated with them. This defaults to
-#' \code{seq_len(num_train)}. NB: When calling \code{\link{gbm2}} or \code{\link{gbm2.fit}} the id should be the default.
+#' to which observations. Individual observations may have many rows of data associated
+#' with them. This defaults to \code{seq_len(num_train)}. 
+#' NB: When calling \code{\link{gbm2}} or \code{\link{gbm2.fit}} the id should be the default.
 #' 
-#' @param num_features number of random features/columns to use in training model.  This defaults to 1.
+#' @param num_features number of random features/columns to use in training model. 
+#' This defaults to \code{1}.
 #' 
 #' @return training parameters object
 #' 
+#' @author James Hickey
+#' 
 #' @export
+#' 
 
 training_params <- function(num_trees=100, interaction_depth=1,
                             min_num_obs_in_node=10, shrinkage=0.001, bag_fraction=0.5,

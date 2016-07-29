@@ -1,15 +1,17 @@
-#' Get Misc Parameters
-#' 
-#' S3 method to get the "misc" objects from GBM distributions.
-#' This method (internal) is used with gbm_call to extract the appropriate "misc"
-#' for passing to the C++ layer.
-#' 
-#' @usage get_misc(distribution_obj)
-#' 
-#' @param distribution_obj a GBMDist object
-#' 
-#' @return a list of additional parameters specific to the distribution
-#' 
+# Get Misc Parameters
+# 
+# S3 method to get the "misc" objects from GBM distributions.
+# This method (internal) is used with gbm_call to extract the appropriate "misc"
+# for passing to the C++ layer.
+# 
+# @usage get_misc(distribution_obj)
+# 
+# @param distribution_obj a GBMDist object
+# 
+# @author James Hickey
+#
+# @return a list of additional parameters specific to the distribution
+# 
 
 get_misc <- function(distribution_obj) {
   check_if_gbm_dist(distribution_obj)

@@ -38,7 +38,7 @@
 #' @references P. J. Rousseeuw and A. M. Leroy, Robust Regression and Outlier
 #' Detection, Wiley, 1987 (2003).
 #' @keywords models nonlinear survival nonparametric
-#' @export print.GBMFit
+#' @export 
 #' 
 print.GBMFit <- function(x, ... ){
   # Print call

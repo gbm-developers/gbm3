@@ -1,22 +1,26 @@
-#' Create Strata 
-#' 
-#' Function used to create to appropriate strata vectors -
-#' currently only implemented for the CoxPH distribution.
-#' 
-#' @usage create_strata(gbm_data_obj, train_params, distribution_obj)
-#' 
-#' @param gbm_data_obj gbm data object
-#' 
-#' @param train_params gbm training parameters object
-#' 
-#' @param distribution_obj a gbm distribution object - the strata in this object will be
-#' updated if they exist - this is only the case for the CoxPH model at this moment.
-#' 
-#' @param order_strata_by_id indicates whether or not to order the entire strata vector by observation id.
-#' This defaults to \code{TRUE} but should be set to \code{FALSE} for cross-validation strata creation. 
-#' 
-#' @return updated distribution_obj
-#' 
+# Create Strata 
+# 
+# Function used to create to appropriate strata vectors -
+# currently only implemented for the CoxPH distribution.
+# 
+# @usage create_strata(gbm_data_obj, train_params, distribution_obj,
+#  order_strata_by_id=TRUE)
+# 
+# @param gbm_data_obj gbm data object
+# 
+# @param train_params gbm training parameters object
+# 
+# @param distribution_obj a gbm distribution object - the strata in this object will be
+# updated if they exist - this is only the case for the CoxPH model at this moment.
+# 
+# @param order_strata_by_id indicates whether or not to order the entire strata
+# vector by observation id. This defaults to \code{TRUE} but should be set to \code{FALSE}
+# for cross-validation strata creation. 
+# 
+# @author James Hickey
+# 
+# @return updated distribution_obj
+# 
 
 create_strata <- function(gbm_data_obj, train_params, distribution_obj, order_strata_by_id=TRUE) {
   check_if_gbm_dist(distribution_obj)

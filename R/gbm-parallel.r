@@ -1,9 +1,9 @@
 ##' Control parallelization options
 ##'
-##' \code{gbm} uses openmp to parallelize its core algorithm, and the
+##' \code{gbmt} uses openmp to parallelize its core algorithm, and the
 ##' details are controlled by this object.  As guidance, set
-##' \code{n.threads} to the number of cores on your computer, and set
-##' \code{arrayChunkSize} to a reasonable - not necessarily small -
+##' \code{num_threads} to the number of cores on your computer, and set
+##' \code{array_chunk_size} to a reasonable - not necessarily small -
 ##' size.
 ##' 
 ##' @param num_threads the number of threads to use (a positive

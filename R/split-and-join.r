@@ -1,20 +1,20 @@
-#' Rearrange training set and distribution data for CV
-#' 
-#' Methods converts the gbm data and distribution parameters for CV fitting
-#' 
-#' @usage split_and_join(gbm_data_obj, train_params, rows_in_training, rows_in_fold)
-#' 
-#' @param gbm_data_obj  a GBMData  containing correctly ordered and validated data.
-#' 
-#' @param train_params a validated GBMTrainParams object
-#' 
-#' @param rows_in_training vector of logicals that determine what data rows are in the training set.
-#' 
-#' @param rows_in_fold vector of logicals indicating whether a row of training data is in the fold or not.
-#' 
-#' @return gbm_data_obj with validation data moved to end of fields and recalculation of predictor ordering
-#' 
-#' @export
+# Rearrange training set and distribution data for CV
+# 
+# Methods converts the gbm data and distribution parameters for CV fitting
+# 
+# @usage split_and_join(gbm_data_obj, train_params, rows_in_training, rows_in_fold)
+# 
+# @param gbm_data_obj  a GBMData  containing correctly ordered and validated data.
+# 
+# @param train_params a validated GBMTrainParams object
+# 
+# @param rows_in_training vector of logicals that determine what data rows are in the training set.
+# 
+# @param rows_in_fold vector of logicals indicating whether a row of training data is in the fold or not.
+# 
+# @return gbm_data_obj with validation data moved to end of fields and recalculation of predictor ordering
+# 
+# @author James Hickey
 
 split_and_join <- function(gbm_data_obj, train_params, rows_in_training, rows_in_fold) {
   require("survival")

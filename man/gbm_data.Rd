@@ -5,7 +5,7 @@
 \title{GBM data object
 Object storing the data used in training a gbm model.}
 \usage{
-gbm_data(x, y, x_order, weights, offset, id_order)
+gbm_data(x, y, weights, offset)
 }
 \arguments{
 \item{x}{matrix or data-frame of the predictor variables}
@@ -22,5 +22,8 @@ a gbm_data object
 \description{
 GBM data object
 Object storing the data used in training a gbm model.
+}
+\author{
+James Hickey
 }
 

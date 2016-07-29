@@ -8,7 +8,8 @@
 #' After estimating f(x), \code{baseline_hazard} can compute a nonparametric
 #' estimate of lambda(t).
 #' 
-#' @usage baseline_hazard(surv_times, delta, coxph_pred, eval_times=NULL, smooth=FALSE, cumulative=TRUE)
+#' @usage baseline_hazard(surv_times, delta, coxph_pred, eval_times=NULL, smooth=FALSE,
+#' cumulative=TRUE)
 #' 
 #' @param surv_times the survival times - an atomic vector of doubles
 #' 
@@ -31,7 +32,7 @@
 #' \code{NULL}). If \code{cumulative} is set to \code{TRUE} then the returned
 #' vector evaluates the cumulative hazard function at those values.
 #' 
-#' @author Greg Ridgeway \email{gregridgeway@@gmail.com}
+#' @author James Hickey, Greg Ridgeway \email{gregridgeway@@gmail.com}
 #' 
 #' @seealso \code{\link[survival]{survfit}}, \code{\link{gbm2}}
 #' 

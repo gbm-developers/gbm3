@@ -7,9 +7,12 @@
 available_distributions()
 }
 \value{
-a vector o
+a vector containing the names of the available distributions in the package.
 }
 \description{
 Returns a vector of the distributions implemented in the package.
+}
+\author{
+James Hickey
 }
 

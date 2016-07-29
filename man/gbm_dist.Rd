@@ -35,22 +35,25 @@ required, these are:
 }
 
 Finally, if the pairwise distribution is selected a number of parameters also need to be
-specified.  These parameters are \code{group}, \code{metric} and \code{max.rank}.
+specified.  These parameters are \code{group}, \code{metric} and \code{max_rank}.
 The first is a character vector  with the column names of data that jointly indicate the group 
 an instance bleongs to (typically a query in Information Retrieval).  For
 training, only pairs of instances from the same group and with different target
 labels may be considered. \code{metric} is
 the IR measure to use, one of
 \describe{
-  \item{list("conc")}{Fraction of concordant pairs; for binary labels, this is equivalent to the Area under the ROC Curve}
+  \item{list("conc")}{Fraction of concordant pairs; for binary labels,
+   this is equivalent to the Area under the ROC Curve}
   \item{:}{Fraction of concordant pairs; for binary labels, this
 is equivalent to the Area under the ROC Curve}
   \item{list("mrr")}{Mean reciprocal rank of the highest-ranked positive instance}
   \item{:}{Mean reciprocal rank of the highest-ranked positive instance}
   \item{list("map")}{Mean average precision, a generalization of \code{mrr}
   to multiple positive instances}
-  \item{:}{Mean average precision, a generalization of \code{mrr} to multiple positive instances}
-  \item{list("ndcg:")}{Normalized discounted cumulative gain. The score is the weighted sum (DCG) of the user-supplied target values, weighted by
+  \item{:}{Mean average precision, a generalization of \code{mrr} to multiple
+   positive instances}
+  \item{list("ndcg:")}{Normalized discounted cumulative gain.
+The score is the weighted sum (DCG) of the user-supplied target values, weighted by
 log(rank+1), and normalized to the maximum achievable value. This is the
 default if the user did not specify a metric.}
 }
@@ -58,12 +61,15 @@ default if the user did not specify a metric.}
 \code{ndcg} and \code{conc} allow arbitrary target values, while binary
 targets {0,1} are expected for \code{map} and \code{mrr}. For \code{ndcg}
 and \code{mrr}, a cut-off can be chosen using a positive integer parameter
-\code{max.rank}. If left unspecified, all ranks are taken into account.}
+\code{max_rank}. If left unspecified, all ranks are taken into account.}
 }
 \value{
-returns a gbm_dist object.
+returns a \code{GBMDist} object.
 }
 \description{
 Generates distribution object for gbm2.
+}
+\author{
+James Hickey
 }
 

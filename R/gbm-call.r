@@ -1,25 +1,27 @@
-#' GBM2 API call to C++
-#' 
-#' Wrapper function for calling the C++ gbm function.
-#' 
-#' @usage gbm_call(gbm_data_obj, gbm_dist_obj, train_params, var_container, is_verbose)
-#' 
-#' @param gbm_data_obj a GBMData object containing all of the data used to fit a gbm model. 
-#' 
-#' @param gbm_dist_obj a GBMDist object specifying the distribution and any additional parameters needed.
-#' 
-#' @param train_params a GBMTrainParams object containing generic parameters defining how the model should be
-#' trained.
-#' 
-#' @param var_container a GBMVarCont object which defines the properties of the predictor variables in the data.
-#' 
-#' @param par.details Details of the parallelization to use in the
-#'     core algorithm.
-#' 
-#' @param is_verbose if TRUE, will print out progress and performance of the fitting.
-#'
-#' @return a fitted gbm object
-#' 
+# GBMT API call to C++
+# 
+# Wrapper function for calling the C++ gbm function.
+# 
+# @usage gbm_call(gbm_data_obj, gbm_dist_obj, train_params, var_container, is_verbose)
+# 
+# @param gbm_data_obj a GBMData object containing all of the data used to fit a gbm model. 
+#
+# @param gbm_dist_obj a GBMDist object specifying the distribution and any additional parameters needed.
+# 
+# @param train_params a GBMTrainParams object containing generic parameters defining how the model should be
+# trained.
+# 
+# @param var_container a GBMVarCont object which defines the properties of the predictor variables in the data.
+# 
+# @param par_details Details of the parallelization to use in the
+#     core algorithm.
+# 
+# @param is_verbose if TRUE, will print out progress and performance of the fitting.
+#
+# @author James Hickey
+#
+# @return a fitted gbm object
+# 
 
 gbm_call <- function(gbm_data_obj, gbm_dist_obj, train_params, var_container, par_details, is_verbose) {
   # Check inputs

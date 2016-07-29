@@ -11,7 +11,7 @@
 #' The predictions from \code{gbm2} do not include the offset term. The user may
 #' add the value of the offset to the predicted value if desired.
 #' 
-#' If \code{gbm_fit_obj} was fit using \code{\link{gbm2}, there will be no
+#' If \code{gbm_fit_obj} was fit using \code{\link{gbm2}}, there will be no
 #' \code{Terms} component. Therefore, the user has greater responsibility to
 #' make sure that \code{new_data} is of the same format (order and number of
 #' variables) as the one originally used to fit the model.

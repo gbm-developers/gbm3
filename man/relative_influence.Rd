@@ -4,7 +4,7 @@
 \alias{relative_influence}
 \title{Methods for estimating relative influence}
 \usage{
-relative_influence(gbm_fit_obj, rescale, sort_it)
+relative_influence(gbm_fit_obj, rescale=FALSE, sort_it=FALSe)
 }
 \arguments{
 \item{gbm_fit_obj}{a \code{GBMFit} object created from an initial call to
@@ -29,7 +29,7 @@ returns a processed version of the same.
 }
 \description{
 Helper functions for computing the relative influence of each variable in
-the \code{GBMFit} object
+the \code{GBMFit} object.
 }
 \details{
 These functions offer the different
@@ -44,7 +44,7 @@ Breiman uses for random forests, but \code{gbm2} currently computes using the
 entire training dataset (not the out-of-bag observations).
 }
 \author{
-Greg Ridgeway \email{gregridgeway@gmail.com}
+James Hickey, Greg Ridgeway \email{gregridgeway@gmail.com}
 }
 \references{
 J.H. Friedman (2001). "Greedy Function Approximation: A Gradient

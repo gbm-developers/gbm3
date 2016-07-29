@@ -4,10 +4,11 @@
 \alias{gbm2.fit}
 \title{GBM2 fit}
 \usage{
-gbm2.fit(x, y, distribution=gbm_dist("Gaussian", ...), weights=rep(1, nrow(x)), offset=rep(0, nrow(x))
-train_params=training_params(num_trees=100, interaction_depth=1, min_num_obs_in_node=10, 
-shrinkage=0.001, bag_fraction=0.5, id=seq_len(nrow(x)), num_train=round(0.5 * nrow(x)), num_features=ncol(x)), 
-var_monotone=NULL, var_names=NULL, keep_gbm_data=FALSE, cv_folds=1, cv_class_stratify=FALSE, fold_id=NULL, is_verbose=FALSE)
+gbm2.fit(x, y, distribution=gbm_dist("Gaussian", ...), weights=rep(1, nrow(x)),
+ offset=rep(0, nrow(x)), train_params=training_params(num_trees=100, interaction_depth=1,
+ min_num_obs_in_node=10,shrinkage=0.001, bag_fraction=0.5, id=seq_len(nrow(x)),
+ num_train=round(0.5 * nrow(x)), num_features=ncol(x)), var_monotone=NULL, var_names=NULL,
+ keep_gbm_data=FALSE, cv_folds=1, cv_class_stratify=FALSE, fold_id=NULL, is_verbose=FALSE)
 }
 \arguments{
 \item{x}{a data frame or data matrix containing the predictor variables.}

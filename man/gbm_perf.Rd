@@ -2,9 +2,10 @@
 % Please edit documentation in R/gbm-perf.r
 \name{gbm_perf}
 \alias{gbm_perf}
-\title{GBM2 Performace}
+\title{GBMT Performace}
 \usage{
-gbm_perf(gbm_fit_obj, plot_it=TRUE, out_of_bag_curve=FALSE, overlay=TRUE, method, main="")
+gbm_perf(gbm_fit_obj, plot_it=TRUE, out_of_bag_curve=FALSE,
+ overlay=TRUE, method, main="")
 }
 \arguments{
 \item{gbm_fit_obj}{a \code{GBMFit} created from an initial call to

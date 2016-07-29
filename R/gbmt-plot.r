@@ -3,12 +3,12 @@
 #' Plots the marginal effect of the selected variables by "integrating" out the
 #' other variables.
 #' 
-#' \code{plot.GBMFit} produces low dimensional projections of the
+#' \code{plot_gbmt} produces low dimensional projections of the
 #' \code{\link{GBMFit}} object, see \code{\link{gbm2}}, by integrating out the variables 
 #' not included in the \code{var_index} argument. The function selects a grid of points 
 #' and uses the weighted tree traversal method described in Friedman (2001) to do the
 #' integration. Based on the variable types included in the projection,
-#' \code{plot.GBMFit} selects an appropriate display choosing amongst line plots,
+#' \code{plot_gbmt} selects an appropriate display choosing amongst line plots,
 #' contour plots, and \code{\link[lattice]{lattice}} plots. If the default
 #' graphics are not sufficient the user may set \code{return.grid=TRUE}, store
 #' the result of the function, and develop another graphic display more
@@ -38,7 +38,7 @@
 #' predictions. This is useful for customizing the graphics for special
 #' variable types or for dimensions greater than 3
 #' @param type the type of prediction to plot on the vertical axis. See
-#' \code{predict.GBMFit}
+#' \code{predict_gmt}
 #' @param \dots other arguments passed to the plot function
 #' @return Nothing unless \code{return_grid} is true then \code{plot.GBMFit}
 #' produces no graphics and only returns the grid of evaluation points and
@@ -50,19 +50,6 @@
 #' @keywords hplot
 #' @export 
 #'
-plot <- function(gbm_fit_obj,
-                 var_index=1,
-                 num_trees=gbm_fit_obj$params$num_trees,
-                 continuous_resolution=100,
-                 grid_levels=NULL,
-                 return_grid=FALSE,
-                 type="link",
-                 ...) {
-  UseMethod("plot", gbm_fit_obj)
-}
-
-#' @name plot
-#' @export
 plot.GBMFit <- function(gbm_fit_obj,
                         var_index=1,
                         num_trees=gbm_fit_obj$params$num_trees,

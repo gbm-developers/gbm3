@@ -3,32 +3,37 @@
 #' Method to perform additional boosting using a \code{GBMFit} object - does not support
 #' further cross validation.
 #' 
-#' @usage gbm_more(gbm_fit_obj, num_new_trees=100, data=NULL, weights=NULL, offset=NULL, is_verbose=FALSE)
+#' @usage gbm_more(gbm_fit_obj, num_new_trees=100, data=NULL, weights=NULL, offset=NULL,
+#'  is_verbose=FALSE)
 #' 
-#' @param gbm_fit_obj a \code{GBMFit} object produced using \code{\link{gbm2}}.  This object describes the boosted
-#' model on which to perform additional boosting
+#' @param gbm_fit_obj a \code{GBMFit} object produced using \code{\link{gbm2}}. 
+#'  This object describes the boosted model on which to perform additional boosting.
 #' 
-#' @param num_new_trees a positive integer specifying how many additional iterations to perform.  This has a default value
-#' of \code{100}.
+#' @param num_new_trees a positive integer specifying how many additional 
+#' iterations to perform.  This has a default value of \code{100}.
 #' 
-#' @param data a \code{data.frame} or \code{matrix} containing the new values for the predictor and response variables for the 
-#' additional iterations.  The names of the variables must match those appearing in the original fit (as well as the number of rows),
-#' and this value defaults to \code{NULL}.
-#' With a value of \code{NULL} the original data may be used for the additional boosting, if no original or new data is specified an error
-#' will be thrown.
+#' @param data a \code{data.frame} or \code{matrix} containing the new values for the 
+#' predictor and response variables for the additional iterations.  The names of the
+#' variables must match those appearing in the original fit 
+#' (as well as the number of rows), and this value defaults to \code{NULL}.
+#' With a value of \code{NULL} the original data may be used for the additional boosting,
+#' if no original or new data is specified an error will be thrown.
 #' 
-#' @param weights an atomic vector of doubles specifying the importance of each row of the \code{data} in the additional iterations. 
-#' If the previous data used is kept within \code{gbm_fit_obj}; then the weights are extracted from
+#' @param weights an atomic vector of doubles specifying the importance of each row of
+#' the \code{data} in the additional iterations. If the previous data used is
+#' kept within \code{gbm_fit_obj}; then the weights are extracted from the
+#'  stored \code{GBMData} object.
 #' 
-#' @param offset an atomic vector of doubls specifying the offset for each response value in the data used for additional boosting.
+#' @param offset an atomic vector of doubls specifying the offset for each response
+#'  value in the data used for additional boosting.
 #' 
-#' @param is_verbose a logical specifying whether or not the additional fitting should run "noisely" with feedback on progress provided to the
-#' user.
+#' @param is_verbose a logical specifying whether or not the additional fitting should 
+#' run "noisely" with feedback on progress provided to the user.
 #' 
 #' @return the input \code{GBMFit} object with additional iterations provided for the fit.
 #' 
 #' 
-#' @export gbm_more
+#' @export 
 
 gbm_more <- function(gbm_fit_obj, num_new_trees=100, data=NULL, weights=NULL, offset=NULL, is_verbose=FALSE){
   the_call <- match.call()

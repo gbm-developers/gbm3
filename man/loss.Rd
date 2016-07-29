@@ -17,7 +17,8 @@
 \alias{loss.default}
 \title{GBMFit loss}
 \usage{
-loss(y, predictions, weights, offset, distribution_obj, baseline=rep(0, length(y)))
+loss(y, predictions, weights, offset, distribution_obj,
+ baseline=rep(0, length(y)))
 
 \method{loss}{default}(y, predictions, weights, offset, distribution_obj,
   baseline = rep(0, length(y)))
@@ -59,23 +60,27 @@ loss(y, predictions, weights, offset, distribution_obj, baseline=rep(0, length(y
   baseline = rep(0, length(y)))
 }
 \arguments{
-\item{y}{a vector of responses}
+\item{y}{a vector of responses.}
 
-\item{predictions}{vector of predicted respones}
+\item{predictions}{vector of predicted responses.}
 
-\item{weights}{weightings of each point in loss calculation}
+\item{weights}{weightings of each point in loss calculation.}
 
-\item{offset}{offset for each prediction}
+\item{offset}{offset for each prediction.}
 
-\item{distribution_obj}{a GBMDist object which determines how the loss will be calculated}
+\item{distribution_obj}{a GBMDist object which determines how the loss will
+be calculated.}
 
-\item{baseline}{a vector of doubles specifying the baseline from which the loss is calculated.  This
-defaults to 0.}
+\item{baseline}{a vector of doubles specifying the baseline from which the
+loss is calculated. This defaults to 0.}
 }
 \value{
-the loss associated with the fit and distribution - vector of doubles
+the loss associated with the fit and distribution - vector of doubles.
 }
 \description{
 S3 method for calculating the loss given data and a GBMDist object
+}
+\author{
+James Hickey
 }
 

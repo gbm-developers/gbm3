@@ -1,12 +1,12 @@
 #' Methods for estimating relative influence
 #' 
 #' Helper functions for computing the relative influence of each variable in
-#' the \code{GBMFit} object
+#' the \code{GBMFit} object.
 #' 
 #' These functions offer the different
 #' methods for computing the relative influence in \code{\link{summary.GBMFit}}.
 #'
-#' @usage relative_influence(gbm_fit_obj, rescale, sort_it)
+#' @usage relative_influence(gbm_fit_obj, rescale=FALSE, sort_it=FALSe)
 #'
 #' @param gbm_fit_obj a \code{GBMFit} object created from an initial call to
 #' \code{\link{gbm2}}.
@@ -27,7 +27,7 @@
 #' influences. If the \code{rescale} and \code{sort} arguments are used,
 #' returns a processed version of the same.
 #' 
-#' @author Greg Ridgeway \email{gregridgeway@@gmail.com}
+#' @author James Hickey, Greg Ridgeway \email{gregridgeway@@gmail.com}
 #' @details \code{\link{relative.influence}} is the same as that
 #' described in Friedman (2001).
 #' \code{\link{permutation.test.gbm}} randomly permutes each
@@ -44,7 +44,7 @@
 #' \href{http://oz.berkeley.edu/users/breiman/randomforest2001.pdf}{Random
 #' Forests}.
 #' @keywords hplot
-#' @export relative_influence
+#' @export 
 #'
 
 relative_influence <- function(gbm_fit_obj, num_trees, rescale = FALSE, sort_it = FALSE){

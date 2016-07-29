@@ -1,4 +1,4 @@
-#' @export gbm.fit
+#' @export 
 gbm.fit <- function(x, y,
                     offset = NULL,
                     distribution = "Bernoulli",

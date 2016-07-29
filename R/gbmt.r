@@ -4,10 +4,12 @@
 #' such as creating cv folds, before calling \code{gbm2.fit} to call the underlying C++ and fit a generalized
 #' boosting model.
 #' 
-#' @usage  gbm2(formula, distribution=gbm_dist("Gaussian", ...), data, weights=rep(1, nrow(data)), offset=rep(0, nrow(data)),
-#' train_params=training_params(num_trees=100, interaction_depth=1, min_num_obs_in_node=10, 
-#' shrinkage=0.001, bag_fraction=0.5, id=seq_len(nrow(data)), num_train=round(0.5 * nrow(data)), num_features=ncol(data)-1) ,
-#' var_monotone=NULL, var_names=NULL, cv_folds=1, cv_class_stratify=FALSE, fold_id=NULL, keep_gbm_data=FALSE, is_verbose=FALSE)
+#' @usage  gbm2(formula, distribution=gbm_dist("Gaussian", ...), data, weights=rep(1, nrow(data)),
+#'  offset=rep(0, nrow(data)), train_params=training_params(num_trees=100, interaction_depth=1,
+#'   min_num_obs_in_node=10,shrinkage=0.001, bag_fraction=0.5, id=seq_len(nrow(data)), 
+#'   num_train=round(0.5 * nrow(data)), num_features=ncol(data)-1) ,
+#'  var_monotone=NULL, var_names=NULL, cv_folds=1, cv_class_stratify=FALSE, fold_id=NULL,
+#'  keep_gbm_data=FALSE, is_verbose=FALSE)
 #' 
 #' @param formula a symbolic description of the model to be fit.  The formula may include
 #' an offset term (e.g. y~offset(n) + x).
@@ -50,7 +52,7 @@
 #' 
 #' @return a \code{GBMFit} object.
 #' 
-#' @export gbm2
+#' @export 
 #' 
 
 gbm2 <- function(formula, distribution=gbm_dist("Gaussian"), data, weights=rep(1, nrow(data)), offset=rep(0, nrow(data)),

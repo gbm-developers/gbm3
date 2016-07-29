@@ -1,22 +1,24 @@
-#' Recreate distribution data for CV folds
-#' 
-#' Modify distribution object data for CV gbm fit.
-#' 
-#' @usage update_fold_dist_data(gbm_dist_obj, gbm_data_obj, train_params, rows_in_training, rows_in_fold)
-#'  
-#' @param gbm_dist_obj a GBMDist object properly formatted for gbm_fit.
-#'
-#' @param gbm_data_obj  a GBMData object containing correctly ordered and validated data.
-#' 
-#' @param train_params a validated GBMTrainParams object
-#' 
-#' @param rows_in_training vector of logicals that determine what data rows are in the training set.
-#' 
-#' @param rows_in_fold vector of logicals indicating whether a row of training data is in the fold or not.
-#' 
-#' @return modified \code{GBMDist} object for CV fit - strata and groupings updated if needed.
-#' 
-#' @export update_fold_dist_data
+# Recreate distribution data for CV folds
+# 
+# Modify distribution object data for CV gbm fit.
+# 
+# @usage update_fold_dist_data(gbm_dist_obj, gbm_data_obj, train_params, rows_in_training, rows_in_fold)
+#  
+# @param gbm_dist_obj a GBMDist object properly formatted for gbm_fit.
+#
+# @param gbm_data_obj  a GBMData object containing correctly ordered and validated data.
+# 
+# @param train_params a validated GBMTrainParams object
+#
+# @param rows_in_training vector of logicals that determine what data rows are in the training set.
+# 
+# @param rows_in_fold vector of logicals indicating whether a row of training data is in the fold or not.
+# 
+# @author James Hickey
+#
+# @return modified \code{GBMDist} object for CV fit - strata and groupings updated if needed.
+#
+
 
 update_fold_dist_data <- function(gbm_dist_obj, gbm_data_obj, train_params, rows_in_training, rows_in_fold) {
   check_if_gbm_dist(gbm_dist_obj)

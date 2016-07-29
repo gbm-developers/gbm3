@@ -1,16 +1,21 @@
-#' GBM CV errors
-#' 
-#' Calculate cross validation errors
-#' 
-#' @usage gbm_cv_errors(gbm_cv_fit, cv_folds, cv_group)
-#' 
-#' @param gbm_cv_fit a GBMCVFit object containing CV gbm models
-#' 
-#' 
-#' @param cv_folds a positive integer specifying the number of folds to be used in cross-validation of the gbm
-#' fit.
-#' 
-#' @param cv_group vector of integers specifying which row of data belongs to which cv_fold.
+# GBM CV errors
+# 
+# Calculate cross validation errors
+# 
+# @usage gbm_cv_errors(gbm_cv_fit, cv_folds, cv_group)
+# 
+# @param gbm_cv_fit a GBMCVFit object containing CV gbm models
+# 
+# 
+# @param cv_folds a positive integer specifying the number of folds to be used in cross-validation of the gbm
+# fit.
+# 
+# @param cv_group vector of integers specifying which row of data belongs to which cv_fold.
+#
+# @author James Hickey
+#
+# @return vector of cross validated model errors
+#
 
 gbm_cv_errors <- function(gbm_cv_fit, cv_folds, cv_group) {
   UseMethod("gbm_cv_errors", gbm_cv_fit)

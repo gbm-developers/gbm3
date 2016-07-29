@@ -19,4 +19,7 @@ an appropriated gbm distribution object
 Creation methods that take an empty distribution object
 and builds on top of the skeleton.
 }
+\author{
+James Hickey
+}
 

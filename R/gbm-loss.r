@@ -2,22 +2,26 @@
 #' 
 #' S3 method for calculating the loss given data and a GBMDist object
 #' 
-#' @usage loss(y, predictions, weights, offset, distribution_obj, baseline=rep(0, length(y)))
+#' @usage loss(y, predictions, weights, offset, distribution_obj,
+#'  baseline=rep(0, length(y)))
 #' 
-#' @param y a vector of responses 
+#' @param y a vector of responses.
 #' 
-#' @param predictions vector of predicted respones
+#' @param predictions vector of predicted responses.
 #' 
-#' @param weights weightings of each point in loss calculation
+#' @param weights weightings of each point in loss calculation.
 #' 
-#' @param offset offset for each prediction
+#' @param offset offset for each prediction.
 #' 
-#' @param distribution_obj a GBMDist object which determines how the loss will be calculated
+#' @param distribution_obj a GBMDist object which determines how the loss will
+#' be calculated.
 #' 
-#' @param baseline a vector of doubles specifying the baseline from which the loss is calculated.  This
-#' defaults to 0.
+#' @param baseline a vector of doubles specifying the baseline from which the
+#' loss is calculated. This defaults to 0.
 #' 
-#' @return the loss associated with the fit and distribution - vector of doubles
+#' @author James Hickey
+#' 
+#' @return the loss associated with the fit and distribution - vector of doubles.
 #' 
 #' @export 
 loss <- function(y, predictions, weights, offset, distribution_obj, baseline=rep(0, length(y))) {

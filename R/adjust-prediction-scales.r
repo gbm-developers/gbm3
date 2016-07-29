@@ -1,15 +1,17 @@
-#' Adjust scales of prediction
-#' 
-#' S3 method (used internally within predict.GBMFit) that adjusts the scales of the predictor variable.
-#' 
-#' @usage adjust_pred_scale(gbm_predictions, distribution_obj)
-#' 
-#' @param gbm_predictions a matrix containing predictions generated from the C++ function \code{\link{gbm_pred}}.
-#' 
-#' @param distribution_obj a GBMDist object used in the fitting a gbm model and generating the gbm_predictions.
-#' 
-#' @return gbm_predictions scaled to the response of the distribution
-#' 
+# Adjust scales of prediction
+# 
+# S3 method (used internally within predict.GBMFit) that adjusts the scales of the predictor variable.
+# 
+# @usage adjust_pred_scale(gbm_predictions, distribution_obj)
+# 
+# @param gbm_predictions a matrix containing predictions generated from the C++ function \code{\link{gbm_pred}}.
+# 
+# @param distribution_obj a GBMDist object used in the fitting a gbm model and generating the gbm_predictions.
+# 
+# @author James Hickey
+#
+# @return gbm_predictions scaled to the response of the distribution
+#
 
 adjust_pred_scale <- function(gbm_predictions, distribution_obj) {
   UseMethod("adjust_pred_scale", distribution_obj)

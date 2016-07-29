@@ -401,7 +401,7 @@ gbm2 <- gbm_more(gbm1,100,
                  verbose=FALSE) # stop printing detailed progress
 }
 \author{
-Greg Ridgeway \email{gregridgeway@gmail.com}
+James Hickey, Greg Ridgeway \email{gregridgeway@gmail.com}
 
 Quantile regression code developed by Brian Kriegler
 \email{bk@stat.ucla.edu}

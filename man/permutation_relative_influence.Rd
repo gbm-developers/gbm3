@@ -4,7 +4,8 @@
 \alias{permutation_relative_influence}
 \title{Relative influence via permutation}
 \usage{
-permutation_relative_influence(gbm_fit_obj, num_trees, rescale=FALSE, sort_it=FALSE)
+permutation_relative_influence(gbm_fit_obj, num_trees, rescale=FALSE, 
+sort_it=FALSE)
 }
 \arguments{
 \item{gbm_fit_obj}{a \code{GBMFit} object from an initial call to \code{\link{gbm2}}. This

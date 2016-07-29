@@ -1,14 +1,17 @@
-#' Check Response Values
-#'
-#' check responses are consistent with the distribution specified.
-#' 
-#' @usage check_response_values(y, distribution_obj)
-#' 
-#' @param y a matrix or vector of outcomes
-#' 
-#' @param distribution_obj a GBMDist object
-#' 
-#' @export
+# Check Response Values
+#
+# check responses are consistent with the distribution specified.
+# 
+# @usage check_response_values(y, distribution_obj)
+# 
+# @param y a matrix or vector of outcomes
+# 
+# @param distribution_obj a GBMDist object
+# 
+# @author James Hickey
+#
+# @return Warnings/Errors
+# 
 
 check_response_values <- function(distribution_obj, y) {
   # Check inputs

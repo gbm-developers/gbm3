@@ -1,14 +1,17 @@
-#' Convert factors
-#' 
-#' Function that converts factors or ordered predictors
-#' to an appropriate numeric type. 
-#' 
-#' @usage convert_factor(gbm_data_obj)
-#'
-#' @param gbm_data_obj a gbm_data object
-#'   
-#' @return gbm_data object with ordered/factor predictor variables appropriately converted
-#' 
+# Convert factors
+# 
+# Function that converts factors or ordered predictors
+# to an appropriate numeric type. 
+# 
+# @usage convert_factor(gbm_data_obj)
+#
+# @param gbm_data_obj a gbm_data object
+# 
+# @author James Hickey
+#
+# @return gbm_data object with ordered/factor predictor variables
+# appropriately converted
+# 
 
 convert_factors <- function(gbm_data_obj) {
   check_if_gbm_data(gbm_data_obj)

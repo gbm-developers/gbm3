@@ -70,7 +70,7 @@ calibrate_plot(y, p, xlim=c(0,0.6), ylim=c(0,0.6))
 }
 }
 \author{
-Greg Ridgeway \email{gregridgeway@gmail.com}
+James Hickey, Greg Ridgeway \email{gregridgeway@gmail.com}
 }
 \references{
 J.F. Yates (1982). "External correspondence: decomposition of

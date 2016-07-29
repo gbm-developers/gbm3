@@ -1,45 +1,41 @@
-#' Ordering methods
-#' 
-#' Series of functions that are used to re-order the fitted gbm model,
-#' depending on what distribution was used in the initial call to \code{\link{gbm2.fit}}.
-#' Currently reordering only takes place for generalized boosted models produced
-#' using the CoxPH or Pairwise distributions.  These methods are called internally
-#' on completion of a call to \code{\link{gbm2.fit}}.
-#' 
-#' @usage reorder_fit(gbm_fit_obj, distribution_obj)
-#' 
-#' @param gbm_fit_obj a \code{GBMFit} object produced by a previous call to \code{gbm2} or \code{gbm2.fit}.
-#' 
-#' @param distributin_obj the \code{GBMDist} object used to produce the gbm_fit_obj.
-#' 
-#' @return a \code{GBMFit} object with an appropriately order fit.
-#'  
+# Ordering methods
+# 
+# Series of functions that are used to re-order the fitted gbm model,
+# depending on what distribution was used in the initial call to \code{\link{gbm2.fit}}.
+# Currently reordering only takes place for generalized boosted models produced
+# using the CoxPH or Pairwise distributions.  These methods are called internally
+# on completion of a call to \code{\link{gbm2.fit}}.
+# 
+# @usage reorder_fit(gbm_fit_obj_obj, distribution_obj)
+# 
+# @param gbm_fit_obj_obj a \code{GBMFit} object produced by a previous call to \code{gbm2} or \code{gbm2.fit}.
+# 
+# @param distributin_obj the \code{GBMDist} object used to produce the gbm_fit_obj_obj.
+# 
+# @return a \code{GBMFit} object with an appropriately order fit.
+#  
+# @author James Hickey
+#
 
 #### Fit reordering methods ####
-#' @export
-reorder_fit <- function(gbm_fit, distribution_obj) {
-  check_if_gbm_fit(gbm_fit)
+reorder_fit <- function(gbm_fit_obj, distribution_obj) {
+  check_if_gbm_fit(gbm_fit_obj)
   UseMethod("reorder_fit", distribution_obj)
 }
 
-#' @name reorder_fit
-#' @export
-reorder_fit.default <- function(gbm_fit, distribution_obj) {
-  return(gbm_fit)
+reorder_fit.default <- function(gbm_fit_obj, distribution_obj) {
+  return(gbm_fit_obj)
 }
 
-#' @name reorder_fit
-#' @export
-reorder_fit.CoxPHGBMDist <- function(gbm_fit, distribution_obj) {
-  gbm_fit$fit[distribution_obj$time_order] <- gbm_fit$fit
-  return(gbm_fit)
+
+reorder_fit.CoxPHGBMDist <- function(gbm_fit_obj, distribution_obj) {
+  gbm_fit_obj$fit[distribution_obj$time_order] <- gbm_fit_obj$fit
+  return(gbm_fit_obj)
 }
 
-#' @name reorder_fit
-#' @export
-reorder_fit.PairwiseGBMDist <- function(gbm_fit, distribution_obj) {
-  gbm_fit$fit <- gbm_fit$fit[order(distribution_obj$group_order)]
-  return(gbm_fit)
+reorder_fit.PairwiseGBMDist <- function(gbm_fit_obj, distribution_obj) {
+  gbm_fit_obj$fit <- gbm_fit_obj$fit[order(distribution_obj$group_order)]
+  return(gbm_fit_obj)
 }
 
 #### Data ordering - internal methods ####

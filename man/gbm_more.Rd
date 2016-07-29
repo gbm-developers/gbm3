@@ -4,28 +4,33 @@
 \alias{gbm_more}
 \title{Perform additional boosting}
 \usage{
-gbm_more(gbm_fit_obj, num_new_trees=100, data=NULL, weights=NULL, offset=NULL, is_verbose=FALSE)
+gbm_more(gbm_fit_obj, num_new_trees=100, data=NULL, weights=NULL, offset=NULL,
+ is_verbose=FALSE)
 }
 \arguments{
-\item{gbm_fit_obj}{a \code{GBMFit} object produced using \code{\link{gbm2}}.  This object describes the boosted
-model on which to perform additional boosting}
+\item{gbm_fit_obj}{a \code{GBMFit} object produced using \code{\link{gbm2}}. 
+This object describes the boosted model on which to perform additional boosting.}
 
-\item{num_new_trees}{a positive integer specifying how many additional iterations to perform.  This has a default value
-of \code{100}.}
+\item{num_new_trees}{a positive integer specifying how many additional 
+iterations to perform.  This has a default value of \code{100}.}
 
-\item{data}{a \code{data.frame} or \code{matrix} containing the new values for the predictor and response variables for the 
-additional iterations.  The names of the variables must match those appearing in the original fit (as well as the number of rows),
-and this value defaults to \code{NULL}.
-With a value of \code{NULL} the original data may be used for the additional boosting, if no original or new data is specified an error
-will be thrown.}
+\item{data}{a \code{data.frame} or \code{matrix} containing the new values for the 
+predictor and response variables for the additional iterations.  The names of the
+variables must match those appearing in the original fit 
+(as well as the number of rows), and this value defaults to \code{NULL}.
+With a value of \code{NULL} the original data may be used for the additional boosting,
+if no original or new data is specified an error will be thrown.}
 
-\item{weights}{an atomic vector of doubles specifying the importance of each row of the \code{data} in the additional iterations. 
-If the previous data used is kept within \code{gbm_fit_obj}; then the weights are extracted from}
+\item{weights}{an atomic vector of doubles specifying the importance of each row of
+the \code{data} in the additional iterations. If the previous data used is
+kept within \code{gbm_fit_obj}; then the weights are extracted from the
+ stored \code{GBMData} object.}
 
-\item{offset}{an atomic vector of doubls specifying the offset for each response value in the data used for additional boosting.}
+\item{offset}{an atomic vector of doubls specifying the offset for each response
+value in the data used for additional boosting.}
 
-\item{is_verbose}{a logical specifying whether or not the additional fitting should run "noisely" with feedback on progress provided to the
-user.}
+\item{is_verbose}{a logical specifying whether or not the additional fitting should 
+run "noisely" with feedback on progress provided to the user.}
 }
 \value{
 the input \code{GBMFit} object with additional iterations provided for the fit.

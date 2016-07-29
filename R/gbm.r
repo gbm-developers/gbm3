@@ -259,7 +259,7 @@
 #'
 #' @return \code{gbm} and \code{gbm.fit} return a
 #' \code{GBMFit} object.
-#' @author Greg Ridgeway \email{gregridgeway@@gmail.com}
+#' @author James Hickey, Greg Ridgeway \email{gregridgeway@@gmail.com}
 #' 
 #' Quantile regression code developed by Brian Kriegler
 #' \email{bk@@stat.ucla.edu}

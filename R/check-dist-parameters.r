@@ -1,18 +1,20 @@
-#' Check Distribution Parameters
-#' 
-#' Check if function parameters for creating distribution
-#' object are of correct form.
-#' 
-#' @usage check_dist_params(empty_obj, ...)
-#' 
-#' @param empty_obj A skeleton distribution object (see \code{\link{empty_distribution()}}).
-#' 
-#' @param ... Parameters defining how to create a full distribution object,
-#'  see \code{\link{gbm_dist}}.
-#'  
-#' @return Warnings/Errors
-#' 
-#' @export
+# Check Distribution Parameters
+# 
+# Check if function parameters for creating distribution
+# object are of correct form - internal function.
+# 
+# @usage check_dist_params(empty_obj, ...)
+# 
+# @param empty_obj A skeleton distribution object 
+# (see \code{\link{empty_distribution()}}).
+# 
+# @param ... Parameters defining how to create a full distribution object,
+#  see \code{\link{gbm_dist}}.
+#  
+# @author James Hickey
+#
+# @return Warnings/Errors
+# 
 
 
 check_dist_params <- function(empty_obj, ...) {

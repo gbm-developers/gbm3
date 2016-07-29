@@ -9,8 +9,8 @@
 #' @param f the predicted responses.
 #' 
 #' @param metric What type of performance measure to compute in \code{perf_pairwise}.
-#'   Can take values "ir.measure.conc", "ir.measure.mrr", "ir.measure.map" or
-#'   "ir.measure.ndgc".
+#'   Can take values "ir_measure_conc", "ir_measure_mrr", "ir_measure_map" or
+#'   "ir_measure_ndgc".
 #' @param w is the weights of each observation.
 #' 
 #' @param max_rank the maximum rank considered in the groups measure. 

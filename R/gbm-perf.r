@@ -1,9 +1,10 @@
-#' GBM2 Performace
+#' GBMT Performace
 #' 
 #' Estimates optimal number of boosting iterations given a \code{GBMFit} object and
 #' optionally plots various performance measures.
 #' 
-#' @usage gbm_perf(gbm_fit_obj, plot_it=TRUE, out_of_bag_curve=FALSE, overlay=TRUE, method, main="")
+#' @usage gbm_perf(gbm_fit_obj, plot_it=TRUE, out_of_bag_curve=FALSE,
+#'  overlay=TRUE, method, main="")
 #' 
 #' @param gbm_fit_obj a \code{GBMFit} created from an initial call to
 #' \code{\link{gbm2}}.
