@@ -1,11 +1,11 @@
 #' GBM Distribution
 #' 
-#' Generates distribution object for gbm2.
+#' Generates distribution object for gbmt.
 #' 
 #' @usage gbm_dist(name="Gaussian", ...)
 #' 
 #' @param name The name (a string) of the distribution to be initialized and used
-#' in fitting a gradient boosted model via gbm2.  The current distributions
+#' in fitting a gradient boosted model via gbmt.  The current distributions
 #' available can be viewed using the available-distributions function.  If no 
 #' distribution is specified this function constructs a Gaussian distribution by
 #' default.
@@ -29,10 +29,13 @@
 #'   \item{\code{ties}}{String specifying the method to be used when dealing with tied
 #'   event times.  Currently only "breslow" and "efron" are available, with the latter
 #'   being the default.}
+#'   \item{\code{prior_node_coeff_var}}{It is a prior on the coefficient of variation associated with the hazard 
+#' rate assigned to each terminal node when fitting a tree.Increasing its value emphasises 
+#' the importance of the training data in the node when assigning a prediction to said node. This defaults to 1000.}
 #' }
 #' 
 #' Finally, if the pairwise distribution is selected a number of parameters also need to be
-#' specified.  These parameters are \code{group}, \code{metric} and \code{max_rank}.
+#' specified. These parameters are \code{group}, \code{metric} and \code{max_rank}.
 #' The first is a character vector  with the column names of data that jointly indicate the group 
 #' an instance bleongs to (typically a query in Information Retrieval).  For
 #' training, only pairs of instances from the same group and with different target

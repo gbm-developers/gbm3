@@ -6,7 +6,7 @@
 #' @usage gbm_more(gbm_fit_obj, num_new_trees=100, data=NULL, weights=NULL, offset=NULL,
 #'  is_verbose=FALSE)
 #' 
-#' @param gbm_fit_obj a \code{GBMFit} object produced using \code{\link{gbm2}}. 
+#' @param gbm_fit_obj a \code{GBMFit} object produced using \code{\link{gbmt}}. 
 #'  This object describes the boosted model on which to perform additional boosting.
 #' 
 #' @param num_new_trees a positive integer specifying how many additional 
@@ -45,7 +45,7 @@ gbm_more <- function(gbm_fit_obj, num_new_trees=100, data=NULL, weights=NULL, of
     stop("is_verbose must be a logical - not NA")
   }
   if(is.null(gbm_fit_obj$gbm_data_obj) && is.null(data)) {
-    stop("keep_data was set to FALSE on original gbm2 call and argument 'data' is NULL")
+    stop("keep_data was set to FALSE on original gbmt call and argument 'data' is NULL")
   }
   
   # If no data is stored create appropriate data objects 

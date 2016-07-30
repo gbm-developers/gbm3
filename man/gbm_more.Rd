@@ -8,7 +8,7 @@ gbm_more(gbm_fit_obj, num_new_trees=100, data=NULL, weights=NULL, offset=NULL,
  is_verbose=FALSE)
 }
 \arguments{
-\item{gbm_fit_obj}{a \code{GBMFit} object produced using \code{\link{gbm2}}. 
+\item{gbm_fit_obj}{a \code{GBMFit} object produced using \code{\link{gbmt}}. 
 This object describes the boosted model on which to perform additional boosting.}
 
 \item{num_new_trees}{a positive integer specifying how many additional 

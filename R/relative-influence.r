@@ -6,10 +6,10 @@
 #' These functions offer the different
 #' methods for computing the relative influence in \code{\link{summary.GBMFit}}.
 #'
-#' @usage relative_influence(gbm_fit_obj, rescale=FALSE, sort_it=FALSe)
+#' @usage relative_influence(gbm_fit_obj, num_trees, rescale=FALSE, sort_it=FALSE)
 #'
 #' @param gbm_fit_obj a \code{GBMFit} object created from an initial call to
-#' \code{\link{gbm2}}.
+#' \code{\link{gbmt}}.
 #' 
 #' @param num_trees the number of trees to use for computations. If not provided,
 #' the function will guess: if a test set was used in fitting, the number of
@@ -28,15 +28,15 @@
 #' returns a processed version of the same.
 #' 
 #' @author James Hickey, Greg Ridgeway \email{gregridgeway@@gmail.com}
-#' @details \code{\link{relative.influence}} is the same as that
+#' @details \code{\link{relative_influence}} is the same as that
 #' described in Friedman (2001).
-#' \code{\link{permutation.test.gbm}} randomly permutes each
+#' \code{\link{permutation_relative_influence}} randomly permutes each
 #' predictor variable at a time and computes the associated reduction in
 #' predictive performance. This is similar to the variable importance measures
-#' Breiman uses for random forests, but \code{gbm2} currently computes using the
+#' Breiman uses for random forests, but \code{gbmt} currently computes using the
 #' entire training dataset (not the out-of-bag observations).
 
-#' @seealso \code{\link{gbm-summary}}
+#' @seealso \code{\link{summary.GBMFit}}
 #' @references J.H. Friedman (2001). "Greedy Function Approximation: A Gradient
 #' Boosting Machine," Annals of Statistics 29(5):1189-1232.
 #' 

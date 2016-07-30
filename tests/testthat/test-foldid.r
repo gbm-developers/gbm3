@@ -28,7 +28,7 @@ test_that("gaussian works in parallel - api", {
   folds <- sample(seq(1,3), nrow(data), replace = TRUE)
   
   set.seed(123456)
-  gid1 <- gbm2(Y ~ X1 + X2 + X3 + X4 + X5 + X6,
+  gid1 <- gbmt(Y ~ X1 + X2 + X3 + X4 + X5 + X6,
               data              = data,
               distribution      = gbm_dist("Gaussian"),
               train_params = training_params(num_trees = 5, interaction_depth=3, bag_fraction = 1.0,

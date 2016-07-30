@@ -1,14 +1,14 @@
 # Ordering methods
 # 
 # Series of functions that are used to re-order the fitted gbm model,
-# depending on what distribution was used in the initial call to \code{\link{gbm2.fit}}.
+# depending on what distribution was used in the initial call to \code{\link{gbmt_fit}}.
 # Currently reordering only takes place for generalized boosted models produced
 # using the CoxPH or Pairwise distributions.  These methods are called internally
-# on completion of a call to \code{\link{gbm2.fit}}.
+# on completion of a call to \code{\link{gbmt_fit}}.
 # 
 # @usage reorder_fit(gbm_fit_obj_obj, distribution_obj)
 # 
-# @param gbm_fit_obj_obj a \code{GBMFit} object produced by a previous call to \code{gbm2} or \code{gbm2.fit}.
+# @param gbm_fit_obj_obj a \code{GBMFit} object produced by a previous call to \code{gbmt} or \code{gbmt_fit}.
 # 
 # @param distributin_obj the \code{GBMDist} object used to produce the gbm_fit_obj_obj.
 # 

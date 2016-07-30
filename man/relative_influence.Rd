@@ -4,11 +4,11 @@
 \alias{relative_influence}
 \title{Methods for estimating relative influence}
 \usage{
-relative_influence(gbm_fit_obj, rescale=FALSE, sort_it=FALSe)
+relative_influence(gbm_fit_obj, num_trees, rescale=FALSE, sort_it=FALSE)
 }
 \arguments{
 \item{gbm_fit_obj}{a \code{GBMFit} object created from an initial call to
-\code{\link{gbm2}}.}
+\code{\link{gbmt}}.}
 
 \item{num_trees}{the number of trees to use for computations. If not provided,
 the function will guess: if a test set was used in fitting, the number of
@@ -35,12 +35,12 @@ the \code{GBMFit} object.
 These functions offer the different
 methods for computing the relative influence in \code{\link{summary.GBMFit}}.
 
-\code{\link{relative.influence}} is the same as that
+\code{\link{relative_influence}} is the same as that
 described in Friedman (2001).
-\code{\link{permutation.test.gbm}} randomly permutes each
+\code{\link{permutation_relative_influence}} randomly permutes each
 predictor variable at a time and computes the associated reduction in
 predictive performance. This is similar to the variable importance measures
-Breiman uses for random forests, but \code{gbm2} currently computes using the
+Breiman uses for random forests, but \code{gbmt} currently computes using the
 entire training dataset (not the out-of-bag observations).
 }
 \author{
@@ -55,7 +55,7 @@ L. Breiman (2001).
 Forests}.
 }
 \seealso{
-\code{\link{gbm-summary}}
+\code{\link{summary.GBMFit}}
 }
 \keyword{hplot}
 

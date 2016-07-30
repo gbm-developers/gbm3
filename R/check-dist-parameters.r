@@ -13,7 +13,7 @@
 #  
 # @author James Hickey
 #
-# @return Warnings/Errors
+# @return warnings/Errors
 # 
 
 
@@ -157,7 +157,7 @@ check_dist_params.PairwiseGBMDist <- function(empty_obj, group, metric,
 
 check_dist_params.PoissonGBMDist <- function(empty_obj, ...) {
   if(length(list(...)) > 0) {
-    warning("The ", class(empty_obj)[1], "class does not use any additional
+    message("The ", class(empty_obj)[1], "class does not use any additional
             parameters in construction.")
   }
 }

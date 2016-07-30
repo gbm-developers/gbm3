@@ -56,18 +56,18 @@ summary(gbm1,num_trees=best.iter) # based on the estimated best number of trees
 # create marginal plots
 # plot variable X1,X2,X3 after "best" iterations
 par(mfrow=c(1,3))
-plot(gbm1,1,best.iter)
-plot(gbm1,2,best.iter)
-plot(gbm1,3,best.iter)
+gbmt_plot(gbm1,1,best.iter)
+gbmt_plot(gbm1,2,best.iter)
+gbmt_plot(gbm1,3,best.iter)
 par(mfrow=c(1,1))
-plot(gbm1,1:2,best.iter) # contour plot of variables 1 and 2 after "best" number iterations
+gbmt_plot(gbm1,1:2,best.iter) # contour plot of variables 1 and 2 after "best" number iterations
 
 # 3-way plots
-plot(gbm1,1:3,best.iter)
+gbmt_plot(gbm1,1:3,best.iter)
 
 # print the first and last trees... just for curiosity
-pretty(gbm1,1)
-pretty(gbm1,gbm1$params$num_trees)
+pretty_gbm_tree(gbm1,1)
+pretty_gbm_tree(gbm1,gbm1$params$num_trees)
 
 # make some new data
 N <- 1000

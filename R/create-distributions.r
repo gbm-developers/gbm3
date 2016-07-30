@@ -38,7 +38,7 @@ create_dist.CoxPHGBMDist <- function(empty_obj, strata=NA, sorted=NA, ties="efro
                                      , prior_node_coeff_var=1000, ...) {
   check_dist_params(empty_obj, strata, sorted, ties, prior_node_coeff_var, ...)
   if(!(ties %in% c("breslow", "efron"))) {
-    warning("Ties method not recognised - defaulting to efron")
+    message("Ties method not recognised - defaulting to efron")
     ties <- "efron"
   }
   empty_obj$ties <- ties
@@ -86,6 +86,7 @@ create_dist.PoissonGBMDist <- function(empty_obj, ...) {
 }
 
 create_dist.QuantileGBMDist <- function(empty_obj, alpha=0.25, ...) {
+  if(is.null(alpha)) alpha <- 0.25
   check_dist_params(empty_obj, alpha, ...)
   empty_obj$alpha <- alpha 
   return(empty_obj)

@@ -15,9 +15,9 @@
 #' @param var_names a vector of strings of the same length as the 
 #' 1st dimension of the response.
 #' 
-#' @return a GBMVarCont object
+#' @return a \code{GBMVarCont} object
 #' 
-#' @export var_container
+#' @export 
 #' 
 
 var_container <- function(gbm_data_obj, var_monotone=NULL, var_names=NULL) {

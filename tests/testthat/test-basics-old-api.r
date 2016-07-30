@@ -7,8 +7,8 @@
 ####################
 
 ##### Warning Messages #####
-context("Test warnings thrown when calling old API")
-test_that("Warning thrown - gbm", {
+context("Test Warning given when calling old API")
+test_that("Warning given - gbm", {
   # Given data for Gaussian example
   set.seed(1)
   
@@ -36,7 +36,7 @@ test_that("Warning thrown - gbm", {
   data <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3,X4=X4,X5=X5,X6=X6)
   
   # When - fit model using gbm (old API)
-  # Then throws warning
+  # Then gives warning
   expect_warning(gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
               data=data,                   # dataset
               var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
@@ -50,9 +50,9 @@ test_that("Warning thrown - gbm", {
               n.minobsinnode = 10,         # minimum number of obs needed in each node
               keep.data=TRUE,
               cv.folds=10 # do 10-fold cross-validation
-              ))
+              ), "gbm is depracated - using gbmt_fit...")
 })
-test_that("Warning thrown - gbm.fit", {
+test_that("Warning given - gbm.fit", {
   # Given data for Gaussian example
   set.seed(1)
   
@@ -79,7 +79,7 @@ test_that("Warning thrown - gbm.fit", {
   X <- data.frame(X1=X1,X2=X2,X3=X3,X4=X4,X5=X5,X6=X6)
   
   # When - fit model using gbm.fit (old API)
-  # Then throws warning
+  # Then gives correct warning
   expect_warning(gbm.fit(X,         # formula
                          Y,                  # dataset
                          var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
@@ -89,9 +89,9 @@ test_that("Warning thrown - gbm.fit", {
                          shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                          interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc.
                          bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
-                         train.fraction = 0.5,        # fraction of data for training, first train.fraction*N used for training
+                         nTrain = 0.5 * nrow(X),        # fraction of data for training, first train.fraction*N used for training
                          n.minobsinnode = 10,         # minimum number of obs needed in each node
-                         keep.data=TRUE))
+                         keep.data=TRUE), "gbm.fit is depracated - using gbmt_fit...")
 })
 
 #### GBM ####

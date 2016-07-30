@@ -1,13 +1,14 @@
-#' GBM2 fit
+#' GBMT fit
 #' 
 #' Fits a generalized boosting model.  This is for "power" users who have a large number of 
 #' variables who wish to avoid calling \code{model.frame} which can be slow in this instance.
 #' 
-#' @usage gbm2.fit(x, y, distribution=gbm_dist("Gaussian", ...), weights=rep(1, nrow(x)),
-#'  offset=rep(0, nrow(x)), train_params=training_params(num_trees=100, interaction_depth=1,
+#' @usage gbmt_fit(x, y, distribution=gbm_dist("Gaussian"), weights=rep(1, nrow(x)),
+#'  offset=rep(0, nrow(x)), train_params=training_params(num_trees=100, interaction_depth=3,
 #'  min_num_obs_in_node=10,shrinkage=0.001, bag_fraction=0.5, id=seq_len(nrow(x)),
 #'  num_train=round(0.5 * nrow(x)), num_features=ncol(x)), var_monotone=NULL, var_names=NULL,
-#'  keep_gbm_data=FALSE, cv_folds=1, cv_class_stratify=FALSE, fold_id=NULL, is_verbose=FALSE)
+#'  keep_gbm_data=FALSE, cv_folds=1, cv_class_stratify=FALSE, fold_id=NULL,
+#'  par_details=getOption("gbm.parallel"), is_verbose=FALSE)
 #' 
 #' @param x a data frame or data matrix containing the predictor variables. 
 #' 
@@ -15,7 +16,7 @@
 #' of CoxPH it is a survival object where the event times fill the first one (or two columns) and the statys fills the final
 #' column.  The length of the 1st dimension of y must match the number of rows in x.
 #' 
-#' @param distribution a GBMDist object specifying the distribution and any additional parameters needed.
+#' @param distribution a \code{GBMDist} object specifying the distribution and any additional parameters needed.
 #' 
 #' @param weights optional vector of weights used in the fitting process.  These weights must be positive but 
 #' need not be normalized. By default they are set to 1 for each data row.
@@ -46,13 +47,13 @@
 #' @param par_details Details of the parallelization to use in the
 #'     core algorithm.
 #' 
-#' @param is_verbose if TRUE, gbm2 will print out progress and performance of the fit.
+#' @param is_verbose if TRUE, gbmt will print out progress and performance of the fit.
 #' 
 #' @return a \code{GBMFit} object.
 #' 
 #' @export
 #' 
-gbm2.fit <- function(x, y, distribution=gbm_dist("Gaussian"), weights=rep(1, nrow(x)), offset=rep(0, nrow(x)),
+gbmt_fit <- function(x, y, distribution=gbm_dist("Gaussian"), weights=rep(1, nrow(x)), offset=rep(0, nrow(x)),
                      train_params=training_params(num_trees=100, interaction_depth=3, min_num_obs_in_node=10, 
                      shrinkage=0.001, bag_fraction=0.5, id=seq_len(nrow(x)), num_train=round(0.5 * nrow(x)), num_features=ncol(x)), 
                      var_monotone=NULL, var_names=NULL, keep_gbm_data=FALSE, cv_folds=1,

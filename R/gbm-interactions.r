@@ -19,14 +19,14 @@
 #' 
 #' @usage interact(gbm_fit_obj, data, var_indices=1, num_trees=gbm_fit_obj$params$num_trees)
 #' 
-#' @param gbm_fit_obj a \code{GBMFit} object fitted using a call to \code{\link{gbm2}}.
+#' @param gbm_fit_obj a \code{GBMFit} object fitted using a call to \code{\link{gbmt}}.
 #' 
 #' @param data the dataset used to construct \code{gbm_fit_obj}. If the original dataset
 #' is large, a random subsample may be used to accelerate the computation.
 #' 
 #' @param var_indices a vector of indices or the names of the variables for compute
 #' the interaction effect. If using indices, the variables are indexed in the
-#' same order that they appear in the initial \code{gbm2} formula.
+#' same order that they appear in the initial \code{gbmt} formula.
 #' 
 #' @param num_trees the number of trees used to generate the plot. Only the first
 #' \code{num_trees} trees will be used.

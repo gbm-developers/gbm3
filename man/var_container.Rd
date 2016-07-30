@@ -18,7 +18,7 @@ with the outcome.}
 1st dimension of the response.}
 }
 \value{
-a GBMVarCont object
+a \code{GBMVarCont} object
 }
 \description{
 Contains properties associated with predictor variables.

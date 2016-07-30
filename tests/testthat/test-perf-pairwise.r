@@ -41,7 +41,7 @@ test_that("Metric ndcg  fit passed to perf_pairwise runs", {
   params <- training_params(num_trees = 2000, num_train = nrow(data), id=seq_len(nrow(data)),
                             interaction_depth = 3)
   
-  fit <- gbm2(Y~X1+X2+X3,          # formula
+  fit <- gbmt(Y~X1+X2+X3,          # formula
              data=data,     # dataset
              distribution=dist,
              train_params=params,
@@ -95,7 +95,7 @@ test_that("Metric map fit passed to perf_pairwise runs", {
   params <- training_params(num_trees = 2000, num_train = nrow(data), id=seq_len(nrow(data)),
                             interaction_depth = 3)
   
-  fit <- gbm2(Y~X1+X2+X3,          # formula
+  fit <- gbmt(Y~X1+X2+X3,          # formula
               data=data,     # dataset
               distribution=dist,
               train_params=params,
@@ -148,7 +148,7 @@ test_that("Metric mrr fit passed to perf_pairwise runs", {
   params <- training_params(num_trees = 2000, num_train = nrow(data), id=seq_len(nrow(data)),
                             interaction_depth = 3)
   
-  fit <- gbm2(Y~X1+X2+X3,          # formula
+  fit <- gbmt(Y~X1+X2+X3,          # formula
               data=data,     # dataset
               distribution=dist,
               train_params=params,
@@ -199,7 +199,7 @@ test_that("Metric conc fit passed to perf_pairwise runs", {
   params <- training_params(num_trees = 2000, num_train = nrow(data), id=seq_len(nrow(data)),
                             interaction_depth = 3)
   
-  fit <- gbm2(Y~X1+X2+X3,          # formula
+  fit <- gbmt(Y~X1+X2+X3,          # formula
               data=data,     # dataset
               distribution=dist,
               train_params=params,
@@ -250,7 +250,7 @@ test_that("Error thrown if metric not recognised", {
   params <- training_params(num_trees = 2000, num_train = nrow(data), id=seq_len(nrow(data)),
                             interaction_depth = 3)
   
-  fit <- gbm2(Y~X1+X2+X3,          # formula
+  fit <- gbmt(Y~X1+X2+X3,          # formula
               data=data,     # dataset
               distribution=dist,
               train_params=params,

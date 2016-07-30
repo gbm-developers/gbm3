@@ -9,14 +9,14 @@ gbm_perf(gbm_fit_obj, plot_it=TRUE, out_of_bag_curve=FALSE,
 }
 \arguments{
 \item{gbm_fit_obj}{a \code{GBMFit} created from an initial call to
-\code{\link{gbm2}}.}
+\code{\link{gbmt}}.}
 
 \item{plot_it}{an indicator of whether or not to plot the performance
 measures. Setting \code{plot_it=TRUE} creates two plots. The first plot
 plots \code{gbm_fit_obj$train.error} (in black) and \code{gbm_fit_obj$valid.error} (in
 red) versus the iteration number. The scale of the error measurement, shown
 on the left vertical axis, depends on the \code{distribution} argument used
-in the initial call to \code{\link{gbm2}}.}
+in the initial call to \code{\link{gbmt}}.}
 
 \item{out_of_bag_curve}{indicates whether to plot the out-of-bag performance
 measures in a second plot.}
@@ -29,7 +29,7 @@ the loss function is plotted versus the iteration number.}
 boosting iterations. \code{method="OOB"} computes the out-of-bag estimate
 and \code{method="test"} uses the test (or validation) dataset to compute an
 out-of-sample estimate. \code{method="cv"} extracts the optimal number of
-iterations using cross-validation if \code{gbm2} was called with \code{cv_folds}>1.}
+iterations using cross-validation if \code{gbmt} was called with \code{cv_folds}>1.}
 
 \item{main}{the main title for the plot. Defaults to \code{main = ""}.}
 }
@@ -42,7 +42,7 @@ Estimates optimal number of boosting iterations given a \code{GBMFit} object and
 optionally plots various performance measures.
 }
 \seealso{
-\code{\link{gbm2}}
+\code{\link{gbmt}}
 }
 \keyword{nonlinear}
 \keyword{nonparametric}

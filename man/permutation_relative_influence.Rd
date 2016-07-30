@@ -8,7 +8,7 @@ permutation_relative_influence(gbm_fit_obj, num_trees, rescale=FALSE,
 sort_it=FALSE)
 }
 \arguments{
-\item{gbm_fit_obj}{a \code{GBMFit} object from an initial call to \code{\link{gbm2}}. This
+\item{gbm_fit_obj}{a \code{GBMFit} object from an initial call to \code{\link{gbmt}}. This
 fitted object requires}
 
 \item{num_trees}{the number of trees to use for computations. If not provided,
@@ -32,22 +32,16 @@ returns a processed version of the same.
 Calculates the relative influence of predictors via random permutation
 of each predictor one at a time and calculating the associated reduction in predictive
 performance.  This experimental measure is similar to the variable importance measures
-Breiman uses for random forests, but \code{gbm2} currently computes using the
+Breiman uses for random forests, but \code{\link{gbmt}} currently computes using the
 entire training dataset (not the out-of-bag observations).
 }
 \author{
 Greg Ridgeway \email{gregridgeway@gmail.com}
 }
-\references{
-J.H. Friedman (2001). "Greedy Function Approximation: A Gradient
-Boosting Machine," Annals of Statistics 29(5):1189-1232.
-
-L. Breiman (2001).
+\seealso{
+\code{\link{summary.GBMFit}}
 \href{http://oz.berkeley.edu/users/breiman/randomforest2001.pdf}{Random
 Forests}.
-}
-\seealso{
-\code{\link{gbm-summary}}
 }
 \keyword{hplot}
 

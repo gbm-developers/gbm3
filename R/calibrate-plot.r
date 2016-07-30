@@ -103,8 +103,8 @@ calibrate_plot <- function(y, p,
     if(is.null(ylim)) ylim <- range(se.lower,se.upper,x)
     
   } else {
-    if(is.null(xlim)) xlim <- range(yy$fit,x)
-    if(is.null(ylim)) ylim <- range(yy$fit,x)
+    if(is.null(xlim)) xlim <- range(glm_preds$fit,x)
+    if(is.null(ylim)) ylim <- range(glm_preds$fit,x)
   }
   
   

@@ -40,7 +40,7 @@ test_that("Error thrown if gbm_fit_obj is not of class GBMFit", {
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
-  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   
   # When stripped of GBMFit class and gbm_more is called
@@ -83,7 +83,7 @@ test_that("Error thrown if num_new_trees is not a natural number > 1", {
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
-  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   # When gbm_more is called with num_new_trees not a natural number > 1
   # Then an error is thrown
@@ -129,7 +129,7 @@ test_that("Error thrown if is_verbose is not a logical", {
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
-  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   # When gbm_more is called with is_verbose not a logical
   # Then an error is thrown
@@ -177,7 +177,7 @@ test_that("Error thrown if data not provided or gbm_data_obj not stored in gbm_f
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
-  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=keep_data, cv_folds=10, is_verbose=FALSE)
   # When gbm_more is called without providing new data
   # Then an error is thrown
@@ -220,7 +220,7 @@ test_that("Error thrown if data has different number of rows than the original n
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
-  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=keep_data, cv_folds=10, is_verbose=FALSE)
   
   # make some new data - more than last time
@@ -279,7 +279,7 @@ test_that("Output of gbm_more is GBMFit object", {
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
-  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=keep_data, cv_folds=10, is_verbose=FALSE)
   
  
@@ -327,7 +327,7 @@ test_that("gbm_more does not update cv properties of GBMFit output", {
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
-  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=keep_data, cv_folds=10, is_verbose=FALSE)
   
   
@@ -378,7 +378,7 @@ test_that("gbm_more fits additional trees - reflected in length of fit fields", 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
-  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=keep_data, cv_folds=10, is_verbose=FALSE)
   
   
@@ -429,7 +429,7 @@ test_that("Can run gbm_more with new data", {
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
-  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=keep_data, cv_folds=10, is_verbose=FALSE)
   
   # make some new data - more than last time
@@ -486,7 +486,7 @@ test_that("Output of gbm_more DOES NOT contain constructed gbm_data_obj if run w
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
-  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=keep_data, cv_folds=10, is_verbose=FALSE)
   
   # make some new data - more than last time
@@ -545,7 +545,7 @@ test_that("If run with new data and weights are length 0 then they are set to 1 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
-  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=keep_data, cv_folds=10, is_verbose=FALSE)
   
   # make some new data - more than last time
@@ -604,7 +604,7 @@ test_that("If run with new data and offset is length 0 then they are set to 0 fo
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
-  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=keep_data, cv_folds=10, is_verbose=FALSE)
   
   # make some new data - more than last time

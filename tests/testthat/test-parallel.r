@@ -36,7 +36,7 @@ test_that("gaussian works in parallel", {
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   
   # fit initial model
-  gbm1 <- gbm2(Y~X1+X2+X3+X4+X5+X6,         # formula
+  gbm1 <- gbmt(Y~X1+X2+X3+X4+X5+X6,         # formula
               data=data,                   # dataset
               var_monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
               train_params = params,

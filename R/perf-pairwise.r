@@ -8,6 +8,8 @@
 #' 
 #' @param f the predicted responses.
 #' 
+#' @param group the indices specifiying which response variables belong to which groups.
+#' 
 #' @param metric What type of performance measure to compute in \code{perf_pairwise}.
 #'   Can take values "ir_measure_conc", "ir_measure_mrr", "ir_measure_map" or
 #'   "ir_measure_ndgc".
@@ -20,7 +22,7 @@
 #' 
 #' @author Greg Ridgeway \email{gregridgeway@@gmail.com}
 #' 
-#' @seealso \code{\link{gbm2}}
+#' @seealso \code{\link{gbmt}}
 #' @keywords nonlinear survival nonparametric tree
 #' @export
 

@@ -40,7 +40,7 @@ test_that("Error thrown if not passed GBMFit object", {
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
-  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   # When gbm_perf is called on fit object not of class GBMFit
   class(fit) <- "wrong"
@@ -82,7 +82,7 @@ test_that("Error thrown if plot_it is not a logical", {
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
-  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   
   # When calling gbm_perf with plot_it not a logical
@@ -127,7 +127,7 @@ test_that("Error thrown if plot_it is NA", {
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
-  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   
   # When calling gbm_perf with plot_it=NA
@@ -168,7 +168,7 @@ test_that("Error thrown if method parameter missing", {
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
-  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   
   # When gbm_perf called with method missing
@@ -209,14 +209,14 @@ test_that("Error thrown  if method not element of c('OOB', 'cv', 'test')", {
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
-  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   
   # When gbm_perf called with method that is not 'cv', 'test' or 'OOB'
   # Then an error is thrown
   expect_error(gbm_perf(fit, method="weird_metric"))
 })
-test_that("Warning thrown if method is 'cv", {
+test_that("Message given if method is 'cv", {
   # Given a fit object
   ## test Gaussian distribution gbm model
   set.seed(1)
@@ -250,14 +250,14 @@ test_that("Warning thrown if method is 'cv", {
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
-  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   
   # When gbm_perf is called with method 'cv'
   # Then a warning is thrown
-  expect_warning(gbm_perf(fit, method='cv'))
+  expect_message(gbm_perf(fit, method='cv'))
 })
-test_that("Warning thrown if method is 'OOB'", {
+test_that("Message given if method is 'OOB'", {
   # Given a fit object
   ## test Gaussian distribution gbm model
   set.seed(1)
@@ -291,12 +291,12 @@ test_that("Warning thrown if method is 'OOB'", {
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
-  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   
   # When gbm_perf is called with method 'OOB'
   # Then a warning is thrown
-  expect_warning(gbm_perf(fit, method="OOB"))
+  expect_message(gbm_perf(fit, method="OOB"))
 })
 
 context("gbm_perf return")
@@ -334,7 +334,7 @@ test_that("gbm_perf returns correct best iteration for each method", {
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
-  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   
   best_iter_t <- which.min(fit$valid.error)

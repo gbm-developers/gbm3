@@ -27,24 +27,9 @@ NULL
 #' 
 #' Helper functions for preprocessing data prior to building the model
 #' 
-#' These are functions used internally by \code{gbm} and not intended for
+#' These are functions used internally by \code{gbmt} and not intended for
 #' direct use by the user.
 #' 
-#' @aliases guessDist getStratify getCVgroup checkMissing checkID checkWeights
-#' checkOffset getVarNames gbmCluster
-#' @param y The response variable
-#' @param d,distribution The distribution, either specified by the user or
-#' implied
-#' @param class.stratify.cv Whether or not to stratify, if provided by the user
-#' @param i.train Computed internally by \code{gbm}
-#' @param group The group, if using \code{distribution='pairwise'}
-#' @param strat Whether or not to stratify
-#' @param cv.folds The number of cross-validation folds
-#' @param x The design matrix
-#' @param id The interaction depth
-#' @param w The weights
-#' @param n The number of cores to use in the cluster.
-#' @param o The offset
 #' @name gbm-internal
 NULL
 
@@ -58,43 +43,46 @@ NULL
 #' 
 #' 
 #' @return \item{initF}{the "intercept" term, the initial predicted value to
-#' which trees make adjustments} \item{fit}{a vector containing the fitted
+#' which trees make adjustments} 
+#' \item{fit}{a vector containing the fitted
 #' values on the scale of regression function (e.g. log-odds scale for
-#' bernoulli, log scale for poisson)} \item{train.error}{a vector of length
+#' bernoulli, log scale for poisson)} 
+#' \item{train.error}{a vector of length
 #' equal to the number of fitted trees containing the value of the loss
 #' function for each boosting iteration evaluated on the training data}
 #' \item{valid.error}{a vector of length equal to the number of fitted trees
 #' containing the value of the loss function for each boosting iteration
-#' evaluated on the validation data} \item{cv.error}{if \code{cv.folds}<2 this
+#' evaluated on the validation data}
+#' \item{cv_error}{if \code{cv_folds}<2 this
 #' component is NULL. Otherwise, this component is a vector of length equal to
 #' the number of fitted trees containing a cross-validated estimate of the loss
-#' function for each boosting iteration} \item{oobag.improve}{a vector of
+#' function for each boosting iteration}
+#' \item{oobag.improve}{a vector of
 #' length equal to the number of fitted trees containing an out-of-bag estimate
 #' of the marginal reduction in the expected value of the loss function. The
 #' out-of-bag estimate uses only the training data and is useful for estimating
-#' the optimal number of boosting iterations. See \code{\link{gbm.perf}}}
+#' the optimal number of boosting iterations. See \code{\link{gbm_perf}}}
 #' \item{trees}{a list containing the tree structures. The components are best
-#' viewed using \code{\link{pretty.gbm.tree}}} \item{c.splits}{a list of all
+#' viewed using \code{\link{pretty_gbm_tree}}}
+#' \item{c.splits}{a list of all
 #' the categorical splits in the collection of trees. If the \code{trees[[i]]}
 #' component of a \code{gbm} object describes a categorical split then the
 #' splitting value will refer to a component of \code{c.splits}. That component
 #' of \code{c.splits} will be a vector of length equal to the number of levels
 #' in the categorical split variable. -1 indicates left, +1 indicates right,
 #' and 0 indicates that the level was not present in the training data}
-#' \item{cv.fitted}{If cross-validation was performed, the cross-validation
+#' \item{cv_fitted}{If cross-validation was performed, the cross-validation
 #' predicted values on the scale of the linear predictor. That is, the fitted
 #' values from the ith CV-fold, for the model having been trained on the data
 #' in all other folds.}
 #' @section Structure: The following components must be included in a
-#' legitimate \code{gbm} object.
+#' legitimate \code{GBMFit} object.
+#' 
 #' @author Greg Ridgeway \email{gregridgeway@@gmail.com}
-#' @seealso \code{\link{gbm}}
+#' @seealso \code{\link{gbmt}}
 #' @keywords methods
-#' @name gbm.object
+#' @name gbm_object
 NULL
-
-
-
 
 
 #' Generalized Boosted Regression Models
@@ -105,16 +93,15 @@ NULL
 #' proportional hazards partial likelihood, t-distribution,
 #' AdaBoost exponential loss, Learning to Rank, and Huberized hinge loss.
 #' 
-#' \tabular{ll}{ Package: \tab gbm\cr Version: \tab 2.1-0.6\cr Date: \tab
-#' 2014-04-19\cr Depends: \tab R (>= 2.9.0), survival, lattice, mgcv\cr
-#' License: \tab GPL (version 2 or newer)\cr URL: \tab
-#' https://github.com/harrysouthworth/gbm/\cr } Index:
-#' \preformatted{basehaz.gbm Baseline hazard function calibrate.plot
-#' Calibration plot gbm Generalized Boosted Regression Modeling gbm.object
-#' Generalized Boosted Regression Model Object gbm.perf GBM performance
-#' plot.gbm Marginal plots of fitted gbm objects predict.gbm Predict method for
-#' GBM Model Fits pretty.gbm.tree Print gbm tree components quantile.rug
-#' Quantile rug plot relative.influence Methods for estimating relative
+#' \tabular{ll}{Package: \tab gbm\cr Version: \tab 2.1-0.6\cr Date: \tab
+#' 2014-08-12\cr Depends: \tab R (>= 2.9.0), survival, lattice, mgcv\cr
+#' License: \tab GPL (version 2 or newer)\cr} Index:
+#' \preformatted{baseline_hazard Baseline hazard function calibrate_plot
+#' Calibration plot gbmt Generalized Boosted Regression Modeling gbm.object
+#' Generalized Boosted Regression Model Object gbm_perf GBM performance
+#' gbmt_plot Marginal plots of fitted gbm objects predict.GBMFit Predict method for
+#' GBM Model Fits pretty_gbm_tree Print gbm tree components quantile_rug
+#' Quantile rug plot relative_influence Methods for estimating relative
 #' influence}
 #' 
 #' Further information is available in the following vignettes: \tabular{ll}{
@@ -123,7 +110,7 @@ NULL
 #' 
 #' @name gbm-package
 #' @docType package
-#' @author Greg Ridgeway \email{gregridgeway@@gmail.com} with contributions by
+#' @author James Hickey, Greg Ridgeway \email{gregridgeway@@gmail.com} with contributions by
 #' Daniel Edwards, Brian Kriegler, Stefan Schroedl and Harry Southworth.
 #' @references Y. Freund and R.E. Schapire (1997) \dQuote{A decision-theoretic
 #' generalization of on-line learning and an application to boosting,}

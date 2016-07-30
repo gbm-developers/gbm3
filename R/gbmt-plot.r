@@ -3,8 +3,8 @@
 #' Plots the marginal effect of the selected variables by "integrating" out the
 #' other variables.
 #' 
-#' \code{plot_gbmt} produces low dimensional projections of the
-#' \code{\link{GBMFit}} object, see \code{\link{gbm2}}, by integrating out the variables 
+#' \code{gbmt_plot} produces low dimensional projections of the
+#' \code{GBMFit} object, see \code{\link{gbmt}}, by integrating out the variables 
 #' not included in the \code{var_index} argument. The function selects a grid of points 
 #' and uses the weighted tree traversal method described in Friedman (2001) to do the
 #' integration. Based on the variable types included in the projection,
@@ -14,11 +14,11 @@
 #' the result of the function, and develop another graphic display more
 #' appropriate to the particular example.
 #' 
-#' @param gbm_fit_obj a \code{GBMFit} object fitted using a call to \code{\link{gbm2}}
+#' @param gbm_fit_obj a \code{GBMFit} object fitted using a call to \code{\link{gbmt}}
 #' @param var_index a vector of indices or the names of the variables to plot. If
 #' using indices, the variables are indexed in the same order that they appear
-#' in the initial \code{gbm2} formula.  If \code{length(var_index)} is between 1 and
-#' 3 then \code{plot.gbm} produces the plots. Otherwise, \code{plot.GBMFit}
+#' in the initial \code{gbmt} formula.  If \code{length(var_index)} is between 1 and
+#' 3 then \code{gbmt_plot} produces the plots. Otherwise, \code{gbmt_plot}
 #' returns only the grid of evaluation points and their average predictions
 #' @param num_trees the number of trees used to generate the plot. Only the first
 #' \code{num_trees} trees will be used
@@ -33,24 +33,24 @@
 #' automatically from the data, using \code{continuous_resolution} for
 #' continuous predictors. Forcing the values can be useful to evaluate two
 #' models on the same exact range
-#' @param return_grid if \code{TRUE} then \code{plot.GBMFit} produces no graphics
+#' @param return_grid if \code{TRUE} then \code{gbmt_plot} produces no graphics
 #' and only returns the grid of evaluation points and their average
 #' predictions. This is useful for customizing the graphics for special
 #' variable types or for dimensions greater than 3
 #' @param type the type of prediction to plot on the vertical axis. See
 #' \code{predict_gmt}
 #' @param \dots other arguments passed to the plot function
-#' @return Nothing unless \code{return_grid} is true then \code{plot.GBMFit}
+#' @return Nothing unless \code{return_grid} is true then \code{gbmt_plot}
 #' produces no graphics and only returns the grid of evaluation points and
 #' their average predictions.
-#' @seealso \code{\link{gbm2}},
+#' @seealso \code{\link{gbmt}},
 #' \code{\link[graphics]{plot}}
 #' @references J.H. Friedman (2001). "Greedy Function Approximation: A Gradient
 #' Boosting Machine," Annals of Statistics 29(4).
 #' @keywords hplot
 #' @export 
 #'
-plot.GBMFit <- function(gbm_fit_obj,
+gbmt_plot <- function(gbm_fit_obj,
                         var_index=1,
                         num_trees=gbm_fit_obj$params$num_trees,
                         continuous_resolution=100,
@@ -67,7 +67,7 @@ plot.GBMFit <- function(gbm_fit_obj,
   if(all(is.character(var_index))) {
     i <- match(var_index, gbm_fit_obj$variables$var_names)
     if(any(is.na(i))) {
-      stop("Plot variables not used in gbm model fit: ",i.var[is.na(i)])
+      stop("Plot variables not used in gbm model fit: ", var_index[is.na(i)])
     } else {
       var_index <- i
     }
@@ -84,7 +84,7 @@ plot.GBMFit <- function(gbm_fit_obj,
   }
   
   if(length(var_index) > 3) {
-    warning("gbm.int.plot creates up to 3-way interaction plots.\nplot.gbm will only return the plotting data structure.")
+    warning("gbm.int.plot creates up to 3-way interaction plots.\ngbmt_plot will only return the plotting data structure.")
     return_grid = TRUE
   }
   
@@ -150,7 +150,6 @@ plot.GBMFit <- function(gbm_fit_obj,
 
 
 ##### Helper Functions #####
-#' @export
 get_default_grid_levels <- function(gbm_fit_obj, var_index, continuous_resolution) {
   # Vector of lists is output
   grid_levels <- vector("list",length(var_index))
@@ -173,7 +172,6 @@ get_default_grid_levels <- function(gbm_fit_obj, var_index, continuous_resolutio
   return(grid_levels)
 }
 
-#' @export
 generate_grid_levels <- function(grid_levels, gbm_fit_obj, var_index) {
   
   # allow grid.levels to not be a list when there is only one predictor
@@ -194,7 +192,6 @@ generate_grid_levels <- function(grid_levels, gbm_fit_obj, var_index) {
   return(grid_levels)
 }
 
-#' @export response
 response <- function(resp, dist_obj) {
   UseMethod("response", dist_obj)
 }

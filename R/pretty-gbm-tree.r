@@ -6,12 +6,12 @@
 #' is mostly for debugging purposes and to satisfy some users' curiosity.
 #' 
 #' @param gbm_fit_obj a \code{GBMFit} object initially fit using
-#' \code{\link{gbm2}}.
+#' \code{\link{gbmt}}.
 #' 
 #' @param tree_index the index of the tree component to extract from \code{gbm_fit_obj}
 #' and display.
 #' 
-#' @return \code{pretty.GBMFit} returns a data frame. Each row corresponds to
+#' @return \code{pretty_gbm_tree} returns a data frame. Each row corresponds to
 #' a node in the tree. Columns indicate \item{SplitVar}{index of which variable
 #' is used to split. -1 indicates a terminal node.} \item{SplitCodePred}{if the
 #' split variable is continuous then this component is the split point. If the
@@ -25,11 +25,11 @@
 #' is the number of observations in the node.}
 #' 
 #' @author James Hickey, Greg Ridgeway \email{gregridgeway@@gmail.com}
-#' @seealso \code{\link{gbm}}, \code{\link{gbm.object}}
+#' @seealso \code{\link{gbm}}, \code{\link{gbmt}}
 #' @keywords print
 #' @export 
 #' 
-pretty.GBMFit <- function(gbm_fit_obj, tree_index=1)
+pretty_gbm_tree <- function(gbm_fit_obj, tree_index=1)
 {
   # Initial checks
   check_if_natural_number(tree_index)

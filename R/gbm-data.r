@@ -15,8 +15,8 @@
 #' 
 #' @return a gbm_data object 
 #' 
-#' @export gbm_data
-
+#' @export 
+#' 
 gbm_data <- function(x, y, weights, offset) {
     
     # Check inputs 

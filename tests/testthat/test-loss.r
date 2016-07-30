@@ -381,7 +381,7 @@ test_that("Correctly calculates Pairwise loss - ndcg", {
   params <- training_params(num_trees = 2000, num_train = nrow(data), id=seq_len(nrow(data)),
                             interaction_depth = 3)
   
-  fit <- gbm2(Y~X1+X2+X3,          # formula
+  fit <- gbmt(Y~X1+X2+X3,          # formula
               data=data,     # dataset
               distribution=dist,
               train_params=params,
@@ -439,7 +439,7 @@ test_that("Correctly calculates Pairwise loss - conc", {
   params <- training_params(num_trees = 2000, num_train = nrow(data), id=seq_len(nrow(data)),
                             interaction_depth = 3)
   
-  fit <- gbm2(Y~X1+X2+X3,          # formula
+  fit <- gbmt(Y~X1+X2+X3,          # formula
               data=data,     # dataset
               distribution=dist,
               train_params=params,
@@ -499,7 +499,7 @@ test_that("Correctly calculates Pairwise loss - map", {
   params <- training_params(num_trees = 2000, num_train = nrow(data), id=seq_len(nrow(data)),
                             interaction_depth = 3)
   
-  fit <- gbm2(Y~X1+X2+X3,          # formula
+  fit <- gbmt(Y~X1+X2+X3,          # formula
               data=data,     # dataset
               distribution=dist,
               train_params=params,
@@ -559,7 +559,7 @@ test_that("Correctly calculates Pairwise loss - mrr", {
   params <- training_params(num_trees = 2000, num_train = nrow(data), id=seq_len(nrow(data)),
                             interaction_depth = 3)
   
-  fit <- gbm2(Y~X1+X2+X3,          # formula
+  fit <- gbmt(Y~X1+X2+X3,          # formula
               data=data,     # dataset
               distribution=dist,
               train_params=params,

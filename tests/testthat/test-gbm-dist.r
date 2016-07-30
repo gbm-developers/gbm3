@@ -257,7 +257,6 @@ test_that("Error thrown if alpha specified is not a finite double between 0.0 an
   expect_error(gbm_dist(name="Quantile", alpha=Inf))
   expect_error(gbm_dist(name="Quantile", alpha=c(0.5, 0.1)))
   expect_error(gbm_dist(name="Quantile", alpha=NA))
-  expect_error(gbm_dist(name="Quantile", alpha=NULL))
 })
 
 test_that("Error thrown if degrees of freedom specified is not a finite double > 0.0 - TDist", {

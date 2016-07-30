@@ -4,18 +4,18 @@
 #' proportional hazard regression model - only for censored survival data.
 #' 
 #' The proportional hazard model assumes h(t|x)=lambda(t)*exp(f(x)).
-#' \code{\link{gbm2}} can estimate the f(x) component via partial likelihood.
+#' \code{\link{gbmt}} can estimate the f(x) component via partial likelihood.
 #' After estimating f(x), \code{baseline_hazard} can compute a nonparametric
 #' estimate of lambda(t).
 #' 
-#' @usage baseline_hazard(surv_times, delta, coxph_pred, eval_times=NULL, smooth=FALSE,
+#' @usage baseline_hazard(surv_times, delta, coxph_preds, eval_times=NULL, smooth=FALSE,
 #' cumulative=TRUE)
 #' 
 #' @param surv_times the survival times - an atomic vector of doubles
 #' 
 #' @param delta the censoring indicator - a vector same length as surv_times
 #' 
-#' @param coxph_pred the predicted values of the regression model on the log hazard
+#' @param coxph_preds the predicted values of the regression model on the log hazard
 #' scale
 #' 
 #' @param eval_times values at which the baseline hazard will be evaluated
@@ -34,7 +34,7 @@
 #' 
 #' @author James Hickey, Greg Ridgeway \email{gregridgeway@@gmail.com}
 #' 
-#' @seealso \code{\link[survival]{survfit}}, \code{\link{gbm2}}
+#' @seealso \code{\link[survival]{survfit}}, \code{\link{gbmt}}
 #' 
 #' @references N. Breslow (1972). "Discussion of `Regression Models and
 #' Life-Tables' by D.R. Cox," Journal of the Royal Statistical Society, Series

@@ -7,14 +7,14 @@
 #'  overlay=TRUE, method, main="")
 #' 
 #' @param gbm_fit_obj a \code{GBMFit} created from an initial call to
-#' \code{\link{gbm2}}.
+#' \code{\link{gbmt}}.
 #' 
 #' @param plot_it an indicator of whether or not to plot the performance
 #' measures. Setting \code{plot_it=TRUE} creates two plots. The first plot
 #' plots \code{gbm_fit_obj$train.error} (in black) and \code{gbm_fit_obj$valid.error} (in
 #' red) versus the iteration number. The scale of the error measurement, shown
 #' on the left vertical axis, depends on the \code{distribution} argument used
-#' in the initial call to \code{\link{gbm2}}.
+#' in the initial call to \code{\link{gbmt}}.
 #' 
 #' @param out_of_bag_curve indicates whether to plot the out-of-bag performance
 #' measures in a second plot.
@@ -27,13 +27,13 @@
 #' boosting iterations. \code{method="OOB"} computes the out-of-bag estimate
 #' and \code{method="test"} uses the test (or validation) dataset to compute an
 #' out-of-sample estimate. \code{method="cv"} extracts the optimal number of
-#' iterations using cross-validation if \code{gbm2} was called with \code{cv_folds}>1.
+#' iterations using cross-validation if \code{gbmt} was called with \code{cv_folds}>1.
 #' 
 #' @param main the main title for the plot. Defaults to \code{main = ""}.
 #' 
 #' @return \code{gbm_perf} returns the estimated optimal number of iterations.
 #' The method of computation depends on the \code{method} argument.
-#' @seealso \code{\link{gbm2}}
+#' @seealso \code{\link{gbmt}}
 #' @keywords nonlinear survival nonparametric tree
 #' @export 
 #' 
@@ -77,7 +77,7 @@ best_iter_cv <- function(gbm_fit_obj) {
   check_if_gbm_fit(gbm_fit_obj)
   if(is.null(gbm_fit_obj$cv_error))
     stop("In order to use method=\"cv\" gbm must be called with cv.folds>1.")
-    warning("cross-validation error is not computed for any additional iterations run using gbm.more().")
+    message("cross-validation error is not computed for any additional iterations run using gbm.more().")
   best_iter_cv <- which.min(gbm_fit_obj$cv_error)
   return(best_iter_cv)
 }
@@ -89,7 +89,7 @@ best_iter_out_of_bag <- function(gbm_fit_obj) {
   if(all(!is.finite(gbm_fit_obj$oobag.improve)))
     stop("Cannot compute OOB estimate or the OOB curve. No finite OOB estimates of improvement")
   
-  warning("OOB generally underestimates the optimal number of iterations although predictive performance is reasonably competitive.
+  message("OOB generally underestimates the optimal number of iterations although predictive performance is reasonably competitive.
             Using cv.folds>0 when calling gbm usually results in improved predictive performance.")
   smoother <- generate_smoother_oobag(gbm_fit_obj)
   best_iter_oob <- smoother$x[which.min(-cumsum(smoother$y))]

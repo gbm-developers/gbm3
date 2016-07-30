@@ -6,7 +6,7 @@
 ####################
 
 context("Test GBMFit definition")
-test_that("Calling gbm2 creates a GBMFit object", {
+test_that("Calling gbmt creates a GBMFit object", {
   # Given Data from examples
   ## Based on example in R package
   
@@ -43,8 +43,8 @@ test_that("Calling gbm2 creates a GBMFit object", {
   dist <- gbm_dist("Gaussian")
   
   
-  # When gbm2 called
-  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  # When gbmt called
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   
   
@@ -88,8 +88,8 @@ test_that("GBMFit object has correct fields", {
   dist <- gbm_dist("Gaussian")
   
   
-  # When gbm2 called
-  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  # When gbmt called
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   
   
@@ -135,8 +135,8 @@ test_that("GBMFit contains correct GBM objects", {
   dist <- gbm_dist("Gaussian")
   
   
-  # When gbm2 called
-  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  # When gbmt called
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   
   
@@ -185,12 +185,12 @@ test_that("GBMFit does not contain gbm_data_obj if keep_gbm_data=FALSE", {
   dist <- gbm_dist("Gaussian")
   
   
-  # When gbm2 called
-  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  # When gbmt called
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=keep_data, cv_folds=10, is_verbose=FALSE)
   
   
-  # Then fit does not store gbm data from gbm2
+  # Then fit does not store gbm data from gbmt
   expect_true(is.null(fit$gbm_data_obj))
 })
 

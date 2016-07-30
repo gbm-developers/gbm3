@@ -10,7 +10,7 @@ test_that("predicts correctly on unknown levels (issue #18)", {
   params <- training_params(bag_fraction=1, num_trees = 1, min_num_obs_in_node = 1,
                             num_train = round(0.5 * nrow(train)), shrinkage=1, id=seq_along(train[,1]))
   for (ind in seq_len(10)) {
-    g <- gbm2(y ~ x,
+    g <- gbmt(y ~ x,
              data=train, 
              train_params=params
              )
@@ -28,7 +28,7 @@ test_that("print.GBMFit works without cross-validation (issue #5)", {
     z = sample(0:1, 100, replace = TRUE)
   )
   
-  trained_gbm <- gbm2.fit(df[, c("x", "y")], df$z)
+  trained_gbm <- gbmt_fit(df[, c("x", "y")], df$z)
   
   expect_null(print(trained_gbm))
 })

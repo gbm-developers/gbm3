@@ -4,13 +4,16 @@
 \alias{baseline_hazard}
 \title{Baseline hazard function}
 \usage{
-baseline_hazard(surv_times, delta, coxph_pred, eval_times=NULL, smooth=FALSE,
+baseline_hazard(surv_times, delta, coxph_preds, eval_times=NULL, smooth=FALSE,
 cumulative=TRUE)
 }
 \arguments{
 \item{surv_times}{the survival times - an atomic vector of doubles}
 
 \item{delta}{the censoring indicator - a vector same length as surv_times}
+
+\item{coxph_preds}{the predicted values of the regression model on the log hazard
+scale}
 
 \item{eval_times}{values at which the baseline hazard will be evaluated}
 
@@ -19,9 +22,6 @@ baseline hazard using Friedman's super smoother \code{\link{supsmu}}}
 
 \item{cumulative}{if \code{TRUE} the cumulative survival function will be
 computed}
-
-\item{coxph_pred}{the predicted values of the regression model on the log hazard
-scale}
 }
 \value{
 a vector of length equal to the length of surv_times (or of length
@@ -36,7 +36,7 @@ proportional hazard regression model - only for censored survival data.
 }
 \details{
 The proportional hazard model assumes h(t|x)=lambda(t)*exp(f(x)).
-\code{\link{gbm2}} can estimate the f(x) component via partial likelihood.
+\code{\link{gbmt}} can estimate the f(x) component via partial likelihood.
 After estimating f(x), \code{baseline_hazard} can compute a nonparametric
 estimate of lambda(t).
 }
@@ -52,7 +52,7 @@ N. Breslow (1974). "Covariance analysis of censored survival data,"
 Biometrics 30:89-99.
 }
 \seealso{
-\code{\link[survival]{survfit}}, \code{\link{gbm2}}
+\code{\link[survival]{survfit}}, \code{\link{gbmt}}
 }
 \keyword{methods}
 \keyword{survival}

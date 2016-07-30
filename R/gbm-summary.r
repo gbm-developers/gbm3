@@ -14,7 +14,7 @@
 #'                method=relative_influence, normalize=TRUE, ...)
 #' 
 #' @param gbm_fit_obj a \code{GBMFit} object created from an initial call to
-#' \code{\link{gbm2}}.
+#' \code{\link{gbmt}}.
 #' 
 #' @param cBars the number of bars to plot. If \code{order_it=TRUE} then only the
 #' \code{cBars} variables with the largest relative influence will appear in
@@ -33,7 +33,7 @@
 #' @param method The function used to compute the relative influence.
 #' \code{\link{relative_influence}} is the default and is the same as that
 #' described in Friedman (2001). The other current (and experimental) choice is
-#' \code{\link{permutation_test_gbm}}. This method randomly permutes each
+#' \code{\link{permutation_relative_influence}}. This method randomly permutes each
 #' predictor variable at a time and computes the associated reduction in
 #' predictive performance. This is similar to the variable importance measures
 #' Breiman uses for random forests, but \code{gbm} currently computes using the
@@ -47,7 +47,7 @@
 #' @return Returns a data frame where the first component is the variable name
 #' and the second is the computed relative influence, normalized to sum to 100.
 #' @author James Hickey, Greg Ridgeway \email{gregridgeway@@gmail.com}
-#' @seealso \code{\link{gbm2}}
+#' @seealso \code{\link{gbmt}}
 #' @references J.H. Friedman (2001). "Greedy Function Approximation: A Gradient
 #' Boosting Machine," Annals of Statistics 29(5):1189-1232.
 #' 

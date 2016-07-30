@@ -4,7 +4,7 @@
 # 
 # @usage update_fold_dist_data(gbm_dist_obj, gbm_data_obj, train_params, rows_in_training, rows_in_fold)
 #  
-# @param gbm_dist_obj a GBMDist object properly formatted for gbm_fit.
+# @param gbm_dist_obj a GBMDist object properly formatted for gbmt_fit.
 #
 # @param gbm_data_obj  a GBMData object containing correctly ordered and validated data.
 # 

@@ -11,6 +11,8 @@ perf_pairwise(y, f, group, metric='ndcg', w=NULL, max_rank=0)
 
 \item{f}{the predicted responses.}
 
+\item{group}{the indices specifiying which response variables belong to which groups.}
+
 \item{metric}{What type of performance measure to compute in \code{perf_pairwise}.
 Can take values "ir_measure_conc", "ir_measure_mrr", "ir_measure_map" or
 "ir_measure_ndgc".}
@@ -30,7 +32,7 @@ Additional performance using appropriate metric for pairwise distribution fit.
 Greg Ridgeway \email{gregridgeway@gmail.com}
 }
 \seealso{
-\code{\link{gbm2}}
+\code{\link{gbmt}}
 }
 \keyword{nonlinear}
 \keyword{nonparametric}

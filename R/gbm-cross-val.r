@@ -1,7 +1,7 @@
 # GBM Cross Validation
 # 
 # Create fitted object - Cross validation is performed if \code{cv_folds > 1}, otherwise only the full model
-# is fitted. This function is called by \code{\link{gbm2}} to perform the model fitting.
+# is fitted. This function is called by \code{\link{gbmt}} to perform the model fitting.
 # 
 # @usage gbm_cross_validation(gbm_data_obj, gbm_dist_obj, train_params, 
 # var_container, cv_folds, cv_groups, is_verbose)

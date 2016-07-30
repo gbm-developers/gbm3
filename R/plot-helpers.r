@@ -1,7 +1,6 @@
 # Series of helper functions for plot.GBMFit
 
 #### One variable helpers ####
-#' @export get_ylabel_one_var
 get_ylabel_one_var <- function(dist_obj) {
   UseMethod("get_ylabel_one_var", dist_obj)
 }

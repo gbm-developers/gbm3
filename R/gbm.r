@@ -22,10 +22,10 @@
 #' AdaBoost exponential loss function.
 #' 
 
-#' \code{gbm} is a depracated function that now acts as a front-end to \code{gbm2.fit}
+#' \code{gbm} is a depracated function that now acts as a front-end to \code{gbmt_fit}
 #' that uses the familiar R modeling formulas. However, \code{\link[stats]{model.frame}} is
 #' very slow if there are many predictor variables. For power users with many variables use \code{gbm.fit} over 
-#' \code{gbm}; however \code{gbm2} and \code{gbm2.fit} are now the current APIs.
+#' \code{gbm}; however \code{gbmt} and \code{gbmt_fit} are now the current APIs.
 #' 
 #' @param formula a symbolic description of the model to be fit. The
 #' formula may include an offset term (e.g. y~offset(n)+x). If
@@ -174,10 +174,7 @@
 #' data and index makes subsequent calls to \code{\link{gbm_more}}
 #' faster at the cost of storing an extra copy of the dataset.
 #'
-#' @param object a \code{gbm} object created from an initial call to
-#' \code{\link{gbm}}.
-#'
-#' @param n.new.trees the number of additional trees to add to
+#' @param num_new_trees the number of additional trees to add to
 #' \code{object} using \code{gbm_more}.
 #'
 #' @param verbose If TRUE, gbm will print out progress and performance
@@ -239,16 +236,16 @@
 #' 
 #' 
 #' @usage
-#' gbm(formula = formula(data), distribution = "bernoulli",
+#' gbm(formula = formula(data), distribution = "Bernoulli",
 #' data = list(), weights, subset = NULL, offset = NULL, var.monotone
 #' = NULL, n.trees = 100, interaction.depth = 1, n.minobsinnode = 10,
 #' shrinkage = 0.001, bag.fraction = 0.5, train.fraction = 1,
 #' mFeatures = NULL, cv.folds = 0, keep.data = TRUE, verbose = FALSE,
-#' class.stratify.cv = NULL, n.cores = NULL, fold.id=NULL,
+#' class.stratify.cv = NULL, par.details=getOption('gbm.parallel'), fold.id=NULL, 
 #' tied.times.method = "efron", prior.node.coeff.var = 1000, strata = NA, 
 #' obs.id = 1:nrow(data))
 #' 
-#' gbm.fit(x, y, offset = NULL, distribution = "bernoulli", 
+#' gbm.fit(x, y, offset = NULL, distribution = "Bernoulli", 
 #' w = NULL, var.monotone = NULL, n.trees = 100, interaction.depth = 1, 
 #' n.minobsinnode = 10, shrinkage = 0.001, bag.fraction = 0.5, 
 #' nTrain = NULL, train.fraction = NULL, mFeatures = NULL, keep.data = TRUE, 
@@ -269,9 +266,9 @@
 #' 
 #' Pairwise code developed by Stefan Schroedl \email{schroedl@@a9.com}
 #' 
-#' @seealso \code{\link{gbm2}}, \code{\link{gbm2.fit}} \code{\link{perf_gbm}},
-#' \code{\link{plot.GBMFit}}, \code{\link{predict.GBMFit}},
-#' \code{\link{summary.GBMFit}}, \code{\link{pretty.gbm.tree}}, \code{\link{gbmParallel}}.
+#' @seealso \code{\link{gbmt}}, \code{\link{gbmt_fit}} \code{\link{gbm_perf}},
+#' \code{\link{gbmt_plot}}, \code{\link{predict.GBMFit}},
+#' \code{\link{summary.GBMFit}}, \code{\link{pretty_gbm_tree}}, \code{\link{gbmParallel}}.
 #' @references Y. Freund and R.E. Schapire (1997) \dQuote{A decision-theoretic
 #' generalization of on-line learning and an application to boosting,}
 #' \emph{Journal of Computer and System Sciences,} 55(1):119-139.
@@ -344,8 +341,7 @@
 #'     cv.folds = 3,                # do 3-fold cross-validation
 #'     keep.data=TRUE,              # keep a copy of the dataset with the object
 #'     verbose=FALSE,               # don't print out progress
-#'     n.cores=1)                   # use only a single core (detecting #cores is
-#'                                  # error-prone, so avoided here)
+#'     )                   
 #'
 #' \dontrun{
 #' gbm1 <-
@@ -367,7 +363,6 @@
 #'     cv.folds = 3,                # do 3-fold cross-validation
 #'     keep.data=TRUE,              # keep a copy of the dataset with the object
 #'     verbose=FALSE,               # don't print out progress
-#'     n.cores=1,                   # use only a single CV core
 #'     par.details=gbmParallel(num_threads=15))
 #' }
 #' 
@@ -389,8 +384,8 @@
 #' summary(gbm1, num_trees=best.iter) # based on the estimated best number of trees
 #' 
 #' # compactly print the first and last trees for curiosity
-#' print(pretty(gbm1,1))
-#' print(pretty(gbm1,gbm1$params$num_trees))
+#' print(pretty_gbm_tree(gbm1,1))
+#' print(pretty_gbm_tree(gbm1,gbm1$params$num_trees))
 #' 
 #' # make some new data
 #' N <- 1000
@@ -416,22 +411,22 @@
 #' # create marginal plots
 #' # plot variable X1,X2,X3 after "best" iterations
 #' par(mfrow=c(1,3))
-#' plot(gbm1,1,best.iter)
-#' plot(gbm1,2,best.iter)
-#' plot(gbm1,3,best.iter)
+#' gbmt_plot(gbm1,1,best.iter)
+#' gbmt_plot(gbm1,2,best.iter)
+#' gbmt_plot(gbm1,3,best.iter)
 #' par(mfrow=c(1,1))
 #' # contour plot of variables 1 and 2 after "best" iterations
-#' plot(gbm1,1:2,best.iter)
+#' gbmt_plot(gbm1,1:2,best.iter)
 #' # lattice plot of variables 2 and 3
-#' plot(gbm1,2:3,best.iter)
+#' gbmt_plot(gbm1,2:3,best.iter)
 #' # lattice plot of variables 3 and 4
-#' plot(gbm1,3:4,best.iter)
+#' gbmt_plot(gbm1,3:4,best.iter)
 #' 
 #' # 3-way plots
-#' plot(gbm1,c(1,2,6),best.iter,cont=20)
-#' plot(gbm1,1:3,best.iter)
-#' plot(gbm1,2:4,best.iter)
-#' plot(gbm1,3:5,best.iter)
+#' gbmt_plot(gbm1,c(1,2,6),best.iter,cont=20)
+#' gbmt_plot(gbm1,1:3,best.iter)
+#' gbmt_plot(gbm1,2:4,best.iter)
+#' gbmt_plot(gbm1,3:5,best.iter)
 #' 
 #' # do another 100 iterations
 #' gbm2 <- gbm_more(gbm1,100,
@@ -461,7 +456,7 @@ gbm <- function(formula = formula(data),
                 prior.node.coeff.var=1000,
                 strata=NA, obs.id=1:nrow(data)) {
   # Highlight new API
-  warning("gbm is depracated - using gbm2.fit...")
+  warning("gbm is depracated - using gbmt_fit...")
   
   # Extract the model
   the_call <- match.call()
@@ -504,11 +499,10 @@ gbm <- function(formula = formula(data),
   
   # Set distribution object - put in all possible additional parameters (this will generate warnings)
   if(missing(distribution)) {distribution <- guess_distribution(y)}
-  if (is.character(distribution)){ distribution <- list(name=distribution) }
-  dist_obj <- gbm_dist(distribution$name, ties=tied.times.method, strata=strata,
-                       group=distribution$group, metric=distribution$metric,
-                       max.rank=distribution$max.rank, prior_node_coeff_var=prior.node.coeff.var,
-                       alpha=distribution$alpha, df=distribution$df, power=distribution$power)
+  if (is.character(distribution)){ distribution <- list(name=distribution)}
+  
+  # Extract and call correct gbm_distribution object
+  dist_obj <- create_dist_obj_for_gbmt_fit(distribution, tied.times.method, strata, prior.node.coeff.var)
   
   # Set up training parameters
   if(is.null(mFeatures)) mFeatures <- ncol(x) 
@@ -545,8 +539,8 @@ gbm <- function(formula = formula(data),
   # Update number of training rows based off of groups
   params <- update_num_train_groups(params, dist_obj)
   
-  # Call gbm2.fit 
-  gbm_fit_obj <- gbm2.fit(x, y, dist_obj, weights, offset,
+  # Call gbmt_fit 
+  gbm_fit_obj <- gbmt_fit(x, y, dist_obj, weights, offset,
                           params, var.monotone, var.names, keep.data, cv.folds,
                           class.stratify.cv, fold.id, par.details, verbose)
   

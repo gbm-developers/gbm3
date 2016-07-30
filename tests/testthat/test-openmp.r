@@ -23,7 +23,7 @@ test_that("gbm refuses to work with insane numbers of threads", {
   data <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3,X4=X4,X5=X5,X6=X6)
   
   # fit initial model
-  expect_error(gbm2(Y~X1+X2+X3+X4+X5+X6,         # formula
+  expect_error(gbmt(Y~X1+X2+X3+X4+X5+X6,         # formula
                    data=data,                   # dataset
                    var_monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                    keep_gbm_data=TRUE,
@@ -56,7 +56,7 @@ test_that("gbm refuses to work with insane array chunk size - old api", {
   data <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3,X4=X4,X5=X5,X6=X6)
   
   # fit initial model
-  expect_error(gbm2(Y~X1+X2+X3+X4+X5+X6,         # formula
+  expect_error(gbmt(Y~X1+X2+X3+X4+X5+X6,         # formula
                    data=data,                   # dataset
                    var_monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                    keep_gbm_data=TRUE,

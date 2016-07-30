@@ -204,7 +204,7 @@ convert_strata <- function(strata) {
   
   # If it isn't default then check
   if(!is.na(strata[1])) {
-    if(!is.vector(strata) || any(is.nan(strata)) || any(is.character(strata)) || any(is.infinite(strata)) || any(is.nan(strata)) ||
+    if(!is.vector(strata) || any(is.character(strata)) || any(is.infinite(strata)) || any(is.nan(strata)) ||
        !(all(strata == as.factor(strata)) || all(strata == as.integer(strata)))) {
       stop("strata must be an atomic vector of factors or integers")
     }

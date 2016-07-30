@@ -1,12 +1,12 @@
 # Performance Plots
 # 
-# Plot the performance of a GBMFit object produced by calling \code{\link{gbm2}}. This
+# Plot the performance of a GBMFit object produced by calling \code{\link{gbmt}}. This
 # function is used in \code{\link{gbm_perf}}.
 # 
 # @usage perf_plot(gbm_fit_obj, best_iter, out_of_bag_curve, overlay, method, main)
 # 
 # @param gbm_fit_obj a \code{GBMFit} created from an initial call to
-# \code{\link{gbm2}}.
+# \code{\link{gbmt}}.
 # 
 # @param best_iter iteration specifying the optimum number of iterations. This is determined in
 #  \code{\link{gbm_perf}}.
@@ -22,7 +22,7 @@
 # boosting iterations. \code{method="OOB"} computes the out-of-bag estimate
 # and \code{method="test"} uses the test (or validation) dataset to compute an
 # out-of-sample estimate. \code{method="cv"} extracts the optimal number of
-# iterations using cross-validation if \code{gbm2} was called with \code{cv_folds}>1.
+# iterations using cross-validation if \code{gbmt} was called with \code{cv_folds}>1.
 # 
 # @param main the main title for the plot.
 # 

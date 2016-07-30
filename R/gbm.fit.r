@@ -1,3 +1,4 @@
+#' @describeIn gbm Core fitting code, for experts only.
 #' @export 
 gbm.fit <- function(x, y,
                     offset = NULL,
@@ -21,7 +22,7 @@ gbm.fit <- function(x, y,
                     prior.node.coeff.var = 1000,
                     strata = NA, obs.id = 1:nrow(x)) {
   # Highlight new API
-  warning("gbm is depracated - using gbm2.fit ...")
+  warning("gbm is depracated - using gbmt_fit...")
   
   # Reconstruct data
   if(is.null(var.names)) {
@@ -51,10 +52,7 @@ gbm.fit <- function(x, y,
   
   # Set distribution object - put in all possible additional parameters (this will generate warnings)
   if (is.character(distribution)){ distribution <- list(name=distribution) }
-  dist_obj <- gbm_dist(distribution$name, ties=tied.times.method, strata=strata,
-                       group=group, metric=distribution$metric,
-                       max.rank=distribution$max.rank, prior_node_coeff_var=prior.node.coeff.var,
-                       alpha=distribution$alpha, df=distribution$df, power=distribution$power)
+  dist_obj <- create_dist_obj_for_gbmt_fit(distribution, tied.times.method, strata, prior.node.coeff.var)
   
   # Set up training parameters
   if(is.null(mFeatures)) mFeatures <- ncol(x)
@@ -63,7 +61,7 @@ gbm.fit <- function(x, y,
                             num_train=nTrain, num_features=mFeatures)
   
   # Call gbm2 - formula defined from the data
-  gbm_fit_obj <- gbm2.fit(x, y, distribution=dist_obj, weights=w, offset=offset,
+  gbm_fit_obj <- gbmt_fit(x, y, distribution=dist_obj, weights=w, offset=offset,
                       train_params= params, var_monotone=var.monotone, var_names=var.names,
                       keep_gbm_data=keep.data, is_verbose=verbose)
   

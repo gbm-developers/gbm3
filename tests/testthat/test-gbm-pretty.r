@@ -41,16 +41,16 @@ test_that("error thrown when tree_index is not a positive integer", {
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
-  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   
-  # When calling pretty on the object and the tree_index is not a positive integer
+  # When calling pretty_gbm_tree on the object and the tree_index is not a positive integer
   # Then an error is thrown
-  expect_error(pretty(fit, tree_index=NA))
-  expect_error(pretty(fit, tree_index=c(1, 2)))
-  expect_error(pretty(fit, tree_index=0))
-  expect_error(pretty(fit, tree_index=NA))
-  expect_error(pretty(fit, tree_index=FALSE))
+  expect_error(pretty_gbm_tree(fit, tree_index=NA))
+  expect_error(pretty_gbm_tree(fit, tree_index=c(1, 2)))
+  expect_error(pretty_gbm_tree(fit, tree_index=0))
+  expect_error(pretty_gbm_tree(fit, tree_index=NA))
+  expect_error(pretty_gbm_tree(fit, tree_index=FALSE))
 })
 test_that("error thrown when tree_index exceeds the number of trees fitted", {
   # Given a fitted gbm object
@@ -87,17 +87,17 @@ test_that("error thrown when tree_index exceeds the number of trees fitted", {
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
-  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   
-  # When calling pretty on the object and the tree_index is larger than number of fitted trees
+  # When calling pretty_gbm_tree on the object and the tree_index is larger than number of fitted trees
   tree_index <- params$num_trees + 1
   
   # Then an error is thrown
-  expect_error(pretty(fit, tree_index))
+  expect_error(pretty_gbm_tree(fit, tree_index))
 })
 
-context("Test output of pretty")
+context("Test output of pretty_gbm_tree")
 test_that("Tree is prettified correctly", {
   # Given a fitted gbm object and a sensible tree_index
   n_trees <- 2000
@@ -134,11 +134,11 @@ test_that("Tree is prettified correctly", {
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
-  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   
-  # When calling pretty on the object and the tree_index 
-  pretty_tree <- pretty(fit, tree_index)
+  # When calling pretty_gbm_tree on the object and the tree_index 
+  pretty_gbm_tree_tree <- pretty_gbm_tree(fit, tree_index)
   tree <- data.frame(fit$trees[[tree_index]])
   names(tree) <- c("SplitVar","SplitCodePred","LeftNode",
                    "RightNode","MissingNode","ErrorReduction",
@@ -146,7 +146,7 @@ test_that("Tree is prettified correctly", {
   row.names(tree) <- 0:(nrow(tree)-1)
   
   # Then correctly prettifies tree
-  expect_equal(pretty_tree, tree)
+  expect_equal(pretty_gbm_tree_tree, tree)
 })
 test_that("default prettified tree is the first one", {
   # Given a fitted gbm object and the default tree_index
@@ -184,11 +184,11 @@ test_that("default prettified tree is the first one", {
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
-  fit <- gbm2(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   
-  # When calling pretty on the object and with 
-  pretty_tree <- pretty(fit)
+  # When calling pretty_gbm_tree on the object and with 
+  pretty_gbm_tree_tree <- pretty_gbm_tree(fit)
   tree <- data.frame(fit$trees[[1]])
   names(tree) <- c("SplitVar","SplitCodePred","LeftNode",
                    "RightNode","MissingNode","ErrorReduction",
@@ -196,5 +196,5 @@ test_that("default prettified tree is the first one", {
   row.names(tree) <- 0:(nrow(tree)-1)
   
   # Then correctly prettifies the first trees
-  expect_equal(pretty_tree, tree)
+  expect_equal(pretty_gbm_tree_tree, tree)
 })

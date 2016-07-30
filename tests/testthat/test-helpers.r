@@ -508,7 +508,6 @@ test_that("convert_strata throws an error when not passed a vector of integers o
   expect_error(convert_strata(matrix(FALSE)))
   expect_error(convert_strata(matrix(c(1, 2))))
   expect_error(convert_strata(Inf))
-  expect_error(convert_strata(NaN))
   expect_error(convert_strata("Error"))
 })
 

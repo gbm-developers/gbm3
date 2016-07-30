@@ -56,8 +56,8 @@ summary(gbm1,num_trees=1)         # based on the first tree
 summary(gbm1,num_trees=best.iter) # based on the estimated best number of trees
 
 # print the first and last trees
-print(pretty(gbm1,1))
-print(pretty(gbm1,gbm1$params$num_trees))
+print(pretty_gbm_tree(gbm1,1))
+print(pretty_gbm_tree(gbm1,gbm1$params$num_trees))
 
 print(gbm1$c.splits[1:3])
 
@@ -87,18 +87,18 @@ print(sum((data2$Y-f.predict)^2))
 # create marginal plots
 # plot variable X1,X2,X3 after "best" iterations
 par(mfrow=c(1,3))
-plot(gbm1,1,best.iter)
-plot(gbm1,2,best.iter)
-plot(gbm1,3,best.iter)
+gbmt_plot(gbm1,1,best.iter)
+gbmt_plot(gbm1,2,best.iter)
+gbmt_plot(gbm1,3,best.iter)
 par(mfrow=c(1,1))
-plot(gbm1,1:2,best.iter) # contour plot of variables 1 and 2 after "best" number iterations
-plot(gbm1,2:3,best.iter) # lattice plot of variables 2 and 3 after "best" number iterations
-plot(gbm1,3:4,best.iter) # lattice plot of variables 2 and 3 after "best" number iterations
+gbmt_plot(gbm1,1:2,best.iter) # contour plot of variables 1 and 2 after "best" number iterations
+gbmt_plot(gbm1,2:3,best.iter) # lattice plot of variables 2 and 3 after "best" number iterations
+gbmt_plot(gbm1,3:4,best.iter) # lattice plot of variables 2 and 3 after "best" number iterations
 
-plot(gbm1,c(1,2,6),best.iter,cont=20) # 3-way plots
-plot(gbm1,1:3,best.iter)
-plot(gbm1,2:4,best.iter)
-plot(gbm1,3:5,best.iter)
+gbmt_plot(gbm1,c(1,2,6),best.iter,cont=20) # 3-way plots
+gbmt_plot(gbm1,1:3,best.iter)
+gbmt_plot(gbm1,2:4,best.iter)
+gbmt_plot(gbm1,3:5,best.iter)
 
 # check interactions
 interact(gbm1,data=data,var_indices=1:2, num_trees=best.iter)
