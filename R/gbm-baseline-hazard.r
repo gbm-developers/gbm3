@@ -52,13 +52,13 @@ baseline_hazard <- function(surv_times, delta, coxph_preds,
                             smooth=FALSE,
                             cumulative=TRUE) {
   # Initial checks
-  if(!is.logical(cumulative) || (length(cumulative) > 1)) {
+  if(!is.logical(cumulative) || (length(cumulative) > 1) || is.na(cumulative) || is.nan(cumulative)) {
     stop("cumulative must be a logical")
   }
-  if(!is.logical(smooth) || (length(smooth) > 1)) {
+  if(!is.logical(smooth) || (length(smooth) > 1) || is.na(smooth) || is.nan(smooth)) {
     stop("smooth must be a logical")
   }
-  if(!is.atomic(surv_times) || !any(surv_times == as.double(surv_times))) {
+  if(!is.atomic(surv_times) || any(surv_times != as.double(surv_times))) {
     stop("surv_times must be a vector of doubles")
   }
   
@@ -67,7 +67,7 @@ baseline_hazard <- function(surv_times, delta, coxph_preds,
   }
   
   if(!is.null(eval_times) && 
-     (!is.atomic(eval_times) || !any(eval_times == as.double(eval_times))) ) {
+     (!is.atomic(eval_times) || any(eval_times != as.double(eval_times))) ) {
     stop("eval_times must be a vector of doubles if not NULL")
   }
   
@@ -82,7 +82,7 @@ baseline_hazard <- function(surv_times, delta, coxph_preds,
   # Calculate survival function - alpha
   unique_death_times <- sort(unique(surv_times[delta==1]))
   alpha <- length(unique_death_times)
-  for(i in seq_len(length(unique_death_times))) {
+  for(i in seq_along(unique_death_times)) {
     alpha[i] <- sum(surv_times[delta==1]==unique_death_times[i])/
       sum(exp(coxph_preds[surv_times >= unique_death_times[i]]))
   }

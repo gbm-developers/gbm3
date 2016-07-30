@@ -22,7 +22,7 @@ gbm.fit <- function(x, y,
                     prior.node.coeff.var = 1000,
                     strata = NA, obs.id = 1:nrow(x)) {
   # Highlight new API
-  warning("gbm is depracated - using gbmt_fit...")
+  warning("gbm.fit is depracated - using gbmt_fit...")
   
   # Reconstruct data
   if(is.null(var.names)) {
@@ -64,6 +64,5 @@ gbm.fit <- function(x, y,
   gbm_fit_obj <- gbmt_fit(x, y, distribution=dist_obj, weights=w, offset=offset,
                       train_params= params, var_monotone=var.monotone, var_names=var.names,
                       keep_gbm_data=keep.data, is_verbose=verbose)
-  
   return(gbm_fit_obj)
 }

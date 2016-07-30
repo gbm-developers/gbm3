@@ -34,7 +34,7 @@
 #' @return Returns the value of \code{H}.
 #' 
 #' @author Greg Ridgeway \email{gregridgeway@@gmail.com}
-#' @seealso \code{\link{gbm}}, \code{\link{gbm.object}}
+#' @seealso \code{\link{gbmt}}
 #' @references J.H. Friedman and B.E. Popescu (2005). \dQuote{Predictive
 #' Learning via Rule Ensembles.} Section 8.1
 #' @keywords methods

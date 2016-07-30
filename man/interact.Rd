@@ -53,7 +53,7 @@ J.H. Friedman and B.E. Popescu (2005). \dQuote{Predictive
 Learning via Rule Ensembles.} Section 8.1
 }
 \seealso{
-\code{\link{gbm}}, \code{\link{gbm.object}}
+\code{\link{gbmt}}
 }
 \keyword{methods}
 

@@ -13,6 +13,7 @@
 \newcommand{\mathgbf}[1]{{\mbox{\boldmath$#1$\unboldmath}}}
 
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 
 \maketitle
 

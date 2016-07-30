@@ -68,6 +68,8 @@ relative_influence <- function(gbm_fit_obj, num_trees, rescale = FALSE, sort_it 
     }
     message(paste( "num_trees not given. Using", num_trees, "trees.\n" ))
     
+  } else if (num_trees > length(gbm_fit_obj$trees)) {
+    stop("num_trees exceeds number in fit")
   }
 
   # Create relative influence for every variable

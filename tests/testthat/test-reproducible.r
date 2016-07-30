@@ -1,13 +1,13 @@
 context("reproducibility")
 test_that("Setting the seed causes result to be reproducible (1 core)", {
   set.seed(18900217)
-  mod <- gbm2(Species == 'setosa' ~ ., data=iris, distribution=gbm_dist("Bernoulli"),
+  mod <- gbmt(Species == 'setosa' ~ ., data=iris, distribution=gbm_dist("Bernoulli"),
              cv_folds=3)
   nt1 <- gbm_perf(mod, method="cv", plot_it=FALSE)
   ri1 <- relative_influence(mod, num_trees=nt1)
   
   set.seed(18900217)
-  mod <- gbm2(Species == 'setosa' ~ ., data=iris, distribution=gbm_dist("Bernoulli"),
+  mod <- gbmt(Species == 'setosa' ~ ., data=iris, distribution=gbm_dist("Bernoulli"),
              cv_folds=3)
   nt2 <- gbm_perf(mod, method="cv", plot_it=FALSE)
   ri2 <- relative_influence(mod, num_trees=nt2)
@@ -20,13 +20,13 @@ test_that("Setting the seed causes result to be reproducible (1 core)", {
 
 test_that("Setting different seeds causes result to be different (1 core)", {
   set.seed(18900217)
-  mod <- gbm2(Species == 'setosa' ~ ., data=iris, distribution=gbm_dist("Bernoulli"),
+  mod <- gbmt(Species == 'setosa' ~ ., data=iris, distribution=gbm_dist("Bernoulli"),
              cv_folds=3)
   nt1 <- gbm_perf(mod, method="cv", plot_it=FALSE)
   ri1 <- relative_influence(mod, num_trees=nt1)
   
   set.seed(19620729)
-  mod <- gbm2(Species == 'setosa' ~ ., data=iris, distribution=gbm_dist("Bernoulli"),
+  mod <- gbmt(Species == 'setosa' ~ ., data=iris, distribution=gbm_dist("Bernoulli"),
              cv_folds=3)
   nt2 <- gbm_perf(mod, method="cv", plot_it=FALSE)
   ri2 <- relative_influence(mod, num_trees=nt2)

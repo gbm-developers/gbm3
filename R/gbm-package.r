@@ -97,8 +97,7 @@ NULL
 #' 2014-08-12\cr Depends: \tab R (>= 2.9.0), survival, lattice, mgcv\cr
 #' License: \tab GPL (version 2 or newer)\cr} Index:
 #' \preformatted{baseline_hazard Baseline hazard function calibrate_plot
-#' Calibration plot gbmt Generalized Boosted Regression Modeling gbm.object
-#' Generalized Boosted Regression Model Object gbm_perf GBM performance
+#' Calibration plot gbmt Generalized Boosted Regression Modeling gbm_perf GBM performance
 #' gbmt_plot Marginal plots of fitted gbm objects predict.GBMFit Predict method for
 #' GBM Model Fits pretty_gbm_tree Print gbm tree components quantile_rug
 #' Quantile rug plot relative_influence Methods for estimating relative

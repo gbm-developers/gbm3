@@ -123,13 +123,15 @@ gbmt <- function(formula, distribution=gbm_dist("Gaussian"), data, weights=rep(1
   
   # Call gbmt.fit 
   gbm_fit_obj <- gbmt_fit(x, y, distribution, weights, offset,
-                         train_params, var_monotone, var_names, keep_gbm_data, cv_folds,
+                         train_params, as.character(formula[[2]]),
+                         var_monotone, var_names, keep_gbm_data, cv_folds,
                          cv_class_stratify, fold_id, par_details, is_verbose)
 
   # Wrap up extra pieces 
   gbm_fit_obj$model <- m
   gbm_fit_obj$Terms <- Terms
   gbm_fit_obj$call <- the_call
+  gbm_fit_obj$is_verbose <- is_verbose
  
   return(gbm_fit_obj)
 }

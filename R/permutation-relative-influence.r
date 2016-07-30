@@ -41,9 +41,11 @@ permutation_relative_influence <- function(gbm_fit_obj, num_trees, rescale=FALSE
   # Checks initial inputs
   check_if_gbm_fit(gbm_fit_obj)
   check_if_natural_number(num_trees)
-  if(!is.logical(rescale) || (length(rescale) > 1))
+  if(num_trees > length(gbm_fit_obj$trees))
+    stop("num_trees exceeds maximum")
+  if(is.na(rescale) || !is.logical(rescale) || (length(rescale) > 1))
     stop("rescale argument must be a logical")
-  if(!is.logical(sort_it) || (length(sort_it) > 1))
+  if(is.na(sort_it) || !is.logical(sort_it) || (length(sort_it) > 1))
     stop("sort_it must be a logical")
   if(is.null(gbm_fit_obj$gbm_data_obj))
     stop("Model was fit with keep_data=FALSE: permutation_relative_influence has not been implemented for that case.")
@@ -56,7 +58,7 @@ permutation_relative_influence <- function(gbm_fit_obj, num_trees, rescale=FALSE
   variables_indices <- variables_indices[variables_indices != -1] + 1
   
   # Set up rel_inf results
-  rel_inf <- rep(0,length(gbm_fit_obj$variables$var_names))
+  rel_inf <- rep(0, length(gbm_fit_obj$variables$var_names))
   
   # Extract data for loss calculation
   y            <- gbm_fit_obj$gbm_data_obj$y
@@ -70,12 +72,12 @@ permutation_relative_influence <- function(gbm_fit_obj, num_trees, rescale=FALSE
   for(i in seq_len(length(variables_indices))) {
     # Shuffle  predictor variables
     x[ ,variables_indices[i]]  <- x[shuffled_rows, variables_indices[i]]
-    new_preds <- predict(gbm_fit_obj, new_data=x, num_trees=num_trees)
+    new_preds <- predict(gbm_fit_obj, new_data=as.data.frame(x), num_trees=num_trees)
     
     # Calculate loss with shuffled data
     rel_inf[variables_indices[i]] <- loss(y, new_preds, weights, offset,
                                           gbm_fit_obj$distribution,
-                                          baseline=gbm_fit_obj$train.error[num_trees])
+                                          baseline=rep(gbm_fit_obj$train.error[num_trees], length(weights)))
     
     # Unshuffle variable - only permute variables one at a time
     x[shuffled_rows, variables_indices[i]] <- x[ ,variables_indices[i]]

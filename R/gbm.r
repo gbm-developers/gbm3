@@ -174,9 +174,6 @@
 #' data and index makes subsequent calls to \code{\link{gbm_more}}
 #' faster at the cost of storing an extra copy of the dataset.
 #'
-#' @param num_new_trees the number of additional trees to add to
-#' \code{object} using \code{gbm_more}.
-#'
 #' @param verbose If TRUE, gbm will print out progress and performance
 #' indicators. If this option is left unspecified for gbm_more then it uses
 #' \code{verbose} from \code{object}.
@@ -197,7 +194,7 @@
 #'
 #' @param w For \code{gbm.fit}: \code{w} is a vector of weights of the same
 #' length as the 1st dimension of \code{y}.
-#'
+#' 
 #' @param var.names For \code{gbm.fit}: A vector of strings of length
 #' equal to the number of columns of \code{x} containing the names of
 #' the predictor variables.
@@ -377,11 +374,11 @@
 #' 
 #' # check performance using 3-fold cross-validation
 #' best_iter <- gbm_perf(gbm1,method="cv")
-#' print(best.iter)
+#' print(best_iter)
 #' 
 #' # plot the performance # plot variable influence
 #' summary(gbm1, num_trees=1)         # based on the first tree
-#' summary(gbm1, num_trees=best.iter) # based on the estimated best number of trees
+#' summary(gbm1, num_trees=best_iter) # based on the estimated best number of trees
 #' 
 #' # compactly print the first and last trees for curiosity
 #' print(pretty_gbm_tree(gbm1,1))
@@ -411,26 +408,26 @@
 #' # create marginal plots
 #' # plot variable X1,X2,X3 after "best" iterations
 #' par(mfrow=c(1,3))
-#' gbmt_plot(gbm1,1,best.iter)
-#' gbmt_plot(gbm1,2,best.iter)
-#' gbmt_plot(gbm1,3,best.iter)
+#' gbmt_plot(gbm1,1,best_iter)
+#' gbmt_plot(gbm1,2,best_iter)
+#' gbmt_plot(gbm1,3,best_iter)
 #' par(mfrow=c(1,1))
 #' # contour plot of variables 1 and 2 after "best" iterations
-#' gbmt_plot(gbm1,1:2,best.iter)
+#' gbmt_plot(gbm1,1:2,best_iter)
 #' # lattice plot of variables 2 and 3
-#' gbmt_plot(gbm1,2:3,best.iter)
+#' gbmt_plot(gbm1,2:3,best_iter)
 #' # lattice plot of variables 3 and 4
-#' gbmt_plot(gbm1,3:4,best.iter)
+#' gbmt_plot(gbm1,3:4,best_iter)
 #' 
 #' # 3-way plots
-#' gbmt_plot(gbm1,c(1,2,6),best.iter,cont=20)
-#' gbmt_plot(gbm1,1:3,best.iter)
-#' gbmt_plot(gbm1,2:4,best.iter)
-#' gbmt_plot(gbm1,3:5,best.iter)
+#' gbmt_plot(gbm1,c(1,2,6),best_iter,cont=20)
+#' gbmt_plot(gbm1,1:3,best_iter)
+#' gbmt_plot(gbm1,2:4,best_iter)
+#' gbmt_plot(gbm1,3:5,best_iter)
 #' 
 #' # do another 100 iterations
 #' gbm2 <- gbm_more(gbm1,100,
-#'                  verbose=FALSE) # stop printing detailed progress
+#'                  is_verbose=FALSE) # stop printing detailed progress
 #' @export
 gbm <- function(formula = formula(data),
                 distribution = "Bernoulli",
@@ -541,13 +538,15 @@ gbm <- function(formula = formula(data),
   
   # Call gbmt_fit 
   gbm_fit_obj <- gbmt_fit(x, y, dist_obj, weights, offset,
-                          params, var.monotone, var.names, keep.data, cv.folds,
+                          params, as.character(formula[[2]]), var.monotone, var.names,
+                          keep.data, cv.folds,
                           class.stratify.cv, fold.id, par.details, verbose)
   
   # Wrap up extra pieces 
   gbm_fit_obj$model <- m
   gbm_fit_obj$Terms <- Terms
   gbm_fit_obj$call <- the_call
+  gbm_fit_obj$is_verbose <- verbose
   
   return(gbm_fit_obj)
 }

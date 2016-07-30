@@ -234,9 +234,6 @@ core algorithm.}
 \item{fold.id}{An optional vector of values identifying what fold
 each observation is in. If supplied, cv.folds can be missing. Note:
 Multiple observations to the same patient must have the same fold id.}
-
-\item{num_new_trees}{the number of additional trees to add to
-\code{object} using \code{gbm_more}.}
 }
 \value{
 \code{gbm} and \code{gbm.fit} return a
@@ -353,11 +350,11 @@ print(best_iter)
 
 # check performance using 3-fold cross-validation
 best_iter <- gbm_perf(gbm1,method="cv")
-print(best.iter)
+print(best_iter)
 
 # plot the performance # plot variable influence
 summary(gbm1, num_trees=1)         # based on the first tree
-summary(gbm1, num_trees=best.iter) # based on the estimated best number of trees
+summary(gbm1, num_trees=best_iter) # based on the estimated best number of trees
 
 # compactly print the first and last trees for curiosity
 print(pretty_gbm_tree(gbm1,1))
@@ -387,26 +384,26 @@ print(sum((data2$Y-f.predict)^2))
 # create marginal plots
 # plot variable X1,X2,X3 after "best" iterations
 par(mfrow=c(1,3))
-gbmt_plot(gbm1,1,best.iter)
-gbmt_plot(gbm1,2,best.iter)
-gbmt_plot(gbm1,3,best.iter)
+gbmt_plot(gbm1,1,best_iter)
+gbmt_plot(gbm1,2,best_iter)
+gbmt_plot(gbm1,3,best_iter)
 par(mfrow=c(1,1))
 # contour plot of variables 1 and 2 after "best" iterations
-gbmt_plot(gbm1,1:2,best.iter)
+gbmt_plot(gbm1,1:2,best_iter)
 # lattice plot of variables 2 and 3
-gbmt_plot(gbm1,2:3,best.iter)
+gbmt_plot(gbm1,2:3,best_iter)
 # lattice plot of variables 3 and 4
-gbmt_plot(gbm1,3:4,best.iter)
+gbmt_plot(gbm1,3:4,best_iter)
 
 # 3-way plots
-gbmt_plot(gbm1,c(1,2,6),best.iter,cont=20)
-gbmt_plot(gbm1,1:3,best.iter)
-gbmt_plot(gbm1,2:4,best.iter)
-gbmt_plot(gbm1,3:5,best.iter)
+gbmt_plot(gbm1,c(1,2,6),best_iter,cont=20)
+gbmt_plot(gbm1,1:3,best_iter)
+gbmt_plot(gbm1,2:4,best_iter)
+gbmt_plot(gbm1,3:5,best_iter)
 
 # do another 100 iterations
 gbm2 <- gbm_more(gbm1,100,
-                 verbose=FALSE) # stop printing detailed progress
+                 is_verbose=FALSE) # stop printing detailed progress
 }
 \author{
 James Hickey, Greg Ridgeway \email{gregridgeway@gmail.com}
