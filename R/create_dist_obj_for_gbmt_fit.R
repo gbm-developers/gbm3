@@ -25,7 +25,7 @@
 # @return \code{GBMDist} object
 # 
 # @author James Hickey
-#'@export
+
 create_dist_obj_for_gbmt_fit <- function(distribution, tied.times.method="efron", strata=NA, prior.node.coeff.var=1000) {
   # Check inputs
   if(is.null(distribution$name)) stop("distribution parameter name not defined.")

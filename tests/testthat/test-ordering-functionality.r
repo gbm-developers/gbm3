@@ -195,8 +195,8 @@ test_that("Can order data by id", {
   data <- order_by_id(data, train_p)
   
   # Then data is ordered by id
-  expect_equal(data$x, data_copy$x[train_p$id, , drop=FALSE])
-  expect_equal(data$y, data_copy$y[train_p$id])
+  expect_equal(data$x, data_copy$x[order(train_p$id), , drop=FALSE])
+  expect_equal(data$y, data_copy$y[order(train_p$id)])
 })
 test_that("Can order data by groupings", {
   # Given pairwise data and dist

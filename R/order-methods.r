@@ -49,8 +49,8 @@ order_data <- function(gbm_data_obj, distribution_obj, train_params) {
 order_by_id <- function(gbm_data_obj, train_params) {
   # Check if gbm_data_obj
   check_if_gbm_data(gbm_data_obj)
-  gbm_data_obj$x <- gbm_data_obj$x[train_params$id, , drop=FALSE]
-  gbm_data_obj$y <- gbm_data_obj$y[train_params$id]
+  gbm_data_obj$x <- gbm_data_obj$x[order(train_params$id), , drop=FALSE]
+  gbm_data_obj$y <- gbm_data_obj$y[order(train_params$id)]
   
   return(gbm_data_obj)
 }

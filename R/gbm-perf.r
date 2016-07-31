@@ -76,8 +76,8 @@ best_iter_test <- function(gbm_fit_obj) {
 best_iter_cv <- function(gbm_fit_obj) {
   check_if_gbm_fit(gbm_fit_obj)
   if(is.null(gbm_fit_obj$cv_error))
-    stop("In order to use method=\"cv\" gbm must be called with cv.folds>1.")
-    message("cross-validation error is not computed for any additional iterations run using gbm.more().")
+    stop("In order to use method=\"cv\" gbm must be called with cv_folds>1.")
+    message("cross-validation error is not computed for any additional iterations run using gbm_more().")
   best_iter_cv <- which.min(gbm_fit_obj$cv_error)
   return(best_iter_cv)
 }
@@ -85,12 +85,12 @@ best_iter_cv <- function(gbm_fit_obj) {
 best_iter_out_of_bag <- function(gbm_fit_obj) {
   check_if_gbm_fit(gbm_fit_obj)
   if(gbm_fit_obj$params$bag_fraction==1)
-    stop("Cannot compute OOB estimate or the OOB curve when bag.fraction=1")
+    stop("Cannot compute OOB estimate or the OOB curve when bag_fraction=1")
   if(all(!is.finite(gbm_fit_obj$oobag.improve)))
     stop("Cannot compute OOB estimate or the OOB curve. No finite OOB estimates of improvement")
   
   message("OOB generally underestimates the optimal number of iterations although predictive performance is reasonably competitive.
-            Using cv.folds>0 when calling gbm usually results in improved predictive performance.")
+            Using cv_folds>0 when calling gbm usually results in improved predictive performance.")
   smoother <- generate_smoother_oobag(gbm_fit_obj)
   best_iter_oob <- smoother$x[which.min(-cumsum(smoother$y))]
   return(best_iter_oob)
