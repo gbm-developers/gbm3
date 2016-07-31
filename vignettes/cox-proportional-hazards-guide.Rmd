@@ -1,6 +1,6 @@
 ---
-title: "Vignette Title"
-author: "Vignette Author"
+title: "Guide to the Cox Proportional Hazards model"
+author: "James Hickey"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -8,51 +8,51 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
-
-Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
-
-- Never uses retina figures
-- Has a smaller default figure size
-- Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style
-
-## Vignette Info
-
-Note the various macros within the `vignette` section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the `title` field and the `\VignetteIndexEntry` to match the title of your vignette.
-
-## Styles
-
-The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
-
-    output: 
-      rmarkdown::html_vignette:
-        css: mystyles.css
-
-## Figures
-
-The figure sizes have been customised so that you can easily put two images side-by-side. 
-
-```{r, fig.show='hold'}
-plot(1:10)
-plot(10:1)
+```{r}
+library(gbm)
 ```
 
-You can enable figure captions by `fig_caption: yes` in YAML:
+`gbm` facilitates the creation of boosted Cox proportional hazards models, a particularly useful feature
+when dealing with survival data.  The package can handle two types of survival object as the response namely a right censored or counting survival object.  Both of these objects can be created using the `Surv` command found in the `survival` package. 
 
-    output:
-      rmarkdown::html_vignette:
-        fig_caption: yes
+# Set-up of data and distribution object 
+Right censored survival data consists of a time to event and the event indicator - 0 if no event has taken place and 1 if the event has happened. On the other hand counting survival data contains start and stop times with an event indicator again indicating if an event has taken place in that period.  The data may be organised into strata and this should be passed to `gbm_dist` on creation of the `CoxPHGBMDist` object - see  the "Model Specific Parameters" vignette for more details.  The dataset considered here is provided by the `survival` package.
 
-Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
+```{r}
+## Install package
+require(survival)
 
-## More Examples
+# get datasets
+right_cens <- cgd[cgd$enum==1, ]
+start_stop <- cgd
 
-You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
-
-```{r, echo=FALSE, results='asis'}
-knitr::kable(head(mtcars, 10))
+# Set up GBMDist objects
+right_cens_dist <- gbm_dist("CoxPH", strata=right_cens$hos.cat)
+start_stop_dist <- gbm_dist("CoxPH", strata=start_stop$hos.cat)
 ```
 
-Also a quote using `>`:
+# Creating a boosted model
+Now to create the underlying boosted model the training parameters need to be defined and `gbmt` called. In this instance the data has observation ids associated with it and so it is necessary to create the `GBMTrainParams` objects rather than relying on the defaults.
 
-> "He who gives up [code] safety for [code] speed deserves neither."
-([via](https://twitter.com/hadleywickham/status/504368538874703872))
+```{r}
+# Set-up training parameters
+params_right_cens <- training_params(num_trees = 2000, interaction_depth = 3, id=right_cens$id,
+                                     num_train=round(0.5 * length(unique(right_cens$id))) )
+params_start_stop <- training_params(num_trees = 2000, interaction_depth = 3, id=start_stop$id,
+                                     num_train=round(0.5 * length(unique(start_stop$id))) )
+
+# Call to gbmt
+fit_right_cens <- gbmt(Surv(tstop, status)~ age + sex + inherit +
+                     steroids + propylac, data=right_cens, distribution = right_cens_dist,
+                     train_params = params_right_cens, cv_folds=10, keep_gbm_data = TRUE)
+fit_start_stop <- gbmt(Surv(tstart, tstop, status)~ age + sex + inherit +
+                     steroids + propylac, data=start_stop, distribution = start_stop_dist,
+                     train_params = params_start_stop, cv_folds=10, keep_gbm_data = TRUE)
+
+# Plot performance
+gbm_perf(fit_right_cens, method='test')
+gbm_perf(fit_start_stop, method='cv')
+```
+
+# The underlying algorithm
+The
