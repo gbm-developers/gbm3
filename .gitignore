@@ -11,13 +11,9 @@ src/searcher.cpp
 
 .Rproj.user
 .travis.yml
-
 test_baseline*
 test_runner.R
 git_commit.sh
-
-.RData
-
 tests/testthat/Baseline_GBM_Objects/
 *.Rout
 *.pdf
@@ -26,7 +22,6 @@ src/*.so
 Debug/
 .project
 .cproject
-
-
 src/gbmBuilder.h
 src/gbmBuilder.cpp
+inst/doc
