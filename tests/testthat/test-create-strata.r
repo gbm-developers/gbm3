@@ -48,7 +48,6 @@ test_that("Strata creation function requires GBMData and GBMDist objects", {
   expect_error(create_strata(data, train_p, copy_dist))
   expect_error(create_strata(copy_data, train_p, dist))
 })
-
 test_that("Strata are NA if distribution is not CoxPH", {
   # Require Surv to be available
   require(survival)
@@ -90,7 +89,6 @@ test_that("Strata are NA if distribution is not CoxPH", {
   expect_true(is.na(dist$strata))
   expect_true(is.na(dist$sorted))
 })
-
 test_that("Creating strata fills strata, time_order and sorted fields - CoxPH", {
   # Require Surv to be available
   require(survival)
@@ -133,7 +131,6 @@ test_that("Creating strata fills strata, time_order and sorted fields - CoxPH", 
   expect_equal(length(dist$time_order), N)
   expect_equal(nrow(dist$sorted), N)
 })
-
 test_that("If response is a matrix with more than 3 columns strata cannot be created - CoxPH", {
   # create some data
   set.seed(1)
@@ -171,7 +168,6 @@ test_that("If response is a matrix with more than 3 columns strata cannot be cre
   # Then error thrown when creating strata
   expect_error(create_strata(data, train_p, dist))
 })
-
 test_that("If strata field in distribution object is NULL, all data are put in same strata - CoxPH", {
   # Require Surv to be available
   require(survival)
@@ -213,7 +209,6 @@ test_that("If strata field in distribution object is NULL, all data are put in s
   # Then all examples put in same strata
   expect_equal(dist$strata[1], N)
 })
-
 test_that("The training responses are sorted according to strata and this order is stored in time_order", {
   # Require Surv to be available
   require(survival)
@@ -255,7 +250,6 @@ test_that("The training responses are sorted according to strata and this order 
   expect_equal(order(-data$y[seq_len(4*N/5), 1]), dist$time_order[seq_len(4*N/5)])
   expect_equal(order(-data$y[(4*N/5 + 1):N, 1])+(4*N/5), dist$time_order[(4*N/5 + 1):N])
 })
-
 test_that("Strata not NULL then observations put in different strata - CoxPH", {
   # Require Surv to be available
   require(survival)
