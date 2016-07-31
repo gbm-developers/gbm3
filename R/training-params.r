@@ -67,8 +67,8 @@ training_params <- function(num_trees=100, interaction_depth=1,
   }
   
   # Order the ids 
-  id <- id[order(id)]
-  num_rows_per_obs <- table(id)
+  id_order <- order(id)
+  num_rows_per_obs <- table(id[order(id)])
   num_train_rows <-  sum(num_rows_per_obs[seq_len(min(num_train, length(num_rows_per_obs)))])
 
   if(num_train * bag_fraction <= 2*min_num_obs_in_node+1) {
@@ -85,7 +85,7 @@ training_params <- function(num_trees=100, interaction_depth=1,
   
   object <- structure(list("num_trees"=num_trees, "interaction_depth"=interaction_depth,
                  "min_num_obs_in_node"=min_num_obs_in_node, "shrinkage"=shrinkage,
-                 "bag_fraction"=bag_fraction, "id"= id, "num_train"=num_train,
+                 "bag_fraction"=bag_fraction, "id"= id, "id_order"=id_order, "num_train"=num_train,
                  "num_train_rows"=num_train_rows, "num_features"=num_features,
                  "num_rows_per_obs"=num_rows_per_obs,
                  "train_fraction"= num_train/length(unique(id)) ),

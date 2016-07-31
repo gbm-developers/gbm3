@@ -85,6 +85,12 @@ gbmt_fit <- function(x, y, distribution=gbm_dist("Gaussian"), weights=rep(1, nro
   # Order the data
   gbm_data_obj <- order_data(gbm_data_obj, distribution, train_params)
   
+  # Order ids according to group_order if necessary
+  if(!is.null(distribution$group_order)) {
+    train_params$id <- train_params$id[distribution$group_order]
+  } 
+  train_params$id <- train_params$id[train_params$id_order]
+  
   # Get CV groups
   cv_groups <- create_cv_groups(gbm_data_obj, distribution, train_params, cv_folds,
                                 cv_class_stratify, fold_id)

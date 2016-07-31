@@ -12,7 +12,7 @@ test_that("perf_plot runs with all perf methods", {
   set.seed(1)
   
   # create some data
-  N <- 1000
+  N <- 150
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -28,7 +28,7 @@ test_that("perf_plot runs with all perf methods", {
   
   # create a bunch of missing values
   X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=300)] <- NA
+  X3[sample(1:N,size=100)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)
@@ -71,7 +71,7 @@ test_that("perf_plot throws error if gbm_fit_obj is not of class GBMFit", {
   set.seed(1)
   
   # create some data
-  N <- 1000
+  N <- 150
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -87,7 +87,7 @@ test_that("perf_plot throws error if gbm_fit_obj is not of class GBMFit", {
   
   # create a bunch of missing values
   X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=300)] <- NA
+  X3[sample(1:N,size=100)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)
@@ -116,7 +116,7 @@ test_that("perf_plot throws error if out_of_bag_curve is not logical or is na", 
   set.seed(1)
   
   # create some data
-  N <- 1000
+  N <- 150
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -132,7 +132,7 @@ test_that("perf_plot throws error if out_of_bag_curve is not logical or is na", 
   
   # create a bunch of missing values
   X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=300)] <- NA
+  X3[sample(1:N,size=100)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)
@@ -164,7 +164,7 @@ test_that("perf_plot throws error if overlay is not logical or is na", {
   set.seed(1)
   
   # create some data
-  N <- 1000
+  N <- 150
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -180,7 +180,7 @@ test_that("perf_plot throws error if overlay is not logical or is na", {
   
   # create a bunch of missing values
   X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=300)] <- NA
+  X3[sample(1:N,size=100)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)
@@ -431,7 +431,7 @@ test_that("Error thrown if type of plot not 'link' or 'response' ", {
   set.seed(1)
   
   # create some data
-  N <- 1000
+  N <- 150
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -447,7 +447,7 @@ test_that("Error thrown if type of plot not 'link' or 'response' ", {
   
   # create a bunch of missing values
   X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=300)] <- NA
+  X3[sample(1:N,size=100)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)
@@ -475,7 +475,7 @@ test_that("Error thrown if var_index has variable outside range not used in fit"
   set.seed(1)
   
   # create some data
-  N <- 1000
+  N <- 150
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -491,7 +491,7 @@ test_that("Error thrown if var_index has variable outside range not used in fit"
   
   # create a bunch of missing values
   X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=300)] <- NA
+  X3[sample(1:N,size=100)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)
@@ -578,7 +578,7 @@ test_that("get_default_grid_levels returns answer of correct type and size", {
   set.seed(1)
   
   # create some data
-  N <- 1000
+  N <- 150
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -594,7 +594,7 @@ test_that("get_default_grid_levels returns answer of correct type and size", {
   
   # create a bunch of missing values
   X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=300)] <- NA
+  X3[sample(1:N,size=100)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)
@@ -609,7 +609,7 @@ test_that("get_default_grid_levels returns answer of correct type and size", {
   fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   var_index <- 1
-  continuous_resolution <- 50
+  continuous_resolutioN <- 150
   
   # When default grids generated
   # Then output is of correct type and size
@@ -622,7 +622,7 @@ test_that("generate_grid_levels throws an error if length of grid_levels not sam
   set.seed(1)
   
   # create some data
-  N <- 1000
+  N <- 150
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -638,7 +638,7 @@ test_that("generate_grid_levels throws an error if length of grid_levels not sam
   
   # create a bunch of missing values
   X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=300)] <- NA
+  X3[sample(1:N,size=100)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)
@@ -653,7 +653,7 @@ test_that("generate_grid_levels throws an error if length of grid_levels not sam
   fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   var_index <- 1
-  continuous_resolution <- 50
+  continuous_resolutioN <- 150
   grid_levels <- get_default_grid_levels(fit, c(1, 2), continuous_resolution)
   
   # When generate_grid_levels called
@@ -668,7 +668,7 @@ test_that("warning thrown if num_trees exceeds those in fit and then uses number
   set.seed(1)
   
   # create some data
-  N <- 1000
+  N <- 150
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -684,7 +684,7 @@ test_that("warning thrown if num_trees exceeds those in fit and then uses number
   
   # create a bunch of missing values
   X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=300)] <- NA
+  X3[sample(1:N,size=100)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)
@@ -711,7 +711,7 @@ test_that("warning thrown if number var indices > 3", {
   set.seed(1)
   
   # create some data
-  N <- 1000
+  N <- 150
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -727,7 +727,7 @@ test_that("warning thrown if number var indices > 3", {
   
   # create a bunch of missing values
   X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=300)] <- NA
+  X3[sample(1:N,size=100)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)
@@ -754,7 +754,7 @@ test_that("return_grid=TRUE returns the grid", {
   set.seed(1)
   
   # create some data
-  N <- 1000
+  N <- 150
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -770,7 +770,7 @@ test_that("return_grid=TRUE returns the grid", {
   
   # create a bunch of missing values
   X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=300)] <- NA
+  X3[sample(1:N,size=100)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)
@@ -797,7 +797,7 @@ test_that("number of var indices >3 sets return_grid to TRUE", {
   set.seed(1)
   
   # create some data
-  N <- 1000
+  N <- 150
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -813,7 +813,7 @@ test_that("number of var indices >3 sets return_grid to TRUE", {
   
   # create a bunch of missing values
   X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=300)] <- NA
+  X3[sample(1:N,size=100)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)
@@ -838,7 +838,7 @@ test_that("can gbmt_plot with one variable selected", {
   set.seed(1)
   
   # create some data
-  N <- 1000
+  N <- 150
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -854,7 +854,7 @@ test_that("can gbmt_plot with one variable selected", {
   
   # create a bunch of missing values
   X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=300)] <- NA
+  X3[sample(1:N,size=100)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)
@@ -913,7 +913,7 @@ test_that("can gbmt_plot with two variables", {
   set.seed(1)
   
   # create some data
-  N <- 1000
+  N <- 150
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -929,7 +929,7 @@ test_that("can gbmt_plot with two variables", {
   
   # create a bunch of missing values
   X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=300)] <- NA
+  X3[sample(1:N,size=100)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)
@@ -961,7 +961,7 @@ test_that("can gbmt_plot with 3 variables selected", {
   set.seed(1)
   
   # create some data
-  N <- 1000
+  N <- 150
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -977,7 +977,7 @@ test_that("can gbmt_plot with 3 variables selected", {
   
   # create a bunch of missing values
   X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=300)] <- NA
+  X3[sample(1:N,size=100)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)

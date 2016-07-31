@@ -14,7 +14,7 @@ test_that("Training parameters are of class GBMTrainParams", {
 test_that("GBMTrainParams structure is correct", {
   expect_equal(names(training_params(num_train=100, id=seq_len(100), num_features=3)), 
                c("num_trees", "interaction_depth", "min_num_obs_in_node", "shrinkage",
-                 "bag_fraction", "id", "num_train", "num_train_rows", "num_features", "num_rows_per_obs", "train_fraction"))
+                 "bag_fraction", "id", "id_order", "num_train", "num_train_rows", "num_features", "num_rows_per_obs", "train_fraction"))
 })
 
 test_that("Calculation of number of rows per observation is correct", {
@@ -25,8 +25,8 @@ test_that("Calculation of number of rows per observation is correct", {
   id2 <- rep(1:25, 4)
   
   # Calculates number of rows per observation correctly on construction
-  expect_equal(training_params(num_train = train_no1, id=id1, num_features = 3)$num_rows_per_obs, table(id=id1[order(id1)]))
-  expect_equal(training_params(num_train = train_no2, id=id2, num_features = 3, min_num_obs_in_node = 1)$num_rows_per_obs, table(id=id2[order(id2)]))
+  expect_equal(training_params(num_train = train_no1, id=id1, num_features = 3)$num_rows_per_obs, table(id1[order(id1)]))
+  expect_equal(training_params(num_train = train_no2, id=id2, num_features = 3, min_num_obs_in_node = 1)$num_rows_per_obs, table(id2[order(id2)]))
 })
 
 test_that("Calculation of training fraction of observations is correct", {
@@ -37,6 +37,16 @@ test_that("Calculation of training fraction of observations is correct", {
   # When training_params called
   # Then correctly calculates train_fraction
   expect_equal(training_params(num_train = train_no, id=id1, bag_fraction=1, num_features = 3)$train_fraction, train_no/length(unique(id1)))
+})
+
+test_that("Id order is stored", {
+  # Given training id
+  id <- sample(1:10, 100, replace=TRUE)
+  train_no <- 5
+  
+  # When passed to train_params
+  # Then id order is correctly calculated
+  expect_equal(training_params(num_train= train_no, id=id, bag_fraction = 1, num_trees = 3, min_num_obs_in_node = 1)$id_order, order(id))
 })
 
 ##### Errors #####
