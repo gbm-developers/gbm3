@@ -507,6 +507,9 @@ test_that("cv_class_stratify does nothing for distributions other than Bernoulli
   cv_folds <- 2
   fold_id <- seq_len(params$num_train)
   
+  # Set up groups for Pairwise
+  dist_7$group <- sample(1:5, N, replace=TRUE)
+  
   # When creating cv_groups for both cv_class_stratify==TRUE and FALSE for distributions other than Bernoulli
   cv_groups_1_T <- create_cv_groups(data, dist_1, params, cv_folds, cv_class_stratify=TRUE, fold_id)
   cv_groups_2_T <- create_cv_groups(data, dist_2, params, cv_folds, cv_class_stratify=TRUE, fold_id)
@@ -592,6 +595,9 @@ test_that("cv_class_stratify does nothing for distributions other than Bernoulli
   # Other CV Parameters - NB: fold_id is NULL
   cv_folds <- 2
   fold_id <- NULL
+  
+  # Set up groups for Pairwise
+  dist_7$group <- sample(1:5, N, replace=TRUE)
   
   # When creating cv_groups for both cv_class_stratify==TRUE and FALSE for distributions other than Bernoulli
   set.seed(1)

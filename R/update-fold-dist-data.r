@@ -37,12 +37,12 @@ update_fold_dist_data.default <- function(gbm_dist_obj, gbm_data_obj, train_para
 
 update_fold_dist_data.CoxPHGBMDist <- function(gbm_dist_obj, gbm_data_obj, train_params, rows_in_training, rows_in_fold) {
   # Reset strata using folds
-  gbm_dist_obj$original_strata_id <- gbm_dist_obj$original_strata_id[order(train_params$id)]
+  gbm_dist_obj$original_strata_id <- gbm_dist_obj$original_strata_id[train_params$id_order]
   gbm_dist_obj$original_strata_id <- c(gbm_dist_obj$original_strata_id[rows_in_training][!rows_in_fold], gbm_dist_obj$original_strata_id[rows_in_training][rows_in_fold])
   gbm_dist_obj$strata <- NULL
   gbm_dist_obj$sorted <- NULL
   gbm_dist_obj$time_order <- NULL
-  gbm_dist_obj <- create_strata(gbm_data_obj, train_params, gbm_dist_obj, order_strata_by_id=TRUE)
+  gbm_dist_obj <- create_strata(gbm_data_obj, train_params, gbm_dist_obj, order_strata_by_id=FALSE)
   return(gbm_dist_obj)
 }
 

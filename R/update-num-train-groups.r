@@ -1,5 +1,6 @@
 # Function that updates the number of training rows and observations
 # based off of groups
+# @author James Hickey
 
 update_num_train_groups <- function(train_params, dist_obj) {
   check_if_gbm_train_params(train_params)

@@ -31,7 +31,6 @@
 #  
 # @author James Hickey
 #  
-
 create_cv_groups <- function(gbm_data_obj, gbm_dist_obj, train_params, cv_folds,
                              cv_class_stratify, fold_id) {
   # Initial checks

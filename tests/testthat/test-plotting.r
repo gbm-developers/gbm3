@@ -302,11 +302,11 @@ test_that("quantile_rug jitters the inputs if quantiles < length(probabilities)"
 
 context("Testing calibration plot")
 test_that("Error thrown if neither the knots or df specified - both NULL", {
-  # Given data - from example
-  require(rpart)
-  data(kyphosis)
-  y <- as.numeric(kyphosis$Kyphosis)-1
-  x <- kyphosis$Age
+  # Given data - based on example - but y and p not same length now
+  kyph_dat <- data.frame(Kyphosis=sample(as.factor(c("absent", "present")), 100, replace=TRUE),
+                   Age = sample(seq_len(175), 100, replace=TRUE), ncol=2)
+  y <- as.numeric(kyph_dat$Kyphosis)-1
+  x <- kyph_dat$Age
   glm1 <- glm(y~poly(x,2),family=binomial)
   p <- predict(glm1, type="response")
   
@@ -314,11 +314,11 @@ test_that("Error thrown if neither the knots or df specified - both NULL", {
   expect_error(calibrate_plot(y, p, df=NULL, knots=NULL, xlim=c(0,0.6), ylim=c(0,0.6)))
 })
 test_that("Error thrown if df is not a positive integer (if vector first element must be a positive integer)", {
-  # Given data - from example
-  require(rpart)
-  data(kyphosis)
-  y <- as.numeric(kyphosis$Kyphosis)-1
-  x <- kyphosis$Age
+  # Given data - based on example - but y and p not same length now
+  kyph_dat <- data.frame(Kyphosis=sample(as.factor(c("absent", "present")), 100, replace=TRUE),
+                   Age = sample(seq_len(175), 100, replace=TRUE), ncol=2)
+  y <- as.numeric(kyph_dat$Kyphosis)-1
+  x <- kyph_dat$Age
   glm1 <- glm(y~poly(x,2),family=binomial)
   p <- predict(glm1, type="response")
   
@@ -333,11 +333,11 @@ test_that("Error thrown if df is not a positive integer (if vector first element
   expect_error(calibrate_plot(y, p, df=Inf, knots=NULL, xlim=c(0,0.6), ylim=c(0,0.6)))
 })
 test_that("Error thrown if y and p not same length", {
-  # Given data - from example - but y and p not same length now
-  require(rpart)
-  data(kyphosis)
-  y <- as.numeric(kyphosis$Kyphosis)-1
-  x <- kyphosis$Age
+  # Given data - based on example - but y and p not same length now
+  kyph_dat <- data.frame(Kyphosis=sample(as.factor(c("absent", "present")), 100, replace=TRUE),
+                   Age = sample(seq_len(175), 100, replace=TRUE), ncol=2)
+  y <- as.numeric(kyph_dat$Kyphosis)-1
+  x <- kyph_dat$Age
   glm1 <- glm(y~poly(x,2),family=binomial)
   p <- predict(glm1, type="response")
   p <- p[seq(length(p)-1)]
@@ -346,11 +346,11 @@ test_that("Error thrown if y and p not same length", {
   expect_error(calibrate_plot(y, p))
 })
 test_that("Can run with defaults", {
-  # Given data - from example - but y and p not same length now
-  require(rpart)
-  data(kyphosis)
-  y <- as.numeric(kyphosis$Kyphosis)-1
-  x <- kyphosis$Age
+  # Given data - based on example - but y and p not same length now
+  kyph_dat <- data.frame(Kyphosis=sample(as.factor(c("absent", "present")), 100, replace=TRUE),
+                   Age = sample(seq_len(175), 100, replace=TRUE), ncol=2)
+  y <- as.numeric(kyph_dat$Kyphosis)-1
+  x <- kyph_dat$Age
   glm1 <- glm(y~poly(x,2),family=binomial)
   p <- predict(glm1, type="response")
   
@@ -359,11 +359,11 @@ test_that("Can run with defaults", {
   expect_error(calibrate_plot(y, p), NA)
 })
 test_that("Can run with shade_col not NA", {
-  # Given data - from example - but y and p not same length now
-  require(rpart)
-  data(kyphosis)
-  y <- as.numeric(kyphosis$Kyphosis)-1
-  x <- kyphosis$Age
+  # Given data - based on example - but y and p not same length now
+  kyph_dat <- data.frame(Kyphosis=sample(as.factor(c("absent", "present")), 100, replace=TRUE),
+                   Age = sample(seq_len(175), 100, replace=TRUE), ncol=2)
+  y <- as.numeric(kyph_dat$Kyphosis)-1
+  x <- kyph_dat$Age
   glm1 <- glm(y~poly(x,2),family=binomial)
   p <- predict(glm1, type="response")
   
@@ -372,11 +372,11 @@ test_that("Can run with shade_col not NA", {
   expect_error(calibrate_plot(y, p, shade_col=1), NA)
 })
 test_that("Can run with replace = FALSE", {
-  # Given data - from example - but y and p not same length now
-  require(rpart)
-  data(kyphosis)
-  y <- as.numeric(kyphosis$Kyphosis)-1
-  x <- kyphosis$Age
+  # Given data - based on example - but y and p not same length now
+  kyph_dat <- data.frame(Kyphosis=sample(as.factor(c("absent", "present")), 100, replace=TRUE),
+                   Age = sample(seq_len(175), 100, replace=TRUE), ncol=2)
+  y <- as.numeric(kyph_dat$Kyphosis)-1
+  x <- kyph_dat$Age
   glm1 <- glm(y~poly(x,2),family=binomial)
   p <- predict(glm1, type="response")
   
@@ -385,11 +385,11 @@ test_that("Can run with replace = FALSE", {
   expect_error(calibrate_plot(y, p, replace=FALSE), NA)
 })
 test_that("Can run with shade_density != NULL", {
-  # Given data - from example - but y and p not same length now
-  require(rpart)
-  data(kyphosis)
-  y <- as.numeric(kyphosis$Kyphosis)-1
-  x <- kyphosis$Age
+  # Given data - based on example - but y and p not same length now
+  kyph_dat <- data.frame(Kyphosis=sample(as.factor(c("absent", "present")), 100, replace=TRUE),
+                   Age = sample(seq_len(175), 100, replace=TRUE), ncol=2)
+  y <- as.numeric(kyph_dat$Kyphosis)-1
+  x <- kyph_dat$Age
   glm1 <- glm(y~poly(x,2),family=binomial)
   p <- predict(glm1, type="response")
   
@@ -398,11 +398,11 @@ test_that("Can run with shade_density != NULL", {
   expect_error(calibrate_plot(y, p, shade_density=2.0), NA)
 })
 test_that("Can run  all distributions", {
-  # Given data - from example - but y and p not same length now
-  require(rpart)
-  data(kyphosis)
-  y <- as.numeric(kyphosis$Kyphosis)-1
-  x <- kyphosis$Age
+  # Given data - based on example - but y and p not same length now
+  kyph_dat <- data.frame(Kyphosis=sample(as.factor(c("absent", "present")), 100, replace=TRUE),
+                   Age = sample(seq_len(175), 100, replace=TRUE), ncol=2)
+  y <- as.numeric(kyph_dat$Kyphosis)-1
+  x <- kyph_dat$Age
   glm1 <- glm(y~poly(x,2),family=binomial)
   p <- predict(glm1, type="response")
   
@@ -609,7 +609,7 @@ test_that("get_default_grid_levels returns answer of correct type and size", {
   fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   var_index <- 1
-  continuous_resolutioN <- 150
+  continuous_resolution <- 150
   
   # When default grids generated
   # Then output is of correct type and size
@@ -653,7 +653,7 @@ test_that("generate_grid_levels throws an error if length of grid_levels not sam
   fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   var_index <- 1
-  continuous_resolutioN <- 150
+  continuous_resolution <- 150
   grid_levels <- get_default_grid_levels(fit, c(1, 2), continuous_resolution)
   
   # When generate_grid_levels called

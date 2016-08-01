@@ -12,13 +12,12 @@
 #
 # @return gbm_predictions scaled to the response of the distribution
 #
-
 adjust_pred_scale <- function(gbm_predictions, distribution_obj) {
   UseMethod("adjust_pred_scale", distribution_obj)
 }
 
 adjust_pred_scale.AdaBoostGBMDist <- function(gbm_predictions, distribution_obj) {
-  gbm_predictions <- 1 / (1 + exp(-2*gbm_predictions))
+  gbm_predictions <- 1/(1 + exp(-2*gbm_predictions))
   return(gbm_predictions)
 }
 
@@ -32,7 +31,7 @@ adjust_pred_scale.CoxPHGBMDist <- function(gbm_predictions, distribution_obj) {
 }
 
 adjust_pred_scale.GammaGBMDist <- function(gbm_predictions, distribution_obj) {
-  gbm_prediction <- exp(gbm_predictions)
+  gbm_predictions <- exp(gbm_predictions)
   return(gbm_predictions)
 }
 
@@ -67,6 +66,6 @@ adjust_pred_scale.TDistGBMDist <- function(gbm_predictions, distribution_obj) {
 }
 
 adjust_pred_scale.TweedieGBMDist <- function(gbm_predictions, distribution_obj) {
-  gbm_prediction <- exp(gbm_predictions)
+  gbm_predictions <- exp(gbm_predictions)
   return(gbm_predictions)
 }

@@ -17,7 +17,6 @@
 # @author James Hickey
 
 split_and_join <- function(gbm_data_obj, train_params, rows_in_training, rows_in_fold) {
-  require("survival")
   
   # Initial checks
   check_if_gbm_data(gbm_data_obj)
