@@ -1,7 +1,7 @@
 ####################
 # Author: James Hickey
 #
-# Series of tests to check if plotting functions run correctly
+# Series of tests to check if gbm plotting functions run correctly
 #
 ####################
 
@@ -12,7 +12,7 @@ test_that("perf_plot runs with all perf methods", {
   set.seed(1)
   
   # create some data
-  N <- 150
+  N <- 75
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -27,8 +27,8 @@ test_that("perf_plot runs with all perf methods", {
   Y <- Y + rnorm(N,0,sigma)
   
   # create a bunch of missing values
-  X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=100)] <- NA
+  X1[sample(1:N,size=25)] <- NA
+  X3[sample(1:N,size=25)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)
@@ -71,7 +71,7 @@ test_that("perf_plot throws error if gbm_fit_obj is not of class GBMFit", {
   set.seed(1)
   
   # create some data
-  N <- 150
+  N <- 75
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -86,8 +86,8 @@ test_that("perf_plot throws error if gbm_fit_obj is not of class GBMFit", {
   Y <- Y + rnorm(N,0,sigma)
   
   # create a bunch of missing values
-  X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=100)] <- NA
+  X1[sample(1:N,size=25)] <- NA
+  X3[sample(1:N,size=25)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)
@@ -116,7 +116,7 @@ test_that("perf_plot throws error if out_of_bag_curve is not logical or is na", 
   set.seed(1)
   
   # create some data
-  N <- 150
+  N <- 75
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -131,8 +131,8 @@ test_that("perf_plot throws error if out_of_bag_curve is not logical or is na", 
   Y <- Y + rnorm(N,0,sigma)
   
   # create a bunch of missing values
-  X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=100)] <- NA
+  X1[sample(1:N,size=25)] <- NA
+  X3[sample(1:N,size=25)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)
@@ -164,7 +164,7 @@ test_that("perf_plot throws error if overlay is not logical or is na", {
   set.seed(1)
   
   # create some data
-  N <- 150
+  N <- 75
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -179,8 +179,8 @@ test_that("perf_plot throws error if overlay is not logical or is na", {
   Y <- Y + rnorm(N,0,sigma)
   
   # create a bunch of missing values
-  X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=100)] <- NA
+  X1[sample(1:N,size=25)] <- NA
+  X3[sample(1:N,size=25)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)
@@ -268,160 +268,6 @@ test_that("get_ylabel throws error if passed unrecognised GBMDist class", {
   expect_error(get_ylabel(dist))
 })
 
-context("Testing quantile_rug plot")
-test_that("quantile_rug runs without error", {
-  probs <- rnorm(100)
-  probs <- abs(probs)/sum(abs(probs))
-  
-  expect_error(quantile_rug(rnorm(100)), NA)
-  expect_error(quantile_rug(rnorm(100), probs), NA)
-})
-test_that("quantile_rug throws error if probabilities outsider [0, 1]", {
-  probs <- rnorm(100)
-  probs[1] <- 5
-  expect_error(quantile_rug(rnorm(100), probs))
-})
-test_that("output from quantile_rug is correct - no jittering", {
-  probs <- (0:10)/10
-  x <- rnorm(100)
-  output <- quantile_rug(x, probs)
-  expect_equal(output, rug(quantile(x[!is.na(x)], probs)))
-})
-test_that("quantile_rug jitters the inputs if quantiles < length(probabilities)", {
-  set.seed(1)
-  x <- rep(1:5, 2)
-  probs <- (0:100)/100
-  output <- quantile_rug(x, probs)
-  
-  set.seed(1)
-  true_output <- quantile(x, probs)
-  true_output <- jitter(true_output)
-  
-  expect_equal(output, rug(true_output))
-})
-
-context("Testing calibration plot")
-test_that("Error thrown if neither the knots or df specified - both NULL", {
-  # Given data - based on example - but y and p not same length now
-  kyph_dat <- data.frame(Kyphosis=sample(as.factor(c("absent", "present")), 100, replace=TRUE),
-                   Age = sample(seq_len(175), 100, replace=TRUE), ncol=2)
-  y <- as.numeric(kyph_dat$Kyphosis)-1
-  x <- kyph_dat$Age
-  glm1 <- glm(y~poly(x,2),family=binomial)
-  p <- predict(glm1, type="response")
-  
-  # Then error thrown when both knots and df are NULL
-  expect_error(calibrate_plot(y, p, df=NULL, knots=NULL, xlim=c(0,0.6), ylim=c(0,0.6)))
-})
-test_that("Error thrown if df is not a positive integer (if vector first element must be a positive integer)", {
-  # Given data - based on example - but y and p not same length now
-  kyph_dat <- data.frame(Kyphosis=sample(as.factor(c("absent", "present")), 100, replace=TRUE),
-                   Age = sample(seq_len(175), 100, replace=TRUE), ncol=2)
-  y <- as.numeric(kyph_dat$Kyphosis)-1
-  x <- kyph_dat$Age
-  glm1 <- glm(y~poly(x,2),family=binomial)
-  p <- predict(glm1, type="response")
-  
-  # Then error thrown when df Not a positive integer
-  expect_error(calibrate_plot(y, p, df=0, knots=NULL, xlim=c(0,0.6), ylim=c(0,0.6)))
-  expect_error(calibrate_plot(y, p, df=1.4, knots=NULL, xlim=c(0,0.6), ylim=c(0,0.6)))
-  expect_error(calibrate_plot(y, p, df="Wrong", knots=NULL, xlim=c(0,0.6), ylim=c(0,0.6)))
-  expect_error(calibrate_plot(y, p, df=c(1, 2), knots=NULL, xlim=c(0,0.6), ylim=c(0,0.6)), NA)
-  expect_error(calibrate_plot(y, p, df=c(1.4, 2), knots=NULL, xlim=c(0,0.6), ylim=c(0,0.6)))
-  expect_error(calibrate_plot(y, p, df=NaN, knots=NULL, xlim=c(0,0.6), ylim=c(0,0.6)))
-  expect_error(calibrate_plot(y, p, df=NA, knots=NULL, xlim=c(0,0.6), ylim=c(0,0.6)))
-  expect_error(calibrate_plot(y, p, df=Inf, knots=NULL, xlim=c(0,0.6), ylim=c(0,0.6)))
-})
-test_that("Error thrown if y and p not same length", {
-  # Given data - based on example - but y and p not same length now
-  kyph_dat <- data.frame(Kyphosis=sample(as.factor(c("absent", "present")), 100, replace=TRUE),
-                   Age = sample(seq_len(175), 100, replace=TRUE), ncol=2)
-  y <- as.numeric(kyph_dat$Kyphosis)-1
-  x <- kyph_dat$Age
-  glm1 <- glm(y~poly(x,2),family=binomial)
-  p <- predict(glm1, type="response")
-  p <- p[seq(length(p)-1)]
-  
-  # Then error thrown
-  expect_error(calibrate_plot(y, p))
-})
-test_that("Can run with defaults", {
-  # Given data - based on example - but y and p not same length now
-  kyph_dat <- data.frame(Kyphosis=sample(as.factor(c("absent", "present")), 100, replace=TRUE),
-                   Age = sample(seq_len(175), 100, replace=TRUE), ncol=2)
-  y <- as.numeric(kyph_dat$Kyphosis)-1
-  x <- kyph_dat$Age
-  glm1 <- glm(y~poly(x,2),family=binomial)
-  p <- predict(glm1, type="response")
-  
-  
-  # Then no error thrown
-  expect_error(calibrate_plot(y, p), NA)
-})
-test_that("Can run with shade_col not NA", {
-  # Given data - based on example - but y and p not same length now
-  kyph_dat <- data.frame(Kyphosis=sample(as.factor(c("absent", "present")), 100, replace=TRUE),
-                   Age = sample(seq_len(175), 100, replace=TRUE), ncol=2)
-  y <- as.numeric(kyph_dat$Kyphosis)-1
-  x <- kyph_dat$Age
-  glm1 <- glm(y~poly(x,2),family=binomial)
-  p <- predict(glm1, type="response")
-  
-  
-  # Then no error thrown
-  expect_error(calibrate_plot(y, p, shade_col=1), NA)
-})
-test_that("Can run with replace = FALSE", {
-  # Given data - based on example - but y and p not same length now
-  kyph_dat <- data.frame(Kyphosis=sample(as.factor(c("absent", "present")), 100, replace=TRUE),
-                   Age = sample(seq_len(175), 100, replace=TRUE), ncol=2)
-  y <- as.numeric(kyph_dat$Kyphosis)-1
-  x <- kyph_dat$Age
-  glm1 <- glm(y~poly(x,2),family=binomial)
-  p <- predict(glm1, type="response")
-  
-  
-  # Then no error thrown
-  expect_error(calibrate_plot(y, p, replace=FALSE), NA)
-})
-test_that("Can run with shade_density != NULL", {
-  # Given data - based on example - but y and p not same length now
-  kyph_dat <- data.frame(Kyphosis=sample(as.factor(c("absent", "present")), 100, replace=TRUE),
-                   Age = sample(seq_len(175), 100, replace=TRUE), ncol=2)
-  y <- as.numeric(kyph_dat$Kyphosis)-1
-  x <- kyph_dat$Age
-  glm1 <- glm(y~poly(x,2),family=binomial)
-  p <- predict(glm1, type="response")
-  
-  
-  # Then no error thrown
-  expect_error(calibrate_plot(y, p, shade_density=2.0), NA)
-})
-test_that("Can run  all distributions", {
-  # Given data - based on example - but y and p not same length now
-  kyph_dat <- data.frame(Kyphosis=sample(as.factor(c("absent", "present")), 100, replace=TRUE),
-                   Age = sample(seq_len(175), 100, replace=TRUE), ncol=2)
-  y <- as.numeric(kyph_dat$Kyphosis)-1
-  x <- kyph_dat$Age
-  glm1 <- glm(y~poly(x,2),family=binomial)
-  p <- predict(glm1, type="response")
-  
-
-  # Then no error thrown
-  expect_error(calibrate_plot(y, p, distribution = "AdaBoost"), NA)
-  expect_error(calibrate_plot(y, p, distribution = "Bernoulli"), NA)
-  expect_error(calibrate_plot(y, p, distribution = "CoxPH"), NA)
-  expect_error(calibrate_plot(y, p, distribution = "Gamma"), NA)
-  expect_error(calibrate_plot(y, p, distribution = "Gaussian"), NA)
-  expect_error(calibrate_plot(y, p, distribution = "Laplace"), NA)
-  expect_error(calibrate_plot(y, p, distribution = "Huberized"), NA)
-  expect_error(calibrate_plot(y, p, distribution = "Pairwise"), NA)
-  expect_error(calibrate_plot(y, p, distribution = "Poisson"), NA)
-  expect_error(calibrate_plot(y, p, distribution = "Quantile"), NA)
-  expect_error(calibrate_plot(y, p, distribution = "TDist"), NA)
-  expect_error(calibrate_plot(y, p, distribution = "Tweedie"), NA)
-})
-
 context("Testing gbmt_plot method for GBMFit")
 test_that("Error thrown if type of plot not 'link' or 'response' ", {
   # Given a GBM fit and type not 'link' or 'response'
@@ -431,7 +277,7 @@ test_that("Error thrown if type of plot not 'link' or 'response' ", {
   set.seed(1)
   
   # create some data
-  N <- 150
+  N <- 75
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -446,8 +292,8 @@ test_that("Error thrown if type of plot not 'link' or 'response' ", {
   Y <- Y + rnorm(N,0,sigma)
   
   # create a bunch of missing values
-  X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=100)] <- NA
+  X1[sample(1:N,size=25)] <- NA
+  X3[sample(1:N,size=25)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)
@@ -475,7 +321,7 @@ test_that("Error thrown if var_index has variable outside range not used in fit"
   set.seed(1)
   
   # create some data
-  N <- 150
+  N <- 75
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -490,8 +336,8 @@ test_that("Error thrown if var_index has variable outside range not used in fit"
   Y <- Y + rnorm(N,0,sigma)
   
   # create a bunch of missing values
-  X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=100)] <- NA
+  X1[sample(1:N,size=25)] <- NA
+  X3[sample(1:N,size=25)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)
@@ -578,7 +424,7 @@ test_that("get_default_grid_levels returns answer of correct type and size", {
   set.seed(1)
   
   # create some data
-  N <- 150
+  N <- 75
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -593,8 +439,8 @@ test_that("get_default_grid_levels returns answer of correct type and size", {
   Y <- Y + rnorm(N,0,sigma)
   
   # create a bunch of missing values
-  X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=100)] <- NA
+  X1[sample(1:N,size=25)] <- NA
+  X3[sample(1:N,size=25)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)
@@ -609,7 +455,7 @@ test_that("get_default_grid_levels returns answer of correct type and size", {
   fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   var_index <- 1
-  continuous_resolution <- 150
+  continuous_resolutioN <- 75
   
   # When default grids generated
   # Then output is of correct type and size
@@ -622,7 +468,7 @@ test_that("generate_grid_levels throws an error if length of grid_levels not sam
   set.seed(1)
   
   # create some data
-  N <- 150
+  N <- 75
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -637,8 +483,8 @@ test_that("generate_grid_levels throws an error if length of grid_levels not sam
   Y <- Y + rnorm(N,0,sigma)
   
   # create a bunch of missing values
-  X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=100)] <- NA
+  X1[sample(1:N,size=25)] <- NA
+  X3[sample(1:N,size=25)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)
@@ -653,7 +499,7 @@ test_that("generate_grid_levels throws an error if length of grid_levels not sam
   fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   var_index <- 1
-  continuous_resolution <- 150
+  continuous_resolutioN <- 75
   grid_levels <- get_default_grid_levels(fit, c(1, 2), continuous_resolution)
   
   # When generate_grid_levels called
@@ -668,7 +514,7 @@ test_that("warning thrown if num_trees exceeds those in fit and then uses number
   set.seed(1)
   
   # create some data
-  N <- 150
+  N <- 75
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -683,8 +529,8 @@ test_that("warning thrown if num_trees exceeds those in fit and then uses number
   Y <- Y + rnorm(N,0,sigma)
   
   # create a bunch of missing values
-  X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=100)] <- NA
+  X1[sample(1:N,size=25)] <- NA
+  X3[sample(1:N,size=25)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)
@@ -711,7 +557,7 @@ test_that("warning thrown if number var indices > 3", {
   set.seed(1)
   
   # create some data
-  N <- 150
+  N <- 75
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -726,8 +572,8 @@ test_that("warning thrown if number var indices > 3", {
   Y <- Y + rnorm(N,0,sigma)
   
   # create a bunch of missing values
-  X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=100)] <- NA
+  X1[sample(1:N,size=25)] <- NA
+  X3[sample(1:N,size=25)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)
@@ -754,7 +600,7 @@ test_that("return_grid=TRUE returns the grid", {
   set.seed(1)
   
   # create some data
-  N <- 150
+  N <- 75
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -769,8 +615,8 @@ test_that("return_grid=TRUE returns the grid", {
   Y <- Y + rnorm(N,0,sigma)
   
   # create a bunch of missing values
-  X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=100)] <- NA
+  X1[sample(1:N,size=25)] <- NA
+  X3[sample(1:N,size=25)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)
@@ -797,7 +643,7 @@ test_that("number of var indices >3 sets return_grid to TRUE", {
   set.seed(1)
   
   # create some data
-  N <- 150
+  N <- 75
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -812,8 +658,8 @@ test_that("number of var indices >3 sets return_grid to TRUE", {
   Y <- Y + rnorm(N,0,sigma)
   
   # create a bunch of missing values
-  X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=100)] <- NA
+  X1[sample(1:N,size=25)] <- NA
+  X3[sample(1:N,size=25)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)
@@ -838,7 +684,7 @@ test_that("can gbmt_plot with one variable selected", {
   set.seed(1)
   
   # create some data
-  N <- 150
+  N <- 75
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -853,8 +699,8 @@ test_that("can gbmt_plot with one variable selected", {
   Y <- Y + rnorm(N,0,sigma)
   
   # create a bunch of missing values
-  X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=100)] <- NA
+  X1[sample(1:N,size=25)] <- NA
+  X3[sample(1:N,size=25)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)
@@ -913,7 +759,7 @@ test_that("can gbmt_plot with two variables", {
   set.seed(1)
   
   # create some data
-  N <- 150
+  N <- 75
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -928,8 +774,8 @@ test_that("can gbmt_plot with two variables", {
   Y <- Y + rnorm(N,0,sigma)
   
   # create a bunch of missing values
-  X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=100)] <- NA
+  X1[sample(1:N,size=25)] <- NA
+  X3[sample(1:N,size=25)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)
@@ -961,7 +807,7 @@ test_that("can gbmt_plot with 3 variables selected", {
   set.seed(1)
   
   # create some data
-  N <- 150
+  N <- 75
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -976,8 +822,8 @@ test_that("can gbmt_plot with 3 variables selected", {
   Y <- Y + rnorm(N,0,sigma)
   
   # create a bunch of missing values
-  X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=100)] <- NA
+  X1[sample(1:N,size=25)] <- NA
+  X3[sample(1:N,size=25)] <- NA
   
   w <- rep(1,N)
   offset <- rep(0, N)

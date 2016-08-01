@@ -27,7 +27,7 @@
 #' mad(y))^2, following the suggestion of Rousseeuw and Leroy (equation 3.11).
 #' Note that this definition of a robust R-squared is contentious.
 #' 
-#' @usage print(x, ...)
+#' @usage print.GBMFit(x, ...)
 #' 
 #' @param x is a fitted generalized boosting object of class \code{GBMFit}.
 #' 

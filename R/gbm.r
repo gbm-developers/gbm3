@@ -518,7 +518,7 @@ gbm <- function(formula = formula(data),
     num_inferred_folds <- length(unique(fold.id))
     if (cv.folds != num_inferred_folds) {
       # Warn if cv.folds and fold.id disagree, but take fold.id.
-      warning("CV folds changed from ", cv.folds, " to ", inferred_folds,
+      warning("CV folds changed from ", cv.folds, " to ", num_inferred_folds,
               " because of levels in fold.id.")
     } 
     cv.folds <- num_inferred_folds

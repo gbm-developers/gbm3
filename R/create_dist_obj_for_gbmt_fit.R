@@ -30,7 +30,7 @@ create_dist_obj_for_gbmt_fit <- function(distribution, tied.times.method="efron"
   # Check inputs
   if(is.null(distribution$name)) stop("distribution parameter name not defined.")
   if(!(distribution$name %in% available_distributions())) {
-    stop("The distribution ", name, " is not available in the gbm package.")
+    stop("The distribution ", distribution$name, " is not available in the gbm package.")
   }
   
   # Create distribution

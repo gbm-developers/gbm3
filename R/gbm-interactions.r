@@ -74,7 +74,7 @@ interact.GBMFit <- function(gbm_fit_obj, data, var_indices=1, num_trees = gbm_fi
              function(x) as.numeric(which(x)))
   
   # Compute predictions and "parity" for all variable combinations  
-  preds_for_comb_vars <- compute_preds_for_all_var_combinations(gbm_fit_obj, all_combinations_vars, var_indices, num_trees)
+  preds_for_comb_vars <- compute_preds_for_all_var_combinations(data, gbm_fit_obj, all_combinations_vars, var_indices, num_trees)
   
   # Compute H-statistic
   # Set to prediction with all variables
@@ -150,7 +150,7 @@ table_of_unique_values <- function(data, variables_indices) {
   return(unique_vars)
 }
 
-compute_preds_for_all_var_combinations <- function(gbm_fit_obj, all_combinations_vars, variables_indices, num_trees) {
+compute_preds_for_all_var_combinations <- function(data, gbm_fit_obj, all_combinations_vars, variables_indices, num_trees) {
   preds_for_comb_vars <- vector("list", length(all_combinations_vars))
   for(vars in seq_along(all_combinations_vars)) {
     # Get data for combination
