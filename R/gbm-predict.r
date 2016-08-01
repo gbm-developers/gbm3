@@ -93,7 +93,6 @@ predict.GBMFit <- function(gbm_fit_obj, new_data, num_trees,
         new_compare <- levels(x[,i])
       }
       
-      
       if (!identical(gbm_fit_obj$variables$var_levels[[i]], new_compare)) {
         x[,i] <- factor(x[,i], union(gbm_fit_obj$variables$var_levels[[i]], levels(x[,i])))
       }
