@@ -12,7 +12,7 @@ test_that("perf_plot runs with all perf methods", {
   set.seed(1)
   
   # create some data
-  N <- 75
+  N <- 100
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -71,7 +71,7 @@ test_that("perf_plot throws error if gbm_fit_obj is not of class GBMFit", {
   set.seed(1)
   
   # create some data
-  N <- 75
+  N <- 100
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -116,7 +116,7 @@ test_that("perf_plot throws error if out_of_bag_curve is not logical or is na", 
   set.seed(1)
   
   # create some data
-  N <- 75
+  N <- 100
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -164,7 +164,7 @@ test_that("perf_plot throws error if overlay is not logical or is na", {
   set.seed(1)
   
   # create some data
-  N <- 75
+  N <- 100
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -277,7 +277,7 @@ test_that("Error thrown if type of plot not 'link' or 'response' ", {
   set.seed(1)
   
   # create some data
-  N <- 75
+  N <- 100
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -321,7 +321,7 @@ test_that("Error thrown if var_index has variable outside range not used in fit"
   set.seed(1)
   
   # create some data
-  N <- 75
+  N <- 100
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -424,7 +424,7 @@ test_that("get_default_grid_levels returns answer of correct type and size", {
   set.seed(1)
   
   # create some data
-  N <- 75
+  N <- 100
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -455,7 +455,7 @@ test_that("get_default_grid_levels returns answer of correct type and size", {
   fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   var_index <- 1
-  continuous_resolutioN <- 75
+  continuous_resolution <- 100
   
   # When default grids generated
   # Then output is of correct type and size
@@ -468,7 +468,7 @@ test_that("generate_grid_levels throws an error if length of grid_levels not sam
   set.seed(1)
   
   # create some data
-  N <- 75
+  N <- 100
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -499,7 +499,7 @@ test_that("generate_grid_levels throws an error if length of grid_levels not sam
   fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   var_index <- 1
-  continuous_resolutioN <- 75
+  continuous_resolution <- 100
   grid_levels <- get_default_grid_levels(fit, c(1, 2), continuous_resolution)
   
   # When generate_grid_levels called
@@ -514,7 +514,7 @@ test_that("warning thrown if num_trees exceeds those in fit and then uses number
   set.seed(1)
   
   # create some data
-  N <- 75
+  N <- 100
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -557,7 +557,7 @@ test_that("warning thrown if number var indices > 3", {
   set.seed(1)
   
   # create some data
-  N <- 75
+  N <- 100
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -600,7 +600,7 @@ test_that("return_grid=TRUE returns the grid", {
   set.seed(1)
   
   # create some data
-  N <- 75
+  N <- 100
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -643,7 +643,7 @@ test_that("number of var indices >3 sets return_grid to TRUE", {
   set.seed(1)
   
   # create some data
-  N <- 75
+  N <- 100
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -676,6 +676,7 @@ test_that("number of var indices >3 sets return_grid to TRUE", {
   
   # When plotting fit with too indices and return_grid = TRUE
   # Then output is same
+  expect_warning(gbmt_plot(fit, var_index=var_ind, return_grid=FALSE))
   expect_equal(gbmt_plot(fit, var_index = var_ind, return_grid=FALSE),  gbmt_plot(fit, var_index = var_ind, return_grid=TRUE))
 })
 test_that("can gbmt_plot with one variable selected", {
@@ -684,7 +685,7 @@ test_that("can gbmt_plot with one variable selected", {
   set.seed(1)
   
   # create some data
-  N <- 75
+  N <- 100
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -759,7 +760,7 @@ test_that("can gbmt_plot with two variables", {
   set.seed(1)
   
   # create some data
-  N <- 75
+  N <- 100
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -807,7 +808,7 @@ test_that("can gbmt_plot with 3 variables selected", {
   set.seed(1)
   
   # create some data
-  N <- 75
+  N <- 100
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
