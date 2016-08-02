@@ -1,24 +1,24 @@
-#' Variable Container
-#' 
-#' Contains properties associated with predictor variables.
-#' 
-#' 
-#' @usage var_container(gbm_data_obj,  var_monotone=NULL, var_names=NULL)
-#' 
-#' @param gbm_data_obj an initialized GBMData object for the fit
-#'
-#' @param var_monotone  an optional vector, the same length as the
-#' number of predictors, indicating which variables have a monotone
-#' increasing (+1), decreasing (-1), or arbitrary (0) relationship
-#' with the outcome.
-#' 
-#' @param var_names a vector of strings of the same length as the 
-#' 1st dimension of the response.
-#' 
-#' @return a \code{GBMVarCont} object
-#' 
-#' @export 
-#' 
+# Variable Container
+# 
+# Contains properties associated with predictor variables.
+# 
+# 
+# @usage var_container(gbm_data_obj,  var_monotone=NULL, var_names=NULL)
+# 
+# @param gbm_data_obj an initialized GBMData object for the fit
+#
+# @param var_monotone  an optional vector, the same length as the
+# number of predictors, indicating which variables have a monotone
+# increasing (+1), decreasing (-1), or arbitrary (0) relationship
+# with the outcome.
+# 
+# @param var_names a vector of strings of the same length as the 
+# 1st dimension of the response.
+# 
+# @return a \code{GBMVarCont} object
+# 
+# @export 
+# 
 
 var_container <- function(gbm_data_obj, var_monotone=NULL, var_names=NULL) {
   check_if_gbm_data(gbm_data_obj)

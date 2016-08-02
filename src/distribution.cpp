@@ -18,7 +18,7 @@ void CDistribution::BagData(const CDataset& kData, Bag& bag) {
 
   // Bag via patient id  - loop over observations
   for (obs_it = obsid_to_row_.begin(); obs_it != obsid_to_row_.end();
-       obs_it = row_it) {
+       obs_it = obsid_to_row_.upper_bound(obs_it->first)) {
 
 	// Check if we've filled the bag or have left the training set
     // Works as long as ids are sequential
@@ -35,8 +35,6 @@ void CDistribution::BagData(const CDataset& kData, Bag& bag) {
       for (row_it = keyrange.first; row_it != keyrange.second; ++row_it) {
     	  bag.set_element((*row_it).second);
       }
-    } else {
-      row_it = keyrange.second;
     }
 
     // Increment observation number
