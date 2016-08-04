@@ -4,7 +4,7 @@ author: "James Hickey"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{CoxPH}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -36,18 +36,24 @@ Now to create the underlying boosted model the training parameters need to be de
 
 ```{r, messagee=FALSE}
 # Set-up training parameters
-params_right_cens <- training_params(num_trees = 2000, interaction_depth = 3, id=right_cens$id,
+params_right_cens <- training_params(num_trees = 2000, interaction_depth = 3, 
+                                     id=right_cens$id,
                                      num_train=round(0.5 * length(unique(right_cens$id))) )
-params_start_stop <- training_params(num_trees = 2000, interaction_depth = 3, id=start_stop$id,
+params_start_stop <- training_params(num_trees = 2000, interaction_depth = 3, 
+                                     id=start_stop$id,
                                      num_train=round(0.5 * length(unique(start_stop$id))) )
 
 # Call to gbmt
 fit_right_cens <- gbmt(Surv(tstop, status)~ age + sex + inherit +
-                     steroids + propylac, data=right_cens, distribution = right_cens_dist,
-                     train_params = params_right_cens, cv_folds=10, keep_gbm_data = TRUE)
+                     steroids + propylac, data=right_cens, 
+                     distribution = right_cens_dist,
+                     train_params = params_right_cens, cv_folds=10,
+                     keep_gbm_data = TRUE)
 fit_start_stop <- gbmt(Surv(tstart, tstop, status)~ age + sex + inherit +
-                     steroids + propylac, data=start_stop, distribution = start_stop_dist,
-                     train_params = params_start_stop, cv_folds=10, keep_gbm_data = TRUE)
+                     steroids + propylac, data=start_stop, 
+                     distribution = start_stop_dist,
+                     train_params = params_start_stop, cv_folds=10, 
+                     keep_gbm_data = TRUE)
 
 # Plot performance
 best_iter_right <- gbm_perf(fit_right_cens, method='test', plot_it=FALSE)
@@ -97,14 +103,17 @@ cox_efron <- gbm_dist("CoxPH", ties="efron", prior_node_coeff_var=100)
 
 # Define training parameters
 params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
-                            shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=3)
+                          shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), 
+                          num_train=N/2, num_features=3)
 
 # Fit gbm 
-fit_breslow <- gbmt(Surv(tt, delta)~X1+X2+X3, data=data, distribution=cox_breslow, weights=w,
-               train_params=params, var_monotone=c(0, 0, 0), keep_gbm_data=TRUE, cv_folds=5, is_verbose = FALSE)
+fit_breslow <- gbmt(Surv(tt, delta)~X1+X2+X3, data=data, distribution=cox_breslow, 
+                    weights=w, train_params=params, var_monotone=c(0, 0, 0), 
+                    keep_gbm_data=TRUE, cv_folds=5, is_verbose = FALSE)
 
-fit_efron <- gbmt(Surv(tt, delta)~X1+X2+X3, data=data, distribution=cox_efron, weights=w,
-               train_params=params, var_monotone=c(0, 0, 0), keep_gbm_data=TRUE, cv_folds=5, is_verbose = FALSE)
+fit_efron <- gbmt(Surv(tt, delta)~X1+X2+X3, data=data, distribution=cox_efron,
+                  weights=w, train_params=params, var_monotone=c(0, 0, 0), 
+                  keep_gbm_data=TRUE, cv_folds=5, is_verbose = FALSE)
 
 
 # Evaluate fit
