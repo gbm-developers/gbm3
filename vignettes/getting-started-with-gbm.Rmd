@@ -4,7 +4,7 @@ author: "James Hickey"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{GBM Tutorial}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -80,8 +80,8 @@ Once the parameters have been decided the appropriate object is created.
 
 ```{r}
 # Creating an appropriate training parameters object
-train_params <- training_params(num_trees = 2000, interaction_depth = 3, num_train=nrow(data),
-                                num_features = 3)
+train_params <- training_params(num_trees = 2000, interaction_depth = 3, 
+                                num_train=nrow(data), num_features = 3)
 ```
 
 ## Additional variable and fitting parameters
@@ -103,8 +103,9 @@ With the data defined, the distribution object created, the training parameters 
 
 ```{r, message=FALSE}
 # Create a gbm fit
-fit <- gbmt(Y ~ X1 + X2 + X3, distribution=bern_dist, data=data, weights = w, offset=offset,
-            train_params = train_params, cv_folds=5, keep_gbm_data=TRUE)
+fit <- gbmt(Y ~ X1 + X2 + X3, distribution=bern_dist, data=data, weights = w, 
+            offset=offset, train_params = train_params,
+            cv_folds=5, keep_gbm_data=TRUE)
 ```
 
 The `keep_gbm_data` flag indicates that the outputted `GBMFit` object will contain the data passed to the fit within a `GBMData` object.
@@ -137,7 +138,8 @@ X3[sample(1:N,size=300)] <- NA
 gauss_data <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3,X4=X4,X5=X5,X6=X6)
 
 # Perform a cross-validated fit
-gauss_fit <- gbmt(Y ~ X1 + X2 + X3 + X4 + X5 + X6, data=gauss_data, cv_folds =5, keep_gbm_data = TRUE)
+gauss_fit <- gbmt(Y ~ X1 + X2 + X3 + X4 + X5 + X6, 
+                  data=gauss_data, cv_folds =5, keep_gbm_data = TRUE)
 ```
 
 ## Evaluating the model performance
