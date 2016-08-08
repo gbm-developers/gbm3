@@ -66,8 +66,9 @@ predict.GBMFit <- function(gbm_fit_obj, new_data, num_trees,
     stop("num_trees cannot be NULL or a vector of zero length")
   }
   
-  if(any(num_trees != as.integer(num_trees))) {
-    stop("num_trees must be a vector of integers")
+  if(any(num_trees != as.integer(num_trees)) || is.na(all(num_trees == as.integer(num_trees)))
+     || any(num_trees < 1)) {
+    stop("num_trees must be a vector of positive integers")
   }
   
   if(!is.null(attr(gbm_fit_obj$Terms,"offset")))
