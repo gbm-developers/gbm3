@@ -452,9 +452,6 @@ gbm <- function(formula = formula(data),
                 tied.times.method="efron",
                 prior.node.coeff.var=1000,
                 strata=NA, obs.id=1:nrow(data)) {
-  # Highlight new API
-  warning("gbm is depracated - using gbmt_fit...")
-  
   # Extract the model
   the_call <- match.call()
   mf <- match.call(expand.dots = FALSE)

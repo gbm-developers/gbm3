@@ -1,5 +1,11 @@
-context("some basic checks")
+####################
+# Author: James Hickey
+#
+# Series of tests to check that the basic gbm behaviour
+#
+####################
 
+context("some basic checks")
 test_that("gaussian works", {
   ## Based on example in R package
   

@@ -21,9 +21,6 @@ gbm.fit <- function(x, y,
                     tied.times.method="efron",
                     prior.node.coeff.var = 1000,
                     strata = NA, obs.id = 1:nrow(x)) {
-  # Highlight new API
-  warning("gbm.fit is depracated - using gbmt_fit...")
-  
   # Reconstruct data
   if(is.null(var.names)) {
     var.names <- get_var_names(x)

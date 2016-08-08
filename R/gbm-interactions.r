@@ -53,8 +53,11 @@ interact.GBMFit <- function(gbm_fit_obj, data, var_indices=1, num_trees = gbm_fi
     stop("data argument should be a data.frame or matrix")  
   }
   if(!is.atomic(var_indices) ||
-     !(all(var_indices == as.integer(var_indices)) || all(var_indices == as.character(var_indices)))) {
-    stop("Observation ids must be a vector of integers or characters")
+     any(is.infinite(var_indices)) || any(is.na(var_indices)) || any(is.nan(var_indices))|| 
+     !(all(var_indices == as.integer(var_indices)) || all(var_indices == as.character(var_indices)))
+     || is.na(all(var_indices == as.integer(var_indices))) || 
+          is.na(all(var_indices == as.character(var_indices)))) {
+    stop("Variables indices must be a vector of integers or characters")
   }
   if (gbm_fit_obj$params$interaction_depth < length(var_indices)){
     stop("interaction_depth < length(variables_indices): too low in model call")
