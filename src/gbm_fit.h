@@ -33,11 +33,6 @@ class GbmFit {
          const int kNumTrees, const Rcpp::NumericVector kPrevFuncEstimate);
 
   //---------------------
-  // Public destructor
-  //---------------------
-  ~GbmFit(){};
-
-  //---------------------
   // Public Functions
   //---------------------
   void accumulate(CGBMEngine& gbm);

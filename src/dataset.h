@@ -42,11 +42,6 @@ class CDataset {
   CDataset(const DataDistParams& dataParams);
 
   //---------------------
-  // Public destructor
-  //---------------------
-  virtual ~CDataset();
-
-  //---------------------
   // Public Functions
   //---------------------
   unsigned int nrow() const { return xmatrix_.nrow(); };

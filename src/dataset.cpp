@@ -77,18 +77,6 @@ CDataset::CDataset(const DataDistParams& dataparams)
 }
 
 //-----------------------------------
-// Function: ~CDataset()
-//
-// Returns: none
-//
-// Description: default destructor for the dataset
-//
-// Parameters: none
-//
-//-----------------------------------
-CDataset::~CDataset() {}
-
-//-----------------------------------
 // Function: random_order
 //
 // Returns: randomized order vector
