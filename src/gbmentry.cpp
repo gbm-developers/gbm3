@@ -152,7 +152,7 @@ SEXP gbm(SEXP response, SEXP intResponse, SEXP offset_vec, SEXP covariates,
   CGBMEngine gbm(datadistparams, treeparams);
 
   // Initialize the output object
-  GbmFit gbmfit(datadistparams.response.nrow(), gbm.initial_function_estimate(),
+  GbmFit gbmfit(datadistparams.length_of_response, gbm.initial_function_estimate(),
                 kNumTrees, kPrevFuncEst);
 
 

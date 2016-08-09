@@ -37,7 +37,7 @@ test_that("Error thrown if not GBMFit object", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -81,7 +81,7 @@ test_that("Error thrown if rescale not logical", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -125,7 +125,7 @@ test_that("Error thrown if sort_it not logical", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -169,7 +169,7 @@ data <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3,X4=X4,X5=X5,X6=X6)
 
 
 # Set up for new API
-params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
                           shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
 dist <- gbm_dist("Gaussian")
 
@@ -211,7 +211,7 @@ test_that("Message given if num_trees not provided", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -253,7 +253,7 @@ test_that("Relative influence can run with a specified num_trees", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -294,7 +294,7 @@ test_that("num_trees set to gbm_perf with test method if train_fraction < 1 - mi
   
   
   # Set up for new API
-  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -339,7 +339,7 @@ test_that("num_trees set to gbm_perf with cv method if train_fraction = 1 and cv
   
   
   # Set up for new API
-  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -384,7 +384,7 @@ test_that("num_trees set to max number of trees in fit otherwise - missing num_t
   
   
   # Set up for new API
-  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -429,7 +429,7 @@ test_that("can run with rescale and sorting", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N, num_features=6)
   dist <- gbm_dist("Gaussian")
   
