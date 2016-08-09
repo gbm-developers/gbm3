@@ -77,14 +77,11 @@ void GbmFit::CreateTreeRepresentation(const int kCatSplitsOld) {
 }
 
 Rcpp::List GbmFit::ROutput() {
-  Rcpp::NumericVector training_errors(tree_count_, 0.0);
-  Rcpp::NumericVector validation_errors(tree_count_, 0.0);
-  Rcpp::NumericVector outofbag_improvement(tree_count_, 0.0);
 
   return Rcpp::List::create(
-      _["initF"] = initial_estimate_, _["fit"] = func_estimate_,
-      _["train.error"] = training_errors_,
-      _["valid.error"] = validation_errors_,
-      _["oobag.improve"] = outofbag_improvement_, _["trees"] = set_of_trees_,
+      _["initF"] = initial_estimate_, _["fit"] = Rcpp::clone(func_estimate_),
+      _["train.error"] = Rcpp::clone(training_errors_),
+      _["valid.error"] = Rcpp::clone(validation_errors_),
+      _["oobag.improve"] = Rcpp::clone(outofbag_improvement_), _["trees"] = set_of_trees_,
       _["c.splits"] = split_codes_);
 }

@@ -38,7 +38,7 @@ test_that("Calling gbmt creates a GBMFit object", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -83,7 +83,7 @@ test_that("GBMFit object has correct fields", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -130,7 +130,7 @@ test_that("GBMFit contains correct GBM objects", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -179,7 +179,7 @@ test_that("GBMFit does not contain gbm_data_obj if keep_gbm_data=FALSE", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -225,7 +225,7 @@ test_that("call to gbm and gbmt produces object with same class and fields", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
