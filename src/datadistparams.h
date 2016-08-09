@@ -87,16 +87,16 @@ class DataDistParams {
                  SEXP number_offeatures, const parallel_details& parallel)
       : response(response),
         intResponse(intResponse),
-        observationids(row_to_obs_id),
         misc(misc),
-        parallel(parallel),
-        offset(offset_vec),
-        xvalues(covariates),
-        xorder(covar_order),
-        variable_weight(obs_weight),
-        variable_num_classes(var_classes),
-        variable_monotonicity (monotonicity_vec){
+        parallel(parallel){
 
+	observationids = row_to_obs_id;
+	offset = offset_vec;
+	xvalues = covariates;
+	xorder = covar_order;
+	variable_weight = obs_weight;
+	variable_num_classes = var_classes;
+	variable_monotonicity = monotonicity_vec;
     num_trainrows = Rcpp::as<unsigned long>(num_rows_in_training);
     num_trainobservations = Rcpp::as<unsigned long>(unique_training_obs);
     num_features = Rcpp::as<unsigned long>(number_offeatures);
@@ -116,15 +116,15 @@ class DataDistParams {
   //-------------------
   Rcpp::NumericMatrix response;
   Rcpp::IntegerMatrix intResponse;
-  Rcpp::IntegerVector observationids;
+  SEXP observationids;
   Rcpp::List misc;
   parallel_details parallel;
-  Rcpp::NumericVector offset;
-  Rcpp::NumericMatrix xvalues;
-  Rcpp::IntegerVector xorder;
-  Rcpp::NumericVector variable_weight;
-  Rcpp::IntegerVector variable_num_classes;
-  Rcpp::IntegerVector variable_monotonicity;
+  SEXP offset;
+  SEXP xvalues;
+  SEXP xorder;
+  SEXP variable_weight;
+  SEXP variable_num_classes;
+  SEXP variable_monotonicity;
   unsigned long num_trainrows;
   unsigned long num_trainobservations;
   unsigned long num_features;
