@@ -32,8 +32,10 @@ gbm.fit <- function(x, y,
     
   } else if(!is.null(train.fraction)) {
     warning("Parameter 'train.fraction' of gbm.fit is deprecated, please specify 'nTrain' instead")
-    nTrain <- floor(train.fraction*length(unique(obs.id)))
-    
+    unique_obs <- unique(obs.id)
+    nTrain <- floor(train.fraction*length(unique_obs))
+    obs_id_in_train <- obs.id %in% unique_obs[nTrain]
+    obs.id <- obs.id[obs_id_in_train]
   } else if(is.null(nTrain)) {
     # both undefined, use all training data
     nTrain <- length(unique(obs.id))

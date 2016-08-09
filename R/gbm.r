@@ -500,9 +500,14 @@ gbm <- function(formula = formula(data),
   
   # Set up training parameters
   if(is.null(mFeatures)) mFeatures <- ncol(x) 
+  unique_obs <- unique(obs.id)
+  nTrain <- round(train.fraction*length(unique_obs))
+  obs_id_in_train <- obs.id %in% unique_obs[nTrain]
+  obs.id <- obs.id[obs_id_in_train]
+  
   params <- training_params(num_trees=n.trees, interaction_depth=interaction.depth, min_num_obs_in_node=n.minobsinnode, 
                             shrinkage=shrinkage, bag_fraction=bag.fraction, id=obs.id,
-                            num_train=round(train.fraction * length(unique(obs.id))),
+                            num_train=nTrain,
                             num_features=mFeatures)
   
   # Check and infer folds if necessary
