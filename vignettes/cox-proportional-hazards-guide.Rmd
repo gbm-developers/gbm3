@@ -18,7 +18,7 @@ when dealing with survival data.  The package can handle two types of survival o
 # Set-up of data and distribution object 
 Right censored survival data consists of a time to event number and the event indicator - 0 if no event has taken place and 1 if the event has happened. On the other hand, counting survival data contains start and stop times along with an event indicator again indicating if an event has taken place in that period.  The data may be organised into strata and this should be passed to `gbm_dist` on creation of the `CoxPHGBMDist` object - see  the "Model Specific Parameters" vignette for more details.  The dataset considered here is provided by the `survival` package.
 
-```{r}
+```{r, message=FALSE}
 ## Install package
 require(survival)
 
@@ -67,10 +67,11 @@ The original strata vector is stored within the `GBMFit` object and can be acces
 is used to recreate the correct strata when performing additional iterations using `gbm_more`.
 
 
-# Role of additional parameters in GBMDist - ties and prior_node_coeff_var
+# Role of additional parameters in GBMDist
+## ties and prior_node_coeff_var
 The `ties` and `prior_node_coeff_var` parameters may also be specified on construction of the `CoxPHGBMDist` object.  The former is a string specifying the method by which the algorithm deals with tied event times.  This may be set to either "breslow" or "efron" depending on your preference, with the latter being the default.  The role of the `prior_node_coeff_var` parameter is slightly more subtle and complex.  When fitting a boosted tree, the optimal predictions of the terminal nodes must be set.  These predictions determine the predictions made by the `GBMFit` object.  The role of `prior_node_coeff_var` is to ensure that the predictions are finite and it does this by acting as a regularization for the terminal node predictions.  It should be a finite positive double and is by default set to a 1000.  An exact description of its role in the underlying algorithm is described in the next section.
 
-```{r, message=FALSE}
+```{r, message=FALSE, fig.height=6, fig.width=6}
 # Example using Breslow and Efron tie-breaking
 
 # Create data
@@ -116,23 +117,27 @@ fit_efron <- gbmt(Surv(tt, delta)~X1+X2+X3, data=data, distribution=cox_efron,
                   keep_gbm_data=TRUE, cv_folds=5, is_verbose = FALSE)
 
 
-# Evaluate fit
+# Evaluate fit 
 gbm_perf(fit_breslow, method='test')
-gbm_perf(fit_efron, method='cv')
+legend("topleft", c("training error", "test error", "optimal iteration"),
+       lty=c(1, 1, 2), col=c("black", "red", "blue"))
+gbm_perf(fit_efron, method='test')
+legend("topleft", c("training error", "test error", "optimal iteration"),
+       lty=c(1, 1, 2), col=c("black", "red", "blue"))
 ```
 
 
 # Description of the underlying algorithm - specifically for CoxPH
 The `gbm` algorithm works to estimate, via tree boosting, the function $f(\textbf{x})$, which maps covariates ($\textbf{x}$) to the response variable *y* - in this case the event indicator.
-For `CoxPH`, the algorithm calculates both the log likelihood and martingale residuals ($\textbf{m}$) using the following approach.  The algorithm walks backwards in time until it encounters the "stop" time of an observation.  When this happens the weighted risk associated with that observation, $\omega_i e^{f(\textbf{x}_i)}$, is added to the total cumulative hazard: $S = \sum \omega_j e^{f(\textbf{x}_j)}$, which is initialized at $0$.   Continuing backwards in time when we reach a time before an observation was in the study, that is the algorithm leaves the associated time segment (start, stop], the observation's contribution to the cumulative hazard is subtracted off.  The algorithm is robust to overflow/underflows occurring in $e^{f(\textbf{x}_i)}$ by subtracting a constant off of the risk score.  This constant drifts to ensure overflow does not occur.
+For `CoxPH`, the algorithm calculates both the partial log likelihood and martingale residuals ($\textbf{m}$) using the following approach.  The algorithm walks backwards in time until it encounters the "stop" time of an observation.  When this happens the weighted risk associated with that observation, $\omega_i e^{f(\textbf{x}_i)}$, is added to the total cumulative hazard: $S = \sum \omega_j e^{f(\textbf{x}_j)}$, which is initialized at $0$.   Continuing backwards in time when we reach a time before an observation was in the study, that is the algorithm leaves the associated time segment (start, stop], the observation's contribution to the cumulative hazard is subtracted off.  The algorithm is robust to overflow/underflows occurring in $e^{f(\textbf{x}_i)}$ by subtracting a constant off of the risk score.  This constant drifts to ensure overflow does not occur.
 
 This algorithm deals with tied event times using either the Breslow or Efron approximations.  The method used is specified by the user but in the event of tied deaths, it defaults to the Efron approximation.  It also allows for the introduction of strata and start as well as stop times for each observation, see the previous Sections.  
 
-As well as calculating the likelihood the algorithm also calculates the martingale residuals.  The risk scores are related to the covariate matrix, $\mathbb{X}$, via:
+As well as calculating the partial log likelihood the algorithm also calculates the martingale residuals.  The risk scores are related to the covariate matrix, $\mathbb{X}$, via:
 $$ f(\textbf{x}_i) = (\mathbb{X}\boldsymbol{\beta})_i.   \qquad (1) $$
-The derivative of the log likelihood, $l(\boldsymbol{\beta})$, with respect to the parameter vector $\boldsymbol{\beta}$ is related to the martingale residuals through:
+The derivative of the partial log likelihood, $l(\boldsymbol{\beta})$, with respect to the parameter vector $\boldsymbol{\beta}$ is related to the martingale residuals through:
 $$\frac{\partial}{\partial \boldsymbol{\beta}} l(\boldsymbol{\beta}) = \mathbb{X}^{T} \textbf{m}.  \qquad (2) $$
-Defining the loss function as the negative of the log likelihood then using the chain rule in combination with Equation (1) the residuals are given by:
+Defining the loss function as the negative of the partial log likelihood then using the chain rule in combination with Equation (1) the residuals are given by:
 $$ z_i = -\frac{\partial}{\partial f(\textbf{x}_{\textit{i}})}\Psi(\textit{y}_{\textit{i}},f(\textbf{x}_\textit{i})) = (\mathbb{X}\mathbb{X}^{T}\textbf{m})_i.  \qquad (3)$$
 
 At this point the covariate matrix should only decide what splits the tree will make thus covariate matrix in Equation (3) is free to be set to the identity matrix and so:

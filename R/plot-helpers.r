@@ -43,7 +43,7 @@ select_two_var_plot <- function(f.factor, X, gbm_fit_obj, var_index, ...) {
 two_var_plot_no_factor <- function(X, gbm_fit_obj, var_index, ...) {
   print(levelplot(y~X1*X2,data=X,
                   xlab=gbm_fit_obj$variables$var_names[var_index[1]],
-                  ylab=gbm_fit_obj$variables$var.names[var_index[2]],...))
+                  ylab=gbm_fit_obj$variables$var_names[var_index[2]],...))
 }
 
 two_var_plot_first_factor <- function(X, gbm_fit_obj, var_index, ...) {
