@@ -42,26 +42,26 @@
 #' otherwise, if the response has class "Surv", coxph is assumed;
 #' otherwise, gaussian is assumed.
 #' 
-#' Available distributions are "Gaussian" (squared error), "Laplace"
-#' (absolute loss), "TDist" (t-distribution loss), "Bernoulli"
-#' (logistic regression for 0-1 outcomes), "Huberized" (Huberized
-#' hinge loss for 0-1 outcomes), "AdaBoost" (the AdaBoost
-#' exponential loss for 0-1 outcomes), "Poisson" (count outcomes),
-#' "CoxPH" (right censored observations), "Quantile", or "Pairwise"
+#' Available distributions are "gaussian" (squared error), "laplace"
+#' (absolute loss), "tdist" (t-distribution loss), "bernoulli"
+#' (logistic regression for 0-1 outcomes), "huberized" (Huberized
+#' hinge loss for 0-1 outcomes), "adaboost" (the AdaBoost
+#' exponential loss for 0-1 outcomes), "poisson" (count outcomes),
+#' "coxph" (right censored observations), "quantile", or "pairwise"
 #' (ranking measure using the LambdaMART algorithm).
 #' 
 #' If quantile regression is specified, \code{distribution} must be a
-#' list of the form \code{list(name="Quantile",alpha=0.25)} where
+#' list of the form \code{list(name="quantile",alpha=0.25)} where
 #' \code{alpha} is the quantile to estimate. Non-constant weights are
 #' unsupported.
 #' 
-#' If "TDist" is specified, the default degrees of freedom is four and
+#' If "tdist" is specified, the default degrees of freedom is four and
 #' this can be controlled by specifying
 #' \code{distribution=list(name="tdist", df=DF)} where \code{DF} is
 #' your chosen degrees of freedom.
 #' 
-#' If "Pairwise" regression is specified, \code{distribution} must be a list of
-#' the form \code{list(name="Pairwise",group=...,metric=...,max.rank=...)}
+#' If "pairwise" regression is specified, \code{distribution} must be a list of
+#' the form \code{list(name="pairwise",group=...,metric=...,max.rank=...)}
 #' (\code{metric} and \code{max.rank} are optional, see below). \code{group} is
 #' a character vector with the column names of \code{data} that jointly
 #' indicate the group an instance belongs to (typically a query in Information
@@ -186,8 +186,8 @@
 #'
 #' @param x,y For \code{gbm.fit}: \code{x} is a data frame or data
 #' matrix containing the predictor variables and \code{y} is a matrix of outcomes.
-#' Excluding \code{CoxPH} this matrix of outcomes collapses to a vector, in the case of
-#' \code{CoxPH} it is a survival object where the event times fill the first 
+#' Excluding \code{coxph} this matrix of outcomes collapses to a vector, in the case of
+#' \code{coxph} it is a survival object where the event times fill the first 
 #' one (or two columns) and the status fills the final column. 
 #' The number of rows in \code{x} must be the same as the length of the 1st dimension
 #' of \code{y}.
@@ -211,12 +211,12 @@
 #' Setting the string to any other value reverts the method to the original CoxPH model
 #' implementation where ties are not explicitly dealt with.
 #' 
-#' @param prior.node.coeff.var Optional double only used with the \code{CoxPH} distribution.
+#' @param prior.node.coeff.var Optional double only used with the \code{coxph} distribution.
 #' It is a prior on the coefficient of variation associated with the hazard 
 #' rate assigned to each terminal node when fitting a tree.Increasing its value emphasises 
 #' the importance of the training data in the node when assigning a prediction to said node.
 #'
-#' @param strata Optional vector of integers (or factors) only used with the \code{CoxPH} distributions.
+#' @param strata Optional vector of integers (or factors) only used with the \code{coxph} distributions.
 #' Each integer in this vector represents the stratum the corresponding row in the data belongs to,
 #' e. g. if the 10th element is 3 then the 10th data row belongs to the 3rd strata.
 #' 
@@ -233,7 +233,7 @@
 #' 
 #' 
 #' @usage
-#' gbm(formula = formula(data), distribution = "Bernoulli",
+#' gbm(formula = formula(data), distribution = "bernoulli",
 #' data = list(), weights, subset = NULL, offset = NULL, var.monotone
 #' = NULL, n.trees = 100, interaction.depth = 1, n.minobsinnode = 10,
 #' shrinkage = 0.001, bag.fraction = 0.5, train.fraction = 1,
@@ -242,7 +242,7 @@
 #' tied.times.method = "efron", prior.node.coeff.var = 1000, strata = NA, 
 #' obs.id = 1:nrow(data))
 #' 
-#' gbm.fit(x, y, offset = NULL, distribution = "Bernoulli", 
+#' gbm.fit(x, y, offset = NULL, distribution = "bernoulli", 
 #' w = NULL, var.monotone = NULL, n.trees = 100, interaction.depth = 1, 
 #' n.minobsinnode = 10, shrinkage = 0.001, bag.fraction = 0.5, 
 #' nTrain = NULL, train.fraction = NULL, mFeatures = NULL, keep.data = TRUE, 
@@ -325,7 +325,7 @@
 #'     var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease,
 #'                                  # +1: monotone increase,
 #'                                  #  0: no monotone restrictions
-#'     distribution="Gaussian",     # see the help for other choices
+#'     distribution="gaussian",     # see the help for other choices
 #'     n.trees=1000,                # number of trees
 #'     shrinkage=0.05,              # shrinkage or learning rate,
 #'                                  # 0.001 to 0.1 usually work

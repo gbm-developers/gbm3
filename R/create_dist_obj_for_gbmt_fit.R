@@ -29,30 +29,32 @@
 create_dist_obj_for_gbmt_fit <- function(distribution, tied.times.method="efron", strata=NA, prior.node.coeff.var=1000) {
   # Check inputs
   if(is.null(distribution$name)) stop("distribution parameter name not defined.")
-  if(!(distribution$name %in% available_distributions())) {
+  if(!(tolower(distribution$name) %in% tolower(available_distributions()))) {
     stop("The distribution ", distribution$name, " is not available in the gbm package.")
   }
   
   # Create distribution
-  if(distribution$name == "CoxPH") {
+  if(tolower(distribution$name) == "coxph") {
     dist <- create_coxph_for_gbmt_fit(distribution, tied.times.method, strata, prior.node.coeff.var)
-  } else if(distribution$name == "Pairwise") {
+  } else if(tolower(distribution$name) == "pairwise") {
     dist <- create_pairwise_for_gbmt_fit(distribution)
-  } else if(distribution$name == "Quantile") {
+  } else if(tolower(distribution$name) == "quantile") {
     dist <- create_quantile_for_gbmt_fit(distribution)
-  } else if(distribution$name == "TDist") {
+  } else if(tolower(distribution$name) == "tdist") {
     dist <- create_tdist_for_gbmt_fit(distribution)
-  } else if(distribution$name == "Tweedie") {
+  } else if(tolower(distribution$name) == "tweedie") {
     dist <- create_tweedie_for_gbmt_fit(distribution)
   } else {
-    dist <- create_dist(empty_distribution(distribution$name))
+    # Find distribution in list of available distributions
+    match_dist <- match(tolower(distribution$name), tolower(available_distributions()))
+    dist <- create_dist(empty_distribution(available_distributions()[match_dist]))
   }
   
   return(dist)
 }
 
 create_coxph_for_gbmt_fit <- function(distribution, tied.times.method, strata, prior.node.coeff.var) {
-  return(create_dist(empty_distribution(distribution$name), strata, sorted=NA, 
+  return(create_dist(empty_distribution("CoxPH"), strata, sorted=NA, 
                      ties=tied.times.method, prior_node_coeff_var=prior.node.coeff.var))
 }
 
@@ -60,18 +62,18 @@ create_pairwise_for_gbmt_fit <- function(distribution) {
   if(is.null(distribution$group)) distribution$group <- "query"
   if(is.null(distribution$metric)) distribution$metric <- "ndcg"
   if(is.null(distribution$max.rank)) distribution$max.rank <- 0
-  return(create_dist(empty_distribution(distribution$name), 
+  return(create_dist(empty_distribution("Pairwise"), 
                      distribution$group, distribution$metric, distribution$max.rank, distribution$group_index))
 }
 
 create_quantile_for_gbmt_fit <- function(distribution) {
-  return(create_dist(empty_distribution(distribution$name), distribution$alpha))
+  return(create_dist(empty_distribution("Quantile"), distribution$alpha))
 }
 
 create_tdist_for_gbmt_fit <- function(distribution) {
-  return(create_dist(empty_distribution(distribution$name), distribution$df))
+  return(create_dist(empty_distribution("TDist"), distribution$df))
 }
 
 create_tweedie_for_gbmt_fit <- function(distribution) {
-  return(create_dist(empty_distribution(distribution$name), distribution$power))
+  return(create_dist(empty_distribution("Tweedie"), distribution$power))
 }

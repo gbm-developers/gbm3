@@ -73,6 +73,9 @@ to_old_gbm <- function(gbm_fit_obj) {
   gbm_fit_old$Terms <- gbm_fit_obj$Terms
   gbm_fit_old$call <- gbm_fit_obj$call
   gbm_fit_old$m <- gbm_fit_obj$m
+  gbm_fit_old$num.classes <- gbm_fit_obj$num.classes
+  
+  
   class(gbm_fit_old) <- "gbm"
   
   message("Converted to old gbm object - this will not work with new packages functions")

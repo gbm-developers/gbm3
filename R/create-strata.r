@@ -112,7 +112,6 @@ create_strata <- function(gbm_data_obj, train_params, distribution_obj, order_st
     sortedVec <- sorted-1L
     
     distribution_obj$time_order <- i_order
-    distribution_obj$row_in_which_stratum <- distribution_obj$strata
     distribution_obj$sorted <- as.matrix(as.data.frame(sortedVec))
     distribution_obj$strata <- as.double(StrataVec)
     

@@ -109,6 +109,11 @@ predict.GBMFit <- function(gbm_fit_obj, new_data, num_trees,
   
   i.ntree.order <- order(num_trees)
   
+  # Next if block for compatibility with objects created with 1.6
+  if(is.null(gbm_fit_obj$num.classes)) {
+    gbm_fit_obj$num.classes <- 1
+  }
+  
   predF <- .Call("gbm_pred",
                  X=as.matrix(as.data.frame(x)),
                  n.trees=as.integer(num_trees[order(num_trees)]),

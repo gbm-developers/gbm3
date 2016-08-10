@@ -357,7 +357,7 @@ for(i in 1:length(shrink))
     {
         gbm1 <- gbm(Y~X1+X2+X3+X4+X5+X6,
                     data=data,
-                    distribution="Gaussian",
+                    distribution="gaussian",
                     n.trees=10000,
                     shrinkage=shrink[i],
                     interaction.depth=3,

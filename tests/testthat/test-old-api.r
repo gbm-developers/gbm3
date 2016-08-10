@@ -42,7 +42,7 @@ test_that("Gaussian works - gbm", {
   gbm1 <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
               data=data,                   # dataset
               var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-              distribution="Gaussian",     # bernoulli, adaboost, gaussian, poisson, coxph, or
+              distribution="gaussian",     # bernoulli, adaboost, gaussian, poisson, coxph, or
               # list(name="quantile",alpha=0.05) for quantile regression
               n.trees=2000,                 # number of trees
               shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
@@ -114,7 +114,7 @@ test_that("CoxPH works - efron - gbm", {
               data=data,                 # dataset
               weights=w,
               var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-              distribution="CoxPH",
+              distribution="coxph",
               n.trees=3000,              # number of trees
               shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
               interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc.
@@ -183,7 +183,7 @@ test_that("CoxPH works - breslow - gbm", {
               data=data,                 # dataset
               weights=w,
               var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-              distribution="CoxPH",
+              distribution="coxph",
               n.trees=3000,              # number of trees
               shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
               interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc.
@@ -236,11 +236,11 @@ test_that("coxph - runs to completion with train.fraction of 1.0", {
   # Then expect no errors when performing gbm fit with train fraction = 1.0
   # GBM fit baseline data
   expect_error(gbm(Surv(time, status==2) ~ bili + protime + albumin + alk.phos, data=pbc,
-                   train.fraction=1.0, distribution="CoxPH", n.trees=500, shrinkage=.01,  interaction.depth=3), NA)
+                   train.fraction=1.0, distribution="coxph", n.trees=500, shrinkage=.01,  interaction.depth=3), NA)
   
   # GBM fit using start/stop times to get time-dependent covariates
   expect_error(gbm(Surv(tstart, tstop, death==2) ~ bili + protime + albumin + alk.phos, 
-                   data=pbc2, distribution="CoxPH", train.fraction=1.0, n.trees=500, shrinkage=.01, interaction.depth=3), NA)
+                   data=pbc2, distribution="coxph", train.fraction=1.0, n.trees=500, shrinkage=.01, interaction.depth=3), NA)
 })
 test_that("coxph - runs to completion with train.fraction < 1.0 and cv.folds > 1", {
   ## Needed packages
@@ -258,15 +258,15 @@ test_that("coxph - runs to completion with train.fraction < 1.0 and cv.folds > 1
   # Then expect no errors when performing gbm fit with train fraction < 1.0 and cv.folds > 1
   # GBM fit baseline data
   expect_error(gbm(Surv(time, status==2) ~ bili + protime + albumin + alk.phos, data=pbc,
-                   train.fraction=0.8, distribution="CoxPH", n.trees=500, shrinkage=.01,  interaction.depth=3), NA)
+                   train.fraction=0.8, distribution="coxph", n.trees=500, shrinkage=.01,  interaction.depth=3), NA)
   expect_error(gbm(Surv(time, status==2) ~ bili + protime + albumin + alk.phos, data=pbc,
-                   train.fraction=0.8, distribution="CoxPH", n.trees=500, shrinkage=.01,  cv.folds=5, interaction.depth=3), NA)
+                   train.fraction=0.8, distribution="coxph", n.trees=500, shrinkage=.01,  cv.folds=5, interaction.depth=3), NA)
   
   # GBM fit using start/stop times to get time-dependent covariates
   expect_error(gbm(Surv(tstart, tstop, death==2) ~ bili + protime + albumin + alk.phos, 
-                   data=pbc2, distribution="CoxPH", train.fraction=0.8, n.trees=500, shrinkage=.01, interaction.depth=3), NA)
+                   data=pbc2, distribution="coxph", train.fraction=0.8, n.trees=500, shrinkage=.01, interaction.depth=3), NA)
   expect_error(gbm(Surv(tstart, tstop, death==2) ~ bili + protime + albumin + alk.phos, 
-                   data=pbc2, distribution="CoxPH", train.fraction=0.8, n.trees=500, shrinkage=.01, cv.folds=5, interaction.depth=3), NA)
+                   data=pbc2, distribution="coxph", train.fraction=0.8, n.trees=500, shrinkage=.01, cv.folds=5, interaction.depth=3), NA)
 })
 test_that("coxph cv.folds - runs to completion with start-stop, id'ed and stratified dataset", {
   ## Needed packages
@@ -278,17 +278,17 @@ test_that("coxph cv.folds - runs to completion with start-stop, id'ed and strati
   # Then fitting a gbm model should throw no errors - with cv.folds > 1
   expect_error(gbm(Surv(tstop, status) ~ age + sex + inherit +
                      steroids + propylac + hos.cat, data=cgd2, 
-                   n.trees=500, shrinkage=.01, distribution = "CoxPH", interaction.depth=1, train.fraction=1.0, cv.folds=10), NA)
+                   n.trees=500, shrinkage=.01, distribution = "coxph", interaction.depth=1, train.fraction=1.0, cv.folds=10), NA)
   expect_error(gbm(Surv(tstop, status) ~ age + sex + inherit +
                      steroids + propylac + hos.cat, data=cgd2, 
-                   n.trees=500, shrinkage=.01, distribution = "CoxPH", interaction.depth=1, train.fraction=0.8, cv.folds=5), NA)
+                   n.trees=500, shrinkage=.01, distribution = "coxph", interaction.depth=1, train.fraction=0.8, cv.folds=5), NA)
   
   expect_error(gbm(Surv(tstart, tstop, status) ~ age + sex + inherit +
                      steroids + propylac, data=cgd, obs.id=cgd$id,
-                   train.fraction=1.0, n.trees=500, strata= cgd$hos.cat, distribution = "CoxPH", shrinkage=.01, interaction.depth=3, cv.folds=10), NA)
+                   train.fraction=1.0, n.trees=500, strata= cgd$hos.cat, distribution = "coxph", shrinkage=.01, interaction.depth=3, cv.folds=10), NA)
   expect_error(gbm(Surv(tstart, tstop, status) ~ age + sex + inherit +
                      steroids + propylac, data=cgd, obs.id=cgd$id,
-                   train.fraction=0.8, n.trees=500, strata= cgd$hos.cat, distribution = "CoxPH", shrinkage=.01, interaction.depth=3, cv.folds=10), NA)
+                   train.fraction=0.8, n.trees=500, strata= cgd$hos.cat, distribution = "coxph", shrinkage=.01, interaction.depth=3, cv.folds=10), NA)
 })
 test_that("Bernoulli works - gbm", {
   
@@ -315,7 +315,7 @@ test_that("Bernoulli works - gbm", {
               data=data,                 # dataset
               weights=w,
               var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-              distribution="Bernoulli",
+              distribution="bernoulli",
               n.trees=3000,              # number of trees
               shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
               interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc.
@@ -361,7 +361,7 @@ test_that("relative influence picks out true predictors", {
   X <- data.frame(cbind(X1, X2, cls))
   mod <- gbm(cls ~ ., data= X, n.trees=1000, cv.folds=5,
              shrinkage=.01, interaction.depth=2
-             ,distribution = 'Bernoulli')
+             ,distribution = 'bernoulli')
   ri <- relative_influence(mod, sort_it=TRUE, rescale=TRUE)
   
   wh <- names(ri)[1:5]
@@ -381,13 +381,13 @@ test_that("Conversion of 2 factor Y is successful", {
   
   set.seed(32479)
   g1 <- gbm(y ~ ., data = data.frame(y = NumY, PredX)
-            , distribution = 'Bernoulli', verbose = FALSE
+            , distribution = 'bernoulli', verbose = FALSE
             , n.trees = 50)
   rig1 <- relative_influence(g1, num_trees=50)
   
   set.seed(32479)
   g2 <- gbm(y ~ ., data = data.frame(y = FactY, PredX)
-            , distribution = 'Bernoulli', verbose = FALSE
+            , distribution = 'bernoulli', verbose = FALSE
             , n.trees = 50)
   rig2 <- relative_influence(g2, num_trees=50)
   
@@ -429,7 +429,7 @@ test_that("Gaussian works - gbm.fit", {
   gbm1 <- gbm.fit(X,
                   Y,                   # dataset
                   var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                  distribution="Gaussian",     # bernoulli, adaboost, gaussian, poisson, coxph, or
+                  distribution="gaussian",     # bernoulli, adaboost, gaussian, poisson, coxph, or
                   # list(name="quantile",alpha=0.05) for quantile regression
                   n.trees=2000,                 # number of trees
                   shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
@@ -498,7 +498,7 @@ test_that("CoxPH works - efron - gbm", {
               Surv(tt, delta),                 # dataset
               w=w,
               var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-              distribution="CoxPH",
+              distribution="coxph",
               n.trees=3000,              # number of trees
               shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
               interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc.
@@ -562,7 +562,7 @@ test_that("CoxPH works - breslow - gbm", {
                   Surv(tt, delta),              # dataset
                   w=w,
                   var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                  distribution="CoxPH",
+                  distribution="coxph",
                   n.trees=3000,              # number of trees
                   shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
                   interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc.
@@ -619,7 +619,7 @@ test_that("Bernoulli works - gbm", {
               Y,
               w=w,
               var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-              distribution="Bernoulli",
+              distribution="bernoulli",
               n.trees=3000,              # number of trees
               shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
               interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc.

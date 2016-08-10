@@ -147,6 +147,9 @@ gbm_more <- function(gbm_fit_obj, num_new_trees=100, data=NULL, weights=NULL, of
   gbm_more_fit$cv_error  <- gbm_fit_obj$cv_error
   gbm_more_fit$cv_folds  <- gbm_fit_obj$cv_folds
   gbm_more_fit$cv_fitted <- gbm_fit_obj$cv_fitted
+  
+  # Compatibility with 1.6
+  gbm_more_fit$num.classes <- gbm_fit_obj$num.classes
 
   # Reorder if necessary 
   gbm_more_fit <- reorder_fit(gbm_more_fit, distribution)

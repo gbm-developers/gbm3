@@ -99,6 +99,11 @@ gbmt_plot <- function(gbm_fit_obj,
   X <- expand.grid(grid_levels)
   names(X) <- paste("X", seq_len(length(var_index)),sep="")
 
+  # Next if block for compatibility with objects created with 1.6
+  if(is.null(gbm_fit_obj$num.classes)) {
+    gbm_fit_obj$num.classes <- 1
+  }
+  
   # evaluate at each data point
   y <- .Call("gbm_plot",
              X = data.matrix(X),

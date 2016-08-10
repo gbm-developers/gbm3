@@ -30,7 +30,7 @@ class GbmFit {
   // Public Constructors
   //----------------------
   GbmFit(const int kNumDataRows, const double kInitEstimate,
-         const int kNumTrees, const Rcpp::NumericVector kPrevFuncEstimate);
+         const int kNumTrees, const Rcpp::NumericVector& kPrevFuncEstimate);
 
   //---------------------
   // Public Functions

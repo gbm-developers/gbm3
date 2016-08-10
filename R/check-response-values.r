@@ -48,9 +48,9 @@ check_response_values.CoxPHGBMDist <-function(distribution_obj, y) {
          or Surv(time1, time2, failure)")
   }
   
-  # Check length
-  if(length(distribution_obj$row_in_which_stratum) != nrow(y))
-  {
+  # Check length if not default
+  if(!is.na(distribution_obj$original_strata_id) && 
+     (length(distribution_obj$original_strata_id) != nrow(y)) ){
     stop("Strata indices must be provided for every data point")
   }
 }
