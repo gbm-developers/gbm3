@@ -2,7 +2,7 @@
 #' @export 
 gbm.fit <- function(x, y,
                     offset = NULL,
-                    distribution = "Bernoulli",
+                    distribution = "bernoulli",
                     w = NULL,
                     var.monotone = NULL,
                     n.trees = 100,

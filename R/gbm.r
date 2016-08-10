@@ -430,7 +430,7 @@
 #'                  is_verbose=FALSE) # stop printing detailed progress
 #' @export
 gbm <- function(formula = formula(data),
-                distribution = "Bernoulli",
+                distribution = "bernoulli",
                 data = list(),
                 weights,
                 subset = NULL,
