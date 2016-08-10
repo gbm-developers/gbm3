@@ -36,7 +36,7 @@ test_that("Error thrown if type is not 'link' or 'response'", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -93,7 +93,7 @@ test_that("Error thrown if data is missing", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -150,7 +150,7 @@ test_that("Error thrown if data is not in data.frame", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -208,7 +208,7 @@ test_that("Error thrown if num_trees not provided", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -265,7 +265,7 @@ test_that("Error thrown if num_trees is NULL or vector of 0 length", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -323,7 +323,7 @@ test_that("Error thrown if num_trees has element which is not an integer", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=20000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -380,7 +380,7 @@ test_that("Warning thrown if offset was in original fit", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -438,7 +438,7 @@ test_that("Warning thrown if num_trees exceeds number in original fit", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -498,7 +498,7 @@ test_that("predict works if Terms defined in original fit", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -547,7 +547,7 @@ test_that("type='response' scales predictions", {
   offset <- rep(0, N)
   
   # Set up for new API
-  params <- training_params(num_trees=300, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=3)
   dist <- gbm_dist("Bernoulli")
   fit <- gbmt(Y~X1+X2+X3, data=data, distribution=dist, weights=w, offset=offset,
@@ -594,7 +594,7 @@ test_that("Output is matrix if length(num_trees) > 1", {
   offset <- rep(0, N)
   
   # Set up for new API
-  params <- training_params(num_trees=300, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=3)
   dist <- gbm_dist("Bernoulli")
   fit <- gbmt(Y~X1+X2+X3, data=data, distribution=dist, weights=w, offset=offset,
@@ -640,7 +640,7 @@ test_that("Output is vector if length(num_trees) == 1", {
   offset <- rep(0, N)
   
   # Set up for new API
-  params <- training_params(num_trees=300, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=3)
   dist <- gbm_dist("Bernoulli")
   fit <- gbmt(Y~X1+X2+X3, data=data, distribution=dist, weights=w, offset=offset,
@@ -686,7 +686,7 @@ test_that("When num_trees specified exceeds total number in fit then number in f
   offset <- rep(0, N)
   
   # Set up for new API
-  params <- training_params(num_trees=300, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=3)
   dist <- gbm_dist("Bernoulli")
   fit <- gbmt(Y~X1+X2+X3, data=data, distribution=dist, weights=w, offset=offset,

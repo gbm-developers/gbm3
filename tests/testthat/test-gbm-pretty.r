@@ -37,7 +37,7 @@ test_that("error thrown when tree_index is not a positive integer", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -83,7 +83,7 @@ test_that("error thrown when tree_index exceeds the number of trees fitted", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -100,7 +100,7 @@ test_that("error thrown when tree_index exceeds the number of trees fitted", {
 context("Test output of pretty_gbm_tree")
 test_that("Tree is prettified correctly", {
   # Given a fitted gbm object and a sensible tree_index
-  n_trees <- 200
+  n_trees <- 2000
   tree_index <- 100
   ## test Gaussian distribution gbm model
   set.seed(1)
@@ -150,7 +150,7 @@ test_that("Tree is prettified correctly", {
 })
 test_that("default prettified tree is the first one", {
   # Given a fitted gbm object and the default tree_index
-  n_trees <- 200
+  n_trees <- 2000
   tree_index <- 1
   ## test Gaussian distribution gbm model
   set.seed(1)

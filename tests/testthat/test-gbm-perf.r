@@ -36,7 +36,7 @@ test_that("Error thrown if not passed GBMFit object", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -78,7 +78,7 @@ test_that("Error thrown if plot_it is not a logical", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -123,7 +123,7 @@ test_that("Error thrown if plot_it is NA", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -164,7 +164,7 @@ test_that("Error thrown if method parameter missing", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -205,7 +205,7 @@ test_that("Error thrown  if method not element of c('OOB', 'cv', 'test')", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -246,7 +246,7 @@ test_that("Message given if method is 'cv", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -287,7 +287,7 @@ test_that("Message given if method is 'OOB'", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -330,7 +330,7 @@ test_that("gbm_perf returns correct best iteration for each method", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   

@@ -36,7 +36,7 @@ test_that("Error thrown if gbm_fit_obj is not of class GBMFit", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -79,7 +79,7 @@ test_that("Error thrown if num_new_trees is not a natural number > 1", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=500, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -125,7 +125,7 @@ test_that("Error thrown if is_verbose is not a logical", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=500, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -173,7 +173,7 @@ test_that("Error thrown if data not provided or gbm_data_obj not stored in gbm_f
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -216,7 +216,7 @@ test_that("Error thrown if data has different number of rows than the original n
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -275,7 +275,7 @@ test_that("Output of gbm_more is GBMFit object", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -323,7 +323,7 @@ test_that("gbm_more does not update cv properties of GBMFit output", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -374,7 +374,7 @@ test_that("gbm_more fits additional trees - reflected in length of fit fields", 
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -425,7 +425,7 @@ test_that("Can run gbm_more with new data", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -482,7 +482,7 @@ test_that("Output of gbm_more DOES NOT contain constructed gbm_data_obj if run w
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -541,7 +541,7 @@ test_that("If run with new data and weights are length 0 then they are set to 1 
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -600,7 +600,7 @@ test_that("If run with new data and offset is length 0 then they are set to 0 fo
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   

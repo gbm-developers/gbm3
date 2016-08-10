@@ -36,7 +36,7 @@ test_that("perf_plot runs with all perf methods", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -95,7 +95,7 @@ test_that("perf_plot throws error if gbm_fit_obj is not of class GBMFit", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -140,7 +140,7 @@ test_that("perf_plot throws error if out_of_bag_curve is not logical or is na", 
   
   
   # Set up for new API
-  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -188,7 +188,7 @@ test_that("perf_plot throws error if overlay is not logical or is na", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -301,7 +301,7 @@ test_that("Error thrown if type of plot not 'link' or 'response' ", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -345,7 +345,7 @@ test_that("Error thrown if var_index has variable outside range not used in fit"
   
   
   # Set up for new API
-  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -448,7 +448,7 @@ test_that("get_default_grid_levels returns answer of correct type and size", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -492,7 +492,7 @@ test_that("generate_grid_levels throws an error if length of grid_levels not sam
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -538,7 +538,7 @@ test_that("warning thrown if num_trees exceeds those in fit and then uses number
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -581,7 +581,7 @@ test_that("warning thrown if number var indices > 3", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -624,7 +624,7 @@ test_that("return_grid=TRUE returns the grid", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -667,7 +667,7 @@ test_that("number of var indices >3 sets return_grid to TRUE", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -709,7 +709,7 @@ test_that("can gbmt_plot with one variable selected", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -784,7 +784,7 @@ test_that("can gbmt_plot with two variables", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -832,7 +832,7 @@ test_that("can gbmt_plot with 3 variables selected", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
