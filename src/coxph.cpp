@@ -48,6 +48,8 @@ CCoxPH::CCoxPH(bool is_startstop, int tiesmethod, double priorcoeff)
 //----------------------------------------
 CDistribution* CCoxPH::Create(DataDistParams& distparams) {
   // Initialize variables to pass to constructor
+  // This isn't very nice but helps with garbage collection
+  // - only one Rcpp member pointing at a SEXP
   Rcpp::List misc_vec = Rcpp::as<Rcpp::List>(distparams.misc);
   Rcpp::NumericMatrix response_mat(distparams.response);
 

@@ -487,6 +487,8 @@ CPairwise::CPairwise(const double* kGroups, const char* kIrMeasure,
 
 CDistribution* CPairwise::Create(DataDistParams& distparams) {
   // Create pointers to pairwise
+  // This isn't very nice but helps with garbage collection
+  // - only one Rcpp member pointing at a SEXP
   Rcpp::List misc_list = Rcpp::as<Rcpp::List>(distparams.misc);
   Rcpp::NumericVector misc_vec(misc_list[0]);
   const double* kGroup = 0;

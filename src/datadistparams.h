@@ -116,6 +116,9 @@ class DataDistParams {
   //-------------------
   // Public Variables
   //-------------------
+  // NB: TO AID WITH GARBAGE COLLECTION
+  // IT IS BEST TO ONLY HAVE SOLE RCPP VECTORS/MATRICES
+  // POINTING TO SEXPS - KEEP AS SEXPS
   SEXP response;
   SEXP intResponse;
   SEXP observationids;

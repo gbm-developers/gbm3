@@ -5,7 +5,7 @@
 \alias{gbm.fit}
 \title{Generalized Boosted Regression Modeling}
 \usage{
-gbm.fit(x, y, offset = NULL, distribution = "Bernoulli", w = NULL,
+gbm.fit(x, y, offset = NULL, distribution = "bernoulli", w = NULL,
   var.monotone = NULL, n.trees = 100, interaction.depth = 1,
   n.minobsinnode = 10, shrinkage = 0.001, bag.fraction = 0.5,
   nTrain = NULL, train.fraction = NULL, mFeatures = NULL,

@@ -24,6 +24,8 @@ CQuantile::CQuantile(double alpha, const parallel_details& parallel)
 //----------------------------------------
 CDistribution* CQuantile::Create(DataDistParams& distparams) {
   // Check that misc exists
+  // This isn't very nice but helps with garbage collection
+  // - only one Rcpp member pointing at a SEXP
   Rcpp::List misc_list = Rcpp::as<Rcpp::List>(distparams.misc);
   double alpha = Rcpp::as<double>(misc_list[0]);
   if (!gbm_functions::has_value(alpha)) {

@@ -28,7 +28,9 @@ CTweedie::CTweedie(double power) { power_ = power; }
 // Function Members - Public
 //----------------------------------------
 CDistribution* CTweedie::Create(DataDistParams& distparams) {
-  // Extract misc from second column of response]
+  // Extract misc from second column of response
+  // This isn't very nice but helps with garbage collection
+  // - only one Rcpp member pointing at a SEXP
   Rcpp::List misc_list = Rcpp::as<Rcpp::List>(distparams.misc);
   double power = Rcpp::as<double>(misc_list[0]);
   if (!gbm_functions::has_value(power)) {
