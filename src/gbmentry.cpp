@@ -126,6 +126,8 @@ SEXP gbm(SEXP response, SEXP intResponse, SEXP offset_vec, SEXP covariates,
          SEXP prev_trees_fitted, SEXP par_details, SEXP isverbose) {
   BEGIN_RCPP
 
+  Rcpp::RObject result; // MAKE SURE BEFORE RNGSCOPE!!
+  Rcpp::RNGScope scope;
   // Set up consts for tree fitting and transfer to R API
   const int kNumTrees = Rcpp::as<int>(num_trees);
   const int kCatSplitsOld = Rcpp::as<int>(prev_category_splits);
@@ -146,7 +148,6 @@ SEXP gbm(SEXP response, SEXP intResponse, SEXP offset_vec, SEXP covariates,
   TreeParams treeparams(tree_depth, min_num_node_obs, shrinkageconstant,
                         num_rows_in_training, parallel);
 
-  Rcpp::RNGScope scope;
 
   // Initialize GBM engine
   CGBMEngine gbm(datadistparams, treeparams);
@@ -182,7 +183,10 @@ SEXP gbm(SEXP response, SEXP intResponse, SEXP offset_vec, SEXP covariates,
   }
   if (kIsVerbose) Rprintf("\n");
 
-  return gbmfit.ROutput();
+  // NEVER TAKE THIS OUT - SEGFAULT IN RNGSCOPE
+  result = gbmfit.ROutput();
+
+  return result;
   END_RCPP
 }
 
