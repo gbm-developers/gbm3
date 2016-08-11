@@ -5,3 +5,10 @@ OOB-reps        experiment testing the predictive performance of the OOB estimat
 printExamples   simple examples used to test gbm updates
 robustReg       comparison of gaussian and t-distribution
 pairwise        comparison of gaussian and pairwise distributions (LambdaMART) for ranking
+gaussian_gbmt   example of boosting for least squares, aka LSBoost, using the updated API
+bernoulli       example of boosting for logistic regression, aka LogitBoost, using the updated API
+coxph           example of boosting the Cox propotional hazards model using the updated API
+OOB-reps        experiment testing the predictive performance of the OOB estimator using updated API
+printExamples   simple examples used to test gbm updates with the updated API
+robustReg       comparison of gaussian and t-distribution using the updated API
+pairwise        comparison of gaussian and pairwise distributions (LambdaMART) for ranking using the updated API
