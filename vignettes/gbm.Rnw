@@ -13,7 +13,6 @@
 \newcommand{\mathgbf}[1]{{\mbox{\boldmath$#1$\unboldmath}}}
 
 \begin{document}
-\SweaveOpts{concordance=TRUE}
 
 \maketitle
 
@@ -43,8 +42,8 @@ purposes of this document is to spell out in detail what the gbm
 package implements.
 
 \textbf{NB:} This document refers heavily to the \texttt{gbm} function.  This 
-function is part of the old R API provided by the package; while this API is
-still functional, the package now contains an updated API which
+function is part of the original R API provided by the package; while this API is
+still functional, as of Version 2.1.06 the package contains an updated API which
 performs boosting: \texttt{gbmt}.  For more details on how to use the new API, see
 the ``Getting started with the gbm package" vignette.
 
@@ -365,7 +364,7 @@ being able to fit the model in a reasonable amount of time and
 storage. I usually aim for 3,000 to 10,000 iterations with shrinkage
 rates between 0.01 and 0.001.
 
-<<shrinkViters, echo=FALSE>>=
+<<shrinkViters, fig.cap="Out-of-sample predictive performance by number of iterations and shrinkage. Smaller values of the shrinkage parameter offer improved predictive performance, but with decreasing marginal improvement.", echo=FALSE>>=
 library("gbm")
 
 N <- 10000
