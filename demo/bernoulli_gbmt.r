@@ -17,20 +17,19 @@ w <- N*w/sum(w)
 
 data <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3)
 
+train_params <- training_params(num_trees = 3000, shrinkage = 0.001, bag_fraction = 0.5,
+                                num_train = N/2, id=seq_len(nrow(data)), min_num_obs_in_node = 10,
+                                interaction_depth = 3, num_features = 3)
+
 # fit initial model
-gbm1 <- gbm(Y~X1+X2+X3,                # formula
+gbm1 <- gbmt(Y~X1+X2+X3,                # formula
             data=data,                 # dataset
             weights=w,
-            var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-            distribution="bernoulli",
-            n.trees=3000,              # number of trees
-            shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
-            interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
-            bag.fraction = 0.5,        # subsampling fraction, 0.5 is probably best
-            train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
-            cv.folds=5,                # do 5-fold cross-validation
-            n.minobsinnode = 10,       # minimum total weight needed in each node
-            verbose = FALSE)           # don't print progress
+            var_monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
+            distribution=gbm_dist("Bernoulli"),
+            train_params = train_params,
+            cv_folds=5,                # do 5-fold cross-validation
+            is_verbose = FALSE)           # don't print progress
 
 # plot the performance
 best.iter.oob <- gbm_perf(gbm1,method="OOB")  # returns out-of-bag estimated best number of trees
@@ -77,7 +76,7 @@ data2 <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3)
 # predict on the new data using "best" number of trees
 # f.predict will be on the canonical scale (logit,log,etc.)
 f.predict <- predict(gbm1,data2,
-                         num_trees=c(best.iter.oob,best.iter.cv,best.iter.test))
+                     num_trees=c(best.iter.oob,best.iter.cv,best.iter.test))
 # transform to probability scale for logistic regression
 p.pred <- 1/(1+exp(-f.predict))
 

@@ -10,16 +10,16 @@ y <- apply( x, 1, sum ) + r
 
 d <- data.frame( y=y , x)
 
-gmod <- gbm( y ~ ., data=d, distribution="Gaussian",
+gmod <- gbm( y ~ ., data=d, distribution="gaussian",
              n.tree = 2000, shrinkage = .01 , cv.folds=5,
             verbose = FALSE)
-tmod4 <- gbm( y ~ ., data=d, distribution="TDist", # defaults to 4 df
+tmod4 <- gbm( y ~ ., data=d, distribution="tdist", # defaults to 4 df
               n.tree=2000, shrinkage = .01, cv.folds=5,
              verbose = FALSE)
-tmod6 <- gbm( y ~ ., data=d, distribution=list( name="TDist", df=6 ),
+tmod6 <- gbm( y ~ ., data=d, distribution=list( name="tdist", df=6 ),
               n.tree=2000, shrinkage = .01, cv.folds=5,
               verbose = FALSE)
-tmod100 <- gbm( y ~ ., data=d, distribution=list( name="TDist", df=100 ),
+tmod100 <- gbm( y ~ ., data=d, distribution=list( name="tdist", df=100 ),
               n.tree=2000, shrinkage = .01, cv.folds=5,
                verbose = FALSE)
 

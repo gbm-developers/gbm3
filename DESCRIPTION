@@ -32,7 +32,8 @@ Imports:
     Rcpp (>= 0.11.5)
 Suggests:
     testthat (>= 0.11.0),
-    knitr
+    knitr,
+    rmarkdown
 VignetteBuilder: knitr
 Description: Extensions
     to Freund and Schapire's AdaBoost algorithm and Friedman's

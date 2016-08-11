@@ -6,7 +6,7 @@
 #' 
 #' @usage  gbmt(formula, distribution=gbm_dist("Gaussian"), data, weights=rep(1, nrow(data)),
 #'  offset=rep(0, nrow(data)),
-#'  train_params=training_params(num_trees=100, interaction_depth=1,
+#'  train_params=training_params(num_trees=2000, interaction_depth=3,
 #'   min_num_obs_in_node=10,shrinkage=0.001, bag_fraction=0.5, id=seq_len(nrow(data)), 
 #'   num_train=round(0.5 * nrow(data)), num_features=ncol(data)-1) ,
 #'  var_monotone=NULL, var_names=NULL, cv_folds=1, cv_class_stratify=FALSE, fold_id=NULL,
@@ -58,7 +58,7 @@
 #' 
 
 gbmt <- function(formula, distribution=gbm_dist("Gaussian"), data, weights=rep(1, nrow(data)), offset=rep(0, nrow(data)),
-                 train_params=training_params(num_trees=100, interaction_depth=1, min_num_obs_in_node=10, 
+                 train_params=training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
                  shrinkage=0.001, bag_fraction=0.5, id=seq_len(nrow(data)), num_train=round(0.5 * nrow(data)), num_features=ncol(data)-1), 
                  var_monotone=NULL, var_names=NULL,  cv_folds=1, cv_class_stratify=FALSE, fold_id=NULL,
                  keep_gbm_data=FALSE, par_details=getOption('gbm.parallel'), is_verbose=FALSE) {

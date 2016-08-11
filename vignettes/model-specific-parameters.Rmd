@@ -1,0 +1,120 @@
+---
+title: "Model Specific Parameters"
+author: "James Hickey"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Model Specific Parameters}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+```{r, message=FALSE, echo=FALSE}
+library(gbm)
+```
+A number of distributions provided by `gbm` have model specific parameters associated with them. All distributions have parameters associated with them such as the mean or variance; however, certain distributions require additional data to be defined fully.  This additional data is referred to as "model specific parameters". This document describes how to correctly specify these parameters on construction of the associated `GBMDist`
+object as well as their default values.
+
+## Distributions with model specific parameters
+There are 5 distributions within `gbm` which have additional parameters associated with them.  These distributions are: `CoxPH`, `Pairwise`, `Quantile`, `TDist` and `Tweedie`.  
+
+## Cox proportional hazards model
+The Cox proportional hazards model has several model specific parameters associated with it.  All of them are optional but play important roles in the boosting process.
+
+* `strata`: a vector of positive integers indicating which strata each row of data belongs to.  If there
+are multiple rows per observation then this should be reflected in the `strata` vector.  If not specified it is assumed all training data are in the same stratum and all test data are in another stratum.
+* `sorted`: a vector specifying how the rows of data are ordered within their `strata` and the order within strata is the reverse order of the censored times or start times of the survival data.  This vector is completely optional and will be calculated by `gbmt`.
+* `ties`: a string specifying the method by which ties are broken.  Currently the "breslow" and "efron" approximations are implemented, with the latter being the default method taken.
+* `prior_node_coeff_var`: a double used to regularize the model predictions in `gbm`. It represents
+the prior on the number of events in the model.  The predictions of the `GBMFit` are given by $\log("Number of events"/"Expected Number of events")$. Both the number of events in a dataset and the model's expected number of events could be $0$ leading to non-finite behaviour.  The inverse of this parameter is added to both the numerator and denominator appearing in the log ratio so as to ensure the predictions are finite.  The default value is $1000$, representing a base event number of $1/1000$ events irrespective of the value of the measured or expected number of events.
+
+```{r}
+# Create strata
+strats <- sample(1:5, 100, replace=TRUE)
+
+# Create CoxPH dist object
+cox_dist <- gbm_dist(name="CoxPH", ties="breslow", 
+                     strata=strats, prior_node_coeff_var=100)
+
+```
+
+
+## Pairwise distribution
+The "Pairwise" distribution implements ranking measures following the *LamdaMART* algorithm.  Observations belong to groups, with all pairs of items with different labels but belonging to the same group are used for training.  The distribution requires a character vector with the column names of the data that jointly indicate the group an observation belongs to.  This character vector is passed to the `group` argument on construction.  When training with a Pairwise distribution a number of information retrieval (IR) metrics are available whose utility is maximised by the tree growing algorithm. The `metric` parameter stores the selection and currently the IR metrics available are:
+
+* "conc": Fraction of concordant pairs - for binary labels this is equivalent to the area under the ROC curve.
+* "mrr": mean reciprocal rank of the highest-ranked positive instance
+* "map": mean average precision - generalization of "mrr" to multiple positive instances.
+* "ndcg": normalized discounted cumulative gain.
+
+The default for `group` is `"query"` while `metric` defaults to `"ndcg"`. If `map` or `mrr` are selected the response must be in ${0, 1}$.  A cut-off in the ranking of items in a groups can be specified via `max_rank`, the default for this is 0 (all ranks taken into account) and is only applicable for "ndcg" and "mrr".  Finally, the `group_index` or label can be specified directly - note this is optional and will be calculated by `gbmt`.
+
+```{r}
+# Create pairwise grouped data
+# create query groups, with an average size of 25 items each
+N <- 1000
+num.queries <- floor(N/25)
+query <- sample(1:num.queries, N, replace=TRUE)
+
+# X1 is a variable determined by query group only
+query.level <- runif(num.queries)
+X1 <- query.level[query]
+
+# X2 varies with each item
+X2 <- runif(N)
+
+# X3 is uncorrelated with target
+X3 <- runif(N)
+
+# The target
+Y <- X1 + X2
+
+# Add some random noise to X2 that is correlated with
+# queries, but uncorrelated with items
+
+X2 <- X2 + scale(runif(num.queries))[query]
+
+# Add some random noise to target
+SNR <- 5 # signal-to-noise ratio
+sigma <- sqrt(var(Y)/SNR)
+Y <- Y + runif(N, 0, sigma)
+
+data <- data.frame(Y, query=query, X1, X2, X3)
+
+# Create appropriate Pairwise object
+pair_dist <- gbm_dist(name="Pairwise", group="query", max_rank=1, metric="ndcg")
+```
+
+## Quantile
+To perform quantile regression a `QuantileGBMDist` object must be passed to `gbmt`.  The quantile to estimate is stored in the parameter `alpha` and this defaults to `0.25`.
+
+```{r}
+# Create a QuantileGBMDist object
+quant_dist <- gbm_dist(name="Quantile", alpha=0.1)
+```
+
+## TDist
+The t-distribution requires its degrees of freedom (`df`) to be set. The default value for this is four but it can be specified on contruction of the associated `GBMDist` object.
+
+```{r}
+# Creat a t-distribution object with 7 degrees of freedom
+t_dist <- gbm_dist(name="TDist", df=7)
+```
+
+## Tweedie
+The tweedie distribution relates the variance of the response to its expectation via: $Var(Y) = E[Y]^p$, where `p` is the power of the distribution.  This parameter is specified through the `power` named argument on calling `gbm_dist` and its default value is 1.5.
+
+```{r}
+# Create a TweedieGBMDist object with a power of 2 - equivalent to a Gamma distribution
+tweedie_dist <- gbm_dist(name="Tweedie", power=2)
+```
+
+Tweedie distributions include various more familiar distributions which can be accessed through setting the `power` parameter:
+
+* normal distribution: `power=0`.
+* Poisson distribution: `power=1`.
+* compound Poisson-Gamma distributions: `1 < power < 2`.
+* Gamma distribution: `power=2`.
+* positive stable distributions: `2 < power < 3` and `power > 3`.
+* inverse Gaussian distribution: `power=3`.
+
+Note no Tweedie models exist for `0 < power < 1`.

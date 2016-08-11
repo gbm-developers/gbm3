@@ -5,7 +5,7 @@
 \newcommand{\Var}{\mathrm{Var}}
 \newcommand{\aRule}{\begin{center} \rule{5in}{1mm} \end{center}}
 
-\title{Generalized Boosted Models:\\A guide to the gbm package} \author{Greg Ridgeway}
+\title{Generalized Boosted Models:\\A guide to the gbm package} \author{The GBM developers}
 
 %\VignetteEngine{knitr::knitr}
 %\VignetteIndexEntry{Generalized Boosted Models: A guide to the gbm package}
@@ -41,7 +41,45 @@ descent algorithm rather than the original one proposed. So the main
 purposes of this document is to spell out in detail what the gbm
 package implements.
 
-\section{Gradient boosting}
+\textbf{NB:} This document refers heavily to the \texttt{gbm} function.  This 
+function is part of the original R API provided by the package; while this API is
+still functional, as of Version 2.1.06 the package contains an updated API which
+performs boosting: \texttt{gbmt}.  For more details on how to use the new API, see
+the ``Getting started with the gbm package" vignette.
+
+\section{High-level description of stochastic gradient boosting}
+This Section provides a high-level description of stochastic gradient boosting; all of the concepts and formulae touched upon here are discussed in much greater detail further on in this document. 
+
+Gradient boosting generates a low bias predictor by combining lots of high bias weak learners in an additive fashion. More formally, gradient boosting approximates the function $f(\textbf{x})$, which maps covariates to the response variable \textit{y}, as follows:
+\begin{equation}
+\label{eq:boosting_eqn}
+\hat{f}(\mathbf{x}) = \hat{f}_{0}(\mathbf{x}) + \lambda \sum_{i=1}^{M-1} \hat{f}_{i}(\mathbf{x}).
+\end{equation}
+The number of weak learners to fit is denoted by $M$, the initial estimate of the mapping function is $\hat{f}_0$ and the shrinkage parameter is denoted by $\lambda$.  The shrinkage parameter acts as a regularization to prevent overfitting of the model; however, while a smaller shrinkage parameter will tend to prevent overfitting it may require a larger the number of iterations $M$ to achieve a desired performance.  This trade-off is discussed further in the ``Getting started with gbm" vignette and in more detail later in this document.
+
+In the GBM package the weak learners are classification and regression trees (CART) decision trees which are fitted to \textbf{bagged} observation covariates where the response variable to each covariate is the residual, or error of the current fit, for that observation. The process of subsampling the training set, known as bagging, and fitting the decision tree to the subsample has the effect of reducing the variance in the estimate: $\hat{f}(\mathbf{x})$.  The covariate data is subsampled on a by-observation basis, that is observations are subsambled and the covariate data associated with these observations appear in the subsamble. The residuals to which the trees are fitted are calculated via:
+\begin{equation}
+\label{eq:residuals_eqn}
+z_{i} = -\frac{\partial}{\partial f(\mathbf{x}_i)}\Psi(y_{i},f(\mathbf{x}_i))|_{f(\mathbf{x}_i) = \hat{f}(\mathbf{x}_i)}
+\end{equation}
+where $\Psi(y_i, f(\mathbf{x}_i))$ is the loss function (usually the negative of the log likelihood) for the model. This loss function depends on the observation's actual response $y_i$ and the mapping function's predicted response $f(\mathbf{x}_i)$ (note in (\ref{eq:residuals_eqn}) the mapping function is evaluated as the total model estimate at the current boosting iteration).
+
+Now the algorithm uses the shrinkage parameter to mitigate against overfitting during boosting. However, another consideration that must be tackled is whether or not the underlying weak learners are individually overfitting to the residuals, $z_i$.  If this is the case the performance of the model on new data will greatly decrease.  The algorithm stops this scenario from occurring by restricting the maximum depth each decision tree can take. 
+
+The idea behind this is that boosted trees are decomposable in terms of ``functional ANOVA decomposition". Simply put, the deeper a tree is the higher the order of the interactions between covariates the tree will model, i. e. a ``stump" will only model 1st order effects and thus the model will be an additive boosted model.  From this intuition, fixing the maximum depth of a tree to a sensible low order value (generally a depth of $~3-10$ will suffice) reduces the complexity of fitted weak learner and reduces the possibility of overfitting.
+
+Returning to the main algorithm, by fitting decision trees to the residuals the boosted model's training errors are reduced as more and more weak learners are fit, while the threat of overfitting is counteracted via the bagging, shrinkage and truncation of the individual trees. With the tree fit, the optimal terminal node predictions may be calculated via:
+\begin{equation}
+\label{eq:node_pred_eqn}
+\rho_k = \arg \min_{\rho} \sum_{\mathbf{x}_i \in S_k} \Psi(y_i, \hat{f}(\mathbf{x}_i) +\rho),  
+\end{equation}
+
+where $S_{k}$ is the set of covariate data ``in" the terminal node \textit{k} and $\rho_k$ is its optimal prediction.  The optimal predictions then provide the update to the additive sum defined in (\ref{eq:boosting_eqn}), i. e. $\hat{f}_i(\mathbf{x}) = \sum_k \rho_k$.  If the loss associated with a node is independent of the data defining other terminal nodes in the tree, the optimal predictions can be calculated using simple line searching algorithms and sometimes can be analytically derived.  These terminal node predictions determine the predictions made by an individual tree when provided with new covariate data and thus the total boosted model predictions through (\ref{eq:boosting_eqn})).
+
+
+To conclude, it should be noted that the residuals in Equation (\ref{eq:residuals_eqn}) do not depend explicitly on the covariates $\mathbf{x}_{i}$.  The residuals capture the error in the current estimate of the response variable and so the only role the covariates play, until Equation (\ref{eq:node_pred_eqn}), is in determining the splits in the tree.  This ``degree of freedom" is exploited in the implementation of the Cox proportional hazards model, see the ``Guide to the Cox Proportional Hazards model" vignettes for more details.
+
+\section{Gradient boosting - In more detail}
 
 This section essentially presents the derivation of boosting described
 in \cite{Friedman:2001}. The gbm package also adopts the stochastic
@@ -247,11 +285,11 @@ the boosting algorithm.
 Select
 \begin{itemize}
 \item a loss function (\texttt{distribution})
-\item the number of iterations, $T$ (\texttt{n.trees})
-\item the depth of each tree, $K$ (\texttt{interaction.depth})
+\item the number of iterations, $T$ (\texttt{num\char`_trees})
+\item the depth of each tree, $K$ (\texttt{interaction\char`_depth})
 \item the shrinkage (or learning rate) parameter, $\lambda$
   (\texttt{shrinkage})
-\item the subsampling rate, $p$ (\texttt{bag.fraction})
+\item the subsampling rate, $p$ (\texttt{bag\char`_fraction})
 \end{itemize}
 Initialize $\hat f(\mathbf{x})$ to be a constant, $\hat f(\mathbf{x}) = \arg \min_{\rho} \sum_{i=1}^N \Psi(y_i,\rho)$ \\
 For $t$ in $1,\ldots,T$ do
@@ -304,7 +342,7 @@ the analytical goals.
 \subsection{The relationship between shrinkage and number of iterations}
 
 The issues that most new users of gbm struggle with are the choice of
-\texttt{n.trees} and \texttt{shrinkage}. It is important to know that
+\texttt{num\char`_trees} and \texttt{shrinkage}. It is important to know that
 smaller values of \texttt{shrinkage} (almost) always give improved
 predictive performance. That is, setting \texttt{shrinkage=0.001} will
 almost certainly result in a model with better out-of-sample
@@ -395,13 +433,13 @@ abline(h=min(mins))
 gbm offers three methods for estimating the optimal number of
 iterations after the gbm model has been fit, an independent test set
 (\texttt{test}), out-of-bag estimation (\texttt{OOB}), and $v$-fold
-cross validation (\texttt{cv}). The function \texttt{gbm.perf}
+cross validation (\texttt{cv}). The function \texttt{gbm\char`_perf}
 computes the iteration estimate.
 
 Like Friedman's MART software, the independent test set method uses a
 single holdout test set to select the optimal number of iterations. If
-\texttt{train.fraction} is set to be less than 1, then only the
-\textit{first} \texttt{train.fraction}$\times$\texttt{nrow(data)} will
+\texttt{train\char`_fraction} is set to be less than 1, then only the
+\textit{first} \texttt{train\char`_fraction}$\times$\texttt{number of observations} will
 be used to fit the model. Note that if the data are sorted in a
 systematic way (such as cases for which $y=1$ come first), then the
 data should be shuffled before running gbm. Those observations not
@@ -410,10 +448,10 @@ optimal number of iterations. The downside of this method is that a
 considerable number of observations are used to estimate the single
 regularization parameter (number of iterations) leaving a reduced
 dataset for estimating the entire multivariate model structure. Use
-\texttt{gbm.perf(...,method="test")} to obtain an estimate of the
+\texttt{gbm\char`_perf(...,method="test")} to obtain an estimate of the
 optimal number of iterations using the held out test set.
 
-If \texttt{bag.fraction} is set to be greater than 0 (0.5 is
+If \texttt{bag\char`_fraction} is set to be greater than 0 (0.5 is
 recommended), gbm computes an out-of-bag estimate of the improvement
 in predictive performance. It evaluates the reduction in deviance on
 those observations not used in selecting the next regression tree. The
@@ -422,18 +460,18 @@ result, it almost always is too conservative in its selection for the
 optimal number of iterations. The motivation behind this method was to
 avoid having to set aside a large independent dataset, which reduces
 the information available for learning the model structure. Use
-\texttt{gbm.perf(...,method="OOB")} to obtain the OOB estimate.
+\texttt{gbm\char`_perf(...,method="OOB")} to obtain the OOB estimate.
 
 Lastly, gbm offers $v$-fold cross validation for estimating the
 optimal number of iterations. If when fitting the gbm model,
-\texttt{cv.folds=5} then gbm will do 5-fold cross validation. gbm will
+\texttt{cv\char`_folds=5} then gbm will do 5-fold cross validation. gbm will
 fit five gbm models in order to compute the cross validation error
 estimate and then will fit a sixth and final gbm model with
-\texttt{n.trees}iterations using all of the data. The returned model
-object will have a component labeled \texttt{cv.error}. Note that
+\texttt{num\char`_trees} iterations using all of the data. The returned model
+object will have a component labeled \texttt{cv\char`_error}. Note that
 \texttt{gbm.more} will do additional gbm iterations but will not add
-to the \texttt{cv.error} component. Use
-\texttt{gbm.perf(...,method="cv")} to obtain the cross validation
+to the \texttt{cv\char`_error} component. Use
+\texttt{gbm\char`_perf(...,method="cv")} to obtain the cross validation
 estimate.
 
 \begin{figure}[ht] 
