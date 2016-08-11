@@ -39,7 +39,7 @@ cox_dist <- gbm_dist(name="CoxPH", ties="breslow",
 
 
 ## Pairwise distribution
-The "Pairwise" distribution implements ranking measures following the *LamdaMart* algorithm.  Observations belong to groups, with all pairs of items with different labels but belonging to the same group are used for training.  The distribution requires a character vector with the column names of the data that jointly indicate the group an observation belongs to.  This character vector is passed to the `group` argument on construction.  When training with a Pairwise distribution a number of information retrieval (IR) metrics are available whose utility is maximised by the tree growing algorithm. The `metric` parameter stores the selection and currently the IR metrics available are:
+The "Pairwise" distribution implements ranking measures following the *LamdaMART* algorithm.  Observations belong to groups, with all pairs of items with different labels but belonging to the same group are used for training.  The distribution requires a character vector with the column names of the data that jointly indicate the group an observation belongs to.  This character vector is passed to the `group` argument on construction.  When training with a Pairwise distribution a number of information retrieval (IR) metrics are available whose utility is maximised by the tree growing algorithm. The `metric` parameter stores the selection and currently the IR metrics available are:
 
 * "conc": Fraction of concordant pairs - for binary labels this is equivalent to the area under the ROC curve.
 * "mrr": mean reciprocal rank of the highest-ranked positive instance
