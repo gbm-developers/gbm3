@@ -16,7 +16,7 @@ The `gbm` package implements gradient tree boosting for a wide variety of statis
 
 To get started a user must:
 
-* have a dataset in a data.frame.
+* have a dataset in a `data.frame`.
 * select and make an appropriate distribution object.
 * set the training parameters for the gbm model.
 * set any additional variable and fitting parameters.
