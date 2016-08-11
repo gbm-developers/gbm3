@@ -23,10 +23,7 @@ CTDist::CTDist(double nu) : mplocm_("tdist", nu) { m_nu_ = nu; }
 //----------------------------------------
 CDistribution* CTDist::Create(DataDistParams& distparams) {
   // Check that misc exists
-  // This isn't very nice but helps with garbage collection
-  // - only one Rcpp member pointing at a SEXP
-  Rcpp::List misc_list = Rcpp::as<Rcpp::List>(distparams.misc);
-  double nu = Rcpp::as<double>(misc_list[0]);
+  double nu = Rcpp::as<double>(distparams.misc[0]);
   if (!gbm_functions::has_value(nu)) {
     throw gbm_exception::Failure("T Dist requires misc to initialization.");
   }
