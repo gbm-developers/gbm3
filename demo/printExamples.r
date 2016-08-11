@@ -60,7 +60,7 @@ lMod <- gbm( log(perf) ~ ., data=mycpus, distribution="laplace",
 lMod
 
 qMod <- gbm( log(perf) ~ ., data=mycpus,
-             distribution=list(name="Quantile", alpha=.7),
+             distribution=list(name="quantile", alpha=.7),
              cv.folds=5, n.trees=1000, shrinkage=.01,
         interaction.depth= 3, verbose = FALSE)
 qMod

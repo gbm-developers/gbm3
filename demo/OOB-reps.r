@@ -31,7 +31,7 @@ if(run.all)
    i.data <- i.data + 1
    dataset[[i.data]] <-
       list(name="Abalone",
-            distribution="Gaussian",
+            distribution="gaussian",
             urlpath="http://ftp.ics.uci.edu/pub/machine-learning-databases/abalone/",
             filename="abalone.data",
             var.names=c("sex","length","diameter","height","whole.weight",
@@ -47,7 +47,7 @@ if(run.all)
    i.data <- i.data + 1
    dataset[[i.data]] <-
       list(name="Adult",
-            distribution="Bernoulli",
+            distribution="bernoulli",
             urlpath="http://ftp.ics.uci.edu/pub/machine-learning-databases/adult/",
             filename="adult.data",
             var.names=c("age","workclass","w","education","education.num",
@@ -65,7 +65,7 @@ if(run.all)
    i.data <- i.data + 1
    dataset[[i.data]] <-
       list(name="Boston housing",
-            distribution="Gaussian",
+            distribution="gaussian",
             urlpath="http://ftp.ics.uci.edu/pub/machine-learning-databases/housing/",
             filename="housing.data",
             var.names=c("CRIM","ZN","INDUS","CHAS","NOX","RM","AGE",
@@ -80,7 +80,7 @@ if(run.all)
    i.data <- i.data + 1
    dataset[[i.data]] <-
       list(name="Mushrooms",
-            distribution="Bernoulli",
+            distribution="bernoulli",
             urlpath="http://ftp.ics.uci.edu/pub/machine-learning-databases/mushroom/",
             filename="agaricus-lepiota.data",
             var.names=c("poisonous","cap-shape","cap-surface","cap-color",
@@ -109,7 +109,7 @@ if(run.all)
    i.data <- i.data + 1
    dataset[[i.data]] <-
       list(name="Auto Prices",
-            distribution="Gaussian",
+            distribution="gaussian",
             urlpath="http://ftp.ics.uci.edu/pub/machine-learning-databases/autos/",
             filename="imports-85.data",
             var.names=c("symboling","normalizedlosses","make","fueltype",
@@ -131,7 +131,7 @@ if(run.all)
    i.data <- i.data + 1
    dataset[[i.data]] <-
       list(name="Auto MPG",
-            distribution="Gaussian",
+            distribution="gaussian",
             urlpath="http://ftp.ics.uci.edu/pub/machine-learning-databases/auto-mpg/",
             filename="auto-mpg.data",
             var.names=c("mpg","cylinders","displacement","horsepower","weight",
@@ -147,7 +147,7 @@ if(run.all)
    i.data <- i.data + 1
    dataset[[i.data]] <-
       list(name="CPU Performance",
-            distribution="Gaussian",
+            distribution="gaussian",
             urlpath="http://ftp.ics.uci.edu/pub/machine-learning-databases/cpu-performance/",
             filename="machine.data",
             var.names=c("vendorname","modelname","myct","mmin","mmax",
@@ -163,7 +163,7 @@ if(run.all)
    i.data <- i.data + 1
    dataset[[i.data]] <-
       list(name="Credit rating",
-            distribution="Bernoulli",
+            distribution="bernoulli",
             urlpath="http://ftp.ics.uci.edu/pub/machine-learning-databases/credit-screening/",
             filename="crx.data",
             var.names=c("A1","A2","A3","A4","A5","A6","A7","A8","A9","A10","A11",
@@ -178,7 +178,7 @@ if(run.all)
    i.data <- i.data + 1
    dataset[[i.data]] <-
       list(name="Haberman",
-            distribution="Bernoulli",
+            distribution="bernoulli",
             urlpath="http://ftp.ics.uci.edu/pub/machine-learning-databases/haberman/",
             filename="haberman.data",
             var.names=c("age","year","nodes","CLASS"),
@@ -192,7 +192,7 @@ if(run.all)
    i.data <- i.data + 1
    dataset[[i.data]] <-
       list(name="Diabetes",
-            distribution="Bernoulli",
+            distribution="bernoulli",
             urlpath="http://ftp.ics.uci.edu/pub/machine-learning-databases/pima-indians-diabetes/",
             filename="pima-indians-diabetes.data",
             var.names=c("n_preg","plasma","blood-pre","triceps","serum",
@@ -207,7 +207,7 @@ if(run.all)
    i.data <- i.data + 1
    dataset[[i.data]] <-
       list(name="Ionosphere",
-            distribution="Bernoulli",
+            distribution="bernoulli",
             urlpath="http://ftp.ics.uci.edu/pub/machine-learning-databases/ionosphere/",
             filename="ionosphere.data",
             var.names=c("A1","A2","A3","A4","A5","A6","A7","A8","A9","A10","A11",
@@ -224,7 +224,7 @@ if(run.all)
    i.data <- i.data + 1
    dataset[[i.data]] <-
       list(name="breast cancer",
-            distribution="Bernoulli",
+            distribution="bernoulli",
             urlpath="http://ftp.ics.uci.edu/pub/machine-learning-databases/breast-cancer-wisconsin/",
             filename="breast-cancer-wisconsin.data",
             var.names=c("CODE","thickness","cellsize","cellshape","adhension",
@@ -243,7 +243,7 @@ if(run.all)
       i.data <- i.data + 1
       dataset[[i.data]] <-
          list(name="time in treatment",
-               distribution="Gaussian",
+               distribution="gaussian",
                urlpath="./",
                filename="txdet.csv",
                var.names=NULL,
@@ -285,7 +285,7 @@ if(run.all)
 
       # take care of factor binary outcomes
       if( with(dataset[[i.data]],
-         (distribution=="Bernoulli") && is.factor(data[,outcome])) )
+         (distribution=="bernoulli") && is.factor(data[,outcome])) )
       {
          dataset[[i.data]]$data[,dataset[[i.data]]$outcome] <-
                with(dataset[[i.data]], as.numeric(data[,outcome])-1)
