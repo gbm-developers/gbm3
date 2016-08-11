@@ -31,8 +31,8 @@ class NodeStack {
 
   inline parallel_details parallel_details_wrap(SEXP src) {
     Rcpp::List details(src);
-    int num_threads = details["n.threads"];
-    int array_chunk_size = details["arrayChunkSize"];
+    int num_threads = details["num_threads"];
+    int array_chunk_size = details["array_chunk_size"];
     return parallel_details(num_threads, array_chunk_size);
   }
 
@@ -126,6 +126,8 @@ SEXP gbm(SEXP response, SEXP intResponse, SEXP offset_vec, SEXP covariates,
          SEXP prev_trees_fitted, SEXP par_details, SEXP isverbose) {
   BEGIN_RCPP
 
+  Rcpp::RObject result; // MAKE SURE BEFORE RNGSCOPE!!
+  Rcpp::RNGScope scope;
   // Set up consts for tree fitting and transfer to R API
   const int kNumTrees = Rcpp::as<int>(num_trees);
   const int kCatSplitsOld = Rcpp::as<int>(prev_category_splits);
@@ -145,14 +147,15 @@ SEXP gbm(SEXP response, SEXP intResponse, SEXP offset_vec, SEXP covariates,
       num_obs_in_training, number_offeatures, parallel);
   TreeParams treeparams(tree_depth, min_num_node_obs, shrinkageconstant,
                         num_rows_in_training, parallel);
-  Rcpp::RNGScope scope;
+
 
   // Initialize GBM engine
   CGBMEngine gbm(datadistparams, treeparams);
 
   // Initialize the output object
-  GbmFit gbmfit(datadistparams.response.nrow(), gbm.initial_function_estimate(),
+  GbmFit gbmfit(datadistparams.length_of_response, gbm.initial_function_estimate(),
                 kNumTrees, kPrevFuncEst);
+
 
   if (kIsVerbose) {
     Rprintf("Iter   TrainDeviance   ValidDeviance   StepSize   Improve\n");
@@ -180,7 +183,10 @@ SEXP gbm(SEXP response, SEXP intResponse, SEXP offset_vec, SEXP covariates,
   }
   if (kIsVerbose) Rprintf("\n");
 
-  return gbmfit.ROutput();
+  // NEVER TAKE THIS OUT - SEGFAULT IN RNGSCOPE
+  result = gbmfit.ROutput();
+
+  return result;
   END_RCPP
 }
 

@@ -41,7 +41,7 @@ void CCARTTree::Grow(const std::vector<double>& residuals,
 
   // Move to data -- FOR TIME BEING
   for (unsigned long obs_num = 0; obs_num < kData.get_trainsize(); obs_num++) {
-    if (kBag.get_element(obs_num)) {
+   if (kBag.get_element(obs_num)) {
       // get the initial sums and sum of squares and total weight
       sumz += kData.weight_ptr()[obs_num] * residuals[obs_num];
       sum_zsquared +=
@@ -72,7 +72,6 @@ void CCARTTree::Grow(const std::vector<double>& residuals,
     totalnodecount_ += 3;
 
   }  // end tree growing
-  // throw gbm_exception::Failure("Here");
   // DEBUG
   // Print();
 }

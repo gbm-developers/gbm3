@@ -24,7 +24,7 @@
 // Parameters:
 //-----------------------------------
 GbmFit::GbmFit(const int kNumDataRows, const double kInitEstimate,
-               const int kNumTrees, const Rcpp::NumericVector kPrevFuncEstimate)
+               const int kNumTrees, const Rcpp::NumericVector& kPrevFuncEstimate)
     : current_fit_(),
       training_errors_(kNumTrees, 0.0),
       validation_errors_(kNumTrees, 0.0),
@@ -77,9 +77,6 @@ void GbmFit::CreateTreeRepresentation(const int kCatSplitsOld) {
 }
 
 Rcpp::List GbmFit::ROutput() {
-  Rcpp::NumericVector training_errors(tree_count_, 0.0);
-  Rcpp::NumericVector validation_errors(tree_count_, 0.0);
-  Rcpp::NumericVector outofbag_improvement(tree_count_, 0.0);
 
   return Rcpp::List::create(
       _["initF"] = initial_estimate_, _["fit"] = func_estimate_,

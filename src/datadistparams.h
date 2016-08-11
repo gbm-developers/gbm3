@@ -37,9 +37,9 @@ class DataDistParams {
   // Description: Constructor for DataDistParams struc.
   //
   // Parameters:
-  //  response  - SEXP containing the response of each data-point - accessed via
+  //  responseIn  - SEXP containing the response of each data-point - accessed via
   //				double ptr
-  //  intResponse - SEXP containing integer component of response
+  //  intResponseIn - SEXP containing integer component of response
   //  offset_vec - SEXP containing the offset applied to each response -
   //  accessed via
   //				double ptr
@@ -49,7 +49,7 @@ class DataDistParams {
   //  			be used in GBM formula - accessed via int ptr.
   //  obs_weight  - SEXP containing weights to be used in fitting
   //  				process - accessed via double ptr.
-  //  misc - SEXP list object containing distribution dependent data
+  //  miscIn - SEXP list object containing distribution dependent data
   //		   , depending on the distribution this may be a double or int.
   // prior_coeff_var - SEXP containing a double specifying a prior node
   //					prediction value for the CoxPH model.
@@ -78,24 +78,25 @@ class DataDistParams {
   //						tree growing.
   //  parallel - parallelization-related constants
   //-----------------------------------
-  DataDistParams(SEXP response, SEXP intResponse, SEXP offset_vec,
+  DataDistParams(SEXP responseIn, SEXP intResponseIn, SEXP offset_vec,
 		 SEXP covariates, SEXP covar_order,
-                 SEXP obs_weight, SEXP misc, SEXP prior_coeff_var,
+                 SEXP obs_weight, SEXP miscIn, SEXP prior_coeff_var,
                  SEXP row_to_obs_id, SEXP var_classes, SEXP monotonicity_vec,
                  SEXP dist_family, SEXP fraction_inbag,
                  SEXP num_rows_in_training, SEXP unique_training_obs,
                  SEXP number_offeatures, const parallel_details& parallel)
-      : response(response),
-        intResponse(intResponse),
-        observationids(row_to_obs_id),
-        misc(misc),
-        parallel(parallel) {
-    offset = offset_vec;
-    xvalues = covariates;
-    xorder = covar_order;
-    variable_weight = obs_weight;
-    variable_num_classes = var_classes;
-    variable_monotonicity = monotonicity_vec;
+      : parallel(parallel){
+
+	response = responseIn;
+	intResponse = intResponseIn;
+	observationids = row_to_obs_id;
+	misc = miscIn;
+	offset = offset_vec;
+	xvalues = covariates;
+	xorder = covar_order;
+	variable_weight = obs_weight;
+	variable_num_classes = var_classes;
+	variable_monotonicity = monotonicity_vec;
     num_trainrows = Rcpp::as<unsigned long>(num_rows_in_training);
     num_trainobservations = Rcpp::as<unsigned long>(unique_training_obs);
     num_features = Rcpp::as<unsigned long>(number_offeatures);
@@ -108,15 +109,20 @@ class DataDistParams {
       throw gbm_exception::Failure(
           "configStructs - Can't specify IR metric as family not initialized.");
     }
+    Rcpp::NumericMatrix tempResponse(responseIn);
+    length_of_response = tempResponse.nrow();
   }
 
   //-------------------
   // Public Variables
   //-------------------
-  Rcpp::NumericMatrix response;
-  Rcpp::IntegerMatrix intResponse;
-  Rcpp::IntegerVector observationids;
-  Rcpp::List misc;
+  // NB: TO AID WITH GARBAGE COLLECTION
+  // IT IS BEST TO ONLY HAVE SOLE RCPP VECTORS/MATRICES
+  // POINTING TO SEXPS - KEEP AS SEXPS
+  SEXP response;
+  SEXP intResponse;
+  SEXP observationids;
+  SEXP misc;
   parallel_details parallel;
   SEXP offset;
   SEXP xvalues;
@@ -130,5 +136,6 @@ class DataDistParams {
   double bagfraction;
   double prior_coefficient_variation;
   std::string family;
+  unsigned long length_of_response;
 };
 #endif  // DATADISTPARAMS_H

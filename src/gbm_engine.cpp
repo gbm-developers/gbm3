@@ -22,6 +22,7 @@ FittedLearner* CGBMEngine::FitLearner(double* func_estimate) {
 
   // Compute Residuals and fit tree
   datacontainer_.ComputeResiduals(&func_estimate[0], residuals_);
+
   tree->Grow(residuals_, datacontainer_.get_data(), datacontainer_.get_bag(),
              delta_estimates);
 
@@ -63,5 +64,6 @@ FittedLearner* CGBMEngine::FitLearner(double* func_estimate) {
   double valid_error = datacontainer_.ComputeDeviance(&func_estimate[0], true);
   std::auto_ptr<FittedLearner> fit(new FittedLearner(
       tree, datacontainer_.get_data(), train_error, valid_error, oobag_improv));
+
   return fit.release();
 }

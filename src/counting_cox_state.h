@@ -303,7 +303,7 @@ class CountingCoxState : public GenericCoxState {
       }
 
       // clean up at the end of a strata
-      if (person == kData.yint_ptr()[istrat]) {
+      if (person >= kData.yint_ptr()[istrat]) {
         for (; indx1 < kData.yint_ptr()[istrat]; indx1++) {
           p1 = kData.yint_ptr(1)[indx1];
           if (skipbag || (kBag.get_element(p1) == checkinbag)) {
