@@ -41,7 +41,6 @@ test_that("print_perf_measures defaults to total number of iterations if train_f
   expect_equal(best_iter, params$num_trees)
   
 })
-
 test_that("print_perf_measures calculates the performance using test if train_fraction < 1", {
   # Given a "correct" GBMFit object - train_fraction < 1
   set.seed(1)
@@ -76,7 +75,6 @@ test_that("print_perf_measures calculates the performance using test if train_fr
   # Then results equal to gbm_perf with "test" method
   expect_equal(best_iter, gbm_perf(fit, method="test"))
 })
-
 test_that("print_perf_measures returns the performance using cv if fit is cross-validated and train_fraction=1", {
   # Given a "correct" GBMFit object - train_fraction=1 and cv_folds > 1
   set.seed(1)
@@ -111,7 +109,6 @@ test_that("print_perf_measures returns the performance using cv if fit is cross-
   # Then results equal to gbm_perf with method="cv"
   expect_equal(best_iter, gbm_perf(fit, method="cv"))
 })
-
 test_that("print_iters_and_dist does not throw error when passed a GBMFit object", {
   # Given a "correct" GBMFit object
   set.seed(1)
@@ -144,7 +141,6 @@ test_that("print_iters_and_dist does not throw error when passed a GBMFit object
   # Then no error is thrown
   expect_error(print_iters_and_dist(fit), NA)
 })
-
 test_that("print_confusion_matrix does not throw error when passed a GBMFit object", {
   # Given a "correct" GBMFit object
   set.seed(1)
@@ -177,7 +173,6 @@ test_that("print_confusion_matrix does not throw error when passed a GBMFit obje
   # Then no error is thrown
   expect_error(print_confusion_matrix(fit), NA)
 })
-
 test_that("binary_response_conf_matrix does not throw error when called correctly", {
   # Given a "correct" GBMFit object - Bernoulli distribution
   set.seed(1)
@@ -210,7 +205,6 @@ test_that("binary_response_conf_matrix does not throw error when called correctl
   # Then no error is thrown
   expect_error(binary_response_conf_matrix(fit$gbm_data_obj$y, fit$cv_fitted), NA)
 })
-
 test_that("pseudo_r_squared does not throw error when passed correct inputs", {
   # Given a "correct" GBMFit object - using Gauss
   set.seed(1)
@@ -243,7 +237,6 @@ test_that("pseudo_r_squared does not throw error when passed correct inputs", {
   # Then no error is thrown
   expect_error(pseudo_r_squared(fit$gbm_data_obj$y, fit$cv_fitted, fit$distribution$name), NA)
 })
-
 test_that("pseudo_r_squared is same for all dists except Gaussian", {
   # Given a "correct" GBMFit object - NOT Gaussian
   set.seed(1)

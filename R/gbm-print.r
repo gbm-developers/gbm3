@@ -142,6 +142,7 @@ binary_response_conf_matrix <- function(response, cv_fit) {
 
 pseudo_r_squared <- function(response, cv_fit, dist_name) {
   # Calculate residuals
+  ifelse(nlevels(response)>0, response <- as.integer(response), response <- response)
   cv_resids <- response - cv_fit
   
   cat("\nSummary of cross-validation residuals:\n" )

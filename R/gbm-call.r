@@ -31,11 +31,21 @@ gbm_call <- function(gbm_data_obj, gbm_dist_obj, train_params, var_container, pa
   check_if_gbm_var_container(var_container)
 
   # Create y_input - check for factors
-  if(nlevels(gbm_data_obj$y) > 0) {
+  # specifically for Bernoulli
+  y_levels <- nlevels(gbm_data_obj$y)
+  if(y_levels > 0) {
     y_input <- as.integer(gbm_data_obj$y)
   } else { 
     y_input <-   gbm_data_obj$y
   }
+  
+  # If cross-val y could be matrix
+  if(!is.null(dim(gbm_data_obj$y))) {
+    y_levels <- nlevels(gbm_data_obj$y[,1])
+    if(y_levels > 0)
+      y_input <- as.integer(gbm_data_obj$y[,1])
+  }
+
   
   fit <- .Call("gbm",
                 Y=as.matrix(as.data.frame(y_input)),
