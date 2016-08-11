@@ -41,10 +41,10 @@ class CDataset {
   //----------------------
   CDataset(const DataDistParams& dataParams);
 
-  //---------------------
-  // Public destructor
-  //---------------------
-  virtual ~CDataset();
+  //----------------------
+  // Public Destructors
+  //----------------------
+  ~CDataset(){};
 
   //---------------------
   // Public Functions

@@ -65,9 +65,10 @@ class CDistribution {
   // Public Virtual Functions
   //---------------------
   virtual void Initialize(const CDataset& kData) {
+
     // Set up multi map
     for (unsigned long i = 0;
-         i < (kData.get_trainsize() + kData.get_validsize()); i++) {
+         i < (kData.get_trainsize()); i++) {
       obsid_to_row_.insert(pair<int, int>(kData.get_row_observation_id(i), i));
     }
   };
