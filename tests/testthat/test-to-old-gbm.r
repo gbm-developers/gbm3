@@ -6,6 +6,7 @@
 ####################
 
 context("Testing conversion of GBMFit to gbm object")
+
 test_that("to_old_gbm produces an object with the right class", {
   set.seed(1)
   
@@ -34,7 +35,7 @@ test_that("to_old_gbm produces an object with the right class", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -72,7 +73,7 @@ test_that("to_old_gbm output has correct fields", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -117,7 +118,7 @@ test_that("to_old_gbm gives correct message on calling", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -127,6 +128,7 @@ test_that("to_old_gbm gives correct message on calling", {
   # Then correct message given
   expect_message(to_old_gbm(fit), "Converted to old gbm object - this will not work with new packages functions")
 })
+
 test_that("to_old_gbm has data if keep_gbm_data was specified and it is correct", {
   set.seed(1)
   
@@ -155,7 +157,7 @@ test_that("to_old_gbm has data if keep_gbm_data was specified and it is correct"
   
   
   # Set up for new API
-  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -169,6 +171,7 @@ test_that("to_old_gbm has data if keep_gbm_data was specified and it is correct"
   expect_equal(to_old_gbm(fit)$data$offset, fit$gbm_data_obj$offset)
   expect_true(is.na(to_old_gbm(fit)$data$Misc))
 })
+
 test_that("to_old_gbm has correct default prior.node.coeff.var if not CoxPH", {
   set.seed(1)
   
@@ -197,7 +200,7 @@ test_that("to_old_gbm has correct default prior.node.coeff.var if not CoxPH", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -207,6 +210,7 @@ test_that("to_old_gbm has correct default prior.node.coeff.var if not CoxPH", {
   # prior.node.coeff.var has correct default value
   expect_equal(to_old_gbm(fit)$prior.node.coeff.var, 1000)
 })
+
 test_that("to_old_gbm has correct data and time ordering for CoxPH fit", {
   # Require Surv to be available
   require(survival)
@@ -235,7 +239,7 @@ test_that("to_old_gbm has correct data and time ordering for CoxPH fit", {
   
   # Put into new API
   dist <- gbm_dist("CoxPH", prior_node_coeff_var=10)
-  params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=3)
   
   # fit initial model
@@ -279,7 +283,7 @@ test_that("to_old_gbm has group ordering for Pairwise fit", {
   
   data <- data.frame(Y, query=query, X1, X2, X3)
   dist <- gbm_dist("Pairwise", metric="ndcg", group="query")
-  params <- training_params(num_trees = 2000, num_train = nrow(data), id=seq_len(nrow(data)),
+  params <- training_params(num_trees = 20, num_train = nrow(data), id=seq_len(nrow(data)),
                             interaction_depth = 3)
   
   fit <- gbmt(Y~X1+X2+X3,          # formula

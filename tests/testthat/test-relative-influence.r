@@ -138,6 +138,7 @@ test_that("Error thrown if sort_it not logical", {
   expect_error(relative_influence(fit, sort_it = NA))
   expect_error(relative_influence(fit, sort_it = c(TRUE, FALSE)))
 })
+
 test_that("Error thrown if num_trees exceeds number in fit", {
 ## Based on example in R package
 
@@ -473,7 +474,7 @@ test_that("Error thrown if not GBMFit object", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -486,6 +487,7 @@ test_that("Error thrown if not GBMFit object", {
   # Then permutation_relative_influence throws an error
   expect_error(permutation_relative_influence(fit, 100))
 })
+
 test_that("Error thrown if rescale not logical", {
   ## Based on example in R package
   
@@ -517,7 +519,7 @@ test_that("Error thrown if rescale not logical", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -561,7 +563,7 @@ test_that("Error thrown if sort_it not logical", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -574,6 +576,7 @@ test_that("Error thrown if sort_it not logical", {
   expect_error(permutation_relative_influence(fit, 100, sort_it = NA))
   expect_error(permutation_relative_influence(fit, 100, sort_it = c(TRUE, FALSE)))
 })
+
 test_that("Error thrown if num_trees exceeds number in fit", {
   ## Based on example in R package
   
@@ -605,7 +608,7 @@ test_that("Error thrown if num_trees exceeds number in fit", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -616,6 +619,7 @@ test_that("Error thrown if num_trees exceeds number in fit", {
   # Then relative_influence throws an error
   expect_error(permutation_relative_influence(fit, num_trees=length(fit$trees)+100))
 })
+
 test_that("Error thrown if num_trees not a positive integer", {
   ## Based on example in R package
   
@@ -647,7 +651,7 @@ test_that("Error thrown if num_trees not a positive integer", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -692,7 +696,7 @@ test_that("Perm Relative influence can run with a specified num_trees", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
@@ -733,7 +737,7 @@ test_that("can run with rescale and sorting", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N, num_features=6)
   dist <- gbm_dist("Gaussian")
   
