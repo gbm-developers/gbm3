@@ -27,8 +27,6 @@
 #' mad(y))^2, following the suggestion of Rousseeuw and Leroy (equation 3.11).
 #' Note that this definition of a robust R-squared is contentious.
 #' 
-#' @usage print.GBMFit(x, ...)
-#' 
 #' @param x is a fitted generalized boosting object of class \code{GBMFit}.
 #' 
 #' @param \dots arguments passed to \code{print.default}.
@@ -40,7 +38,6 @@
 #' @keywords models nonlinear survival nonparametric
 #' @aliases print
 #' @export 
-#' 
 print.GBMFit <- function(x, ... ){
   # Print call
   if(!is.null(x$call)) print(x$call)

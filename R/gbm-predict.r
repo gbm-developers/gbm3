@@ -16,7 +16,7 @@
 #' make sure that \code{new_data} is of the same format (order and number of
 #' variables) as the one originally used to fit the model.
 #' 
-#' @param gbm_fit_obj Object of class inheriting from \code{GBMFit}.
+#' @param object Object of class inheriting from \code{GBMFit}.
 #' @param new_data Data frame of observations for which to make predictions
 #' @param num_trees Number of trees used in the prediction. If \code{num_trees} is
 #' a vector, predictions are returned for each iteration specified.
@@ -35,17 +35,9 @@
 #' distributions "response" and "link" return the same.
 #' @seealso \code{\link{gbmt}}
 #' @keywords models regression
-#' @export
-#' 
-predict <- function(gbm_fit_obj, new_data, num_trees,
-                    type="link", single_tree=FALSE,
-                    ...) {
-  UseMethod("predict", gbm_fit_obj)
-}
-
-#' @name predict
+#' @importFrom stats predict
 #' @export 
-predict.GBMFit <- function(gbm_fit_obj, new_data, num_trees,
+predict.GBMFit <- function(object, new_data, num_trees,
                         type="link", single_tree=FALSE,
                         ...)
 {
@@ -71,14 +63,14 @@ predict.GBMFit <- function(gbm_fit_obj, new_data, num_trees,
     stop("num_trees must be a vector of positive integers")
   }
   
-  if(!is.null(attr(gbm_fit_obj$Terms,"offset")))
+  if(!is.null(attr(object$Terms,"offset")))
   {
     warning("predict.GBMFit does not add the offset to the predicted values.")
   }
   
   # Get data
-  if(!is.null(gbm_fit_obj$Terms)) {
-    x <- model.frame(terms(reformulate(gbm_fit_obj$variables$var_names)),
+  if(!is.null(object$Terms)) {
+    x <- model.frame(terms(reformulate(object$variables$var_names)),
                      new_data,
                      na.action=na.pass)
   } else {
@@ -88,44 +80,44 @@ predict.GBMFit <- function(gbm_fit_obj, new_data, num_trees,
   # Convert predictor factors into appropriate numeric
   for(i in seq_len(ncol(x))) {
     if(is.factor(x[,i])) {
-      if (length(levels(x[,i])) > length(gbm_fit_obj$variables$var_levels[[i]])) {
-        new_compare <- levels(x[,i])[seq_len(length(gbm_fit_obj$variables$var_levels[[i]]))]
+      if (length(levels(x[,i])) > length(object$variables$var_levels[[i]])) {
+        new_compare <- levels(x[,i])[seq_len(length(object$variables$var_levels[[i]]))]
       } else {
         new_compare <- levels(x[,i])
       }
       
-      if (!identical(gbm_fit_obj$variables$var_levels[[i]], new_compare)) {
-        x[,i] <- factor(x[,i], union(gbm_fit_obj$variables$var_levels[[i]], levels(x[,i])))
+      if (!identical(object$variables$var_levels[[i]], new_compare)) {
+        x[,i] <- factor(x[,i], union(object$variables$var_levels[[i]], levels(x[,i])))
       }
       
       x[,i] <- as.numeric(x[,i])-1
     }
   }
   
-  if(any(num_trees > gbm_fit_obj$params$num_trees)) {
-    num_trees[num_trees > gbm_fit_obj$params$num_trees] <- gbm_fit_obj$params$num_trees
+  if(any(num_trees > object$params$num_trees)) {
+    num_trees[num_trees > object$params$num_trees] <- object$params$num_trees
     warning("Number of trees exceeded number fit so far. Using ", paste(num_trees,collapse=" "),".")
   }
   
   i.ntree.order <- order(num_trees)
   
   # Next if block for compatibility with objects created with 1.6
-  if(is.null(gbm_fit_obj$num.classes)) {
-    gbm_fit_obj$num.classes <- 1
+  if(is.null(object$num.classes)) {
+    object$num.classes <- 1
   }
   
   predF <- .Call("gbm_pred",
                  X=as.matrix(as.data.frame(x)),
                  n.trees=as.integer(num_trees[order(num_trees)]),
-                 initF=gbm_fit_obj$initF,
-                 trees=gbm_fit_obj$trees,
-                 c.split=gbm_fit_obj$c.split,
-                 var.type=as.integer(gbm_fit_obj$variables$var_type),
+                 initF=object$initF,
+                 trees=object$trees,
+                 c.split=object$c.split,
+                 var.type=as.integer(object$variables$var_type),
                  single.tree = as.integer(single_tree),
                  PACKAGE = "gbm")
   
   # Convert into matrix of predictions
-  if((length(num_trees) > 1) || (!is.null(gbm_fit_obj$num.classes) && (gbm_fit_obj$num.classes > 1))) {
+  if((length(num_trees) > 1) || (!is.null(object$num.classes) && (object$num.classes > 1))) {
     predF <- matrix(predF, ncol=length(num_trees), byrow=FALSE)
     colnames(predF) <- num_trees
     predF[, order(num_trees)] <- predF
@@ -133,7 +125,7 @@ predict.GBMFit <- function(gbm_fit_obj, new_data, num_trees,
   
   # Adjust scale of predictions
   if(type=="response") {
-    predF <- adjust_pred_scale(predF, gbm_fit_obj$distribution)
+    predF <- adjust_pred_scale(predF, object$distribution)
     if(length(num_trees)==1) {
       predF <- as.vector(predF)
     }
