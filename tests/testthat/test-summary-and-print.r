@@ -28,7 +28,7 @@ test_that("print_perf_measures defaults to total number of iterations if train_f
   offset <- rep(0, N)
   
   # Set up for new API
-  params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=30, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N, num_features=3)
   dist <- gbm_dist("Bernoulli")
   fit <- gbmt(Y~X1+X2+X3, data=data, distribution=dist, weights=w, offset=offset,
@@ -41,6 +41,7 @@ test_that("print_perf_measures defaults to total number of iterations if train_f
   expect_equal(best_iter, params$num_trees)
   
 })
+
 test_that("print_perf_measures calculates the performance using test if train_fraction < 1", {
   # Given a "correct" GBMFit object - train_fraction < 1
   set.seed(1)
@@ -63,7 +64,7 @@ test_that("print_perf_measures calculates the performance using test if train_fr
   offset <- rep(0, N)
   
   # Set up for new API
-  params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=30, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=3)
   dist <- gbm_dist("Bernoulli")
   fit <- gbmt(Y~X1+X2+X3, data=data, distribution=dist, weights=w, offset=offset,
@@ -97,7 +98,7 @@ test_that("print_perf_measures returns the performance using cv if fit is cross-
   offset <- rep(0, N)
   
   # Set up for new API
-  params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=30, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N, num_features=3)
   dist <- gbm_dist("Bernoulli")
   fit <- gbmt(Y~X1+X2+X3, data=data, distribution=dist, weights=w, offset=offset,
@@ -131,7 +132,7 @@ test_that("print_iters_and_dist does not throw error when passed a GBMFit object
   offset <- rep(0, N)
   
   # Set up for new API
-  params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=30, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=3)
   dist <- gbm_dist("Bernoulli")
   fit <- gbmt(Y~X1+X2+X3, data=data, distribution=dist, weights=w, offset=offset,
@@ -163,7 +164,7 @@ test_that("print_confusion_matrix does not throw error when passed a GBMFit obje
   offset <- rep(0, N)
   
   # Set up for new API
-  params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=30, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=3)
   dist <- gbm_dist("Bernoulli")
   fit <- gbmt(Y~X1+X2+X3, data=data, distribution=dist, weights=w, offset=offset,
@@ -195,7 +196,7 @@ test_that("binary_response_conf_matrix does not throw error when called correctl
   offset <- rep(0, N)
   
   # Set up for new API
-  params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=30, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=3)
   dist <- gbm_dist("Bernoulli")
   fit <- gbmt(Y~X1+X2+X3, data=data, distribution=dist, weights=w, offset=offset,
@@ -227,7 +228,7 @@ test_that("pseudo_r_squared does not throw error when passed correct inputs", {
   offset <- rep(0, N)
   
   # Set up for new API
-  params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=30, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=3)
   dist <- gbm_dist("Bernoulli")
   fit <- gbmt(Y~X1+X2+X3, data=data, distribution=dist, weights=w, offset=offset,
@@ -259,7 +260,7 @@ test_that("pseudo_r_squared is same for all dists except Gaussian", {
   offset <- rep(0, N)
   
   # Set up for new API
-  params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=30, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=3)
   dist <- gbm_dist("Bernoulli")
   fit <- gbmt(Y~X1+X2+X3, data=data, distribution=dist, weights=w, offset=offset,
@@ -307,7 +308,7 @@ test_that("print_perf_measures throws error if passed an object other than GBMFi
   offset <- rep(0, N)
   
   # Set up for new API
-  params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=30, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=3)
   dist <- gbm_dist("Bernoulli")
   fit <- gbmt(Y~X1+X2+X3, data=data, distribution=dist, weights=w, offset=offset,
@@ -343,7 +344,7 @@ test_that("print_iters_and_dist throws error if passed an object other than GBMF
   offset <- rep(0, N)
   
   # Set up for new API
-  params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=30, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=3)
   dist <- gbm_dist("Bernoulli")
   fit <- gbmt(Y~X1+X2+X3, data=data, distribution=dist, weights=w, offset=offset,
@@ -379,7 +380,7 @@ test_that("print_confusion_matrix throws error if passed an object other than GB
   offset <- rep(0, N)
   
   # Set up for new API
-  params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=30, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=3)
   dist <- gbm_dist("Bernoulli")
   fit <- gbmt(Y~X1+X2+X3, data=data, distribution=dist, weights=w, offset=offset,
@@ -415,7 +416,7 @@ test_that("summary.GBMFit throws error if cBars is not a whole number > 1", {
   offset <- rep(0, N)
   
   # Set up for new API
-  params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=30, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=3)
   dist <- gbm_dist("Bernoulli")
   fit <- gbmt(Y~X1+X2+X3, data=data, distribution=dist, weights=w, offset=offset,
@@ -453,7 +454,7 @@ test_that("summary.GBMFit throws error if num_trees is not a whole number > 1", 
   offset <- rep(0, N)
   
   # Set up for new API
-  params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=30, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=3)
   dist <- gbm_dist("Bernoulli")
   fit <- gbmt(Y~X1+X2+X3, data=data, distribution=dist, weights=w, offset=offset,
@@ -491,7 +492,7 @@ test_that("summary.GBMFit throws error if plot_it is not a logical", {
   offset <- rep(0, N)
   
   # Set up for new API
-  params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=30, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=3)
   dist <- gbm_dist("Bernoulli")
   fit <- gbmt(Y~X1+X2+X3, data=data, distribution=dist, weights=w, offset=offset,
@@ -529,7 +530,7 @@ test_that("summary.GBMFit throws error if normalize is not a logical", {
   offset <- rep(0, N)
   
   # Set up for new API
-  params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=30, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=3)
   dist <- gbm_dist("Bernoulli")
   fit <- gbmt(Y~X1+X2+X3, data=data, distribution=dist, weights=w, offset=offset,
@@ -568,7 +569,7 @@ test_that("Print method on GBMFit object runs without error", {
   offset <- rep(0, N)
   
   # Set up for new API
-  params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=30, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=3)
   dist <- gbm_dist("Bernoulli")
   fit <- gbmt(Y~X1+X2+X3, data=data, distribution=dist, weights=w, offset=offset,
@@ -604,7 +605,7 @@ test_that("Summary method on GBMFit object runs without error", {
   offset <- rep(0, N)
   
   # Set up for new API
-  params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=30, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=3)
   dist <- gbm_dist("Bernoulli")
   fit <- gbmt(Y~X1+X2+X3, data=data, distribution=dist, weights=w, offset=offset,
@@ -640,7 +641,7 @@ test_that("Summary method returns data.frame of variables and relative influence
   offset <- rep(0, N)
   
   # Set up for new API
-  params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=30, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=3)
   dist <- gbm_dist("Bernoulli")
   fit <- gbmt(Y~X1+X2+X3, data=data, distribution=dist, weights=w, offset=offset,
@@ -682,7 +683,7 @@ test_that("Summary method returns variables and relative influence ordered by re
   offset <- rep(0, N)
   
   # Set up for new API
-  params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
+  params <- training_params(num_trees=30, interaction_depth=3, min_num_obs_in_node=10, 
                             shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=3)
   dist <- gbm_dist("Bernoulli")
   fit <- gbmt(Y~X1+X2+X3, data=data, distribution=dist, weights=w, offset=offset,
