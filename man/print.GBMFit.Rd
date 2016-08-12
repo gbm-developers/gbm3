@@ -5,7 +5,7 @@
 \alias{print.GBMFit}
 \title{Print model summary}
 \usage{
-print.GBMFit(x, ...)
+\method{print}{GBMFit}(x, ...)
 }
 \arguments{
 \item{x}{is a fitted generalized boosting object of class \code{GBMFit}.}
