@@ -8,8 +8,9 @@
 
 #### GBM ####
 context("Test old API works on basic examples - gbm")
+
 test_that("Gaussian works - gbm", {
-  
+  skip_on_cran()
   ## Based on example in R package
   
   ## test Gaussian distribution gbm model
@@ -82,8 +83,10 @@ test_that("Gaussian works - gbm", {
   expect_true(cor(data2$Y, f.predict) > 0.990)
   expect_true(sd(data2$Y-f.predict) < sigma)
 })
+
 test_that("CoxPH works - efron - gbm", {
-  # Require Surv to be available
+  skip_on_cran()
+  ## Require Surv to be available
   require(survival)
   
   # create some data
@@ -151,7 +154,9 @@ test_that("CoxPH works - efron - gbm", {
   # Use observed sd
   expect_true(sd(data2$f - f.predict) < 0.4)
 })
+
 test_that("CoxPH works - breslow - gbm", {
+  skip_on_cran()
   # Require Surv to be available
   require(survival)
   
@@ -220,6 +225,7 @@ test_that("CoxPH works - breslow - gbm", {
   # Use observed sd
   expect_true(sd(data2$f - f.predict) < 0.4)
 })
+
 test_that("coxph - runs to completion with train.fraction of 1.0", {
   ## Needed packages
   require(survival)
@@ -242,6 +248,7 @@ test_that("coxph - runs to completion with train.fraction of 1.0", {
   expect_error(gbm(Surv(tstart, tstop, death==2) ~ bili + protime + albumin + alk.phos, 
                    data=pbc2, distribution="coxph", train.fraction=1.0, n.trees=500, shrinkage=.01, interaction.depth=3), NA)
 })
+
 test_that("coxph - runs to completion with train.fraction < 1.0 and cv.folds > 1", {
   ## Needed packages
   require(survival)
@@ -268,6 +275,7 @@ test_that("coxph - runs to completion with train.fraction < 1.0 and cv.folds > 1
   expect_error(gbm(Surv(tstart, tstop, death==2) ~ bili + protime + albumin + alk.phos, 
                    data=pbc2, distribution="coxph", train.fraction=0.8, n.trees=500, shrinkage=.01, cv.folds=5, interaction.depth=3), NA)
 })
+
 test_that("coxph cv.folds - runs to completion with start-stop, id'ed and stratified dataset", {
   ## Needed packages
   require(survival)
@@ -290,8 +298,9 @@ test_that("coxph cv.folds - runs to completion with start-stop, id'ed and strati
                      steroids + propylac, data=cgd, obs.id=cgd$id,
                    train.fraction=0.8, n.trees=500, strata= cgd$hos.cat, distribution = "coxph", shrinkage=.01, interaction.depth=3, cv.folds=10), NA)
 })
+
 test_that("Bernoulli works - gbm", {
-  
+  skip_on_cran()  
   set.seed(1)
   
   # create some data
@@ -351,6 +360,7 @@ test_that("Bernoulli works - gbm", {
   # Base the validation tests on observed discrepancies
   expect_true(sd(f.new - f.1.predict) < 1.0)
 })
+
 test_that("relative influence picks out true predictors", {
   set.seed(1234)
   X1 <- matrix(nrow=1000, ncol=50)
@@ -397,7 +407,7 @@ test_that("Conversion of 2 factor Y is successful", {
 #### GBM.FIT ####
 context("Test old API works on basic examples - gbm.fit")
 test_that("Gaussian works - gbm.fit", {
-  
+  skip_on_cran()
   ## Based on example in R package
   
   ## test Gaussian distribution gbm model
@@ -467,7 +477,9 @@ test_that("Gaussian works - gbm.fit", {
   expect_true(cor(Y, f.predict) > 0.990)
   expect_true(sd(Y-f.predict) < sigma)
 })
+
 test_that("CoxPH works - efron - gbm", {
+  skip_on_cran()
   # Require Surv to be available
   require(survival)
   
@@ -531,7 +543,9 @@ test_that("CoxPH works - efron - gbm", {
   # Use observed sd
   expect_true(sd(f - f.predict) < 0.4)
 })
+
 test_that("CoxPH works - breslow - gbm", {
+  skip_on_cran()
   # Require Surv to be available
   require(survival)
   
@@ -595,7 +609,9 @@ test_that("CoxPH works - breslow - gbm", {
   # Use observed sd
   expect_true(sd(f - f.predict) < 0.4)
 })
+
 test_that("Bernoulli works - gbm", {
+  skip_on_cran()
   
   set.seed(1)
   
