@@ -9,11 +9,7 @@
 #' influence of each variable in reducing the loss function. See the references
 #' below for exact details on the computation.
 #' 
-#' @usage summary(gbm_fit_obj, cBars=length(gbm_fit_obj$variables$var_names), 
-#'                num_trees=length(gbm_fit_obj$trees), plot_it=TRUE, order_it=TRUE,
-#'                method=relative_influence, normalize=TRUE, ...)
-#' 
-#' @param gbm_fit_obj a \code{GBMFit} object created from an initial call to
+#' @param object a \code{GBMFit} object created from an initial call to
 #' \code{\link{gbmt}}.
 #' 
 #' @param cBars the number of bars to plot. If \code{order_it=TRUE} then only the
@@ -53,24 +49,10 @@
 #' 
 #' L. Breiman (2001). \href{http://oz.berkeley.edu/users/breiman/randomforest2001.pdf}{Random Forests}.
 #' @keywords hplot
-#' @export
-#' 
-summary <- function(gbm_fit_obj,
-                   cBars=length(gbm_fit_obj$variables$var_names),
-                   num_trees=length(gbm_fit_obj$trees),
-                   plot_it=TRUE,
-                   order_it=TRUE,
-                   method=relative_influence,
-                   normalize=TRUE,
-                   ...) {
-  UseMethod("summary", gbm_fit_obj)
-}
-
-#' @name summary
 #' @export 
-summary.GBMFit <- function(gbm_fit_obj,
-                        cBars=length(gbm_fit_obj$variables$var_names),
-                        num_trees=length(gbm_fit_obj$trees),
+summary.GBMFit <- function(object,
+                        cBars=length(object$variables$var_names),
+                        num_trees=length(object$trees),
                         plot_it=TRUE,
                         order_it=TRUE,
                         method=relative_influence,
@@ -80,7 +62,7 @@ summary.GBMFit <- function(gbm_fit_obj,
   # Initial checks
   check_if_natural_number(num_trees)
   check_if_natural_number(cBars)
-  check_if_gbm_fit(gbm_fit_obj)
+  check_if_gbm_fit(object)
   if(!is.logical(plot_it) || (length(plot_it) > 1) || is.na(plot_it)) {
     stop("argument plot_it must be a logical - excluding NA")
   }  
@@ -92,14 +74,14 @@ summary.GBMFit <- function(gbm_fit_obj,
   }  
   
   # Set inputs (if required)
-  if(cBars==0) cBars <- min(10, length(gbm_fit_obj$variables$var_names))
-  if(cBars>length(gbm_fit_obj$variables$var_names)) cBars <- length(gbm_fit_obj$variables$var_names)
-  if(num_trees > gbm_fit_obj$params$num_trees)
-    warning("Exceeded total number of GBM terms. Results use num_trees=", gbm_fit_obj$params$num_trees," terms.\n")
-  num_trees <- min(num_trees, gbm_fit_obj$params$num_trees)
+  if(cBars==0) cBars <- min(10, length(object$variables$var_names))
+  if(cBars>length(object$variables$var_names)) cBars <- length(object$variables$var_names)
+  if(num_trees > object$params$num_trees)
+    warning("Exceeded total number of GBM terms. Results use num_trees=", object$params$num_trees," terms.\n")
+  num_trees <- min(num_trees, object$params$num_trees)
   
   # Calculate relative influence and order/normalize
-  rel_inf <- method(gbm_fit_obj, num_trees=num_trees)
+  rel_inf <- method(object, num_trees=num_trees)
   rel_inf[rel_inf<0] <- 0
   if(normalize) rel_inf <- 100*rel_inf/sum(rel_inf)
   
@@ -113,10 +95,10 @@ summary.GBMFit <- function(gbm_fit_obj,
     barplot(rel_inf[ordering[cBars:1]],
             horiz=TRUE,
             col=rainbow(cBars,start=3/6,end=4/6),
-            names=gbm_fit_obj$variables$var_names[ordering[cBars:1]],
+            names=object$variables$var_names[ordering[cBars:1]],
             xlab="Relative influence",
             las=1,...)
   }
-  return(data.frame(var=gbm_fit_obj$variables$var_names[ordering],
+  return(data.frame(var=object$variables$var_names[ordering],
                     rel_inf=rel_inf[ordering]))
 }
