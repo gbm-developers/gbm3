@@ -268,7 +268,7 @@ test_that("get_ylabel throws error if passed unrecognised GBMDist class", {
   expect_error(get_ylabel(dist))
 })
 
-context("Testing gbmt_plot method for GBMFit")
+context("Testing plot method for GBMFit")
 test_that("Error thrown if type of plot not 'link' or 'response' ", {
   # Given a GBM fit and type not 'link' or 'response'
   type_plot <- "stuff"
@@ -310,7 +310,7 @@ test_that("Error thrown if type of plot not 'link' or 'response' ", {
   
   # When plotting fit with unknown type
   # Then error thrown
-  expect_error(gbmt_plot(fit, type=type_plot))
+  expect_error(plot(fit, type=type_plot))
 })
 test_that("Error thrown if var_index has variable outside range not used in fit", {
   # Given a GBM fit and var_index outside range of predictors
@@ -354,7 +354,7 @@ test_that("Error thrown if var_index has variable outside range not used in fit"
   
   # When plotting fit with out of range var index
   # Then error thrown
-  expect_error(gbmt_plot(fit, var_index = var_ind))
+  expect_error(plot(fit, var_index = var_ind))
   
 })
 test_that("Response throws warning if not Bernoulli, Poisson, Gamma, Pairwise or Tweedie", {
@@ -506,7 +506,7 @@ test_that("generate_grid_levels throws an error if length of grid_levels not sam
   # Then error is thrown
   expect_error(generate_grid_levels(grid_levels, fit, var_index))
 })
-test_that("warning thrown if num_trees exceeds those in fit and then uses number of trees in fit to gbmt_plot", {
+test_that("warning thrown if num_trees exceeds those in fit and then uses number of trees in fit to plot", {
   # Given a GBM fit and num_trees exceeding those in fit
   num_trees_plot <- 100000 
   
@@ -547,7 +547,7 @@ test_that("warning thrown if num_trees exceeds those in fit and then uses number
   
   # When plotting fit with too many trees
   # Then warning thrown and uses number of trees in fit
-  expect_warning(gbmt_plot(fit, num_trees=num_trees_plot))
+  expect_warning(plot(fit, num_trees=num_trees_plot))
 })
 test_that("warning thrown if number var indices > 3", {
   # Given a GBM fit and more than 3 var indices
@@ -590,7 +590,7 @@ test_that("warning thrown if number var indices > 3", {
   
   # When plotting fit with too indices
   # Then warning thrown 
-  expect_warning(gbmt_plot(fit, var_index = var_ind))
+  expect_warning(plot(fit, var_index = var_ind))
 })
 test_that("return_grid=TRUE returns the grid", {
   # Given a GBM fit and return_grid=TRUE
@@ -633,7 +633,7 @@ test_that("return_grid=TRUE returns the grid", {
   
   # When plotting fit with grid_return returns grid
   # Then output is same
-  expect_true(is.list(gbmt_plot(fit, return_grid=grid_return)))
+  expect_true(is.list(plot(fit, return_grid=grid_return)))
 })
 test_that("number of var indices >3 sets return_grid to TRUE", {
   # Given a GBM fit and more than 3 var indices
@@ -676,10 +676,10 @@ test_that("number of var indices >3 sets return_grid to TRUE", {
   
   # When plotting fit with too indices and return_grid = TRUE
   # Then output is same
-  expect_warning(gbmt_plot(fit, var_index=var_ind, return_grid=FALSE))
-  expect_equal(gbmt_plot(fit, var_index = var_ind, return_grid=FALSE),  gbmt_plot(fit, var_index = var_ind, return_grid=TRUE))
+  expect_warning(plot(fit, var_index=var_ind, return_grid=FALSE))
+  expect_equal(plot(fit, var_index = var_ind, return_grid=FALSE),  plot(fit, var_index = var_ind, return_grid=TRUE))
 })
-test_that("can gbmt_plot with one variable selected", {
+test_that("can plot with one variable selected", {
   # Given a GBM fit 
   ## test Gaussian distribution gbm model
   set.seed(1)
@@ -718,7 +718,7 @@ test_that("can gbmt_plot with one variable selected", {
   
   # When plotting fit  - 1 variable
   # Then no Error thrown 
-  expect_error(gbmt_plot(fit), NA)
+  expect_error(plot(fit), NA)
 })
 test_that("can correctly get one variable y-label", {
   # Given an object for each distribution
@@ -750,7 +750,7 @@ test_that("can correctly get one variable y-label", {
   expect_equal(get_ylabel_one_var(dist_11), "")
   expect_equal(get_ylabel_one_var(dist_12), "")
 })
-test_that("can gbmt_plot with two variables", {
+test_that("can plot with two variables", {
   # Given a GBM fit and two variables selected - all combinations
   var_1 <- c(1, 2)
   var_2 <- c(1, 3)
@@ -793,11 +793,11 @@ test_that("can gbmt_plot with two variables", {
   
   # When plotting fit  - 2  variables
   # Then no Error thrown 
-  expect_error(gbmt_plot(fit, var_index = var_1), NA)
-  expect_error(gbmt_plot(fit, var_index = var_2), NA)
-  expect_error(gbmt_plot(fit, var_index = var_3), NA)
+  expect_error(plot(fit, var_index = var_1), NA)
+  expect_error(plot(fit, var_index = var_2), NA)
+  expect_error(plot(fit, var_index = var_3), NA)
 })
-test_that("can gbmt_plot with 3 variables selected", {
+test_that("can plot with 3 variables selected", {
   # Given a GBM fit and 3 variables selected - all combinations
   var_1 <- c(1, 2, 6)
   var_2 <- c(1, 3, 2)
@@ -841,8 +841,8 @@ test_that("can gbmt_plot with 3 variables selected", {
   
   # When plotting fit  - 3 variables
   # Then no Error thrown 
-  expect_error(gbmt_plot(fit, var_index = var_1), NA)
-  expect_error(gbmt_plot(fit, var_index = var_2), NA)
-  expect_error(gbmt_plot(fit, var_index = var_3), NA)
-  expect_error(gbmt_plot(fit, var_index = var_4), NA)
+  expect_error(plot(fit, var_index = var_1), NA)
+  expect_error(plot(fit, var_index = var_2), NA)
+  expect_error(plot(fit, var_index = var_3), NA)
+  expect_error(plot(fit, var_index = var_4), NA)
 })

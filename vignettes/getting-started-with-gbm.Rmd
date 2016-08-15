@@ -197,13 +197,13 @@ print(relative_influence(fit, gbm_perf(fit, method='cv', plot_it=FALSE)))
 ```
 
 ## Plotting the marginal effects of selected variables
-As well as calculating the relative influence from the fitted trees, `gbm` also offers the ability to calculate the predictions of specific variables and make the appropriate marginal plots using `gbmt_plot`.
+As well as calculating the relative influence from the fitted trees, `gbm` also offers the ability to calculate the predictions of specific variables and make the appropriate marginal plots using `plot`.
 
 ```{r}
 # Examine the marginal effects of the first two variables - gaussian example
 # Shows the fitted model predictions as a function of 1st two predictors
 # with all the others integrated out
-gbmt_plot(gauss_fit_more, var_index = 1:2)
+plot(gauss_fit_more, var_index = 1:2)
 ```
 
 ## Additional useful functions

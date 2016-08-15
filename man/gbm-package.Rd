@@ -12,16 +12,6 @@ proportional hazards partial likelihood, t-distribution,
 AdaBoost exponential loss, Learning to Rank, and Huberized hinge loss.
 }
 \details{
-\tabular{ll}{Package: \tab gbm\cr Version: \tab 2.1-0.6\cr Date: \tab
-2014-08-12\cr Depends: \tab R (>= 2.9.0), survival, lattice, mgcv\cr
-License: \tab GPL (version 2 or newer)\cr} Index:
-\preformatted{baseline_hazard Baseline hazard function calibrate_plot
-Calibration plot gbmt Generalized Boosted Regression Modeling gbm_perf GBM performance
-gbmt_plot Marginal plots of fitted gbm objects predict.GBMFit Predict method for
-GBM Model Fits pretty_gbm_tree Print gbm tree components quantile_rug
-Quantile rug plot relative_influence Methods for estimating relative
-influence}
-
 Further information is available in the following vignettes: \tabular{ll}{
 \code{gbm} \tab Generalized Boosted Models: A guide to the gbm package
 (source, pdf)\cr}
