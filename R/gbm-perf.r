@@ -1,49 +1,49 @@
-#' GBMT Performace
+#' GBMT Performance
 #' 
-#' Estimates optimal number of boosting iterations given a \code{GBMFit} object and
-#' optionally plots various performance measures.
-#' 
-#' @usage gbm_perf(gbm_fit_obj, plot_it=TRUE, out_of_bag_curve=FALSE,
-#'  overlay=TRUE, method, main="")
+#' Estimates optimal number of boosting iterations given a
+#' \code{GBMFit} object and optionally plots various performance
+#' measures.
 #' 
 #' @param gbm_fit_obj a \code{GBMFit} created from an initial call to
 #' \code{\link{gbmt}}.
 #' 
-#' @param plot_it an indicator of whether or not to plot the performance
-#' measures. Setting \code{plot_it=TRUE} creates two plots. The first plot
-#' plots \code{gbm_fit_obj$train.error} (in black) and \code{gbm_fit_obj$valid.error} (in
-#' red) versus the iteration number. The scale of the error measurement, shown
-#' on the left vertical axis, depends on the \code{distribution} argument used
-#' in the initial call to \code{\link{gbmt}}.
+#' @param plot_it an indicator of whether or not to plot the
+#' performance measures. Setting \code{plot_it=TRUE} creates two
+#' plots. The first plot plots \code{gbm_fit_obj$train.error} (in
+#' black) and \code{gbm_fit_obj$valid.error} (in red) versus the
+#' iteration number. The scale of the error measurement, shown on the
+#' left vertical axis, depends on the \code{distribution} argument
+#' used in the initial call to \code{\link{gbmt}}.
 #' 
-#' @param out_of_bag_curve indicates whether to plot the out-of-bag performance
-#' measures in a second plot.
+#' @param out_of_bag_curve indicates whether to plot the out-of-bag
+#' performance measures in a second plot.
 #' 
-#' @param overlay if TRUE and out_of_bag_curve=TRUE then a right y-axis is added to
-#' the training and test error plot and the estimated cumulative improvement in
-#' the loss function is plotted versus the iteration number.
+#' @param overlay if TRUE and out_of_bag_curve=TRUE then a right
+#' y-axis is added to the training and test error plot and the
+#' estimated cumulative improvement in the loss function is plotted
+#' versus the iteration number.
 #' 
-#' @param method indicate the method used to estimate the optimal number of
-#' boosting iterations. \code{method="OOB"} computes the out-of-bag estimate
-#' and \code{method="test"} uses the test (or validation) dataset to compute an
-#' out-of-sample estimate. \code{method="cv"} extracts the optimal number of
-#' iterations using cross-validation if \code{gbmt} was called with \code{cv_folds}>1.
+#' @param method indicate the method used to estimate the optimal
+#' number of boosting iterations. \code{method="OOB"} computes the
+#' out-of-bag estimate and \code{method="test"} uses the test (or
+#' validation) dataset to compute an out-of-sample
+#' estimate. \code{method="cv"} extracts the optimal number of
+#' iterations using cross-validation if \code{gbmt} was called with
+#' \code{cv_folds}>1.
 #' 
 #' @param main the main title for the plot. Defaults to \code{main = ""}.
 #' 
-#' @return \code{gbm_perf} returns the estimated optimal number of iterations.
-#' The method of computation depends on the \code{method} argument.
+#' @return \code{gbm_perf} returns the estimated optimal number of
+#' iterations.  The method of computation depends on the \code{method}
+#' argument.
 #' @seealso \code{\link{gbmt}}
 #' @keywords nonlinear survival nonparametric tree
-#' @export 
-#' 
-
-
+#' @export
 gbm_perf <- function(gbm_fit_obj, plot_it=TRUE, 
-                                        out_of_bag_curve=FALSE,
-                                        overlay=TRUE,
-                                        method,
-                                        main="") {
+                     out_of_bag_curve=FALSE,
+                     overlay=TRUE,
+                     method,
+                     main="") {
   # Initial checks
   check_if_gbm_fit(gbm_fit_obj)
   if ( missing( method ) )
