@@ -1,6 +1,12 @@
 # Series of internal functions used 
 # to check inputs and convert parameters
 
+assertInherits <- function(object, class.name) {
+    if (!isTRUE(inherits(object, class.name))) {
+        stop("Function requires a ", class.name, " object.")
+    }
+}
+
 ##### Check gbm objects #####
 check_if_gbm_dist <- function(distribution_obj) {
   # Check if GBM dist object
@@ -10,27 +16,19 @@ check_if_gbm_dist <- function(distribution_obj) {
 }
 
 check_if_gbm_data <- function(data_obj) {
-  if(!any(class(data_obj) %in% "GBMData")) {
-    stop("Function requires a GBMData object.")
-  }
+    assertInherits(data_obj, "GBMData")
 }
 
 check_if_gbm_fit <- function(fit_obj) {
-  if(!any(class(fit_obj) %in% "GBMFit")) {
-    stop("Function requires a GBMFit object.")
-  }
+    assertInherits(fit_obj, "GBMFit")
 }
 
 check_if_gbm_train_params <- function(params_obj) {
-  if(!any(class(params_obj) %in% "GBMTrainParams")) {
-    stop("Function requires a GBMTrainParams object.")
-  }
+    assertInherits(params_obj, "GBMTrainParams")
 }
 
 check_if_gbm_var_container <- function(var_obj) {
-  if(!any(class(var_obj) %in% "GBMVarCont")) {
-    stop("Function requires a GBMVarCont object.")
-  }
+    assertInherits(var_obj, "GBMVarCont")
 }
 
 #### Check function inputs ####
