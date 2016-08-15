@@ -215,11 +215,11 @@ guess_distribution <- function(response) {
   # This function guesses the distribution if one is not provided
   if(length(unique(response)) == 2) {
     name <- "Bernoulli"
-  } else if (class(response) == "Surv") {
+  } else if (inherits(response, "Surv")) {
     name <- "CoxPH"
   } else {
     name <- "Gaussian"
   }
-  message(paste("Distribution not specified, assuming", name, "...\n"))
+  message("Distribution not specified, assuming ", name, " ...")
   return(list(name=name))
 }
