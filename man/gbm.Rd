@@ -384,22 +384,22 @@ print(sum((data2$Y-f.predict)^2))
 # create marginal plots
 # plot variable X1,X2,X3 after "best" iterations
 par(mfrow=c(1,3))
-gbmt_plot(gbm1,1,best_iter)
-gbmt_plot(gbm1,2,best_iter)
-gbmt_plot(gbm1,3,best_iter)
+plot(gbm1,1,best_iter)
+plot(gbm1,2,best_iter)
+plot(gbm1,3,best_iter)
 par(mfrow=c(1,1))
 # contour plot of variables 1 and 2 after "best" iterations
-gbmt_plot(gbm1,1:2,best_iter)
+plot(gbm1,1:2,best_iter)
 # lattice plot of variables 2 and 3
-gbmt_plot(gbm1,2:3,best_iter)
+plot(gbm1,2:3,best_iter)
 # lattice plot of variables 3 and 4
-gbmt_plot(gbm1,3:4,best_iter)
+plot(gbm1,3:4,best_iter)
 
 # 3-way plots
-gbmt_plot(gbm1,c(1,2,6),best_iter,cont=20)
-gbmt_plot(gbm1,1:3,best_iter)
-gbmt_plot(gbm1,2:4,best_iter)
-gbmt_plot(gbm1,3:5,best_iter)
+plot(gbm1,c(1,2,6),best_iter,cont=20)
+plot(gbm1,1:3,best_iter)
+plot(gbm1,2:4,best_iter)
+plot(gbm1,3:5,best_iter)
 
 # do another 100 iterations
 gbm2 <- gbm_more(gbm1,100,
@@ -448,7 +448,7 @@ The \href{http://www-stat.stanford.edu/~jhf/R-MART.html}{MART} website.
 }
 \seealso{
 \code{\link{gbmt}}, \code{\link{gbmt_fit}} \code{\link{gbm_perf}},
-\code{\link{gbmt_plot}}, \code{\link{predict.GBMFit}},
+\code{\link{plot}}, \code{\link{predict.GBMFit}},
 \code{\link{summary.GBMFit}}, \code{\link{pretty_gbm_tree}}, \code{\link{gbmParallel}}.
 }
 \keyword{models}
