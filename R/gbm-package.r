@@ -2,7 +2,6 @@
 #' @useDynLib gbm
 #' @importFrom survival Surv
 #' @import lattice
-#' @import parallel
 #' @importFrom graphics abline axis barplot lines mtext par plot polygon rug
 #' @importFrom grDevices rainbow
 #' @importFrom stats approx binomial delete.response gaussian glm loess

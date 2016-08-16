@@ -28,7 +28,6 @@ Imports:
     survival,
     lattice,
     splines,
-    parallel,
     Rcpp (>= 0.11.5)
 Suggests:
     testthat (>= 0.11.0),
