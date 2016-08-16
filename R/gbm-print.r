@@ -88,15 +88,13 @@ print_perf_measures <- function(x) {
   best_iter <- length(x$train.error)
   
   # CV best iteration 
-  if (!is.null(x$cv_error)) {
-    best_iter <- gbm_perf(x, plot_it = FALSE, method="cv" )
-    cat(paste("The best cross-validation iteration was ", best_iter, ".\n", sep = "" ))
+  if (has_cross_validation(x)) {
+      best_iter <- summary(print(gbmt_performance(x, method="cv")))
   }
   
   # Test set best iteration
-  if (x$params$train_fraction < 1 ) {
-    best_iter <- gbm_perf(x, plot_it = FALSE, method="test" )
-    cat( paste("The best test-set iteration was ", best_iter, ".\n", sep = "" ) )
+  if (has_train_test_split(x)) {
+      best_iter <- summary(print(gbmt_performance(x, method="test")))
   }
   
   return(best_iter)
