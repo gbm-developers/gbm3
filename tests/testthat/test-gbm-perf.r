@@ -275,7 +275,7 @@ test_that("Message given if method is 'OOB'", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3,
+  params <- training_params(num_trees=20, interaction_depth=3,
                             min_num_obs_in_node=10, 
                             shrinkage=0.005, bag_fraction=0.5,
                             id=seq(nrow(data)), num_train=N/2,
