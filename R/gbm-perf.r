@@ -81,6 +81,20 @@ summary.GBMTPerformance <- function(object, ...) {
     object$best_iter
 }
 
+##' @export
+print.GBMTPerformance <- function(x, ...) {
+    method_descriptor <-
+        switch(x$method,
+               cv="cross-validation",
+               test="test-set",
+               OOB="out-of-bag",
+               stop("Unknown method."))
+    
+    cat("The best ", method_descriptor, " iteration was ", x$best_iter, ".\n",
+        sep="")
+    invisible(x)
+}
+
 ##' Plot GBM performance details
 ##'
 ##' The train and validation error (in black and red respectively) are
