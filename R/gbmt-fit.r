@@ -109,4 +109,13 @@ gbmt_fit <- function(x, y, distribution=gbm_dist("Gaussian"), weights=rep(1, nro
   gbm_fit_obj$response_name <- response_name
   
   return(gbm_fit_obj)
-} 
+}
+
+## accessor functions
+has_train_test_split <- function(gbm_fit_obj) {
+    gbm_fit_obj$params$train_fraction < 1
+}
+
+has_cross_validation <- function(gbm_fit_obj) {
+    !is.null(gbm_fit_obj$cv_error)
+}

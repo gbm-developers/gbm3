@@ -24,6 +24,12 @@ gbm_perf <- function(gbm_fit_obj, plot_it=TRUE,
     if(!is.logical(plot_it) || (length(plot_it)) > 1 || is.na(plot_it))
         stop("plot_it must be a logical - excluding NA")
 
+    ## guess the method (to match old gbm.perf)
+    if (missing(method)) {
+        method <- guess_error_method(gbm_fit_obj)
+        message("Using ", method, " method...")
+    }
+
     performance <- gbmt_performance(gbm_fit_obj, method)
     if (plot_it) {
         plot(performance,
@@ -55,9 +61,6 @@ gbm_perf <- function(gbm_fit_obj, plot_it=TRUE,
 ##' @export
 gbmt_performance <- function(gbm_fit_obj, method) {
     check_if_gbm_fit(gbm_fit_obj)
-    
-    if ( missing( method ) )
-        stop("requires method parameter to determine performance")
     
     best_iter <-
         switch(method,
@@ -154,4 +157,15 @@ generate_smoother_oobag <- function(gbm_fit_obj) {
   smoother$y <- smoother$fitted
   smoother$x <- x
   return(smoother)
+}
+
+## What error method should we use?
+guess_error_method <- function(gbm_fit_obj) {
+    if (has_train_test_split(gbm_fit_obj)) {
+        "test"
+    } else if (has_cross_validation(gbm_fit_obj)) {
+        "cv"
+    } else {
+        "OOB"
+    }
 }
