@@ -3,40 +3,17 @@
 #' Estimates optimal number of boosting iterations given a
 #' \code{GBMFit} object and optionally plots various performance
 #' measures.
-#' 
-#' @param gbm_fit_obj a \code{GBMFit} created from an initial call to
-#' \code{\link{gbmt}}.
-#' 
+#'
 #' @param plot_it an indicator of whether or not to plot the
-#' performance measures. Setting \code{plot_it=TRUE} creates two
-#' plots. The first plot plots \code{gbm_fit_obj$train.error} (in
-#' black) and \code{gbm_fit_obj$valid.error} (in red) versus the
-#' iteration number. The scale of the error measurement, shown on the
-#' left vertical axis, depends on the \code{distribution} argument
-#' used in the initial call to \code{\link{gbmt}}.
-#' 
-#' @param out_of_bag_curve indicates whether to plot the out-of-bag
-#' performance measures in a second plot.
-#' 
-#' @param overlay if TRUE and out_of_bag_curve=TRUE then a right
-#' y-axis is added to the training and test error plot and the
-#' estimated cumulative improvement in the loss function is plotted
-#' versus the iteration number.
-#' 
-#' @param method indicate the method used to estimate the optimal
-#' number of boosting iterations. \code{method="OOB"} computes the
-#' out-of-bag estimate and \code{method="test"} uses the test (or
-#' validation) dataset to compute an out-of-sample
-#' estimate. \code{method="cv"} extracts the optimal number of
-#' iterations using cross-validation if \code{gbmt} was called with
-#' \code{cv_folds}>1.
-#' 
-#' @param main the main title for the plot. Defaults to \code{main = ""}.
-#' 
+#' performance measures. 
+#' @inheritParams gbmt_performance
+#' @inheritParams plot.GBMTPerformance
+#'
 #' @return \code{gbm_perf} returns the estimated optimal number of
 #' iterations.  The method of computation depends on the \code{method}
 #' argument.
-#' @seealso \code{\link{gbmt}}
+#' @seealso \code{\link{gbmt}} \code{\link{gbmt_performance}}
+#' \code{\link{plot.GBMTPerformance}}
 #' @keywords nonlinear survival nonparametric tree
 #' @export
 gbm_perf <- function(gbm_fit_obj, plot_it=TRUE, 
@@ -44,27 +21,99 @@ gbm_perf <- function(gbm_fit_obj, plot_it=TRUE,
                      overlay=TRUE,
                      method,
                      main="") {
-  # Initial checks
-  check_if_gbm_fit(gbm_fit_obj)
-  if ( missing( method ) )
-    stop("requires method parameter to determine performance")
-  
-  if(!is.element(method,c("OOB","test","cv")))
-    stop("method must be cv, test, or OOB")
-  
-  if(!is.logical(plot_it) || (length(plot_it)) > 1 || is.na(plot_it))
-    stop("plot_it must be a logical - excluding NA")
-  
-  best_iter <- switch(method,
-                      OOB=best_iter_out_of_bag(gbm_fit_obj),
-                      cv=best_iter_cv(gbm_fit_obj),
-                      test=best_iter_test(gbm_fit_obj))
-  if(plot_it)
-    perf_plot(gbm_fit_obj, best_iter, out_of_bag_curve, overlay, method, main)
-  
-  return(best_iter)  
+    if(!is.logical(plot_it) || (length(plot_it)) > 1 || is.na(plot_it))
+        stop("plot_it must be a logical - excluding NA")
+
+    performance <- gbmt_performance(gbm_fit_obj, method)
+    if (plot_it) {
+        plot(performance,
+             out_of_bag_curve=out_of_bag_curve,
+             overlay=overlay,
+             main=main)
+    }
+
+    summary(performance)
 }
 
+##' Get performance details for gbm fit
+##'
+##' \code{gbmt_performance} estimates the optimal number of boosting
+##' iterations from a model fit by \code{\link{gbmt}}.  The precise
+##' method used depends on the \code{method} parameter.
+##' 
+##' @param gbm_fit_obj a \code{GBMFit} created from an initial call to
+##' \code{\link{gbmt}}.
+##'
+##' @param method indicate the method used to estimate the optimal
+##' number of boosting iterations. \code{method="OOB"} computes the
+##' out-of-bag estimate and \code{method="test"} uses the test (or
+##' validation) dataset to compute an out-of-sample
+##' estimate. \code{method="cv"} extracts the optimal number of
+##' iterations using cross-validation if \code{gbmt} was called with
+##' \code{cv_folds}>1.
+##' @return a GBMTPerformance object
+##' @export
+gbmt_performance <- function(gbm_fit_obj, method) {
+    check_if_gbm_fit(gbm_fit_obj)
+    
+    if ( missing( method ) )
+        stop("requires method parameter to determine performance")
+    
+    best_iter <-
+        switch(method,
+               OOB=best_iter_out_of_bag(gbm_fit_obj),
+               cv=best_iter_cv(gbm_fit_obj),
+               test=best_iter_test(gbm_fit_obj),
+               stop("method must be cv, test, or OOB"))
+
+    result <- list(best_iter=best_iter,
+                   method=method,
+                   gbm_fit_obj=gbm_fit_obj)
+    class(result) <- "GBMTPerformance"
+    result
+}
+
+##' @export
+summary.GBMTPerformance <- function(object, ...) {
+    object$best_iter
+}
+
+##' Plot GBM performance details
+##'
+##' The train and validation error (in black and red respectively) are
+##' plotted against the iteration number.  If the initial model was
+##' built with cross-validation, the cross-validation error is shown
+##' in green.
+##'
+##' The scale of the error measurement, shown on the
+##' left vertical axis, depends on the \code{distribution} argument
+##' used in the initial call to \code{\link{gbmt}}.
+##'
+##' @param x a \code{GBMTPerformance} object (created by
+##' \code{\link{gbmt_performance}})
+##' 
+##' @param out_of_bag_curve indicates whether to plot the out-of-bag
+##' performance measures in a second plot.
+##' 
+##' @param overlay if TRUE and out_of_bag_curve=TRUE then a right
+##' y-axis is added to the training and test error plot and the
+##' estimated cumulative improvement in the loss function is plotted
+##' versus the iteration number.
+##'
+##' @param main the main title for the plot.
+##'
+##' @param \dots currently ignored
+##'
+##' @export
+plot.GBMTPerformance <- function(x,
+                                 out_of_bag_curve=FALSE,
+                                 overlay=TRUE,
+                                 main="", ...) {
+    perf_plot(x$gbm_fit_obj, x$best_iter,
+              out_of_bag_curve, overlay,
+              x$method,
+              main)
+}
 
 #### Helper functions ####
 best_iter_test <- function(gbm_fit_obj) {
