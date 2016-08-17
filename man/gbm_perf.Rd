@@ -33,9 +33,9 @@ iterations using cross-validation if \code{gbmt} was called with
 \item{main}{the main title for the plot.}
 }
 \value{
-\code{gbm_perf} returns the estimated optimal number of
-iterations.  The method of computation depends on the \code{method}
-argument.
+\code{gbm_perf} returns a \code{GBMTPerformance} object,
+which is a number - the optimal iteration number - with various
+attributes.
 }
 \description{
 Estimates optimal number of boosting iterations given a

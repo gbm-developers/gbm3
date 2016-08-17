@@ -9,9 +9,9 @@
 #' @inheritParams gbmt_performance
 #' @inheritParams plot.GBMTPerformance
 #'
-#' @return \code{gbm_perf} returns the estimated optimal number of
-#' iterations.  The method of computation depends on the \code{method}
-#' argument.
+#' @return \code{gbm_perf} returns a \code{GBMTPerformance} object,
+#' which is a number - the optimal iteration number - with various
+#' attributes.
 #' @seealso \code{\link{gbmt}} \code{\link{gbmt_performance}}
 #' \code{\link{plot.GBMTPerformance}}
 #' @keywords nonlinear survival nonparametric tree
@@ -38,7 +38,7 @@ gbm_perf <- function(gbm_fit_obj, plot_it=TRUE,
              main=main)
     }
 
-    summary(performance)
+    performance
 }
 
 ##' Get performance details for gbm fit
@@ -57,40 +57,44 @@ gbm_perf <- function(gbm_fit_obj, plot_it=TRUE,
 ##' estimate. \code{method="cv"} extracts the optimal number of
 ##' iterations using cross-validation if \code{gbmt} was called with
 ##' \code{cv_folds}>1.
-##' @return a GBMTPerformance object
+##'
+##' @return a GBMTPerformance object, which is a number - the optimal
+##' iteration number - with various attributes.
 ##' @export
 gbmt_performance <- function(gbm_fit_obj, method) {
     check_if_gbm_fit(gbm_fit_obj)
     
-    best_iter <-
+    result <-
         switch(method,
                OOB=best_iter_out_of_bag(gbm_fit_obj),
                cv=best_iter_cv(gbm_fit_obj),
                test=best_iter_test(gbm_fit_obj),
                stop("method must be cv, test, or OOB"))
 
-    result <- list(best_iter=best_iter,
-                   method=method,
-                   gbm_fit_obj=gbm_fit_obj)
+    attr(result, 'decoration') <-
+        list(method=method,
+             gbm_fit_obj=gbm_fit_obj)
     class(result) <- "GBMTPerformance"
     result
 }
 
+
 ##' @export
-summary.GBMTPerformance <- function(object, ...) {
-    object$best_iter
+as.double.GBMTPerformance <- function(x, ...) {
+    as.double(unclass(x))
 }
 
 ##' @export
 print.GBMTPerformance <- function(x, ...) {
+    decoration <- attr(x, 'decoration')
     method_descriptor <-
-        switch(x$method,
+        switch(decoration$method,
                cv="cross-validation",
                test="test-set",
                OOB="out-of-bag",
                stop("Unknown method."))
     
-    cat("The best ", method_descriptor, " iteration was ", x$best_iter, ".\n",
+    cat("The best ", method_descriptor, " iteration was ", x, ".\n",
         sep="")
     invisible(x)
 }
@@ -126,9 +130,10 @@ plot.GBMTPerformance <- function(x,
                                  out_of_bag_curve=FALSE,
                                  overlay=TRUE,
                                  main="", ...) {
-    perf_plot(x$gbm_fit_obj, x$best_iter,
+    decoration <- attr(x, 'decoration')
+    perf_plot(decoration$gbm_fit_obj, x,
               out_of_bag_curve, overlay,
-              x$method,
+              decoration$method,
               main)
 }
 

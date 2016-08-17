@@ -58,10 +58,10 @@ relative_influence <- function(gbm_fit_obj, num_trees, rescale = FALSE, sort_it 
   # Fill in missing values
   if( missing( num_trees ) ){
     if ( gbm_fit_obj$params$train_fraction < 1 ){
-      num_trees <- summary(gbmt_performance(gbm_fit_obj, method="test"))
+      num_trees <- gbmt_performance(gbm_fit_obj, method="test")
     }
     else if ( !is.null( gbm_fit_obj$cv_error ) ){
-      num_trees <- summary(gbmt_performance(gbm_fit_obj, method="cv"))
+      num_trees <- gbmt_performance(gbm_fit_obj, method="cv")
     }
     else{
       num_trees <- gbm_fit_obj$params$num_trees

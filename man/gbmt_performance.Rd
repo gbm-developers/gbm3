@@ -19,7 +19,8 @@ iterations using cross-validation if \code{gbmt} was called with
 \code{cv_folds}>1.}
 }
 \value{
-a GBMTPerformance object
+a GBMTPerformance object, which is a number - the optimal
+iteration number - with various attributes.
 }
 \description{
 \code{gbmt_performance} estimates the optimal number of boosting

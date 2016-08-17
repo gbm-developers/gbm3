@@ -350,7 +350,7 @@ test_that("gbm_perf returns correct best iteration for each method", {
   iter_oo <- gbm_perf(fit, method="OOB")
   
   # Then correctly calculates best iterations
-  expect_equal(iter_t, best_iter_t)
-  expect_equal(iter_c, best_iter_c)
-  expect_equal(iter_oo, best_iter_oo)
+  expect_equal(as.numeric(iter_t), best_iter_t)
+  expect_equal(as.numeric(iter_c), best_iter_c)
+  expect_equal(as.numeric(iter_oo), best_iter_oo)
 })

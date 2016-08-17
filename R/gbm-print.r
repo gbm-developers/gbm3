@@ -89,12 +89,12 @@ print_perf_measures <- function(x) {
   
   # CV best iteration 
   if (has_cross_validation(x)) {
-      best_iter <- summary(print(gbmt_performance(x, method="cv")))
+      best_iter <- print(gbmt_performance(x, method="cv"))
   }
   
   # Test set best iteration
   if (has_train_test_split(x)) {
-      best_iter <- summary(print(gbmt_performance(x, method="test")))
+      best_iter <- print(gbmt_performance(x, method="test"))
   }
   
   return(best_iter)
