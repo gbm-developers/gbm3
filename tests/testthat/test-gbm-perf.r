@@ -5,7 +5,7 @@
 #
 ####################
 
-context("gbm_perf input checking")
+context("gbm.perf input checking")
 test_that("Error thrown if not passed GBMFit object", {
   # Given a fit object
   ## test Gaussian distribution gbm model
@@ -46,14 +46,14 @@ test_that("Error thrown if not passed GBMFit object", {
               weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0),
               keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
-  # When gbm_perf is called on fit object not of class GBMFit
+  # When gbm.perf is called on fit object not of class GBMFit
   class(fit) <- "wrong"
   
   # Then an error is thrown
-  expect_error(gbm_perf(fit, method="cv"))
+  expect_error(gbm.perf(fit, method="cv"))
 })
 
-test_that("Error thrown if plot_it is not a logical", {
+test_that("Error thrown if plot.it is not a logical", {
   # Given a fit object
   ## test Gaussian distribution gbm model
   set.seed(1)
@@ -97,14 +97,14 @@ test_that("Error thrown if plot_it is not a logical", {
   
   # When calling gbm_perf with plot_it not a logical
   # Then an error is thrown
-  expect_error(gbm_perf(fit, method="cv", plot_it=c(TRUE, FALSE)))
-  expect_error(gbm_perf(fit, method="cv", plot_it=1.5))
-  expect_error(gbm_perf(fit, method="cv", plot_it=""))
-  expect_error(gbm_perf(fit, method="cv", plot_it=NaN))
-  expect_error(gbm_perf(fit, method="cv", plot_it=Inf))
+  expect_error(gbm.perf(fit, method="cv", plot.it=c(TRUE, FALSE)))
+  expect_error(gbm.perf(fit, method="cv", plot.it=1.5))
+  expect_error(gbm.perf(fit, method="cv", plot.it=""))
+  expect_error(gbm.perf(fit, method="cv", plot.it=NaN))
+  expect_error(gbm.perf(fit, method="cv", plot.it=Inf))
 })
 
-test_that("Error thrown if plot_it is NA", {
+test_that("Error thrown if plot.it is NA", {
   # Given a fit object
   ## test Gaussian distribution gbm model
   set.seed(1)
@@ -148,7 +148,7 @@ test_that("Error thrown if plot_it is NA", {
   
   # When calling gbm_perf with plot_it=NA
   # Then error is thrown
-  expect_error(gbm_perf(fit, method="cv", plot_it=NA))
+  expect_error(gbm.perf(fit, method="cv", plot.it=NA))
 })
 
 test_that("Error thrown if method not element of c('OOB', 'cv', 'test')", {
@@ -195,7 +195,7 @@ test_that("Error thrown if method not element of c('OOB', 'cv', 'test')", {
   
   # When gbm_perf called with method that is not 'cv', 'test' or 'OOB'
   # Then an error is thrown
-  expect_error(gbm_perf(fit, method="weird_metric"))
+  expect_error(gbm.perf(fit, method="weird_metric"))
 })
 
 test_that("Message given if method is 'cv", {
@@ -242,7 +242,7 @@ test_that("Message given if method is 'cv", {
   
   # When gbm_perf is called with method 'cv'
   # Then a warning is thrown
-  expect_message(gbm_perf(fit, method='cv'))
+  expect_message(gbm.perf(fit, method='cv'))
 })
 
 test_that("Message given if method is 'OOB'", {
@@ -289,7 +289,7 @@ test_that("Message given if method is 'OOB'", {
   
   # When gbm_perf is called with method 'OOB'
   # Then a warning is thrown
-  expect_message(gbm_perf(fit, method="OOB"))
+  expect_message(gbm.perf(fit, method="OOB"))
 })
 
 context("gbm_perf return")
@@ -345,12 +345,12 @@ test_that("gbm_perf returns correct best iteration for each method", {
   best_iter_oo <- smoother$x[which.min(-cumsum(smoother$y))]
   
   # When calling gbm_perf with 3 methods
-  iter_t <- gbm_perf(fit, method="test")
-  iter_c <- gbm_perf(fit, method="cv")
-  iter_oo <- gbm_perf(fit, method="OOB")
+  iter_t <- gbm.perf(fit, method="test")
+  iter_c <- gbm.perf(fit, method="cv")
+  iter_oo <- gbm.perf(fit, method="OOB")
   
   # Then correctly calculates best iterations
-  expect_equal(as.numeric(iter_t), best_iter_t)
-  expect_equal(as.numeric(iter_c), best_iter_c)
-  expect_equal(as.numeric(iter_oo), best_iter_oo)
+  expect_equal(iter_t, best_iter_t)
+  expect_equal(iter_c, best_iter_c)
+  expect_equal(iter_oo, best_iter_oo)
 })

@@ -6,9 +6,9 @@ cat("Running least squares regression example.\n")
 N <- 1000
 X1 <- runif(N)
 X2 <- 2*runif(N)
-X3 <- factor(sample(letters[1:4],N,replace=T))
-X4 <- ordered(sample(letters[1:6],N,replace=T))
-X5 <- factor(sample(letters[1:3],N,replace=T))
+X3 <- factor(sample(letters[1:4],N,replace=TRUE))
+X4 <- ordered(sample(letters[1:6],N,replace=TRUE))
+X5 <- factor(sample(letters[1:3],N,replace=TRUE))
 X6 <- 3*runif(N)
 mu <- c(-1,0,1,2)[as.numeric(X3)]
 
@@ -47,9 +47,9 @@ gbm1 <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
 
 str(gbm1,max.level=1)
 # plot the performance
-best.iter <- gbm_perf(gbm1,method="OOB")  # returns out-of-bag estimated best number of trees
-best.iter <- gbm_perf(gbm1,method="test") # returns test set estimate of best number of trees
-best.iter <- gbm_perf(gbm1,method="cv")   # returns cv estimate of best number of trees
+best.iter <- gbmt_performance(gbm1,method="OOB")  # returns out-of-bag estimated best number of trees
+best.iter <- gbmt_performance(gbm1,method="test") # returns test set estimate of best number of trees
+best.iter <- gbmt_performance(gbm1,method="cv")   # returns cv estimate of best number of trees
 
 # plot variable influence
 summary(gbm1,num_trees=1)         # based on the first tree

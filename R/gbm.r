@@ -21,11 +21,12 @@
 #' outcomes, and a gradient boosting implementation to minimize the
 #' AdaBoost exponential loss function.
 #' 
-
-#' \code{gbm} is a depracated function that now acts as a front-end to \code{gbmt_fit}
-#' that uses the familiar R modeling formulas. However, \code{\link[stats]{model.frame}} is
-#' very slow if there are many predictor variables. For power users with many variables use \code{gbm.fit} over 
-#' \code{gbm}; however \code{gbmt} and \code{gbmt_fit} are now the current APIs.
+#' \code{gbm} is a deprecated function that now acts as a front-end to
+#' \code{gbmt_fit} that uses the familiar R modeling
+#' formulas. However, \code{\link[stats]{model.frame}} is very slow if
+#' there are many predictor variables. For power users with many
+#' variables use \code{gbm.fit} over \code{gbm}; however \code{gbmt}
+#' and \code{gbmt_fit} are now the current APIs.
 #' 
 #' @param formula a symbolic description of the model to be fit. The
 #' formula may include an offset term (e.g. y~offset(n)+x). If
@@ -45,10 +46,10 @@
 #' Available distributions are "gaussian" (squared error), "laplace"
 #' (absolute loss), "tdist" (t-distribution loss), "bernoulli"
 #' (logistic regression for 0-1 outcomes), "huberized" (Huberized
-#' hinge loss for 0-1 outcomes), "adaboost" (the AdaBoost
-#' exponential loss for 0-1 outcomes), "poisson" (count outcomes),
-#' "coxph" (right censored observations), "quantile", or "pairwise"
-#' (ranking measure using the LambdaMART algorithm).
+#' hinge loss for 0-1 outcomes), "adaboost" (the AdaBoost exponential
+#' loss for 0-1 outcomes), "poisson" (count outcomes), "coxph" (right
+#' censored observations), "quantile", or "pairwise" (ranking measure
+#' using the LambdaMART algorithm).
 #' 
 #' If quantile regression is specified, \code{distribution} must be a
 #' list of the form \code{list(name="quantile",alpha=0.25)} where
@@ -140,12 +141,13 @@
 #' @param shrinkage a shrinkage parameter applied to each tree in the
 #' expansion. Also known as the learning rate or step-size reduction.
 #'
-#' @param bag.fraction the fraction of independent training observations (or patients)
-#' randomly selected to propose the next tree in the expansion, depending 
-#' on the obs.id vector multiple training data rows may belong to
-#' a single 'patient'. This introduces randomness into the model fit.
-#' If \code{bag.fraction}<1 then running the same model twice will result
-#' in similar but different fits. \code{gbm} uses the R random number generator, so
+#' @param bag.fraction the fraction of independent training
+#' observations (or patients) randomly selected to propose the next
+#' tree in the expansion, depending on the obs.id vector multiple
+#' training data rows may belong to a single 'patient'. This
+#' introduces randomness into the model fit.  If \code{bag.fraction}<1
+#' then running the same model twice will result in similar but
+#' different fits. \code{gbm} uses the R random number generator, so
 #' \code{set.seed} ensures the same model can be
 #' reconstructed. Preferably, the user can save the returned
 #' \code{GBMFit} object using \code{\link{save}}.
@@ -185,12 +187,13 @@
 #' training sets do not contain all classes.
 #'
 #' @param x,y For \code{gbm.fit}: \code{x} is a data frame or data
-#' matrix containing the predictor variables and \code{y} is a matrix of outcomes.
-#' Excluding \code{coxph} this matrix of outcomes collapses to a vector, in the case of
-#' \code{coxph} it is a survival object where the event times fill the first 
-#' one (or two columns) and the status fills the final column. 
-#' The number of rows in \code{x} must be the same as the length of the 1st dimension
-#' of \code{y}.
+#' matrix containing the predictor variables and \code{y} is a matrix
+#' of outcomes.  Excluding \code{coxph} this matrix of outcomes
+#' collapses to a vector, in the case of \code{coxph} it is a survival
+#' object where the event times fill the first one (or two columns)
+#' and the status fills the final column.  The number of rows in
+#' \code{x} must be the same as the length of the 1st dimension of
+#' \code{y}.
 #'
 #' @param w For \code{gbm.fit}: \code{w} is a vector of weights of the same
 #' length as the 1st dimension of \code{y}.
@@ -205,54 +208,41 @@
 #' @param group \code{group} used when \code{distribution =
 #' 'pairwise'.}
 #' 
-#' @param tied.times.method For \code{gbm} and \code{gbm.fit}: This is an optional string used with
-#' \code{CoxPH} distribution specifying what method to employ when dealing with tied times. 
-#' Currently only "efron" and "breslow" are available; the default value is "efron". 
-#' Setting the string to any other value reverts the method to the original CoxPH model
-#' implementation where ties are not explicitly dealt with.
+#' @param tied.times.method For \code{gbm} and \code{gbm.fit}: This is
+#' an optional string used with \code{CoxPH} distribution specifying
+#' what method to employ when dealing with tied times.  Currently only
+#' "efron" and "breslow" are available; the default value is "efron".
+#' Setting the string to any other value reverts the method to the
+#' original CoxPH model implementation where ties are not explicitly
+#' dealt with.
 #' 
-#' @param prior.node.coeff.var Optional double only used with the \code{coxph} distribution.
-#' It is a prior on the coefficient of variation associated with the hazard 
-#' rate assigned to each terminal node when fitting a tree.Increasing its value emphasises 
-#' the importance of the training data in the node when assigning a prediction to said node.
+#' @param prior.node.coeff.var Optional double only used with the
+#' \code{coxph} distribution.  It is a prior on the coefficient of
+#' variation associated with the hazard rate assigned to each terminal
+#' node when fitting a tree.Increasing its value emphasises the
+#' importance of the training data in the node when assigning a
+#' prediction to said node.
 #'
-#' @param strata Optional vector of integers (or factors) only used with the \code{coxph} distributions.
-#' Each integer in this vector represents the stratum the corresponding row in the data belongs to,
-#' e. g. if the 10th element is 3 then the 10th data row belongs to the 3rd strata.
+#' @param strata Optional vector of integers (or factors) only used
+#' with the \code{coxph} distributions.  Each integer in this vector
+#' represents the stratum the corresponding row in the data belongs
+#' to, e. g. if the 10th element is 3 then the 10th data row belongs
+#' to the 3rd strata.
 #' 
-#' @param obs.id Optional vector of integers used to specify which rows of data belong
-#' to individual patients.  Data is then bagged by patient id; the default sets each row of the data
-#' to belong to an individual patient.
+#' @param obs.id Optional vector of integers used to specify which
+#' rows of data belong to individual patients.  Data is then bagged by
+#' patient id; the default sets each row of the data to belong to an
+#' individual patient.
 #' 
 #' @param par.details Details of the parallelization to use in the
-#'     core algorithm.
+#' core algorithm.
 #' 
 #' @param fold.id An optional vector of values identifying what fold
 #' each observation is in. If supplied, cv.folds can be missing. Note:
-#' Multiple observations to the same patient must have the same fold id.
-#' 
-#' 
-#' @usage
-#' gbm(formula = formula(data), distribution = "bernoulli",
-#' data = list(), weights, subset = NULL, offset = NULL, var.monotone
-#' = NULL, n.trees = 100, interaction.depth = 1, n.minobsinnode = 10,
-#' shrinkage = 0.001, bag.fraction = 0.5, train.fraction = 1,
-#' mFeatures = NULL, cv.folds = 0, keep.data = TRUE, verbose = FALSE,
-#' class.stratify.cv = NULL, par.details=getOption('gbm.parallel'), fold.id=NULL, 
-#' tied.times.method = "efron", prior.node.coeff.var = 1000, strata = NA, 
-#' obs.id = 1:nrow(data))
-#' 
-#' gbm.fit(x, y, offset = NULL, distribution = "bernoulli", 
-#' w = NULL, var.monotone = NULL, n.trees = 100, interaction.depth = 1, 
-#' n.minobsinnode = 10, shrinkage = 0.001, bag.fraction = 0.5, 
-#' nTrain = NULL, train.fraction = NULL, mFeatures = NULL, keep.data = TRUE, 
-#' verbose = TRUE, var.names = NULL, response.name = "y", group = NULL,
-#' tied.times.method="efron", prior.node.coeff.var = 1000, strata = NA,
-#'  obs.id = 1:nrow(x))
-#'
-#'
-#' @return \code{gbm} and \code{gbm.fit} return a
-#' \code{GBMFit} object.
+#' Multiple observations to the same patient must have the same fold
+#' id.
+#' @return \code{gbm} and \code{gbm.fit} return a \code{GBMFit}
+#' object.
 #' @author James Hickey, Greg Ridgeway \email{gregridgeway@@gmail.com}
 #' 
 #' Quantile regression code developed by Brian Kriegler
@@ -263,7 +253,7 @@
 #' 
 #' Pairwise code developed by Stefan Schroedl \email{schroedl@@a9.com}
 #' 
-#' @seealso \code{\link{gbmt}}, \code{\link{gbmt_fit}} \code{\link{gbm_perf}},
+#' @seealso \code{\link{gbmt}}, \code{\link{gbmt_fit}} \code{\link{gbmt_performance}},
 #' \code{\link{plot}}, \code{\link{predict.GBMFit}},
 #' \code{\link{summary.GBMFit}}, \code{\link{pretty_gbm_tree}}, \code{\link{gbmParallel}}.
 #' @references Y. Freund and R.E. Schapire (1997) \dQuote{A decision-theoretic
@@ -365,15 +355,15 @@
 #' 
 #' # check performance using an out-of-bag estimator
 #' # OOB underestimates the optimal number of iterations
-#' best_iter <- gbm_perf(gbm1,method="OOB")
+#' best_iter <- gbmt_performance(gbm1,method="OOB")
 #' print(best_iter)
 #' 
 #' # check performance using a 50% heldout test set
-#' best_iter <- gbm_perf(gbm1,method="test")
+#' best_iter <- gbmt_performance(gbm1,method="test")
 #' print(best_iter)
 #' 
 #' # check performance using 3-fold cross-validation
-#' best_iter <- gbm_perf(gbm1,method="cv")
+#' best_iter <- gbmt_performance(gbm1,method="cv")
 #' print(best_iter)
 #' 
 #' # plot the performance # plot variable influence

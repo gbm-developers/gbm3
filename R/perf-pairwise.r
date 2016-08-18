@@ -1,31 +1,28 @@
 #' Performance for pairwise
 #' 
-#' Additional performance using appropriate metric for pairwise distribution fit.
-#' 
-#' @usage perf_pairwise(y, f, group, metric='ndcg', w=NULL, max_rank=0)
+#' Additional performance using appropriate metric for pairwise
+#' distribution fit.
 #' 
 #' @param y responses used for fit.
 #' 
 #' @param f the predicted responses.
 #' 
-#' @param group the indices specifiying which response variables belong to which groups.
+#' @param group the indices specifiying which response variables
+#' belong to which groups.
 #' 
-#' @param metric What type of performance measure to compute in \code{perf_pairwise}.
-#'   Can take values "ir_measure_conc", "ir_measure_mrr", "ir_measure_map" or
-#'   "ir_measure_ndgc".
+#' @param metric What type of performance measure to compute in
+#' \code{perf_pairwise}.  Can take values "ir_measure_conc",
+#' "ir_measure_mrr", "ir_measure_map" or "ir_measure_ndgc".
+#'
 #' @param w is the weights of each observation.
 #' 
 #' @param max_rank the maximum rank considered in the groups measure. 
-
-#' @return \code{gbm_perf} returns the estimated optimal number of iterations.
-#' The method of computation depends on the \code{method} argument.
 #' 
 #' @author Greg Ridgeway \email{gregridgeway@@gmail.com}
 #' 
 #' @seealso \code{\link{gbmt}}
 #' @keywords nonlinear survival nonparametric tree
 #' @export
-
 perf_pairwise <- function(y, f, group, metric="ndcg", w=NULL, max_rank=0){
   func.name <- switch(metric,
                       conc = "ir_measure_conc",

@@ -56,7 +56,7 @@ test_that("Gaussian works - gbm", {
               )                 
   
   # Get best model
-  best.iter <- gbm_perf(gbm1,method="cv")   # returns cv estimate of best number of trees
+  best.iter <- gbm.perf(gbm1,method="cv")   # returns cv estimate of best number of trees
   
   set.seed(2)
   # make some new data
@@ -127,7 +127,7 @@ test_that("CoxPH works - efron - gbm", {
               n.minobsinnode = 10,       # minimum total weight needed in each node
               keep.data = TRUE, tied.times.method = "efron", prior.node.coeff.var = 10)
   
-  best.iter <- gbm_perf(gbm1, method="test") # returns test set estimate of best number of trees
+  best.iter <- gbm.perf(gbm1, method="test") # returns test set estimate of best number of trees
   
   # make some new data
   set.seed(2)
@@ -198,7 +198,7 @@ test_that("CoxPH works - breslow - gbm", {
               n.minobsinnode = 10,       # minimum total weight needed in each node
               keep.data = TRUE, tied.times.method="breslow", prior.node.coeff.var = 10)
   
-  best.iter <- gbm_perf(gbm1,method="test") # returns test set estimate of best number of trees
+  best.iter <- gbm.perf(gbm1,method="test") # returns test set estimate of best number of trees
   
   # make some new data
   set.seed(2)
@@ -334,7 +334,7 @@ test_that("Bernoulli works - gbm", {
               n.minobsinnode = 10      # minimum total weight needed in each node
               )
   
-  best.iter.test <- gbm_perf(gbm1,method="test") # returns test set estimate of best number of trees
+  best.iter.test <- gbm.perf(gbm1,method="test") # returns test set estimate of best number of trees
   
   best.iter <- best.iter.test
   
@@ -450,7 +450,7 @@ test_that("Gaussian works - gbm.fit", {
                   keep.data=TRUE)                 
   
   # Get best model
-  best.iter <- gbm_perf(gbm1, method="test")   # returns cv estimate of best number of trees
+  best.iter <- gbm.perf(gbm1, method="test")   # returns cv estimate of best number of trees
   
   set.seed(2)
   # make some new data
@@ -519,7 +519,7 @@ test_that("CoxPH works - efron - gbm", {
               n.minobsinnode = 10,       # minimum total weight needed in each node
               keep.data = TRUE,tied.times.method = "efron", prior.node.coeff.var = 10)
   
-  best.iter <- gbm_perf(gbm1, method="test") # returns test set estimate of best number of trees
+  best.iter <- gbm.perf(gbm1, method="test") # returns test set estimate of best number of trees
   
   # make some new data
   set.seed(2)
@@ -585,7 +585,7 @@ test_that("CoxPH works - breslow - gbm", {
                   n.minobsinnode = 10,       # minimum total weight needed in each node
                   keep.data = TRUE, tied.times.method = "breslow", prior.node.coeff.var = 10)
   
-  best.iter <- gbm_perf(gbm1, method="test") # returns test set estimate of best number of trees
+  best.iter <- gbm.perf(gbm1, method="test") # returns test set estimate of best number of trees
   
   # make some new data
   set.seed(2)
@@ -643,7 +643,7 @@ test_that("Bernoulli works - gbm", {
               train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
               n.minobsinnode = 10)
   
-  best.iter.test <- gbm_perf(gbm1, method="test") # returns test set estimate of best number of trees
+  best.iter.test <- gbm.perf(gbm1, method="test") # returns test set estimate of best number of trees
   best.iter <- best.iter.test
   
   # make some new data

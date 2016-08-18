@@ -4,29 +4,27 @@
 \alias{perf_pairwise}
 \title{Performance for pairwise}
 \usage{
-perf_pairwise(y, f, group, metric='ndcg', w=NULL, max_rank=0)
+perf_pairwise(y, f, group, metric = "ndcg", w = NULL, max_rank = 0)
 }
 \arguments{
 \item{y}{responses used for fit.}
 
 \item{f}{the predicted responses.}
 
-\item{group}{the indices specifiying which response variables belong to which groups.}
+\item{group}{the indices specifiying which response variables
+belong to which groups.}
 
-\item{metric}{What type of performance measure to compute in \code{perf_pairwise}.
-Can take values "ir_measure_conc", "ir_measure_mrr", "ir_measure_map" or
-"ir_measure_ndgc".}
+\item{metric}{What type of performance measure to compute in
+\code{perf_pairwise}.  Can take values "ir_measure_conc",
+"ir_measure_mrr", "ir_measure_map" or "ir_measure_ndgc".}
 
 \item{w}{is the weights of each observation.}
 
 \item{max_rank}{the maximum rank considered in the groups measure.}
 }
-\value{
-\code{gbm_perf} returns the estimated optimal number of iterations.
-The method of computation depends on the \code{method} argument.
-}
 \description{
-Additional performance using appropriate metric for pairwise distribution fit.
+Additional performance using appropriate metric for pairwise
+distribution fit.
 }
 \author{
 Greg Ridgeway \email{gregridgeway@gmail.com}

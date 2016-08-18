@@ -143,16 +143,16 @@ gauss_fit <- gbmt(Y ~ X1 + X2 + X3 + X4 + X5 + X6,
 ```
 
 ## Identifying the optimal iteration
-A fitted model contains a number of measures of its performance.  Using these measures, the optimal iteration of a `gbm` fit can be identified. The package offers three methods for identifying the optimal iteration of the fit, these are: `'test'`, `'cv'` and `'OOB'`.  The `'test'` method identifies the optimal iteration using the performance of the fit on a set-aside independent test set, this is only available if the number of observations used to fit the model is less than the number of observations in the original data.  The `'cv'` method determines the best iteration number using the cross-validation error provided and finally `'OOB'` selects the best iteration using the out-of-bag error estimate.  Again this is only available if `bag_fraction > 0` and it will under-estimate the optimal number of iterations in the fit.  The optimal iteration number as well as a plot of the performance can then be obtained through a call to `gbm_perf`.  In these performance plots the cross-validation error, test set error and out-of-bag improvement are represented by green, red and blue lines respectively.  The error on the training set is shown as a black line and the optimal iteration is marked with a dashed blue line.
+A fitted model contains a number of measures of its performance.  Using these measures, the optimal iteration of a `gbm` fit can be identified. The package offers three methods for identifying the optimal iteration of the fit, these are: `'test'`, `'cv'` and `'OOB'`.  The `'test'` method identifies the optimal iteration using the performance of the fit on a set-aside independent test set, this is only available if the number of observations used to fit the model is less than the number of observations in the original data.  The `'cv'` method determines the best iteration number using the cross-validation error provided and finally `'OOB'` selects the best iteration using the out-of-bag error estimate.  Again this is only available if `bag_fraction > 0` and it will under-estimate the optimal number of iterations in the fit.  The optimal iteration number as well as a plot of the performance can then be obtained through a call to `gbmt_performance`.  In these performance plots the cross-validation error, test set error and out-of-bag improvement are represented by green, red and blue lines respectively.  The error on the training set is shown as a black line and the optimal iteration is marked with a dashed blue line.
 
 ```{r, message=FALSE}
 # Use gaussian fit and determine the performance
 # red line is testing error
 # green line is cv error
 # blue line is OOB error
-best_iter_test <- gbm_perf(gauss_fit, method='test', plot_it=FALSE)
-best_iter_cv <- gbm_perf(gauss_fit, method='cv', plot_it=FALSE)
-best_iter_oob <- gbm_perf(gauss_fit, method='OOB')
+best_iter_test <- gbmt_performance(gauss_fit, method='test')
+best_iter_cv <- gbmt_performance(gauss_fit, method='cv')
+best_iter_oob <- gbmt_performance(gauss_fit, method='OOB')
 ```
 
 ## Fitting additional trees
@@ -162,7 +162,7 @@ After evaluating the performance it may be the case that the optimal number of i
 # Fit additional trees to gaussian fit and recalculate optimal number of iterations
 gauss_fit_more <- gbm_more(gauss_fit, num_new_trees = 5000) # This is a large number of 
                                                             #extra trees!
-best_iter_test_more <- gbm_perf(gauss_fit_more, method='test')
+best_iter_test_more <- gbmt_performance(gauss_fit_more, method='test')
 ```
 
 ## Predictions on other data
@@ -193,7 +193,7 @@ preds <- predict(gauss_fit_more, new_data=data2, num_trees=best_iter_test_more)
 ```{r}
 # Relative influence of predictors - both examples
 print(relative_influence(gauss_fit_more, best_iter_test_more))
-print(relative_influence(fit, gbm_perf(fit, method='cv', plot_it=FALSE)))
+print(relative_influence(fit, gbmt_performance(fit, method='cv')))
 ```
 
 ## Plotting the marginal effects of selected variables

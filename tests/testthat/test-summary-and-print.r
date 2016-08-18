@@ -74,7 +74,7 @@ test_that("print_perf_measures calculates the performance using test if train_fr
   best_iter <- print_perf_measures(fit)
   
   # Then results equal to gbm_perf with "test" method
-  expect_equal(best_iter, gbm_perf(fit, method="test"))
+  expect_equal(best_iter, gbmt_performance(fit, method="test"))
 })
 test_that("print_perf_measures returns the performance using cv if fit is cross-validated and train_fraction=1", {
   # Given a "correct" GBMFit object - train_fraction=1 and cv_folds > 1
@@ -108,7 +108,7 @@ test_that("print_perf_measures returns the performance using cv if fit is cross-
   best_iter <- print_perf_measures(fit)
   
   # Then results equal to gbm_perf with method="cv"
-  expect_equal(best_iter, gbm_perf(fit, method="cv"))
+  expect_equal(best_iter, gbmt_performance(fit, method="cv"))
 })
 test_that("print_iters_and_dist does not throw error when passed a GBMFit object", {
   # Given a "correct" GBMFit object
@@ -693,6 +693,6 @@ test_that("Summary method returns variables and relative influence ordered by re
   summary_fit_1 <- summary(fit)
   
   # Then the variables are ordered in terms of descending relative influence
-  rel_inf <- relative_influence(fit, gbm_perf(fit, method="cv"))
+  rel_inf <- relative_influence(fit, gbmt_performance(fit, method="cv"))
   expect_equal(as.factor(fit$variables$var_names[order(-rel_inf)]), summary_fit_1$var)
 })

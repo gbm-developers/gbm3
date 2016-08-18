@@ -56,8 +56,8 @@ fit_start_stop <- gbmt(Surv(tstart, tstop, status)~ age + sex + inherit +
                      keep_gbm_data = TRUE)
 
 # Plot performance
-best_iter_right <- gbm_perf(fit_right_cens, method='test', plot_it=FALSE)
-best_iter_stop_start <- gbm_perf(fit_start_stop, method='test', plot_it=FALSE)
+best_iter_right <- gbmt_performance(fit_right_cens, method='test')
+best_iter_stop_start <- gbmt_performance(fit_start_stop, method='test')
 ```
 # Strata Updates
 During the fitting process the original strata vector is updated in the following way.
@@ -118,10 +118,10 @@ fit_efron <- gbmt(Surv(tt, delta)~X1+X2+X3, data=data, distribution=cox_efron,
 
 
 # Evaluate fit 
-gbm_perf(fit_breslow, method='test')
+plot(gbmt_performance(fit_breslow, method='test'))
 legend("topleft", c("training error", "test error", "optimal iteration"),
        lty=c(1, 1, 2), col=c("black", "red", "blue"))
-gbm_perf(fit_efron, method='test')
+plot(gbmt_performance(fit_efron, method='test'))
 legend("topleft", c("training error", "test error", "optimal iteration"),
        lty=c(1, 1, 2), col=c("black", "red", "blue"))
 ```

@@ -1,68 +1,167 @@
-#' GBMT
-#' 
-#' Fits generalized boosted regression models - new API. This prepares the inputs, performing tasks
-#' such as creating cv folds, before calling \code{gbmt_fit} to call the underlying C++ and fit a generalized
-#' boosting model.
-#' 
-#' @usage  gbmt(formula, distribution=gbm_dist("Gaussian"), data, weights=rep(1, nrow(data)),
-#'  offset=rep(0, nrow(data)),
-#'  train_params=training_params(num_trees=2000, interaction_depth=3,
-#'   min_num_obs_in_node=10,shrinkage=0.001, bag_fraction=0.5, id=seq_len(nrow(data)), 
-#'   num_train=round(0.5 * nrow(data)), num_features=ncol(data)-1) ,
-#'  var_monotone=NULL, var_names=NULL, cv_folds=1, cv_class_stratify=FALSE, fold_id=NULL,
-#'  keep_gbm_data=FALSE, par_details=getOption("gbm.parallel"), is_verbose=FALSE)
-#' 
-#' @param formula a symbolic description of the model to be fit.  The formula may include
-#' an offset term (e.g. y~offset(n) + x).
-#' 
-#' @param distribution a \code{GBMDist} object specifying the distribution and any additional
-#'  parameters needed. If not specified then the distribution will be guessed.
-#' 
-#' @param data a data frame containing the variables in the model.  By default, the variables are taken from the 
-#' environment. 
-#' 
-#' @param weights optional vector of weights used in the fitting process.  These weights must be positive but 
-#' need not be normalized. By default they are set to 1 for each data row.
-#' 
-#' @param offset  optional vector specifying the model offset; must be positive.  This defaults to a vector of 0's, the length
-#' of which is equal to the number rows of data.
-#' 
-#' @param train_params  a GBMTrainParams object which specifies the parameters used in growing decision trees.
-#' 
-#' @param var_monotone optional vector, the same length as the number of predictors, indicating the relationship
-#' each variable has with the outcome.  It have a monotone increasing (+1) or decreasing (-1) or an arbitrary relationship.
-#' 
-#' @param var_names a vector of strings of containing the names of the predictor variables.
-#' 
-#' @param cv_folds a positive integer specifying the number of folds to be used in cross-validation of the gbm
-#' fit. If cv_folds > 1 then cross-validation is performed; the default of cv_folds is 1.
-#' 
-#' @param cv_class_stratify a bool specifying whether or not to stratify via response outcome. Currently only 
-#' applies to "Bernoulli" distribution and defaults to false.
-#' 
-#' @param fold_id An optional vector of values identifying what fold
-#' each observation is in. If supplied, cv_folds can be missing. Note:
-#' Multiple rows of the same observation must have the same fold_id.
-#' 
-#' @param keep_gbm_data a bool specifying whether or not the gbm_data object created in this method should be
-#' stored in the results.
-#' 
-#' @param par_details Details of the parallelization to use in the
-#'     core algorithm (\code{\link{gbmParallel}}).
-#'     
-#' @param is_verbose if TRUE, gbmt will print out progress and performance of the fit.
-#' 
-#' @return a \code{GBMFit} object.
-#' 
-#' @export 
-#' 
-
-gbmt <- function(formula, distribution=gbm_dist("Gaussian"), data, weights=rep(1, nrow(data)), offset=rep(0, nrow(data)),
-                 train_params=training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
-                 shrinkage=0.001, bag_fraction=0.5, id=seq_len(nrow(data)), num_train=round(0.5 * nrow(data)), num_features=ncol(data)-1), 
-                 var_monotone=NULL, var_names=NULL,  cv_folds=1, cv_class_stratify=FALSE, fold_id=NULL,
-                 keep_gbm_data=FALSE, par_details=getOption('gbm.parallel'), is_verbose=FALSE) {
-  
+##' GBMT
+##' 
+##' Fits generalized boosted regression models - new API. This
+##' prepares the inputs, performing tasks such as creating cv folds,
+##' before calling \code{gbmt_fit} to call the underlying C++ and fit
+##' a generalized boosting model.
+##' 
+##' @param formula a symbolic description of the model to be fit.  The
+##' formula may include an offset term (e.g. y~offset(n) + x).
+##' 
+##' @param distribution a \code{GBMDist} object specifying the
+##' distribution and any additional parameters needed. If not
+##' specified then the distribution will be guessed.
+##' 
+##' @param data a data frame containing the variables in the model.
+##' By default, the variables are taken from the environment.
+##' 
+##' @param weights optional vector of weights used in the fitting
+##' process.  These weights must be positive but need not be
+##' normalized. By default they are set to 1 for each data row.
+##' 
+##' @param offset optional vector specifying the model offset; must be
+##' positive.  This defaults to a vector of 0's, the length of which
+##' is equal to the number rows of data.
+##' 
+##' @param train_params a GBMTrainParams object which specifies the
+##' parameters used in growing decision trees.
+##' 
+##' @param var_monotone optional vector, the same length as the number
+##' of predictors, indicating the relationship each variable has with
+##' the outcome.  It have a monotone increasing (+1) or decreasing
+##' (-1) or an arbitrary relationship.
+##' 
+##' @param var_names a vector of strings of containing the names of
+##' the predictor variables.
+##' 
+##' @param cv_folds a positive integer specifying the number of folds
+##' to be used in cross-validation of the gbm fit. If cv_folds > 1
+##' then cross-validation is performed; the default of cv_folds is 1.
+##' 
+##' @param cv_class_stratify a bool specifying whether or not to
+##' stratify via response outcome. Currently only applies to
+##' "Bernoulli" distribution and defaults to false.
+##' 
+##' @param fold_id An optional vector of values identifying what fold
+##' each observation is in. If supplied, cv_folds can be
+##' missing. Note: Multiple rows of the same observation must have the
+##' same fold_id.
+##' 
+##' @param keep_gbm_data a bool specifying whether or not the gbm_data
+##' object created in this method should be stored in the results.
+##' 
+##' @param par_details Details of the parallelization to use in the
+##' core algorithm (\code{\link{gbmParallel}}).
+##'     
+##' @param is_verbose if TRUE, gbmt will print out progress and
+##' performance of the fit.
+##' 
+##' @return a \code{GBMFit} object.
+##'
+##' @examples
+##' ## create some data
+##' N <- 1000
+##' X1 <- runif(N)
+##' X2 <- runif(N)
+##' X3 <- factor(sample(letters[1:4],N,replace=TRUE))
+##' mu <- c(-1,0,1,2)[as.numeric(X3)]
+##' 
+##' p <- 1/(1+exp(-(sin(3*X1) - 4*X2 + mu)))
+##' Y <- rbinom(N,1,p)
+##' 
+##' # random weights if you want to experiment with them
+##' w <- rexp(N)
+##' w <- N*w/sum(w)
+##' 
+##' data <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3)
+##' 
+##' \dontrun{
+##' train_params <-
+##'      training_params(num_trees = 3000,
+##'                      shrinkage = 0.001,
+##'                      bag_fraction = 0.5,
+##'                      num_train = N/2,
+##'                      id=seq_len(nrow(data)),
+##'                      min_num_obs_in_node = 10,
+##'                      interaction_depth = 3,
+##'                      num_features = 3)
+##' }
+##'
+##' train_params <-
+##'      training_params(num_trees = 100,
+##'                      shrinkage = 0.001,
+##'                      bag_fraction = 0.5,
+##'                      num_train = N/2,
+##'                      id=seq_len(nrow(data)),
+##'                      min_num_obs_in_node = 10,
+##'                      interaction_depth = 3,
+##'                      num_features = 3)
+##'  
+##' # fit initial model
+##' gbm1 <- gbmt(Y~X1+X2+X3,                # formula
+##'             data=data,                 # dataset
+##'             weights=w,
+##'             var_monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
+##'             distribution=gbm_dist("Bernoulli"),
+##'             train_params = train_params,
+##'             cv_folds=5,                # do 5-fold cross-validation
+##'             is_verbose = FALSE)           # don't print progress
+##' 
+##' # plot the performance
+##' best.iter.oob <- gbmt_performance(gbm1,method="OOB")  # returns out-of-bag estimated best number of trees
+##' plot(best.iter.oob)
+##' print(best.iter.oob)
+##' best.iter.cv <- gbmt_performance(gbm1,method="cv")   # returns 5-fold cv estimate of best number of trees
+##' plot(best.iter.cv)
+##' print(best.iter.cv)
+##' best.iter.test <- gbmt_performance(gbm1,method="test") # returns test set estimate of best number of trees
+##' plot(best.iter.cv)
+##' print(best.iter.test)
+##' 
+##' best.iter <- best.iter.test
+##' 
+##' # plot variable influence
+##' summary(gbm1,num_trees=1)         # based on the first tree
+##' summary(gbm1,num_trees=best.iter) # based on the estimated best number of trees
+##' 
+##' # create marginal plots
+##' # plot variable X1,X2,X3 after "best" iterations
+##' par(mfrow=c(1,3))
+##' plot(gbm1,1,best.iter)
+##' plot(gbm1,2,best.iter)
+##' plot(gbm1,3,best.iter)
+##' par(mfrow=c(1,1))
+##' plot(gbm1,1:2,best.iter) # contour plot of variables 1 and 2 after "best" number iterations
+##' plot(gbm1,2:3,best.iter) # lattice plot of variables 2 and 3 after "best" number iterations
+##' 
+##' # 3-way plot
+##' plot(gbm1,1:3,best.iter)
+##' 
+##' # print the first and last trees
+##' print(pretty_gbm_tree(gbm1,1))
+##' print(pretty_gbm_tree(gbm1, gbm1$params$num_trees))
+##' @export
+gbmt <- function(formula,
+                 distribution=gbm_dist("Gaussian"),
+                 data,
+                 weights=rep(1, nrow(data)),
+                 offset=rep(0, nrow(data)),
+                 train_params=training_params(num_trees=2000,
+                     interaction_depth=3,
+                     min_num_obs_in_node=10,
+                     shrinkage=0.001,
+                     bag_fraction=0.5,
+                     id=seq_len(nrow(data)),
+                     num_train=round(0.5 * nrow(data)),
+                     num_features=ncol(data)-1),
+                 var_monotone=NULL,
+                 var_names=NULL,
+                 cv_folds=1,
+                 cv_class_stratify=FALSE,
+                 fold_id=NULL,
+                 keep_gbm_data=FALSE,
+                 par_details=getOption('gbm.parallel'),
+                 is_verbose=FALSE) {
   # Extract the model
   the_call <- match.call()
   mf <- match.call(expand.dots = FALSE)

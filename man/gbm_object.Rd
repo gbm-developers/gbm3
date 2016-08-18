@@ -23,7 +23,7 @@ function for each boosting iteration}
 length equal to the number of fitted trees containing an out-of-bag estimate
 of the marginal reduction in the expected value of the loss function. The
 out-of-bag estimate uses only the training data and is useful for estimating
-the optimal number of boosting iterations. See \code{\link{gbm_perf}}}
+the optimal number of boosting iterations. See \code{\link{gbmt_performance}}}
 \item{trees}{a list containing the tree structures. The components are best
 viewed using \code{\link{pretty_gbm_tree}}}
 \item{c.splits}{a list of all
