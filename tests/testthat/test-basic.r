@@ -46,7 +46,7 @@ test_that("gaussian works", {
   fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   
-  best_iter <- gbm_perf(fit, method="cv") # returns test set estimate of best number of trees
+  best_iter <- gbmt_performance(fit, method="cv") # returns test set estimate of best number of trees
   
   # Make prediction
   set.seed(2)
@@ -108,7 +108,7 @@ test_that("coxph works - efron", {
   gbm1 <- gbmt(Surv(tt,delta)~X1+X2+X3, data=data, distribution=dist, weights=w, offset=rep(0, N),
                train_params=params, var_monotone=c(0, 0, 0), keep_gbm_data=TRUE, cv_folds=5, is_verbose=FALSE)
   
-  best_iter <- gbm_perf(gbm1, method="test") # returns test set estimate of best number of trees
+  best_iter <- gbmt_performance(gbm1, method="test") # returns test set estimate of best number of trees
   
   # make some new data
   set.seed(2)
@@ -173,7 +173,7 @@ test_that("coxph works - breslow", {
     gbm1 <- gbmt(Surv(tt,delta)~X1+X2+X3, data=data, distribution=dist, weights=w, offset=rep(0, N),
                  train_params=params, var_monotone=c(0, 0, 0), keep_gbm_data=TRUE, cv_folds=5, is_verbose=FALSE)
     
-    best_iter <- gbm_perf(gbm1, method="test") # returns test set estimate of best number of trees
+    best_iter <- gbmt_performance(gbm1, method="test") # returns test set estimate of best number of trees
   
     # make some new data
     set.seed(2)
@@ -323,7 +323,7 @@ test_that("bernoulli works", {
     fit <- gbmt(Y~X1+X2+X3, data=data, distribution=dist, weights=w, offset=offset,
                 train_params=params, var_monotone=c(0, 0, 0), keep_gbm_data=TRUE, cv_folds=5, is_verbose = FALSE)
     
-    best_iter <- gbm_perf(fit, method="test") # returns test set estimate of best number of trees
+    best_iter <- gbmt_performance(fit, method="test") # returns test set estimate of best number of trees
 
     # make some new data
     set.seed(2)

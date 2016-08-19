@@ -37,12 +37,16 @@ test_that("Error thrown if not GBMFit object", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
-                            shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
+  params <- training_params(num_trees=20, interaction_depth=3,
+                            min_num_obs_in_node=10, 
+                            shrinkage=0.005, bag_fraction=0.5,
+                            id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
-  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
-              train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist,
+              weights=w, offset=offset,
+              train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0),
+              keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   
   # When class is not GBMFit
   class(fit) <- "wrong"
@@ -264,6 +268,7 @@ test_that("Relative influence can run with a specified num_trees", {
   # Then relative_influence can run
   expect_error(relative_influence(fit, num_trees = 100), NA)
 })
+
 test_that("num_trees set to gbm_perf with test method if train_fraction < 1 - missing num_trees", {
   ## Based on example in R package
   
@@ -304,7 +309,8 @@ test_that("num_trees set to gbm_perf with test method if train_fraction < 1 - mi
   
   # When num_trees not given
   r1 <- relative_influence(fit)
-  r2 <- relative_influence(fit, num_trees=gbm_perf(fit, method="test", plot_it=FALSE))
+  r2 <- relative_influence(fit,
+                           num_trees=gbmt_performance(fit, method="test"))
   
   # Then relative influence num trees is given by test method in perf
   expect_equal(r1, r2)
@@ -349,7 +355,8 @@ test_that("num_trees set to gbm_perf with cv method if train_fraction = 1 and cv
   
   # When num_trees not given
   r1 <- relative_influence(fit)
-  r2 <- relative_influence(fit, num_trees=gbm_perf(fit, method="cv", plot_it=FALSE))
+  r2 <- relative_influence(fit,
+                           num_trees=gbmt_performance(fit, method="cv"))
   
   # Then relative influence num trees given by cv method in perf
   expect_equal(r1, r2)

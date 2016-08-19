@@ -5,7 +5,7 @@ cat("Running logistic regression example.\n")
 N <- 1000
 X1 <- runif(N)
 X2 <- runif(N)
-X3 <- factor(sample(letters[1:4],N,replace=T))
+X3 <- factor(sample(letters[1:4],N,replace=TRUE))
 mu <- c(-1,0,1,2)[as.numeric(X3)]
 
 p <- 1/(1+exp(-(sin(3*X1) - 4*X2 + mu)))
@@ -32,11 +32,11 @@ gbm1 <- gbmt(Y~X1+X2+X3,                # formula
             is_verbose = FALSE)           # don't print progress
 
 # plot the performance
-best.iter.oob <- gbm_perf(gbm1,method="OOB")  # returns out-of-bag estimated best number of trees
+best.iter.oob <- gbmt_performance(gbm1,method="OOB")  # returns out-of-bag estimated best number of trees
 print(best.iter.oob)
-best.iter.cv <- gbm_perf(gbm1,method="cv")   # returns 5-fold cv estimate of best number of trees
+best.iter.cv <- gbmt_performance(gbm1,method="cv")   # returns 5-fold cv estimate of best number of trees
 print(best.iter.cv)
-best.iter.test <- gbm_perf(gbm1,method="test") # returns test set estimate of best number of trees
+best.iter.test <- gbmt_performance(gbm1,method="test") # returns test set estimate of best number of trees
 print(best.iter.test)
 
 best.iter <- best.iter.test
@@ -66,7 +66,7 @@ print(pretty_gbm_tree(gbm1, gbm1$params$num_trees))
 N <- 1000
 X1 <- runif(N)
 X2 <- runif(N)
-X3 <- factor(sample(letters[1:4],N,replace=T))
+X3 <- factor(sample(letters[1:4],N,replace=TRUE))
 mu <- c(-1,0,1,2)[as.numeric(X3)]
 
 p <- 1/(1+exp(-(sin(3*X1) - 4*X2 + mu)))

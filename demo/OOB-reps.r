@@ -359,12 +359,12 @@ for(i.data in i.datasets)
                   n.trees=1000,
                   verbose = FALSE)
 
-      best.iter.oob <- gbm_perf(gbm1,method="OOB",plot_it=FALSE)
+      best.iter.oob <- gbmt_performance(gbm1,method="OOB")
       while((gbm1$params$num_trees-best.iter.oob < 1000) &&
             !all(gbm1$oobag.improve[(gbm1$params$num_trees-100):gbm1$params$num_trees] < 1e-6))
       {
          gbm1 <- gbm_more(gbm1,1000)
-         best.iter.oob <- gbm_perf(gbm1, method="OOB", plot_it=FALSE)
+         best.iter.oob <- gbmt_performance(gbm1, method="OOB")
       }
       pred.oob[i.valid] <- predict(gbm1,
                                     new_data=dataset[[i.data]]$data[i.valid,],
@@ -381,12 +381,12 @@ for(i.data in i.datasets)
                   shrinkage=dataset[[i.data]]$shrinkage,
                   n.trees=1000,
                   verbose = FALSE)
-      best.iter.test <- gbm_perf(gbm1, method="test", plot_it=FALSE)
+      best.iter.test <- gbmt_performance(gbm1, method="test")
       while((gbm1$params$num_trees-best.iter.test < 1000) &&
             !all(abs(gbm1$valid.error[(gbm1$params$num_trees-100):gbm1$params$num_trees]) < 1e-6))
       {
          gbm1 <- gbm_more(gbm1,1000)
-         best.iter.test <- gbm_perf(gbm1,method="test",plot_it=FALSE)
+         best.iter.test <- gbmt_performance(gbm1,method="test")
       }
       pred.test33[i.valid] <- predict(gbm1,
                                     new_data=dataset[[i.data]]$data[i.valid,],
@@ -403,12 +403,12 @@ for(i.data in i.datasets)
                   shrinkage=dataset[[i.data]]$shrinkage,
                   n.trees=1000,
                   verbose = FALSE)
-      best.iter.test <- gbm_perf(gbm1, method="test", plot_it=FALSE)
+      best.iter.test <- gbmt_performance(gbm1, method="test")
       while((gbm1$params$num_trees-best.iter.test < 1000) &&
             !all(abs(gbm1$valid.error[(gbm1$params$num_trees-100):gbm1$params$num_trees]) < 1e-6))
       {
          gbm1 <- gbm_more(gbm1,1000)
-         best.iter.test <- gbm_perf(gbm1, method="test", plot_it=FALSE)
+         best.iter.test <- gbmt_performance(gbm1, method="test")
       }
       pred.test20[i.valid] <-
          predict(gbm1,

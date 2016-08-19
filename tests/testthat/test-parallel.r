@@ -32,8 +32,10 @@ test_that("gaussian works in parallel", {
   data <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3,X4=X4,X5=X5,X6=X6)
   
   # Set up training parameters and 
-  params <- training_params(num_trees=2000, interaction_depth=3, min_num_obs_in_node=10, 
-                            shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
+  params <- training_params(num_trees=2000, interaction_depth=3,
+                            min_num_obs_in_node=10, 
+                            shrinkage=0.005, bag_fraction=0.5,
+                            id=seq(nrow(data)), num_train=N/2, num_features=6)
   
   # fit initial model
   gbm1 <- gbmt(Y~X1+X2+X3+X4+X5+X6,         # formula
@@ -45,7 +47,7 @@ test_that("gaussian works in parallel", {
   )                 
   
   # Get best model
-  best_iter <- gbm_perf(gbm1,method="cv")   # returns cv estimate of best number of trees
+  best_iter <- gbmt_performance(gbm1,method="cv")   # returns cv estimate of best number of trees
   
   set.seed(2)
   # make some new data
@@ -121,7 +123,7 @@ test_that("gaussian works in parallel- old api", {
                 )                 
 
     # Get best model
-    best_iter <- gbm_perf(gbm1,method="cv")   # returns cv estimate of best number of trees
+    best_iter <- gbmt_performance(gbm1,method="cv")   # returns cv estimate of best number of trees
     
     set.seed(2)
     # make some new data

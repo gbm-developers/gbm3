@@ -1,33 +1,35 @@
 # Performance Plots
 # 
-# Plot the performance of a GBMFit object produced by calling \code{\link{gbmt}}. This
-# function is used in \code{\link{gbm_perf}}.
+# Plot the performance of a GBMFit object produced by calling
+# \code{\link{gbmt}}. This function is used in
+# \code{\link{plot.GBMTPerformance}}.
 # 
-# @usage perf_plot(gbm_fit_obj, best_iter, out_of_bag_curve, overlay, method, main)
 # 
 # @param gbm_fit_obj a \code{GBMFit} created from an initial call to
 # \code{\link{gbmt}}.
 # 
-# @param best_iter iteration specifying the optimum number of iterations. This is determined in
-#  \code{\link{gbm_perf}}.
+# @param best_iter iteration specifying the optimum number of
+# iterations. This is determined in \code{\link{gbmt_performance}}.
 # 
-# @param out_of_bag_curve logical indicating whether to plot the out-of-bag performance
-# measures in a second plot.
+# @param out_of_bag_curve logical indicating whether to plot the
+# out-of-bag performance measures in a second plot.
 # 
-# @param overlay if TRUE and out_of_bag_curve=TRUE then a right y-axis is added to
-# the training and test error plot and the estimated cumulative improvement in
-# the loss function is plotted versus the iteration number.
+# @param overlay if TRUE and out_of_bag_curve=TRUE then a right y-axis
+# is added to the training and test error plot and the estimated
+# cumulative improvement in the loss function is plotted versus the
+# iteration number.
 # 
-# @param method indicate the method used to estimate the optimal number of
-# boosting iterations. \code{method="OOB"} computes the out-of-bag estimate
-# and \code{method="test"} uses the test (or validation) dataset to compute an
-# out-of-sample estimate. \code{method="cv"} extracts the optimal number of
-# iterations using cross-validation if \code{gbmt} was called with \code{cv_folds}>1.
+# @param method indicate the method used to estimate the optimal
+# number of boosting iterations. \code{method="OOB"} computes the
+# out-of-bag estimate and \code{method="test"} uses the test (or
+# validation) dataset to compute an out-of-sample
+# estimate. \code{method="cv"} extracts the optimal number of
+# iterations using cross-validation if \code{gbmt} was called with
+# \code{cv_folds}>1.
 # 
 # @param main the main title for the plot.
-# 
-
-perf_plot <- function(gbm_fit_obj, best_iter, out_of_bag_curve, overlay, method, main) {
+perf_plot <- function(gbm_fit_obj, best_iter, out_of_bag_curve,
+                      overlay, method, main) {
   # Check inputs
   check_if_gbm_fit(gbm_fit_obj)
   if(!is.logical(overlay) || (length(overlay)) > 1 || is.na(overlay))

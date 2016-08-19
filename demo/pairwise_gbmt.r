@@ -61,7 +61,7 @@ gbm.gaussian <- gbmt(Y~X1+X2+X3,      # formula
 )             # use a single core (to prevent possible problems caused by wronly detecting cores)
 
 # estimate number of trees
-best.iter.gaussian <- gbm_perf(gbm.gaussian, method="cv")
+best.iter.gaussian <- gbmt_performance(gbm.gaussian, method="cv")
 title('Training of gaussian model')
 
 cat('Fitting a model with pairwise loss function (ranking metric: normalized discounted cumulative gain)\n')
@@ -78,7 +78,7 @@ gbm.ndcg <- gbmt(Y~X1+X2+X3,          # formula
                 is_verbose = FALSE     # don't print progress
 )         # use a single core
 # estimate number of trees
-best.iter.ndcg <- gbm_perf(gbm.ndcg, method='cv')
+best.iter.ndcg <- gbmt_performance(gbm.ndcg, method='cv')
 title('Training of pairwise model with ndcg metric')
 
 cat('Fit a model with pairwise loss function (ranking metric: fraction of concordant pairs)\n')
@@ -96,7 +96,7 @@ gbm.conc <- gbmt(Y~X1+X2+X3,          # formula
 )         # use a single core
 
 # estimate number of trees
-best.iter.conc <- gbm_perf(gbm.conc, method='cv')
+best.iter.conc <- gbmt_performance(gbm.conc, method='cv')
 title('Training of pairwise model with conc metric')
 
 

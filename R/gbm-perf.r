@@ -4,41 +4,63 @@
 #' \code{GBMFit} object and optionally plots various performance
 #' measures.
 #'
-#' @param plot_it an indicator of whether or not to plot the
-#' performance measures. 
-#' @inheritParams gbmt_performance
-#' @inheritParams plot.GBMTPerformance
+#' @param object a \code{GBMFit} object created from an initial
+#' call to \code{\link{gbmt}} or \code{\link{gbm}}.
 #'
-#' @return \code{gbm_perf} returns the estimated optimal number of
-#' iterations.  The method of computation depends on the \code{method}
-#' argument.
+#' @param plot.it an indicator of whether or not to plot the
+#' performance measures. Setting \code{plot.it=TRUE} creates two
+#' plots. The first plot plots \code{object$train.error} (in black)
+#' and \code{object$valid.error} (in red) versus the iteration
+#' number. The scale of the error measurement, shown on the left
+#' vertical axis, depends on the \code{distribution} argument used in
+#' the initial call.
+#'
+#' @param oobag.curve indicates whether to plot the out-of-bag
+#' performance measures in a second plot.
+#'
+#' @param overlay if TRUE and oobag.curve=TRUE then a right y-axis is
+#' added to the training and test error plot and the estimated
+#' cumulative improvement in the loss function is plotted versus the
+#' iteration number.
+#' 
+#' @param method indicate the method used to estimate the optimal
+#' number of boosting iterations. \code{method="OOB"} computes the
+#' out-of-bag estimate and \code{method="test"} uses the test (or
+#' validation) dataset to compute an out-of-sample
+#' estimate. \code{method="cv"} extracts the optimal number of
+#' iterations using cross-validation if \code{gbm} was called with
+#' \code{cv.folds}>1.
+#' 
+#' @param main the main title for the plot. Defaults to \code{main =
+#' ""}.
+#'
+#' @return \code{gbm.perf} returns the estimated optimal number of iterations.
+#' The method of computation depends on the \code{method} argument.
+#' 
 #' @seealso \code{\link{gbmt}} \code{\link{gbmt_performance}}
 #' \code{\link{plot.GBMTPerformance}}
+#'
 #' @keywords nonlinear survival nonparametric tree
+#'
 #' @export
-gbm_perf <- function(gbm_fit_obj, plot_it=TRUE, 
-                     out_of_bag_curve=FALSE,
+gbm.perf <- function(object,
+                     plot.it=TRUE,
+                     oobag.curve=FALSE,
                      overlay=TRUE,
                      method,
                      main="") {
-    if(!is.logical(plot_it) || (length(plot_it)) > 1 || is.na(plot_it))
-        stop("plot_it must be a logical - excluding NA")
+    if(!is.logical(plot.it) || (length(plot.it)) > 1 || is.na(plot.it))
+        stop("plot.it must be a logical - excluding NA")
 
-    ## guess the method (to match old gbm.perf)
-    if (missing(method)) {
-        method <- guess_error_method(gbm_fit_obj)
-        message("Using ", method, " method...")
-    }
-
-    performance <- gbmt_performance(gbm_fit_obj, method)
-    if (plot_it) {
+    performance <- gbmt_performance(object, method)
+    if (plot.it) {
         plot(performance,
-             out_of_bag_curve=out_of_bag_curve,
+             out_of_bag_curve=oobag.curve,
              overlay=overlay,
              main=main)
     }
 
-    summary(performance)
+    as.numeric(performance)
 }
 
 ##' Get performance details for gbm fit
@@ -57,40 +79,51 @@ gbm_perf <- function(gbm_fit_obj, plot_it=TRUE,
 ##' estimate. \code{method="cv"} extracts the optimal number of
 ##' iterations using cross-validation if \code{gbmt} was called with
 ##' \code{cv_folds}>1.
-##' @return a GBMTPerformance object
+##'
+##' @return a GBMTPerformance object, which is a number - the optimal
+##' iteration number - with various attributes.
 ##' @export
 gbmt_performance <- function(gbm_fit_obj, method) {
     check_if_gbm_fit(gbm_fit_obj)
+
+    ## guess the method
+
+    if (missing(method)) {
+        method <- guess_error_method(gbm_fit_obj)
+        message("Using ", method, " method...")
+    }
     
-    best_iter <-
+    result <-
         switch(method,
                OOB=best_iter_out_of_bag(gbm_fit_obj),
                cv=best_iter_cv(gbm_fit_obj),
                test=best_iter_test(gbm_fit_obj),
                stop("method must be cv, test, or OOB"))
 
-    result <- list(best_iter=best_iter,
-                   method=method,
-                   gbm_fit_obj=gbm_fit_obj)
+    attr(result, 'decoration') <-
+        list(method=method,
+             gbm_fit_obj=gbm_fit_obj)
     class(result) <- "GBMTPerformance"
     result
 }
 
+
 ##' @export
-summary.GBMTPerformance <- function(object, ...) {
-    object$best_iter
+as.double.GBMTPerformance <- function(x, ...) {
+    as.double(unclass(x))
 }
 
 ##' @export
 print.GBMTPerformance <- function(x, ...) {
+    decoration <- attr(x, 'decoration')
     method_descriptor <-
-        switch(x$method,
+        switch(decoration$method,
                cv="cross-validation",
                test="test-set",
                OOB="out-of-bag",
                stop("Unknown method."))
     
-    cat("The best ", method_descriptor, " iteration was ", x$best_iter, ".\n",
+    cat("The best ", method_descriptor, " iteration was ", x, ".\n",
         sep="")
     invisible(x)
 }
@@ -126,9 +159,10 @@ plot.GBMTPerformance <- function(x,
                                  out_of_bag_curve=FALSE,
                                  overlay=TRUE,
                                  main="", ...) {
-    perf_plot(x$gbm_fit_obj, x$best_iter,
+    decoration <- attr(x, 'decoration')
+    perf_plot(decoration$gbm_fit_obj, x,
               out_of_bag_curve, overlay,
-              x$method,
+              decoration$method,
               main)
 }
 

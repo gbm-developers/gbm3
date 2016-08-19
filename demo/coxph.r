@@ -6,7 +6,7 @@ set.seed(1)
 N <- 3000
 X1 <- runif(N)
 X2 <- runif(N)
-X3 <- factor(sample(letters[1:4],N,replace=T))
+X3 <- factor(sample(letters[1:4],N,replace=TRUE))
 mu <- c(-1,0,1,2)[as.numeric(X3)]
 
 f <- 0.5*sin(3*X1 + 5*X2^2 + mu/10)
@@ -41,11 +41,11 @@ gbm1 <- gbm(Surv(tt,delta)~X1+X2+X3,       # formula
             verbose = FALSE)           # don't print progress
 
 # plot the performance
-best.iter <- gbm_perf(gbm1,method="OOB")  # returns out-of-bag estimated best number of trees
+best.iter <- gbmt_performance(gbm1,method="OOB")  # returns out-of-bag estimated best number of trees
 print(best.iter)
-best.iter <- gbm_perf(gbm1,method="cv") # returns test set estimate of best number of trees
+best.iter <- gbmt_performance(gbm1,method="cv") # returns test set estimate of best number of trees
 print(best.iter)
-best.iter <- gbm_perf(gbm1,method="test") # returns test set estimate of best number of trees
+best.iter <- gbmt_performance(gbm1,method="test") # returns test set estimate of best number of trees
 print(best.iter)
 
 # plot variable influence
@@ -72,7 +72,7 @@ pretty_gbm_tree(gbm1,gbm1$params$num_trees)
 N <- 1000
 X1 <- runif(N)
 X2 <- runif(N)
-X3 <- factor(sample(letters[1:4],N,replace=T))
+X3 <- factor(sample(letters[1:4],N,replace=TRUE))
 mu <- c(-1,0,1,2)[as.numeric(X3)]
 
 f <- 0.5*sin(3*X1 + 5*X2^2 + mu/10)
