@@ -1,32 +1,31 @@
 #' Relative influence via permutation
 #' 
-#' Calculates the relative influence of predictors via random permutation
-#' of each predictor one at a time and calculating the associated reduction in predictive
-#' performance.  This experimental measure is similar to the variable importance measures
-#' Breiman uses for random forests, but \code{\link{gbmt}} currently computes using the
-#' entire training dataset (not the out-of-bag observations).
+#' Calculates the relative influence of predictors via random
+#' permutation of each predictor one at a time and calculating the
+#' associated reduction in predictive performance.  This experimental
+#' measure is similar to the variable importance measures Breiman uses
+#' for random forests, but \code{\link{gbmt}} currently computes using
+#' the entire training dataset (not the out-of-bag observations).
 #' 
-#' @usage permutation_relative_influence(gbm_fit_obj, num_trees, rescale=FALSE, 
-#' sort_it=FALSE)
+#' @param gbm_fit_obj a \code{GBMFit} object from an initial call to
+#' \code{\link{gbmt}}. This fitted object requires
 #' 
-#' @param gbm_fit_obj a \code{GBMFit} object from an initial call to \code{\link{gbmt}}. This
-#' fitted object requires 
+#' @param num_trees the number of trees to use for computations. If
+#' not provided, the function will guess: if a test set was used in
+#' fitting, the number of trees resulting in lowest test set error
+#' will be used; otherwise, if cross-validation was performed, the
+#' number of trees resulting in lowest cross-validation error will be
+#' used; otherwise, all trees will be used.
 #' 
-#' @param num_trees the number of trees to use for computations. If not provided,
-#' the function will guess: if a test set was used in fitting, the number of
-#' trees resulting in lowest test set error will be used; otherwise, if
-#' cross-validation was performed, the number of trees resulting in lowest
-#' cross-validation error will be used; otherwise, all trees will be used.
+#' @param rescale whether or not the result should be scaled. Defaults
+#' to \code{FALSE}.
 #' 
-#' @param rescale  whether or not the result should be scaled. Defaults to
-#' \code{FALSE}.
+#' @param sort_it whether or not the results should be (reverse)
+#' sorted.  Defaults to \code{FALSE}.
 #' 
-#' @param sort_it  whether or not the results should be (reverse) sorted.
-#' Defaults to \code{FALSE}.
-#' 
-#' @return By default, returns an unprocessed vector of estimated relative
-#' influences. If the \code{rescale} and \code{sort} arguments are used,
-#' returns a processed version of the same.
+#' @return By default, returns an unprocessed vector of estimated
+#' relative influences. If the \code{rescale} and \code{sort}
+#' arguments are used, returns a processed version of the same.
 #' 
 #' @author Greg Ridgeway \email{gregridgeway@@gmail.com}
 #'
@@ -35,9 +34,10 @@
 #' Forests}.
 #' @keywords hplot
 #' @export 
-#' 
-
-permutation_relative_influence <- function(gbm_fit_obj, num_trees, rescale=FALSE, sort_it=FALSE) {
+permutation_relative_influence <- function(gbm_fit_obj,
+                                           num_trees,
+                                           rescale=FALSE,
+                                           sort_it=FALSE) {
   # Checks initial inputs
   check_if_gbm_fit(gbm_fit_obj)
   check_if_natural_number(num_trees)
@@ -72,7 +72,9 @@ permutation_relative_influence <- function(gbm_fit_obj, num_trees, rescale=FALSE
   for(i in seq_len(length(variables_indices))) {
     # Shuffle  predictor variables
     x[ ,variables_indices[i]]  <- x[shuffled_rows, variables_indices[i]]
-    new_preds <- predict(gbm_fit_obj, new_data=as.data.frame(x), num_trees=num_trees)
+    new_preds <- predict(gbm_fit_obj,
+                         newdata=as.data.frame(x),
+                         n.trees=num_trees)
     
     # Calculate loss with shuffled data
     rel_inf[variables_indices[i]] <- loss(y, new_preds, weights, offset,

@@ -14,7 +14,7 @@ test_that("predicts correctly on unknown levels (issue #18)", {
              data=train, 
              train_params=params
              )
-    p <- predict(g, new_data=test, num_trees=1) - g$initF
+    p <- predict(g, newdata=test, n.trees=1) - g$initF
     if (sum(abs(p)) != 0) break
   }
   
@@ -50,7 +50,7 @@ test_that("predicts correctly on unknown levels (issue #18) - old api", {
                  n.trees=1,
                  shrinkage=1,
                  n.minobsinnode=1)
-        p <- predict(g, new_data=test, num_trees=1) - g$initF
+        p <- predict(g, newdata=test, n.trees=1) - g$initF
         if (sum(abs(p)) != 0) break
     }
 

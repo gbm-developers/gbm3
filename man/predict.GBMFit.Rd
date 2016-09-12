@@ -4,29 +4,31 @@
 \alias{predict.GBMFit}
 \title{Predict method for GBM Model Fits}
 \usage{
-\method{predict}{GBMFit}(object, new_data, num_trees, type = "link",
-  single_tree = FALSE, ...)
+\method{predict}{GBMFit}(object, newdata, n.trees, type = "link",
+  single.tree = FALSE, ...)
 }
 \arguments{
 \item{object}{Object of class inheriting from \code{GBMFit}.}
 
-\item{new_data}{Data frame of observations for which to make predictions}
+\item{newdata}{Data frame of observations for which to make
+predictions}
 
-\item{num_trees}{Number of trees used in the prediction. If \code{num_trees} is
-a vector, predictions are returned for each iteration specified.}
+\item{n.trees}{Number of trees used in the prediction. If
+\code{n.trees} is a vector, predictions are returned for each
+iteration specified.}
 
 \item{type}{The scale on which gbm makes the predictions}
 
-\item{single_tree}{If \code{single_tree=TRUE} then \code{gbm_predict}
-returns only the predictions from tree(s) \code{num_trees}}
+\item{single.tree}{If \code{single.tree=TRUE} then \code{gbm_predict}
+returns only the predictions from tree(s) \code{n.trees}}
 
 \item{\dots}{further arguments passed to or from other methods}
 }
 \value{
-Returns a vector of predictions. By default the predictions are on
-the scale of f(x). For example, for the Bernoulli loss the returned value is
-on the log odds scale, poisson loss on the log scale, and coxph is on the
-log hazard scale.
+Returns a vector of predictions. By default the predictions
+are on the scale of f(x). For example, for the Bernoulli loss the
+returned value is on the log odds scale, poisson loss on the log
+scale, and coxph is on the log hazard scale.
 
 If \code{type="response"} then \code{gbmt} converts back to the same scale as
 the outcome. Currently the only effect this will have is returning
@@ -34,22 +36,27 @@ probabilities for bernoulli and expected counts for poisson. For the other
 distributions "response" and "link" return the same.
 }
 \description{
-Predicted values based on a generalized boosted model object - from gbmt
+Predicted values based on a generalized boosted model object - from
+gbmt
 }
 \details{
-\code{gbm_predict} produces predicted values for each observation in a new_data_set
-\code{new_data} using the first \code{num_trees} iterations of the boosting
-sequence. If \code{num_trees} is a vector than the result is a matrix with
-each column representing the predictions from gbm models with
-\code{num_trees[1]} iterations, \code{num_trees[2]} iterations, and so on.
+\code{predict.GBMFit} produces predicted values for each
+observation in a new dataset \code{newdata} using the first
+\code{num_trees} iterations of the boosting sequence. If
+\code{num_trees} is a vector than the result is a matrix with each
+column representing the predictions from gbm models with
+\code{num_trees[1]} iterations, \code{num_trees[2]} iterations, and
+so on.
 
-The predictions from \code{gbmt} do not include the offset term. The user may
-add the value of the offset to the predicted value if desired.
+The predictions from \code{gbmt} do not include the offset
+term. The user may add the value of the offset to the predicted
+value if desired.
 
-If \code{gbm_fit_obj} was fit using \code{\link{gbmt}}, there will be no
-\code{Terms} component. Therefore, the user has greater responsibility to
-make sure that \code{new_data} is of the same format (order and number of
-variables) as the one originally used to fit the model.
+If \code{gbm_fit_obj} was fit using \code{\link{gbmt}}, there will
+be no \code{Terms} component. Therefore, the user has greater
+responsibility to make sure that \code{newdata} is of the same
+format (order and number of variables) as the one originally used
+to fit the model.
 }
 \seealso{
 \code{\link{gbmt}}

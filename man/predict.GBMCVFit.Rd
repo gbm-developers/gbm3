@@ -10,12 +10,14 @@
 \arguments{
 \item{object}{a GBMCVFit object containing CV gbm models}
 
-\item{gbm_data_obj}{a GBMData object containing all of the data used to fit a gbm model.}
+\item{gbm_data_obj}{a GBMData object containing all of the data
+used to fit a gbm model.}
 
-\item{cv_folds}{a positive integer specifying the number of folds to be used in cross-validation of the gbm
-fit.}
+\item{cv_folds}{a positive integer specifying the number of folds
+to be used in cross-validation of the gbm fit.}
 
-\item{cv_group}{vector of integers specifying which row of data belongs to which cv_fold.}
+\item{cv_group}{vector of integers specifying which row of data
+belongs to which cv_fold.}
 
 \item{best_iter_cv}{number of trees with the smallest cv error}
 
@@ -25,7 +27,8 @@ fit.}
 a matrix of predictions for each cv fold.
 }
 \description{
-Calculate predictions from cross validated generalized boosting model from gbm2.
+Calculate predictions from cross validated generalized boosting
+model from gbm2.
 }
 \author{
 James Hickey
