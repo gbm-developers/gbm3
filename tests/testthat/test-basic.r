@@ -339,7 +339,7 @@ test_that("bernoulli works", {
 
     # predict on the new data using "best" number of trees
     # f.predict will be on the canonical scale (logit,log,etc.)
-    f.1.predict <- predict(fit, data2, num_trees=best_iter)
+    f.1.predict <- predict(fit, data2, n.trees=best_iter)
 
     # compute quantity prior to transformation
     f.new = sin(3*X1) - 4*X2 + mu

@@ -184,7 +184,7 @@ Y <- Y + rnorm(N,0,sigma)
 data2 <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3,X4=X4,X5=X5,X6=X6)
 
 # Then predictions can be made
-preds <- predict(gauss_fit_more, new_data=data2, num_trees=best_iter_test_more)
+preds <- predict(gauss_fit_more, newdata=data2, n.trees=best_iter_test_more)
 ```
 
 ## Relative influence of predictors

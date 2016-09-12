@@ -118,7 +118,7 @@ test_that("Error thrown if data is missing", {
   
   # When calling predict without data
   # Then an error will be thrown
-  expect_error(predict(fit, num_trees=length(fit$trees)), "new_data must be provided as a data frame")
+  expect_error(predict(fit, n.trees=length(fit$trees)), "newdata must be provided as a data frame")
 })
 test_that("Error thrown if data is not in data.frame", {
   # Given a fit and data
@@ -175,10 +175,11 @@ test_that("Error thrown if data is not in data.frame", {
   
   # When calling predict with data not in data.frame
   # Then an error will be thrown
-  expect_error(predict(fit, new_data=as.list(data2), num_trees=length(fit$trees)), 
-               "new_data must be provided as a data frame")
+  expect_error(predict(fit, newdata=as.list(data2),
+                       n.trees=length(fit$trees)), 
+               "newdata must be provided as a data frame")
 })
-test_that("Error thrown if num_trees not provided", {
+test_that("Error thrown if n.trees not provided", {
   # Given a fit and data
   ## test Gaussian distribution gbm model
   set.seed(1)
@@ -235,7 +236,7 @@ test_that("Error thrown if num_trees not provided", {
   # Then an error will be thrown
   expect_error(predict(fit, data2), "Number of trees to be used in prediction must be provided.")
 })
-test_that("Error thrown if num_trees is NULL or vector of 0 length", {
+test_that("Error thrown if n.trees is NULL or vector of 0 length", {
   # Given a fit and data
   ## test Gaussian distribution gbm model
   set.seed(1)
@@ -290,10 +291,10 @@ test_that("Error thrown if num_trees is NULL or vector of 0 length", {
   
   # When calling predict with number of trees NULL or length 0
   # Then an error will be thrown
-  expect_error(predict(fit, data2, NULL), "num_trees cannot be NULL or a vector of zero length")
-  expect_error(predict(fit, data2, c()), "num_trees cannot be NULL or a vector of zero length")
+  expect_error(predict(fit, data2, NULL), "n.trees cannot be NULL or a vector of zero length")
+  expect_error(predict(fit, data2, c()), "n.trees cannot be NULL or a vector of zero length")
 })
-test_that("Error thrown if num_trees has element which is not an integer", {
+test_that("Error thrown if n.trees has element which is not an integer", {
   # Given a fit and data
   ## test Gaussian distribution gbm model
   set.seed(1)
@@ -348,7 +349,7 @@ test_that("Error thrown if num_trees has element which is not an integer", {
   
   # When calling predict with number of trees containing an element which isn't an integer
   # Then an error will be thrown
-  expect_error(predict(fit, data2, num_trees=c(1, -1.2)), "num_trees must be a vector of positive integers")
+  expect_error(predict(fit, data2, n.trees=c(1, -1.2)), "n.trees must be a vector of positive integers")
 })
 test_that("Warning thrown if offset was in original fit", {
   # Given a fit and data
@@ -408,7 +409,7 @@ test_that("Warning thrown if offset was in original fit", {
   expect_warning(predict(fit, data2, length(fit$trees)), 
                  "predict.GBMFit does not add the offset to the predicted values.")
 })
-test_that("Warning thrown if num_trees exceeds number in original fit", {
+test_that("Warning thrown if n.trees exceeds number in original fit", {
   # Given a fit and data
   ## test Gaussian distribution gbm model
   set.seed(1)
@@ -566,13 +567,13 @@ test_that("type='response' scales predictions", {
   data2 <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3)
   
   # When calling predict with type = response
-  preds <- predict(fit, data2, num_trees=length(fit$trees), type='response')
-  preds_link <- predict(fit, data2, num_trees=length(fit$trees), type='link')
+  preds <- predict(fit, data2, n.trees=length(fit$trees), type='response')
+  preds_link <- predict(fit, data2, n.trees=length(fit$trees), type='link')
   
   # Then type=response predictions are scaled
   expect_equal(preds, adjust_pred_scale(preds_link, fit$distribution))
 })
-test_that("Output is matrix if length(num_trees) > 1", {
+test_that("Output is matrix if length(n.trees) > 1", {
   # Given a fit and data
   set.seed(1)
   
@@ -612,13 +613,13 @@ test_that("Output is matrix if length(num_trees) > 1", {
   Y <- rbinom(N,1,p)
   data2 <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3)
   
-  # When calling predict with length num_trees > 1
-  preds <- predict(fit, data2, num_trees=c(50, 100))
+  # When calling predict with length n.trees > 1
+  preds <- predict(fit, data2, n.trees=c(50, 100))
 
   # Then output is a matrix
   expect_true(is.matrix(preds))
 })
-test_that("Output is vector if length(num_trees) == 1", {
+test_that("Output is vector if length(n.trees) == 1", {
   # Given a fit and data
   set.seed(1)
   
@@ -658,13 +659,13 @@ test_that("Output is vector if length(num_trees) == 1", {
   Y <- rbinom(N,1,p)
   data2 <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3)
   
-  # When calling predict with length num_trees = 1
-  preds <- predict(fit, data2, num_trees=length(fit$trees), type='response')
+  # When calling predict with length n.trees = 1
+  preds <- predict(fit, data2, n.trees=length(fit$trees), type='response')
 
   # Then output is a vector
   expect_true(is.vector(preds))
 })
-test_that("When num_trees specified exceeds total number in fit then number in fit used", {
+test_that("When n.trees specified exceeds total number in fit then number in fit used", {
   # Given a fit and data
   set.seed(1)
   
@@ -704,8 +705,8 @@ test_that("When num_trees specified exceeds total number in fit then number in f
   Y <- rbinom(N,1,p)
   data2 <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3)
   
-  # When calling predict with num_trees > length(fit$trees)
-  # Then predictions are evaluated at num_trees = length(fit$trees)
-  expect_equal(predict(fit, data2, num_trees=length(fit$trees) + 1),
-               predict(fit, data2, num_trees=length(fit$trees)))
+  # When calling predict with n.trees > length(fit$trees)
+  # Then predictions are evaluated at n.trees = length(fit$trees)
+  expect_equal(predict(fit, data2, n.trees=length(fit$trees) + 1),
+               predict(fit, data2, n.trees=length(fit$trees)))
 })
