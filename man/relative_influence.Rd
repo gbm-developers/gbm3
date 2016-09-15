@@ -4,37 +4,35 @@
 \alias{relative_influence}
 \title{Methods for estimating relative influence}
 \usage{
-relative_influence(gbm_fit_obj, num_trees, rescale=FALSE, sort_it=FALSE)
+relative_influence(gbm_fit_obj, num_trees, rescale = FALSE, sort_it = FALSE)
 }
 \arguments{
-\item{gbm_fit_obj}{a \code{GBMFit} object created from an initial call to
-\code{\link{gbmt}}.}
+\item{gbm_fit_obj}{a \code{GBMFit} object created from an initial
+call to \code{\link{gbmt}}.}
 
-\item{num_trees}{the number of trees to use for computations. If not provided,
-the function will guess: if a test set was used in fitting, the number of
-trees resulting in lowest test set error will be used; otherwise, if
-cross-validation was performed, the number of trees resulting in lowest
-cross-validation error will be used; otherwise, all trees will be used.}
+\item{num_trees}{the number of trees to use for computations. If
+not provided, the function will guess: if a test set was used in
+fitting, the number of trees resulting in lowest test set error
+will be used; otherwise, if cross-validation was performed, the
+number of trees resulting in lowest cross-validation error will be
+used; otherwise, all trees will be used.}
 
-\item{rescale}{whether or not the result should be scaled. Defaults to
-\code{FALSE}.}
+\item{rescale}{whether or not the result should be scaled. Defaults
+to \code{FALSE}.}
 
-\item{sort_it}{whether or not the results should be (reverse) sorted.
-Defaults to \code{FALSE}.}
+\item{sort_it}{whether or not the results should be (reverse)
+sorted.  Defaults to \code{FALSE}.}
 }
 \value{
-By default, returns an unprocessed vector of estimated relative
-influences. If the \code{rescale} and \code{sort} arguments are used,
-returns a processed version of the same.
+By default, returns an unprocessed vector of estimated
+relative influences. If the \code{rescale} and \code{sort}
+arguments are used, returns a processed version of the same.
 }
 \description{
-Helper functions for computing the relative influence of each variable in
-the \code{GBMFit} object.
+This function offers a method for computing the relative influence in
+\code{\link{summary.GBMFit}}, and is not intended to be called directly.
 }
 \details{
-These functions offer the different
-methods for computing the relative influence in \code{\link{summary.GBMFit}}.
-
 \code{\link{relative_influence}} is the same as that
 described in Friedman (2001).
 \code{\link{permutation_relative_influence}} randomly permutes each
