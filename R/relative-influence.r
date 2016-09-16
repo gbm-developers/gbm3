@@ -1,31 +1,27 @@
 #' Methods for estimating relative influence
 #' 
-#' Helper functions for computing the relative influence of each variable in
-#' the \code{GBMFit} object.
-#' 
-#' These functions offer the different
-#' methods for computing the relative influence in \code{\link{summary.GBMFit}}.
+#' This function offers a method for computing the relative influence in
+#' \code{\link{summary.GBMFit}}, and is not intended to be called directly.
 #'
-#' @usage relative_influence(gbm_fit_obj, num_trees, rescale=FALSE, sort_it=FALSE)
-#'
-#' @param gbm_fit_obj a \code{GBMFit} object created from an initial call to
-#' \code{\link{gbmt}}.
+#' @param gbm_fit_obj a \code{GBMFit} object created from an initial
+#' call to \code{\link{gbmt}}.
 #' 
-#' @param num_trees the number of trees to use for computations. If not provided,
-#' the function will guess: if a test set was used in fitting, the number of
-#' trees resulting in lowest test set error will be used; otherwise, if
-#' cross-validation was performed, the number of trees resulting in lowest
-#' cross-validation error will be used; otherwise, all trees will be used.
+#' @param num_trees the number of trees to use for computations. If
+#' not provided, the function will guess: if a test set was used in
+#' fitting, the number of trees resulting in lowest test set error
+#' will be used; otherwise, if cross-validation was performed, the
+#' number of trees resulting in lowest cross-validation error will be
+#' used; otherwise, all trees will be used.
 #' 
-#' @param rescale  whether or not the result should be scaled. Defaults to
-#' \code{FALSE}.
+#' @param rescale whether or not the result should be scaled. Defaults
+#' to \code{FALSE}.
 #' 
-#' @param sort_it  whether or not the results should be (reverse) sorted.
-#' Defaults to \code{FALSE}.
+#' @param sort_it whether or not the results should be (reverse)
+#' sorted.  Defaults to \code{FALSE}.
 #' 
-#' @return By default, returns an unprocessed vector of estimated relative
-#' influences. If the \code{rescale} and \code{sort} arguments are used,
-#' returns a processed version of the same.
+#' @return By default, returns an unprocessed vector of estimated
+#' relative influences. If the \code{rescale} and \code{sort}
+#' arguments are used, returns a processed version of the same.
 #' 
 #' @author James Hickey, Greg Ridgeway \email{gregridgeway@@gmail.com}
 #' @details \code{\link{relative_influence}} is the same as that
@@ -35,7 +31,6 @@
 #' predictive performance. This is similar to the variable importance measures
 #' Breiman uses for random forests, but \code{gbmt} currently computes using the
 #' entire training dataset (not the out-of-bag observations).
-
 #' @seealso \code{\link{summary.GBMFit}}
 #' @references J.H. Friedman (2001). "Greedy Function Approximation: A Gradient
 #' Boosting Machine," Annals of Statistics 29(5):1189-1232.
@@ -44,10 +39,9 @@
 #' \href{http://oz.berkeley.edu/users/breiman/randomforest2001.pdf}{Random
 #' Forests}.
 #' @keywords hplot
-#' @export 
-#'
-
-relative_influence <- function(gbm_fit_obj, num_trees, rescale = FALSE, sort_it = FALSE){
+#' @export
+relative_influence <- function(gbm_fit_obj, num_trees,
+                               rescale = FALSE, sort_it = FALSE){
   # Initial checks
   check_if_gbm_fit(gbm_fit_obj)
   if(!is.logical(rescale) || (length(rescale) > 1))

@@ -1,5 +1,8 @@
 #' Relative influence via permutation
-#' 
+#'
+#' This function offers a method for computing the relative influence in
+#' \code{\link{summary.GBMFit}}, and is not intended to be called directly.
+#'
 #' Calculates the relative influence of predictors via random
 #' permutation of each predictor one at a time and calculating the
 #' associated reduction in predictive performance.  This experimental
@@ -8,7 +11,7 @@
 #' the entire training dataset (not the out-of-bag observations).
 #' 
 #' @param gbm_fit_obj a \code{GBMFit} object from an initial call to
-#' \code{\link{gbmt}}. This fitted object requires
+#' \code{\link{gbmt}}.
 #' 
 #' @param num_trees the number of trees to use for computations. If
 #' not provided, the function will guess: if a test set was used in
@@ -33,7 +36,7 @@
 #' \href{http://oz.berkeley.edu/users/breiman/randomforest2001.pdf}{Random
 #' Forests}.
 #' @keywords hplot
-#' @export 
+#' @export
 permutation_relative_influence <- function(gbm_fit_obj,
                                            num_trees,
                                            rescale=FALSE,
