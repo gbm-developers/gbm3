@@ -22,6 +22,3 @@ Then install `gbm` from GitHub:
 library("devtools")
 install_github("gbm-developers/gbm")
 ```
-
-Note that we are currently in the middle of a fairly major tidy up, so
-you should worry a bit about this code here...
