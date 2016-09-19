@@ -13,6 +13,7 @@
 #include "gbm_exception.h"
 
 #include <algorithm>
+#include <Rcpp.h>
 
 using namespace std;
 
@@ -140,7 +141,7 @@ double CLocationM::LocationM(int num_data_points, double* covars,
 
   double scale0 =
       1.4826 * WeightedQuantile(num_data_points, &diff_vec[0], kWeights, alpha);
-  scale0 = fmax(scale0, meps_);
+  scale0 = R::fmax2(scale0, meps_);
 
   // Loop over until the error is low enough
   double error = 1.0;
@@ -151,7 +152,7 @@ double CLocationM::LocationM(int num_data_points, double* covars,
     double sum_w = 0.0;
     for (ii = 0; ii < num_data_points; ii++) {
       double dt = fabs(covars[ii] - beta0) / scale0;
-      dt = fmax(dt, meps_);
+      dt = R::fmax2(dt, meps_);
       double dwt = kWeights[ii] * PsiFun(dt) / dt;
 
       sum_w_x += dwt * covars[ii];
