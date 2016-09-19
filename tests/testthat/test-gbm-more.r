@@ -290,7 +290,8 @@ test_that("Output of gbm_more is GBMFit object", {
   # Then returned object is a GBMFit object
   expect_true(class(fit_2) %in% "GBMFit")
 })
-test_that("gbm_more does not update cv properties of GBMFit output", {
+
+test_that("gbm_more removes cv properties of GBMFit output", {
   # Given an appropriate GBMFit object (DATA KEPT) 
   # produced from cv
   keep_data <- TRUE
@@ -323,23 +324,26 @@ test_that("gbm_more does not update cv properties of GBMFit output", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=200, interaction_depth=3, min_num_obs_in_node=10, 
-                            shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
+  params <- training_params(num_trees=200, interaction_depth=3,
+                            min_num_obs_in_node=10, 
+                            shrinkage=0.005, bag_fraction=0.5,
+                            id=seq(nrow(data)), num_train=N/2, num_features=6)
   dist <- gbm_dist("Gaussian")
   
-  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
-              train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=keep_data, cv_folds=10, is_verbose=FALSE)
-  
-  
+  fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist,
+              weights=w, offset=offset,
+              train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0),
+              keep_gbm_data=keep_data, cv_folds=10, is_verbose=FALSE)
   
   # When gbm_more is called 
   fit_2 <- gbm_more(fit)
   
-  # Then returned objects cv fields have not changed
-  expect_equal(fit_2$cv_error, fit$cv_error)
-  expect_equal(fit_2$cv_fold, fit$cv_folds)
-  expect_equal(fit_2$cv_fitted, fit$cv_fitted)
+  # Then cross validation has been stripped
+
+  expect_true(has_cross_validation(fit))
+  expect_false(has_cross_validation(fit_2))
 })
+
 test_that("gbm_more fits additional trees - reflected in length of fit fields", {
   # Given an appropriate GBMFit object (DATA KEPT) 
   # with number of new trees
@@ -449,6 +453,7 @@ test_that("Can run gbm_more with new data", {
   # Then runs successfully
   expect_error(gbm_more(fit, data=new_data), NA)
 })
+
 test_that("Output of gbm_more DOES NOT contain constructed gbm_data_obj if run with new data", {
   # Given an appropriate GBMFit object (DATA NOT KEPT) 
   # and new data same number of rows as before

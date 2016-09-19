@@ -525,7 +525,8 @@ gbm <- function(formula = formula(data),
   
   # Call gbmt_fit 
   gbm_fit_obj <- gbmt_fit(x, y, dist_obj, weights, offset,
-                          params, as.character(formula[[2]]), var.monotone, var.names,
+                          params, as.character(formula[[2]]),
+                          var.monotone, var.names,
                           keep.data, cv.folds,
                           class.stratify.cv, fold.id, par.details, verbose)
   
