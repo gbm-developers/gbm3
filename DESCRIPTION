@@ -1,5 +1,5 @@
 Package: gbm
-Version: 2.1.06.9000
+Version: 2.2
 Date: 2016-06-16
 Title: Generalized Boosted Regression Models
 Authors@R: c(
