@@ -320,7 +320,7 @@ class CPairwise : public CDistribution {
 
  protected:
   // Constructor: determine IR measure as either "conc", "map", "mrr", or "ndcg"
-  CPairwise(const double* kGroups, const char* kIrMeasure,
+  CPairwise(Rcpp::NumericVector misc_vec, const char* kIrMeasure,
             int num_training_rows);
 
   // Calculate and accumulate up the gradients and Hessians from all training
@@ -346,6 +346,8 @@ class CPairwise : public CDistribution {
                                          // adOffset), if the latter is not null
 
   const double* kGroups_;
+ private:
+  Rcpp::NumericVector misc_vec_;
 };
 
 #endif  // PAIRWISE_H

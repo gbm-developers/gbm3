@@ -460,13 +460,14 @@ double CMAP::Measure(const double* const kResponse, const CRanker& kRanker) {
   return prec / kPos;
 }
 
-CPairwise::CPairwise(const double* kGroups, const char* kIrMeasure,
-                     int num_training_rows) {
+CPairwise::CPairwise(Rcpp::NumericVector misc_vec,
+		     const char* kIrMeasure,
+                     int num_training_rows) : misc_vec_(misc_vec) {
   // Set up adGroup - this is not required
-  kGroups_ = kGroups;
+  kGroups_ = misc_vec_.begin();
 
   // Set up the number of groups - this used externally
-  set_num_groups(gbm_functions::NumGroups(kGroups, num_training_rows));
+  set_num_groups(gbm_functions::NumGroups(kGroups_, num_training_rows));
 
   // Construct the IR Measure
   if (!strcmp(kIrMeasure, "conc")) {
@@ -488,8 +489,7 @@ CPairwise::CPairwise(const double* kGroups, const char* kIrMeasure,
 CDistribution* CPairwise::Create(DataDistParams& distparams) {
   // Create pointers to pairwise
   Rcpp::NumericVector misc_vec(distparams.misc[0]);
-  const double* kGroup = 0;
-
+  
   std::size_t offset_tomeasure = distparams.family.find("_");
   if (offset_tomeasure == std::string::npos) {
     throw gbm_exception::Failure(
@@ -499,10 +499,8 @@ CDistribution* CPairwise::Create(DataDistParams& distparams) {
 
   if (!gbm_functions::has_value(misc_vec)) {
     throw gbm_exception::Failure("Pairwise requires misc to initialize");
-  } else {
-    kGroup = misc_vec.begin();
-  }
-  return new CPairwise(kGroup, kIrMeasure, distparams.num_trainrows);
+  } 
+  return new CPairwise(misc_vec, kIrMeasure, distparams.num_trainrows);
 }
 
 CPairwise::~CPairwise() {}
