@@ -7,6 +7,7 @@
 ####################
 
 context("Testing runs of other distributions")
+
 test_that("Can fit GBM with - AdaBoost", {
   # Given appropriate data
   set.seed(1)
@@ -29,18 +30,23 @@ test_that("Can fit GBM with - AdaBoost", {
   offset <- rep(0, N)
   
   # Set up for new API
-  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
-                            shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=3)
+  params <- training_params(num_trees=20, interaction_depth=3,
+                            min_num_obs_in_node=10, 
+                            shrinkage=0.001, bag_fraction=0.5,
+                            id=seq(nrow(data)), num_train=N/2,
+                            num_features=3)
   
   # When GBM fit with AdaBoost
   dist <- gbm_dist("AdaBoost")
   
   # Then no error is thrown
-  expect_error(gbmt(Y~X1+X2+X3, data=data, distribution=dist, weights=w, offset=offset,
+  expect_error(gbmt(Y~X1+X2+X3, data=data,
+                    distribution=dist, weights=w, offset=offset,
                     train_params=params, var_monotone=c(0, 0, 0), 
                     keep_gbm_data=TRUE, cv_folds=5, is_verbose = FALSE),
                NA)
 })
+
 test_that("Can fit GBM with - Gamma", {
   # Given appropriate data
   set.seed(1)
@@ -70,17 +76,22 @@ test_that("Can fit GBM with - Gamma", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
-                            shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
+  params <- training_params(num_trees=20, interaction_depth=3,
+                            min_num_obs_in_node=10, 
+                            shrinkage=0.005, bag_fraction=0.5,
+                            id=seq(nrow(data)), num_train=N/2,
+                            num_features=6)
   # When GBM fit with Gamma
   dist <- gbm_dist("Gamma")
   
   # Then no error is thrown
-  expect_error(gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  expect_error(gbmt(Y~X1+X2+X3+X4+X5+X6, data=data,
+                    distribution=dist, weights=w, offset=offset,
                     train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), 
                     keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE),
                NA)
 })
+
 test_that("Can fit GBM with - Huberized", {
   # Given appropriate data
   set.seed(1)
@@ -103,18 +114,23 @@ test_that("Can fit GBM with - Huberized", {
   offset <- rep(0, N)
   
   # Set up for new API
-  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
-                            shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=3)
+  params <- training_params(num_trees=20, interaction_depth=3,
+                            min_num_obs_in_node=10, 
+                            shrinkage=0.001, bag_fraction=0.5,
+                            id=seq(nrow(data)), num_train=N/2,
+                            num_features=3)
   
   # When GBM fit with Huberized
   dist <- gbm_dist("Huberized")
   
   # Then no error is thrown
-  expect_error(gbmt(Y~X1+X2+X3, data=data, distribution=dist, weights=w, offset=offset,
+  expect_error(gbmt(Y~X1+X2+X3, data=data, distribution=dist,
+                    weights=w, offset=offset,
                     train_params=params, var_monotone=c(0, 0, 0), 
                     keep_gbm_data=TRUE, cv_folds=5, is_verbose = FALSE),
                NA)
 })
+
 test_that("Can fit GBM with - Laplace", {
   # Given appropriate data
   set.seed(1)
@@ -144,18 +160,24 @@ test_that("Can fit GBM with - Laplace", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
-                            shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
+  params <- training_params(num_trees=20, interaction_depth=3,
+                            min_num_obs_in_node=10, 
+                            shrinkage=0.005, bag_fraction=0.5,
+                            id=seq(nrow(data)), num_train=N/2,
+                            num_features=6)
   # When GBM fit with Laplace
   dist <- gbm_dist("Laplace")
   
   # Then no error is thrown
-  expect_error(gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  expect_error(gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist,
+                    weights=w, offset=offset,
                     train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), 
                     keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE),
                NA)
 })
+
 test_that("Can fit GBM with - Pairwise", {
+  skip("Skipping pairwise")
   # Given data and a fitted pairwise
   # create query groups, with an average size of 25 items each
   N <- 1000
@@ -191,7 +213,8 @@ test_that("Can fit GBM with - Pairwise", {
   data <- data.frame(Y, query=query, X1, X2, X3)
   data_M <- data.frame(Y_M, query=query, X1, X2, X3)
   
-  params <- training_params(num_trees = 20, num_train = nrow(data), id=seq_len(nrow(data)),
+  params <- training_params(num_trees = 20, num_train = nrow(data),
+                            id=seq_len(nrow(data)),
                             interaction_depth = 3)
   
   # When fitting all Pairwise distributions
@@ -235,6 +258,7 @@ test_that("Can fit GBM with - Pairwise", {
                     par_details=gbmParallel()), NA)
   
 })
+
 test_that("Can fit GBM with - Poisson", {
   # Given appropriate data
   set.seed(1)
@@ -257,20 +281,24 @@ test_that("Can fit GBM with - Poisson", {
   offset <- rep(0, N)
   
   # Set up for new API
-  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
-                            shrinkage=0.001, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=3)
+  params <- training_params(num_trees=20, interaction_depth=3,
+                            min_num_obs_in_node=10, 
+                            shrinkage=0.001, bag_fraction=0.5,
+                            id=seq(nrow(data)), num_train=N/2, num_features=3)
   
   # When GBM fit with Poisson
   dist <- gbm_dist("Poisson")
   
   # Then no error is thrown
-  expect_error(gbmt(Y~X1+X2+X3, data=data, distribution=dist, weights=w, offset=offset,
+  expect_error(gbmt(Y~X1+X2+X3, data=data, distribution=dist,
+                    weights=w, offset=offset,
                     train_params=params, var_monotone=c(0, 0, 0), 
                     keep_gbm_data=TRUE, cv_folds=5, is_verbose = FALSE),
                NA)
 })
+
 test_that("Can fit GBM with - Quantile", {
-  # Given appropriate data
+  ## Given appropriate data
   set.seed(1)
   
   # create some data
@@ -304,11 +332,13 @@ test_that("Can fit GBM with - Quantile", {
   dist <- gbm_dist("Quantile")
   
   # Then no error is thrown
-  expect_error(gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  expect_error(gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist,
+                    weights=w, offset=offset,
                     train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), 
                     keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE),
                NA)
 })
+
 test_that("Can fit GBM with - TDist", {
   # Given appropriate data
   set.seed(1)
@@ -338,17 +368,22 @@ test_that("Can fit GBM with - TDist", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
-                            shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
+  params <- training_params(num_trees=20, interaction_depth=3,
+                            min_num_obs_in_node=10, 
+                            shrinkage=0.005, bag_fraction=0.5,
+                            id=seq(nrow(data)), num_train=N/2,
+                            num_features=6)
   # When GBM fit with TDist
   dist <- gbm_dist("TDist")
   
   # Then no error is thrown
-  expect_error(gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  expect_error(gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist,
+                    weights=w, offset=offset,
                     train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), 
                     keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE),
                NA)
 })
+
 test_that("Can fit GBM with - Tweedie", {
   # Given appropriate data
   set.seed(1)
@@ -378,13 +413,17 @@ test_that("Can fit GBM with - Tweedie", {
   
   
   # Set up for new API
-  params <- training_params(num_trees=20, interaction_depth=3, min_num_obs_in_node=10, 
-                            shrinkage=0.005, bag_fraction=0.5, id=seq(nrow(data)), num_train=N/2, num_features=6)
+  params <- training_params(num_trees=20, interaction_depth=3,
+                            min_num_obs_in_node=10, 
+                            shrinkage=0.005, bag_fraction=0.5,
+                            id=seq(nrow(data)), num_train=N/2,
+                            num_features=6)
   # When GBM fit with Gamma
   dist <- gbm_dist("Tweedie")
   
   # Then no error is thrown
-  expect_error(gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
+  expect_error(gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist,
+                    weights=w, offset=offset,
                     train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), 
                     keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE),
                NA)

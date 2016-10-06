@@ -251,7 +251,9 @@ test_that("to_old_gbm has correct data and time ordering for CoxPH fit", {
   expect_equal(to_old_gbm(gbm1)$data$i.order, gbm1$distribution$time_order)
   expect_equal(to_old_gbm(gbm1)$prior.node.coeff.var, 10)
 })
+
 test_that("to_old_gbm has group ordering for Pairwise fit", {
+  skip("Skipping pairwise")
   # Given data and a fitted pairwise
   # create query groups, with an average size of 25 items each
   N <- 1000
@@ -283,7 +285,8 @@ test_that("to_old_gbm has group ordering for Pairwise fit", {
   
   data <- data.frame(Y, query=query, X1, X2, X3)
   dist <- gbm_dist("Pairwise", metric="ndcg", group="query")
-  params <- training_params(num_trees = 20, num_train = nrow(data), id=seq_len(nrow(data)),
+  params <- training_params(num_trees = 20, num_train = nrow(data),
+                            id=seq_len(nrow(data)),
                             interaction_depth = 3)
   
   fit <- gbmt(Y~X1+X2+X3,          # formula

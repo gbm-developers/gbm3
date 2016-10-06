@@ -421,7 +421,9 @@ test_that("Setting the offset to 0 does not alter the initial value - Huberized 
   
   expect_equal(gbm.no.offset$initF, gbm.zero.offset$initF)
 })
+
 test_that("Setting the offset to 0 does not alter the initial value - Pairwise",{
+  skip("Skipping pairwise")
   # create query groups, with an average size of 25 items each
   set.seed(1)
   N <- 1000

@@ -74,7 +74,9 @@ test_that("CoxPH- reorders fit according to time and strata", {
   gbm_fit$fit[dist$time_order] <- gbm_fit$fit
   expect_equal(gbm_fit_ordered$fit, gbm_fit$fit)
 })
+
 test_that("Pairwise - reorders fit according to group order", {
+  skip("Skipping pairwise")
   # Given Pairwise data and fit
   set.seed(1)
   N <- 1000
@@ -102,8 +104,11 @@ test_that("Pairwise - reorders fit according to group order", {
   data <- gbm_data(X, Y, w, offset)
   
   # Put into new API
-  params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
-                            shrinkage=0.001, bag_fraction=0.5, id=seq_len(nrow(X)), num_train=N/2, num_features=3)
+  params <- training_params(num_trees=3000, interaction_depth=3,
+                            min_num_obs_in_node=10, 
+                            shrinkage=0.001, bag_fraction=0.5,
+                            id=seq_len(nrow(X)), num_train=N/2,
+                            num_features=3)
   
   
   # Set up for new API
@@ -118,6 +123,7 @@ test_that("Pairwise - reorders fit according to group order", {
   # Then correctly reorders fit
   expect_equal(reordered_fit$fit, fit$fit[order(dist$group_order)])
 })
+
 test_that("Order data requires a gbm_data object and distribution object", {
   # Given gbm_data and dist
   # Require Surv to be available
@@ -198,9 +204,9 @@ test_that("Can order data by id", {
   expect_equal(data$x, data_copy$x[order(train_p$id), , drop=FALSE])
   expect_equal(data$y, data_copy$y[order(train_p$id)])
 })
+
 test_that("Can order data by groupings", {
   # Given pairwise data and dist
-  # Given Pairwise data and fit
   set.seed(1)
   N <- 1000
   X1 <- runif(N)
@@ -227,8 +233,10 @@ test_that("Can order data by groupings", {
   data <- gbm_data(X, Y, w, offset)
   
   # Put into new API
-  params <- training_params(num_trees=3000, interaction_depth=3, min_num_obs_in_node=10, 
-                            shrinkage=0.001, bag_fraction=0.5, id=seq_len(nrow(X)), num_train=N/2, num_features=3)
+  params <- training_params(num_trees=3000, interaction_depth=3,
+                            min_num_obs_in_node=10, 
+                            shrinkage=0.001, bag_fraction=0.5,
+                            id=seq_len(nrow(X)), num_train=N/2, num_features=3)
   
   
   # Set up for new API
@@ -246,6 +254,7 @@ test_that("Can order data by groupings", {
   expect_equal(data_ordered$weights, data$weights[dist$group_order])
   
 })
+
 test_that("Ordering by groupings does nothing if not Pairwise", {
   # Given data and not pairwise (using CoxPH data for example)
   require(survival)
@@ -274,7 +283,9 @@ test_that("Ordering by groupings does nothing if not Pairwise", {
   
   Resp <- Surv(tt, delta)
   data <- gbm_data(data.frame(X1, X2, X3), Resp, w, offset)
-  train_p <- training_params(id=sample(1:5, N, replace=TRUE), num_train = 5, bag_fraction=1, min_num_obs_in_node = 1,
+  train_p <- training_params(id=sample(1:5, N, replace=TRUE),
+                             num_train = 5, bag_fraction=1,
+                             min_num_obs_in_node = 1,
                              num_features = 3)
   
   # When ordered by grouping - NOT Pairwise dist
@@ -290,6 +301,7 @@ test_that("Ordering by groupings does nothing if not Pairwise", {
   expect_equal(data, order_by_groupings(data, gbm_dist("TDist")))
   expect_equal(data, order_by_groupings(data, gbm_dist("Tweedie")))
 })
+
 test_that("Can order by predictors - check predictor_order", {
   # Given gbm data and training parameters
   require(survival)
@@ -318,9 +330,13 @@ test_that("Can order by predictors - check predictor_order", {
   
   Resp <- Surv(tt, delta)
   data <- gbm_data(data.frame(X1, X2, X3), Resp, w, offset)
-  train_p <- training_params(id=sample(1:5, N, replace=TRUE), num_train = 5, bag_fraction = 1, min_num_obs_in_node = 1, num_features = 3)
+  train_p <- training_params(id=sample(1:5, N, replace=TRUE),
+                             num_train = 5, bag_fraction = 1,
+                             min_num_obs_in_node = 1, num_features = 3)
   
   # Then can order by predictors
   data <- predictor_order(data, train_p)
-  expect_equal(data$x_order, apply(data$x[seq_len(train_p$num_train_rows),,drop=FALSE], 2, order,na.last=FALSE)-1)
+  expect_equal(data$x_order,
+               apply(data$x[seq_len(train_p$num_train_rows),,drop=FALSE],
+                     2, order,na.last=FALSE)-1)
 })
