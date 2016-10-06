@@ -7,6 +7,7 @@
 
 context("Testing perf_pairwise")
 test_that("Metric ndcg  fit passed to perf_pairwise runs", {
+  skip("Skipping pairwise")
   # Given data and a fitted pairwise
   # create query groups, with an average size of 25 items each
   N <- 1000
@@ -58,6 +59,7 @@ test_that("Metric ndcg  fit passed to perf_pairwise runs", {
 })
 
 test_that("Metric map fit passed to perf_pairwise runs", {
+  skip("Skipping pairwise")
   # Given data and a fitted pairwise
   # create query groups, with an average size of 25 items each
   N <- 1000
@@ -92,7 +94,8 @@ test_that("Metric map fit passed to perf_pairwise runs", {
   
   data <- data.frame(Y, query=query, X1, X2, X3)
   dist <- gbm_dist("Pairwise", metric="map", group="query")
-  params <- training_params(num_trees = 200, num_train = nrow(data), id=seq_len(nrow(data)),
+  params <- training_params(num_trees = 200, num_train = nrow(data),
+                            id=seq_len(nrow(data)),
                             interaction_depth = 3)
   
   fit <- gbmt(Y~X1+X2+X3,          # formula
@@ -112,6 +115,7 @@ test_that("Metric map fit passed to perf_pairwise runs", {
 })
 
 test_that("Metric mrr fit passed to perf_pairwise runs", {
+  skip("Skipping pairwise")
   # Given data and a fitted pairwise
   # create query groups, with an average size of 25 items each
   N <- 1000
@@ -165,6 +169,7 @@ test_that("Metric mrr fit passed to perf_pairwise runs", {
 })
 
 test_that("Metric conc fit passed to perf_pairwise runs", {
+  skip("Skipping pairwise")
   # Given data and a fitted pairwise
   # create query groups, with an average size of 25 items each
   N <- 1000
@@ -216,6 +221,7 @@ test_that("Metric conc fit passed to perf_pairwise runs", {
 })
 
 test_that("Error thrown if metric not recognised", {
+  skip("Skipping pairwise")
   # Given a fitted Pairwise distribution
   # create query groups, with an average size of 25 items each
   N <- 1000
@@ -247,7 +253,8 @@ test_that("Error thrown if metric not recognised", {
   
   data <- data.frame(Y, query=query, X1, X2, X3)
   dist <- gbm_dist("Pairwise", metric="conc", group="query")
-  params <- training_params(num_trees = 200, num_train = nrow(data), id=seq_len(nrow(data)),
+  params <- training_params(num_trees = 200, num_train = nrow(data),
+                            id=seq_len(nrow(data)),
                             interaction_depth = 3)
   
   fit <- gbmt(Y~X1+X2+X3,          # formula

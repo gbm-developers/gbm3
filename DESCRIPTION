@@ -1,5 +1,5 @@
 Package: gbm
-Version: 2.1.06.9000
+Version: 2.2
 Date: 2016-06-16
 Title: Generalized Boosted Regression Models
 Authors@R: c(
@@ -8,7 +8,7 @@ Authors@R: c(
            role="aut"),
     person("Paul", "Metcalfe",
            email="paul.metcalfe@gmail.com",
-           role="aut"),
+           role=c("aut", "cre")),
     person("Greg", "Ridgeway",
            email="greg.ridgeway@gmail.com",
            role="aut"),
@@ -17,7 +17,7 @@ Authors@R: c(
            role="aut"),
     person("Harry", "Southworth",
            email="harry.southworth@gmail.com",
-           role=c("aut", "cre")),
+           role="aut"),
     person("Terry", "Therneau",
            email="therneau.terry@mayo.edu",
            role="aut")

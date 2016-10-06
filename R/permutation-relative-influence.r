@@ -33,7 +33,7 @@
 #' @author Greg Ridgeway \email{gregridgeway@@gmail.com}
 #'
 #' @seealso \code{\link{summary.GBMFit}}
-#' \href{http://oz.berkeley.edu/users/breiman/randomforest2001.pdf}{Random
+#' \href{https://www.stat.berkeley.edu/~breiman/randomforest2001.pdf}{Random
 #' Forests}.
 #' @keywords hplot
 #' @export

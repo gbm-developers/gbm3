@@ -255,6 +255,7 @@ test_that("Error thrown when distribution is Tweedie", {
   # Then error thrown when trying to calculate the loss
   expect_error(loss(resps, preds, weights, offset, dist))
 })
+
 test_that("Error thrown if Pairwise but group_index is NULL", {
   # Given responses, weights, predictions, offset and
   # Pairwise dist but group_index not specified
@@ -268,6 +269,7 @@ test_that("Error thrown if Pairwise but group_index is NULL", {
   # Then error thrown when trying to calculate the loss
   expect_error(loss(resps, preds, weights, offset, dist))
 })
+
 context("Check loss calculation correct for various distributions")
 test_that("Correctly calculates AdaBoost loss", {
   # Given responses, weights, predictions, offset, baseline and
@@ -345,7 +347,9 @@ test_that("Correctly calculates Laplace loss", {
   loss_true <- weighted.mean(abs(resps-preds), weights) - baseline
   expect_equal(calc_loss, loss_true)
 })
+
 test_that("Correctly calculates Pairwise loss - ndcg", {
+  skip("Skipping pairwise")
   # Given responses, weights, predictions, offset, baseline and
   # Given data and a fitted pairwise
   # create query groups, with an average size of 25 items each
@@ -378,7 +382,8 @@ test_that("Correctly calculates Pairwise loss - ndcg", {
   
   data <- data.frame(Y, query=query, X1, X2, X3)
   dist <- gbm_dist("Pairwise", metric="ndcg", group="query")
-  params <- training_params(num_trees = 2000, num_train = nrow(data), id=seq_len(nrow(data)),
+  params <- training_params(num_trees = 2000, num_train = nrow(data),
+                            id=seq_len(nrow(data)),
                             interaction_depth = 3)
   
   fit <- gbmt(Y~X1+X2+X3,          # formula
@@ -403,7 +408,9 @@ test_that("Correctly calculates Pairwise loss - ndcg", {
                                   fit$gbm_data_obj$weights, fit$distribution$max_rank)) - baseline
   expect_equal(calc_loss, loss_true) # tolerance for random tie breaking
 })
+
 test_that("Correctly calculates Pairwise loss - conc", {
+  skip("Skipping pairwise")
   # Given responses, weights, predictions, offset, baseline and
   # Given data and a fitted pairwise
   # create query groups, with an average size of 25 items each
@@ -461,7 +468,9 @@ test_that("Correctly calculates Pairwise loss - conc", {
                                   fit$gbm_data_obj$weights, fit$distribution$max_rank)) - baseline
   expect_equal(calc_loss, loss_true) # tolerance for random tie breaking
 })
+
 test_that("Correctly calculates Pairwise loss - map", {
+  skip("Skipping pairwise")
   # Given responses, weights, predictions, offset, baseline and
   # Given data and a fitted pairwise
   # create query groups, with an average size of 25 items each
@@ -496,7 +505,8 @@ test_that("Correctly calculates Pairwise loss - map", {
   
   data <- data.frame(Y, query=query, X1, X2, X3)
   dist <- gbm_dist("Pairwise", metric="map", group="query")
-  params <- training_params(num_trees = 2000, num_train = nrow(data), id=seq_len(nrow(data)),
+  params <- training_params(num_trees = 2000, num_train = nrow(data),
+                            id=seq_len(nrow(data)),
                             interaction_depth = 3)
   
   fit <- gbmt(Y~X1+X2+X3,          # formula
@@ -521,7 +531,9 @@ test_that("Correctly calculates Pairwise loss - map", {
                                   fit$gbm_data_obj$weights, fit$distribution$max_rank)) - baseline
   expect_equal(calc_loss, loss_true) # tolerance for random tie breaking
 })
+
 test_that("Correctly calculates Pairwise loss - mrr", {
+  skip("Skipping pairwise")
   # Given responses, weights, predictions, offset, baseline and
   # Given data and a fitted pairwise
   # create query groups, with an average size of 25 items each
@@ -556,7 +568,8 @@ test_that("Correctly calculates Pairwise loss - mrr", {
   
   data <- data.frame(Y, query=query, X1, X2, X3)
   dist <- gbm_dist("Pairwise", metric="mrr", group="query")
-  params <- training_params(num_trees = 2000, num_train = nrow(data), id=seq_len(nrow(data)),
+  params <- training_params(num_trees = 2000, num_train = nrow(data),
+                            id=seq_len(nrow(data)),
                             interaction_depth = 3)
   
   fit <- gbmt(Y~X1+X2+X3,          # formula
@@ -581,6 +594,7 @@ test_that("Correctly calculates Pairwise loss - mrr", {
                                   fit$gbm_data_obj$weights, fit$distribution$max_rank)) - baseline
   expect_equal(calc_loss, loss_true) # tolerance for random tie breaking
 })
+
 test_that("Correctly calculates Poisson loss", {
   # Given responses, weights, predictions, offset, baseline and
   # AdaBoost dist
