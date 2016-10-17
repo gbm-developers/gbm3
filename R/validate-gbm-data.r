@@ -23,9 +23,9 @@ validate_gbm_data <- function(gbm_data_obj, distribution_obj) {
     stop("Distribution not recognised - see available_distributions for
            supported distributions")
   }
+
   if(distribution_obj$name != "Pairwise") {
-    gbm_data_obj$weights <- gbm_data_obj$weights*length(gbm_data_obj$weights)/sum(gbm_data_obj$weights)
-    message("Distribution selected is not Pairwise - normalizing weights")
+    gbm_data_obj$weights <- gbm_data_obj$weights / mean(gbm_data_obj$weights)
   } 
   
   # Check offset
