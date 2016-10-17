@@ -18,9 +18,10 @@ gbm(formula = formula(data), distribution = "bernoulli", data = list(),
   n.trees = 100, interaction.depth = 1, n.minobsinnode = 10,
   shrinkage = 0.001, bag.fraction = 0.5, train.fraction = 1,
   mFeatures = NULL, cv.folds = 0, keep.data = TRUE, verbose = FALSE,
-  class.stratify.cv = NULL, par.details = getOption("gbm.parallel"),
-  fold.id = NULL, tied.times.method = "efron",
-  prior.node.coeff.var = 1000, strata = NA, obs.id = 1:nrow(data))
+  class.stratify.cv = NULL, n.cores = NULL,
+  par.details = getOption("gbm.parallel"), fold.id = NULL,
+  tied.times.method = "efron", prior.node.coeff.var = 1000, strata = NA,
+  obs.id = 1:nrow(data))
 }
 \arguments{
 \item{x, y}{For \code{gbm.fit}: \code{x} is a data frame or data
@@ -228,6 +229,10 @@ stratified by class. Is only implemented for
 \code{bernoulli}. The purpose of stratifying
 the cross-validation is to help avoiding situations in which
 training sets do not contain all classes.}
+
+\item{n.cores}{number of cores to use for parallelization.  Please
+use \code{par.details} instead; this argument is only provided for
+convenience.}
 
 \item{par.details}{Details of the parallelization to use in the
 core algorithm.}

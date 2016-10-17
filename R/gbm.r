@@ -233,6 +233,10 @@
 #' rows of data belong to individual patients.  Data is then bagged by
 #' patient id; the default sets each row of the data to belong to an
 #' individual patient.
+#'
+#' @param n.cores number of cores to use for parallelization.  Please
+#' use \code{par.details} instead; this argument is only provided for
+#' convenience.
 #' 
 #' @param par.details Details of the parallelization to use in the
 #' core algorithm.
@@ -437,6 +441,7 @@ gbm <- function(formula = formula(data),
                 keep.data = TRUE,
                 verbose = FALSE,
                 class.stratify.cv=NULL,
+                n.cores=NULL,
                 par.details=getOption('gbm.parallel'),
                 fold.id = NULL,
                 tied.times.method="efron",
@@ -456,6 +461,15 @@ gbm <- function(formula = formula(data),
   y <- model.response(mf)
   w <- model.weights(mf)
   offset_mf <- model.offset(mf)
+
+  ## allow n.cores for historical reasons
+  if (!missing(n.cores)) {
+      if (!missing(par.details)) {
+          stop("You have provided both n.cores and par.details")
+      }
+      message("n.cores is deprecated, please use par.details")
+      par.details <- gbmParallel(num_threads=n.cores)
+  }
   
   # Set stratification to FALSE if NULL
   if(is.null(class.stratify.cv)) class.stratify.cv <- FALSE
