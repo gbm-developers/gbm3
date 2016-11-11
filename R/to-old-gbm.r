@@ -29,7 +29,7 @@ to_old_gbm <- function(gbm_fit_obj) {
   gbm_fit_old$fit <- gbm_fit_obj$fit
   
   gbm_fit_old$bag.fraction <- gbm_fit_obj$params$bag_fraction
-  gbm_fit_old$distribution <- tolower(gbm_fit_obj$distribution$name)
+  gbm_fit_old$distribution <- tolower(distribution_name(gbm_fit_obj))
   gbm_fit_old$interaction.depth <- gbm_fit_obj$params$interaction_depth
   gbm_fit_old$n.minobsinnode <- gbm_fit_obj$params$min_num_obs_in_node
   gbm_fit_old$n.trees <- length(gbm_fit_old$trees)
@@ -53,7 +53,7 @@ to_old_gbm <- function(gbm_fit_obj) {
   if(!is.null(gbm_fit_obj$gbm_data_obj)) {
     # put the observations back in - these are ordered according to id and group
     data <- gbm_fit_obj$gbm_data_obj
-    if(gbm_fit_obj$distribution$name == "CoxPH") {
+    if(distribution_name(gbm_fit_obj) == "CoxPH") {
       gbm_fit_old$data <- list(y=data$y, x=data$x,x.order=data$x_order, offset=data$offset, 
                                Misc=unlist(get_misc(gbm_fit_obj$distribution)), w=data$weights,
                                i.order=gbm_fit_obj$distribution$time_order)

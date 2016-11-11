@@ -24,3 +24,28 @@ iteration_error <- function(obj, which=c('train', 'valid', 'cv')) {
            cv=obj$cv_error,
            stop("Unknown error measure"))
 }
+
+##' What is the distribution name used here?
+##'
+##' @param obj the object for which the distribution name is needed
+##' @param ... other parameters
+##' @return a string identifying the distribution
+##' @export
+distribution_name <- function(obj, ...) {
+    UseMethod("distribution_name")
+}
+
+##' @export
+distribution_name.default <- function(obj, ...) {
+    stop("I don't know how to handle this")
+}
+
+##' @export
+distribution_name.GBMFit <- function(obj, ...) {
+    distribution_name(obj$distribution)
+}
+
+##' @export
+distribution_name.GBMDist <- function(obj, ...) {
+    obj$name
+}

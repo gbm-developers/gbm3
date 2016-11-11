@@ -30,7 +30,7 @@ test_that("print.GBMFit works without cross-validation (issue #5)", {
   
   trained_gbm <- gbmt_fit(df[, c("x", "y")], df$z)
   
-  expect_null(print(trained_gbm))
+  expect_error(print(trained_gbm), regexp=NA)
 })
 
 
@@ -66,5 +66,5 @@ test_that("print.GBMFit works without cross-validation (issue #5) - old api", {
 
     trained_gbm <- gbm.fit(df[, c("x", "y")], df$z)
     
-    expect_null(print(trained_gbm))
+    expect_error(print(trained_gbm), regexp=NA)
 })

@@ -215,7 +215,7 @@ gbmt <- function(formula,
   distribution <- determine_groups(data, y, distribution)
   
   # Update weights according to groupings
-  weights <- weight_group_consistency(weights, distribution)
+  weights <- weight_group_consistency(distribution, weights)
   
   # Update number of training rows based off of groups
   train_params <- update_num_train_groups(train_params, distribution)

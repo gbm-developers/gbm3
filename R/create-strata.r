@@ -2,9 +2,7 @@
 # 
 # Function used to create to appropriate strata vectors -
 # currently only implemented for the CoxPH distribution.
-# 
-# @usage create_strata(gbm_data_obj, train_params, distribution_obj,
-#  order_strata_by_id=TRUE)
+
 # 
 # @param gbm_data_obj gbm data object
 # 
@@ -30,7 +28,7 @@ create_strata <- function(gbm_data_obj, train_params, distribution_obj, order_st
   if(is.null(distribution_obj$sorted)) distribution_obj$sorted <- NA
   if(is.null(distribution_obj$strata)) distribution_obj$strata <- NA
   
-  if(distribution_obj$name == "CoxPH") {
+  if(distribution_name(distribution_obj) == "CoxPH") {
     num_train_rows <- train_params$num_train_rows
     num_test_rows <- nrow(gbm_data_obj$x) - num_train_rows
     
