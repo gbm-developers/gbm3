@@ -532,7 +532,7 @@ gbm <- function(formula = formula(data),
   dist_obj <- determine_groups(data, y, dist_obj)
   
   # Update weights according to groupings
-  weights <- weight_group_consistency(weights, dist_obj)
+  weights <- weight_group_consistency(dist_obj, weights)
   
   # Update number of training rows based off of groups
   params <- update_num_train_groups(params, dist_obj)

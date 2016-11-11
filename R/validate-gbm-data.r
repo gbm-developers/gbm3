@@ -19,12 +19,12 @@ validate_gbm_data <- function(gbm_data_obj, distribution_obj) {
   check_if_gbm_dist(distribution_obj)
   
   # Normalise Weights
-  if(!(distribution_obj$name %in% available_distributions())) {
+  if(!(distribution_name(distribution_obj) %in% available_distributions())) {
     stop("Distribution not recognised - see available_distributions for
            supported distributions")
   }
 
-  if(distribution_obj$name != "Pairwise") {
+  if(distribution_name(distribution_obj) != "Pairwise") {
     gbm_data_obj$weights <- gbm_data_obj$weights / mean(gbm_data_obj$weights)
   } 
   

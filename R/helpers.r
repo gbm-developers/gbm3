@@ -101,7 +101,7 @@ check_offset <- function(o, y, dist){
    # Check offset
   if(is.null(o))
       o <- rep(0,length(y))
-   else if((length(o) != length(y)) && (dist$name != "CoxPH"))
+   else if((length(o) != length(y)) && (distribution_name(dist) != "CoxPH"))
       stop("The length of offset does not equal the length of y.")
    else if(!is.numeric(o))
      stop("offset must be numeric")

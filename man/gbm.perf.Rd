@@ -13,8 +13,8 @@ call to \code{\link{gbmt}} or \code{\link{gbm}}.}
 
 \item{plot.it}{an indicator of whether or not to plot the
 performance measures. Setting \code{plot.it=TRUE} creates two
-plots. The first plot plots \code{object$train.error} (in black)
-and \code{object$valid.error} (in red) versus the iteration
+plots. The first plot plots the train error (in black)
+and the validation error (in red) versus the iteration
 number. The scale of the error measurement, shown on the left
 vertical axis, depends on the \code{distribution} argument used in
 the initial call.}

@@ -95,10 +95,10 @@ gbm_more <- function(gbm_fit_obj, num_new_trees=100,
   }
   
   # Reorder fit so as to be in order of data
-  if (gbm_fit_obj$distribution$name == "pairwise") 
+  if (distribution_name(gbm_fit_obj) == "Pairwise") 
   {
     gbm_fit_obj$fit   <- gbm_fit_obj$fit[gbm_fit_obj$distribution$group_order] # object$fit is stored in the original order
-  } else if (gbm_fit_obj$distribution$name == "CoxPH") {
+  } else if (distribution_name(gbm_fit_obj) == "CoxPH") {
     gbm_fit_obj$fit <- gbm_fit_obj$fit[gbm_fit_obj$time_order]
   }
 
@@ -115,11 +115,9 @@ gbm_more <- function(gbm_fit_obj, num_new_trees=100,
             prior.node.coeff.var = ifelse(is.null(distribution$prior_node_coeff_var), as.double(0),
                 as.double(distribution$prior_node_coeff_var)),
             id = as.integer(gbm_fit_obj$params$id),
-                        var.type=as.integer(gbm_fit_obj$variables$var_type),
+            var.type=as.integer(gbm_fit_obj$variables$var_type),
             var.monotone=as.integer(gbm_fit_obj$variables$var_monotone),
-            distribution=ifelse(distribution$name=="Pairwise", paste0(as.character(tolower(distribution$name)),"_",
-                                    as.character(tolower(distribution$metric))),
-                as.character(tolower(distribution$name))),
+            distribution=gbm_call_dist_name(distribution),
             n.trees=as.integer(num_new_trees),
             interaction.depth=as.integer(gbm_fit_obj$params$interaction_depth),
             n.minobsinnode=as.integer(gbm_fit_obj$params$min_num_obs_in_node),
@@ -130,7 +128,7 @@ gbm_more <- function(gbm_fit_obj, num_new_trees=100,
             mFeatures=as.integer(gbm_fit_obj$params$num_features),
             fit.old=as.double(gbm_fit_obj$fit),
             n.cat.splits.old=as.integer(length(gbm_fit_obj$c.splits)),
-            n.trees.old=as.integer(length(gbm_fit_obj$trees)),
+            n.trees.old=length(trees(gbm_fit_obj)),
             par_details=gbm_fit_obj$par_details,
             verbose=as.integer(is_verbose),
             PACKAGE = "gbm")
@@ -152,7 +150,7 @@ gbm_more <- function(gbm_fit_obj, num_new_trees=100,
                                   gbm_more_fit$valid.error)
   gbm_more_fit$oobag.improve <- c(gbm_fit_obj$oobag.improve,
                                   gbm_more_fit$oobag.improve)
-  gbm_more_fit$trees         <- c(gbm_fit_obj$trees,
+  gbm_more_fit$trees         <- c(trees(gbm_fit_obj),
                                   gbm_more_fit$trees)
   gbm_more_fit$c.splits      <- c(gbm_fit_obj$c.splits,
                                   gbm_more_fit$c.splits)

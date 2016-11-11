@@ -4,38 +4,39 @@
 \alias{training_params}
 \title{Training parameters}
 \usage{
-training_params(num_trees=100, interaction_depth=1,
- min_num_obs_in_node=10, shrinkage=0.001, bag_fraction=0.5,
- num_train=(2*min_num_obs_in_node+1)/bag_fraction + 1,
- id=seq_len(num_train), num_features=1)
+training_params(num_trees = 100, interaction_depth = 1,
+  min_num_obs_in_node = 10, shrinkage = 0.001, bag_fraction = 0.5,
+  num_train = (2 * min_num_obs_in_node + 1)/bag_fraction + 1,
+  id = seq_len(num_train), num_features = 1)
 }
 \arguments{
 \item{num_trees}{Number of trees used in the fit.}
 
 \item{interaction_depth}{Maximum depth of each tree}
 
-\item{min_num_obs_in_node}{Minimum number of observations each
-node in a tree must have.}
+\item{min_num_obs_in_node}{Minimum number of observations each node
+in a tree must have.}
 
-\item{shrinkage}{shrinkage parameter applied to each tree in the expansion. 
-Also known as the learning rate or step-size reduction.}
+\item{shrinkage}{shrinkage parameter applied to each tree in the
+expansion.  Also known as the learning rate or step-size reduction.}
 
-\item{bag_fraction}{fraction of independent training observations selected to
-create the next tree in the expansion.  Introduces randomness in the model fit; 
-if bag_fraction < 1 then running the same model twice  will result in similar
-but different fits.}
+\item{bag_fraction}{fraction of independent training observations
+selected to create the next tree in the expansion.  Introduces
+randomness in the model fit; if bag_fraction < 1 then running the
+same model twice will result in similar but different fits.}
 
 \item{num_train}{number of obs of data used in training the model.
 This defaults to the minimum number of  observations allowed - 
 \code{(2*min_num_obs_in_node + 1)/bag_fraction + 1}.}
 
-\item{id}{optional vector of integers, specifying which rows in the data correspond
-to which observations. Individual observations may have many rows of data associated
-with them. This defaults to \code{seq_len(num_train)}. 
-NB: When calling \code{\link{gbmt}} or \code{\link{gbmt_fit}} the id should be the default.}
+\item{id}{optional vector of integers, specifying which rows in the
+data correspond to which observations. Individual observations may
+have many rows of data associated with them. This defaults to
+\code{seq_len(num_train)}.  NB: When calling \code{\link{gbmt}} or
+\code{\link{gbmt_fit}} the id should be the default.}
 
-\item{num_features}{number of random features/columns to use in training model. 
-This defaults to \code{1}.}
+\item{num_features}{number of random features/columns to use in
+training model.  This defaults to \code{1}.}
 }
 \value{
 training parameters object

@@ -60,9 +60,7 @@ gbm_call <- function(gbm_data_obj, gbm_dist_obj, train_params, var_container, pa
                 id = as.integer(train_params$id),
                 var.type=as.integer(var_container$var_type),
                 var.monotone=as.integer(var_container$var_monotone),
-                distribution=ifelse(gbm_dist_obj$name=="Pairwise", paste0(as.character(tolower(gbm_dist_obj$name)),"_",
-                                                                      as.character(tolower(gbm_dist_obj$metric))),
-                                as.character(tolower(gbm_dist_obj$name))),
+                distribution=gbm_call_dist_name(gbm_dist_obj),
                 n.trees=as.integer(train_params$num_trees),
                 interaction.depth=as.integer(train_params$interaction_depth),
                 n.minobsinnode=as.integer(train_params$min_num_obs_in_node),
@@ -83,4 +81,17 @@ gbm_call <- function(gbm_data_obj, gbm_dist_obj, train_params, var_container, pa
   fit$variables <- var_container
   class(fit) <- "GBMFit"
   return(fit)
+}
+
+##
+gbm_call_dist_name <- function(obj) {
+    UseMethod("gbm_call_dist_name")
+}
+
+gbm_call_dist_name.default <- function(obj) {
+    tolower(distribution_name(obj))
+}
+
+gbm_call_dist_name.PairwiseGBMDist <- function(obj) {
+    paste(tolower(distribution_name(obj)), tolower(obj$metric), sep="_")
 }

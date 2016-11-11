@@ -56,7 +56,7 @@ print.GBMFit <- function(x, ... ){
   # CV confusion matrix and pseudo-R-squared
   print_confusion_matrix(x)
   
-  return(invisible())
+  return(invisible(x))
 }
 
 
@@ -65,7 +65,7 @@ print_iters_and_dist <- function(x) {
   # If Pairwise dist extract metric and max_rank
   # else distribution details is just the name
   check_if_gbm_fit(x)
-  if(x$distribution$name == "Pairwise") {
+  if(distribution_name(x) == "Pairwise") {
     if (!is.null(x$distribution$max.rank) && (x$distribution$max.rank > 0)) {
       distribution_details <- sprintf("pairwise (metric=%s, max.rank=%d)", x$distribution$metric,
                                       x$distribution$max.rank)
@@ -73,10 +73,10 @@ print_iters_and_dist <- function(x) {
       distribution_details <- sprintf("pairwise (metric=%s)", x$distribution$metric)
     }
   } else {
-    distribution_details <- x$distribution$name
+    distribution_details <- distribution_name(x)
   }
-  cat( paste( "A gradient boosted model with", distribution_details, "loss function.\n" ))
-  cat( paste( length(x$train.error), "iterations were performed.\n" ) )
+  cat("A gradient boosted model with", distribution_details, "loss function.\n",
+      length(iteration_error(x, 'train')), "iterations were performed.\n")
 }
 
 print_perf_measures <- function(x) {
@@ -85,7 +85,7 @@ print_perf_measures <- function(x) {
   check_if_gbm_fit(x)
   
   # Set default answer - final iteration
-  best_iter <- length(x$train.error)
+  best_iter <- length(iteration_error(x, 'train'))
   
   # CV best iteration 
   if (has_cross_validation(x)) {
@@ -103,17 +103,17 @@ print_perf_measures <- function(x) {
 print_confusion_matrix <- function(x) {
   # This prints the confusion matrix based on the
   # cross validated fit - if no cv fit is present - break
-  if(is.null(x$cv_fitted)) return(invisible())
+  if (!has_cross_validation(x)) return(invisible())
   
   # If data was not kept than can't calculate confusion matrix
   check_if_gbm_fit(x)
   if(is.null(x$gbm_data_obj)) return(invisible())
   
   # Print off confusion matrix or pseudo R^2
-  if (x$distribution$name %in% c("Bernoulli", "AdaBoost", "Huberized")) {
+  if (distribution_name(x) %in% c("Bernoulli", "AdaBoost", "Huberized")) {
     binary_response_conf_matrix(x$gbm_data_obj$y, x$cv_fitted)
-  } else if (x$distribution$name %in% c("Gaussian", "Laplace", "Quantile", "TDist")) {
-    pseudo_r_squared(x$gbm_data_obj$y, x$cv_fitted, x$distribution$name)
+  } else if (distribution_name(x) %in% c("Gaussian", "Laplace", "Quantile", "TDist")) {
+    pseudo_r_squared(x$gbm_data_obj$y, x$cv_fitted, distribution_name(x))
   }
 }
 

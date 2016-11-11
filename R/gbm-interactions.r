@@ -168,7 +168,7 @@ compute_preds_for_all_var_combinations <- function(data, gbm_fit_obj, all_combin
                                                i.var = as.integer(variables_indices[all_combinations_vars[[vars]]] - 1),
                                                n.trees = as.integer(num_trees),
                                                initF = as.double(gbm_fit_obj$initF),
-                                               trees = gbm_fit_obj$trees,
+                                               trees = trees(gbm_fit_obj),
                                                c.splits = gbm_fit_obj$c.splits,
                                                var.type = as.integer(gbm_fit_obj$variables$var_type),
                                                PACKAGE = "gbm")

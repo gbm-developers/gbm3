@@ -22,18 +22,6 @@ NULL
     invisible()
 }
 
-#' gbm internal functions
-#' 
-#' Helper functions for preprocessing data prior to building the model
-#' 
-#' These are functions used internally by \code{gbmt} and not intended for
-#' direct use by the user.
-#' 
-#' @name gbm-internal
-NULL
-
-
-
 
 
 #' Generalized Boosted Regression Model Object

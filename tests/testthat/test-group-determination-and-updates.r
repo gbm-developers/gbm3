@@ -230,7 +230,7 @@ test_that("weight_group_consistency throws an error if distribution object is no
   class(dist) <- "Wrong"
   
   # Then weight_group_consistency throws error
-  expect_error(weight_group_consistency(w, dist))
+  expect_error(weight_group_consistency(dist, w))
 })
 test_that("weight_group_consistency does not alter weights if NOT Pairwise", {
   # Given weights and distribution objects NOT Pairwise
@@ -249,17 +249,17 @@ test_that("weight_group_consistency does not alter weights if NOT Pairwise", {
   
   # When weight_group_consistency is called
   # Then the original weights are returned
-  expect_equal(weight_group_consistency(w, dist_1), w)
-  expect_equal(weight_group_consistency(w, dist_2), w)
-  expect_equal(weight_group_consistency(w, dist_3), w)
-  expect_equal(weight_group_consistency(w, dist_4), w)
-  expect_equal(weight_group_consistency(w, dist_5), w)
-  expect_equal(weight_group_consistency(w, dist_6), w)
-  expect_equal(weight_group_consistency(w, dist_7), w)
-  expect_equal(weight_group_consistency(w, dist_8), w)
-  expect_equal(weight_group_consistency(w, dist_9), w)
-  expect_equal(weight_group_consistency(w, dist_10), w)
-  expect_equal(weight_group_consistency(w, dist_11), w)
+  expect_equal(weight_group_consistency(dist_1, w), w)
+  expect_equal(weight_group_consistency(dist_2, w), w)
+  expect_equal(weight_group_consistency(dist_3, w), w)
+  expect_equal(weight_group_consistency(dist_4, w), w)
+  expect_equal(weight_group_consistency(dist_5, w), w)
+  expect_equal(weight_group_consistency(dist_6, w), w)
+  expect_equal(weight_group_consistency(dist_7, w), w)
+  expect_equal(weight_group_consistency(dist_8, w), w)
+  expect_equal(weight_group_consistency(dist_9, w), w)
+  expect_equal(weight_group_consistency(dist_10, w), w)
+  expect_equal(weight_group_consistency(dist_11, w), w)
 })
 test_that("weight_group_consistency throws error if weights across groups are different - Pairwise", {
   # Given weights are different across groups and a Pairwise distribution
@@ -299,6 +299,6 @@ test_that("weight_group_consistency throws error if weights across groups are di
   w[dist$group == 1] <- abs(rnorm(length(dist$group[dist$group == 1])))
   
   # Then error is thrown
-  expect_error(weight_group_consistency(w, dist))
+  expect_error(weight_group_consistency(dist, w))
 })
 
