@@ -44,24 +44,27 @@ perf_plot <- function(gbm_fit_obj, best_iter, out_of_bag_curve,
   ylab <- get_ylabel(gbm_fit_obj$distribution)
   if(gbm_fit_obj$params$train_fraction==1) {
     ylim <- switch(method,
-                   cv=range(gbm_fit_obj$train.error, gbm_fit_obj$cv_error),
-                   test=range(gbm_fit_obj$train.error, gbm_fit_obj$valid.error),
-                   OOB=range(gbm_fit_obj$train.error))
+                   cv=range(iteration_error(gbm_fit_obj, 'train'),
+                       iteration_error(gbm_fit_obj, 'cv')),
+                   test=range(iteration_error(gbm_fit_obj, 'train'),
+                       iteration_error(gbm_fit_obj, 'valid')),
+                   OOB=range(iteration_error('train')))
   } else {
-    ylim <- range(gbm_fit_obj$train.error, gbm_fit_obj$valid.error)
+        ylim <- range(iteration_error(gbm_fit_obj, 'train'),
+                      iteration_error(gbm_fit_obj, 'valid'))
   }
   
   # Initial plot
-  plot(gbm_fit_obj$train.error,
+  plot(iteration_error(gbm_fit_obj, 'train'),
        ylim=ylim,
        type="l",
        xlab="Iteration", ylab=ylab, main=main)
   
   if(gbm_fit_obj$params$train_fraction != 1) {
-    lines(gbm_fit_obj$valid.error,col="red")
+    lines(iteration_error(gbm_fit_obj, 'valid'), col="red")
   }
   if(method=="cv") {
-    lines(gbm_fit_obj$cv_error, col="green")
+    lines(iteration_error(gbm_fit_obj, 'cv'), col="green")
   }
   if(!is.na(best_iter)) abline(v=best_iter,col="blue",lwd=2,lty=2)
   

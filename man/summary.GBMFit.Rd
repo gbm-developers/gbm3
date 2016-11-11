@@ -5,7 +5,7 @@
 \title{Summary of a GBMFit object}
 \usage{
 \method{summary}{GBMFit}(object, cBars = length(object$variables$var_names),
-  num_trees = length(object$trees), plot_it = TRUE, order_it = TRUE,
+  num_trees = length(trees(object)), plot_it = TRUE, order_it = TRUE,
   method = relative_influence, normalize = TRUE, ...)
 }
 \arguments{

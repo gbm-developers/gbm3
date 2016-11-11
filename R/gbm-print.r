@@ -75,8 +75,8 @@ print_iters_and_dist <- function(x) {
   } else {
     distribution_details <- x$distribution$name
   }
-  cat( paste( "A gradient boosted model with", distribution_details, "loss function.\n" ))
-  cat( paste( length(x$train.error), "iterations were performed.\n" ) )
+  cat("A gradient boosted model with", distribution_details, "loss function.\n",
+      length(iteration_error(x, 'train')), "iterations were performed.\n")
 }
 
 print_perf_measures <- function(x) {
@@ -85,7 +85,7 @@ print_perf_measures <- function(x) {
   check_if_gbm_fit(x)
   
   # Set default answer - final iteration
-  best_iter <- length(x$train.error)
+  best_iter <- length(iteration_error(x, 'train'))
   
   # CV best iteration 
   if (has_cross_validation(x)) {

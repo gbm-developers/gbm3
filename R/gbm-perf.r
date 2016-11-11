@@ -9,8 +9,8 @@
 #'
 #' @param plot.it an indicator of whether or not to plot the
 #' performance measures. Setting \code{plot.it=TRUE} creates two
-#' plots. The first plot plots \code{object$train.error} (in black)
-#' and \code{object$valid.error} (in red) versus the iteration
+#' plots. The first plot plots the train error (in black)
+#' and the validation error (in red) versus the iteration
 #' number. The scale of the error measurement, shown on the left
 #' vertical axis, depends on the \code{distribution} argument used in
 #' the initial call.
@@ -169,7 +169,7 @@ plot.GBMTPerformance <- function(x,
 #### Helper functions ####
 best_iter_test <- function(gbm_fit_obj) {
   check_if_gbm_fit(gbm_fit_obj)
-  best_iter_test <- which.min(gbm_fit_obj$valid.error)
+  best_iter_test <- which.min(iteration_error(gbm_fit_obj, 'valid'))
   return(best_iter_test)
 }
 
@@ -180,7 +180,7 @@ best_iter_cv <- function(gbm_fit_obj) {
       stop('In order to use method="cv" gbm must be called with cv_folds>1.')
   }
   
-  best_iter_cv <- which.min(gbm_fit_obj$cv_error)
+  best_iter_cv <- which.min(iteration_error(gbm_fit_obj, 'cv'))
   return(best_iter_cv)
 }
 

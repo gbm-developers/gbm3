@@ -21,9 +21,9 @@ to_old_gbm <- function(gbm_fit_obj) {
   # Convert gbm_fit_obj to old API
   gbm_fit_old <- list()
   gbm_fit_old$initF <- gbm_fit_obj$initF
-  gbm_fit_old$train.error <- gbm_fit_obj$train.error
-  gbm_fit_old$valid.error <- gbm_fit_obj$valid.error
-  gbm_fit_old$trees <- gbm_fit_obj$trees
+  gbm_fit_old$train.error <- iteration_error(gbm_fit_obj, 'train')
+  gbm_fit_old$valid.error <- iteration_error(gbm_fit_obj, 'valid')
+  gbm_fit_old$trees <- trees(gbm_fit_obj)
   gbm_fit_old$c.splits <- gbm_fit_obj$c.splits
   gbm_fit_old$oobag.improve <- gbm_fit_obj$oobag.improve
   gbm_fit_old$fit <- gbm_fit_obj$fit
@@ -32,7 +32,7 @@ to_old_gbm <- function(gbm_fit_obj) {
   gbm_fit_old$distribution <- tolower(gbm_fit_obj$distribution$name)
   gbm_fit_old$interaction.depth <- gbm_fit_obj$params$interaction_depth
   gbm_fit_old$n.minobsinnode <- gbm_fit_obj$params$min_num_obs_in_node
-  gbm_fit_old$n.trees <- length(gbm_fit_obj$trees)
+  gbm_fit_old$n.trees <- length(gbm_fit_old$trees)
   gbm_fit_old$nTrain <- gbm_fit_obj$params$num_train_rows
   gbm_fit_old$nTrainPats <- gbm_fit_obj$params$num_train
   gbm_fit_old$patient.id <- gbm_fit_obj$params$id
@@ -68,8 +68,8 @@ to_old_gbm <- function(gbm_fit_obj) {
   gbm_fit_old$tied.times.methods <- gbm_fit_obj$distribution$ties
   gbm_fit_old$ord.group <- gbm_fit_obj$distribution$group_order
   gbm_fit_old$cv.folds <- gbm_fit_obj$cv_folds
-  gbm_fit_old$cv.error <- gbm_fit_obj$cv_error
-  gbm_fit_old$cv.fitted <- gbm_fit_obj$cv.fitted
+  gbm_fit_old$cv.error <- iteration_error(gbm_fit_obj, 'cv')
+  gbm_fit_old$cv.fitted <- gbm_fit_obj$cv_fitted
   gbm_fit_old$Terms <- gbm_fit_obj$Terms
   gbm_fit_old$call <- gbm_fit_obj$call
   gbm_fit_old$m <- gbm_fit_obj$m

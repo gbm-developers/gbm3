@@ -44,7 +44,7 @@ permutation_relative_influence <- function(gbm_fit_obj,
   # Checks initial inputs
   check_if_gbm_fit(gbm_fit_obj)
   check_if_natural_number(num_trees)
-  if(num_trees > length(gbm_fit_obj$trees))
+  if(num_trees > length(trees(gbm_fit_obj)))
     stop("num_trees exceeds maximum")
   if(is.na(rescale) || !is.logical(rescale) || (length(rescale) > 1))
     stop("rescale argument must be a logical")
@@ -54,7 +54,7 @@ permutation_relative_influence <- function(gbm_fit_obj,
     stop("Model was fit with keep_data=FALSE: permutation_relative_influence has not been implemented for that case.")
   
   # Get variables used in the model
-  variables_indices <- sort(unique(unlist(lapply(gbm_fit_obj$trees[seq_len(num_trees)],
+  variables_indices <- sort(unique(unlist(lapply(trees(gbm_fit_obj)[seq_len(num_trees)],
                                       function(x){unique(x[[1]])}))))
   
   # Remove unused variables (those = "-1") and adjust indices from C convention 
@@ -80,9 +80,11 @@ permutation_relative_influence <- function(gbm_fit_obj,
                          n.trees=num_trees)
     
     # Calculate loss with shuffled data
-    rel_inf[variables_indices[i]] <- loss(y, new_preds, weights, offset,
-                                          gbm_fit_obj$distribution,
-                                          baseline=rep(gbm_fit_obj$train.error[num_trees], length(weights)))
+    rel_inf[variables_indices[i]] <-
+        loss(y, new_preds, weights, offset,
+             gbm_fit_obj$distribution,
+             baseline=rep(iteration_error(gbm_fit_obj, 'train')[num_trees],
+                 length(weights)))
     
     # Unshuffle variable - only permute variables one at a time
     x[shuffled_rows, variables_indices[i]] <- x[ ,variables_indices[i]]

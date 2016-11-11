@@ -33,12 +33,13 @@ pretty_gbm_tree <- function(gbm_fit_obj, tree_index=1)
 {
   # Initial checks
   check_if_natural_number(tree_index)
-  if(tree_index >length(gbm_fit_obj$trees)) {
-    stop("tree_index is out of range. Must be less than ", length(gbm_fit_obj$trees))
+  if(tree_index >length(trees(gbm_fit_obj))) {
+      stop("tree_index is out of range. Must be less than ",
+           length(trees(gbm_fit_obj)))
   }
   
   # Convert selected tree to data.frame
-  tree <- data.frame(gbm_fit_obj$trees[[tree_index]])
+  tree <- data.frame(trees(gbm_fit_obj)[[tree_index]])
   names(tree) <- c("SplitVar","SplitCodePred","LeftNode",
                    "RightNode","MissingNode","ErrorReduction",
                    "Weight","Prediction")

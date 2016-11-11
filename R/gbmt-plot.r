@@ -123,7 +123,7 @@ plot.GBMFit <- function(x,
              i.var = as.integer(var_index-1),
              num_trees = as.integer(num_trees) ,
              initF = as.double(gbm_fit_obj$initF),
-             trees = gbm_fit_obj$trees,
+             trees = trees(gbm_fit_obj),
              c.splits = gbm_fit_obj$c.splits,
              var.type = as.integer(gbm_fit_obj$variables$var_type),
              PACKAGE = "gbm")

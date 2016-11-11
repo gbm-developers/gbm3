@@ -54,20 +54,21 @@ relative_influence <- function(gbm_fit_obj, num_trees,
     if ( gbm_fit_obj$params$train_fraction < 1 ){
       num_trees <- gbmt_performance(gbm_fit_obj, method="test")
     }
-    else if ( !is.null( gbm_fit_obj$cv_error ) ){
+    else if ( has_cross_validation(gbm_fit_obj) ) {
       num_trees <- gbmt_performance(gbm_fit_obj, method="cv")
     }
     else{
       num_trees <- gbm_fit_obj$params$num_trees
     }
-    message(paste( "num_trees not given. Using", num_trees, "trees.\n" ))
+    message("num_trees not given. Using ", num_trees, " trees.")
     
-  } else if (num_trees > length(gbm_fit_obj$trees)) {
+  } else if (num_trees > length(trees(gbm_fit_obj))) {
     stop("num_trees exceeds number in fit")
   }
 
   # Create relative influence for every variable
-  rel_inf_verbose <- unlist(lapply(gbm_fit_obj$trees[seq_len(num_trees)], get_rel_inf_of_vars))
+  rel_inf_verbose <- unlist(lapply(trees(gbm_fit_obj)[seq_len(num_trees)],
+                                   get_rel_inf_of_vars))
   
   # Sum across trees and remove unused variables (names are "-1")
   rel_inf_compact <- unlist(lapply(split(rel_inf_verbose, names(rel_inf_verbose)), sum))
