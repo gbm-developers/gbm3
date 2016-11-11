@@ -80,16 +80,22 @@ test_that("to_old_gbm output has correct fields", {
   fit <- gbmt(Y~X1+X2+X3+X4+X5+X6, data=data, distribution=dist, weights=w, offset=offset,
               train_params=params, var_monotone=c(0, 0, 0, 0, 0, 0), keep_gbm_data=TRUE, cv_folds=10, is_verbose=FALSE)
   # When converted to old form
-  # Then has right fields
-  expect_equal(names(to_old_gbm(fit)), c("initF", "train.error", "valid.error", "trees",
-                                         "c.splits", "oobag.improve", "fit", "bag.fraction",
-                                         "distribution", "interaction.depth", "n.minobsinnode",
-                                         "n.trees", "nTrain", "nTrainPats", "patient.id",
-                                         "mFeatures", "train.fraction", "response.name", "shrinkage",
-                                         "var.levels", "var.monotone", "var.names", "var.type", "verbose",
-                                         "strata", "sorted", "prior.node.coeff.var", "data", "cv.folds", "cv.error", "Terms",
-                                         "call", "m"))
+                                        # Then has right fields
+  expected <-
+      sort(c("initF", "train.error", "valid.error", "trees",
+             "c.splits", "oobag.improve", "fit", "bag.fraction",
+             "distribution", "interaction.depth", "n.minobsinnode",
+             "n.trees", "nTrain", "nTrainPats", "patient.id",
+             "mFeatures", "train.fraction", "response.name", "shrinkage",
+             "var.levels", "var.monotone", "var.names", "var.type",
+             "verbose",
+             "strata", "sorted", "prior.node.coeff.var", "data",
+             "cv.folds", "cv.error", "cv.fitted", "Terms",
+             "call", "m"))
+  
+  expect_equal(sort(names(to_old_gbm(fit))), expected)
 })
+
 test_that("to_old_gbm gives correct message on calling", {
   set.seed(1)
   
