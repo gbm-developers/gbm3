@@ -426,7 +426,7 @@
 gbm <- function(formula = formula(data),
                 distribution = "bernoulli",
                 data = list(),
-                weights,
+                weights=rep(1, nrow(data)),
                 subset = NULL,
                 offset = NULL,
                 var.monotone = NULL,
