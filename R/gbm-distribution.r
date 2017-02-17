@@ -6,7 +6,7 @@
 #' 
 #' @param name The name (a string) of the distribution to be initialized and used
 #' in fitting a gradient boosted model via gbmt.  The current distributions
-#' available can be viewed using the available-distributions function.  If no 
+#' available can be viewed using the function \code{available_distributions}.  If no 
 #' distribution is specified this function constructs a Gaussian distribution by
 #' default.
 #' 
