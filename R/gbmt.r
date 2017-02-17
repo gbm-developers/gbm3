@@ -92,7 +92,7 @@
 ##'                      shrinkage = 0.001,
 ##'                      bag_fraction = 0.5,
 ##'                      num_train = N/2,
-##'                      id=seq_len(nrow(data)),
+##'                      id=seq_len(N),
 ##'                      min_num_obs_in_node = 10,
 ##'                      interaction_depth = 3,
 ##'                      num_features = 3)
