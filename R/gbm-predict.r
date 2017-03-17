@@ -66,8 +66,8 @@ predict.GBMFit <- function(object, newdata, n.trees,
   }
   
   if(any(n.trees != as.integer(n.trees)) || is.na(all(n.trees == as.integer(n.trees)))
-     || any(n.trees < 1)) {
-    stop("n.trees must be a vector of positive integers")
+     || any(n.trees < 0)) {
+    stop("n.trees must be a vector of non-negative integers")
   }
   
   if(!is.null(attr(object$Terms,"offset")))
