@@ -9,7 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 ```{r, message=FALSE, echo=FALSE}
-library(gbm)
+library("gbm3")
 ```
 
 `gbm` facilitates the creation of boosted Cox proportional hazards models, a particularly useful feature

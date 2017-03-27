@@ -9,7 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 ```{r, message=FALSE, echo=FALSE}
-library(gbm)
+library("gbm3")
 ```
 
 The `gbm` package implements gradient tree boosting for a wide variety of statistical models and loss functions; including those commonly used in statistics, such as the Cox model, but not usually associated with boosted models.  When presented with data, the `gbm` package offers the user the ability to build predictive models and explore the influence of different variables on the response, akin to a data mining or exploration task.  

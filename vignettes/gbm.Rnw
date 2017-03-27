@@ -17,7 +17,7 @@
 \maketitle
 
 <<echo=FALSE>>=
-library("gbm")
+library("gbm3")
 set.seed(557165559)
 @ 
 
@@ -365,7 +365,7 @@ storage. I usually aim for 3,000 to 10,000 iterations with shrinkage
 rates between 0.01 and 0.001.
 
 <<shrinkViters, fig.cap="Out-of-sample predictive performance by number of iterations and shrinkage. Smaller values of the shrinkage parameter offer improved predictive performance, but with decreasing marginal improvement.", echo=FALSE>>=
-library("gbm")
+library("gbm3")
 
 N <- 10000
 X1 <- runif(N)

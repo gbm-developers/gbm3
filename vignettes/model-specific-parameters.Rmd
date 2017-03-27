@@ -9,7 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 ```{r, message=FALSE, echo=FALSE}
-library(gbm)
+library("gbm3")
 ```
 A number of distributions provided by `gbm` have model specific parameters associated with them. All distributions have parameters associated with them such as the mean or variance; however, certain distributions require additional data to be defined fully.  This additional data is referred to as "model specific parameters". This document describes how to correctly specify these parameters on construction of the associated `GBMDist`
 object as well as their default values.

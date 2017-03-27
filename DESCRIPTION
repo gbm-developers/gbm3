@@ -1,4 +1,4 @@
-Package: gbm
+Package: gbm3
 Version: 2.2
 Date: 2016-06-16
 Title: Generalized Boosted Regression Models
@@ -43,6 +43,6 @@ Description: Extensions
     exponential loss, Huberized hinge loss,
     and Learning to Rank measures (LambdaMART).
 License: GPL (>= 2) | file LICENSE
-URL: https://github.com/gbm-developers/gbm
+URL: https://github.com/gbm-developers/gbm3
 RoxygenNote: 5.0.1
 LinkingTo: Rcpp

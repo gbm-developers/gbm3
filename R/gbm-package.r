@@ -1,5 +1,5 @@
 #' @importFrom Rcpp sourceCpp
-#' @useDynLib gbm
+#' @useDynLib gbm3
 #' @importFrom survival Surv
 #' @import lattice
 #' @importFrom graphics abline axis barplot lines mtext par plot polygon rug
