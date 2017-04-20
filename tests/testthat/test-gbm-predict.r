@@ -349,8 +349,10 @@ test_that("Error thrown if n.trees has element which is not an integer", {
   
   # When calling predict with number of trees containing an element which isn't an integer
   # Then an error will be thrown
-  expect_error(predict(fit, data2, n.trees=c(1, -1.2)), "n.trees must be a vector of positive integers")
+  expect_error(predict(fit, data2, n.trees=c(1, -1.2)),
+               "n.trees must be a vector of non-negative integers")
 })
+
 test_that("Warning thrown if offset was in original fit", {
   # Given a fit and data
   ## test Gaussian distribution gbm model
