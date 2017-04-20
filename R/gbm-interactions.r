@@ -171,7 +171,7 @@ compute_preds_for_all_var_combinations <- function(data, gbm_fit_obj, all_combin
                                                trees = trees(gbm_fit_obj),
                                                c.splits = gbm_fit_obj$c.splits,
                                                var.type = as.integer(gbm_fit_obj$variables$var_type),
-                                               PACKAGE = "gbm")
+                                               PACKAGE = "gbm3")
     
     # Convert predictions to flat matrix
     preds_for_comb_vars[[vars]]$preds <- matrix(preds_for_comb_vars[[vars]]$preds, ncol=1, byrow=FALSE)

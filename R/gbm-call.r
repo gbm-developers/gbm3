@@ -74,7 +74,7 @@ gbm_call <- function(gbm_data_obj, gbm_dist_obj, train_params, var_container, pa
                 n.trees.old=as.integer(0),
                 par_details,
                 verbose=as.integer(is_verbose),
-                PACKAGE = "gbm")
+                PACKAGE = "gbm3")
   
   fit$distribution <- gbm_dist_obj
   fit$params <- train_params

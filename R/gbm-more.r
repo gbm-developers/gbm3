@@ -131,7 +131,7 @@ gbm_more <- function(gbm_fit_obj, num_new_trees=100,
             n.trees.old=length(trees(gbm_fit_obj)),
             par_details=gbm_fit_obj$par_details,
             verbose=as.integer(is_verbose),
-            PACKAGE = "gbm")
+            PACKAGE = "gbm3")
   
   # Set class
   class(gbm_more_fit) <- "GBMFit"

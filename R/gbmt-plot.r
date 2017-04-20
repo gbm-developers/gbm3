@@ -126,7 +126,7 @@ plot.GBMFit <- function(x,
              trees = trees(gbm_fit_obj),
              c.splits = gbm_fit_obj$c.splits,
              var.type = as.integer(gbm_fit_obj$variables$var_type),
-             PACKAGE = "gbm")
+             PACKAGE = "gbm3")
   
   if(type=="response") {
    X$y <- response(y, gbm_fit_obj$distribution)
