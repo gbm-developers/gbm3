@@ -1,2 +1,2 @@
 library("testthat")
-test_check("gbm", "^o")
+test_check("gbm3", "^o")

@@ -121,7 +121,7 @@ predict.GBMFit <- function(object, newdata, n.trees,
                  c.split=object$c.split,
                  var.type=as.integer(object$variables$var_type),
                  single.tree = as.integer(single.tree),
-                 PACKAGE = "gbm")
+                 PACKAGE = "gbm3")
   
   # Convert into matrix of predictions
   if((length(n.trees) > 1) || (!is.null(object$num.classes) && (object$num.classes > 1))) {
