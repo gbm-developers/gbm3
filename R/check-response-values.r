@@ -17,7 +17,7 @@ check_response_values <- function(distribution_obj, y) {
   # Check inputs
   if( !(class(distribution_obj)[1] %in%
         paste0(available_distributions(),"GBMDist")) ) {
-    stop("Distribution object not recognised - use gbm_dist to create a valide object")
+    stop("Distribution object not recognised - use gbm_dist to create a valid object")
   }
   
   if(!is.matrix(y) && !is.data.frame(y) &&
