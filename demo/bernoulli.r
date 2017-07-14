@@ -89,3 +89,24 @@ calibrate_plot(Y,p.pred[,3])
 sum(data2$Y*f.predict[,1] - log(1+exp(f.predict[,1])))
 sum(data2$Y*f.predict[,2] - log(1+exp(f.predict[,2])))
 sum(data2$Y*f.predict[,3] - log(1+exp(f.predict[,3])))
+
+
+nodes <- predict(gbm1, data, 10, nodes=TRUE)
+rf <- rulefit(gbm1, 10)
+
+nodes2 <- rulefit:::predict_sparse_nodes(rf, data)
+
+
+rf$rules[[2]]
+
+with(subset(data, eval(parse(text = toString(rf$rules[[3]])), envir = data)),
+  all(eval(parse(text = toString(rf$rules[[3]]))))
+)
+
+
+
+summary(data$X2[nodes[,2] == 1])
+
+
+
+

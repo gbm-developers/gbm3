@@ -143,7 +143,7 @@ SEXP gbm(SEXP response, SEXP intResponse, SEXP offset_vec, SEXP covariates,
 
   // Set up parameters for initialization
   DataDistParams datadistparams(
-      response, intResponse, offset_vec, covariates, covar_order, 
+      response, intResponse, offset_vec, covariates, covar_order,
       obs_weight, misc, prior_coeff_var, row_to_obs_id, var_classes,
       monotonicity_vec, dist_family, fraction_inbag, num_rows_in_training,
       num_obs_in_training, number_offeatures, parallel);
@@ -456,4 +456,129 @@ SEXP gbm_plot(
   END_RCPP
 }  // gbm_plot
 
+
+  //-----------------------------------
+  // Function: gbm_pred_sparse_nodes
+  //
+  // Returns: Sparse node matrix data - an Rcpp::List of Sparse Matrix components
+  //
+  // Description: Makes predictions using a previously fit
+  //			gbm model and data.
+  //
+  // Parameters:
+  //  covariates - SEXP containing the predictor values - becomes
+  //				  const Rcpp::NumericMatrix.
+  //  num_trees - SEXP containing an int or vector of ints specifying the number
+  //  of
+  //				  trees to make predictions on - stored as const
+  // Rcpp::IntegerVector.
+  //  fitted_trees - SEXP containing lists defining the previously fitted trees -
+  //					stored as const Rcpp::GenericVector.
+  //  categorical_splits - SEXP containing  list of the categories of the split
+  //  variables
+  //						defining a tree - stored as a
+  // const
+  // Rcpp::GenericVector.
+  //  variable_type -  SEXP containing integers specifying whether the variable
+  //					is continuous/nominal- stored as const
+  //-----------------------------------
+
+  SEXP gbm_pred_sparse_nodes(SEXP covariates, SEXP num_trees, SEXP fitted_trees,
+    SEXP categorical_splits, SEXP variable_type) {
+    BEGIN_RCPP
+    int tree_num = 0;
+    int obs_num = 0;
+    const Rcpp::NumericMatrix kCovarMat(covariates);
+    const int kNumCovarRows = kCovarMat.nrow();
+    const Rcpp::IntegerVector kTrees(num_trees);
+    const Rcpp::GenericVector kFittedTrees(fitted_trees);
+    const Rcpp::IntegerVector kVarType(variable_type);
+    const Rcpp::GenericVector kSplits(categorical_splits);
+    int prediction_iteration = 0;
+
+    if ((kCovarMat.ncol() != kVarType.size())) {
+      throw gbm_exception::InvalidArgument("shape mismatch");
+    }
+
+    // Sparse matrix objects
+    std::vector<int> kSparseMatrixRows;
+    std::vector<int> kSparseMatrixCols;
+    Rcpp::IntegerVector kDims(2, 0);
+    int nCols = 0;
+
+    // initialize the predicted values
+    tree_num = 0;
+    for (prediction_iteration = 0; prediction_iteration < kTrees.size();
+         prediction_iteration++) {
+
+      const int kCurrTree = kTrees[prediction_iteration];
+
+      while (tree_num < kCurrTree) {
+        const Rcpp::GenericVector kThisFitTree = kFittedTrees[tree_num];
+        const Rcpp::IntegerVector kThisSplitVar = kThisFitTree[0];
+        const Rcpp::NumericVector kThisSplitCode = kThisFitTree[1];
+        const Rcpp::IntegerVector kThisLeftNode = kThisFitTree[2];
+        const Rcpp::IntegerVector kThisRightNode = kThisFitTree[3];
+        const Rcpp::IntegerVector kThisMissingNode = kThisFitTree[4];
+
+        for (obs_num = 0; obs_num < kNumCovarRows; obs_num++) {
+          int iCurrentNode = 0;
+          kSparseMatrixRows.push_back(obs_num);
+          kSparseMatrixCols.push_back(iCurrentNode + nCols);
+
+          while (kThisSplitVar[iCurrentNode] != -1) {
+            const double dX =
+              kCovarMat[kThisSplitVar[iCurrentNode] * kNumCovarRows + obs_num];
+            // missing?
+            if (ISNA(dX)) {
+              iCurrentNode = kThisMissingNode[iCurrentNode];
+            }
+            // continuous?
+            else if (kVarType[kThisSplitVar[iCurrentNode]] == 0) {
+              if (dX < kThisSplitCode[iCurrentNode]) {
+                iCurrentNode = kThisLeftNode[iCurrentNode];
+              } else {
+                iCurrentNode = kThisRightNode[iCurrentNode];
+              }
+            } else  // categorical
+            {
+              const Rcpp::IntegerVector kMySplits =
+                kSplits[kThisSplitCode[iCurrentNode]];
+              if (kMySplits.size() < (int)dX + 1) {
+                iCurrentNode = kThisMissingNode[iCurrentNode];
+              } else {
+                const int iCatSplitIndicator = kMySplits[(int)dX];
+                if (iCatSplitIndicator == -1) {
+                  iCurrentNode = kThisLeftNode[iCurrentNode];
+                } else if (iCatSplitIndicator == 1) {
+                  iCurrentNode = kThisRightNode[iCurrentNode];
+                } else  // categorical level not present in training
+                {
+                  iCurrentNode = kThisMissingNode[iCurrentNode];
+                }
+              }
+            }
+            kSparseMatrixRows.push_back(obs_num);
+            kSparseMatrixCols.push_back(iCurrentNode + nCols);
+          }
+        } // iObs
+        nCols += kThisSplitVar.size();
+        tree_num++;
+      }  // iTree
+    } // iPredIteration
+
+    kDims[0] = kNumCovarRows;
+    kDims[1] = nCols;
+
+    return(Rcpp::List::create(
+      Rcpp::Named("i") = Rcpp::wrap(kSparseMatrixRows),
+      Rcpp::Named("j") = Rcpp::wrap(kSparseMatrixCols),
+      Rcpp::Named("dims") = Rcpp::wrap(kDims)));
+    END_RCPP
+  }
 }  // end extern "C"
+
+
+
+
+
