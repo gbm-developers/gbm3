@@ -1,4 +1,4 @@
-gbm3: gradient boosted models
+gbm3: generalized boosted models
 ----0------------------------
 
 [![Build Status](https://travis-ci.org/gbm-developers/gbm.svg?branch=master)](https://travis-ci.org/gbm-developers/gbm3)
