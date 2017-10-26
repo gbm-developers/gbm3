@@ -2,7 +2,6 @@ gbm3: generalized boosted models
 ----0------------------------
 
 [![Build Status](https://travis-ci.org/gbm-developers/gbm.svg?branch=master)](https://travis-ci.org/gbm-developers/gbm3)
-[![CRAN Status Badge](http://www.r-pkg.org/badges/version/gbm)](https://cran.r-project.org/package=gbm)
 [![Coverage Status](https://coveralls.io/repos/gbm-developers/gbm/badge.svg?branch=master&service=github)](https://coveralls.io/github/gbm-developers/gbm3?branch=master)
 
 Originally written by Greg Ridgeway, added to by various authors,
