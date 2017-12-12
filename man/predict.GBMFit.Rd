@@ -5,7 +5,7 @@
 \title{Predict method for GBM Model Fits}
 \usage{
 \method{predict}{GBMFit}(object, newdata, n.trees, type = "link",
-  single.tree = FALSE, ...)
+  single.tree = FALSE, nodes = FALSE, ...)
 }
 \arguments{
 \item{object}{Object of class inheriting from \code{GBMFit}.}
@@ -21,6 +21,10 @@ iteration specified.}
 
 \item{single.tree}{If \code{single.tree=TRUE} then \code{gbm_predict}
 returns only the predictions from tree(s) \code{n.trees}}
+
+\item{nodes}{If \code{nodes=TRUE} then \code{gbm_predict}
+returns a sparse matrix of nodes indicating which internal and terminal nodes
+each observation passes through in the entire ensemble.}
 
 \item{\dots}{further arguments passed to or from other methods}
 }
