@@ -43,7 +43,7 @@ check_response_values.BernoulliGBMDist <-function(distribution_obj, y) {
 }
 
 check_response_values.CoxPHGBMDist <-function(distribution_obj, y) {
-  if(class(y)!="Surv") {
+  if(!inherits(y, "Surv") {
     stop("Outcome must be a survival object Surv(time1, failure) 
          or Surv(time1, time2, failure)")
   }
