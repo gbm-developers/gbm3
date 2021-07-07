@@ -115,7 +115,10 @@
 #'
 #' @param subset an optional vector defining a subset of the data to be used
 #'
-#' @param offset an optional model offset
+#' @param na.action missing value behavior.  The default \code{nagbm}
+#'  method removes any row which is missing the response value or is
+#'  missing on all the predictors, i.e., only data which is completely
+#'  uninformative
 #'
 #' @param var.monotone an optional vector, the same length as the
 #' number of predictors, indicating which variables have a monotone
@@ -229,8 +232,9 @@
 #' to, e. g. if the 10th element is 3 then the 10th data row belongs
 #' to the 3rd strata.
 #' 
-#' @param obs.id Optional vector of integers used to specify which
-#' rows of data belong to individual patients.  Data is then bagged by
+#' @param obs.id Optional covariate which will be used to identify
+#' rows of data that belong to individual patients.  This can be
+#' a variable in the \code{data} object.  Data is then bagged by
 #' patient id; the default sets each row of the data to belong to an
 #' individual patient.
 #'
@@ -423,12 +427,9 @@
 #' gbm2 <- gbm_more(gbm1,100,
 #'                  is_verbose=FALSE) # stop printing detailed progress
 #' @export
-gbm <- function(formula = formula(data),
+gbm <- function(formula = formula(data),                
                 distribution = "bernoulli",
-                data = list(),
-                weights,
-                subset = NULL,
-                offset = NULL,
+                data, weights, subset, na.action=nagbm,
                 var.monotone = NULL,
                 n.trees = 100,
                 interaction.depth = 1,
@@ -446,21 +447,23 @@ gbm <- function(formula = formula(data),
                 fold.id = NULL,
                 tied.times.method="efron",
                 prior.node.coeff.var=1000,
-                strata=NA, obs.id=1:nrow(data)) {
+                strata=NA, obs.id) {
   # Extract the model
   the_call <- match.call()
   mf <- match.call(expand.dots = FALSE)
-  m <- match(c("formula", "data", "weights", "offset"), names(mf), 0)
+  m <- match(c("formula", "data", "weights", "offset", "obs.id"), names(mf), 0)
   mf <- mf[c(1, m)]
   mf$drop.unused.levels <- TRUE
-  mf$na.action <- na.pass
   mf[[1]] <- as.name("model.frame")
   m <- mf
   mf <- eval(mf, parent.frame())
   Terms <- attr(mf, "terms")
   y <- model.response(mf)
-  w <- model.weights(mf)
-  offset_mf <- model.offset(mf)
+  weights <- model.weights(mf)
+  offset  <- model.offset(mf)
+  obs.id <- model.extract("obs.id")
+  if (length(obs.id)==0) obs.id <- 1:nrow(mf)
+  else obs.id <- match(obs.id, unique(obs.id)) #1, 2, etc
 
   ## allow n.cores for historical reasons
   if (!missing(n.cores)) {
@@ -481,19 +484,11 @@ gbm <- function(formula = formula(data),
                    na.action=na.pass)
   
   # Set offset/ weights if not specified
-  if(!is.null(w)) {
-    weights <- w
-  } else {
-    weights <- rep(1, length(obs.id))
-  } 
-  if(!is.null(offset_mf)){
-    offset <- offset_mf
-  } else {
-    offset <- rep(0, length(obs.id))
-  }
+  if(length(weights) ==0) weights <- rep(1, nrow(mf))
+  if (length(offset) ==0) offset  <- double(nrow(mf))
   
   # Change cv.folds to correct default
-  if(cv.folds == 0) cv.folds <- 1
+  if(cv.folds <= 0) cv.folds <- 1
   
   # Set distribution object - put in all possible additional parameters (this will generate warnings)
   if(missing(distribution)) {distribution <- guess_distribution(y)}
