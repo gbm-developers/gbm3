@@ -1,5 +1,6 @@
 context("testing openmp parallelization")
 test_that("gbm refuses to work with insane numbers of threads", {
+  skip_on_os("mac")
   N <- 1000
   X1 <- runif(N)
   X2 <- 2*runif(N)
@@ -33,6 +34,7 @@ test_that("gbm refuses to work with insane numbers of threads", {
                fixed=TRUE)
 })
 test_that("gbm refuses to work with insane array chunk size - old api", {
+  skip_on_os("mac")
   N <- 1000
   X1 <- runif(N)
   X2 <- 2*runif(N)
@@ -65,6 +67,7 @@ test_that("gbm refuses to work with insane array chunk size - old api", {
                "array chunk size must be strictly positive", fixed=TRUE)
 })
 test_that("gbm refuses to work with insane numbers of threads - old API", {
+  skip_on_os("mac")
     N <- 1000
     X1 <- runif(N)
     X2 <- 2*runif(N)
@@ -93,6 +96,7 @@ test_that("gbm refuses to work with insane numbers of threads - old API", {
                      var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                      distribution="Gaussian",     # bernoulli, adaboost, gaussian, poisson, coxph, or
                                         # list(name="quantile",alpha=0.05) for quantile regression
+                     weights=rep(1,nrow(data)),
                      n.trees=2000,                 # number of trees
                      shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                      interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc.
@@ -106,6 +110,7 @@ test_that("gbm refuses to work with insane numbers of threads - old API", {
                  fixed=TRUE)
 })
 test_that("gbm refuses to work with insane array chunk size - old api", {
+  skip_on_os("mac")
     N <- 1000
     X1 <- runif(N)
     X2 <- 2*runif(N)
