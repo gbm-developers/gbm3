@@ -559,7 +559,7 @@ void CPairwise::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
       // Accumulate gradients
       // TODO: Implement better way to ensure casting robust to overflow
       int int_group = 0;
-      if (fabs(dGroup) > nextafter(INT_MAX, 0) || isnan(dGroup)) {
+      if (fabs(dGroup) > nextafter(INT_MAX, 0) || ::isnan(dGroup)) {
         int_group = copysign(INT_MAX, dGroup);
       } else {
         int_group = (int)dGroup;
@@ -747,7 +747,7 @@ void CPairwise::Initialize(const CDataset& kData) {
 
   // TODO: Make More robust against overflow
   unsigned long max_group_unsigned_long = 0;
-  if (fabs(max_group) > nextafter(ULONG_MAX, 0) || isnan(max_group)) {
+  if (fabs(max_group) > nextafter(ULONG_MAX, 0) || ::isnan(max_group)) {
     max_group_unsigned_long = copysign(ULONG_MAX, max_group);
   } else {
     max_group_unsigned_long = (unsigned long)max_group;
@@ -784,7 +784,7 @@ double CPairwise::Deviance(const CDataset& kData, const Bag& kBag,
     const int cNumItems = item_end - item_start;
     // TODO: Implement better way to ensure casting robust to overflow
     int int_group = 0;
-    if (fabs(kGroup) > nextafter(INT_MAX, 0) || isnan(kGroup)) {
+    if (fabs(kGroup) > nextafter(INT_MAX, 0) || ::isnan(kGroup)) {
       int_group = copysign(INT_MAX, kGroup);
     } else {
       int_group = (int)kGroup;
@@ -881,7 +881,7 @@ double CPairwise::BagImprovement(const CDataset& kData, const Bag& kBag,
       const unsigned int kNumItems = item_end - item_start;
       // TODO: Implement better way to ensure casting robust to overflow
       int int_group = 0;
-      if (fabs(kGroup) > nextafter(INT_MAX, 0) || isnan(kGroup)) {
+      if (fabs(kGroup) > nextafter(INT_MAX, 0) || ::isnan(kGroup)) {
         int_group = copysign(INT_MAX, kGroup);
       } else {
         int_group = (int)kGroup;
