@@ -28,7 +28,8 @@ Imports:
     survival,
     lattice,
     splines,
-    Rcpp (>= 0.11.5)
+    Rcpp (>= 0.11.5),
+    Matrix
 Suggests:
     testthat (>= 0.11.0),
     knitr,
