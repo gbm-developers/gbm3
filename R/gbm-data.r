@@ -19,7 +19,7 @@
 # 
 gbm_data <- function(x, y, weights, offset) {
     
-    # Check inputs 
+    # Check inputs
     verify_data(x, y)
     
     # Convert y if 2-level factor
@@ -27,9 +27,11 @@ gbm_data <- function(x, y, weights, offset) {
   
     # Check weights and offsets are doubles  
     weights <- check_weights(weights, length(y))
-    if(is.null(weights) || is.infinite(weights) || !is.atomic(weights)
-       || !is.double(weights)) {
-      stop("Weights must be a vector of doubles")
+    if((length(weights)==0) || 
+       any(is.infinite(weights)) || 
+       !is.atomic(weights) ||
+       !is.double(weights)) {
+      stop("Weights must be a vector of finite doubles")
     }
     
     if(is.null(offset) || is.infinite(offset) || !is.atomic(offset) ||
