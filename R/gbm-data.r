@@ -34,9 +34,11 @@ gbm_data <- function(x, y, weights, offset) {
       stop("Weights must be a vector of finite doubles")
     }
     
-    if(is.null(offset) || is.infinite(offset) || !is.atomic(offset) ||
-       !is.double(offset) || (length(offset) == 1) ) {
-      stop("Offsets must be a vector of doubles")
+    if((length(offset)<=1) || 
+       any(is.infinite(offset)) || 
+       !is.atomic(offset) ||
+       !is.double(offset)) {
+      stop("Offsets must be a vector of finite doubles")
     }
     
     # Store original data - before any formatting
