@@ -27,34 +27,34 @@ test_that("Setting the offset to 0 does not alter the initial value - Adaboost",
   
   # Generate new gbm object
   set.seed(15)
-  gbm.no.offset <- gbm(Y~X1+X2+X3,                # formula
-                  data=data,                 # dataset
+  gbm.no.offset <- gbm(Y~X1+X2+X3,
+                  data=data,
                   weights=w,
-                  var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
+                  var.monotone=c(0,0,0),
                   distribution="adaboost",
-                  n.trees=100,              # number of trees
-                  shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
-                  interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
-                  bag.fraction = 0.5,        # subsampling fraction, 0.5 is probably best
-                  train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
-                  cv.folds=1,                # don't do cross-validation
-                  n.minobsinnode = 10,       # minimum total weight needed in each node
-                  verbose = FALSE)           # don't print progress
+                  n.trees=100,
+                  shrinkage=0.001,
+                  interaction.depth=3,
+                  bag.fraction = 0.5,
+                  train.fraction = 0.5,
+                  cv.folds=1,
+                  n.minobsinnode = 10,
+                  verbose = FALSE)
   set.seed(15)
-  gbm.zero.offset <- gbm(Y~X1+X2+X3,                # formula
-                       data=data,                 # dataset
+  gbm.zero.offset <- gbm(Y~X1+X2+X3,
+                       data=data,
                        weights=w,
                        offset = offset,
-                       var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
+                       var.monotone=c(0,0,0),
                        distribution="adaboost",
-                       n.trees=100,              # number of trees
-                       shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
-                       interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
-                       bag.fraction = 0.5,        # subsampling fraction, 0.5 is probably best
-                       train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
-                       cv.folds=1,                # don't do cross-validation
-                       n.minobsinnode = 10,       # minimum total weight needed in each node
-                       verbose = FALSE)           # don't print progress
+                       n.trees=100,
+                       shrinkage=0.001,
+                       interaction.depth=3,
+                       bag.fraction = 0.5,
+                       train.fraction = 0.5,
+                       cv.folds=1,
+                       n.minobsinnode = 10,
+                       verbose = FALSE)
   
   expect_equal(gbm.no.offset$initF, gbm.zero.offset$initF)
 })
@@ -80,34 +80,34 @@ test_that("Setting the offset to 0 does not alter the initial value - Bernoulli"
   
   # Generate new gbm object
   set.seed(15)
-  gbm.no.offset <- gbm(Y~X1+X2+X3,                # formula
-                  data=data,                 # dataset
+  gbm.no.offset <- gbm(Y~X1+X2+X3,
+                  data=data,
                   weights=w,
-                  var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
+                  var.monotone=c(0,0,0),
                   distribution="bernoulli",
-                  n.trees=100,              # number of trees
-                  shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
-                  interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
-                  bag.fraction = 0.5,        # subsampling fraction, 0.5 is probably best
-                  train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
-                  cv.folds=1,                # don't do cross-validation
-                  n.minobsinnode = 10,       # minimum total weight needed in each node
-                  verbose = FALSE)           # don't print progress
+                  n.trees=100,
+                  shrinkage=0.001,
+                  interaction.depth=3,
+                  bag.fraction = 0.5,
+                  train.fraction = 0.5,
+                  cv.folds=1,
+                  n.minobsinnode = 10,
+                  verbose = FALSE)
   set.seed(15)
-  gbm.zero.offset <- gbm(Y~X1+X2+X3,                # formula
-                       data=data,                 # dataset
+  gbm.zero.offset <- gbm(Y~X1+X2+X3,
+                       data=data,
                        weights=w,
                        offset=offset,
-                       var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
+                       var.monotone=c(0,0,0),
                        distribution="bernoulli",
-                       n.trees=100,              # number of trees
-                       shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
-                       interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
-                       bag.fraction = 0.5,        # subsampling fraction, 0.5 is probably best
-                       train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
-                       cv.folds=1,                # don't do cross-validation
-                       n.minobsinnode = 10,       # minimum total weight needed in each node
-                       verbose = FALSE)           # don't print progress
+                       n.trees=100,
+                       shrinkage=0.001,
+                       interaction.depth=3,
+                       bag.fraction = 0.5,
+                       train.fraction = 0.5,
+                       cv.folds=1,
+                       n.minobsinnode = 10,
+                       verbose = FALSE)
   
   expect_equal(gbm.no.offset$initF, gbm.zero.offset$initF)
 })
@@ -143,36 +143,36 @@ test_that("Setting the offset to 0 does not alter the initial value - CoxPH",{
   ## WHEN
   # Generate new gbm object
   set.seed(15)
-  gbm.no.offset <- gbm(y~X1+X2+X3,       # formula
-                  data=data,                 # dataset
+  gbm.no.offset <- gbm(y~X1+X2+X3,
+                  data=data,
                   weights=w,
-                  var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
+                  var.monotone=c(0,0,0),
                   distribution="coxph",
-                  n.trees=100,              # number of trees
-                  shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
-                  interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
-                  bag.fraction = 0.5,        # subsampling fraction, 0.5 is probably best
-                  train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
-                  cv.folds = 1,              # don't do cross-validation
-                  n.minobsinnode = 10,       # minimum total weight needed in each node
+                  n.trees=100,
+                  shrinkage=0.001,
+                  interaction.depth=3,
+                  bag.fraction = 0.5,
+                  train.fraction = 0.5,
+                  cv.folds = 1,
+                  n.minobsinnode = 10,
                   keep.data = TRUE,
-                  verbose = FALSE)           # don't print progress
+                  verbose = FALSE)
   set.seed(15)
-  gbm.zero.offset <- gbm(y~X1+X2+X3,       # formula
-                       data=data,                 # dataset
+  gbm.zero.offset <- gbm(y~X1+X2+X3,
+                       data=data,
                        weights=w,
-                       var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
+                       var.monotone=c(0,0,0),
                        distribution="CoxPH",
                        offset=offset,
-                       n.trees=100,              # number of trees
-                       shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
-                       interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
-                       bag.fraction = 0.5,        # subsampling fraction, 0.5 is probably best
-                       train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
-                       cv.folds = 1,              # don't do cross-validation
-                       n.minobsinnode = 10,       # minimum total weight needed in each node
+                       n.trees=100,
+                       shrinkage=0.001,
+                       interaction.depth=3,
+                       bag.fraction = 0.5,
+                       train.fraction = 0.5,
+                       cv.folds = 1,
+                       n.minobsinnode = 10,
                        keep.data = TRUE,
-                       verbose = FALSE)           # don't print progress
+                       verbose = FALSE)
   
   expect_equal(gbm.no.offset$initF, gbm.zero.offset$initF)
 })
@@ -205,38 +205,36 @@ test_that("Setting the offset to 0 does not alter the initial value - Gamma",{
   
   # Generate new gbm object
   set.seed(15)
-  gbm.no.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
-                  data=data,                   # dataset
-                  var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                  distribution="gamma",     # bernoulli, adaboost, Gaussian, Poisson, coxph, or
-                  # list(name="Quantilw",alpha=0.05) for Quantilw regression
-                  n.trees=100,                 # number of trees
-                  shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
-                  interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
-                  bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
-                  train.fraction = 0.5,        # fraction of data for training, first train.fraction*N used for training
-                  mFeatures = 3,               # Number of features to consider at each node.
-                  n.minobsinnode = 10,         # minimum number of obs needed in each node
+  gbm.no.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,
+                  data=data,
+                  var.monotone=c(0,0,0,0,0,0),
+                  distribution="gamma",
+                  n.trees=100,
+                  shrinkage=0.005,
+                  interaction.depth=3,
+                  bag.fraction = 0.5,
+                  train.fraction = 0.5,
+                  mFeatures = 3,
+                  n.minobsinnode = 10,
                   keep.data=TRUE,
-                  cv.folds=1,                 # don't do cross-validation
-                  verbose = FALSE)             # don't print progress
+                  cv.folds=1,
+                  verbose = FALSE)
   set.seed(15)
-  gbm.zero.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
-                       data=data,                   # dataset
-                       var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                       distribution="Gamma",     # bernoulli, adaboost, Gaussian, Poisson, coxph, or
-                       # list(name="Quantilw",alpha=0.05) for Quantilw regression
-                       n.trees=100,                 # number of trees
+  gbm.zero.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,
+                       data=data,
+                       var.monotone=c(0,0,0,0,0,0),
+                       distribution="Gamma",
+                       n.trees=100,
                        offset=offset,
-                       shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
-                       interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
-                       bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
-                       train.fraction = 0.5,        # fraction of data for training, first train.fraction*N used for training
-                       mFeatures = 3,               # Number of features to consider at each node.
-                       n.minobsinnode = 10,         # minimum number of obs needed in each node
+                       shrinkage=0.005,
+                       interaction.depth=3,
+                       bag.fraction = 0.5,
+                       train.fraction = 0.5,
+                       mFeatures = 3,
+                       n.minobsinnode = 10,
                        keep.data=TRUE,
-                       cv.folds=1,                 # don't do cross-validation
-                       verbose = FALSE)             # don't print progress
+                       cv.folds=1,
+                       verbose = FALSE)
 
     expect_equal(gbm.no.offset$initF, gbm.zero.offset$initF)
 })
@@ -269,38 +267,36 @@ test_that("Setting the offset to 0 does not alter the initial value - Gaussian",
   
   # Generate new gbm object
   set.seed(15)
-  gbm.no.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
-                  data=data,                   # dataset
-                  var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                  distribution="gaussian",     # bernoulli, adaboost, Gaussian, Poisson, coxph, or
-                  # list(name="Quantilw",alpha=0.05) for Quantilw regression
-                  n.trees=100,                 # number of trees
-                  shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
-                  interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
-                  bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
-                  train.fraction = 0.5,        # fraction of data for training, first train.fraction*N used for training
-                  mFeatures = 3,               # Number of features to consider at each node.
-                  n.minobsinnode = 10,         # minimum number of obs needed in each node
+  gbm.no.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,
+                  data=data,
+                  var.monotone=c(0,0,0,0,0,0),
+                  distribution="gaussian",
+                  n.trees=100,
+                  shrinkage=0.005,
+                  interaction.depth=3,
+                  bag.fraction = 0.5,
+                  train.fraction = 0.5,
+                  mFeatures = 3,
+                  n.minobsinnode = 10,
                   keep.data=TRUE,
-                  cv.folds=1,                 # don't do cross-validation
-                  verbose = FALSE)             # don't print progress
+                  cv.folds=1,
+                  verbose = FALSE)
   set.seed(15)
-  gbm.zero.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
-                       data=data,                   # dataset
-                       var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                       distribution="gaussian",     # bernoulli, adaboost, Gaussian, Poisson, coxph, or
-                       # list(name="Quantilw",alpha=0.05) for Quantilw regression
-                       n.trees=100,                 # number of trees
+  gbm.zero.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,
+                       data=data,
+                       var.monotone=c(0,0,0,0,0,0),
+                       distribution="gaussian",
+                       n.trees=100,
                        offset=offset,
-                       shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
-                       interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
-                       bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
-                       train.fraction = 0.5,        # fraction of data for training, first train.fraction*N used for training
-                       mFeatures = 3,               # Number of features to consider at each node.
-                       n.minobsinnode = 10,         # minimum number of obs needed in each node
+                       shrinkage=0.005,
+                       interaction.depth=3,
+                       bag.fraction = 0.5,
+                       train.fraction = 0.5,
+                       mFeatures = 3,
+                       n.minobsinnode = 10,
                        keep.data=TRUE,
-                       cv.folds=1,                 # don't do cross-validation
-                       verbose = FALSE)             # don't print progress
+                       cv.folds=1,
+                       verbose = FALSE)
   
   expect_equal(gbm.no.offset$initF, gbm.zero.offset$initF)
 })
@@ -333,38 +329,36 @@ test_that("Setting the offset to 0 does not alter the initial value - Laplace",{
   
   # Generate new gbm object
   set.seed(15)
-  gbm.no.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
-                  data=data,                   # dataset
-                  var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                  distribution="laplace",     # bernoulli, adaboost, Gaussian, Poisson, coxph, or
-                  # list(name="Quantilw",alpha=0.05) for Quantilw regression
-                  n.trees=100,                 # number of trees
-                  shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
-                  interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
-                  bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
-                  train.fraction = 0.5,        # fraction of data for training, first train.fraction*N used for training
-                  mFeatures = 3,               # Number of features to consider at each node.
-                  n.minobsinnode = 10,         # minimum number of obs needed in each node
+  gbm.no.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,
+                  data=data,
+                  var.monotone=c(0,0,0,0,0,0),
+                  distribution="laplace",
+                  n.trees=100,
+                  shrinkage=0.005,
+                  interaction.depth=3,
+                  bag.fraction = 0.5,
+                  train.fraction = 0.5,
+                  mFeatures = 3,
+                  n.minobsinnode = 10,
                   keep.data=TRUE,
-                  cv.folds=1,                 # don't do cross-validation
-                  verbose = FALSE)             # don't print progress
+                  cv.folds=1,
+                  verbose = FALSE)
   set.seed(15)
-  gbm.zero.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
-                       data=data,                   # dataset
-                       var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                       distribution="laplace",     # bernoulli, adaboost, Gaussian, Poisson, coxph, or
-                       # list(name="Quantilw",alpha=0.05) for Quantilw regression
-                       n.trees=100,                 # number of trees
-                       shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
-                       interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
-                       bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
-                       train.fraction = 0.5,        # fraction of data for training, first train.fraction*N used for training
-                       mFeatures = 3,               # Number of features to consider at each node.
-                       n.minobsinnode = 10,         # minimum number of obs needed in each node
+  gbm.zero.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,
+                       data=data,
+                       var.monotone=c(0,0,0,0,0,0),
+                       distribution="laplace",
+                       n.trees=100,
+                       shrinkage=0.005,
+                       interaction.depth=3,
+                       bag.fraction = 0.5,
+                       train.fraction = 0.5,
+                       mFeatures = 3,
+                       n.minobsinnode = 10,
                        keep.data=TRUE,
                        offset=offset,
-                       cv.folds=1,                 # don't do cross-validation
-                       verbose = FALSE)             # don't print progress
+                       cv.folds=1,
+                       verbose = FALSE)
   
   expect_equal(gbm.no.offset$initF, gbm.zero.offset$initF)
 })
@@ -390,34 +384,34 @@ test_that("Setting the offset to 0 does not alter the initial value - Huberized 
   
   # Generate new gbm object
   set.seed(15)
-  gbm.no.offset <- gbm(Y~X1+X2+X3,                # formula
-                  data=data,                 # dataset
+  gbm.no.offset <- gbm(Y~X1+X2+X3,
+                  data=data,
                   weights=w,
-                  var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
+                  var.monotone=c(0,0,0),
                   distribution="huberized",
-                  n.trees=100,              # number of trees
-                  shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
-                  interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
-                  bag.fraction = 0.5,        # subsampling fraction, 0.5 is probably best
-                  train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
-                  cv.folds=1,                # don't do cross-validation
-                  n.minobsinnode = 10,       # minimum total weight needed in each node
-                  verbose = FALSE)           # don't print progress
+                  n.trees=100,
+                  shrinkage=0.001,
+                  interaction.depth=3,
+                  bag.fraction = 0.5,
+                  train.fraction = 0.5,
+                  cv.folds=1,
+                  n.minobsinnode = 10,
+                  verbose = FALSE)
   set.seed(15)
-  gbm.zero.offset <- gbm(Y~X1+X2+X3,                # formula
-                       data=data,                 # dataset
+  gbm.zero.offset <- gbm(Y~X1+X2+X3,
+                       data=data,
                        weights=w,
                        offset=offset,
-                       var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
+                       var.monotone=c(0,0,0),
                        distribution="huberized",
-                       n.trees=100,              # number of trees
-                       shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
-                       interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
-                       bag.fraction = 0.5,        # subsampling fraction, 0.5 is probably best
-                       train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
-                       cv.folds=1,                # don't do cross-validation
-                       n.minobsinnode = 10,       # minimum total weight needed in each node
-                       verbose = FALSE)           # don't print progress
+                       n.trees=100,
+                       shrinkage=0.001,
+                       interaction.depth=3,
+                       bag.fraction = 0.5,
+                       train.fraction = 0.5,
+                       cv.folds=1,
+                       n.minobsinnode = 10,
+                       verbose = FALSE)
   
   expect_equal(gbm.no.offset$initF, gbm.zero.offset$initF)
 })
@@ -460,143 +454,142 @@ test_that("Setting the offset to 0 does not alter the initial value - Pairwise",
   
   # Generate new gbm objects
   set.seed(15)
-  gbm.no.offset.ndcg <- gbm(Y~X1+X2+X3,          # formula
-                  data=data.train,     # dataset
-                  distribution=list(   # loss function:
-                    name='pairwise',   # Pairwise
-                    metric="ndcg",     # ranking metric: normalized discounted cumulative gain
-                    group="query"),    # column indicating query groups
-                  n.trees=100,        # number of trees
-                  shrinkage=0.005,     # learning rate
-                  interaction.depth=3, # number per splits per tree
-                  bag.fraction = 0.5,  # subsampling fraction
-                  train.fraction = 1,  # fraction of data for training
-                  n.minobsinnode = 10, # minimum number of obs for split
-                  keep.data=TRUE,      # store copy of input data in model
-                  cv.folds=1,          # number of cross validation folds
-                  verbose = FALSE     # don't print progress
-                  )         # use a single core
+  gbm.no.offset.ndcg <- gbm(Y~X1+X2+X3,
+                  data=data.train,     
+                  distribution=list(   
+                    name='pairwise',   
+                    metric="ndcg",     
+                    group="query"),    
+                  n.trees=100,        
+                  shrinkage=0.005,     
+                  interaction.depth=3, 
+                  bag.fraction = 0.5,  
+                  train.fraction = 1,  
+                  n.minobsinnode = 10, 
+                  keep.data=TRUE,      
+                  cv.folds=1,          
+                  verbose = FALSE     
+                  )         
   
-  gbm.no.offset.mrr <- gbm(Y.norm~X1+X2+X3,          # formula
-                 data=data.train.mrr,     # dataset
-                 distribution=list(   # loss function:
-                   name='pairwise',   # Pairwise
-                   metric="mrr",     # ranking metric: normalized discounted cumulative gain
-                   group='query'),    # column indicating query groups
-                 n.trees=100,        # number of trees
-                 shrinkage=0.005,     # learning rate
-                 interaction.depth=3, # number per splits per tree
-                 bag.fraction = 0.5,  # subsampling fraction
-                 train.fraction = 1,  # fraction of data for training
-                 n.minobsinnode = 10, # minimum number of obs for split
-                 keep.data=TRUE,      # store copy of input data in model
-                 cv.folds=1,          # number of cross validation folds
-                 verbose = FALSE     # don't print progress
-                 )         # use a single core
+  gbm.no.offset.mrr <- gbm(Y.norm~X1+X2+X3, 
+                 data=data.train.mrr,     
+                 distribution=list(  
+                   name='pairwise',  
+                   metric="mrr",
+                   group='query'),   
+                 n.trees=100,        
+                 shrinkage=0.005,    
+                 interaction.depth=3,
+                 bag.fraction = 0.5, 
+                 train.fraction = 1, 
+                 n.minobsinnode = 10,
+                 keep.data=TRUE,     
+                 cv.folds=1,         
+                 verbose = FALSE     
+                 )         
   
-  gbm.no.offset.map <- gbm(Y.norm~X1+X2+X3,          # formula
-                 data=data.train.mrr,     # dataset
-                 distribution=list(   # loss function:
-                   name='pairwise',   # Pairwise
-                   metric="map",     # ranking metric: normalized discounted cumulative gain
-                   group='query'),    # column indicating query groups
-                 n.trees=100,        # number of trees
-                 shrinkage=0.005,     # learning rate
-                 interaction.depth=3, # number per splits per tree
-                 bag.fraction = 0.5,  # subsampling fraction
-                 train.fraction = 1,  # fraction of data for training
-                 n.minobsinnode = 10, # minimum number of obs for split
-                 keep.data=TRUE,      # store copy of input data in model
-                 cv.folds=1,          # number of cross validation folds
-                 verbose = FALSE     # don't print progress
-                 )         # use a single core
-  gbm.no.offset.conc <- gbm(Y~X1+X2+X3,          # formula
-                  data=data.train,     # dataset
-                  distribution=list(   # loss function:
-                    name='pairwise',   # Pairwise
-                    metric="conc",     # ranking metric: concordant pairs
-                    group='query'),    # column indicating query groups
-                  n.trees=100,        # number of trees
-                  shrinkage=0.005,     # learning rate
-                  interaction.depth=3, # number per splits per tree
-                  bag.fraction = 0.5,  # subsampling fraction
-                  train.fraction = 1,  # fraction of data for training
-                  n.minobsinnode = 10, # minimum number of obs for split
-                  keep.data=TRUE,      # store copy of input data in model
-                  cv.folds=1,          # number of cross validation folds
-                  verbose = FALSE     # don't print progress
-                  )         # use a single core
+  gbm.no.offset.map <- gbm(Y.norm~X1+X2+X3,
+                 data=data.train.mrr,
+                 distribution=list(  
+                   name='pairwise',  
+                   metric="map",     
+                   group='query'),   
+                 n.trees=100,        
+                 shrinkage=0.005,    
+                 interaction.depth=3,
+                 bag.fraction = 0.5, 
+                 train.fraction = 1, 
+                 n.minobsinnode = 10,
+                 keep.data=TRUE,     
+                 cv.folds=1,         
+                 verbose = FALSE     
+                 )         
+  gbm.no.offset.conc <- gbm(Y~X1+X2+X3,  
+                  data=data.train,    
+                  distribution=list(  
+                    name='pairwise',  
+                    metric="conc",    
+                    group='query'),   
+                  n.trees=100,        
+                  shrinkage=0.005,    
+                  interaction.depth=3,
+                  bag.fraction = 0.5, 
+                  train.fraction = 1, 
+                  n.minobsinnode = 10,
+                  keep.data=TRUE,     
+                  cv.folds=1,         
+                  verbose = FALSE     
+                  )
   set.seed(15)
-  gbm.zero.offset.ndcg <- gbm(Y~X1+X2+X3,          # formula
-                            data=data.train,     # dataset
-                            distribution=list(   # loss function:
-                              name='pairwise',   # Pairwise
-                              metric="ndcg",     # ranking metric: normalized discounted cumulative gain
-                              group='query'),    # column indicating query groups
-                            n.trees=100,        # number of trees
-                            shrinkage=0.005,     # learning rate
-                            interaction.depth=3, # number per splits per tree
-                            bag.fraction = 0.5,  # subsampling fraction
-                            train.fraction = 1,  # fraction of data for training
-                            n.minobsinnode = 10, # minimum number of obs for split
-                            keep.data=TRUE,      # store copy of input data in model
-                            cv.folds=1,          # number of cross validation folds
-                            verbose = FALSE,     # don't print progress
+  gbm.zero.offset.ndcg <- gbm(Y~X1+X2+X3,       
+                            data=data.train,    
+                            distribution=list(  
+                              name='pairwise',  
+                              metric="ndcg",     
+                              group='query'),   
+                            n.trees=100,        
+                            shrinkage=0.005,    
+                            interaction.depth=3,
+                            bag.fraction = 0.5, 
+                            train.fraction = 1, 
+                            n.minobsinnode = 10,
+                            keep.data=TRUE,     
+                            cv.folds=1,         
+                            verbose = FALSE,    
                             offset=rep(0, N)
-                            )         # use a single core
+                            )
   
-  gbm.zero.offset.mrr <- gbm(Y.norm~X1+X2+X3,          # formula
-                           data=data.train.mrr,     # dataset
-                           distribution=list(   # loss function:
-                             name='pairwise',   # Pairwise
-                             metric="mrr",     # ranking metric: normalized discounted cumulative gain
-                             group='query'),    # column indicating query groups
-                           n.trees=100,        # number of trees
-                           shrinkage=0.005,     # learning rate
-                           interaction.depth=3, # number per splits per tree
-                           bag.fraction = 0.5,  # subsampling fraction
-                           train.fraction = 1,  # fraction of data for training
-                           n.minobsinnode = 10, # minimum number of obs for split
-                           keep.data=TRUE,      # store copy of input data in model
-                           cv.folds=1,          # number of cross validation folds
-                           verbose = FALSE,     # don't print progress
+  gbm.zero.offset.mrr <- gbm(Y.norm~X1+X2+X3,  
+                           data=data.train.mrr,
+                           distribution=list(  
+                             name='pairwise',  
+                             metric="mrr",     
+                             group='query'),   
+                           n.trees=100,        
+                           shrinkage=0.005,    
+                           interaction.depth=3,
+                           bag.fraction = 0.5, 
+                           train.fraction = 1, 
+                           n.minobsinnode = 10,
+                           keep.data=TRUE,     
+                           cv.folds=1,         
+                           verbose = FALSE,    
                            offset=rep(0,N)
-                           )         # use a single core
+                           )         
   
-  gbm.zero.offset.map <- gbm(Y.norm~X1+X2+X3,          # formula
-                           data=data.train.mrr,     # dataset
-                           distribution=list(   # loss function:
-                             name='pairwise',   # Pairwise
-                             metric="map",     # ranking metric: normalized discounted cumulative gain
-                             group='query'),    # column indicating query groups
-                           n.trees=100,        # number of trees
-                           shrinkage=0.005,     # learning rate
-                           interaction.depth=3, # number per splits per tree
-                           bag.fraction = 0.5,  # subsampling fraction
-                           train.fraction = 1,  # fraction of data for training
-                           n.minobsinnode = 10, # minimum number of obs for split
-                           keep.data=TRUE,      # store copy of input data in model
-                           cv.folds=1,          # number of cross validation folds
-                           verbose = FALSE,     # don't print progress
+  gbm.zero.offset.map <- gbm(Y.norm~X1+X2+X3,  
+                           data=data.train.mrr,
+                           distribution=list(  
+                             name='pairwise',  
+                             metric="map",     
+                             group='query'),   
+                           n.trees=100,        
+                           shrinkage=0.005,    
+                           interaction.depth=3,
+                           bag.fraction = 0.5, 
+                           train.fraction = 1, 
+                           n.minobsinnode = 10,
+                           keep.data=TRUE,     
+                           cv.folds=1,         
+                           verbose = FALSE,    
                            offset=rep(0,N)
-                           )         # use a single core
-  gbm.zero.offset.conc <- gbm(Y~X1+X2+X3,          # formula
-                            data=data.train,     # dataset
-                            distribution=list(   # loss function:
-                              name='pairwise',   # Pairwise
-                              metric="conc",     # ranking metric: concordant pairs
-                              group='query'),    # column indicating query groups
-                            n.trees=100,        # number of trees
-                            shrinkage=0.005,     # learning rate
-                            interaction.depth=3, # number per splits per tree
-                            bag.fraction = 0.5,  # subsampling fraction
-                            train.fraction = 1,  # fraction of data for training
-                            n.minobsinnode = 10, # minimum number of obs for split
-                            keep.data=TRUE,      # store copy of input data in model
-                            cv.folds=1,          # number of cross validation folds
-                            verbose = FALSE,     # don't print progress
-                            offset = rep(0,N)
-                            )         # use a single core
+                           )         
+  gbm.zero.offset.conc <- gbm(Y~X1+X2+X3,       
+                            data=data.train,    
+                            distribution=list(  
+                              name='pairwise',  
+                              metric="conc",    
+                              group='query'),   
+                            n.trees=100,        
+                            shrinkage=0.005,    
+                            interaction.depth=3,
+                            bag.fraction = 0.5, 
+                            train.fraction = 1, 
+                            n.minobsinnode = 10,
+                            keep.data=TRUE,     
+                            cv.folds=1,         
+                            verbose = FALSE,    
+                            offset = rep(0,N))
   
   expect_equal(gbm.no.offset.conc$initF, gbm.zero.offset.conc$initF)
   expect_equal(gbm.no.offset.mrr$initF, gbm.zero.offset.mrr$initF)
@@ -632,38 +625,36 @@ test_that("Setting the offset to 0 does not alter the initial value - Poisson",{
   
   # Generate new gbm object
   set.seed(15)
-  gbm.no.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
-                  data=data,                   # dataset
-                  var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                  distribution="poisson",     # bernoulli, adaboost, Gaussian, Poisson, coxph, or
-                  # list(name="Quantilw",alpha=0.05) for Quantilw regression
-                  n.trees=100,                 # number of trees
-                  shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
-                  interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
-                  bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
-                  train.fraction = 0.5,        # fraction of data for training, first train.fraction*N used for training
-                  mFeatures = 3,               # Number of features to consider at each node.
-                  n.minobsinnode = 10,         # minimum number of obs needed in each node
+  gbm.no.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,   
+                  data=data,                  
+                  var.monotone=c(0,0,0,0,0,0),
+                  distribution="poisson",     
+                  n.trees=100,                
+                  shrinkage=0.005,            
+                  interaction.depth=3,        
+                  bag.fraction = 0.5,         
+                  train.fraction = 0.5,       
+                  mFeatures = 3,              
+                  n.minobsinnode = 10,        
                   keep.data=TRUE,
-                  cv.folds=1,                 # don't do cross-validation
-                  verbose = FALSE)             # don't print progress
+                  cv.folds=1,                 
+                  verbose = FALSE)            
   set.seed(15)
-  gbm.zero.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
-                       data=data,                   # dataset
-                       var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                       distribution="poisson",     # bernoulli, adaboost, Gaussian, Poisson, coxph, or
-                       # list(name="Quantilw",alpha=0.05) for Quantilw regression
-                       n.trees=100,                 # number of trees
+  gbm.zero.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,      
+                       data=data,                  
+                       var.monotone=c(0,0,0,0,0,0),
+                       distribution="poisson",     
+                       n.trees=100,                
                        offset=offset,
-                       shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
-                       interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
-                       bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
-                       train.fraction = 0.5,        # fraction of data for training, first train.fraction*N used for training
-                       mFeatures = 3,               # Number of features to consider at each node.
-                       n.minobsinnode = 10,         # minimum number of obs needed in each node
+                       shrinkage=0.005,            
+                       interaction.depth=3,        
+                       bag.fraction = 0.5,         
+                       train.fraction = 0.5,       
+                       mFeatures = 3,              
+                       n.minobsinnode = 10,        
                        keep.data=TRUE,
-                       cv.folds=1,                 # don't do cross-validation
-                       verbose = FALSE)             # don't print progress
+                       cv.folds=1,                 
+                       verbose = FALSE)            
   
   expect_equal(gbm.no.offset$initF, gbm.zero.offset$initF)
 })
@@ -696,36 +687,36 @@ test_that("Setting the offset to 0 does not alter the initial value - Quantile R
   
   # Generate new gbm object
   set.seed(15)
-  gbm.no.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
-                  data=data,                   # dataset
-                  var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                  distribution= list(name="quantile",alpha=0.95), # for Quantilw regression
-                  n.trees=100,                 # number of trees
-                  shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
-                  interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
-                  bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
-                  train.fraction = 0.5,        # fraction of data for training, first train.fraction*N used for training
-                  mFeatures = 3,               # Number of features to consider at each node.
-                  n.minobsinnode = 10,         # minimum number of obs needed in each node
+  gbm.no.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,
+                  data=data,               
+                  var.monotone=c(0,0,0,0,0,0),
+                  distribution= list(name="quantile",alpha=0.95),
+                  n.trees=100,                 
+                  shrinkage=0.005,             
+                  interaction.depth=3,         
+                  bag.fraction = 0.5,          
+                  train.fraction = 0.5,        
+                  mFeatures = 3,               
+                  n.minobsinnode = 10,         
                   keep.data=TRUE,
-                  cv.folds=1,                 # don't do cross-validation
-                  verbose = FALSE)             # don't print progress
+                  cv.folds=1,                 
+                  verbose = FALSE)            
   set.seed(15)
-  gbm.zero.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
-                       data=data,                   # dataset
-                       var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                       distribution= list(name="quantile",alpha=0.95), # for Quantilw regression
-                       n.trees=100,                 # number of trees
-                       shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
-                       interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
-                       bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
-                       train.fraction = 0.5,        # fraction of data for training, first train.fraction*N used for training
-                       mFeatures = 3,               # Number of features to consider at each node.
-                       n.minobsinnode = 10,         # minimum number of obs needed in each node
+  gbm.zero.offset <- gbm(Y~X1+X2+X3+X4+X5+X6, 
+                       data=data,             
+                       var.monotone=c(0,0,0,0,0,0),
+                       distribution= list(name="quantile",alpha=0.95), 
+                       n.trees=100,                 
+                       shrinkage=0.005,
+                       interaction.depth=3,
+                       bag.fraction = 0.5,
+                       train.fraction = 0.5,
+                       mFeatures = 3, 
+                       n.minobsinnode = 10,
                        keep.data=TRUE,
                        offset=offset,
-                       cv.folds=1,                 # don't do cross-validation
-                       verbose = FALSE)             # don't print progress
+                       cv.folds=1,
+                       verbose = FALSE)
   
   expect_equal(gbm.no.offset$initF, gbm.zero.offset$initF)
 })
@@ -753,43 +744,40 @@ test_that("Setting the offset to 0 does not alter the initial value - T dist",{
   w <- rep(1,N)
   data <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3,X4=X4,X5=X5,X6=X6)
   
-  # Offset
   offset <- rep(0, N)
   
   # Generate new gbm object
   set.seed(15)
-  gbm.no.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
-                  data=data,                   # dataset
-                  var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                  distribution="tdist",     # bernoulli, adaboost, Gaussian, Poisson, coxph, or
-                  # list(name="Quantilw",alpha=0.05) for Quantilw regression
-                  n.trees=100,                 # number of trees
-                  shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
-                  interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
-                  bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
-                  train.fraction = 0.5,        # fraction of data for training, first train.fraction*N used for training
-                  mFeatures = 3,               # Number of features to consider at each node.
-                  n.minobsinnode = 10,         # minimum number of obs needed in each node
+  gbm.no.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,    
+                  data=data,                   
+                  var.monotone=c(0,0,0,0,0,0), 
+                  distribution="tdist",     
+                  n.trees=100,              
+                  shrinkage=0.005,          
+                  interaction.depth=3,      
+                  bag.fraction = 0.5,       
+                  train.fraction = 0.5,     
+                  mFeatures = 3,            
+                  n.minobsinnode = 10,      
                   keep.data=TRUE,
-                  cv.folds=1,                 # don't do cross-validation
-                  verbose = FALSE)             # don't print progress
+                  cv.folds=1,               
+                  verbose = FALSE)          
   set.seed(15)
-  gbm.zero.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
-                       data=data,                   # dataset
-                       var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                       distribution="tdist",     # bernoulli, adaboost, Gaussian, Poisson, coxph, or
-                       # list(name="Quantilw",alpha=0.05) for Quantilw regression
-                       n.trees=100,                 # number of trees
-                       shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
-                       interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
-                       bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
-                       train.fraction = 0.5,        # fraction of data for training, first train.fraction*N used for training
-                       mFeatures = 3,               # Number of features to consider at each node.
-                       n.minobsinnode = 10,         # minimum number of obs needed in each node
+  gbm.zero.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,
+                       data=data,            
+                       var.monotone=c(0,0,0,0,0,0),
+                       distribution="tdist",     
+                       n.trees=100,              
+                       shrinkage=0.005,          
+                       interaction.depth=3,      
+                       bag.fraction = 0.5,       
+                       train.fraction = 0.5,     
+                       mFeatures = 3,            
+                       n.minobsinnode = 10,      
                        keep.data=TRUE,
                        offset=offset,
-                       cv.folds=1,                 # don't do cross-validation
-                       verbose = FALSE)             # don't print progress
+                       cv.folds=1,               
+                       verbose = FALSE)          
   
   expect_equal(gbm.no.offset$initF, gbm.zero.offset$initF)
 })
@@ -822,38 +810,36 @@ test_that("Setting the offset to 0 does not alter the initial value - Tweedie",{
   
   # Generate new gbm object
   set.seed(15)
-  gbm.no.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
-                  data=data,                   # dataset
-                  var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                  distribution="tweedie",     # bernoulli, adaboost, Gaussian, Poisson, coxph, or
-                  # list(name="Quantilw",alpha=0.05) for Quantilw regression
-                  n.trees=100,                 # number of trees
-                  shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
-                  interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
-                  bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
-                  train.fraction = 0.5,        # fraction of data for training, first train.fraction*N used for training
-                  mFeatures = 3,               # Number of features to consider at each node.
-                  n.minobsinnode = 10,         # minimum number of obs needed in each node
+  gbm.no.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,
+                  data=data,               
+                  var.monotone=c(0,0,0,0,0,0),
+                  distribution="tweedie",
+                  n.trees=100,           
+                  shrinkage=0.005,       
+                  interaction.depth=3,   
+                  bag.fraction = 0.5,    
+                  train.fraction = 0.5,  
+                  mFeatures = 3,         
+                  n.minobsinnode = 10,   
                   keep.data=TRUE,
-                  cv.folds=1,                 # don't do cross-validation
-                  verbose = FALSE)             # don't print progress
+                  cv.folds=1,            
+                  verbose = FALSE)       
   set.seed(15)
-  gbm.zero.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
-                       data=data,                   # dataset
-                       var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                       distribution="tweedie",     # bernoulli, adaboost, Gaussian, Poisson, coxph, or
-                       # list(name="Quantilw",alpha=0.05) for Quantilw regression
-                       n.trees=100,                 # number of trees
-                       shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
-                       interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
-                       bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
-                       train.fraction = 0.5,        # fraction of data for training, first train.fraction*N used for training
-                       mFeatures = 3,               # Number of features to consider at each node.
-                       n.minobsinnode = 10,         # minimum number of obs needed in each node
+  gbm.zero.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,
+                       data=data,            
+                       var.monotone=c(0,0,0,0,0,0),
+                       distribution="tweedie",    
+                       n.trees=100,               
+                       shrinkage=0.005,           
+                       interaction.depth=3,       
+                       bag.fraction = 0.5,        
+                       train.fraction = 0.5,      
+                       mFeatures = 3,             
+                       n.minobsinnode = 10,       
                        keep.data=TRUE,
                        offset=offset,
-                       cv.folds=1,                 # don't do cross-validation
-                       verbose = FALSE)             # don't print progress
+                       cv.folds=1,                
+                       verbose = FALSE)           
   
   expect_equal(gbm.no.offset$initF, gbm.zero.offset$initF)
 })
@@ -879,35 +865,35 @@ test_that("Increasing the offset reduces the initial value - Adaboost", {
   
   # Generate new gbm object
   set.seed(15)
-  gbm.smaller.offset <- gbm(Y~X1+X2+X3,                # formula
-                       data=data,                 # dataset
+  gbm.smaller.offset <- gbm(Y~X1+X2+X3,        
+                       data=data,              
                        weights=w,
                        offset=offset.smaller,
-                       var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
+                       var.monotone=c(0,0,0),  
                        distribution="adaboost",
-                       n.trees=100,              # number of trees
-                       shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
-                       interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
-                       bag.fraction = 0.5,        # subsampling fraction, 0.5 is probably best
-                       train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
-                       cv.folds=1,                # don't do cross-validation
-                       n.minobsinnode = 10,       # minimum total weight needed in each node
-                       verbose = FALSE)           # don't print progress
-  set.seed(15)
-  gbm.larger.offset <- gbm(Y~X1+X2+X3,                # formula
-                         data=data,                 # dataset
+                       n.trees=100,            
+                       shrinkage=0.001,        
+                       interaction.depth=3,    
+                       bag.fraction = 0.5,     
+                       train.fraction = 0.5,   
+                       cv.folds=1,             
+                       n.minobsinnode = 10,    
+                       verbose = FALSE)        
+  set.seed(15)  
+  gbm.larger.offset <- gbm(Y~X1+X2+X3,
+                         data=data,                 
                          weights=w,
                          offset = offset.larger,
-                         var.monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
+                         var.monotone=c(0,0,0),
                          distribution="adaboost",
-                         n.trees=100,              # number of trees
-                         shrinkage=0.001,           # shrinkage or learning rate, 0.001 to 0.1 usually work
-                         interaction.depth=3,       # 1: additive model, 2: two-way interactions, etc
-                         bag.fraction = 0.5,        # subsampling fraction, 0.5 is probably best
-                         train.fraction = 0.5,      # fraction of data for training, first train.fraction*N used for training
-                         cv.folds=1,                # don't do cross-validation
-                         n.minobsinnode = 10,       # minimum total weight needed in each node
-                         verbose = FALSE)           # don't print progress
+                         n.trees=100, 
+                         shrinkage=0.001,
+                         interaction.depth=3,
+                         bag.fraction = 0.5,        
+                         train.fraction = 0.5,
+                         cv.folds=1,                
+                         n.minobsinnode = 10,       
+                         verbose = FALSE)           
   
   expect_true(gbm.smaller.offset$initF - gbm.larger.offset$initF > 0)
 })
@@ -941,39 +927,37 @@ test_that("Increasing the offset reduces the initial value - Poisson", {
   
   # Generate new gbm object
   set.seed(15)
-  gbm.smaller.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
-                            data=data,                   # dataset
-                            var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                            distribution="poisson",     # bernoulli, adaboost, Gaussian, Poisson, coxph, or
-                            # list(name="Quantilw",alpha=0.05) for Quantilw regression
-                            n.trees=100,                 # number of trees
+  gbm.smaller.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,
+                            data=data,          
+                            var.monotone=c(0,0,0,0,0,0),
+                            distribution="poisson",
+                            n.trees=100,        
                             offset=offset.smaller,
-                            shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
-                            interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
-                            bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
-                            train.fraction = 0.5,        # fraction of data for training, first train.fraction*N used for training
-                            mFeatures = 3,               # Number of features to consider at each node.
-                            n.minobsinnode = 10,         # minimum number of obs needed in each node
+                            shrinkage=0.005,
+                            interaction.depth=3,
+                            bag.fraction = 0.5,
+                            train.fraction = 0.5,
+                            mFeatures = 3,
+                            n.minobsinnode = 10,
                             keep.data=TRUE,
-                            cv.folds=1,                 # don't do cross-validation
-                            verbose = FALSE)             # don't print progress
+                            cv.folds=1,         
+                            verbose = FALSE)    
   set.seed(15)
-  gbm.larger.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
-                         data=data,                   # dataset
-                         var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
-                         distribution="Poisson",     # bernoulli, adaboost, Gaussian, Poisson, coxph, or
-                         # list(name="Quantilw",alpha=0.05) for Quantilw regression
-                         n.trees=100,                 # number of trees
+  gbm.larger.offset <- gbm(Y~X1+X2+X3+X4+X5+X6,
+                         data=data,            
+                         var.monotone=c(0,0,0,0,0,0),
+                         distribution="Poisson",
+                         n.trees=100,           
                          offset=offset.larger,
-                         shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
-                         interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
-                         bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
-                         train.fraction = 0.5,        # fraction of data for training, first train.fraction*N used for training
-                         mFeatures = 3,               # Number of features to consider at each node.
-                         n.minobsinnode = 10,         # minimum number of obs needed in each node
+                         shrinkage=0.005,       
+                         interaction.depth=3,   
+                         bag.fraction = 0.5,    
+                         train.fraction = 0.5,  
+                         mFeatures = 3,         
+                         n.minobsinnode = 10,   
                          keep.data=TRUE,
-                         cv.folds=1,                 # don't do cross-validation
-                         verbose = FALSE)             # don't print progress
+                         cv.folds=1,            
+                         verbose = FALSE)       
     
   
   expect_true(gbm.smaller.offset$initF - gbm.larger.offset$initF > 0)
