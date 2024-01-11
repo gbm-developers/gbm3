@@ -4,6 +4,8 @@
 *.tar.gz
 *~
 src/*.o
+src/*.so
+src/*.dll
 src/external
 src/tests
 src/searcher.h
@@ -25,3 +27,12 @@ Debug/
 src/gbmBuilder.h
 src/gbmBuilder.cpp
 inst/doc
+
+vignettes/*.bbl
+vignettes/*.brf
+vignettes/*.eps
+vignettes/*.gz
+vignettes/*.log
+vignettes/*.R
+vignettes/*.tex
+vignettes/gbm.pdf
