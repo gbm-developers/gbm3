@@ -31,14 +31,18 @@ require(gbm)
 # fit initial model
 gbm1 <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
             data=data,                   # dataset
-            var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
+            var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, 
+                                         # +1: monotone increase, 
+                                         # 0: no monotone restrictions
             distribution="gaussian",     # bernoulli, adaboost, gaussian, poisson, coxph, or
-                                         # list(name="quantile",alpha=0.05) for quantile regression
-            n.trees=2000,                 # number of trees
-            shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
+                                         #   list(name="quantile",alpha=0.05) for 
+                                         #   quantile regression
+            n.trees=2000,                # number of trees
+            shrinkage=0.005,             # shrinkage/learning rate, 0.001 to 0.1 usually work
             interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
             bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
-            train.fraction = 0.5,        # fraction of data for training, first train.fraction*N used for training
+            train.fraction = 0.5,        # fraction of data for training, 
+                                         #   first train.fraction*N used for training
             mFeatures = 3,               # Number of features to consider at each node.
             n.minobsinnode = 10,         # minimum number of obs needed in each node
             keep.data=TRUE,
@@ -47,10 +51,12 @@ gbm1 <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
 
 str(gbm1,max.level=1)
 # plot the performance
-best.iter <- gbmt_performance(gbm1,method="OOB")  # returns out-of-bag estimated best number of trees
-best.iter <- gbmt_performance(gbm1,method="test") # returns test set estimate of best number of trees
-best.iter <- gbmt_performance(gbm1,method="cv")   # returns cv estimate of best number of trees
-
+# returns out-of-bag estimated best number of trees
+best.iter <- gbmt_performance(gbm1,method="OOB")  
+# returns test set estimate of best number of trees
+best.iter <- gbmt_performance(gbm1,method="test") 
+# returns cv estimate of best number of trees
+best.iter <- gbmt_performance(gbm1,method="cv")   
 # plot variable influence
 summary(gbm1,num_trees=1)         # based on the first tree
 summary(gbm1,num_trees=best.iter) # based on the estimated best number of trees
@@ -78,7 +84,8 @@ data2 <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3,X4=X4,X5=X5,X6=X6)
 print(data2[1:10,])
 
 # predict on the new data using "best" number of trees
-f.predict <- predict(gbm1,data2,best.iter) # f.predict will be on the canonical scale (logit,log,etc.)
+# f.predict will be on the canonical scale (logit,log,etc.)
+f.predict <- predict(gbm1,data2,best.iter) 
 
 print(f.predict[1:10])
 # least squares error

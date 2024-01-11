@@ -23,27 +23,37 @@ X3[sample(1:N,size=300)] <- NA
 w <- rep(1,N)
 
 data <- data.frame(tt=tt,delta=delta,X1=X1,X2=X2,X3=X3)
-train_params <- training_params(num_trees = 3000, shrinkage = 0.001, interaction_depth = 3,
-                                min_num_obs_in_node = 10, num_train = N/2, id = seq_len(nrow(data)),
-                                bag_fraction = 0.5, num_features = 3)
+train_params <- training_params(num_trees = 3000, 
+                                shrinkage = 0.001, 
+                                interaction_depth = 3,
+                                min_num_obs_in_node = 10, 
+                                num_train = N/2, 
+                                id = seq_len(nrow(data)),
+                                bag_fraction = 0.5, 
+                                num_features = 3)
 
 # fit initial model
-gbm1 <- gbmt(Surv(tt,delta)~X1+X2+X3,       # formula
+gbm1 <- gbmt(Surv(tt,delta)~X1+X2+X3,  # formula
             data=data,                 # dataset
             weights=w,
-            var_monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
+            var_monotone=c(0,0,0),     # -1: monotone decrease, 
+                                       # +1: monotone increase, 
+                                       #  0: no monotone restrictions
             distribution=gbm_dist("CoxPH"),
             train_params = train_params,
             cv_folds = 5,              # do 5-fold cross-validation
             keep_gbm_data = TRUE,
-            is_verbose = FALSE)           # don't print progress
+            is_verbose = FALSE)        # don't print progress
 
 # plot the performance
-best.iter <- gbmt_performance(gbm1,method="OOB")  # returns out-of-bag estimated best number of trees
+# returns out-of-bag estimated best number of trees
+best.iter <- gbmt_performance(gbm1,method="OOB")  
 print(best.iter)
-best.iter <- gbmt_performance(gbm1,method="cv") # returns test set estimate of best number of trees
+# returns test set estimate of best number of trees
+best.iter <- gbmt_performance(gbm1,method="cv") 
 print(best.iter)
-best.iter <- gbmt_performance(gbm1,method="test") # returns test set estimate of best number of trees
+# returns test set estimate of best number of trees
+best.iter <- gbmt_performance(gbm1,method="test") 
 print(best.iter)
 
 # plot variable influence
