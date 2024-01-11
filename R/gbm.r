@@ -495,17 +495,23 @@ gbm <- function(formula = formula(data),
   # Change cv.folds to correct default
   if(cv.folds == 0) cv.folds <- 1
   
-  # Set distribution object - put in all possible additional parameters (this will generate warnings)
+  # Set distribution object
+  #   put in all possible additional parameters (this will generate warnings)
   if(missing(distribution)) {distribution <- guess_distribution(y)}
   if (is.character(distribution)){ distribution <- list(name=distribution)}
   
   # Extract and call correct gbm_distribution object
-  dist_obj <- create_dist_obj_for_gbmt_fit(distribution, tied.times.method, strata, prior.node.coeff.var)
+  dist_obj <- create_dist_obj_for_gbmt_fit(distribution, tied.times.method, 
+                                           strata, prior.node.coeff.var)
   
   # Set up training parameters
   if(is.null(mFeatures)) mFeatures <- ncol(x) 
-  params <- training_params(num_trees=n.trees, interaction_depth=interaction.depth, min_num_obs_in_node=n.minobsinnode, 
-                            shrinkage=shrinkage, bag_fraction=bag.fraction, id=obs.id,
+  params <- training_params(num_trees=n.trees, 
+                            interaction_depth=interaction.depth, 
+                            min_num_obs_in_node=n.minobsinnode, 
+                            shrinkage=shrinkage, 
+                            bag_fraction=bag.fraction, 
+                            id=obs.id,
                             num_train=round(train.fraction*length(unique(obs.id))),
                             num_features=mFeatures)
   
