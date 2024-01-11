@@ -20,12 +20,10 @@ There are 5 distributions within `gbm` which have additional parameters associat
 ## Cox proportional hazards model
 The Cox proportional hazards model has several model specific parameters associated with it.  All of them are optional but play important roles in the boosting process.
 
-* `strata`: a vector of positive integers indicating which strata each row of data belongs to.  If there
-are multiple rows per observation then this should be reflected in the `strata` vector.  If not specified it is assumed all training data are in the same stratum and all test data are in another stratum.
+* `strata`: a vector of positive integers indicating which strata each row of data belongs to.  If there are multiple rows per observation then this should be reflected in the `strata` vector.  If not specified it is assumed all training data are in the same stratum and all test data are in another stratum.
 * `sorted`: a vector specifying how the rows of data are ordered within their `strata` and the order within strata is the reverse order of the censored times or start times of the survival data.  This vector is completely optional and will be calculated by `gbmt`.
 * `ties`: a string specifying the method by which ties are broken.  Currently the "breslow" and "efron" approximations are implemented, with the latter being the default method taken.
-* `prior_node_coeff_var`: a double used to regularize the model predictions in `gbm`. It represents
-the prior on the number of events in the model.  The predictions of the `GBMFit` are given by $\log("Number of events"/"Expected Number of events")$. Both the number of events in a dataset and the model's expected number of events could be $0$ leading to non-finite behaviour.  The inverse of this parameter is added to both the numerator and denominator appearing in the log ratio so as to ensure the predictions are finite.  The default value is $1000$, representing a base event number of $1/1000$ events irrespective of the value of the measured or expected number of events.
+* `prior_node_coeff_var`: a double used to regularize the model predictions in `gbm`. It represents the prior on the number of events in the model.  The predictions of the `GBMFit` are given by $\log("Number of events"/"Expected Number of events")$. Both the number of events in a dataset and the model's expected number of events could be $0$ leading to non-finite behaviour.  The inverse of this parameter is added to both the numerator and denominator appearing in the log ratio so as to ensure the predictions are finite.  The default value is $1000$, representing a base event number of $1/1000$ events irrespective of the value of the measured or expected number of events.
 
 ```{r}
 # Create strata

@@ -12,8 +12,7 @@ vignette: >
 library("gbm3")
 ```
 
-`gbm` facilitates the creation of boosted Cox proportional hazards models, a particularly useful feature
-when dealing with survival data.  The package can handle two types of survival object as the response, namely a right censored or counting survival object.  Both of these objects can be created using the `Surv` command found in the `survival` package. 
+`gbm` facilitates the creation of boosted Cox proportional hazards models, a particularly useful feature when dealing with survival data.  The package can handle two types of survival object as the response, namely a right censored or counting survival object.  Both of these objects can be created using the `Surv` command found in the `survival` package. 
 
 # Set-up of data and distribution object 
 Right censored survival data consists of a time to event number and the event indicator - 0 if no event has taken place and 1 if the event has happened. On the other hand, counting survival data contains start and stop times along with an event indicator again indicating if an event has taken place in that period.  The data may be organised into strata and this should be passed to `gbm_dist` on creation of the `CoxPHGBMDist` object - see  the "Model Specific Parameters" vignette for more details.  The dataset considered here is provided by the `survival` package.
