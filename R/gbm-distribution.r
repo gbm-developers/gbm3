@@ -14,7 +14,7 @@
 #' If t-distribution is selected, an additional parameter (\code{df}) specifying the number of 
 #' degrees of freedom can be given.  The default degrees of freedom is set to four.  
 #' 
-#' If quantile is seleceted then the quantile to estimate may be specified using the
+#' If quantile is selected then the quantile to estimate may be specified using the
 #' named parameter \code{alpha}.  The default quantile to estimate is 0.25.
 #' 
 #' If the tweedie distribution is selected the power-law specifying the distribution
@@ -30,14 +30,14 @@
 #'   event times.  Currently only "breslow" and "efron" are available, with the latter
 #'   being the default.}
 #'   \item{\code{prior_node_coeff_var}}{It is a prior on the coefficient of variation associated with the hazard 
-#' rate assigned to each terminal node when fitting a tree.Increasing its value emphasises 
+#' rate assigned to each terminal node when fitting a tree. Increasing its value emphasizes 
 #' the importance of the training data in the node when assigning a prediction to said node. This defaults to 1000.}
 #' }
 #' 
 #' Finally, if the pairwise distribution is selected a number of parameters also need to be
 #' specified. These parameters are \code{group}, \code{metric} and \code{max_rank}.
 #' The first is a character vector  with the column names of data that jointly indicate the group 
-#' an instance bleongs to (typically a query in Information Retrieval).  For
+#' an instance belongs to (typically a query in Information Retrieval).  For
 #' training, only pairs of instances from the same group and with different target
 #' labels may be considered. \code{metric} is
 #' the IR measure to use, one of
