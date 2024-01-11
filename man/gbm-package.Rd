@@ -16,10 +16,6 @@ Further information is available in the following vignettes: \tabular{ll}{
 \code{gbm} \tab Generalized Boosted Models: A guide to the gbm package
 (source, pdf)\cr}
 }
-\author{
-James Hickey, Greg Ridgeway \email{gregridgeway@gmail.com} with contributions by
-Daniel Edwards, Brian Kriegler, Stefan Schroedl and Harry Southworth.
-}
 \references{
 Y. Freund and R.E. Schapire (1997) \dQuote{A decision-theoretic
 generalization of on-line learning and an application to boosting,}
@@ -40,5 +36,8 @@ J.H. Friedman (2002). \dQuote{Stochastic Gradient Boosting,}
 
 The \href{http://www-stat.stanford.edu/~jhf/R-MART.html}{MART} website.
 }
+\author{
+James Hickey, Greg Ridgeway \email{gregridgeway@gmail.com} with contributions by
+Daniel Edwards, Brian Kriegler, Stefan Schroedl and Harry Southworth.
+}
 \keyword{package}
-

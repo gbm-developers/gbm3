@@ -4,8 +4,14 @@
 \alias{gbm.perf}
 \title{GBMT Performance}
 \usage{
-gbm.perf(object, plot.it = TRUE, oobag.curve = FALSE, overlay = TRUE,
-  method, main = "")
+gbm.perf(
+  object,
+  plot.it = TRUE,
+  oobag.curve = FALSE,
+  overlay = TRUE,
+  method,
+  main = ""
+)
 }
 \arguments{
 \item{object}{a \code{GBMFit} object created from an initial
@@ -55,4 +61,3 @@ measures.
 \keyword{nonparametric}
 \keyword{survival}
 \keyword{tree}
-

@@ -40,9 +40,6 @@ The proportional hazard model assumes h(t|x)=lambda(t)*exp(f(x)).
 After estimating f(x), \code{baseline_hazard} can compute a nonparametric
 estimate of lambda(t).
 }
-\author{
-James Hickey, Greg Ridgeway \email{gregridgeway@gmail.com}
-}
 \references{
 N. Breslow (1972). "Discussion of `Regression Models and
 Life-Tables' by D.R. Cox," Journal of the Royal Statistical Society, Series
@@ -54,6 +51,8 @@ Biometrics 30:89-99.
 \seealso{
 \code{\link[survival]{survfit}}, \code{\link{gbmt}}
 }
+\author{
+James Hickey, Greg Ridgeway \email{gregridgeway@gmail.com}
+}
 \keyword{methods}
 \keyword{survival}
-

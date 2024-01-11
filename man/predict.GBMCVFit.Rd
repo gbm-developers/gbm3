@@ -4,8 +4,7 @@
 \alias{predict.GBMCVFit}
 \title{Predictions for CV fitted GBM models}
 \usage{
-\method{predict}{GBMCVFit}(object, gbm_data_obj, cv_folds, cv_group,
-  best_iter_cv, ...)
+\method{predict}{GBMCVFit}(object, gbm_data_obj, cv_folds, cv_group, best_iter_cv, ...)
 }
 \arguments{
 \item{object}{a GBMCVFit object containing CV gbm models}
@@ -33,4 +32,3 @@ model from gbm2.
 \author{
 James Hickey
 }
-

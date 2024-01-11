@@ -17,4 +17,3 @@ a string identifying the distribution
 \description{
 What is the distribution name used here?
 }
-

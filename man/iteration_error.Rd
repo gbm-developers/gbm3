@@ -17,4 +17,3 @@ a vector giving the error by tree
 \description{
 Extract errors from GBMFit objects
 }
-

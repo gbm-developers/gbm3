@@ -4,8 +4,7 @@
 \alias{plot.GBMTPerformance}
 \title{Plot GBM performance details}
 \usage{
-\method{plot}{GBMTPerformance}(x, out_of_bag_curve = FALSE, overlay = TRUE,
-  main = "", ...)
+\method{plot}{GBMTPerformance}(x, out_of_bag_curve = FALSE, overlay = TRUE, main = "", ...)
 }
 \arguments{
 \item{x}{a \code{GBMTPerformance} object (created by
@@ -34,4 +33,3 @@ The scale of the error measurement, shown on the
 left vertical axis, depends on the \code{distribution} argument
 used in the initial call to \code{\link{gbmt}}.
 }
-

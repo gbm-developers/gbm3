@@ -15,4 +15,3 @@ a vector containing the trees generated in the fit
 \description{
 Extract trees from GBMFit objects
 }
-

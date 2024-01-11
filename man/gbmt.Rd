@@ -4,14 +4,25 @@
 \alias{gbmt}
 \title{GBMT}
 \usage{
-gbmt(formula, distribution = gbm_dist("Gaussian"), data, weights = rep(1,
-  nrow(data)), offset = rep(0, nrow(data)),
+gbmt(
+  formula,
+  distribution = gbm_dist("Gaussian"),
+  data,
+  weights = rep(1, nrow(data)),
+  offset = rep(0, nrow(data)),
   train_params = training_params(num_trees = 2000, interaction_depth = 3,
-  min_num_obs_in_node = 10, shrinkage = 0.001, bag_fraction = 0.5, id =
-  seq_len(nrow(data)), num_train = round(0.5 * nrow(data)), num_features =
-  ncol(data) - 1), var_monotone = NULL, var_names = NULL, cv_folds = 1,
-  cv_class_stratify = FALSE, fold_id = NULL, keep_gbm_data = FALSE,
-  par_details = getOption("gbm.parallel"), is_verbose = FALSE)
+    min_num_obs_in_node = 10, shrinkage = 0.001, bag_fraction = 0.5, id =
+    seq_len(nrow(data)), num_train = round(0.5 * nrow(data)), num_features = ncol(data) -
+    1),
+  var_monotone = NULL,
+  var_names = NULL,
+  cv_folds = 1,
+  cv_class_stratify = FALSE,
+  fold_id = NULL,
+  keep_gbm_data = FALSE,
+  par_details = getOption("gbm.parallel"),
+  is_verbose = FALSE
+)
 }
 \arguments{
 \item{formula}{a symbolic description of the model to be fit.  The
@@ -117,28 +128,35 @@ train_params <-
 gbm1 <- gbmt(Y~X1+X2+X3,                # formula
             data=data,                 # dataset
             weights=w,
-            var_monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
+            var_monotone=c(0,0,0),     # -1: monotone decrease,
+                                       # +1: monotone increase, 
+                                       #  0: no monotone restrictions
             distribution=gbm_dist("Bernoulli"),
             train_params = train_params,
             cv_folds=5,                # do 5-fold cross-validation
             is_verbose = FALSE)           # don't print progress
 
 # plot the performance
-best.iter.oob <- gbmt_performance(gbm1,method="OOB")  # returns out-of-bag estimated best number of trees
+#   returns out-of-bag estimated best number of trees
+best.iter.oob <- gbmt_performance(gbm1,method="OOB")  
 plot(best.iter.oob)
 print(best.iter.oob)
-best.iter.cv <- gbmt_performance(gbm1,method="cv")   # returns 5-fold cv estimate of best number of trees
+
+# returns 5-fold cv estimate of best number of trees
+best.iter.cv <- gbmt_performance(gbm1,method="cv")   
 plot(best.iter.cv)
 print(best.iter.cv)
-best.iter.test <- gbmt_performance(gbm1,method="test") # returns test set estimate of best number of trees
+
+# returns test set estimate of best number of trees
+best.iter.test <- gbmt_performance(gbm1,method="test") 
 plot(best.iter.cv)
 print(best.iter.test)
 
 best.iter <- best.iter.test
 
 # plot variable influence
-summary(gbm1,num_trees=1)         # based on the first tree
-summary(gbm1,num_trees=best.iter) # based on the estimated best number of trees
+summary(gbm1,num_trees=1)         # based on first tree
+summary(gbm1,num_trees=best.iter) # based on  estimated best number of trees
 
 # create marginal plots
 # plot variable X1,X2,X3 after "best" iterations
@@ -147,8 +165,8 @@ plot(gbm1,1,best.iter)
 plot(gbm1,2,best.iter)
 plot(gbm1,3,best.iter)
 par(mfrow=c(1,1))
-plot(gbm1,1:2,best.iter) # contour plot of variables 1 and 2 after "best" number iterations
-plot(gbm1,2:3,best.iter) # lattice plot of variables 2 and 3 after "best" number iterations
+plot(gbm1,1:2,best.iter) # contour plot vars 1 & 2 after "best" num iterations
+plot(gbm1,2:3,best.iter) # lattice plot vars 2 & 3 after "best" num iterations
 
 # 3-way plot
 plot(gbm1,1:3,best.iter)
@@ -157,4 +175,3 @@ plot(gbm1,1:3,best.iter)
 print(pretty_gbm_tree(gbm1,1))
 print(pretty_gbm_tree(gbm1, gbm1$params$num_trees))
 }
-

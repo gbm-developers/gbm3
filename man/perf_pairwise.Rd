@@ -26,14 +26,13 @@ belong to which groups.}
 Additional performance using appropriate metric for pairwise
 distribution fit.
 }
-\author{
-Greg Ridgeway \email{gregridgeway@gmail.com}
-}
 \seealso{
 \code{\link{gbmt}}
+}
+\author{
+Greg Ridgeway \email{gregridgeway@gmail.com}
 }
 \keyword{nonlinear}
 \keyword{nonparametric}
 \keyword{survival}
 \keyword{tree}
-

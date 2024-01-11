@@ -4,8 +4,7 @@
 \alias{predict.GBMFit}
 \title{Predict method for GBM Model Fits}
 \usage{
-\method{predict}{GBMFit}(object, newdata, n.trees, type = "link",
-  single.tree = FALSE, ...)
+\method{predict}{GBMFit}(object, newdata, n.trees, type = "link", single.tree = FALSE, ...)
 }
 \arguments{
 \item{object}{Object of class inheriting from \code{GBMFit}.}
@@ -63,4 +62,3 @@ to fit the model.
 }
 \keyword{models}
 \keyword{regression}
-

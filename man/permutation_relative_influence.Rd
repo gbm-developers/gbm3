@@ -4,8 +4,12 @@
 \alias{permutation_relative_influence}
 \title{Relative influence via permutation}
 \usage{
-permutation_relative_influence(gbm_fit_obj, num_trees, rescale = FALSE,
-  sort_it = FALSE)
+permutation_relative_influence(
+  gbm_fit_obj,
+  num_trees,
+  rescale = FALSE,
+  sort_it = FALSE
+)
 }
 \arguments{
 \item{gbm_fit_obj}{a \code{GBMFit} object from an initial call to
@@ -41,13 +45,12 @@ measure is similar to the variable importance measures Breiman uses
 for random forests, but \code{\link{gbmt}} currently computes using
 the entire training dataset (not the out-of-bag observations).
 }
-\author{
-Greg Ridgeway \email{gregridgeway@gmail.com}
-}
 \seealso{
 \code{\link{summary.GBMFit}}
 \href{https://www.stat.berkeley.edu/~breiman/randomforest2001.pdf}{Random
 Forests}.
 }
+\author{
+Greg Ridgeway \email{gregridgeway@gmail.com}
+}
 \keyword{hplot}
-

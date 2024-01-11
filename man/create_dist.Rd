@@ -22,4 +22,3 @@ and builds on top of the skeleton.
 \author{
 James Hickey
 }
-

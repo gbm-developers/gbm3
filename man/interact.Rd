@@ -7,8 +7,12 @@
 \usage{
 interact(gbm_fit_obj, data, var_indices=1, num_trees=gbm_fit_obj$params$num_trees)
 
-\method{interact}{GBMFit}(gbm_fit_obj, data, var_indices = 1,
-  num_trees = gbm_fit_obj$params$num_trees)
+\method{interact}{GBMFit}(
+  gbm_fit_obj,
+  data,
+  var_indices = 1,
+  num_trees = gbm_fit_obj$params$num_trees
+)
 }
 \arguments{
 \item{gbm_fit_obj}{a \code{GBMFit} object fitted using a call to \code{\link{gbmt}}.}
@@ -45,9 +49,6 @@ is in the selected model (relative influence is zero), the result will be
 0/0. Also, with weak main effects, rounding errors can result in values of H
 > 1 which are not possible.
 }
-\author{
-Greg Ridgeway \email{gregridgeway@gmail.com}
-}
 \references{
 J.H. Friedman and B.E. Popescu (2005). \dQuote{Predictive
 Learning via Rule Ensembles.} Section 8.1
@@ -55,5 +56,7 @@ Learning via Rule Ensembles.} Section 8.1
 \seealso{
 \code{\link{gbmt}}
 }
+\author{
+Greg Ridgeway \email{gregridgeway@gmail.com}
+}
 \keyword{methods}
-

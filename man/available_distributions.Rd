@@ -15,4 +15,3 @@ Returns a vector of the distributions implemented in the package.
 \author{
 James Hickey
 }
-

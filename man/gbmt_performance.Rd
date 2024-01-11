@@ -27,4 +27,3 @@ iteration number - with various attributes.
 iterations from a model fit by \code{\link{gbmt}}.  The precise
 method used depends on the \code{method} parameter.
 }
-

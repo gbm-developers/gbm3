@@ -26,12 +26,11 @@ y <- rnorm(100)
 plot(x,y)
 quantile_rug(x)
 }
-\author{
-Greg Ridgeway \email{gregridgeway@gmail.com}
-}
 \seealso{
 \code{\link[graphics]{plot}}, \code{\link[stats]{quantile}},
 \code{\link[base]{jitter}}, \code{\link[graphics]{rug}}.
 }
+\author{
+Greg Ridgeway \email{gregridgeway@gmail.com}
+}
 \keyword{aplot}
-

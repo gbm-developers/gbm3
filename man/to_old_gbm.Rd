@@ -13,11 +13,10 @@ to_old_gbm(gbm_fit_obj)
 a \code{gbm} object of the form from Version 2.1 of the package.
 }
 \description{
-Function that takes a \code{GBMFit} object produced from a call 
-to \code{\link{gbmt}} and converts it to the form of a gbm object from 
+Function that takes a \code{GBMFit} object produced from a call
+to \code{\link{gbmt}} and converts it to the form of a gbm object from
 Version 2.1 of the package.
 }
 \author{
 James Hickey
 }
-

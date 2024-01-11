@@ -4,8 +4,14 @@
 \alias{gbm_more}
 \title{Perform additional boosting}
 \usage{
-gbm_more(gbm_fit_obj, num_new_trees = 100, data = NULL, weights = NULL,
-  offset = NULL, is_verbose = FALSE)
+gbm_more(
+  gbm_fit_obj,
+  num_new_trees = 100,
+  data = NULL,
+  weights = NULL,
+  offset = NULL,
+  is_verbose = FALSE
+)
 }
 \arguments{
 \item{gbm_fit_obj}{a \code{GBMFit} object produced using
@@ -45,4 +51,3 @@ provided for the fit.
 Method to perform additional boosting using a \code{GBMFit} object
 - does not support further cross validation.
 }
-

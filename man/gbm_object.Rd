@@ -45,11 +45,11 @@ These are objects representing fitted \code{gbm}s.
  The following components must be included in a
 legitimate \code{GBMFit} object.
 }
-\author{
-Greg Ridgeway \email{gregridgeway@gmail.com}
-}
+
 \seealso{
 \code{\link{gbmt}}
 }
+\author{
+Greg Ridgeway \email{gregridgeway@gmail.com}
+}
 \keyword{methods}
-

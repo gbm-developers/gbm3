@@ -4,10 +4,16 @@
 \alias{training_params}
 \title{Training parameters}
 \usage{
-training_params(num_trees = 100, interaction_depth = 1,
-  min_num_obs_in_node = 10, shrinkage = 0.001, bag_fraction = 0.5,
+training_params(
+  num_trees = 100,
+  interaction_depth = 1,
+  min_num_obs_in_node = 10,
+  shrinkage = 0.001,
+  bag_fraction = 0.5,
   num_train = (2 * min_num_obs_in_node + 1)/bag_fraction + 1,
-  id = seq_len(num_train), num_features = 1)
+  id = seq_len(num_train),
+  num_features = 1
+)
 }
 \arguments{
 \item{num_trees}{Number of trees used in the fit.}
@@ -47,4 +53,3 @@ Class that contains the training parameters for the gbm model
 \author{
 James Hickey
 }
-

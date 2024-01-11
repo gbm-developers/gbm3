@@ -33,11 +33,10 @@ compact matrix structure. This function extracts the information from a
 single tree and displays it in a slightly more readable form. This function
 is mostly for debugging purposes and to satisfy some users' curiosity.
 }
-\author{
-James Hickey, Greg Ridgeway \email{gregridgeway@gmail.com}
-}
 \seealso{
 \code{\link{gbm}}, \code{\link{gbmt}}
 }
+\author{
+James Hickey, Greg Ridgeway \email{gregridgeway@gmail.com}
+}
 \keyword{print}
-
