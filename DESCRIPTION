@@ -44,5 +44,6 @@ Description: Extensions
     and Learning to Rank measures (LambdaMART).
 License: GPL (>= 2) | file LICENSE
 URL: https://github.com/gbm-developers/gbm3
+Encoding: UTF-8
 RoxygenNote: 7.2.3
 LinkingTo: Rcpp
