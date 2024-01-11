@@ -25,4 +25,3 @@ details are controlled by this object.  As guidance, set
 \code{array_chunk_size} to a reasonable - not necessarily small -
 size.
 }
-
