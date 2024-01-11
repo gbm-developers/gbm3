@@ -56,8 +56,10 @@ check_dist_params.CoxPHGBMDist <- function(empty_obj, strata, sorted, ties, prio
     stop("Strata not specified - distribution could not be constructed")
   } else if (is.null(strata)) {
     stop("Strata should not be NULL")
-  } else if(!is.na(strata) && ((!(is.atomic(strata)) || is.infinite(strata)
-            || (any(strata != as.integer(strata)) && !all(is.factor(strata))) )) ) {
+  } else if(!is.atomic(strata) || 
+            any(is.infinite(strata)) || 
+            (!is.factor(strata) &&
+             any(!is.na(strata) & (strata!=as.integer(strata))))) {
     stop("Strata parameter must be an atomic of integers or factors")
   } 
   
@@ -66,26 +68,24 @@ check_dist_params.CoxPHGBMDist <- function(empty_obj, strata, sorted, ties, prio
     stop("Sorted not specified - distribution could not be constructed")
   } else if(is.null(sorted)) {
     stop("Sorted parameter cannot be NULL")
-  } else if(!is.na(sorted) && ((!(is.atomic(sorted)) || is.finite(sorted)
-          || !isTRUE(all(sorted == as.integer(sorted)))) ) ) {
+  } else if(!is.atomic(sorted) || 
+            any(is.infinite(sorted)) || 
+            any(!is.na(sorted) & (sorted!=as.integer(sorted)))) {
     stop("Sorted parameter must be an atomic of integers")
   } 
   
   # Check coeff
   if(!exists("prior_node_coeff")) {
-    stop("Prior node coefficient of variation not specified - distribution could
-         not be constructed")
+    stop("Prior node coefficient of variation not specified - distribution could not be constructed")
   } else if(!is.double(prior_node_coeff) || is.infinite(prior_node_coeff) ||
             (length(prior_node_coeff) > 1)) {
-    stop("Prior node coefficient not a finite double - distribution could not be
-         constructed")
+    stop("Prior node coefficient not a finite double - distribution could not be constructed")
   } 
 }
 
 check_dist_params.GammaGBMDist <- function(empty_obj, ...) {
   if(length(list(...)) > 0) {
-    warning("The ", class(empty_obj)[1], "class does not use any additional
-            parameters in construction.")
+    warning("The ", class(empty_obj)[1], "class does not use any additional parameters in construction.")
   }
 }
 
