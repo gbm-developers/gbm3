@@ -101,28 +101,35 @@
 ##' gbm1 <- gbmt(Y~X1+X2+X3,                # formula
 ##'             data=data,                 # dataset
 ##'             weights=w,
-##'             var_monotone=c(0,0,0),     # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
+##'             var_monotone=c(0,0,0),     # -1: monotone decrease,
+##'                                        # +1: monotone increase, 
+##'                                        #  0: no monotone restrictions
 ##'             distribution=gbm_dist("Bernoulli"),
 ##'             train_params = train_params,
 ##'             cv_folds=5,                # do 5-fold cross-validation
 ##'             is_verbose = FALSE)           # don't print progress
 ##' 
 ##' # plot the performance
-##' best.iter.oob <- gbmt_performance(gbm1,method="OOB")  # returns out-of-bag estimated best number of trees
+##' #   returns out-of-bag estimated best number of trees
+##' best.iter.oob <- gbmt_performance(gbm1,method="OOB")  
 ##' plot(best.iter.oob)
 ##' print(best.iter.oob)
-##' best.iter.cv <- gbmt_performance(gbm1,method="cv")   # returns 5-fold cv estimate of best number of trees
+##' 
+##' # returns 5-fold cv estimate of best number of trees
+##' best.iter.cv <- gbmt_performance(gbm1,method="cv")   
 ##' plot(best.iter.cv)
 ##' print(best.iter.cv)
-##' best.iter.test <- gbmt_performance(gbm1,method="test") # returns test set estimate of best number of trees
+##' 
+##' # returns test set estimate of best number of trees
+##' best.iter.test <- gbmt_performance(gbm1,method="test") 
 ##' plot(best.iter.cv)
 ##' print(best.iter.test)
 ##' 
 ##' best.iter <- best.iter.test
 ##' 
 ##' # plot variable influence
-##' summary(gbm1,num_trees=1)         # based on the first tree
-##' summary(gbm1,num_trees=best.iter) # based on the estimated best number of trees
+##' summary(gbm1,num_trees=1)         # based on first tree
+##' summary(gbm1,num_trees=best.iter) # based on  estimated best number of trees
 ##' 
 ##' # create marginal plots
 ##' # plot variable X1,X2,X3 after "best" iterations
@@ -131,8 +138,8 @@
 ##' plot(gbm1,2,best.iter)
 ##' plot(gbm1,3,best.iter)
 ##' par(mfrow=c(1,1))
-##' plot(gbm1,1:2,best.iter) # contour plot of variables 1 and 2 after "best" number iterations
-##' plot(gbm1,2:3,best.iter) # lattice plot of variables 2 and 3 after "best" number iterations
+##' plot(gbm1,1:2,best.iter) # contour plot vars 1 & 2 after "best" num iterations
+##' plot(gbm1,2:3,best.iter) # lattice plot vars 2 & 3 after "best" num iterations
 ##' 
 ##' # 3-way plot
 ##' plot(gbm1,1:3,best.iter)
