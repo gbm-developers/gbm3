@@ -64,8 +64,21 @@ calibrate_plot <- function(y, p,
   # Some initial checks
   if(is.null(knots) && is.null(df))
     stop("Either knots or df must be specified")
-  if((df != round(df)) || (df<1))
-    stop("df must be a positive integer")
+  if(!is.null(knots) && !is.null(df))
+  {
+    warning("knots and df are both supplied. Using only knots and ignoring df.")
+    df <- NULL
+  }
+  if(!is.null(df))
+  {
+    if(length(df)>1)
+    {
+      warning("Multiple values of df are given. Using only the first one.")
+      df <- df[1]
+    }
+    if((df != round(df)) || (df<1))
+      stop("df must be a positive integer.")
+  }
   
   # Set up data and family
   data <- data.frame(y=y,p=p)
