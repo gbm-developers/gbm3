@@ -29,19 +29,27 @@ test_that("gaussian works in parallel - api", {
   
   set.seed(123456)
   gid1 <- gbmt(Y ~ X1 + X2 + X3 + X4 + X5 + X6,
-              data              = data,
-              distribution      = gbm_dist("Gaussian"),
-              train_params = training_params(num_trees = 5, interaction_depth=3, bag_fraction = 1.0,
-                                             id=seq(nrow(data)), num_train=nrow(data), shrinkage=0.01),
-              fold_id           = folds)
+               data              = data,
+               distribution      = gbm_dist("Gaussian"),
+               train_params = training_params(num_trees = 5, 
+                                              interaction_depth=3, 
+                                              bag_fraction = 1.0,
+                                              id=seq(nrow(data)), 
+                                              num_train=nrow(data), 
+                                              shrinkage=0.01),
+               fold_id           = folds)
   
   set.seed(260591)
-  gid2 <- gbm(Y ~ X1 + X2 + X3 + X4 + X5 + X6,
-              data              = data,
-              distribution      = gbm_dist("Gaussian"),
-              train_params = training_params(num_trees = 5, interaction_depth=3, bag_fraction = 1.0,
-                                             id=seq(nrow(data)), num_train=nrow(data), shrinkage=0.01),
-              fold_id           = folds)
+  gid2 <- gbmt(Y ~ X1 + X2 + X3 + X4 + X5 + X6,
+               data              = data,
+               distribution      = gbm_dist("Gaussian"),
+               train_params = training_params(num_trees = 5, 
+                                              interaction_depth=3, 
+                                              bag_fraction = 1.0,
+                                              id=seq(nrow(data)), 
+                                              num_train=nrow(data), 
+                                              shrinkage=0.01),
+               fold_id           = folds)
   
   
   expect_true(all(gid1$fold.id == gid2$fold.id))
