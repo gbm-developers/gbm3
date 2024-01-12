@@ -24,25 +24,41 @@
 loss <- function(y, predictions, weights, offset, distribution_obj, baseline=rep(0, length(y))) {
   # Check inputs
   check_if_gbm_dist(distribution_obj)
-  if(is.logical(y) || is.character(y) || any(y != as.double(y)) || is.na(y)) {
+  if(is.logical(y) || 
+     is.character(y) || 
+     any(y != as.double(y)) || 
+     any(is.na(y))) {
     stop("Responses must be doubles")
   }
-  if(is.logical(predictions) || is.character(predictions) || any(predictions != as.double(predictions)) || is.na(predictions)) {
+  if(is.logical(predictions) || 
+     is.character(predictions) || 
+     any(predictions != as.double(predictions)) || 
+     any(is.na(predictions))) {
     stop("Predictions must be doubles")
   }
-  if(is.logical(weights) || is.character(weights) || any(weights != as.double(weights)) || is.na(weights)) {
+  if(is.logical(weights) || 
+     is.character(weights) || 
+     any(weights != as.double(weights)) || 
+     any(is.na(weights))) {
     stop("Weights must be doubles")
   }
-  if(is.logical(baseline) || is.character(baseline) || any(baseline != as.double(baseline)) || is.na(baseline)) {
+  if(is.logical(baseline) || 
+     is.character(baseline) || 
+     any(baseline != as.double(baseline)) || 
+     any(is.na(baseline))) {
     stop("Baseline must consist of doubles")
   }
   
-  if(is.logical(offset) || is.character(offset) || any(offset != as.double(offset)) || is.na(offset)) {
+  if(is.logical(offset) || 
+     is.character(offset) || 
+     any(offset != as.double(offset)) || 
+     any(is.na(offset))) {
     stop("Offset must consist of doubles")
   }
   
-  if((length(y) != length(predictions)) || (length(predictions) != length(weights))
-      || (length(y) != length(baseline))) {
+  if((length(y) != length(predictions)) || 
+     (length(predictions) != length(weights)) || 
+     (length(y) != length(baseline))) {
     stop("Predictions, responses, weights and baseline all must have the same number
          of elements")
   }
@@ -56,83 +72,94 @@ loss <- function(y, predictions, weights, offset, distribution_obj, baseline=rep
 
 # @name loss
 # @export
-loss.default <- function(y, predictions, weights, offset, distribution_obj, baseline=rep(0, length(y))) {
+loss.default <- function(y, predictions, weights, offset, distribution_obj, 
+                         baseline=rep(0, length(y))) {
   stop("loss function not specified for distribution object provided.")
 }
 
 # @name loss
 # @export
-loss.AdaBoostGBMDist <- function(y, predictions, weights, offset, distribution_obj, baseline=rep(0, length(y))) {
+loss.AdaBoostGBMDist <- function(y, predictions, weights, offset, 
+                                 distribution_obj, baseline=rep(0, length(y))) {
   return(weighted.mean(exp(-(2*y-1)*(predictions+offset)), weights) - baseline)
 }
 
 # @name loss
 # @export
-loss.BernoulliGBMDist <- function(y, predictions, weights, offset, distribution_obj, baseline=rep(0, length(y))) {
+loss.BernoulliGBMDist <- function(y, predictions, weights, offset, 
+                                  distribution_obj, baseline=rep(0, length(y))) {
   return(-2*weighted.mean(y*(predictions+offset) - log(1+exp(predictions+offset)), weights) - baseline)
 }
 
 # @name loss
 # @export
-loss.CoxPHGBMDist <- function(y, predictions, weights, offset, distribution_obj, baseline=rep(0, length(y))) {
+loss.CoxPHGBMDist <- function(y, predictions, weights, offset, 
+                              distribution_obj, baseline=rep(0, length(y))) {
   stop("Loss method for ",  class(distribution_obj)[1]," not yet supported.")
 }
 
 # @name loss
 # @export
-loss.GammaGBMDist <- function(y, predictions, weights, offset, distribution_obj, baseline=rep(0, length(y))) {
+loss.GammaGBMDist <- function(y, predictions, weights, offset, 
+                              distribution_obj, baseline=rep(0, length(y))) {
   stop("Loss method for ",  class(distribution_obj)[1]," not yet supported.")
 }
 
 # @name loss
 # @export
-loss.GaussianGBMDist <- function(y, predictions, weights, offset, distribution_obj, baseline=rep(0, length(y))) {
+loss.GaussianGBMDist <- function(y, predictions, weights, offset, 
+                                 distribution_obj, baseline=rep(0, length(y))) {
   return(weighted.mean((y - predictions - offset)^2, weights) - baseline)
 }
 
 # @name loss
 # @export
-loss.HuberizedGBMDist <- function(y, predictions, weights, offset, distribution_obj, baseline=rep(0, length(y))) {
+loss.HuberizedGBMDist <- function(y, predictions, weights, offset, 
+                                  distribution_obj, baseline=rep(0, length(y))) {
   stop("Loss method for ",  class(distribution_obj)[1]," not yet supported.")
 }
 
 # @name loss
 # @export
-loss.LaplaceGBMDist <- function(y, predictions, weights, offset, distribution_obj, baseline=rep(0, length(y))) {
+loss.LaplaceGBMDist <- function(y, predictions, weights, offset, 
+                                distribution_obj, baseline=rep(0, length(y))) {
   return(weighted.mean(abs(y-predictions - offset), weights) - baseline)
 }
 
 # @name loss
 # @export
-loss.PairwiseGBMDist <- function(y, predictions, weights, offset, distribution_obj, baseline=rep(0, length(y))) {
+loss.PairwiseGBMDist <- function(y, predictions, weights, offset, 
+                                 distribution_obj, baseline=rep(0, length(y))) {
   if(is.null(distribution_obj$group_index)) stop("loss for pairwise requires group_index field to be specified")
-  return((1 - perf_pairwise(y, predictions+offset, distribution_obj$group_index, distribution_obj$metric, 
+  return((1 - perf_pairwise(y, predictions+offset, distribution_obj$group_index,
+                            distribution_obj$metric, 
                             weights, distribution_obj$max_rank)) - baseline)
 }
 
 # @name loss
 # @export
-loss.PoissonGBMDist <- function(y, predictions, weights, offset, distribution_obj, baseline=rep(0, length(y))) {
+loss.PoissonGBMDist <- function(y, predictions, weights, offset, 
+                                distribution_obj, baseline=rep(0, length(y))) {
   return(-2*weighted.mean(y*(predictions+offset)-exp(predictions+offset), weights) - baseline)
 }
 
 # @name loss
 # @export
-loss.QuantileGBMDist <- function(y, predictions, weights, offset, distribution_obj, baseline=rep(0, length(y))) {
+loss.QuantileGBMDist <- function(y, predictions, weights, offset, 
+                                 distribution_obj, baseline=rep(0, length(y))) {
   stop("Loss method for ",  class(distribution_obj)[1]," not yet supported.")
-  
 }
 
 # @name loss
 # @export
-loss.TDistGBMDist <- function(y, predictions, weights, offset, distribution_obj, baseline=rep(0, length(y))) {
+loss.TDistGBMDist <- function(y, predictions, weights, offset, 
+                              distribution_obj, baseline=rep(0, length(y))) {
   stop("Loss method for ",  class(distribution_obj)[1]," not yet supported.")
-  
 }
 
 # @name loss
 # @export
-loss.TweedieGBMDist <- function(y, predictions, weights, offset, distribution_obj, baseline=rep(0, length(y))) {
+loss.TweedieGBMDist <- function(y, predictions, weights, offset, 
+                                distribution_obj, baseline=rep(0, length(y))) {
   stop("Loss method for ",  class(distribution_obj)[1]," not yet supported.")
-  
 }
