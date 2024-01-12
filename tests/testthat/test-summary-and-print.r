@@ -694,5 +694,5 @@ test_that("Summary method returns variables and relative influence ordered by re
   
   # Then the variables are ordered in terms of descending relative influence
   rel_inf <- relative_influence(fit, gbmt_performance(fit, method="cv"))
-  expect_equal(as.factor(fit$variables$var_names[order(-rel_inf)]), summary_fit_1$var)
+  expect_equal(fit$variables$var_names[order(-rel_inf)], summary_fit_1$var)
 })
