@@ -13,7 +13,7 @@ test_that("Error thrown if distribution not recognised", {
   # When create_dist_obj_for_gbmt_fit is called
   # Then an error is thrown
   expect_error(create_dist_obj_for_gbmt_fit(dist), 
-               "The distribution ", dist$name, " is not available in the gbm package.")
+               paste("The distribution",dist$name,"is not available in the gbm package."))
 })
 test_that("Can create default distributions", {
   # Given default distributions
