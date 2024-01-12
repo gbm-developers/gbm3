@@ -32,7 +32,7 @@ test_that("Error thrown if df is not a positive integer (if vector first element
   expect_error(calibrate_plot(y, p, df=0, knots=NULL, xlim=c(0,0.6), ylim=c(0,0.6)))
   expect_error(calibrate_plot(y, p, df=1.4, knots=NULL, xlim=c(0,0.6), ylim=c(0,0.6)))
   expect_error(calibrate_plot(y, p, df="Wrong", knots=NULL, xlim=c(0,0.6), ylim=c(0,0.6)))
-  expect_error(calibrate_plot(y, p, df=c(1, 2), knots=NULL, xlim=c(0,0.6), ylim=c(0,0.6)), NA)
+  expect_warning(calibrate_plot(y, p, df=c(1, 2), knots=NULL, xlim=c(0,0.6), ylim=c(0,0.6)))
   expect_error(calibrate_plot(y, p, df=c(1.4, 2), knots=NULL, xlim=c(0,0.6), ylim=c(0,0.6)))
   expect_error(calibrate_plot(y, p, df=NaN, knots=NULL, xlim=c(0,0.6), ylim=c(0,0.6)))
   expect_error(calibrate_plot(y, p, df=NA, knots=NULL, xlim=c(0,0.6), ylim=c(0,0.6)))
