@@ -59,7 +59,7 @@
 #' }
 #' 
 #' \code{ndcg} and \code{conc} allow arbitrary target values, while binary
-#' targets {0,1} are expected for \code{map} and \code{mrr}. For \code{ndcg}
+#' targets \{0,1\} are expected for \code{map} and \code{mrr}. For \code{ndcg}
 #' and \code{mrr}, a cut-off can be chosen using a positive integer parameter
 #' \code{max_rank}. If left unspecified, all ranks are taken into account.
 #' 
