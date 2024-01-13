@@ -359,7 +359,7 @@ gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
     n.minobsinnode = 10,         # minimum total weight needed in each node
     cv.folds = 3,                # do 3-fold cross-validation
     keep.data=TRUE,              # keep a copy of the dataset with the object
-    verbose=FALSE,               # don't print out progress
+    verbose=FALSE                # don't print out progress
     )                   
 
 \dontrun{
