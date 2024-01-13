@@ -1,6 +1,6 @@
 Package: gbm3
-Version: 2.2
-Date: 2016-06-16
+Version: 2.3
+Date: 2024-01-14
 Title: Generalized Boosted Regression Models
 Authors@R: c(
     person("James", "Hickey",
@@ -8,10 +8,10 @@ Authors@R: c(
            role="aut"),
     person("Paul", "Metcalfe",
            email="paul.metcalfe@gmail.com",
-           role=c("aut", "cre")),
+           role=c("aut")),
     person("Greg", "Ridgeway",
            email="gridge@upenn.edu",
-           role="aut"),
+           role=c("aut", "cre")),
     person("Stefan", "Schroedl",
            email="schroedl@a9.com",
            role="aut"),
