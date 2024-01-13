@@ -30,8 +30,6 @@
 
 #include <vector>
 
-using namespace std;
-
 //------------------------------
 // Class Definition
 //------------------------------
@@ -51,12 +49,14 @@ class CNodeSearch {
   //---------------------
   // Public Functions
   //---------------------
-  void GenerateAllSplits(vector<CNode*>& term_nodes_ptrs, const CDataset& kData,
-                         const Bag& kBag, const vector<double>& residuals,
-                         vector<unsigned long>& data_node_assigns);
-  double CalcImprovementAndSplit(vector<CNode*>& term_nodes_ptrs,
+  void GenerateAllSplits(std::vector<CNode*>& term_nodes_ptrs, 
+                         const CDataset& kData,
+                         const Bag& kBag, 
+                         const std::vector<double>& residuals,
+                         std::vector<unsigned long>& data_node_assigns);
+  double CalcImprovementAndSplit(std::vector<CNode*>& term_nodes_ptrs,
                                  const CDataset& kData,
-                                 vector<unsigned long>& data_node_assigns);
+                                 std::vector<unsigned long>& data_node_assigns);
 
   int get_num_threads() const { return parallel_.get_num_threads(); }
   int get_array_chunk_size() const { return parallel_.get_array_chunk_size(); }
@@ -66,8 +66,9 @@ class CNodeSearch {
   // Private Functions
   //---------------------
   void ReassignData(unsigned long splittednode_index,
-                    vector<CNode*>& term_nodes_ptrs, const CDataset& kData,
-                    vector<unsigned long>& data_node_assigns);
+                    std::vector<CNode*>& term_nodes_ptrs, 
+                    const CDataset& kData,
+                    std::vector<unsigned long>& data_node_assigns);
 
   //---------------------
   // Private Variables

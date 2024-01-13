@@ -15,8 +15,6 @@
 #include <algorithm>
 #include <Rcpp.h>
 
-using namespace std;
-
 /////////////////////////////////////////////////
 // weightedQuantile
 //
@@ -34,8 +32,8 @@ double CLocationM::WeightedQuantile(int vec_length, double* vec,
                                     const double* kWeights, double alpha) {
   // Local variables
   int ii, med_idx;
-  vector<double> vec_w;
-  vector<pair<int, double> > vec_v;
+  std::vector<double> vec_w;
+  std::vector<pair<int, double> > vec_v;
   double cum_sum, wsum, med;
 
   // Check the vector size

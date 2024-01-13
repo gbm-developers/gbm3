@@ -15,8 +15,6 @@
 #include <algorithm>
 #include <R.h>
 
-using namespace std;
-
 class CLocationM {
  public:
   CLocationM(){};
@@ -44,7 +42,7 @@ class CLocationM {
   double meps_;
 
   struct Compare {
-    bool operator()(pair<int, double> pair_1, pair<int, double> pair_2) {
+    bool operator()(std::pair<int, double> pair_1, std::pair<int, double> pair_2) {
       return (pair_1.second < pair_2.second);
     }
   };
