@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <memory>
 #include <vector>
+#include <random>
 #include <Rcpp.h>
 
 //------------------------------

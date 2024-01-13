@@ -16,7 +16,7 @@
 namespace gbm_functions {
 int NumGroups(const double* kMisc, int num_training_rows);
 bool has_value(const Rcpp::NumericVector& kVec);
-std::ptrdiff_t PtrShuffler(std::ptrdiff_t n);
+// std::ptrdiff_t PtrShuffler(std::ptrdiff_t n);
 }
 
 #endif  // GBMFUNC_H

@@ -34,6 +34,6 @@ bool gbm_functions::has_value(const Rcpp::NumericVector& kVec) {
 }
 
 // Function that shuffles an array.
-std::ptrdiff_t gbm_functions::PtrShuffler(std::ptrdiff_t n) {
-  return n * unif_rand();
-}
+// std::ptrdiff_t gbm_functions::PtrShuffler(std::ptrdiff_t n) {
+//   return n * unif_rand();
+// }

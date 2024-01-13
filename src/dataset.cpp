@@ -93,7 +93,8 @@ index_vector CDataset::RandomOrder() const {
   }
 
   // and now shuffle
-  std::random_shuffle(result.begin(), result.end(), gbm_functions::PtrShuffler);
+  // std::random_shuffle(result.begin(), result.end(), gbm_functions::PtrShuffler);
+  std::shuffle(result.begin(), result.end(), std::default_random_engine());
   // and return
   return result;
 }
