@@ -3,6 +3,7 @@
 \docType{package}
 \name{gbm-package}
 \alias{gbm-package}
+\alias{gbm_package}
 \title{Generalized Boosted Regression Models}
 \description{
 This package implements extensions to Freund and Schapire's AdaBoost
@@ -34,7 +35,7 @@ Boosting Machine,} \emph{Annals of Statistics} 29(5):1189-1232.
 J.H. Friedman (2002). \dQuote{Stochastic Gradient Boosting,}
 \emph{Computational Statistics and Data Analysis} 38(4):367-378.
 
-The \href{http://www-stat.stanford.edu/~jhf/R-MART.html}{MART} website.
+The \href{https://jerryfriedman.su.domains/R-MART.html}{MART} website.
 }
 \author{
 James Hickey, Greg Ridgeway \email{gregridgeway@gmail.com} with contributions by

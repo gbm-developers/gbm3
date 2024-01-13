@@ -121,7 +121,7 @@ default if the user did not specify a metric.}
 }
 
 \code{ndcg} and \code{conc} allow arbitrary target values, while binary
-targets {0,1} are expected for \code{map} and \code{mrr}. For \code{ndcg}
+targets \{0,1\} are expected for \code{map} and \code{mrr}. For \code{ndcg}
 and \code{mrr}, a cut-off can be chosen using a positive integer parameter
 \code{max.rank}. If left unspecified, all ranks are taken into account.
 
@@ -470,7 +470,7 @@ J.H. Friedman (2002). \dQuote{Stochastic Gradient Boosting,}
 \emph{Computational Statistics and Data Analysis} 38(4):367-378.
 
 B. Kriegler (2007).
-\href{http://statistics.ucla.edu/theses/uclastat-dissertation-2007:2}{Cost-Sensitive
+\href{https://dl.acm.org/doi/book/10.5555/1354603}{Cost-Sensitive
 Stochastic Gradient Boosting Within a Quantitative Regression Framework}.
 PhD dissertation, UCLA Statistics.
 
@@ -479,7 +479,7 @@ Overview,} Microsoft Research Technical Report MSR-TR-2010-82.
 
 \href{http://sites.google.com/site/gregridgeway}{Greg Ridgeway's site}.
 
-The \href{http://www-stat.stanford.edu/~jhf/R-MART.html}{MART} website.
+The \href{https://jerryfriedman.su.domains/R-MART.html}{MART} website.
 }
 \seealso{
 \code{\link{gbmt}}, \code{\link{gbmt_fit}} \code{\link{gbmt_performance}},
