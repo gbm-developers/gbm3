@@ -278,7 +278,7 @@
 #' \emph{Computational Statistics and Data Analysis} 38(4):367-378.
 #' 
 #' B. Kriegler (2007).
-#' \href{http://statistics.ucla.edu/theses/uclastat-dissertation-2007:2}{Cost-Sensitive
+#' \href{https://dl.acm.org/doi/book/10.5555/1354603}{Cost-Sensitive
 #' Stochastic Gradient Boosting Within a Quantitative Regression Framework}.
 #' PhD dissertation, UCLA Statistics.
 #' 
@@ -287,7 +287,7 @@
 #' 
 #' \href{http://sites.google.com/site/gregridgeway}{Greg Ridgeway's site}.
 #' 
-#' The \href{http://www-stat.stanford.edu/~jhf/R-MART.html}{MART} website.
+#' The \href{https://jerryfriedman.su.domains/R-MART.html}{MART} website.
 #' @keywords models nonlinear survival nonparametric tree
 #' @examples
 #'  # A least squares regression example # create some data
