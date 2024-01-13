@@ -21,10 +21,11 @@ CNodeSearch::CNodeSearch(unsigned long treedepth, unsigned long minobs,
 
 CNodeSearch::~CNodeSearch() {}
 
-void CNodeSearch::GenerateAllSplits(vector<CNode*>& term_nodes_ptrs,
-                                    const CDataset& kData, const Bag& kBag,
-                                    const vector<double>& residuals,
-                                    vector<unsigned long>& data_node_assigns) {
+void CNodeSearch::GenerateAllSplits(std::vector<CNode*>& term_nodes_ptrs,
+                                    const CDataset& kData, 
+                                    const Bag& kBag,
+                                    const std::vector<double>& residuals,
+                                    std::vector<unsigned long>& data_node_assigns) {
   const index_vector kColNumbers(kData.RandomOrder());
   VecNodeParams best_splits_updates(best_splits_);
 
@@ -67,8 +68,9 @@ void CNodeSearch::GenerateAllSplits(vector<CNode*>& term_nodes_ptrs,
 }
 
 double CNodeSearch::CalcImprovementAndSplit(
-    vector<CNode*>& term_nodes_ptrs, const CDataset& kData,
-    vector<unsigned long>& data_node_assigns) {
+    std::vector<CNode*>& term_nodes_ptrs, 
+    const CDataset& kData,
+    std::vector<unsigned long>& data_node_assigns) {
   // search for the best split
   unsigned long bestnode = 0;
   double bestnode_improvement = -HUGE_VAL;
@@ -120,9 +122,9 @@ double CNodeSearch::CalcImprovementAndSplit(
 // Function Members - Private
 //----------------------------------------
 void CNodeSearch::ReassignData(unsigned long splittednode_index,
-                               vector<CNode*>& term_nodes_ptrs,
+                               std::vector<CNode*>& term_nodes_ptrs,
                                const CDataset& kData,
-                               vector<unsigned long>& data_node_assigns) {
+                               std::vector<unsigned long>& data_node_assigns) {
 // assign observations to the correct node
 #pragma omp parallel for schedule(static, get_array_chunk_size())	\
     num_threads(get_num_threads())

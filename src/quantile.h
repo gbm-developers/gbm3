@@ -64,7 +64,7 @@ class CQuantile : public CDistribution {
   //-------------------
   // Private Variables
   //-------------------
-  vector<double> vecd_;
+  std::vector<double> vecd_;
   double alpha_;
   CLocationM mplocm_;
 };

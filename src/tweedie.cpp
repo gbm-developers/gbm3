@@ -131,10 +131,10 @@ void CTweedie::FitBestConstant(const CDataset& kData, const Bag& kBag,
   double maxval = 19.0;
   double minval = -19.0;
 
-  vector<double> numerator_vec(num_terminalnodes, 0.0);
-  vector<double> denominator_vec(num_terminalnodes, 0.0);
-  vector<double> max_vec(num_terminalnodes, -HUGE_VAL);
-  vector<double> min_vec(num_terminalnodes, HUGE_VAL);
+  std::vector<double> numerator_vec(num_terminalnodes, 0.0);
+  std::vector<double> denominator_vec(num_terminalnodes, 0.0);
+  std::vector<double> max_vec(num_terminalnodes, -HUGE_VAL);
+  std::vector<double> min_vec(num_terminalnodes, HUGE_VAL);
 
   for (obs_num = 0; obs_num < kData.get_trainsize(); obs_num++) {
     if (kBag.get_element(obs_num)) {

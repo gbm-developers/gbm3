@@ -73,10 +73,10 @@ DistributionFactory::DistributionFactory() {
 //                    function pointer.
 //
 //------------------------------------------
-void DistributionFactory::RegisterDist(const string& kDistFamily,
+void DistributionFactory::RegisterDist(const std::string& kDistFamily,
                                        DistCreate ptr_to_dist_createfunc) {
   factorymap_.insert(
-      pair<string, DistCreate>(kDistFamily, ptr_to_dist_createfunc));
+    std::pair<std::string, DistCreate>(kDistFamily, ptr_to_dist_createfunc));
 }
 
 //------------------------------------------

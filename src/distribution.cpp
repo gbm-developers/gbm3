@@ -13,8 +13,9 @@ void CDistribution::BagData(const CDataset& kData, Bag& bag) {
   unsigned long i = 0;
   unsigned long numbagged = 0;
 
-  pair<multimap<int, int>::iterator, multimap<int, int>::iterator> keyrange;
-  multimap<int, int>::iterator obs_it, row_it;
+  std::pair<std::multimap<int, int>::iterator, 
+            std::multimap<int, int>::iterator> keyrange;
+  std::multimap<int, int>::iterator obs_it, row_it;
 
   // Bag via patient id  - loop over observations
   for (obs_it = obsid_to_row_.begin(); obs_it != obsid_to_row_.end();

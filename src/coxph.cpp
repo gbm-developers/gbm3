@@ -48,7 +48,7 @@ CCoxPH::CCoxPH(bool is_startstop, int tiesmethod, double priorcoeff)
 //----------------------------------------
 CDistribution* CCoxPH::Create(DataDistParams& distparams) {
   // Initialize variables to pass to constructor
-  int tiesmethod = GetTiesMethod(Rcpp::as<string>(distparams.misc[0]));
+  int tiesmethod = GetTiesMethod(Rcpp::as<std::string>(distparams.misc[0]));
 
   return new CCoxPH(distparams.response.ncol() > 2,
 		    tiesmethod,

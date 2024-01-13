@@ -73,7 +73,7 @@ class CountingCoxState : public GenericCoxState {
                ->get_numobs() >= tree.min_num_obs_required())) {
         // Cap expected number of events to be at least 0
         expnum_events_in_nodes[tree.get_node_assignments()[i]] +=
-            max(0.0, kData.y_ptr(2)[i] - martingale_resid[i]);
+            std::max(0.0, kData.y_ptr(2)[i] - martingale_resid[i]);
         num_events_in_nodes[tree.get_node_assignments()[i]] +=
             kData.y_ptr(2)[i];
       }

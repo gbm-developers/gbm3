@@ -69,7 +69,7 @@ class CDistribution {
     // Set up multi map
     for (unsigned long i = 0;
          i < (kData.get_trainsize()); i++) {
-      obsid_to_row_.insert(pair<int, int>(kData.get_row_observation_id(i), i));
+      obsid_to_row_.insert(std::pair<int, int>(kData.get_row_observation_id(i), i));
     }
   };
   virtual void ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,

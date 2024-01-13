@@ -293,7 +293,7 @@ inline void TopRankPos(const double* const kResponse, const CRanker& kRanker,
       // All subsequent items are zero, because of presorting
       return;
     }
-    ranktop = min(ranktop, kRanker.GetRank(pos));
+    ranktop = std::min(ranktop, kRanker.GetRank(pos));
   }
 }
 
@@ -302,7 +302,7 @@ double CMRR::Measure(const double* const kResponse, const CRanker& kRanker) {
 
   TopRankPos(kResponse, kRanker, ranktop, pos);
 
-  const unsigned int kNumItems = min(kRanker.GetNumItems(), get_cutoff_rank());
+  const unsigned int kNumItems = std::min(kRanker.GetNumItems(), get_cutoff_rank());
 
   if (ranktop >= kNumItems + 1) {
     // No positive item found
@@ -351,8 +351,10 @@ void CMAP::Init(unsigned long max_group, unsigned long max_items_per_group,
 
 // Auxiliary function to find the sorted ranks of positive items (veccRankPos),
 // and their number (cPos)
-inline void SortRankPos(const double* const kResponse, const CRanker& kRanker,
-                        vector<int>& rankpos_vec, unsigned int& pos) {
+inline void SortRankPos(const double* const kResponse, 
+                        const CRanker& kRanker,
+                        std::vector<int>& rankpos_vec, 
+                        unsigned int& pos) {
   // Store all ranks of positive items in veccRankPos
   for (pos = 0; pos < kRanker.GetNumItems(); pos++) {
     if (kResponse[pos] <= 0.0) {
@@ -382,9 +384,9 @@ double CMAP::SwapCost(int item_pos, int item_neg, const double* const kResponse,
   const int kRankItemNeg = kRanker.GetRank(item_neg);
 
   // Search for the position of the two items to swap
-  const vector<int>::iterator kItItemPos = upper_bound(
+  const std::vector<int>::iterator kItItemPos = upper_bound(
       rankpos_vec_.begin(), rankpos_vec_.begin() + pos, kRankItemPos);
-  const vector<int>::iterator kItItemNeg = upper_bound(
+  const std::vector<int>::iterator kItItemNeg = upper_bound(
       rankpos_vec_.begin(), rankpos_vec_.begin() + pos, kRankItemNeg);
 
   // The number of positive items up to and including iItemPos
@@ -509,7 +511,7 @@ CPairwise::~CPairwise() {}
 inline const double* OffsetVector(const double* const kCovariates,
                                   const double* const kOffset,
                                   unsigned int start, unsigned int end,
-                                  vector<double>& buffer_vec) {
+                                  std::vector<double>& buffer_vec) {
   if (!kOffset) {
     // Optional second argument is not set, just return first one
     return kCovariates + start;
@@ -559,7 +561,7 @@ void CPairwise::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
       // Accumulate gradients
       // TODO: Implement better way to ensure casting robust to overflow
       int int_group = 0;
-      if (fabs(dGroup) > nextafter(INT_MAX, 0) || ::isnan(dGroup)) {
+      if (fabs(dGroup) > nextafter(INT_MAX, 0) || std::isnan(dGroup)) {
         int_group = copysign(INT_MAX, dGroup);
       } else {
         int_group = (int)dGroup;
@@ -661,7 +663,7 @@ void CPairwise::ComputeLambdas(int group, unsigned int num_items,
 
       const double kSwapCost = fabs(pirm_->SwapCost(i, j, kResponse, ranker_));
 
-      if (!isfinite(kSwapCost)) {
+      if (!std::isfinite(kSwapCost)) {
         throw gbm_exception::Failure("infinite swap cost");
       }
 
@@ -669,7 +671,7 @@ void CPairwise::ComputeLambdas(int group, unsigned int num_items,
         pairs++;
         const double kRhoij =
             1.0 / (1.0 + std::exp(kFuncEstimate[i] - kFuncEstimate[j]));
-        if (!isfinite(kRhoij)) {
+        if (!std::isfinite(kRhoij)) {
           throw gbm_exception::Failure("unanticipated infinity");
         };
 
@@ -747,7 +749,7 @@ void CPairwise::Initialize(const CDataset& kData) {
 
   // TODO: Make More robust against overflow
   unsigned long max_group_unsigned_long = 0;
-  if (fabs(max_group) > nextafter(ULONG_MAX, 0) || ::isnan(max_group)) {
+  if (fabs(max_group) > nextafter(ULONG_MAX, 0) || std::isnan(max_group)) {
     max_group_unsigned_long = copysign(ULONG_MAX, max_group);
   } else {
     max_group_unsigned_long = (unsigned long)max_group;
@@ -784,7 +786,7 @@ double CPairwise::Deviance(const CDataset& kData, const Bag& kBag,
     const int cNumItems = item_end - item_start;
     // TODO: Implement better way to ensure casting robust to overflow
     int int_group = 0;
-    if (fabs(kGroup) > nextafter(INT_MAX, 0) || ::isnan(kGroup)) {
+    if (fabs(kGroup) > nextafter(INT_MAX, 0) || std::isnan(kGroup)) {
       int_group = copysign(INT_MAX, kGroup);
     } else {
       int_group = (int)kGroup;
@@ -881,7 +883,7 @@ double CPairwise::BagImprovement(const CDataset& kData, const Bag& kBag,
       const unsigned int kNumItems = item_end - item_start;
       // TODO: Implement better way to ensure casting robust to overflow
       int int_group = 0;
-      if (fabs(kGroup) > nextafter(INT_MAX, 0) || ::isnan(kGroup)) {
+      if (fabs(kGroup) > nextafter(INT_MAX, 0) || std::isnan(kGroup)) {
         int_group = copysign(INT_MAX, kGroup);
       } else {
         int_group = (int)kGroup;

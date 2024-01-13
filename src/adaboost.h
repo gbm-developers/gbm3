@@ -63,8 +63,8 @@ class CAdaBoost : public CDistribution {
   //-------------------
   // Private Variables
   //-------------------
-  vector<double> numerator_bestconstant_;
-  vector<double> denominator_bestconstant_;
+  std::vector<double> numerator_bestconstant_;
+  std::vector<double> denominator_bestconstant_;
 };
 
 #endif  // ADABOOST_H

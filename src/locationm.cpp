@@ -33,7 +33,7 @@ double CLocationM::WeightedQuantile(int vec_length, double* vec,
   // Local variables
   int ii, med_idx;
   std::vector<double> vec_w;
-  std::vector<pair<int, double> > vec_v;
+  std::vector<std::pair<int, double> > vec_v;
   double cum_sum, wsum, med;
 
   // Check the vector size
@@ -46,7 +46,7 @@ double CLocationM::WeightedQuantile(int vec_length, double* vec,
   // Create vectors containing the values and weights
   vec_v.resize(vec_length);
   for (ii = 0; ii < vec_length; ii++) {
-    vec_v[ii] = make_pair(ii, vec[ii]);
+    vec_v[ii] = std::make_pair(ii, vec[ii]);
   }
 
   // Sort the vector
