@@ -85,6 +85,7 @@ NULL
 #' (source, pdf)\cr}
 #' 
 #' @name gbm-package
+#' @aliases NULL
 #' @docType package
 #' @author James Hickey, Greg Ridgeway \email{gregridgeway@@gmail.com} with contributions by
 #' Daniel Edwards, Brian Kriegler, Stefan Schroedl and Harry Southworth.
