@@ -94,18 +94,18 @@ class ContinuousStrategy : public GenericNodeStrategy {
 	     : node_context_->missing_child()->get_prediction()));
 
     for (unsigned long i = 0; i < indent; i++) Rprintf("  ");
-    Rprintf("V%d in ", node_context_->get_split_var());
+    Rprintf("V%lu in ", node_context_->get_split_var());
     for (unsigned long i = 0; i < leftcategory; i++) {
-      Rprintf("%d", node_context_->get_leftcategory()[i]);
+      Rprintf("%lu", node_context_->get_leftcategory()[i]);
       if (i < leftcategory - 1) Rprintf(",");
     }
     Rprintf("\n");
     node_context_->left_child()->PrintSubtree((indent + 1));
 
     for (unsigned long i = 0; i < indent; i++) Rprintf("  ");
-    Rprintf("V%d not in ", node_context_->get_split_var());
+    Rprintf("V%lu not in ", node_context_->get_split_var());
     for (unsigned long i = 0; i < leftcategory; i++) {
-      Rprintf("%d", node_context_->get_leftcategory()[i]);
+      Rprintf("%lu", node_context_->get_leftcategory()[i]);
       if (i < leftcategory - 1) Rprintf(",");
     }
     Rprintf("\n");
