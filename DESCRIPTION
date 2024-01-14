@@ -23,7 +23,7 @@ Authors@R: c(
            role="aut")
     )
 Depends:
-    R (>= 3.0.2)
+    R (>= 3.5.0)
 Imports:
     survival,
     lattice,
