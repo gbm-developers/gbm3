@@ -107,12 +107,12 @@ class CRanker {
   unsigned int num_items_;
 
   // Pairs of (score, rank) for current group
-  vector<CDoubleUintPair> score_rank_vec_;
+  std::vector<CDoubleUintPair> score_rank_vec_;
 
   // Array of pointers to elements of vecdipScoreRank, used for sorting
   // Note: We need a separate array for sorting in order to be able to
   // quickly look up the rank for any given item.
-  vector<CDoubleUintPair*> ptrs_to_score_rank_vec_;
+  std::vector<CDoubleUintPair*> ptrs_to_score_rank_vec_;
 };
 
 // Abstract base class for all IR Measures
@@ -211,7 +211,7 @@ class CConc : public CIRMeasure {
   int ComputePairCount(const double* const kResponse, unsigned int num_items);
 
   // Caches the number of pairs with different labels, for each group
-  vector<int> paircount_vec_;
+  std::vector<int> paircount_vec_;
 };
 
 // Class to implement IR Measure 'Normalized Discounted Cumulative Gain'
@@ -234,10 +234,10 @@ class CNDCG : public CIRMeasure {
 
  protected:
   // Lookup table for rank weight (w(rank) = 1/log2(1+rank))
-  vector<double> rankweight_vec_;
+  std::vector<double> rankweight_vec_;
 
   // Caches the maximum achievable DCG, for each group
-  vector<double> maxdcg_vec_;
+  std::vector<double> maxdcg_vec_;
 };
 
 // Class to implement IR Measure 'Mean Reciprocal Rank'
@@ -266,7 +266,7 @@ class CMAP : public CIRMeasure {
 
  protected:
   // Buffer to hold positions of positive examples
-  mutable vector<int> rankpos_vec_;
+  mutable std::vector<int> rankpos_vec_;
 };
 
 // Main class for 'pairwise' distribution
@@ -331,18 +331,18 @@ class CPairwise : public CDistribution {
                       const double* const kWeights, double* residuals,
                       double* deriv);
 
-  std::auto_ptr<CIRMeasure> pirm_;  // The IR measure to use
+  std::unique_ptr<CIRMeasure> pirm_;  // The IR measure to use
   CRanker ranker_;                  // The ranker
 
-  vector<double> hessian_;  // Second derivative of loss function, for each
+  std::vector<double> hessian_;  // Second derivative of loss function, for each
                             // training instance; used for Newton step
 
-  vector<double> fit_numerator_;    // Buffer used for numerator   in
+  std::vector<double> fit_numerator_;    // Buffer used for numerator   in
                                     // FitBestConstant(), for each node
-  vector<double> fit_denominator_;  // Buffer used for denominator in
+  std::vector<double> fit_denominator_;  // Buffer used for denominator in
                                     // FitBestConstant(), for each node
 
-  vector<double> func_est_plus_offset_;  // Temporary buffer for (adF +
+  std::vector<double> func_est_plus_offset_;  // Temporary buffer for (adF +
                                          // adOffset), if the latter is not null
 
   const double* kGroups_;

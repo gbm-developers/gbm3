@@ -18,7 +18,7 @@ FittedLearner* CGBMEngine::FitLearner(double* func_estimate) {
   datacontainer_.BagData();
 
   // Set up tree
-  std::auto_ptr<CCARTTree> tree(new CCARTTree(tree_params_));
+  std::unique_ptr<CCARTTree> tree(new CCARTTree(tree_params_));
 
   // Compute Residuals and fit tree
   datacontainer_.ComputeResiduals(&func_estimate[0], residuals_);
@@ -62,7 +62,7 @@ FittedLearner* CGBMEngine::FitLearner(double* func_estimate) {
   }
 
   double valid_error = datacontainer_.ComputeDeviance(&func_estimate[0], true);
-  std::auto_ptr<FittedLearner> fit(new FittedLearner(
+  std::unique_ptr<FittedLearner> fit(new FittedLearner(
       tree, datacontainer_.get_data(), train_error, valid_error, oobag_improv));
 
   return fit.release();

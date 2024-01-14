@@ -33,7 +33,7 @@ class FittedLearner {
         training_error_(0.0),
         validation_error_(0.0),
         oobag_improvement_(0.0){};
-  FittedLearner(std::auto_ptr<CCARTTree>& tree, CDataset& data,
+  FittedLearner(std::unique_ptr<CCARTTree>& tree, CDataset& data,
                 double train_error, double valid_error, double oobag_improv)
     : fitted_tree_(tree.release()),
       data_for_fit_(&data),
@@ -63,7 +63,7 @@ class FittedLearner {
   //----------------------
   // Private Variables
   //----------------------
-  std::auto_ptr<CCARTTree> fitted_tree_;
+  std::unique_ptr<CCARTTree> fitted_tree_;
   CDataset* data_for_fit_;
   double training_error_;
   double validation_error_;

@@ -17,12 +17,13 @@
 //------------------------------
 
 #include "distribution.h"
+#include "generic_cox_state.h"
 #include <memory>
 
 //------------------------------
 // Class Forwards and Enums
 //------------------------------
-class GenericCoxState;
+// class GenericCoxState;
 
 //------------------------------
 // Class definition
@@ -76,7 +77,7 @@ class CCoxPH : public CDistribution {
   const bool kStartStopCase_;
   const double kPriorCoeffVariation_;
   int tiedtimesmethod_;
-  std::auto_ptr<GenericCoxState> coxstate_methods_;
+  std::unique_ptr<GenericCoxState> coxstate_methods_;
 };
 
 #endif  // COXPH_H

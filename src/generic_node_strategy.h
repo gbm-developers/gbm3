@@ -16,6 +16,9 @@
 #include "dataset.h"
 #include <Rcpp.h>
 
+typedef std::vector<int> VectorCategories;
+typedef std::vector<VectorCategories> VecOfVectorCategories;
+
 //------------------------------
 // Generic Dispatch Definition
 //------------------------------

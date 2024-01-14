@@ -56,7 +56,7 @@ class CGBMDataDistContainer {
                                const std::vector<double>& kDeltaEstimate);
   void BagData();
 
-  std::auto_ptr<CDistribution>& get_dist() { return distptr_; }
+  std::unique_ptr<CDistribution>& get_dist() { return distptr_; }
   const CDataset& get_data() const { return data_; }
   CDataset& get_data() { return data_; }
   const Bag& get_bag() const { return databag_; }
@@ -80,8 +80,8 @@ class CGBMDataDistContainer {
   //-------------------
   CDataset data_;
   Bag databag_;
-  std::auto_ptr<DistributionFactory> distfactory_;
-  std::auto_ptr<CDistribution> distptr_;
+  std::unique_ptr<DistributionFactory> distfactory_;
+  std::unique_ptr<CDistribution> distptr_;
 };
 
 #endif  // GBMDATACONTAINER_H

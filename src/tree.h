@@ -67,7 +67,7 @@ class CCARTTree {
   std::vector<unsigned long>& get_node_assignments() {
     return data_node_assignment_;
   }
-  vector<CNode*>& get_terminal_nodes() { return terminalnode_ptrs_; }
+  std::vector<CNode*>& get_terminal_nodes() { return terminalnode_ptrs_; }
   bool has_node(unsigned long node_num) const {
     return terminalnode_ptrs_[node_num];
   }
@@ -90,9 +90,9 @@ class CCARTTree {
   double error_;  // total squared error before carrying out the splits
   unsigned long totalnodecount_;
 
-  auto_ptr<CNode> rootnode_;
-  vector<CNode*> terminalnode_ptrs_;
-  vector<unsigned long> data_node_assignment_;
+  std::unique_ptr<CNode> rootnode_;
+  std::vector<CNode*> terminalnode_ptrs_;
+  std::vector<unsigned long> data_node_assignment_;
 
   parallel_details parallel_;
 };

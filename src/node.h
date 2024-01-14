@@ -25,16 +25,17 @@
 //------------------------------
 #include "dataset.h"
 #include "node_parameters.h"
+#include "generic_node_strategy.h"
 #include <vector>
 
 //------------------------------
 // Class Forwards and Type defs
 //------------------------------
-class GenericNodeStrategy;
+//class GenericNodeStrategy;
 
-using namespace std;
-typedef vector<int> VectorCategories;
-typedef vector<VectorCategories> VecOfVectorCategories;
+
+// typedef std::vector<int> VectorCategories;
+// typedef std::vector<VectorCategories> VecOfVectorCategories;
 
 //------------------------------
 // Class definition
@@ -101,12 +102,12 @@ class CNode {
   //---------------------
   // Private Variables
   //---------------------
-  std::auto_ptr<GenericNodeStrategy> node_strategy_;
+  std::unique_ptr<GenericNodeStrategy> node_strategy_;
 
   // Pointers to the Node's children
-  std::auto_ptr<CNode> left_node_ptr_;
-  std::auto_ptr<CNode> right_node_ptr_;
-  std::auto_ptr<CNode> missing_node_ptr_;
+  std::unique_ptr<CNode> left_node_ptr_;
+  std::unique_ptr<CNode> right_node_ptr_;
+  std::unique_ptr<CNode> missing_node_ptr_;
 
   // TODO: Currently most useful in printing out tree
   // This nodes parameters

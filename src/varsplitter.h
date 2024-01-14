@@ -63,6 +63,6 @@ class VarSplitter {
   NodeDef initial_;
 
   NodeParams bestsplit_, proposedsplit_;
-  std::auto_ptr<generic_splitter_strategy> splitter_;
+  std::unique_ptr<generic_splitter_strategy> splitter_;
 };
 #endif  // VARSPLITTER_H
