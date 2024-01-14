@@ -749,7 +749,8 @@ void CPairwise::Initialize(const CDataset& kData) {
 
   // TODO: Make More robust against overflow
   unsigned long max_group_unsigned_long = 0;
-  if (fabs(max_group) > nextafter(ULONG_MAX, 0) || std::isnan(max_group)) {
+  if (fabs(max_group) > static_cast<double>(nextafter(ULONG_MAX, 0)) || 
+      std::isnan(max_group)) {
     max_group_unsigned_long = copysign(ULONG_MAX, max_group);
   } else {
     max_group_unsigned_long = (unsigned long)max_group;
