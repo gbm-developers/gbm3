@@ -235,8 +235,11 @@ test_that("output of compute_pred_for_all_var_combinations is of the correct siz
   
   # When calculating predictions for all combinations of variables
   # Then has correct size
-  expect_equal(length(compute_preds_for_all_var_combinations(data, gbm_fit_obj,
-                                                            all_combinations_vars, var_indices, num_trees = 1000)),
+  expect_equal(length(compute_preds_for_all_var_combinations(data, 
+                                                             gbm_fit_obj,
+                                                             all_combinations_vars, 
+                                                             var_indices, 
+                                                             num_trees = 1000)),
                length(all_combinations_vars))
 })
 test_that("sign field of output of compute_pred_for_all_var_combinations consists of +/-1s", {
@@ -287,9 +290,11 @@ test_that("sign field of output of compute_pred_for_all_var_combinations consist
                      verbose = FALSE)             # don't print progress
   
   # When calculating predictions for all combinations of variables
-  preds_for_combs <- compute_preds_for_all_var_combinations(data, gbm_fit_obj,
-                                                            all_combinations_vars, var_indices, num_trees = 1000)
-  
+  preds_for_combs <- compute_preds_for_all_var_combinations(data, 
+                                                            gbm_fit_obj,
+                                                            all_combinations_vars, 
+                                                            var_indices, 
+                                                            num_trees = 1000)
   # Then sign field is +-1s
   expect_true(all(preds_for_combs[[1]]$sign %in% c(1, -1)))
 })
