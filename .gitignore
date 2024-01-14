@@ -36,3 +36,4 @@ vignettes/*.log
 vignettes/*.R
 vignettes/*.tex
 vignettes/gbm.pdf
+vignettes/gbm_cache/
