@@ -2,6 +2,7 @@
 % Please edit documentation in R/gbm-package.r
 \docType{package}
 \name{gbm-package}
+\alias{gbm_package}
 \title{Generalized Boosted Regression Models}
 \description{
 This package implements extensions to Freund and Schapire's AdaBoost
