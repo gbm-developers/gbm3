@@ -148,8 +148,10 @@ check_and_set_variables_indices <- function(gbm_fit_obj, variables_indices) {
 
 table_of_unique_values <- function(data, variables_indices) {
   unique_vars <- unique(data[, variables_indices,drop=FALSE])
+  # the additional unique() in levels should not be necessary,
+  #   but on fedora build getting duplicate factor levels (2024-01-14)
   unique_vars$num_levels_factors <- table(factor(apply(data[, variables_indices,drop=FALSE],1,paste,collapse="\r"),
-                      levels=apply(unique_vars, 1,paste,collapse="\r")))
+                      levels=unique(apply(unique_vars, 1,paste,collapse="\r"))))
   return(unique_vars)
 }
 
@@ -157,8 +159,10 @@ compute_preds_for_all_var_combinations <- function(data, gbm_fit_obj, all_combin
   preds_for_comb_vars <- vector("list", length(all_combinations_vars))
   for(vars in seq_along(all_combinations_vars)) {
     # Get data for combination
-    preds_for_comb_vars[[vars]]$data <- data.frame(table_of_unique_values(data, 
-                                                                          gbm_fit_obj$variables$var_names[variables_indices[all_combinations_vars[[vars]]]]))
+    preds_for_comb_vars[[vars]]$data <- 
+      data.frame(table_of_unique_values(data,
+                                        gbm_fit_obj$variables$var_names[variables_indices[all_combinations_vars[[vars]]]]))
+    
     preds_for_comb_vars[[vars]]$num_levels_factors <- as.numeric(preds_for_comb_vars[[vars]]$data$num_levels_factors)
     preds_for_comb_vars[[vars]]$data$num_levels_factors <- NULL
     
