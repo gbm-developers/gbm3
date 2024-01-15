@@ -1,11 +1,11 @@
 gbm3: generalized boosted models
 ----0------------------------
 
-[![Build Status](https://travis-ci.org/gbm-developers/gbm.svg?branch=master)](https://travis-ci.org/gbm-developers/gbm3)
-[![Coverage Status](https://coveralls.io/repos/gbm-developers/gbm/badge.svg?branch=master&service=github)](https://coveralls.io/github/gbm-developers/gbm3?branch=master)
+<!-- [![Build Status](https://travis-ci.org/gbm-developers/gbm.svg?branch=master)](https://travis-ci.org/gbm-developers/gbm3) -->
+<!--  [![Coverage Status](https://coveralls.io/repos/gbm-developers/gbm/badge.svg?branch=master&service=github)](https://coveralls.io/github/gbm-developers/gbm3?branch=master) -->
 
 Originally written by Greg Ridgeway, added to by various authors,
-currently maintained by Harry Southworth.  Development is discussed
+currently maintained by Greg Ridgeway.  Development is discussed
 --- somewhat --- at https://groups.google.com/forum/#!forum/gbm-dev .
 
 This is the shiny new gbm3 package that is not backwards compatible, but 
