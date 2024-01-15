@@ -1,6 +1,22 @@
+Changes in version 3.0
+
+- This is a general update to bring gbm3 into current R standards and prepare
+  it for CRAN submission.
+- Switched from the deprecated std::auto_ptr to std::unique_ptr
+
+Changes in version 2.2
+- This was the transformation to gbm3, a substantially rewritten version of
+  the original gbm package
+- Substantial change to the API
+- More parallelization
+- More complete survival models
+
 Changes in version 2.1-x
 
-- Added mFeature parameter to gbm. mFeature is an integer number of features to consider at each node. This increases variability of each tree and will increase speed for large feature sets. NULL will consider all features and the number of features is bounded by 1 and total number of features.
+- Added mFeature parameter to gbm. mFeature is an integer number of features 
+  to consider at each node. This increases variability of each tree and will 
+  increase speed for large feature sets. NULL will consider all features and 
+  the number of features is bounded by 1 and total number of features.
 - Fixed bug that caused gbm to fail with cv.folds=1
 - Stopped gbm from launching multiple processes when n.cores=1
 - Explicitly call parallel::parLapply to avoid failure when Snow is
