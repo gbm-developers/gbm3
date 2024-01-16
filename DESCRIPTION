@@ -34,15 +34,15 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
-Description: Extensions
-    to Freund and Schapire's AdaBoost algorithm and Friedman's
-    gradient boosting machine. Includes regression methods for least
-    squares, absolute loss, t-distribution loss,
-    quantile regression, logistic, Poisson,
+Description: Extensions to Freund and Schapire's AdaBoost algorithm, Y. Freund 
+    and R. Schapire (1997) <doi:10.1006/jcss.1997.1504> and Friedman's gradient 
+    boosting machine, J.H. Friedman (2001) <doi:10.1214/aos/1013203451>. 
+    Includes regression methods for least squares, absolute loss, 
+    t-distribution loss, quantile regression, logistic, Poisson,
     Cox proportional hazards partial likelihood, AdaBoost
     exponential loss, Huberized hinge loss,
     and Learning to Rank measures (LambdaMART).
-License: GPL (>= 2) | file LICENSE
+License: GPL (>= 2)
 URL: https://github.com/gbm-developers/gbm3
 Encoding: UTF-8
 RoxygenNote: 7.2.3
