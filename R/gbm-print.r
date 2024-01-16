@@ -31,6 +31,8 @@
 #' 
 #' @param \dots arguments passed to \code{print.default}.
 #' 
+#' @return Returns \code{x} invisibly
+#' 
 #' @author James Hickey, Harry Southworth, Daniel Edwards
 #' @seealso \code{\link{gbmt}}
 #' @references P. J. Rousseeuw and A. M. Leroy, Robust Regression and Outlier

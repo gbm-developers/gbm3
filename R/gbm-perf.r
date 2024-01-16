@@ -153,6 +153,8 @@ print.GBMTPerformance <- function(x, ...) {
 ##' @param main the main title for the plot.
 ##'
 ##' @param \dots currently ignored
+##' 
+##' @return No return value, only plot generation
 ##'
 ##' @export
 plot.GBMTPerformance <- function(x,

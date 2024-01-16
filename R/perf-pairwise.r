@@ -18,6 +18,8 @@
 #' 
 #' @param max_rank the maximum rank considered in the groups measure. 
 #' 
+#' @return returns a numeric value of the selected performance metric
+#' 
 #' @author Greg Ridgeway \email{gregridgeway@@gmail.com}
 #' 
 #' @seealso \code{\link{gbmt}}
