@@ -56,7 +56,7 @@ summary(gbm1,num_trees=best.iter) # based on the estimated best number of trees
 
 # create marginal plots
 # plot variable X1,X2,X3 after "best" iterations
-par(mfrow=c(1,3))
+par.old <- par(mfrow=c(1,3))
 plot(gbm1,1,best.iter)
 plot(gbm1,2,best.iter)
 plot(gbm1,3,best.iter)
@@ -92,6 +92,7 @@ p.pred <- 1/(1+exp(-f.predict))
 # calibration plot for logistic regression - well calibrated means a 45 degree line
 par(mfrow=c(1,1))
 calibrate_plot(Y,p.pred[,3])
+par(par.old) # reset graphics options to previous settings
 
 # logistic error
 sum(data2$Y*f.predict[,1] - log(1+exp(f.predict[,1])))

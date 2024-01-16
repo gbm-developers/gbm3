@@ -38,7 +38,7 @@ perf_plot <- function(gbm_fit_obj, best_iter, out_of_bag_curve,
   if(!is.logical(out_of_bag_curve) || (length(out_of_bag_curve)) > 1 || is.na(out_of_bag_curve))
     stop("out_of_bag_curve must be a logical - excluding NA")
   
-  par(mar=c(5,4,4,4)+.1)
+  par.old <- par(mar=c(5,4,4,4)+.1)
   
   # Get y-axis label and limits
   ylab <- get_ylabel(gbm_fit_obj$distribution)
@@ -71,7 +71,11 @@ perf_plot <- function(gbm_fit_obj, best_iter, out_of_bag_curve,
   # Plot out of bag curve
   if(out_of_bag_curve)
     plot_oobag(gbm_fit_obj, best_iter, overlay, ylab)
+  
+  par(par.old)
 }
+
+
 ########## HELPER FUNCTIONS FOR PLOTTING ############
 get_ylabel <- function(distribution) {
   UseMethod("get_ylabel", distribution)

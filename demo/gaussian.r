@@ -93,7 +93,7 @@ print(sum((data2$Y-f.predict)^2))
 
 # create marginal plots
 # plot variable X1,X2,X3 after "best" iterations
-par(mfrow=c(1,3))
+par.old <- par(mfrow=c(1,3))
 plot(gbm1,1,best.iter)
 plot(gbm1,2,best.iter)
 plot(gbm1,3,best.iter)
@@ -106,6 +106,7 @@ plot(gbm1,c(1,2,6),best.iter,cont=20) # 3-way plots
 plot(gbm1,1:3,best.iter)
 plot(gbm1,2:4,best.iter)
 plot(gbm1,3:5,best.iter)
+par(par.old) # reset graphics options to previous settings
 
 # check interactions
 interact(gbm1,data=data,var_indices=1:2, num_trees=best.iter)
@@ -114,4 +115,3 @@ i.var <- subset(expand.grid(x1=1:6,x2=1:6), x1<x2)
 rownames(i.var) <- apply(i.var,1,paste,collapse=":",sep="")
 apply(i.var,1,
       function(i.var) interact(gbm1,data=data,var_indices=i.var,num_trees=best.iter))
-
