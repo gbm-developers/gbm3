@@ -1,8 +1,10 @@
 #' Calibration plot
 #' 
 #' An experimental diagnostic tool that plots the fitted values versus the
-#' actual average values. Currently developed for only
-#' \code{distribution="Bernoulli"}.
+#' actual average values. If \code{distribution} is "Bernoulli" or "Poisson", 
+#' then the predictions are converted to the response scale (probability or
+#' rate). For all other distributions, the calibration plot uses least squares
+#' and predicts an expected value.
 #' 
 #' Uses natural splines to estimate E(y|p). Well-calibrated predictions imply
 #' that E(y|p) = p. The plot also includes a pointwise 95% confidence band.
@@ -39,16 +41,21 @@
 #' @keywords hplot
 #' @examples
 #' 
-#' \dontrun{
-#' library(rpart)
-#' data(kyphosis)
-#' y <- as.numeric(kyphosis$Kyphosis)-1
-#' x <- kyphosis$Age
-#' glm1 <- glm(y~poly(x,2),family=binomial)
+#' dataSim <- data.frame(x=rnorm(1000))
+#' dataSim$y <- with(dataSim, rbinom(1000, 1, 1/(1+exp(-(x-0.5*x^2)))))
+#' 
+#' # showing poor calibration of a linear model
+#' glm1 <- glm(y~x, data=dataSim, family=binomial)
+#' p <- predict(glm1, type="response")
+#' calibrate_plot(dataSim$y, p, xlim=c(0,1), ylim=c(0,1))
+#' 
+#' # showing better calibration with quadratic
+#' glm1 <- glm(y~poly(x,2), data=dataSim, family=binomial)
 #' p <- predict(glm1,type="response")
-#' calibrate_plot(y, p, xlim=c(0,0.6), ylim=c(0,0.6))
-#' }
+#' calibrate_plot(dataSim$y, p, xlim=c(0,1), ylim=c(0,1))
+#' 
 #' @importFrom splines ns
+#' @export 
 calibrate_plot <- function(y, p,
                            distribution="Bernoulli",
                            replace=TRUE,
