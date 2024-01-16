@@ -332,31 +332,9 @@
 #'     cv.folds = 3,                # do 3-fold cross-validation
 #'     keep.data=TRUE,              # keep a copy of the dataset with the object
 #'     verbose=FALSE                # don't print out progress
+#' # , par.details=gbmParallel(num_threads=15) # option for gbm3 to parallelize
 #'     )                   
 #'
-#' \dontrun{
-#' gbm1 <-
-#' gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
-#'     data=data,                   # dataset
-#'     var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease,
-#'                                  # +1: monotone increase,
-#'                                  #  0: no monotone restrictions
-#'     distribution="gaussian",     # see the help for other choices
-#'     n.trees=1000,                # number of trees
-#'     shrinkage=0.05,              # shrinkage or learning rate,
-#'                                  # 0.001 to 0.1 usually work
-#'     interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc.
-#'     bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
-#'     train.fraction = 0.5,        # fraction of data for training,
-#'                                  # first train.fraction*N used for training
-#'     mFeatures = 3,               # half of the features are considered at each node
-#'     n.minobsinnode = 10,         # minimum total weight needed in each node
-#'     cv.folds = 3,                # do 3-fold cross-validation
-#'     keep.data=TRUE,              # keep a copy of the dataset with the object
-#'     verbose=FALSE,               # don't print out progress
-#'     par.details=gbmParallel(num_threads=15))
-#' }
-#' 
 #' # check performance using an out-of-bag estimator
 #' # OOB underestimates the optimal number of iterations
 #' best_iter <- gbmt_performance(gbm1,method="OOB")
@@ -401,6 +379,7 @@
 #' 
 #' # create marginal plots
 #' # plot variable X1,X2,X3 after "best" iterations
+#' oldpar <- par(no.readonly = TRUE)
 #' par(mfrow=c(1,3))
 #' plot(gbm1,1,best_iter)
 #' plot(gbm1,2,best_iter)
@@ -418,6 +397,7 @@
 #' plot(gbm1,1:3,best_iter)
 #' plot(gbm1,2:4,best_iter)
 #' plot(gbm1,3:5,best_iter)
+#' par(oldpar) # reset graphics options to previous settings
 #' 
 #' # do another 100 iterations
 #' gbm2 <- gbm_more(gbm1,100,
