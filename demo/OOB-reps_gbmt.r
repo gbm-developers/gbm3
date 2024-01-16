@@ -237,25 +237,6 @@ if(run.all)
          sep=",",
          shrinkage=0.005)
   
-  if(FALSE) # this dataset is not public, can substitute other datasets
-  {
-    # time in treatment
-    i.data <- i.data + 1
-    dataset[[i.data]] <-
-      list(name="time in treatment",
-           distribution="Gaussian",
-           urlpath="./",
-           filename="txdet.csv",
-           var.names=NULL,
-           factors=c("b1","xsite4","b3new","b8new","s1a1new","m3dnew","e1new","e13anew"),
-           outcome="txdet",
-           drop.vars=c("xpid","xobs","maxcefu","recovfu","nontxdet","s7e5","r2f",
-                       "r3a9","e4a6","l5p","v2.4","v2.7","v2.8"),
-           na.strings="NA",
-           sep=",",
-           shrinkage=0.0022)
-  }
-  
   # Load datasets
   for(i.data in 1:n.datasets)
     # for(i.data in which(sapply(dataset,function(x){is.null(x$oob.iter)})))
