@@ -12,6 +12,9 @@
 
 \item{\dots}{arguments passed to \code{print.default}.}
 }
+\value{
+Returns \code{x} invisibly
+}
 \description{
 Display basic information about a \code{GBMFit} object.
 }

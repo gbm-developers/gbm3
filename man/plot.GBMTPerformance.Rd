@@ -22,6 +22,9 @@ versus the iteration number.}
 
 \item{\dots}{currently ignored}
 }
+\value{
+No return value, only plot generation
+}
 \description{
 The train and validation error (in black and red respectively) are
 plotted against the iteration number.  If the initial model was

@@ -102,7 +102,8 @@ w <- N*w/sum(w)
 
 data <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3)
 
-\dontrun{
+\donttest{
+# takes longer, but num_tress=3000 preferable
 train_params <-
      training_params(num_trees = 3000,
                      shrinkage = 0.001,
@@ -114,6 +115,7 @@ train_params <-
                      num_features = 3)
 }
 
+# for the example to run quickly, num_trees=100
 train_params <-
      training_params(num_trees = 100,
                      shrinkage = 0.001,
@@ -126,15 +128,15 @@ train_params <-
  
 # fit initial model
 gbm1 <- gbmt(Y~X1+X2+X3,                # formula
-            data=data,                 # dataset
-            weights=w,
-            var_monotone=c(0,0,0),     # -1: monotone decrease,
-                                       # +1: monotone increase, 
-                                       #  0: no monotone restrictions
-            distribution=gbm_dist("Bernoulli"),
-            train_params = train_params,
-            cv_folds=5,                # do 5-fold cross-validation
-            is_verbose = FALSE)           # don't print progress
+             data=data,                 # dataset
+             weights=w,
+             var_monotone=c(0,0,0),     # -1: monotone decrease,
+                                        # +1: monotone increase, 
+                                        #  0: no monotone restrictions
+             distribution=gbm_dist("Bernoulli"),
+             train_params = train_params,
+             cv_folds=5,                # do 5-fold cross-validation
+             is_verbose = FALSE)           # don't print progress
 
 # plot the performance
 #   returns out-of-bag estimated best number of trees
@@ -160,6 +162,7 @@ summary(gbm1,num_trees=best.iter) # based on  estimated best number of trees
 
 # create marginal plots
 # plot variable X1,X2,X3 after "best" iterations
+oldpar <- par(no.readonly = TRUE)
 par(mfrow=c(1,3))
 plot(gbm1,1,best.iter)
 plot(gbm1,2,best.iter)
@@ -174,4 +177,5 @@ plot(gbm1,1:3,best.iter)
 # print the first and last trees
 print(pretty_gbm_tree(gbm1,1))
 print(pretty_gbm_tree(gbm1, gbm1$params$num_trees))
+par(oldpar) # reset graphics options to previous settings
 }

@@ -22,6 +22,9 @@ belong to which groups.}
 
 \item{max_rank}{the maximum rank considered in the groups measure.}
 }
+\value{
+returns a numeric value of the selected performance metric
+}
 \description{
 Additional performance using appropriate metric for pairwise
 distribution fit.
