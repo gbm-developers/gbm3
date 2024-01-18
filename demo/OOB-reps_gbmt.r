@@ -2,13 +2,7 @@ set.seed(06182001)
 
 # number of replicates
 n.reps <- 20
-# should data be loaded from the web? If FALSE use alt.path
-load.from.web <- TRUE
 run.all <- TRUE
-# if data not downloaded from the web, give path to datasets
-alt.path <- ""
-
-
 n.datasets <- 12 # needs to match the number of datasets
 i.data <- 0
 
@@ -239,15 +233,11 @@ if(run.all)
   
   # Load datasets
   for(i.data in 1:n.datasets)
-    # for(i.data in which(sapply(dataset,function(x){is.null(x$oob.iter)})))
   {
     # Progress
     cat("Dataset ",i.data,":",dataset[[i.data]]$name," N = ")
-    filename <- paste(switch(load.from.web+1,
-                             alt.path,
-                             dataset[[i.data]]$url),
-                      dataset[[i.data]]$filename,
-                      sep="")
+    filename <- paste0(dataset[[i.data]]$url,
+                       dataset[[i.data]]$filename)
     dataset[[i.data]]$data <-
       read.table(file=filename,
                  na.strings=dataset[[i.data]]$na.strings,
@@ -289,22 +279,12 @@ if(run.all)
     
     cat(nrow(dataset[[i.data]]$data),"\n")
   }
-  
-  save(dataset,file="dataset.RData")
 } # run.all
 
 
-# make sure gbm is installed
-if(!is.element("gbm",installed.packages()[,1]))
-{
-  stop("The gbm package is not installed. Use install.packages(\"gbm\") to install. On Unix machines this must be executed in an R session started as root or installed to a local library, see help(install.packages)")
-}
-
-library(gbm)
 # loop over all the datasets
 i.datasets <- which(sapply(dataset,function(x){is.null(x$oob.loss)}))
 for(i.data in i.datasets)
-  # for(i.data in which(sapply(dataset,function(x){is.null(x$oob.iter)})))
 {
   N <- nrow(dataset[[i.data]]$data)
   # Progress
@@ -337,11 +317,11 @@ for(i.data in i.datasets)
                                   bag_fraction = 0.5, 
                                   num_features = ncol(dataset[[i.data]]$data[i.train,])-1)
     gbm1 <- gbmt(formula.fit,
-                data=dataset[[i.data]]$data[i.train,],
-                distribution=gbm_dist(dataset[[i.data]]$distribution),
-                train_params = oob_params,
-                keep_gbm_data = TRUE,
-                is_verbose = FALSE)
+                 data=dataset[[i.data]]$data[i.train,],
+                 distribution=gbm_dist(dataset[[i.data]]$distribution),
+                 train_params = oob_params,
+                 keep_gbm_data = TRUE,
+                 is_verbose = FALSE)
     
     best.iter.oob <- gbmt_performance(gbm1,method="OOB")
     while((gbm1$params$num_trees-best.iter.oob < 1000) &&
@@ -363,11 +343,11 @@ for(i.data in i.datasets)
                                         bag_fraction = 0.5, 
                                         num_features = ncol(dataset[[i.data]]$data[i.train,])-1)
     gbm1 <- gbmt(formula.fit,
-                data=dataset[[i.data]]$data[i.train,],
-                distribution=gbm_dist(dataset[[i.data]]$distribution),
-                train_params=one_third_params,
-                keep_gbm_data = TRUE,
-                is_verbose = FALSE)
+                 data=dataset[[i.data]]$data[i.train,],
+                 distribution=gbm_dist(dataset[[i.data]]$distribution),
+                 train_params=one_third_params,
+                 keep_gbm_data = TRUE,
+                 is_verbose = FALSE)
     best.iter.test <- gbmt_performance(gbm1, method="test")
     while((gbm1$params$num_trees-best.iter.test < 1000) &&
           !all(abs(gbm1$valid.error[(gbm1$params$num_trees-100):gbm1$params$num_trees]) < 1e-6))
@@ -388,11 +368,11 @@ for(i.data in i.datasets)
                                         bag_fraction = 0.5, 
                                         num_features = ncol(dataset[[i.data]]$data[i.train,])-1)
     gbm1 <- gbmt(formula.fit,
-                data=dataset[[i.data]]$data[i.train,],
-                distribution=gbm_dist(dataset[[i.data]]$distribution),
-                train_params = one_fifth_params,
-                keep_gbm_data = TRUE,
-                is_verbose = FALSE)
+                 data=dataset[[i.data]]$data[i.train,],
+                 distribution=gbm_dist(dataset[[i.data]]$distribution),
+                 train_params = one_fifth_params,
+                 keep_gbm_data = TRUE,
+                 is_verbose = FALSE)
     best.iter.test <- gbmt_performance(gbm1, method="test")
     while((gbm1$params$num_trees-best.iter.test < 1000) &&
           !all(abs(gbm1$valid.error[(gbm1$params$num_trees-100):gbm1$params$num_trees]) < 1e-6))
@@ -422,11 +402,11 @@ for(i.data in i.datasets)
                                           bag_fraction = 0.5, 
                                           num_features = ncol(dataset[[i.data]]$data[i.train,])-1)
       gbm1 <- gbmt(formula.fit,
-                  data=dataset[[i.data]]$data[i.train[i],],
-                  distribution=gbm_dist(dataset[[i.data]]$distribution),
-                  train_params = cv_params,
-                  keep_gbm_data = TRUE,
-                  is_verbose = FALSE)
+                   data=dataset[[i.data]]$data[i.train[i],],
+                   distribution=gbm_dist(dataset[[i.data]]$distribution),
+                   train_params = cv_params,
+                   keep_gbm_data = TRUE,
+                   is_verbose = FALSE)
       cv.loss[,i.cv] <- gbm1$valid.error
     }
     cat("\n")
@@ -438,11 +418,11 @@ for(i.data in i.datasets)
                                  bag_fraction = 0.5, 
                                  num_features = ncol(dataset[[i.data]]$data[i.train,])-1)
     gbm1 <- gbmt(formula.fit,
-                data=dataset[[i.data]]$data[i.train,],
-                distribution=gbm_dist(dataset[[i.data]]$distribution),
-                train_params = best_cv_params,
-                keep_gbm_data = TRUE,
-                is_verbose = FALSE)
+                 data=dataset[[i.data]]$data[i.train,],
+                 distribution=gbm_dist(dataset[[i.data]]$distribution),
+                 train_params = best_cv_params,
+                 keep_gbm_data = TRUE,
+                 is_verbose = FALSE)
     pred.cv5[i.valid] <-
       predict(gbm1,
               new_data=dataset[[i.data]]$data[i.valid,],
@@ -468,12 +448,7 @@ for(i.data in i.datasets)
          cat(oob.iter[i.rep],test33.iter[i.rep],test20.iter[i.rep],
              cv5.iter[i.rep],"\n"))
   }
-  
-  save.image(compress=TRUE)
 }
-
-#rm(dataset)
-save.image(compress=TRUE)
 
 results <- data.frame(problem=sapply(dataset,function(x){x$name}),
                       N=sapply(dataset,function(x){nrow(x$data)}),

@@ -2,13 +2,7 @@ set.seed(06182001)
 
 # number of replicates
 n.reps <- 20
-# should data be loaded from the web? If FALSE use alt.path
-load.from.web <- TRUE
 run.all <- TRUE
-# if data not downloaded from the web, give path to datasets
-alt.path <- ""
-
-
 n.datasets <- 12 # needs to match the number of datasets
 i.data <- 0
 
@@ -237,36 +231,14 @@ if(run.all)
             sep=",",
             shrinkage=0.005)
 
-   if(FALSE) # this dataset is not public, can substitute other datasets
-   {
-      # time in treatment
-      i.data <- i.data + 1
-      dataset[[i.data]] <-
-         list(name="time in treatment",
-               distribution="gaussian",
-               urlpath="./",
-               filename="txdet.csv",
-               var.names=NULL,
-               factors=c("b1","xsite4","b3new","b8new","s1a1new","m3dnew","e1new","e13anew"),
-               outcome="txdet",
-               drop.vars=c("xpid","xobs","maxcefu","recovfu","nontxdet","s7e5","r2f",
-                           "r3a9","e4a6","l5p","v2.4","v2.7","v2.8"),
-               na.strings="NA",
-               sep=",",
-               shrinkage=0.0022)
-   }
-
    # Load datasets
    for(i.data in 1:n.datasets)
    # for(i.data in which(sapply(dataset,function(x){is.null(x$oob.iter)})))
    {
       # Progress
       cat("Dataset ",i.data,":",dataset[[i.data]]$name," N = ")
-      filename <- paste(switch(load.from.web+1,
-                              alt.path,
-                              dataset[[i.data]]$url),
-                        dataset[[i.data]]$filename,
-                        sep="")
+      filename <- paste0(dataset[[i.data]]$url,
+                         dataset[[i.data]]$filename)
       dataset[[i.data]]$data <-
          read.table(file=filename,
                      na.strings=dataset[[i.data]]$na.strings,
@@ -308,18 +280,9 @@ if(run.all)
 
       cat(nrow(dataset[[i.data]]$data),"\n")
    }
-
-   save(dataset,file="dataset.RData")
 } # run.all
 
 
-# make sure gbm is installed
-if(!is.element("gbm",installed.packages()[,1]))
-{
-    stop("The gbm package is not installed. Use install.packages(\"gbm\") to install. On Unix machines this must be executed in an R session started as root or installed to a local library, see help(install.packages)")
-}
-
-library(gbm)
 # loop over all the datasets
 i.datasets <- which(sapply(dataset,function(x){is.null(x$oob.loss)}))
 for(i.data in i.datasets)
@@ -472,12 +435,7 @@ for(i.data in i.datasets)
           cat(oob.iter[i.rep],test33.iter[i.rep],test20.iter[i.rep],
               cv5.iter[i.rep],"\n"))
    }
-
-   save.image(compress=TRUE)
 }
-
-#rm(dataset)
-save.image(compress=TRUE)
 
 results <- data.frame(problem=sapply(dataset,function(x){x$name}),
                       N=sapply(dataset,function(x){nrow(x$data)}),
