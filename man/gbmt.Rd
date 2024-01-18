@@ -103,7 +103,7 @@ w <- N*w/sum(w)
 data <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3)
 
 \donttest{
-# takes longer, but num_tress=3000 preferable
+# takes longer, but num_trees=3000 preferable
 train_params <-
      training_params(num_trees = 3000,
                      shrinkage = 0.001,
