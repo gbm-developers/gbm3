@@ -198,7 +198,7 @@ test_that("Error thrown if method not element of c('OOB', 'cv', 'test')", {
   expect_error(gbm.perf(fit, method="weird_metric"))
 })
 
-test_that("Message given if method is 'OOB'", {
+test_that("Warning given if method is 'OOB'", {
   # Given a fit object
   ## test Gaussian distribution gbm model
   set.seed(1)
@@ -242,7 +242,7 @@ test_that("Message given if method is 'OOB'", {
   
   # When gbm_perf is called with method 'OOB'
   # Then a warning is thrown
-  expect_message(gbm.perf(fit, method="OOB"))
+  expect_warning(gbm.perf(fit, method="OOB"))
 })
 
 context("gbm_perf return")
@@ -300,7 +300,7 @@ test_that("gbm_perf returns correct best iteration for each method", {
   # When calling gbm_perf with 3 methods
   iter_t <- gbm.perf(fit, method="test")
   iter_c <- gbm.perf(fit, method="cv")
-  iter_oo <- gbm.perf(fit, method="OOB")
+  iter_oo <- expect_warning(gbm.perf(fit, method="OOB"))
   
   # Then correctly calculates best iterations
   expect_equal(iter_t, best_iter_t)
