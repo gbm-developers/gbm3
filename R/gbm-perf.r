@@ -193,8 +193,7 @@ best_iter_out_of_bag <- function(gbm_fit_obj) {
   if(all(!is.finite(gbm_fit_obj$oobag.improve)))
     stop("Cannot compute OOB estimate or the OOB curve. No finite OOB estimates of improvement")
   
-  message("OOB generally underestimates the optimal number of iterations although predictive performance is reasonably competitive.
-            Using cv_folds>1 when calling gbm usually results in improved predictive performance.")
+  warning("OOB generally underestimates the optimal number of iterations although predictive performance is reasonably competitive. Using cv_folds>1 when calling gbm usually results in improved predictive performance.")
   smoother <- generate_smoother_oobag(gbm_fit_obj)
   best_iter_oob <- smoother$x[which.min(-cumsum(smoother$y))]
   return(best_iter_oob)
