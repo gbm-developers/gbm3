@@ -5,10 +5,10 @@
 #' 
 #' \code{predict.GBMFit} produces predicted values for each
 #' observation in a new dataset \code{newdata} using the first
-#' \code{num_trees} iterations of the boosting sequence. If
-#' \code{num_trees} is a vector than the result is a matrix with each
+#' \code{n.trees} iterations of the boosting sequence. If
+#' \code{n.trees} is a vector than the result is a matrix with each
 #' column representing the predictions from gbm models with
-#' \code{num_trees[1]} iterations, \code{num_trees[2]} iterations, and
+#' \code{n.trees[1]} iterations, \code{n.trees[2]} iterations, and
 #' so on.
 #' 
 #' The predictions from \code{gbmt} do not include the offset
