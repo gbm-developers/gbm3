@@ -15,18 +15,17 @@ This is the shiny new gbm3 package that is not backwards compatible with R code
 calling the original gbm package, but is fast and parallel and developed.
 
 Non-production releases (bug fixes, mostly) will be released via the GitHub
-release workflow. To install from GitHub, first install `devtools` from CRAN:
+release workflow. To install from GitHub, first install `remotes` from CRAN:
 
 ```R
-install.packages("devtools")
+install.packages("remotes")
 ```
 
 Then install `gbm3` from GitHub:
 
 ```R
-library("devtools")
-install_github("gbm-developers/gbm3")
+remotes::install_github("gbm-developers/gbm3")
 
 # or to ensure your got everything
-install_github("gbm-developers/gbm3", build_vignettes = TRUE, force = TRUE)
+remotes::install_github("gbm-developers/gbm3", build_vignettes = TRUE, force = TRUE)
 ```
