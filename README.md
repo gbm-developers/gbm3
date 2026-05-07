@@ -26,3 +26,8 @@ remotes::install_github("gbm-developers/gbm3")
 # or to build vignettes during installation
 remotes::install_github("gbm-developers/gbm3", build_vignettes = TRUE, force = TRUE)
 ```
+
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/gbm-developers/gbm3/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/gbm-developers/gbm3/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
+
