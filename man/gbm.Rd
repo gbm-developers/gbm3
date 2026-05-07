@@ -456,7 +456,7 @@ Statistics.
 C. Burges (2010). \dQuote{From RankNet to LambdaRank to LambdaMART: An
 Overview,} Microsoft Research Technical Report MSR-TR-2010-82.
 
-\href{https://sites.google.com/site/gregridgeway}{Greg Ridgeway's site}.
+\href{https://gregridgeway.github.io/}{Greg Ridgeway's site}.
 }
 \seealso{
 \code{\link{gbmt}}, \code{\link{gbmt_fit}} \code{\link{gbmt_performance}},

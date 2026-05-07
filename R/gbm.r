@@ -284,7 +284,7 @@
 #' C. Burges (2010). \dQuote{From RankNet to LambdaRank to LambdaMART: An
 #' Overview,} Microsoft Research Technical Report MSR-TR-2010-82.
 #' 
-#' \href{https://sites.google.com/site/gregridgeway}{Greg Ridgeway's site}.
+#' \href{https://gregridgeway.github.io/}{Greg Ridgeway's site}.
 #' @keywords models nonlinear survival nonparametric tree
 #' @examples
 #'  # A least squares regression example # create some data
