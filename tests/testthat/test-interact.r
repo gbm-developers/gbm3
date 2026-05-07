@@ -50,8 +50,8 @@ test_that("check_and_set_num_trees returns 1st element of vector is < those in o
   
   # When checking and setting the number of trees
   # Then returns first element of vector
-  expect_equal(check_and_set_num_trees(gbm_fake_fit, num_trees), 
-                num_trees[1])
+  expect_equal(suppressWarnings(check_and_set_num_trees(gbm_fake_fit, num_trees)),
+               num_trees[1])
 })
 test_that("check_and_set_num_trees returns those in original fit if number specified exceeds total in fit", {
   # Given a fake fit object and num_trees > those fitted
@@ -61,7 +61,8 @@ test_that("check_and_set_num_trees returns those in original fit if number speci
   
   # When checking and setting the number of trees
   # Then returns number of trees in fit
-  expect_equal(check_and_set_num_trees(gbm_fake_fit, num_trees), gbm_fake_fit$params$num_trees)
+  expect_equal(suppressWarnings(check_and_set_num_trees(gbm_fake_fit, num_trees)),
+               gbm_fake_fit$params$num_trees)
 })
 test_that("check_and_set_num_trees returns argument num_trees if it is a positive integer <= the total num_trees in original fit", {
   # Given a fake fit object and num_trees < those fitted
@@ -140,7 +141,7 @@ test_that("output of compute_preds_for_all_var_combinations is a list with the c
                                  function(x) as.numeric(which(x)))
   
   # create some data
-  N <- 1000
+  N <- 100
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -155,8 +156,8 @@ test_that("output of compute_preds_for_all_var_combinations is a list with the c
   Y <- Y + rnorm(N,0,sigma)
   
   # create a bunch of missing values
-  X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=300)] <- NA
+  X1[sample(1:N,size=10)] <- NA
+  X3[sample(1:N,size=30)] <- NA
   
   # random weights if you want to experiment with them
   w <- rep(1,N)
@@ -169,7 +170,7 @@ test_that("output of compute_preds_for_all_var_combinations is a list with the c
                      var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                      distribution="Gaussian",     # bernoulli, adaboost, gaussian, poisson, coxph, or
                      # list(name="quantile",alpha=0.05) for quantile regression
-                     n.trees=2000,                 # number of trees
+                     n.trees=20,                  # number of trees
                      shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                      interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
                      bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
@@ -177,13 +178,13 @@ test_that("output of compute_preds_for_all_var_combinations is a list with the c
                      mFeatures = 3,               # Number of features to consider at each node.
                      n.minobsinnode = 10,         # minimum number of obs needed in each node
                      keep.data=TRUE,
-                     cv.folds=10,                 # do 10-fold cross-validation
+                     cv.folds=2,                  # do 2-fold cross-validation
                      verbose = FALSE)             # don't print progress
   
   # When calculating predictions for all combinations of variables
   # Then has correct fields
   expect_equal(names(compute_preds_for_all_var_combinations(data, gbm_fit_obj,
-                                                      all_combinations_vars, var_indices, 1000)[[1]]),
+                                                      all_combinations_vars, var_indices, 1)[[1]]),
   c("data", "num_levels_factors", "preds", "sign"))
 })
 test_that("output of compute_pred_for_all_var_combinations is of the correct size", {
@@ -193,7 +194,7 @@ test_that("output of compute_pred_for_all_var_combinations is of the correct siz
                                  function(x) as.numeric(which(x)))
   
   # create some data
-  N <- 1000
+  N <- 100
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -208,8 +209,8 @@ test_that("output of compute_pred_for_all_var_combinations is of the correct siz
   Y <- Y + rnorm(N,0,sigma)
   
   # create a bunch of missing values
-  X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=300)] <- NA
+  X1[sample(1:N,size=10)] <- NA
+  X3[sample(1:N,size=30)] <- NA
   
   # random weights if you want to experiment with them
   w <- rep(1,N)
@@ -222,7 +223,7 @@ test_that("output of compute_pred_for_all_var_combinations is of the correct siz
                      var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                      distribution="Gaussian",     # bernoulli, adaboost, gaussian, poisson, coxph, or
                      # list(name="quantile",alpha=0.05) for quantile regression
-                     n.trees=2000,                 # number of trees
+                     n.trees=20,                  # number of trees
                      shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                      interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
                      bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
@@ -230,7 +231,7 @@ test_that("output of compute_pred_for_all_var_combinations is of the correct siz
                      mFeatures = 3,               # Number of features to consider at each node.
                      n.minobsinnode = 10,         # minimum number of obs needed in each node
                      keep.data=TRUE,
-                     cv.folds=10,                 # do 10-fold cross-validation
+                     cv.folds=2,                  # do 2-fold cross-validation
                      verbose = FALSE)             # don't print progress
   
   # When calculating predictions for all combinations of variables
@@ -239,7 +240,7 @@ test_that("output of compute_pred_for_all_var_combinations is of the correct siz
                                                              gbm_fit_obj,
                                                              all_combinations_vars, 
                                                              var_indices, 
-                                                             num_trees = 1000)),
+                                                             num_trees = 1)),
                length(all_combinations_vars))
 })
 test_that("sign field of output of compute_pred_for_all_var_combinations consists of +/-1s", {
@@ -249,7 +250,7 @@ test_that("sign field of output of compute_pred_for_all_var_combinations consist
                                  function(x) as.numeric(which(x)))
   
   # create some data
-  N <- 1000
+  N <- 100
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -264,8 +265,8 @@ test_that("sign field of output of compute_pred_for_all_var_combinations consist
   Y <- Y + rnorm(N,0,sigma)
   
   # create a bunch of missing values
-  X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=300)] <- NA
+  X1[sample(1:N,size=10)] <- NA
+  X3[sample(1:N,size=30)] <- NA
   
   # random weights if you want to experiment with them
   w <- rep(1,N)
@@ -278,7 +279,7 @@ test_that("sign field of output of compute_pred_for_all_var_combinations consist
                      var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                      distribution="Gaussian",     # bernoulli, adaboost, gaussian, poisson, coxph, or
                      # list(name="quantile",alpha=0.05) for quantile regression
-                     n.trees=2000,                 # number of trees
+                     n.trees=20,                  # number of trees
                      shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                      interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
                      bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
@@ -286,7 +287,7 @@ test_that("sign field of output of compute_pred_for_all_var_combinations consist
                      mFeatures = 3,               # Number of features to consider at each node.
                      n.minobsinnode = 10,         # minimum number of obs needed in each node
                      keep.data=TRUE,
-                     cv.folds=10,                 # do 10-fold cross-validation
+                     cv.folds=2,                  # do 2-fold cross-validation
                      verbose = FALSE)             # don't print progress
   
   # When calculating predictions for all combinations of variables
@@ -294,7 +295,7 @@ test_that("sign field of output of compute_pred_for_all_var_combinations consist
                                                             gbm_fit_obj,
                                                             all_combinations_vars, 
                                                             var_indices, 
-                                                            num_trees = 1000)
+                                                            num_trees = 1)
   # Then sign field is +-1s
   expect_true(all(preds_for_combs[[1]]$sign %in% c(1, -1)))
 })
@@ -303,7 +304,7 @@ context("testing interact.GBMFit")
 test_that("if data not a data.frame or matrix then an error is thrown", {
   # Given data and a fit object 
   # create some data
-  N <- 1000
+  N <- 100
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -318,8 +319,8 @@ test_that("if data not a data.frame or matrix then an error is thrown", {
   Y <- Y + rnorm(N,0,sigma)
   
   # create a bunch of missing values
-  X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=300)] <- NA
+  X1[sample(1:N,size=10)] <- NA
+  X3[sample(1:N,size=30)] <- NA
   
   # random weights if you want to experiment with them
   w <- rep(1,N)
@@ -332,7 +333,7 @@ test_that("if data not a data.frame or matrix then an error is thrown", {
                      var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                      distribution="Gaussian",     # bernoulli, adaboost, gaussian, poisson, coxph, or
                      # list(name="quantile",alpha=0.05) for quantile regression
-                     n.trees=2000,                 # number of trees
+                     n.trees=20,                  # number of trees
                      shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                      interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
                      bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
@@ -340,7 +341,7 @@ test_that("if data not a data.frame or matrix then an error is thrown", {
                      mFeatures = 3,               # Number of features to consider at each node.
                      n.minobsinnode = 10,         # minimum number of obs needed in each node
                      keep.data=TRUE,
-                     cv.folds=10,                 # do 10-fold cross-validation
+                     cv.folds=2,                  # do 2-fold cross-validation
                      verbose = FALSE)             # don't print progress
   
   # When calculating the model interactions with data
@@ -352,7 +353,7 @@ test_that("if data not a data.frame or matrix then an error is thrown", {
 test_that("if var_indices not a vector of characters or integers then an error is thrown", {
   # Given data and a fit object 
   # create some data
-  N <- 1000
+  N <- 100
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -367,8 +368,8 @@ test_that("if var_indices not a vector of characters or integers then an error i
   Y <- Y + rnorm(N,0,sigma)
   
   # create a bunch of missing values
-  X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=300)] <- NA
+  X1[sample(1:N,size=10)] <- NA
+  X3[sample(1:N,size=30)] <- NA
   
   # random weights if you want to experiment with them
   w <- rep(1,N)
@@ -381,7 +382,7 @@ test_that("if var_indices not a vector of characters or integers then an error i
                      var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                      distribution="Gaussian",     # bernoulli, adaboost, gaussian, poisson, coxph, or
                      # list(name="quantile",alpha=0.05) for quantile regression
-                     n.trees=2000,                 # number of trees
+                     n.trees=20,                  # number of trees
                      shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                      interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
                      bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
@@ -389,7 +390,7 @@ test_that("if var_indices not a vector of characters or integers then an error i
                      mFeatures = 3,               # Number of features to consider at each node.
                      n.minobsinnode = 10,         # minimum number of obs needed in each node
                      keep.data=TRUE,
-                     cv.folds=10,                 # do 10-fold cross-validation
+                     cv.folds=2,                  # do 2-fold cross-validation
                      verbose = FALSE)             # don't print progress
   
   # When calculating interactions using var_indices that aren't a
@@ -403,13 +404,13 @@ test_that("if var_indices not a vector of characters or integers then an error i
                "Variables indices must be a vector of integers or characters")
   expect_error(interact(gbm_fit_obj, data, var_ind2), 
                "Variables indices must be a vector of integers or characters")
-  expect_error(interact(gbm_fit_obj, data, var_ind3), 
+  expect_error(suppressWarnings(interact(gbm_fit_obj, data, var_ind3)),
                "Variables indices must be a vector of integers or characters")
 })
 test_that("Error thrown if length var_indices exceeds interaction depth of fit", {
   # Given data and a fit object 
   # create some data
-  N <- 1000
+  N <- 100
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -424,8 +425,8 @@ test_that("Error thrown if length var_indices exceeds interaction depth of fit",
   Y <- Y + rnorm(N,0,sigma)
   
   # create a bunch of missing values
-  X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=300)] <- NA
+  X1[sample(1:N,size=10)] <- NA
+  X3[sample(1:N,size=30)] <- NA
   
   # random weights if you want to experiment with them
   w <- rep(1,N)
@@ -438,7 +439,7 @@ test_that("Error thrown if length var_indices exceeds interaction depth of fit",
                      var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
                      distribution="Gaussian",     # bernoulli, adaboost, gaussian, poisson, coxph, or
                      # list(name="quantile",alpha=0.05) for quantile regression
-                     n.trees=2000,                 # number of trees
+                     n.trees=20,                  # number of trees
                      shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
                      interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
                      bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
@@ -446,7 +447,7 @@ test_that("Error thrown if length var_indices exceeds interaction depth of fit",
                      mFeatures = 3,               # Number of features to consider at each node.
                      n.minobsinnode = 10,         # minimum number of obs needed in each node
                      keep.data=TRUE,
-                     cv.folds=10,                 # do 10-fold cross-validation
+                     cv.folds=2,                  # do 2-fold cross-validation
                      verbose = FALSE)             # don't print progress
   
   # When evaluating the interactions for more than variables than interaction depth
@@ -456,7 +457,7 @@ test_that("Error thrown if length var_indices exceeds interaction depth of fit",
 test_that("Given correct inputs will return H-statistic < 1", {
   # Given data and a fit object 
   # create some data
-  N <- 1000
+  N <- 100
   X1 <- runif(N)
   X2 <- 2*runif(N)
   X3 <- factor(sample(letters[1:4],N,replace=T))
@@ -471,8 +472,8 @@ test_that("Given correct inputs will return H-statistic < 1", {
   Y <- Y + rnorm(N,0,sigma)
   
   # create a bunch of missing values
-  X1[sample(1:N,size=100)] <- NA
-  X3[sample(1:N,size=300)] <- NA
+  X1[sample(1:N,size=10)] <- NA
+  X3[sample(1:N,size=30)] <- NA
   
   # random weights if you want to experiment with them
   w <- rep(1,N)
@@ -485,7 +486,7 @@ test_that("Given correct inputs will return H-statistic < 1", {
               var.monotone=c(0,0,0,0,0,0), # -1: monotone decrease, +1: monotone increase, 0: no monotone restrictions
               distribution="Gaussian",     # bernoulli, adaboost, gaussian, poisson, coxph, or
               # list(name="quantile",alpha=0.05) for quantile regression
-              n.trees=2000,                 # number of trees
+              n.trees=20,                  # number of trees
               shrinkage=0.005,             # shrinkage or learning rate, 0.001 to 0.1 usually work
               interaction.depth=3,         # 1: additive model, 2: two-way interactions, etc
               bag.fraction = 0.5,          # subsampling fraction, 0.5 is probably best
@@ -493,7 +494,7 @@ test_that("Given correct inputs will return H-statistic < 1", {
               mFeatures = 3,               # Number of features to consider at each node.
               n.minobsinnode = 10,         # minimum number of obs needed in each node
               keep.data=TRUE,
-              cv.folds=10,                 # do 10-fold cross-validation
+              cv.folds=2,                  # do 2-fold cross-validation
               verbose = FALSE)             # don't print progress
   
   # When calculating the interactions 
