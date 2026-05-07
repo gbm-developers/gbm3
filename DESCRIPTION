@@ -1,6 +1,6 @@
 Package: gbm3
-Version: 3.0
-Date: 2024-01-14
+Version: 3.0.1
+Date: 2026-05-07
 Title: Generalized Boosted Regression Models
 Authors@R: c(
     person("James", "Hickey",
@@ -32,7 +32,8 @@ Imports:
 Suggests:
     testthat (>= 3.1.0),
     knitr,
-    rmarkdown
+    rmarkdown,
+    MASS
 VignetteBuilder: knitr
 Description: Extensions to Freund and Schapire's AdaBoost algorithm, Y. Freund 
     and R. Schapire (1997) <doi:10.1006/jcss.1997.1504> and Friedman's gradient 

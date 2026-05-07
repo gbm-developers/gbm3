@@ -107,7 +107,6 @@ NULL
 #' J.H. Friedman (2002). \dQuote{Stochastic Gradient Boosting,}
 #' \emph{Computational Statistics and Data Analysis} 38(4):367-378.
 #' 
-#' The \href{https://jerryfriedman.su.domains/R-MART.html}{MART} website.
 #' @keywords package
 NULL
 

@@ -95,7 +95,7 @@ The core algorithm can be parallelized across numerous threads by passing the ou
 
 ```{r}
 # Example of a gbmParallel with more threads
-par_detail <- gbmParallel(num_threads = 10) # Pass to par_details in gbmt
+par_detail <- gbmParallel(num_threads = 2) # Pass to par_details in gbmt
 ```
 
 ## Putting it all together

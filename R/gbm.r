@@ -277,17 +277,14 @@
 #' J.H. Friedman (2002). \dQuote{Stochastic Gradient Boosting,}
 #' \emph{Computational Statistics and Data Analysis} 38(4):367-378.
 #' 
-#' B. Kriegler (2007).
-#' \href{https://dl.acm.org/doi/book/10.5555/1354603}{Cost-Sensitive
-#' Stochastic Gradient Boosting Within a Quantitative Regression Framework}.
-#' PhD dissertation, UCLA Statistics.
+#' B. Kriegler (2007). \emph{Cost-Sensitive Stochastic Gradient Boosting
+#' Within a Quantitative Regression Framework}. PhD dissertation, UCLA
+#' Statistics.
 #' 
 #' C. Burges (2010). \dQuote{From RankNet to LambdaRank to LambdaMART: An
 #' Overview,} Microsoft Research Technical Report MSR-TR-2010-82.
 #' 
-#' \href{http://sites.google.com/site/gregridgeway}{Greg Ridgeway's site}.
-#' 
-#' The \href{https://jerryfriedman.su.domains/R-MART.html}{MART} website.
+#' \href{https://sites.google.com/site/gregridgeway}{Greg Ridgeway's site}.
 #' @keywords models nonlinear survival nonparametric tree
 #' @examples
 #'  # A least squares regression example # create some data

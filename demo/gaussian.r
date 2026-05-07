@@ -27,7 +27,6 @@ X3[sample(1:N,size=300)] <- NA
 w <- rep(1,N)
 
 data <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3,X4=X4,X5=X5,X6=X6)
-require(gbm)
 # fit initial model
 gbm1 <- gbm(Y~X1+X2+X3+X4+X5+X6,         # formula
             data=data,                   # dataset

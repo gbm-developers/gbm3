@@ -3,3 +3,9 @@
 ^\.Rproj\.user$
 ^\.positai$
 ^\.claude$
+^desktop\.ini$
+^.*[/\\]desktop\.ini$
+^gbm3\.Rcheck$
+^gbm3_.*\.tar\.gz$
+^vignettes[/\\]gbm_cache$
+^tests[/\\]testthat[/\\]_snaps$

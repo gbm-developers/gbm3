@@ -466,8 +466,11 @@ test_that("Warning thrown if n.trees exceeds number in original fit", {
   
   # When calling predict with number of trees exceeding number in original fit
   # Then a warning will be thrown
-  expect_warning(predict(fit, data2, length(fit$trees)+1), 
-                 "Number of trees exceeded number fit so far. Using ", paste(length(fit$trees),collapse=" "),".")
+  expect_warning(
+    predict(fit, data2, length(fit$trees)+1),
+    paste0("Number of trees exceeded number fit so far. Using ",
+           paste(length(fit$trees), collapse=" "), "\\.")
+  )
 })
 
 context("Test basic functionality of predict.GBMFit")
