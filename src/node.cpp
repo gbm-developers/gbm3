@@ -81,7 +81,7 @@ signed char CNode::WhichNode(const CDataset& kData, unsigned long obs_num) {
   return node_strategy_->WhichNode(kData, obs_num);
 }
 
-bool CNode::is_terminal() const { return node_strategy_->is_split(); }
+bool CNode::is_terminal() const { return !node_strategy_->is_split(); }
 
 void CNode::TransferTreeToRList(int& node_id, const CDataset& kData,
                                 int* splivar, double* splitvalues,
