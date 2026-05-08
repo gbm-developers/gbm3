@@ -1,5 +1,9 @@
 # gbm3: Generalized Boosted Models
 
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/gbm-developers/gbm3/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/gbm-developers/gbm3/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
+
 Originally written by Greg Ridgeway between 1999-2003, added to by various 
 authors, extensively updated and polished by James Hickey in 2016, survival 
 models greatly improved by Terry Therneau in 2016, and currently 
@@ -27,7 +31,4 @@ remotes::install_github("gbm-developers/gbm3")
 remotes::install_github("gbm-developers/gbm3", build_vignettes = TRUE, force = TRUE)
 ```
 
-<!-- badges: start -->
-[![R-CMD-check](https://github.com/gbm-developers/gbm3/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/gbm-developers/gbm3/actions/workflows/R-CMD-check.yaml)
-<!-- badges: end -->
 
