@@ -92,11 +92,16 @@ void CPoisson::FitBestConstant(const CDataset& kData, const Bag& kBag,
 
   for (obs_num = 0; obs_num < kData.get_trainsize(); obs_num++) {
     if (kBag.get_element(obs_num)) {
+      const double delta_func_est =
+          kData.offset_ptr()[obs_num] + kFuncEstimate[obs_num];
+      const unsigned long node_num = tree.get_node_assignments()[obs_num];
       numerator_vec[tree.get_node_assignments()[obs_num]] +=
           kData.weight_ptr()[obs_num] * kData.y_ptr()[obs_num];
       denominator_vec[tree.get_node_assignments()[obs_num]] +=
-          kData.weight_ptr()[obs_num] *
-          std::exp(kData.offset_ptr()[obs_num] + kFuncEstimate[obs_num]);
+          kData.weight_ptr()[obs_num] * std::exp(delta_func_est);
+
+      max_vec[node_num] = R::fmax2(delta_func_est, max_vec[node_num]);
+      min_vec[node_num] = R::fmin2(delta_func_est, min_vec[node_num]);
     }
   }
 
