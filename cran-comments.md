@@ -10,19 +10,23 @@ In this resubmission I have:
 * removed stale Travis CI metadata from the CRAN build;
 * added GitHub Actions checks for Linux, macOS, and Windows;
 * cleaned local build artifacts from the source package;
+* removed undefined behavior detected by sanitizer checks;
 * reduced slow tests while preserving the tested behavior.
 
 ## Test environments
 
-* Local Windows 11 x64, R 4.5.2:
+* Local Windows 11 x64, R 4.6.0:
   `R CMD check --as-cran --no-manual`
 * macOS arm64, R 4.6.0 patched, macbuilder:
   OK
-* GitHub Actions:
-  TODO: add results for macOS, Windows, Ubuntu R-devel, Ubuntu release,
-  and Ubuntu oldrel after the workflow has run.
-* Optional external checks:
-  TODO: add R-hub/win-builder results if run before submission.
+* R-hub clang-UBSAN, R-devel:
+  OK
+* R-hub gcc-ASAN, R-devel:
+  OK
+* GitHub Actions R-CMD-check:
+  macos-latest, ubuntu-latest (devel), ubuntu-latest (oldrel-1),
+  ubuntu-latest (release), windows-latest (release): OK
+
 
 ## R CMD check results
 
