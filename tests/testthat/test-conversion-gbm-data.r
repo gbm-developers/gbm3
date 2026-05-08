@@ -112,6 +112,21 @@ test_that("Offset must contain 1/2 number of points as response - if CoxPH", {
   # Then error expected on validation
   expect_error(validate_gbm_data(data, dist))
 })
+test_that("Log-link offsets must stay within numerical range", {
+  N <- 10
+  x <- matrix(runif(N), ncol=1)
+  y <- rep(1, N)
+  w <- rep(1, N)
+  data <- gbm_data(x, y, w, rep(651, N))
+  
+  expect_error(validate_gbm_data(data, gbm_dist("Poisson")),
+               "between -650 and 650")
+  expect_error(validate_gbm_data(data, gbm_dist("Gamma")),
+               "between -650 and 650")
+  expect_error(validate_gbm_data(data, gbm_dist("Tweedie")),
+               "between -650 and 650")
+  expect_error(validate_gbm_data(data, gbm_dist("Gaussian")), NA)
+})
 test_that("Responses check requires GBMDist object", {
   # Given data and a distribution - not CoxPH
   N <- 1000
@@ -234,6 +249,8 @@ test_that("Gamma responses must be positive", {
   Y[1] <- -1
   
   # Then error thrown on validation
+  expect_error(check_response_values(dist, Y))
+  Y[1] <- 0
   expect_error(check_response_values(dist, Y))
   
 })
