@@ -60,7 +60,7 @@ check_response_values.CoxPHGBMDist <-function(distribution_obj, y) {
 
 #' @export
 check_response_values.GammaGBMDist <-function(distribution_obj, y) {
-  if(any(y<0)) {
+  if(any(y<=0)) {
     stop("Gamma requires the response to be positive")
   }
 }
