@@ -21,7 +21,7 @@ FittedLearner* CGBMEngine::FitLearner(double* func_estimate) {
   std::unique_ptr<CCARTTree> tree(new CCARTTree(tree_params_));
 
   // Compute Residuals and fit tree
-  datacontainer_.ComputeResiduals(&func_estimate[0], residuals_);
+  datacontainer_.ComputeResiduals(func_estimate, residuals_);
 
   tree->Grow(residuals_, datacontainer_.get_data(), datacontainer_.get_bag(),
              delta_estimates);
@@ -30,13 +30,13 @@ FittedLearner* CGBMEngine::FitLearner(double* func_estimate) {
   // Fit the best constant within each terminal node
 
   // Adjust terminal node predictions and shrink
-  datacontainer_.ComputeBestTermNodePreds(&func_estimate[0], residuals_,
+  datacontainer_.ComputeBestTermNodePreds(func_estimate, residuals_,
                                           *tree.get());
   tree->Adjust(delta_estimates);
 
   // Compute the error improvement within bag
   double oobag_improv = datacontainer_.ComputeBagImprovement(
-      &func_estimate[0], tree->get_shrinkage_factor(), delta_estimates);
+      func_estimate, tree->get_shrinkage_factor(), delta_estimates);
 
 // Update the function estimate
 #pragma omp parallel for schedule(static, tree->get_array_chunk_size()) \
@@ -47,7 +47,7 @@ FittedLearner* CGBMEngine::FitLearner(double* func_estimate) {
   }
 
   // Make validation predictions
-  double train_error = datacontainer_.ComputeDeviance(&func_estimate[0], false);
+  double train_error = datacontainer_.ComputeDeviance(func_estimate, false);
   tree->PredictValid(datacontainer_.get_data(),
                      datacontainer_.get_data().get_validsize(),
                      delta_estimates);
@@ -61,7 +61,7 @@ FittedLearner* CGBMEngine::FitLearner(double* func_estimate) {
     func_estimate[i] += delta_estimates[i];
   }
 
-  double valid_error = datacontainer_.ComputeDeviance(&func_estimate[0], true);
+  double valid_error = datacontainer_.ComputeDeviance(func_estimate, true);
   std::unique_ptr<FittedLearner> fit(new FittedLearner(
       tree, datacontainer_.get_data(), train_error, valid_error, oobag_improv));
 

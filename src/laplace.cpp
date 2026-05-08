@@ -49,7 +49,7 @@ double CLaplace::InitF(const CDataset& kData) {
     arr[ii] = kData.y_ptr()[ii] - kData.offset_ptr()[ii];
   }
 
-  return mpLocM_.WeightedQuantile(kData.get_trainsize(), &arr[0],
+  return mpLocM_.WeightedQuantile(kData.get_trainsize(), arr.data(),
                                   kData.weight_ptr(), 0.5);  // median
 }
 
@@ -108,7 +108,7 @@ void CLaplace::FitBestConstant(const CDataset& kData, const Bag& kBag,
       }
 
       tree.get_terminal_nodes()[node_num]->set_prediction(
-          mpLocM_.WeightedQuantile(vec_num, &adArr[0], &adW2[0],
+          mpLocM_.WeightedQuantile(vec_num, adArr.data(), adW2.data(),
                                    0.5));  // median
     }
   }

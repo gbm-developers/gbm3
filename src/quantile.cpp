@@ -54,7 +54,7 @@ double CQuantile::InitF(const CDataset& kData) {
     vecd_[i] = kData.y_ptr()[i] - kData.offset_ptr()[i];
   }
 
-  return mplocm_.WeightedQuantile(kData.get_trainsize(), &vecd_[0],
+  return mplocm_.WeightedQuantile(kData.get_trainsize(), vecd_.data(),
                                   kData.weight_ptr(), alpha_);
 }
 
@@ -118,7 +118,8 @@ void CQuantile::FitBestConstant(const CDataset& kData, const Bag& kBag,
       }
 
       tree.get_terminal_nodes()[node_num]->set_prediction(
-          mplocm_.WeightedQuantile(vec_num, &vecd_[0], &weight_vec[0], alpha_));
+          mplocm_.WeightedQuantile(vec_num, vecd_.data(), weight_vec.data(),
+                                   alpha_));
     }
   }
 }

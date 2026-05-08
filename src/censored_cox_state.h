@@ -42,7 +42,7 @@ class CensoredCoxState : public GenericCoxState {
     // Initialize parameters
     std::vector<double> martingale_resid(kData.get_trainsize(), 0.0);
     LogLikelihood(kData.get_trainsize(), kData, kBag, kFuncEstimate,
-                  &martingale_resid[0], false);
+                  martingale_resid.data(), false);
 
     // Fill up response
     for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
@@ -65,7 +65,7 @@ class CensoredCoxState : public GenericCoxState {
     std::vector<double> num_events_in_nodes(num_terminalnodes,
                                             1.0 / coxph_->PriorCoeffVar());
     LogLikelihood(kData.get_trainsize(), kData, kBag, kFuncEstimate,
-                  &martingale_resid[0], false);
+                  martingale_resid.data(), false);
 
     for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
       if (kBag.get_element(i) &&
@@ -95,7 +95,7 @@ class CensoredCoxState : public GenericCoxState {
 
     // Calculate Deviance - skip bag as pointing at validation set
     loglik = LogLikelihood(kNumRowsInSet, kData, kBag, kFuncEstimate,
-                           &martingale_resid[0]);
+                           martingale_resid.data());
 
     return -loglik;
   }
@@ -123,10 +123,10 @@ class CensoredCoxState : public GenericCoxState {
     // Calculate likelihoods - data not in bags
     loglike_no_adj =
         LogLikelihood(kData.get_trainsize(), kData, kBag, kFuncEstimate,
-                      &martingale_resid_no_adj[0], false, false);
+                      martingale_resid_no_adj.data(), false, false);
     loglike_with_adj =
-        LogLikelihood(kData.get_trainsize(), kData, kBag, &eta_adj[0],
-                      &martingale_resid_with_adj[0], false, false);
+        LogLikelihood(kData.get_trainsize(), kData, kBag, eta_adj.data(),
+                      martingale_resid_with_adj.data(), false, false);
 
     return (loglike_with_adj - loglike_no_adj);
   }

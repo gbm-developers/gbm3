@@ -519,7 +519,7 @@ inline const double* OffsetVector(const double* const kCovariates,
     for (unsigned int i = start, iOut = 0; i < end; i++, iOut++) {
       buffer_vec[iOut] = kCovariates[i] + kOffset[i];
     }
-    return &buffer_vec[0];
+    return buffer_vec.data();
   }
 }
 

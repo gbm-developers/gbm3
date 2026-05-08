@@ -83,7 +83,7 @@ void CGBMDataDistContainer::ComputeBestTermNodePreds(
     const double* kFuncEstimate, std::vector<double>& residuals,
     CCARTTree& tree) {
   get_dist()->FitBestConstant(
-      get_data(), get_bag(), &kFuncEstimate[0],
+      get_data(), get_bag(), kFuncEstimate,
       (2 * tree.size_of_tree() + 1) / 3,  // number of terminal nodes
       residuals, tree);
 }
@@ -131,7 +131,7 @@ double CGBMDataDistContainer::ComputeDeviance(const double* kFuncEstimate,
 double CGBMDataDistContainer::ComputeBagImprovement(
     const double* kFuncEstimate, const double kShrinkage,
     const std::vector<double>& kDeltaEstimate) {
-  return get_dist()->BagImprovement(get_data(), get_bag(), &kFuncEstimate[0],
+  return get_dist()->BagImprovement(get_data(), get_bag(), kFuncEstimate,
                                     kShrinkage, kDeltaEstimate);
 }
 

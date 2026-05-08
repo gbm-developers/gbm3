@@ -53,7 +53,7 @@ double CTDist::InitF(const CDataset& kData) {
     arr[ii] = kData.y_ptr()[ii] - offset;
   }
 
-  return mplocm_.LocationM(kData.get_trainsize(), &arr[0], kData.weight_ptr(),
+  return mplocm_.LocationM(kData.get_trainsize(), arr.data(), kData.weight_ptr(),
                            0.5);
 }
 
@@ -110,7 +110,8 @@ void CTDist::FitBestConstant(const CDataset& kData, const Bag& kBag,
       }
 
       tree.get_terminal_nodes()[node_num]->set_prediction(
-          mplocm_.LocationM(arr_vec.size(), &arr_vec[0], &weight_vec[0], 0.5));
+          mplocm_.LocationM(arr_vec.size(), arr_vec.data(), weight_vec.data(),
+                            0.5));
     }
   }
 }

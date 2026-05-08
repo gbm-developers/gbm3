@@ -138,7 +138,8 @@ double CLocationM::LocationM(int num_data_points, double* covars,
   }
 
   double scale0 =
-      1.4826 * WeightedQuantile(num_data_points, &diff_vec[0], kWeights, alpha);
+      1.4826 *
+      WeightedQuantile(num_data_points, diff_vec.data(), kWeights, alpha);
   scale0 = R::fmax2(scale0, meps_);
 
   // Loop over until the error is low enough
