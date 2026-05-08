@@ -102,16 +102,19 @@ t_dist <- gbm_dist(name="TDist", df=7)
 The tweedie distribution relates the variance of the response to its expectation via: $Var(Y) = E[Y]^p$, where `p` is the power of the distribution.  This parameter is specified through the `power` named argument on calling `gbm_dist` and its default value is 1.5.
 
 ```{r}
-# Create a TweedieGBMDist object with a power of 2 - equivalent to a Gamma distribution
-tweedie_dist <- gbm_dist(name="Tweedie", power=2)
+# Create a TweedieGBMDist object with a compound Poisson-Gamma power
+tweedie_dist <- gbm_dist(name="Tweedie", power=1.5)
+
+# Use the Gamma distribution for the Tweedie p = 2 endpoint
+gamma_dist <- gbm_dist(name="Gamma")
 ```
 
-Tweedie distributions include various more familiar distributions which can be accessed through setting the `power` parameter:
+Tweedie distributions include various more familiar limiting cases, but this implementation handles the `power=0`, `power=1`, and `power=2` endpoints through their dedicated distribution choices rather than through `gbm_dist(name="Tweedie", ...)`:
 
-* normal distribution: `power=0`.
-* Poisson distribution: `power=1`.
+* normal distribution: use `gbm_dist(name="Gaussian")` instead of `power=0`.
+* Poisson distribution: use `gbm_dist(name="Poisson")` instead of `power=1`.
 * compound Poisson-Gamma distributions: `1 < power < 2`.
-* Gamma distribution: `power=2`.
+* Gamma distribution: use `gbm_dist(name="Gamma")` instead of `power=2`.
 * positive stable distributions: `2 < power < 3` and `power > 3`.
 * inverse Gaussian distribution: `power=3`.
 
