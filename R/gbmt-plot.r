@@ -214,27 +214,33 @@ response <- function(resp, dist_obj) {
   UseMethod("response", dist_obj)
 }
 
+#' @export
 response.default <- function(resp, dist_obj) {
   warning("type 'response' only implemented for 'Bernoulli', 'Poisson', 'Gamma', 'Tweedie', and 'Pairwise'. Ignoring" )
   return(NULL)
 }
 
+#' @export
 response.BernoulliGBMDist <- function(resp, dist_obj) {
   return(1/(1+exp(-resp)))
 }
 
+#' @export
 response.GammaGBMDist <- function(resp, dist_obj) {
   return(exp(resp))
 }
 
+#' @export
 response.PairwiseGBMDist <- function(resp, dist_obj) {
   return(1/(1+exp(-resp)))
 }
 
+#' @export
 response.PoissonGBMDist <- function(resp, dist_obj) {
   return(exp(resp))
 }
 
+#' @export
 response.TweedieGBMDist <- function(resp, dist_obj) {
   return(exp(resp))
 }

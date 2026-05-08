@@ -31,10 +31,12 @@ update_fold_dist_data <- function(gbm_dist_obj, gbm_data_obj, train_params, rows
   UseMethod("update_fold_dist_data", gbm_dist_obj)
 }
 
+#' @export
 update_fold_dist_data.default <- function(gbm_dist_obj, gbm_data_obj, train_params, rows_in_training, rows_in_fold) {
   return(gbm_dist_obj)
 }
 
+#' @export
 update_fold_dist_data.CoxPHGBMDist <- function(gbm_dist_obj, gbm_data_obj, train_params, rows_in_training, rows_in_fold) {
   # Reset strata using folds
   gbm_dist_obj$original_strata_id <- gbm_dist_obj$original_strata_id[train_params$id_order]
@@ -46,6 +48,7 @@ update_fold_dist_data.CoxPHGBMDist <- function(gbm_dist_obj, gbm_data_obj, train
   return(gbm_dist_obj)
 }
 
+#' @export
 update_fold_dist_data.PairwiseGBMDist <- function(gbm_dist_obj, gbm_data_obj, train_params, rows_in_training, rows_in_fold) {
   gbm_dist_obj$group <- c(gbm_dist_obj$group[rows_in_training][!rows_in_fold],
                           gbm_dist_obj$group[rows_in_training][rows_in_fold])

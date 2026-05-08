@@ -88,10 +88,12 @@ gbm_call_dist_name <- function(obj) {
     UseMethod("gbm_call_dist_name")
 }
 
+#' @export
 gbm_call_dist_name.default <- function(obj) {
     tolower(distribution_name(obj))
 }
 
+#' @export
 gbm_call_dist_name.PairwiseGBMDist <- function(obj) {
     paste(tolower(distribution_name(obj)), tolower(obj$metric), sep="_")
 }

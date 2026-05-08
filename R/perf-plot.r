@@ -80,31 +80,40 @@ get_ylabel <- function(distribution) {
   UseMethod("get_ylabel", distribution)
 }
 
+#' @export
 get_ylabel.default <- function(distribution) {
   stop("distribution object not recognised - cannot get y label for plot")
 }
 
+#' @export
 get_ylabel.AdaBoostGBMDist <-function(distribution) {
   return("AdaBoost exponential bound")
 }
+#' @export
 get_ylabel.BernoulliGBMDist <- function(distribution) {
   return("Bernoulli deviance")
 }
+#' @export
 get_ylabel.CoxPHGBMDist <- function(distribution) {
   return("Cox partial deviance")
 }
+#' @export
 get_ylabel.GammaGBMDist <- function(distribution) {
   return("Gamma deviance")
 }
+#' @export
 get_ylabel.GaussianGBMDist <- function(distribution) {
   return("Squared error loss")
 }
+#' @export
 get_ylabel.HuberizedGBMDist <- function(distribution) {
   return("Hinged loss")
 }
+#' @export
 get_ylabel.LaplaceGBMDist <- function(distribution) {
   return("Absolute loss")
 }
+#' @export
 get_ylabel.PairwiseGBMDist <- function(distribution) {
   ylab <- switch(distribution$metric,
                  conc ="Fraction of concordant pairs",
@@ -113,15 +122,19 @@ get_ylabel.PairwiseGBMDist <- function(distribution) {
                  mrr ="Mean reciprocal rank")
   return(ylab)
 }
+#' @export
 get_ylabel.PoissonGBMDist <- function(distribution) {
   return("Poisson deviance")
 }
+#' @export
 get_ylabel.QuantileGBMDist <- function(distribution) {
   return("Quantile loss")
 }
+#' @export
 get_ylabel.TDistGBMDist <- function(distribution) {
   return("t-distribution deviance")
 }
+#' @export
 get_ylabel.TweedieGBMDist <- function(distribution) {
   return("Tweedie deviance")
 }

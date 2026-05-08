@@ -18,54 +18,67 @@ get_misc <- function(distribution_obj) {
   UseMethod("get_misc", distribution_obj)
 }
 
+#' @export
 get_misc.default <- function(distribution_obj) {
   stop("Distribution not recognised - can't get misc")
 }
 
+#' @export
 get_misc.AdaBoostGBMDist <- function(distribution_obj) {
   return(as.list(NA))
 }
 
+#' @export
 get_misc.BernoulliGBMDist <- function(distribution_obj) {
   return(as.list(NA))
 }
 
+#' @export
 get_misc.CoxPHGBMDist <- function(distribution_obj) {
   return(list(ties=distribution_obj$ties))
 }
 
+#' @export
 get_misc.GammaGBMDist <- function(distribution_obj) {
   return(as.list(NA))
 }
 
+#' @export
 get_misc.GaussianGBMDist <- function(distribution_obj) {
   return(as.list(NA))
 }
 
+#' @export
 get_misc.HuberizedGBMDist <- function(distribution_obj) {
   return(as.list(NA))
 }
 
+#' @export
 get_misc.LaplaceGBMDist <- function(distribution_obj) {
   return(as.list(NA))
 }
 
+#' @export
 get_misc.PairwiseGBMDist <- function(distribution_obj) {
   return(list("GroupsAndRanks"=c(distribution_obj$group, distribution_obj$max_rank)))
 }
 
+#' @export
 get_misc.PoissonGBMDist <- function(distribution_obj) {
   return(as.list(NA))
 }
 
+#' @export
 get_misc.QuantileGBMDist <- function(distribution_obj) {
   return(list(alpha=distribution_obj$alpha))
 }
 
+#' @export
 get_misc.TDistGBMDist <- function(distribution_obj) {
   return(list(df=distribution_obj$df))
 }
 
+#' @export
 get_misc.TweedieGBMDist <- function(distribution_obj) {
   return(list(power=distribution_obj$power))
 }

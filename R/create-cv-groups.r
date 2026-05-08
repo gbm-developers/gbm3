@@ -45,6 +45,7 @@ create_cv_groups <- function(gbm_data_obj, gbm_dist_obj, train_params, cv_folds,
   UseMethod("create_cv_groups", gbm_dist_obj)
 }
 
+#' @export
 create_cv_groups.default<- function(gbm_data_obj, gbm_dist_obj, train_params, cv_folds,
                                              cv_class_stratify, fold_id) {
   if(!is.null(fold_id)) {
@@ -54,6 +55,7 @@ create_cv_groups.default<- function(gbm_data_obj, gbm_dist_obj, train_params, cv
   }
 }
 
+#' @export
 create_cv_groups.BernoulliGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_params, cv_folds,
                                              cv_class_stratify, fold_id) {
   if(cv_class_stratify) {
@@ -84,6 +86,7 @@ create_cv_groups.BernoulliGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_
   }
 }
 
+#' @export
 create_cv_groups.PairwiseGBMDist <- function(gbm_data_obj, gbm_dist_obj, train_params, cv_folds,
                                              cv_class_stratify, fold_id) {
   # Split into CV folds at group boundaries

@@ -23,16 +23,19 @@ reorder_fit <- function(gbm_fit_obj, distribution_obj) {
   UseMethod("reorder_fit", distribution_obj)
 }
 
+#' @export
 reorder_fit.default <- function(gbm_fit_obj, distribution_obj) {
   return(gbm_fit_obj)
 }
 
 
+#' @export
 reorder_fit.CoxPHGBMDist <- function(gbm_fit_obj, distribution_obj) {
   gbm_fit_obj$fit[distribution_obj$time_order] <- gbm_fit_obj$fit
   return(gbm_fit_obj)
 }
 
+#' @export
 reorder_fit.PairwiseGBMDist <- function(gbm_fit_obj, distribution_obj) {
   gbm_fit_obj$fit <- gbm_fit_obj$fit[order(distribution_obj$group_order)]
   return(gbm_fit_obj)

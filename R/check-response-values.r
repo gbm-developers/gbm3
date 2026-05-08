@@ -30,18 +30,21 @@ check_response_values <- function(distribution_obj, y) {
   
 }
 
+#' @export
 check_response_values.AdaBoostGBMDist <-function(distribution_obj, y) {
   if(!all(is.element(y,0:1))) {
     stop("This version of AdaBoost requires the response to be in {0,1}")
   }
 }
 
+#' @export
 check_response_values.BernoulliGBMDist <-function(distribution_obj, y) {
   if(!all(is.element(y, 0:1))) {
     stop("Bernoulli requires the response to be in {0,1}")
   }
 }
 
+#' @export
 check_response_values.CoxPHGBMDist <-function(distribution_obj, y) {
   if(!inherits(y, "Surv")) {
     stop("Outcome must be a survival object Surv(time1, failure) 
@@ -55,22 +58,27 @@ check_response_values.CoxPHGBMDist <-function(distribution_obj, y) {
   }
 }
 
+#' @export
 check_response_values.GammaGBMDist <-function(distribution_obj, y) {
   if(any(y<0)) {
     stop("Gamma requires the response to be positive")
   }
 }
 
+#' @export
 check_response_values.GaussianGBMDist <-function(distribution_obj, y) {}
 
+#' @export
 check_response_values.HuberizedGBMDist <-function(distribution_obj, y) {
   if(!all(is.element(y,0:1))) {
     stop("Huberized square hinged loss requires the response to be in {0,1}")
   }
 }
 
+#' @export
 check_response_values.LaplaceGBMDist <-function(distribution_obj, y) {}
 
+#' @export
 check_response_values.PairwiseGBMDist <-function(distribution_obj, y) {
   if (any(y<0)) {
     stop("targets for 'pairwise' should be non-negative")
@@ -82,16 +90,20 @@ check_response_values.PairwiseGBMDist <-function(distribution_obj, y) {
   }
 }
 
+#' @export
 check_response_values.PoissonGBMDist <-function(distribution_obj, y) {
   if(any(y != trunc(y)) || any(y<0)) {
     stop("Poisson requires the response to be a non-negative integer")
   }
 }
 
+#' @export
 check_response_values.QuantileGBMDist <-function(distribution_obj, y) {}
 
+#' @export
 check_response_values.TDistGBMDist <-function(distribution_obj, y) {}
 
+#' @export
 check_response_values.TweedieGBMDist <-function(distribution_obj, y) {
   if(any(y<0)) {
     stop("Tweedie requires the response to be non-negative")

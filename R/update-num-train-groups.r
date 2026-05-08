@@ -8,10 +8,12 @@ update_num_train_groups <- function(train_params, dist_obj) {
   UseMethod("update_num_train_groups", dist_obj)
 }
 
+#' @export
 update_num_train_groups.default <- function(train_params, dist_obj) {
   return(train_params)
 }
 
+#' @export
 update_num_train_groups.PairwiseGBMDist <- function(train_params, dist_obj) {
   # Check if more than one row per observation
   if(any(duplicated(train_params$id))) {

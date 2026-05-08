@@ -20,20 +20,24 @@ create_dist <- function(empty_obj, ...) {
   UseMethod("create_dist", empty_obj)
 }
 
+#' @export
 create_dist.default <- function(empty_obj, ...) {
   stop("couldn't create distribution object as creation method for selected distribution not found.")
 }
 
+#' @export
 create_dist.AdaBoostGBMDist <- function(empty_obj, ...) {
   check_dist_params(empty_obj, ...)
   return(empty_obj)
 }
 
+#' @export
 create_dist.BernoulliGBMDist <- function(empty_obj, ...) {
   check_dist_params(empty_obj, ...)
   return(empty_obj)
 }
 
+#' @export
 create_dist.CoxPHGBMDist <- function(empty_obj, strata=NA, sorted=NA, ties="efron"
                                      , prior_node_coeff_var=1000, ...) {
   check_dist_params(empty_obj, strata, sorted, ties, prior_node_coeff_var, ...)
@@ -49,26 +53,31 @@ create_dist.CoxPHGBMDist <- function(empty_obj, strata=NA, sorted=NA, ties="efro
   return(empty_obj)
 }
 
+#' @export
 create_dist.GammaGBMDist <- function(empty_obj, ...) {
   check_dist_params(empty_obj, ...)
   return(empty_obj)
 }
 
+#' @export
 create_dist.GaussianGBMDist <- function(empty_obj, ...) {
   check_dist_params(empty_obj, ...)
   return(empty_obj)
 }
 
+#' @export
 create_dist.HuberizedGBMDist <- function(empty_obj, ...) {
   check_dist_params(empty_obj, ...)
   return(empty_obj)
 }
 
+#' @export
 create_dist.LaplaceGBMDist <- function(empty_obj, ...) {
   check_dist_params(empty_obj, ...)
   return(empty_obj)
 }
 
+#' @export
 create_dist.PairwiseGBMDist <- function(empty_obj, group="query", metric="ndcg", max_rank=0,
                                         group_index=NULL, ...) {
   check_dist_params(empty_obj, group, metric, max_rank, group_index, ...)
@@ -80,11 +89,13 @@ create_dist.PairwiseGBMDist <- function(empty_obj, group="query", metric="ndcg",
   return(empty_obj)
 }
 
+#' @export
 create_dist.PoissonGBMDist <- function(empty_obj, ...) {
   check_dist_params(empty_obj, ...)
   return(empty_obj)
 }
 
+#' @export
 create_dist.QuantileGBMDist <- function(empty_obj, alpha=0.25, ...) {
   if(is.null(alpha)) alpha <- 0.25
   check_dist_params(empty_obj, alpha, ...)
@@ -92,6 +103,7 @@ create_dist.QuantileGBMDist <- function(empty_obj, alpha=0.25, ...) {
   return(empty_obj)
 }
 
+#' @export
 create_dist.TDistGBMDist <- function(empty_obj, df=4, ...) {
   if(is.null(df)) df <- 4
   check_dist_params(empty_obj, df, ...)
@@ -99,6 +111,7 @@ create_dist.TDistGBMDist <- function(empty_obj, df=4, ...) {
   return(empty_obj)
 }
 
+#' @export
 create_dist.TweedieGBMDist <- function(empty_obj, power=1.5, ...) {
   if(is.null(power)) power <- 1.5
   check_dist_params(empty_obj, power, ...)

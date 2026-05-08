@@ -21,10 +21,12 @@ determine_groups <- function(original_data, response, distribution_obj) {
   UseMethod("determine_groups", distribution_obj) 
 }
 
+#' @export
 determine_groups.default <- function(original_data, response, distribution_obj) {
   return(distribution_obj)
 }
 
+#' @export
 determine_groups.PairwiseGBMDist <- function(original_data, response, distribution_obj) {
   if (is.null(distribution_obj$group)) {
     stop("For pairwise regression, the distribution parameter must be a list with a parameter 'group' for 

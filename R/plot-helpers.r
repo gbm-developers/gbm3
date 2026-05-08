@@ -5,18 +5,22 @@ get_ylabel_one_var <- function(dist_obj) {
   UseMethod("get_ylabel_one_var", dist_obj)
 }
 
+#' @export
 get_ylabel_one_var.default <- function(dist_obj) {
   return("")
 }
 
+#' @export
 get_ylabel_one_var.BernoulliGBMDist <- function(dist_obj) {
   return("Predicted Probability")
 }
 
+#' @export
 get_ylabel_one_var.PairwiseGBMDist <- function(dist_obj) {
   return("Predicted Probability")
 }
 
+#' @export
 get_ylabel_one_var.PoissonGBMDist <- function(dist_obj) {
   return("Predicted Count")
 }

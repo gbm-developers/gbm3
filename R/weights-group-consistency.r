@@ -6,14 +6,17 @@ weight_group_consistency <- function(distribution_obj, weights) {
     UseMethod("weight_group_consistency")
 }
 
+#' @export
 weight_group_consistency.default <- function(distribution_obj, weights) {
     stop("The impossible has happened")
 }
 
+#' @export
 weight_group_consistency.GBMDist <- function(distribution_obj, weights) {
     weights
 }
 
+#' @export
 weight_group_consistency.PairwiseGBMDist <-
     function(distribution_obj, weights) {
         if(is.null(distribution_obj$group_index)) {

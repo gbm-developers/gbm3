@@ -21,6 +21,7 @@ gbm_cv_errors <- function(gbm_cv_fit, cv_folds, cv_group) {
   UseMethod("gbm_cv_errors", gbm_cv_fit)
 }
 
+#' @export
 gbm_cv_errors.GBMCVFit <- function(gbm_cv_fit, cv_folds, cv_group) {
   in_group <- tabulate(cv_group, nbins=cv_folds)
   cv_error <- vapply(1:cv_folds,

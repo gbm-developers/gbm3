@@ -21,6 +21,7 @@ check_dist_params <- function(empty_obj, ...) {
   UseMethod("check_dist_params", empty_obj)
 }
 
+#' @export
 check_dist_params.AdaBoostGBMDist <- function(empty_obj, ...) {
   if(length(list(...)) > 0) {
     warning("The ", class(empty_obj)[1], "class does not use any additional
@@ -28,6 +29,7 @@ check_dist_params.AdaBoostGBMDist <- function(empty_obj, ...) {
   }
 }
 
+#' @export
 check_dist_params.BernoulliGBMDist <- function(empty_obj, ...) {
   if(length(list(...)) > 0) {
     warning("The ", class(empty_obj)[1], "class does not use any additional
@@ -35,6 +37,7 @@ check_dist_params.BernoulliGBMDist <- function(empty_obj, ...) {
   }
 }
 
+#' @export
 check_dist_params.CoxPHGBMDist <- function(empty_obj, strata, sorted, ties, prior_node_coeff, ...) {
   # Check if additional parameters specified
   if((length(list(...)) > 0)) {
@@ -83,12 +86,14 @@ check_dist_params.CoxPHGBMDist <- function(empty_obj, strata, sorted, ties, prio
   } 
 }
 
+#' @export
 check_dist_params.GammaGBMDist <- function(empty_obj, ...) {
   if(length(list(...)) > 0) {
     warning("The ", class(empty_obj)[1], "class does not use any additional parameters in construction.")
   }
 }
 
+#' @export
 check_dist_params.GaussianGBMDist <- function(empty_obj, ...) {
   if(length(list(...)) > 0) {
     warning("The ", class(empty_obj)[1], " class does not use any additional
@@ -96,6 +101,7 @@ check_dist_params.GaussianGBMDist <- function(empty_obj, ...) {
   }
 }
 
+#' @export
 check_dist_params.HuberizedGBMDist <- function(empty_obj, ...) {
   if(length(list(...)) > 0) {
     warning("The ", class(empty_obj)[1], "class does not use any additional
@@ -103,6 +109,7 @@ check_dist_params.HuberizedGBMDist <- function(empty_obj, ...) {
   }
 }
 
+#' @export
 check_dist_params.LaplaceGBMDist <- function(empty_obj, ...) {
   if(length(list(...)) > 0) {
     warning("The ", class(empty_obj)[1], "class does not use any additional
@@ -112,6 +119,7 @@ check_dist_params.LaplaceGBMDist <- function(empty_obj, ...) {
 
 
 
+#' @export
 check_dist_params.PairwiseGBMDist <- function(empty_obj, group, metric,
                                               max_rank, group_index, ...) {
   # Check if parameters are specified
@@ -155,6 +163,7 @@ check_dist_params.PairwiseGBMDist <- function(empty_obj, group, metric,
   }
 }
 
+#' @export
 check_dist_params.PoissonGBMDist <- function(empty_obj, ...) {
   if(length(list(...)) > 0) {
     warning("The ", class(empty_obj)[1], "class does not use any additional
@@ -162,6 +171,7 @@ check_dist_params.PoissonGBMDist <- function(empty_obj, ...) {
   }
 }
 
+#' @export
 check_dist_params.QuantileGBMDist <- function(empty_obj, alpha, ...) {
   # Check if parameters are specified
   if(length(list(...)) > 0) {
@@ -178,6 +188,7 @@ check_dist_params.QuantileGBMDist <- function(empty_obj, alpha, ...) {
   }
 }
 
+#' @export
 check_dist_params.TDistGBMDist <- function(empty_obj, df, ...) {
   # Check if parameters are specified
   if(length(list(...)) > 0) {
@@ -195,6 +206,7 @@ check_dist_params.TDistGBMDist <- function(empty_obj, df, ...) {
   
 }
 
+#' @export
 check_dist_params.TweedieGBMDist <- function(empty_obj, power, ...) {
   # Check if parameters are specified
   if(length(list(...)) > 0) {
