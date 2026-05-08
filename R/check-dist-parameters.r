@@ -81,8 +81,8 @@ check_dist_params.CoxPHGBMDist <- function(empty_obj, strata, sorted, ties, prio
   if(!exists("prior_node_coeff")) {
     stop("Prior node coefficient of variation not specified - distribution could not be constructed")
   } else if(!is.double(prior_node_coeff) || is.infinite(prior_node_coeff) ||
-            (length(prior_node_coeff) > 1)) {
-    stop("Prior node coefficient not a finite double - distribution could not be constructed")
+            (length(prior_node_coeff) > 1) || prior_node_coeff <= 0.0) {
+    stop("Prior node coefficient must be a positive finite double - distribution could not be constructed")
   } 
 }
 
