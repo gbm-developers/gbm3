@@ -15,6 +15,21 @@
 #include "gamma.h"
 #include <cmath>
 
+namespace {
+double log_add_exp(double total, double value) {
+  if (total == -HUGE_VAL) {
+    return value;
+  }
+  if (value == -HUGE_VAL) {
+    return total;
+  }
+  if (value > total) {
+    return value + std::log1p(std::exp(total - value));
+  }
+  return total + std::log1p(std::exp(value - total));
+}
+}
+
 //----------------------------------------
 // Function Members - Private
 //----------------------------------------
@@ -45,24 +60,29 @@ void CGamma::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
 }
 
 double CGamma::InitF(const CDataset& kData) {
-  double sum = 0.0;
-  double totalweight = 0.0;
+  double log_numerator = -HUGE_VAL;
+  double log_totalweight = -HUGE_VAL;
   double min = -19.0;
   double max = +19.0;
   double initfunc_est = 0.0;
 
-#pragma omp parallel for schedule(static, get_array_chunk_size()) \
-    reduction(+ : sum, totalweight) num_threads(get_num_threads())
   for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
-    sum += kData.weight_ptr()[i] * kData.y_ptr()[i] *
-           std::exp(-kData.offset_ptr()[i]);
-    totalweight += kData.weight_ptr()[i];
+    if (kData.weight_ptr()[i] > 0.0) {
+      const double log_weight = std::log(kData.weight_ptr()[i]);
+      log_totalweight = log_add_exp(log_totalweight, log_weight);
+      if (kData.y_ptr()[i] > 0.0) {
+        log_numerator =
+            log_add_exp(log_numerator,
+                        log_weight + std::log(kData.y_ptr()[i]) -
+                            kData.offset_ptr()[i]);
+      }
+    }
   }
 
-  if (sum <= 0.0) {
+  if (log_numerator == -HUGE_VAL) {
     initfunc_est = min;
   } else {
-    initfunc_est = std::log(sum / totalweight);
+    initfunc_est = log_numerator - log_totalweight;
   }
 
   if (initfunc_est < min) {

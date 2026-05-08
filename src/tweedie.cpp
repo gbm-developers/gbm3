@@ -12,12 +12,27 @@
 // Includes
 //-----------------------------------
 #include "tweedie.h"
-#include <math.h>
+#include <cmath>
 #include <typeinfo>
 #include <iostream>
 #include <vector>
 #include <deque>
 #include <fstream>
+
+namespace {
+double log_add_exp(double total, double value) {
+  if (total == -HUGE_VAL) {
+    return value;
+  }
+  if (value == -HUGE_VAL) {
+    return total;
+  }
+  if (value > total) {
+    return value + std::log1p(std::exp(total - value));
+  }
+  return total + std::log1p(std::exp(value - total));
+}
+}
 
 //----------------------------------------
 // Function Members - Private
@@ -59,24 +74,32 @@ void CTweedie::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
 }
 
 double CTweedie::InitF(const CDataset& kData) {
-  double sum = 0.0;
-  double totalweight = 0.0;
+  double log_numerator = -HUGE_VAL;
+  double log_denominator = -HUGE_VAL;
   double min = -19.0;
   double max = +19.0;
   unsigned long i = 0;
   double init_func_est = 0.0;
 
   for (i = 0; i < kData.get_trainsize(); i++) {
-    sum += kData.weight_ptr()[i] * kData.y_ptr()[i] *
-           std::exp(kData.offset_ptr()[i] * (1.0 - power_));
-    totalweight += kData.weight_ptr()[i] *
-                   std::exp(kData.offset_ptr()[i] * (2.0 - power_));
+    if (kData.weight_ptr()[i] > 0.0) {
+      const double log_weight = std::log(kData.weight_ptr()[i]);
+      log_denominator =
+          log_add_exp(log_denominator,
+                      log_weight + kData.offset_ptr()[i] * (2.0 - power_));
+      if (kData.y_ptr()[i] > 0.0) {
+        log_numerator =
+            log_add_exp(log_numerator,
+                        log_weight + std::log(kData.y_ptr()[i]) +
+                            kData.offset_ptr()[i] * (1.0 - power_));
+      }
+    }
   }
 
-  if (sum <= 0.0) {
+  if (log_numerator == -HUGE_VAL) {
     init_func_est = min;
   } else {
-    init_func_est = std::log(sum / totalweight);
+    init_func_est = log_numerator - log_denominator;
   }
 
   if (init_func_est < min) {

@@ -10,6 +10,22 @@
 // Includes
 //-----------------------------------
 #include "poisson.h"
+#include <cmath>
+
+namespace {
+double log_add_exp(double total, double value) {
+  if (total == -HUGE_VAL) {
+    return value;
+  }
+  if (value == -HUGE_VAL) {
+    return total;
+  }
+  if (value > total) {
+    return value + std::log1p(std::exp(total - value));
+  }
+  return total + std::log1p(std::exp(value - total));
+}
+}
 
 //----------------------------------------
 // Function Members - Private
@@ -39,17 +55,35 @@ void CPoisson::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
 }
 
 double CPoisson::InitF(const CDataset& kData) {
-  double sum = 0.0;
-  double denom = 0.0;
+  double log_numerator = -HUGE_VAL;
+  double log_denominator = -HUGE_VAL;
 
-#pragma omp parallel for schedule(static, get_array_chunk_size()) \
-    reduction(+ : sum, denom) num_threads(get_num_threads())
   for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
-    sum += kData.weight_ptr()[i] * kData.y_ptr()[i];
-    denom += kData.weight_ptr()[i] * std::exp(kData.offset_ptr()[i]);
+    if (kData.weight_ptr()[i] > 0.0) {
+      const double log_weight = std::log(kData.weight_ptr()[i]);
+      log_denominator =
+          log_add_exp(log_denominator, log_weight + kData.offset_ptr()[i]);
+      if (kData.y_ptr()[i] > 0.0) {
+        log_numerator =
+            log_add_exp(log_numerator, log_weight + std::log(kData.y_ptr()[i]));
+      }
+    }
   }
 
-  return std::log(sum / denom);
+  if (log_numerator == -HUGE_VAL) {
+    return -19.0;
+  }
+
+  double init_func_est = log_numerator - log_denominator;
+
+  if (init_func_est < -19.0) {
+    init_func_est = -19.0;
+  }
+  if (init_func_est > 19.0) {
+    init_func_est = 19.0;
+  }
+
+  return init_func_est;
 }
 
 double CPoisson::Deviance(const CDataset& kData, const Bag& kBag,
