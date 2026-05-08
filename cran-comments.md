@@ -16,6 +16,8 @@ In this resubmission I have:
 
 * Local Windows 11 x64, R 4.5.2:
   `R CMD check --as-cran --no-manual`
+* macOS arm64, R 4.6.0 patched, macbuilder:
+  OK
 * GitHub Actions:
   TODO: add results for macOS, Windows, Ubuntu R-devel, Ubuntu release,
   and Ubuntu oldrel after the workflow has run.
