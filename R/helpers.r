@@ -107,6 +107,9 @@ check_offset <- function(o, y, dist){
      stop("offset must be numeric")
    else if(sum(is.na(o))>0)
      stop("offset can not contain NA's")
+   else if(distribution_name(dist) %in% c("Poisson", "Gamma", "Tweedie") &&
+           any(abs(o) > 650))
+     stop("offsets for Poisson, Gamma, and Tweedie must be between -650 and 650 on the link scale")
 
    o
 }
