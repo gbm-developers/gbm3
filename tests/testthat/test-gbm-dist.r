@@ -206,6 +206,8 @@ test_that("Error thrown if prior coefficient of variation if not a finite double
   expect_error(gbm_dist(name="CoxPH", prior_node_coeff=Inf))
   expect_error(gbm_dist(name="CoxPH", prior_node_coeff="Nope"))
   expect_error(gbm_dist(name="CoxPH", prior_node_coeff=c(1.2, 3.4)))
+  expect_error(gbm_dist(name="CoxPH", prior_node_coeff=0))
+  expect_error(gbm_dist(name="CoxPH", prior_node_coeff=-1))
 })
 
 test_that("Error thrown if max_rank is not a finite double greater than 0.0 - Pairwise", {

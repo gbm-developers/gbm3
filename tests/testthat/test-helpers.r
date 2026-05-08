@@ -301,7 +301,7 @@ test_that("check_offset default returns a vector of 0s when offset set to NULL -
   expect_equal(check_offset(offset, y, dist_12), rep(0, length(y)))
 })
 
-test_that("check_offset throws an error length of offset does not equal the length of the response - and not CoxPH", {
+test_that("check_offset throws an error length of offset does not equal the length of the response", {
   # Given an offset and vector of responses
   # offset is different length to responses
   N <- 100
@@ -320,10 +320,10 @@ test_that("check_offset throws an error length of offset does not equal the leng
   dist_11 <- gbm_dist("TDist")
   dist_12 <- gbm_dist("Tweedie")
   
-  # Then check_offset throws an error - if not CoxPH
+  # Then check_offset throws an error
   expect_error(check_offset(offset, y, dist_1))
   expect_error(check_offset(offset, y, dist_2))
-  expect_error(check_offset(offset, y, dist_3), NA)
+  expect_error(check_offset(offset, y, dist_3))
   expect_error(check_offset(offset, y, dist_4))
   expect_error(check_offset(offset, y, dist_5))
   expect_error(check_offset(offset, y, dist_6))

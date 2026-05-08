@@ -96,9 +96,9 @@ test_that("Offset vector must contain same number of points as response - if not
   expect_error(validate_gbm_data(data, dist))
   
 })
-test_that("Offset must contain 1/2 number of points as response - if CoxPH", {
+test_that("Offset must contain same number of points as response - if CoxPH", {
   # Given data (not valid but irrelevant here) and a distribution - CoxPH
-  # Offset does not have 1/2 number of points as response
+  # Offset does not have the same number of points as response
   N <- 1000
   x <- runif(N)
   p <- 0.5

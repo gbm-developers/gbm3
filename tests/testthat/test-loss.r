@@ -309,6 +309,20 @@ test_that("Correctly calculates Bernoulli loss", {
   loss_true <- -2*weighted.mean(resps*preds - log(1+exp(preds)), weights) - baseline
   expect_equal(calc_loss, loss_true)
 })
+
+test_that("Bernoulli loss is stable for large logits", {
+  resps <- c(1, 0)
+  preds <- c(1000, -1000)
+  weights <- c(1, 1)
+  offset <- c(0, 0)
+  baseline <- c(0, 0)
+  dist <- gbm_dist("Bernoulli")
+
+  calc_loss <- loss(resps, preds, weights, offset, dist, baseline)
+
+  expect_true(all(is.finite(calc_loss)))
+  expect_equal(calc_loss, c(0, 0))
+})
 test_that("Correctly calculates Gaussian loss", {
   # Given responses, weights, predictions, offset, baseline and
   # Gaussian dist

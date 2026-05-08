@@ -131,3 +131,16 @@ test_that("can run with eval_times", {
   # Then no error is thrown
   expect_error(baseline_hazard(surv_time, delta, cox_preds, eval_times=surv_time+1), NA)
 })
+
+test_that("eval_times controls output locations", {
+  surv_time <- c(1, 2, 3, 4)
+  delta <- c(1, 1, 0, 1)
+  cox_preds <- rep(0, length(surv_time))
+  eval_times <- c(1.5, 3.5)
+
+  hazard <- baseline_hazard(surv_time, delta, cox_preds,
+                            eval_times=eval_times)
+
+  expect_length(hazard, length(eval_times))
+  expect_equal(hazard, c(5 / 12, 4 / 3))
+})
