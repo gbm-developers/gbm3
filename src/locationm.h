@@ -13,7 +13,6 @@
 #include <utility>
 #include <vector>
 #include <algorithm>
-#include <R.h>
 
 class CLocationM {
  public:
