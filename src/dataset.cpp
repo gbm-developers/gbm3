@@ -92,9 +92,12 @@ index_vector CDataset::RandomOrder() const {
     result[ind] = ind;
   }
 
-  // and now shuffle
-  // std::random_shuffle(result.begin(), result.end(), gbm_functions::PtrShuffler);
-  std::shuffle(result.begin(), result.end(), std::default_random_engine());
+  // Shuffle using R's RNG so set.seed() controls feature subsampling.
+  for (index_vector::size_type ind = result.size(); ind > 1; --ind) {
+    const index_vector::size_type swap_ind =
+        static_cast<index_vector::size_type>(unif_rand() * ind);
+    std::swap(result[ind - 1], result[swap_ind]);
+  }
   // and return
   return result;
 }
