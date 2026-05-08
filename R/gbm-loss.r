@@ -91,7 +91,12 @@ loss.AdaBoostGBMDist <- function(y, predictions, weights, offset,
 #' @export
 loss.BernoulliGBMDist <- function(y, predictions, weights, offset, 
                                   distribution_obj, baseline=rep(0, length(y))) {
-  return(-2*weighted.mean(y*(predictions+offset) - log(1+exp(predictions+offset)), weights) - baseline)
+  eta <- predictions + offset
+  softplus <- numeric(length(eta))
+  positive_eta <- eta > 0
+  softplus[positive_eta] <- eta[positive_eta] + log1p(exp(-eta[positive_eta]))
+  softplus[!positive_eta] <- log1p(exp(eta[!positive_eta]))
+  return(-2*weighted.mean(y*eta - softplus, weights) - baseline)
 }
 
 # @name loss
