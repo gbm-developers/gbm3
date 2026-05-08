@@ -18,6 +18,16 @@ namespace {
 double softplus(double x) {
   return x > 0.0 ? x + std::log1p(std::exp(-x)) : std::log1p(std::exp(x));
 }
+
+double sigmoid(double x) {
+  if (x >= 0.0) {
+    const double exp_neg = std::exp(-x);
+    return 1.0 / (1.0 + exp_neg);
+  }
+
+  const double exp_x = std::exp(x);
+  return exp_x / (1.0 + exp_x);
+}
 }
 
 //----------------------------------------
@@ -63,10 +73,13 @@ double CBernoulli::InitF(const CDataset& kData) {
     double denominator = 0.0;
 
     for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
-      const double dTemp =
-          1.0 / (1.0 + std::exp(-(kData.offset_ptr()[i] + initfunc_est)));
+      const double dTemp = sigmoid(kData.offset_ptr()[i] + initfunc_est);
       numerator += kData.weight_ptr()[i] * (kData.y_ptr()[i] - dTemp);
       denominator += kData.weight_ptr()[i] * dTemp * (1.0 - dTemp);
+    }
+
+    if (denominator == 0.0) {
+      break;
     }
 
     newtonstep = numerator / denominator;
