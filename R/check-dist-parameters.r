@@ -217,9 +217,17 @@ check_dist_params.TweedieGBMDist <- function(empty_obj, power, ...) {
   if(!exists("power")) {
     stop("Power of distribution (power) is not specified - distribution cannot be specified")
   } else if (!(is.double(power)) || (length(power) > 1)
-             || is.infinite((power)) || power < 0.0) {
+             || is.infinite((power)) || is.na(power)) {
     stop("Power provided is not a finite double  - distribution 
          cannot be constructed")
+  } else if (power == 0.0) {
+    stop("Tweedie power cannot be 0 in this implementation. Use the Gaussian distribution instead.")
+  } else if (power == 1.0) {
+    stop("Tweedie power cannot be 1 in this implementation. Use the Poisson distribution instead.")
+  } else if (power == 2.0) {
+    stop("Tweedie power cannot be 2 in this implementation. Use the Gamma distribution instead.")
+  } else if (power > 0.0 && power < 1.0) {
+    stop("Tweedie power must not be between 0 and 1.")
   }
 }
 
