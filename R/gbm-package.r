@@ -84,10 +84,8 @@ NULL
 #' \code{gbm} \tab Generalized Boosted Models: A guide to the gbm package
 #' (source, pdf)\cr}
 #' 
-#' @name gbm-package
-#' @aliases NULL
+#' @name gbm3-package
 #' @aliases gbm_package
-#' @docType package
 #' @author James Hickey, Greg Ridgeway \email{gregridgeway@@gmail.com} with contributions by
 #' Daniel Edwards, Brian Kriegler, Stefan Schroedl and Harry Southworth.
 #' @references Y. Freund and R.E. Schapire (1997) \dQuote{A decision-theoretic
@@ -107,7 +105,7 @@ NULL
 #' J.H. Friedman (2002). \dQuote{Stochastic Gradient Boosting,}
 #' \emph{Computational Statistics and Data Analysis} 38(4):367-378.
 #' 
-#' @keywords package
-NULL
+#' @keywords internal
+"_PACKAGE"
 
 
