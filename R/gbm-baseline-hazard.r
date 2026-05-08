@@ -91,7 +91,7 @@ baseline_hazard <- function(surv_times, delta, coxph_preds,
   if(cumulative) alpha <- cumsum(alpha)
   
   # Set evaluation times
-  if(!is.null(eval_times)) eval_times <- surv_times
+  if(is.null(eval_times)) eval_times <- surv_times
   
   # Use super smoother and evaluate 
   lambda <- list(x=unique_death_times, y=alpha)
