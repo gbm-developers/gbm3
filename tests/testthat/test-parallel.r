@@ -1,3 +1,5 @@
+skip_on_valgrind()
+
 context("test parallelization")
 
 test_that("gaussian works in parallel", {

@@ -1,3 +1,5 @@
+skip_on_valgrind()
+
 context("testing openmp parallelization")
 test_that("gbm refuses to work with insane numbers of threads", {
   N <- 1000
