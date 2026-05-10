@@ -22,10 +22,13 @@ In this resubmission I have:
   `R CMD check --as-cran --no-manual`
 * macOS arm64, R 4.6.0 patched, macbuilder:
   OK
-* R-hub clang-UBSAN, R-devel:
-  OK
-* R-hub gcc-ASAN, R-devel:
-  OK
+* R-hub:
+  valgrind, clang-asan, clang-ubsan, gcc-asan, ubuntu-clang, ubuntu-gcc12,
+  windows, clang20, gcc15: OK
+* CRAN incoming pretest special checks:
+  clang-san and gcc-san: OK. valgrind initially timed out in long-running
+  integration-style tests with no Valgrind memory errors reported; those tests
+  are now skipped only during Valgrind checks.
 * GitHub Actions R-CMD-check:
   macos-latest, ubuntu-latest (devel), ubuntu-latest (oldrel-1),
   ubuntu-latest (release), windows-latest (release): OK
