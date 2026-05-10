@@ -1,3 +1,19 @@
+Changes in version 3.0.1
+
+- Fixed numerical stability issues in Bernoulli, AdaBoost, Poisson, Gamma,
+  and Tweedie calculations for large finite offsets or fitted values
+- Fixed random feature subsampling so mFeatures uses R's RNG-controlled
+  random order at each split
+- Fixed CoxPH validation for offset length and prior node coefficient
+  variance, and fixed baseline_hazard() evaluation at user-supplied
+  eval_times
+- Fixed Gamma response validation to reject zero responses
+- Updated Tweedie power validation to reject unsupported endpoint and
+  invalid ranges with guidance to use Gaussian, Poisson, or Gamma where
+  appropriate
+- Fixed terminal-node handling for Poisson caps and missing-value smoothing
+- Updated tests and vignettes to match the corrected validation behavior
+
 Changes in version 3.0
 
 - This is a general update to bring gbm3 into current R standards and prepare

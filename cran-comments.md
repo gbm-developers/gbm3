@@ -11,7 +11,10 @@ In this resubmission I have:
 * added GitHub Actions checks for Linux, macOS, and Windows;
 * cleaned local build artifacts from the source package;
 * removed undefined behavior detected by sanitizer checks;
-* reduced slow tests while preserving the tested behavior.
+* reduced slow tests while preserving the tested behavior;
+* skipped long-running integration-style tests during valgrind checks to avoid
+  CRAN's special-check timeout. These tests continue to run during ordinary
+  checks.
 
 ## Test environments
 

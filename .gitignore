@@ -38,3 +38,4 @@ vignettes/*.tex
 vignettes/gbm.pdf
 vignettes/gbm_cache/
 .positai
+.codex-cran-reports

@@ -4,6 +4,7 @@
 ^\.positai$
 ^\.claude$
 ^\.codex-check$
+^\.codex-cran-reports$
 ^codex_check$
 ^desktop\.ini$
 ^.*[/\\]desktop\.ini$

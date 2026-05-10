@@ -47,3 +47,4 @@ License: GPL (>= 2)
 URL: https://github.com/gbm-developers/gbm3
 Encoding: UTF-8
 LinkingTo: Rcpp
+RoxygenNote: 7.3.3
