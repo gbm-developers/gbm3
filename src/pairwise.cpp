@@ -749,9 +749,11 @@ void CPairwise::Initialize(const CDataset& kData) {
 
   // TODO: Make More robust against overflow
   unsigned long max_group_unsigned_long = 0;
-  if (fabs(max_group) > static_cast<double>(nextafter(ULONG_MAX, 0)) || 
+  const double max_ulong =
+      static_cast<double>(std::numeric_limits<unsigned long>::max());
+  if (fabs(max_group) > nextafter(max_ulong, 0) ||
       std::isnan(max_group)) {
-    max_group_unsigned_long = copysign(ULONG_MAX, max_group);
+    max_group_unsigned_long = std::numeric_limits<unsigned long>::max();
   } else {
     max_group_unsigned_long = (unsigned long)max_group;
   }
@@ -932,7 +934,6 @@ double CPairwise::BagImprovement(const CDataset& kData, const Bag& kBag,
 void CPairwise::BagData(const CDataset& kData, Bag& bag) {
   double last_group = -1;
   bool is_chosen = false;
-  unsigned int bagged = 0;
   unsigned int bagged_groups = 0;
   unsigned int seen_groups = 0;
   unsigned int total_groupsinbag =
@@ -962,7 +963,6 @@ void CPairwise::BagData(const CDataset& kData, Bag& bag) {
 
     if (is_chosen) {
       bag.set_element(i);
-      bagged++;
     }
   }
 }
