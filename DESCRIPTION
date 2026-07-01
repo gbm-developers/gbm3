@@ -44,7 +44,8 @@ Description: Extensions to Freund and Schapire's AdaBoost algorithm, Y. Freund
     exponential loss, Huberized hinge loss,
     and Learning to Rank measures (LambdaMART).
 License: GPL (>= 2)
-URL: https://github.com/gbm-developers/gbm3
+URL: https://gbm-developers.github.io/gbm3/,
+    https://github.com/gbm-developers/gbm3
 Encoding: UTF-8
 LinkingTo: Rcpp
 RoxygenNote: 7.3.3

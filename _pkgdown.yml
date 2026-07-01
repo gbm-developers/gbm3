@@ -1,0 +1,18 @@
+url: https://gbm-developers.github.io/gbm3/
+
+template:
+  bootstrap: 5
+
+navbar:
+  structure:
+    left: [intro, reference, articles, news]
+    right: [search, github]
+
+articles:
+  - title: Articles
+    navbar: ~
+    contents:
+      - getting-started-with-gbm
+      - gbm
+      - model-specific-parameters
+      - cox-proportional-hazards-guide

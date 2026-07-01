@@ -2,6 +2,7 @@
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/gbm-developers/gbm3/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/gbm-developers/gbm3/actions/workflows/R-CMD-check.yaml)
+[![pkgdown](https://github.com/gbm-developers/gbm3/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/gbm-developers/gbm3/actions/workflows/pkgdown.yaml)
 <!-- badges: end -->
 
 Originally written by Greg Ridgeway between 1999-2003, added to by various 
@@ -15,6 +16,9 @@ Development is discussed at the
 original `gbm` package. The package supports regression, classification,
 survival models, and learning-to-rank methods, with optional OpenMP
 parallelization in the core fitting code.
+
+Documentation and vignettes are available at
+<https://gbm-developers.github.io/gbm3/>.
 
 To install the development version from GitHub, first install `remotes`:
 

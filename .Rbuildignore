@@ -20,3 +20,5 @@
 ^tests[/\\]testthat[/\\]_snaps$
 ^\.github$
 ^cran-comments\.md$
+^docs$
+^pkgdown$

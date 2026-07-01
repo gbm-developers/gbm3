@@ -4,7 +4,7 @@ author: "James Hickey"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{CoxPH}
+  %\VignetteIndexEntry{Guide to the Cox Proportional Hazards model}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
