@@ -17,6 +17,7 @@
 ^src[/\\].*\.dylib$
 ^src[/\\]symbols\.rds$
 ^vignettes[/\\]gbm_cache$
+^vignettes[/\\].*[.]html$
 ^tests[/\\]testthat[/\\]_snaps$
 ^\.github$
 ^cran-comments\.md$
