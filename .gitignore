@@ -41,3 +41,4 @@ vignettes/gbm_cache/
 .codex-cran-reports
 docs/
 pkgdown/
+revdep/

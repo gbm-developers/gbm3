@@ -1,0 +1,115 @@
+# Reverse dependency check (revdepcheck) for gbm3.
+#
+# Installs the current branch of gbm3, downloads CRAN packages that depend
+# on it, and R CMD checks each of them against both the CRAN release of
+# gbm3 and this branch, flagging anything that newly breaks.
+#
+# Manual only, not run on every push: revdepcheck reinstalls each reverse
+# dependency's full dependency tree twice (once against the CRAN version of
+# gbm3, once against this branch), which is slow. Trigger it by hand a day
+# or two before a CRAN submission, or after a change that plausibly affects
+# downstream packages.
+
+name: repdevcheck
+
+run-name: "repdevcheck: ${{ inputs.packages != '' && inputs.packages || 'all CRAN reverse dependencies' }} (by ${{ github.triggering_actor }})"
+
+on:
+  workflow_dispatch:
+    inputs:
+      packages:
+        description: >
+          Comma-separated reverse dependencies to check (blank = check all
+          CRAN reverse dependencies of gbm3: Depends + Imports + LinkingTo +
+          Suggests). Use a short list for a quick pre-submission spot check.
+        required: false
+        type: string
+        default: ''
+      num_workers:
+        description: 'Number of parallel workers'
+        required: false
+        type: string
+        default: '4'
+
+permissions: read-all
+
+jobs:
+  repdevcheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: 'release'
+          use-public-rspm: true
+
+      # revdepcheck is GitHub-only (not on CRAN), so it has to be pulled in
+      # as a remote rather than via `any::`.
+      # NOTE: if gbm3's reverse dependencies turn out to need system
+      # libraries beyond what setup-r-dependencies pulls in via sysreqs for
+      # gbm3 itself (e.g. geospatial/bio packages needing libgdal, libgeos,
+      # etc. - as happens for the older `gbm` package's revdep workflow),
+      # add an `apt-get install` step here for the specific libraries once
+      # a run identifies which ones are missing.
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            r-lib/revdepcheck
+            any::pak
+          needs: check
+
+      - name: Run reverse dependency check
+        run: |
+          pkgs <- trimws(strsplit(Sys.getenv("REPDEVCHECK_PACKAGES"), ",")[[1]])
+          pkgs <- pkgs[nzchar(pkgs)]
+          num_workers <- as.integer(Sys.getenv("REPDEVCHECK_NUM_WORKERS"))
+
+          if (length(pkgs) == 0) {
+            revdepcheck::revdep_check(
+              num_workers = num_workers,
+              dependencies = c("Depends", "Imports", "LinkingTo", "Suggests")
+            )
+          } else {
+            # revdep_check() has no `packages` argument; scoping to specific
+            # packages goes through revdep_add() instead, which needs the
+            # sqlite schema to already exist (db_setup() - internal, not
+            # exported - since revdep_add() won't create it like
+            # revdep_check() does).
+            revdepcheck:::db_setup(".")
+            revdepcheck::revdep_add(packages = pkgs)
+            revdepcheck::revdep_check(num_workers = num_workers)
+          }
+        shell: Rscript {0}
+        env:
+          REPDEVCHECK_PACKAGES: ${{ inputs.packages }}
+          REPDEVCHECK_NUM_WORKERS: ${{ inputs.num_workers }}
+
+      - name: Summarize results
+        if: always()
+        run: |
+          {
+            echo "## repdevcheck results"
+            if [ -f revdep/problems.md ]; then
+              cat revdep/problems.md
+            else
+              echo "_No revdep/problems.md was produced — the check may not have completed. See the uploaded artifact and job logs for details._"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload repdevcheck results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: repdevcheck-results
+          path: revdep/
+          if-no-files-found: warn
+          retention-days: 30
