@@ -39,6 +39,7 @@ J.H. Friedman (2002). \dQuote{Stochastic Gradient Boosting,}
 \seealso{
 Useful links:
 \itemize{
+  \item \url{https://gbm-developers.github.io/gbm3/}
   \item \url{https://github.com/gbm-developers/gbm3}
 }
 

@@ -29,9 +29,9 @@ gbmt_fit(
 variables.}
 
 \item{y}{is a matrix of outcomes. Excluding CoxPH this matrix of
-outcomes collapses to a vector; in the case of CoxPH it is a
-survival object where the event times fill the first one (or two
-columns) and the status fills the final column.  The length of the
+outcomes collapses to a vector; in the case of CoxPH, it is a
+\code{Surv(time, status)} or \code{Surv(start, stop, status)}
+object.  The length of the
 1st dimension of y must match the number of rows in x.}
 
 \item{distribution}{a \code{GBMDist} object specifying the

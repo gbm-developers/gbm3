@@ -63,9 +63,9 @@ gbm(
 \item{x, y}{For \code{gbm.fit}: \code{x} is a data frame or data
 matrix containing the predictor variables and \code{y} is a matrix
 of outcomes.  Excluding \code{coxph} this matrix of outcomes
-collapses to a vector, in the case of \code{coxph} it is a survival
-object where the event times fill the first one (or two columns)
-and the status fills the final column.  The number of rows in
+collapses to a vector; in the case of \code{coxph}, it is a
+\code{Surv(time, status)} or \code{Surv(start, stop, status)}
+object.  The number of rows in
 \code{x} must be the same as the length of the 1st dimension of
 \code{y}.}
 
@@ -84,8 +84,8 @@ Available distributions are "gaussian" (squared error), "laplace"
 (absolute loss), "tdist" (t-distribution loss), "bernoulli"
 (logistic regression for 0-1 outcomes), "huberized" (Huberized
 hinge loss for 0-1 outcomes), "adaboost" (the AdaBoost exponential
-loss for 0-1 outcomes), "poisson" (count outcomes), "coxph" (right
-censored observations), "quantile", or "pairwise" (ranking measure
+loss for 0-1 outcomes), "poisson" (count outcomes), "coxph" (right-censored
+or counting-process survival observations), "quantile", or "pairwise" (ranking measure
 using the LambdaMART algorithm).
 
 If quantile regression is specified, \code{distribution} must be a
@@ -301,7 +301,8 @@ the out-of-bag estimator for the optimal number of iterations, the
 ability to store and manipulate the resulting \code{GBMFit} object,
 and a variety of other loss functions that had not previously had
 associated boosting algorithms, including the Cox partial
-likelihood for censored data, the poisson likelihood for count
+likelihood for right-censored or counting-process survival data, the
+poisson likelihood for count
 outcomes, and a gradient boosting implementation to minimize the
 AdaBoost exponential loss function.
 

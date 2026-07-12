@@ -20,11 +20,15 @@ degrees of freedom can be given.  The default degrees of freedom is set to four.
 If quantile is selected then the quantile to estimate may be specified using the
 named parameter \code{alpha}.  The default quantile to estimate is 0.25.
 
-If the tweedie distribution is selected the power-law specifying the distribution
-may be set via the named parameter: \code{power}.  This parameter defaults to unity.
+If the Tweedie distribution is selected the power-law specifying the
+distribution may be set via the named parameter: \code{power}.  This
+parameter defaults to 1.5. The values 0, 1, and 2 are not permitted (use 
+the Gaussian, Poisson, or Gamma distribution instead)
 
-If a Cox Partial Hazards model is selected a number of additional parameters are
-required, these are:
+If a Cox proportional hazards model is selected, the response must be a
+right-censored \code{Surv(time, status)} object or a counting-process
+\code{Surv(start, stop, status)} object. A number of additional parameters
+are available:
 
 \describe{
  \item{\code{strata}}{A vector of integers (or factors) specifying which strata each data-row belongs to, 
