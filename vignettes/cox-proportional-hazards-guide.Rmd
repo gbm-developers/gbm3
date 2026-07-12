@@ -12,13 +12,13 @@ vignette: >
 library("gbm3")
 ```
 
-`gbm` facilitates the creation of boosted Cox proportional hazards models, a particularly useful feature when dealing with survival data.  The package can handle two types of survival object as the response, namely a right censored or counting survival object.  Both of these objects can be created using the `Surv` command found in the `survival` package. 
+`gbm` supports boosted Cox proportional hazards models for survival data. The package can handle two types of survival response: right-censored and counting-process `Surv` objects. Both can be created with the `Surv` function from the `survival` package.
 
-# Set-up of data and distribution object 
-Right censored survival data consists of a time to event number and the event indicator - 0 if no event has taken place and 1 if the event has happened. On the other hand, counting survival data contains start and stop times along with an event indicator again indicating if an event has taken place in that period.  The data may be organised into strata and this should be passed to `gbm_dist` on creation of the `CoxPHGBMDist` object - see  the "Model Specific Parameters" vignette for more details.  The dataset considered here is provided by the `survival` package.
+# Setting up data and the distribution object
+Right-censored survival data consist of a time-to-event value and an event indicator: 0 if no event has occurred and 1 if the event has occurred. Counting-process survival data contain start and stop times along with an event indicator for the interval. Data may be organized into strata, which should be passed to `gbm_dist` when creating the `CoxPHGBMDist` object; see the "Model Specific Parameters" vignette for more details. The dataset used here is provided by the `survival` package.
 
 ```{r, message=FALSE}
-## Install package
+## Load package
 require(survival)
 
 # get datasets
@@ -31,9 +31,9 @@ start_stop_dist <- gbm_dist("CoxPH", strata=start_stop$hos.cat)
 ```
 
 # Creating a boosted model
-Now to create the underlying boosted model the training parameters need to be defined and `gbmt` called. In this instance the data has observation ids associated with it and so it is necessary to create specific `GBMTrainParams` objects rather than relying on the defaults.
+To create the boosted model, define the training parameters and call `gbmt`. In this example, the data have observation IDs, so it is necessary to create specific `GBMTrainParams` objects rather than relying on the defaults.
 
-```{r, messagee=FALSE}
+```{r, message=FALSE}
 # Set-up training parameters
 params_right_cens <- training_params(num_trees = 2000, interaction_depth = 3, 
                                      id=right_cens$id,
@@ -59,8 +59,8 @@ best_iter_right <- gbmt_performance(fit_right_cens, method='test')
 best_iter_stop_start <- gbmt_performance(fit_start_stop, method='test')
 ```
 # Strata Updates
-During the fitting process the original strata vector is updated in the following way.
-When the data is split into a training and validation set the strata vector is also split.  The strata vector is then updated so as represent the cumulative count of the number of observations in each stratum in the training and validation sets.  The vector is padded with `NAs` so it is of the same length as the original strata vector provided and such that the validation set cumulative strata sums are separated from the training set strata counts by the appropriate amount.  
+During fitting, the original strata vector is updated as follows.
+When the data are split into training and validation sets, the strata vector is also split. The strata vector is then updated to represent the cumulative count of observations in each stratum for the training and validation sets. The vector is padded with `NA`s so it has the same length as the original strata vector and so that the validation-set cumulative strata sums are separated from the training-set strata counts by the appropriate amount.
 
 The original strata vector is stored within the `GBMFit` object and can be accessed as follows: `fit$distribution$original_strata_id`. The data in the `original_strata_id` field 
 is used to recreate the correct strata when performing additional iterations using `gbm_more`.
@@ -127,7 +127,7 @@ legend("topleft", c("training error", "test error", "optimal iteration"),
 
 
 # Description of the underlying algorithm - specifically for CoxPH
-The `gbm` algorithm works to estimate, via tree boosting, the function $f(\textbf{x})$, which maps covariates ($\textbf{x}$) to the response variable *y* - in this case the event indicator.
+The `gbm` algorithm estimates, via tree boosting, the additive predictor $f(\textbf{x})$. For `CoxPH`, this predictor is the log relative risk used in the Cox partial likelihood, rather than a direct prediction of the event indicator.
 For `CoxPH`, the algorithm calculates both the partial log likelihood and martingale residuals ($\textbf{m}$) using the following approach.  The algorithm walks backwards in time until it encounters the "stop" time of an observation.  When this happens the weighted risk associated with that observation, $\omega_i e^{f(\textbf{x}_i)}$, is added to the total cumulative hazard: $S = \sum \omega_j e^{f(\textbf{x}_j)}$, which is initialized at $0$.   Continuing backwards in time when we reach a time before an observation was in the study, that is the algorithm leaves the associated time segment (start, stop], the observation's contribution to the cumulative hazard is subtracted off.  The algorithm is robust to overflow/underflows occurring in $e^{f(\textbf{x}_i)}$ by subtracting a constant off of the risk score.  This constant drifts to ensure overflow does not occur.
 
 This algorithm deals with tied event times using either the Breslow or Efron approximations.  The method used is specified by the user but in the event of tied deaths, it defaults to the Efron approximation.  It also allows for the introduction of strata and start as well as stop times for each observation, see the previous Sections.  
@@ -145,4 +145,4 @@ $$ z_i = \textbf{m}_i. \qquad (4)$$
 Finally, the updated implementation calculates the optimal terminal node predictions in the following way. Looping over the bagged observations  in the terminal node of interest the expected number of events is given by: $\sum_i \max(0.0, y_i - \textbf{m}_i) + 1/c$.  The constant $c$ represents the prior on the baseline number of events that occur within a given terminal node; it can be set on construction of the `CoxPHGBMDist` through the `prior_node_coeff_var` parameter.  From this the terminal node prediction is given by:
 $$ \log(\frac{\sum_i y_i + 1/c}{\sum_i \max(0.0, y_i - \textbf{m}_i) + 1/c}). \qquad (5)$$
 
-If this `prior_node_coeff_var` is set incorrectly, i. e. to not a finite positive double, then the predictions of the fitted model can become non-sensical.
+If `prior_node_coeff_var` is not set to a finite positive double, the fitted model's predictions can become nonsensical.
