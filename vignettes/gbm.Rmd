@@ -17,7 +17,7 @@ set.seed(557165559)
 
 Boosting takes on various forms with different programs using different loss functions, different base models, and different optimization schemes. The gbm3 package takes the approach described in
 Friedman (2001) and Friedman (2002). Some of the terminology differs, mostly due to an effort to cast boosting terms into more standard statistical terminology (e.g. deviance). In addition, the gbm3 package implements boosting for models commonly used in statistics but not commonly associated with boosting. The Cox proportional hazard model, for example, is an incredibly useful model and the boosting framework applies quite readily with only slight modification Ridgeway (1999). Also some algorithms implemented in the gbm3 package differ from the standard implementation. The AdaBoost algorithm (Freund and Schapire, 1997) has a particular loss function and a particular optimization algorithm associated with it. The gbm3 implementation of AdaBoost adopts AdaBoost's exponential loss function (its bound on misclassification rate) but uses Friedman's gradient descent algorithm rather than the original one proposed. So the main
-purposes of this document is to spell out in detail what the gbm3 package implements.
+purpose of this document is to spell out in detail what the gbm3 package implements.
 
 
 **NB:** This document refers heavily to the `gbm` function.  This function is part of the original R API provided by the package; while this API is still functional, as of Version 2.1.06 the package contains an updated API which performs boosting: `gbmt`.  For more details on how to use the new API, see the "Getting started with the gbm package" vignette.
@@ -127,7 +127,7 @@ Certain function approximation methods are decomposable in terms of a "functiona
 <!-- \label{ANOVAdecomp}  -->
 $$f(\mathbf{x}) = \sum_j f_j(x_j) + \sum_{jk} f_{jk}(x_j,x_k) + \sum_{jk\ell} f_{jk\ell}(x_j,x_k,x_\ell) + \cdots \qquad (9)$$ . 
 
-This applies to boosted trees. Regression stumps (one split decision trees) depend on only one variable and fall into the first term of (9). Trees with two splits fall into the second term of (9) and so on. By restricting the depth of the trees produced on each boosting iteration we can control the order of approximation. Often additive components are sufficient to approximate a multivariate function well, generalized additive models, the naïve Bayes classifier, and boosted stumps for example. When the approximation is restricted to a first order we can also produce plots of $x_j$ versus $f_j(x_j)$ to demonstrate how changes in $x_j$ might affect changes in the response variable.
+This applies to boosted trees. Regression stumps (one split decision trees) depend on only one variable and fall into the first term of (9). Trees with two splits fall into the second term of (9) and so on. By restricting the depth of the trees produced on each boosting iteration we can control the order of approximation. Often additive components are sufficient to approximate a multivariate function well, generalized additive models, the naive Bayes classifier, and boosted stumps for example. When the approximation is restricted to a first order we can also produce plots of $x_j$ versus $f_j(x_j)$ to demonstrate how changes in $x_j$ might affect changes in the response variable.
 
 ## Relative influence
 Friedman (2001) also develops an extension of a variable's "relative influence" for boosted estimates. For tree based methods the approximate relative influence of a variable $x_j$ is
@@ -175,7 +175,7 @@ This section discusses the options to gbm that most users will need to change or
 
 ## Loss function
 
-The first and foremost choice is `distribution`. This should be easily dictated by the application. For most classification problems either `bernoulli` or `adaboost` will be appropriate, the former being recommended. For continuous outcomes the choices are `gaussian` (for minimizing squared error), `laplace` (for minimizing absolute error), and quantile regression (for estimating percentiles of the conditional distribution of the outcome). Censored survival outcomes should require `coxph`. Count outcomes may use `poisson` although one might also consider `gaussian` or `laplace` depending on the analytical goals.
+The first and foremost choice is `distribution`. This should be easily dictated by the application. For most classification problems either `bernoulli` or `adaboost` will be appropriate, the former being recommended. For continuous outcomes the choices are `gaussian` (for minimizing squared error), `laplace` (for minimizing absolute error), and quantile regression (for estimating percentiles of the conditional distribution of the outcome). Right-censored or counting-process survival outcomes should use `coxph`. Count outcomes may use `poisson` although one might also consider `gaussian` or `laplace` depending on the analytical goals.
 
 ## The relationship between shrinkage and number of iterations
 
@@ -255,12 +255,12 @@ If `bag_fraction` is set to be greater than 0 (0.5 is recommended), gbm computes
 
 Lastly, gbm offers $v$-fold cross validation for estimating the optimal number of iterations. If when fitting the gbm model, `cv_folds=5` then gbm will do 5-fold cross validation. gbm will fit five gbm models in order to compute the cross validation error estimate and then will fit a sixth and final gbm model with `num_trees` iterations using all of the data. The returned model object will have a component labeled `cv_error`. Note that `gbm.more` will do additional gbm iterations but will not add to the `cv_error` component. Use `gbm_perf(...,method="cv")` to obtain the cross validation estimate.
 
-```{r oobperf2, echo = FALSE, message=FALSE, fig.align='center', fig.cap='**Figure 2**. Out-of-sample predictive performance of four methods of selecting the optimal number of iterations. The vertical axis plots performance relative the best. The boxplots indicate relative performance across thirteen real datasets from the UCI repository. See `demo(OOB-reps)`.', out.width="80%"}
+```{r oobperf2, echo = FALSE, message=FALSE, fig.align='center', fig.cap='**Figure 2**. Out-of-sample predictive performance of four methods of selecting the optimal number of iterations. The vertical axis plots performance relative to the best. The boxplots indicate relative performance across thirteen real datasets from the UCI repository. See `demo(OOB-reps)`.', out.width="80%"}
 
 knitr::include_graphics("oobperf2.png")
 ```
 
-Figure 2 compares the three methods for estimating the optimal number of iterations across 13 datasets. The boxplots show the methods performance relative to the best method on that dataset. For most datasets the method perform similarly, however, 5-fold cross validation is consistently the best of them. OOB, using a 33% test set, and using a 20% test set all have datasets for which the perform considerably worse than the best method. My recommendation is to use 5- or 10-fold cross validation if you can afford the computing time. Otherwise you may choose among the other options, knowing that OOB is conservative.
+Figure 2 compares the three methods for estimating the optimal number of iterations across 13 datasets. The boxplots show the methods' performance relative to the best method on that dataset. For most datasets the methods perform similarly; however, 5-fold cross validation is consistently the best of them. OOB, using a 33% test set, and using a 20% test set all have datasets for which they perform considerably worse than the best method. My recommendation is to use 5- or 10-fold cross validation if you can afford the computing time. Otherwise you may choose among the other options, knowing that OOB is conservative.
 
 # Available distributions
 
@@ -299,13 +299,68 @@ Terminal node estimates   $\displaystyle \frac{\sum w_i(y_i-p_i)}{\sum w_ip_i(1-
 
 Notes: For non-zero offset terms, the computation of the initial value requires Newton-Raphson. Initialize $f_0=0$ and iterate $\displaystyle f_0 \leftarrow f_0 + \frac{\sum w_i(y_i-p_i)}{\sum w_ip_i(1-p_i)}$ where $\displaystyle p_i = \frac{1}{1+\exp(-(o_i+f_0))}$.
 
+## Huberized hinge loss
+
+Let $\eta_i=o_i+f(\mathbf{x}_i)$, $q_i=2y_i-1$, and $u_i=q_i\eta_i$.
+
+------------------------  ---------------------------------------------------------------
+Deviance                  $\displaystyle \frac{1}{\sum w_i}\sum_i w_i L(u_i)$
+Initial value             $\displaystyle \frac{\sum w_i y_i}{\sum w_i(1-y_i)}$
+Working response          see below
+Terminal node estimates   see below
+------------------------  ---------------------------------------------------------------
+
+where
+$$
+L(u)=
+\begin{cases}
+-4u, & u < -1,\\
+(1-u)^2, & -1 \leq u \leq 1,\\
+0, & u > 1.
+\end{cases}
+$$
+
+The working response is
+$$
+z_i =
+\begin{cases}
+-4q_i, & u_i < -1,\\
+-2q_i(1-u_i), & -1 \leq u_i \leq 1,\\
+0, & u_i > 1.
+\end{cases}
+$$
+For a terminal node $S_k$, the terminal node prediction is
+$$
+\rho_k =
+\frac{\sum_{\mathbf{x}_i\in S_k} w_i a_i}
+{\sum_{\mathbf{x}_i\in S_k} w_i b_i},
+$$
+where
+$$
+a_i =
+\begin{cases}
+4q_i, & u_i < -1,\\
+2q_i(1-u_i), & -1 \leq u_i \leq 1,\\
+0, & u_i > 1,
+\end{cases}
+\qquad
+b_i =
+\begin{cases}
+-4q_i\eta_i, & u_i < -1,\\
+(1-u_i)^2, & -1 \leq u_i \leq 1,\\
+0, & u_i > 1.
+\end{cases}
+$$
+
+Notes: This distribution requires $y_i\in\{0,1\}$.
+
 ## Laplace
 
 ------------------------  ---------------------------------------------------------------
 Deviance                  $\frac{1}{\sum w_i} \sum w_i|y_i-f(\mathbf{x}_i)|$
 Initial value             $\mathrm{median}_w(y)$
 Gradient                  $z_i=\mbox{sign}(y_i-f(\mathbf{x}_i))$
-Terminal node estimates   $\mathrm{median}_w(z)$
+Terminal node estimates   $\mathrm{median}_w(y-f(\mathbf{x}))$
 ------------------------  ---------------------------------------------------------------
 
 Notes: $\mathrm{median}_w(y)$ denotes the weighted median, defined as the solution to the equation $\sum w_iI(y_i\leq m)=\frac{1}{2}\sum w_i$
@@ -320,49 +375,45 @@ Deviance                  $\frac{1}{\sum w_i} \left(\alpha\sum_{y_i>f(\mathbf{x}
                           $\left.(1-\alpha)\sum_{y_i\leq f(\mathbf{x}_i)} w_i(f(\mathbf{x}_i)-y_i)\right)$
 Initial value             $\mathrm{quantile}^{(\alpha)}_w(y)$
 Gradient                  $z_i=\alpha I(y_i>f(\mathbf{x}_i))-(1-\alpha)I(y_i\leq f(\mathbf{x}_i))$
-Terminal node estimates   $\mathrm{quantile}^{(\alpha)}_w(z)$
+Terminal node estimates   $\mathrm{quantile}^{(\alpha)}_w(y-f(\mathbf{x}))$
 ------------------------  ---------------------------------------------------------------
 
 Notes: $\mathrm{quantile}^{(\alpha)}_w(y)$ denotes the weighted quantile, defined as the solution, *q*, to the equation $\sum w_iI(y_i\leq q)=\alpha\sum w_i$
 
+## t-distribution
+
+The `TDist` distribution has a degrees-of-freedom parameter $\nu$, which defaults to 4.
+
+------------------------  ---------------------------------------------------------------
+Deviance                  $\displaystyle \frac{1}{\sum w_i}\sum_i w_i \log(\nu + (y_i-f(\mathbf{x}_i))^2)$
+Initial value             location M-estimate of $y-o$
+Gradient                  $\displaystyle z_i=\frac{2(y_i-f(\mathbf{x}_i))}{\nu + (y_i-f(\mathbf{x}_i))^2}$
+Terminal node estimates   location M-estimate of $y-f(\mathbf{x})$
+------------------------  ---------------------------------------------------------------
+
+Notes: The location M-estimate starts from the weighted median and iterates using weights determined by the t-distribution score function.
 
 ## Cox Proportional Hazard
 
 ------------------------  ---------------------------------------------------------------
-Deviance                  $-2\sum w_i(\delta_i(f(\mathbf{x}_i)-\log(R_i/w_i)))$
+Deviance                  negative partial log likelihood
 Initial value             0
-Gradient                  $\displaystyle z_i=\delta_i - \sum_j \delta_j           \frac{w_jI(t_i\geq t_j)e^{f(\mathbf{x}_i)}} {\sum_k w_kI(t_k\geq t_j)e^{f(\mathbf{x}_k)}}$
-Terminal node estimates   Newton-Raphson algorithm
+Gradient                  martingale residual, multiplied by the observation weight in tree fitting
+Terminal node estimates   $\displaystyle \log\left(\frac{\sum_{\mathbf{x}_i\in S_k}\delta_i + 1/c}{\sum_{\mathbf{x}_i\in S_k}\max(0,\delta_i-m_i) + 1/c}\right)$
+                          where $m_i$ is the martingale residual and $c$ is `prior_node_coeff_var`
 ------------------------  ---------------------------------------------------------------
-
-1. Initialize the terminal node predictions to 0, $\mathbf{\rho}=0$
-
-2. Let $\displaystyle p_i^{(k)}=\frac{\sum_j I(k(j)=k)I(t_j\geq t_i)e^{f(\mathbf{x}_i)+\rho_k}}                             {\sum_j I(t_j\geq t_i)e^{f(\mathbf{x}_i)+\rho_k}}$
-
-3. Let $g_k=\sum w_i\delta_i\left(I(k(i)=k)-p_i^{(k)}\right)$
-
-4. Let $\mathbf{H}$ be a $k\times k$ matrix with diagonal elements
-
-   - Set diagonal elements $H_{mm}=\sum w_i\delta_i p_i^{(m)}\left(1-p_i^{(m)}\right)$
-   
-   - Set off diagonal elements $H_{mn}=-\sum w_i\delta_i p_i^{(m)}p_i^{(n)}$
-
-5. Newton-Raphson update $\mathbf{\rho} \leftarrow \mathbf{\rho} - \mathbf{H}^{-1}\mathbf{g}$
-
-6. Return to step 2 until convergence
 
 Notes:
 
-- $t_i$ is the survival time and $\delta_i$ is the death indicator.
+- $t_i$ is the survival time for right-censored data; counting-process data use start and stop times.
 
-- $R_i$ denotes the hazard for the risk set, $R_i=\sum_{j=1}^N w_jI(t_j\geq t_i)e^{f(\mathbf{x}_i)}$
+- $\delta_i$ is the event indicator.
 
-- $k(i)$ indexes the terminal node of observation $i$
+- The implementation supports Breslow and Efron tie handling, with Efron as the default.
 
-- For speed, `gbm()` does only one step of the Newton-Raphson algorithm rather than iterating to convergence. No appreciable loss of accuracy since the next boosting iteration will simply correct for the prior iterations inadequacy.
+- The implementation supports strata and both right-censored and counting-process `Surv` responses.
 
-- `gbm()` initially sorts the data by survival time. Doing this reduces the computation of the risk set from $O(n^2)$ to $O(n)$ at the cost of a single up front sort on survival time. After the
-  model is fit, the data are then put back in their original order.
+- See the "Guide to the Cox Proportional Hazards model" vignette for implementation details.
   
 
 ## Poisson
@@ -375,6 +426,32 @@ Terminal node estimates   $\displaystyle \log\frac{\sum w_iy_i}{\sum w_i\exp(f(\
 ------------------------  ---------------------------------------------------------------
 
 The Poisson class includes special safeguards so that the most extreme predicted values are $e^{-19}$ and $e^{+19}$. This behavior is consistent with `glm()`.
+
+## Gamma
+
+The `Gamma` distribution uses a log link. Let $\eta_i=o_i+f(\mathbf{x}_i)$.
+
+------------------------  ---------------------------------------------------------------
+Deviance                  $\displaystyle 2\frac{1}{\sum w_i}\sum_i w_i\left(y_i e^{-\eta_i}+\eta_i\right)$
+Initial value             $\displaystyle \log\left(\frac{\sum w_i y_i e^{-o_i}}{\sum w_i}\right)$
+Gradient                  $\displaystyle z_i=y_i e^{-\eta_i}-1$
+Terminal node estimates   $\displaystyle \log\left(\frac{\sum w_i y_i e^{-\eta_i}}{\sum w_i}\right)$
+------------------------  ---------------------------------------------------------------
+
+The Gamma class bounds the most extreme values of $\eta_i$ to the interval $[-19,19]$.
+
+## Tweedie
+
+The `Tweedie` distribution uses a log link and has a power parameter $p$. Let $\eta_i=o_i+f(\mathbf{x}_i)$.
+
+------------------------  ---------------------------------------------------------------
+Deviance                  $\displaystyle 2\frac{1}{\sum w_i}\sum_i w_i\left(\frac{y_i^{2-p}}{(1-p)(2-p)}-\frac{y_i e^{(1-p)\eta_i}}{1-p}+\frac{e^{(2-p)\eta_i}}{2-p}\right)$
+Initial value             $\displaystyle \log\left(\frac{\sum w_i y_i e^{(1-p)o_i}}{\sum w_i e^{(2-p)o_i}}\right)$
+Gradient                  $\displaystyle z_i=y_i e^{(1-p)\eta_i}-e^{(2-p)\eta_i}$
+Terminal node estimates   $\displaystyle \log\left(\frac{\sum w_i y_i e^{(1-p)\eta_i}}{\sum w_i e^{(2-p)\eta_i}}\right)$
+------------------------  ---------------------------------------------------------------
+
+The Tweedie class bounds the most extreme values of $\eta_i$ to the interval $[-19,19]$. In this implementation, `gbm_dist("Tweedie", power=p)` does not accept `power=0`, `power=1`, or `power=2`; these special cases raise an error directing the user to construct a `Gaussian`, `Poisson`, or `Gamma` distribution, respectively, instead.
 
 
 ## Pairwise
@@ -403,8 +480,8 @@ $$\left\{ \begin{array}{l l} \frac{\sum_{1\leq i\leq n | y_i=1} \|\{1\leq j\leq 
     0 & \mbox{otherwise.}\end{array}\right.$$
 
 4. **nDCG:** Normalized discounted cumulative gain: 
-$$\frac{\sum_{1\leq i\leq n} \log_2(i+1) \, y_i}{\sum_{1\leq i\leq n}
-  \log_2(i+1) \, y'_i},$$ 
+$$\frac{\sum_{1\leq i\leq n} y_i/\log_2(i+1)}{\sum_{1\leq i\leq n}
+  y'_i/\log_2(i+1)},$$
 where $y'_1, \dots, y'_n$ is a reordering of $y_1,\dots,y_n$ with $y'_1 \geq y'_2 \geq \dots \geq y'_n$.
 
 The generalization to multiple (possibly weighted) groups is straightforward. Sometimes a cut-off rank $k$ is given for *MRR* and *nDCG*, in which case we replace the outer index $n$ by $\min(n,k)$.
