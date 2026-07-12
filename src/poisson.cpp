@@ -57,6 +57,10 @@ void CPoisson::ComputeWorkingResponse(const CDataset& kData, const Bag& kBag,
 double CPoisson::InitF(const CDataset& kData) {
   double log_numerator = -HUGE_VAL;
   double log_denominator = -HUGE_VAL;
+  double min = -19.0;
+  double max = 19.0;
+  double max_offset = -HUGE_VAL;
+  double min_offset = HUGE_VAL;
 
   for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     if (kData.weight_ptr()[i] > 0.0) {
@@ -67,20 +71,24 @@ double CPoisson::InitF(const CDataset& kData) {
         log_numerator =
             log_add_exp(log_numerator, log_weight + std::log(kData.y_ptr()[i]));
       }
+      max_offset = R::fmax2(max_offset, kData.offset_ptr()[i]);
+      min_offset = R::fmin2(min_offset, kData.offset_ptr()[i]);
     }
   }
 
   if (log_numerator == -HUGE_VAL) {
-    return -19.0;
+    return min;
   }
 
   double init_func_est = log_numerator - log_denominator;
 
-  if (init_func_est < -19.0) {
-    init_func_est = -19.0;
+  // Keep eta_i = offset_i + init_func_est within [min, max] for every
+  // observation, not just the offset-free init_func_est itself.
+  if (max_offset + init_func_est > max) {
+    init_func_est = max - max_offset;
   }
-  if (init_func_est > 19.0) {
-    init_func_est = 19.0;
+  if (min_offset + init_func_est < min) {
+    init_func_est = min - min_offset;
   }
 
   return init_func_est;

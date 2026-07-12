@@ -65,6 +65,8 @@ double CGamma::InitF(const CDataset& kData) {
   double min = -19.0;
   double max = +19.0;
   double initfunc_est = 0.0;
+  double max_offset = -HUGE_VAL;
+  double min_offset = HUGE_VAL;
 
   for (unsigned long i = 0; i < kData.get_trainsize(); i++) {
     if (kData.weight_ptr()[i] > 0.0) {
@@ -76,6 +78,8 @@ double CGamma::InitF(const CDataset& kData) {
                         log_weight + std::log(kData.y_ptr()[i]) -
                             kData.offset_ptr()[i]);
       }
+      max_offset = R::fmax2(max_offset, kData.offset_ptr()[i]);
+      min_offset = R::fmin2(min_offset, kData.offset_ptr()[i]);
     }
   }
 
@@ -85,12 +89,15 @@ double CGamma::InitF(const CDataset& kData) {
     initfunc_est = log_numerator - log_totalweight;
   }
 
-  if (initfunc_est < min) {
-    initfunc_est = min;
+  // Keep eta_i = offset_i + initfunc_est within [min, max] for every
+  // observation, not just the offset-free initfunc_est itself.
+  if (max_offset + initfunc_est > max) {
+    initfunc_est = max - max_offset;
   }
-  if (initfunc_est > max) {
-    initfunc_est = max;
+  if (min_offset + initfunc_est < min) {
+    initfunc_est = min - min_offset;
   }
+
   return initfunc_est;
 }
 

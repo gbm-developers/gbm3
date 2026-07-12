@@ -80,6 +80,8 @@ double CTweedie::InitF(const CDataset& kData) {
   double max = +19.0;
   unsigned long i = 0;
   double init_func_est = 0.0;
+  double max_offset = -HUGE_VAL;
+  double min_offset = HUGE_VAL;
 
   for (i = 0; i < kData.get_trainsize(); i++) {
     if (kData.weight_ptr()[i] > 0.0) {
@@ -93,6 +95,8 @@ double CTweedie::InitF(const CDataset& kData) {
                         log_weight + std::log(kData.y_ptr()[i]) +
                             kData.offset_ptr()[i] * (1.0 - power_));
       }
+      max_offset = R::fmax2(max_offset, kData.offset_ptr()[i]);
+      min_offset = R::fmin2(min_offset, kData.offset_ptr()[i]);
     }
   }
 
@@ -102,11 +106,13 @@ double CTweedie::InitF(const CDataset& kData) {
     init_func_est = log_numerator - log_denominator;
   }
 
-  if (init_func_est < min) {
-    init_func_est = min;
+  // Keep eta_i = offset_i + init_func_est within [min, max] for every
+  // observation, not just the offset-free init_func_est itself.
+  if (max_offset + init_func_est > max) {
+    init_func_est = max - max_offset;
   }
-  if (init_func_est > max) {
-    init_func_est = max;
+  if (min_offset + init_func_est < min) {
+    init_func_est = min - min_offset;
   }
 
   return init_func_est;
