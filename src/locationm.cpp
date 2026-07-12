@@ -60,7 +60,7 @@ double CLocationM::WeightedQuantile(int vec_length, double* vec,
     wsum += kWeights[ii];
   }
 
-  // Get the first index where the cumulative weight is >=0.5
+  // Get the first index where the cumulative weight is >= alpha * wsum
   med_idx = -1;
   cum_sum = 0.0;
   while (cum_sum < alpha * wsum) {
@@ -76,11 +76,20 @@ double CLocationM::WeightedQuantile(int vec_length, double* vec,
     }
   }
 
-  // Use this index unless the cumulative sum is exactly alpha
+  // Use this value unless the cumulative weight hits alpha * wsum exactly.
+  // In that boundary case every value between the two adjacent order
+  // statistics minimizes the weighted quantile (pinball) loss, so a
+  // convention is needed: interpolate with weight (1 - alpha) on the lower
+  // value and alpha on the upper value. With unit weights this matches
+  // R's quantile(y, alpha, type = 6) (the Weibull plotting position,
+  // p_k = k/(n+1), for which E[F(X_(k))] = k/(n+1) exactly), and at
+  // alpha = 0.5 it reduces to the usual averaging convention for the
+  // weighted median.
   if (iNextNonZero == vec_length || cum_sum > alpha * wsum) {
     med = vec_v[med_idx].second;
   } else {
-    med = alpha * (vec_v[med_idx].second + vec_v[iNextNonZero].second);
+    med = (1 - alpha) * vec_v[med_idx].second +
+          alpha * vec_v[iNextNonZero].second;
   }
 
   return med;

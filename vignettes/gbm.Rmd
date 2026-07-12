@@ -363,7 +363,7 @@ Gradient                  $z_i=\mbox{sign}(y_i-f(\mathbf{x}_i))$
 Terminal node estimates   $\mathrm{median}_w(y-f(\mathbf{x}))$
 ------------------------  ---------------------------------------------------------------
 
-Notes: $\mathrm{median}_w(y)$ denotes the weighted median, defined as the solution to the equation $\sum w_iI(y_i\leq m)=\frac{1}{2}\sum w_i$
+Notes: $\mathrm{median}_w(y)$ denotes the weighted median, defined as the solution to the equation $\sum w_iI(y_i\leq m)=\frac{1}{2}\sum w_i$. If the cumulative weight equals $\frac{1}{2}\sum w_i$ exactly at an observed value, the two adjacent order statistics are averaged (with unit weights this matches `quantile(y, 0.5, type = 6)`, which coincides with the familiar even-$n$ median convention).
 
 ## Quantile regression
 
@@ -378,7 +378,7 @@ Gradient                  $z_i=\alpha I(y_i>f(\mathbf{x}_i))-(1-\alpha)I(y_i\leq
 Terminal node estimates   $\mathrm{quantile}^{(\alpha)}_w(y-f(\mathbf{x}))$
 ------------------------  ---------------------------------------------------------------
 
-Notes: $\mathrm{quantile}^{(\alpha)}_w(y)$ denotes the weighted quantile, defined as the solution, *q*, to the equation $\sum w_iI(y_i\leq q)=\alpha\sum w_i$
+Notes: $\mathrm{quantile}^{(\alpha)}_w(y)$ denotes the weighted quantile, defined as the solution, *q*, to the equation $\sum w_iI(y_i\leq q)=\alpha\sum w_i$. When the cumulative weight equals $\alpha\sum w_i$ exactly at an observed value, any value between the two adjacent order statistics solves the equation; the implementation interpolates with weight $(1-\alpha)$ on the lower value and $\alpha$ on the upper value. With unit weights this matches `quantile(y, alpha, type = 6)` at these boundary points (see `?quantile` for the definitions of the nine types), and at $\alpha=1/2$ it reduces to the usual averaging convention for the median.
 
 ## t-distribution
 
