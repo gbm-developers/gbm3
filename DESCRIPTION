@@ -48,4 +48,4 @@ URL: https://gbm-developers.github.io/gbm3/,
     https://github.com/gbm-developers/gbm3
 Encoding: UTF-8
 LinkingTo: Rcpp
-RoxygenNote: 7.3.3
+RoxygenNote: 8.0.0
