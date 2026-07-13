@@ -54,7 +54,24 @@ create_dist_obj_for_gbmt_fit <- function(distribution, tied.times.method="efron"
 }
 
 create_coxph_for_gbmt_fit <- function(distribution, tied.times.method, strata, prior.node.coeff.var) {
-  return(create_dist(empty_distribution("CoxPH"), strata, sorted=NA, 
+  # gbm() rebuilds the CoxPH distribution from its own arguments
+  # (strata, tied.times.method, prior.node.coeff.var); CoxPH settings
+  # stored in a GBMDist object passed as `distribution` are not used.
+  # Warn if such settings would be silently discarded.
+  obj_strata_lost <- !is.null(distribution$original_strata_id) &&
+    !all(is.na(distribution$original_strata_id)) && all(is.na(strata))
+  obj_ties_differ <- !is.null(distribution$ties) &&
+    distribution$ties != tied.times.method
+  obj_prior_differs <- !is.null(distribution$prior_node_coeff_var) &&
+    distribution$prior_node_coeff_var != prior.node.coeff.var
+  if (obj_strata_lost || obj_ties_differ || obj_prior_differs) {
+    warning("CoxPH settings stored in the distribution object (strata, ties, ",
+            "prior_node_coeff_var) are ignored by gbm(). Pass them directly ",
+            "as gbm(strata=, tied.times.method=, prior.node.coeff.var=) or ",
+            "fit with gbmt(), which honors the distribution object.",
+            call. = FALSE)
+  }
+  return(create_dist(empty_distribution("CoxPH"), strata, sorted=NA,
                      ties=tied.times.method, prior_node_coeff_var=prior.node.coeff.var))
 }
 
