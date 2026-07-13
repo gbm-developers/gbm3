@@ -181,8 +181,7 @@ class CountingCoxState : public GenericCoxState {
     for (person = 0; person < n; person++) {
       p2 = kData.yint_ptr(2)[person];
       if (skipbag || (kBag.get_element(p2) == checkinbag)) {
-        newcenter = eta[kData.yint_ptr(2)[p2]] +
-                    kData.offset_ptr()[kData.yint_ptr(2)[p2]];
+        newcenter = eta[p2] + kData.offset_ptr()[p2];
         if (newcenter > center) {
           center = newcenter;
         }
@@ -240,7 +239,7 @@ class CountingCoxState : public GenericCoxState {
               nrisk++;
               denom += kData.weight_ptr()[p2] *
                        exp(eta[p2] + kData.offset_ptr()[p2] - center);
-              esum += eta[p2];
+              esum += eta[p2] + kData.offset_ptr()[p2];
               if (kData.y_ptr(2)[p2] == 1) {
                 ndeath++;
                 deathwt += kData.weight_ptr()[p2];
@@ -296,6 +295,10 @@ class CountingCoxState : public GenericCoxState {
             temp = esum / nrisk - center;
             center += temp;
             denom /= exp(temp);
+            // cumhaz is accumulated in units of exp(center); keep it
+            // consistent with the shifted center so that subsequent
+            // residuals, exp(eta - center) * cumhaz, remain correct
+            cumhaz *= exp(temp);
           }
         }
       } else {
@@ -314,6 +317,8 @@ class CountingCoxState : public GenericCoxState {
         }
         cumhaz = 0;
         denom = 0;
+        nrisk = 0;
+        esum = 0;
         istrat++;
       }
     }

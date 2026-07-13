@@ -165,8 +165,7 @@ class CensoredCoxState : public GenericCoxState {
     for (person = 0; person < n; person++) {
       p2 = kData.yint_ptr(1)[person];
       if (skipbag || (kBag.get_element(p2) == checkinbag)) {
-        new_center = eta[kData.yint_ptr(1)[p2]] +
-                     kData.offset_ptr()[kData.yint_ptr(1)[p2]];
+        new_center = eta[p2] + kData.offset_ptr()[p2];
         if (new_center > center) {
           center = new_center;
         }
@@ -260,6 +259,10 @@ class CensoredCoxState : public GenericCoxState {
             temp = esum / nrisk - center;
             center += temp;
             denom /= exp(temp);
+            // cumhaz is accumulated in units of exp(center); keep it
+            // consistent with the shifted center so that subsequent
+            // residuals, exp(eta - center) * cumhaz, remain correct
+            cumhaz *= exp(temp);
           }
         }
       } else {
@@ -280,6 +283,8 @@ class CensoredCoxState : public GenericCoxState {
         }
         cumhaz = 0;
         denom = 0;
+        nrisk = 0;
+        esum = 0;
         istrat++;
       }
     }
