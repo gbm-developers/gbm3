@@ -1,5 +1,5 @@
 ---
-title: "Generalized Boosted Models: A guide to the gbm package"
+title: "Generalized Boosted Models: A Guide to the gbm Package"
 author: "Greg Ridgeway"
 date: "`r format(Sys.time(), '%B %e, %Y')`"
 output: rmarkdown::html_vignette
@@ -15,9 +15,7 @@ library("gbm3")
 set.seed(557165559)
 ```
 
-Boosting takes on various forms with different programs using different loss functions, different base models, and different optimization schemes. The gbm3 package takes the approach described in
-Friedman (2001) and Friedman (2002). Some of the terminology differs, mostly due to an effort to cast boosting terms into more standard statistical terminology (e.g. deviance). In addition, the gbm3 package implements boosting for models commonly used in statistics but not commonly associated with boosting. The Cox proportional hazard model, for example, is an incredibly useful model and the boosting framework applies quite readily with only slight modification Ridgeway (1999). Also some algorithms implemented in the gbm3 package differ from the standard implementation. The AdaBoost algorithm (Freund and Schapire, 1997) has a particular loss function and a particular optimization algorithm associated with it. The gbm3 implementation of AdaBoost adopts AdaBoost's exponential loss function (its bound on misclassification rate) but uses Friedman's gradient descent algorithm rather than the original one proposed. So the main
-purpose of this document is to spell out in detail what the gbm3 package implements.
+Boosting takes on various forms with different programs using different loss functions, different base models, and different optimization schemes. The `gbm3` package takes the approach described in Friedman (2001) and Friedman (2002). Some of the terminology differs, mostly due to an effort to cast boosting terms into more standard statistical terminology (e.g. deviance). In addition, the `gbm3` package implements boosting for models commonly used in statistics but not commonly associated with boosting. The Cox proportional hazard model, for example, is an incredibly useful model and the boosting framework applies quite readily with only slight modification (Ridgeway 1999). Also some algorithms implemented in the `gbm3` package differ from the standard implementation. The AdaBoost algorithm (Freund and Schapire, 1997) has a particular loss function and a particular optimization algorithm associated with it. The `gbm3` implementation of AdaBoost adopts AdaBoost's exponential loss function (its bound on misclassification rate) but uses Friedman's gradient descent algorithm rather than the original one proposed. So the main purpose of this document is to spell out in detail what the `gbm3` package implements.
 
 
 **NB:** This document refers heavily to the `gbm` function.  This function is part of the original R API provided by the package; while this API is still functional, as of Version 2.1.06 the package contains an updated API which performs boosting: `gbmt`.  For more details on how to use the new API, see the "Getting started with the gbm package" vignette.
