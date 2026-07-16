@@ -3,6 +3,7 @@
 ^\.Rproj\.user$
 ^\.positai$
 ^\.claude$
+^\.agents$
 ^\.codex-check$
 ^\.codex-cran-reports$
 ^codex_check$
