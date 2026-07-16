@@ -1,10 +1,10 @@
 ---
-title: "Getting started with the gbm package"
+title: "Getting Started with the gbm3 Package"
 author: "James Hickey"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Getting started with the gbm package}
+  %\VignetteIndexEntry{Getting started with the gbm3 package}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -12,7 +12,7 @@ vignette: >
 library("gbm3")
 ```
 
-The `gbm` package implements gradient tree boosting for a wide variety of statistical models and loss functions, including models commonly used in statistics, such as the Cox model, that are not usually associated with boosting.  When presented with data, the `gbm` package offers the user the ability to build predictive models and explore the influence of different variables on the response, akin to a data mining or exploration task.
+The `gbm3` package implements generalized boosted models, gradient tree boosting for a wide variety of statistical models and loss functions, including models commonly used in statistics, such as the Cox model, that are not usually associated with boosting.  When presented with data, the `gbm3` package offers the user the ability to build predictive models and explore the influence of different variables on the response, akin to a data mining or exploration task.
 
 To get started, a user must:
 
@@ -21,7 +21,7 @@ To get started, a user must:
 * set the training parameters for the gbm model;
 * set any additional variable and fitting parameters.
 
-Once these steps are complete, a user can fit a `gbm` model with `gbmt`. They can then evaluate its performance, make predictions, fit additional trees, and plot the relative influence of the predictor variables.
+Once these steps are complete, a user can fit a `gbm3` model with `gbmt`. They can then evaluate its performance, make predictions, fit additional trees, and plot the relative influence of the predictor variables.
 
 ### Example dataset 
 To begin, this vignette will work with simulated data where the response obeys a `Bernoulli` distribution and is determined by 3 predictor variables. Every row of the data corresponds to an individual observation, and random weights are assigned to these observations. These weights determine the importance of each observation in the fit. At this stage it is also assumed that the fit will be made directly to the response and **no offset** is supplied. If a non-zero offset is supplied, it is added to the model's additive predictor; for example, the fitted linear predictor is `offset + f(x)` for distributions with a link-scale predictor. Currently the package supports responses that are numeric, factors (i.e. `Bernoulli`), or survival objects (more specifically, counting-process or right-censored survival objects) in the case of Cox proportional hazards models. **NB:** Predictor variables may have missing data (specified by `NA`) but the responses must have no missing observations.
@@ -50,7 +50,7 @@ data <- data.frame(Y=Y,X1=X1,X2=X2,X3=X3)
 
 
 ## Creating a gbm distribution object
-The `gbm` package provides a number of distributions. To view what distributions are currently available simply call `available_distributions()`.
+The `gbm3` package provides a number of distributions. To view what distributions are currently available simply call `available_distributions()`.
 
 ```{r}
 available_distributions()
@@ -64,7 +64,7 @@ bern_dist <- gbm_dist("Bernoulli")
 Certain distributions have distribution-specific parameters, such as the number of degrees of freedom associated with the distribution. These parameters are passed as arguments to `gbm_dist`. Distribution-specific parameters are described in the "Model Specific Parameters" vignette.
 
 ## Setting training parameters
-Once the data have been imported and the distribution object has been created, the next task is to specify the training parameters for the `gbm` package. These parameters are passed to `gbmt` in a `GBMTrainParams` object, which can be created with the `training_params` constructor. The named parameters in the constructor are as follows:
+Once the data have been imported and the distribution object has been created, the next task is to specify the training parameters for the `gbm3` package. These parameters are passed to `gbmt` in a `GBMTrainParams` object, which can be created with the `training_params` constructor. The named parameters in the constructor are as follows:
 
 * `num_trees`: the number of iterations to use in the fitting.
 * `interaction_depth`: the maximum number of splits in each tree. A value of 1 gives an additive model, 2 allows two-way interactions, and so on. Larger values can increase overfitting; values between 1 and 5 are usually sufficient for most applications.
@@ -187,7 +187,7 @@ preds <- predict(gauss_fit_more, newdata=data2, n.trees=best_iter_test_more)
 ```
 
 ## Relative influence of predictors
-`gbm` also provides a measure of the relative influence of each predictor in the fitted model. The influence of a variable $x_j$ is determined by summing, across all trees, the improvements from splits on that variable.
+`gbm3` also provides a measure of the relative influence of each predictor in the fitted model. The influence of a variable $x_j$ is determined by summing, across all trees, the improvements from splits on that variable.
 
 ```{r}
 # Relative influence of predictors - both examples
@@ -196,7 +196,7 @@ print(relative_influence(fit, gbmt_performance(fit, method='cv')))
 ```
 
 ## Plotting the marginal effects of selected variables
-In addition to relative influence, `gbm` can calculate fitted values over selected predictors and create marginal plots with `plot`.
+In addition to relative influence, `gbm3` can calculate fitted values over selected predictors and create marginal plots with `plot`.
 
 ```{r}
 # Examine the marginal effects of the first two variables - gaussian example
@@ -206,4 +206,4 @@ plot(gauss_fit_more, var_index = 1:2)
 ```
 
 ## Additional useful functions
-Finally, the `gbm` package includes several additional utility functions. A `GBMFit` object can be summarized and printed with `summary` and `print`, respectively. Individual fitted trees can be inspected with `pretty_gbm_tree`, and the loss for a given distribution can be calculated with the `loss` S3 method, a `GBMDist` object, and the appropriate data.
+Finally, the `gbm3` package includes several additional utility functions. A `GBMFit` object can be summarized and printed with `summary` and `print`, respectively. Individual fitted trees can be inspected with `pretty_gbm_tree`, and the loss for a given distribution can be calculated with the `loss` S3 method, a `GBMDist` object, and the appropriate data.

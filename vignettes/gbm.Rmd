@@ -1,6 +1,6 @@
 ---
 title: "Generalized Boosted Models: A guide to the gbm package"
-author: "The GBM developers"
+author: "Greg Ridgeway"
 date: "`r format(Sys.time(), '%B %e, %Y')`"
 output: rmarkdown::html_vignette
 vignette: >

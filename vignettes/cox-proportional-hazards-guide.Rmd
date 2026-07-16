@@ -1,5 +1,5 @@
 ---
-title: "Guide to the Cox Proportional Hazards model"
+title: "Guide to the Cox Proportional Hazards Model with gbm3"
 author: "James Hickey"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -12,7 +12,7 @@ vignette: >
 library("gbm3")
 ```
 
-`gbm` supports boosted Cox proportional hazards models for survival data. The package can handle two types of survival response: right-censored and counting-process `Surv` objects. Both can be created with the `Surv` function from the `survival` package.
+`gbm3` supports boosted Cox proportional hazards models for survival data. The package can handle two types of survival response: right-censored and counting-process `Surv` objects. Both can be created with the `Surv` function from the `survival` package.
 
 # Setting up data and the distribution object
 Right-censored survival data consist of a time-to-event value and an event indicator: 0 if no event has occurred and 1 if the event has occurred. Counting-process survival data contain start and stop times along with an event indicator for the interval. Data may be organized into strata, which should be passed to `gbm_dist` when creating the `CoxPHGBMDist` object; see the "Model Specific Parameters" vignette for more details. The dataset used here is provided by the `survival` package.
@@ -127,7 +127,7 @@ legend("topleft", c("training error", "test error", "optimal iteration"),
 
 
 # Description of the underlying algorithm - specifically for CoxPH
-The `gbm` algorithm estimates, via tree boosting, the additive predictor $f(\textbf{x})$. For `CoxPH`, this predictor is the log relative risk used in the Cox partial likelihood, rather than a direct prediction of the event indicator.
+The GBM algorithm estimates, via tree boosting, the additive predictor $f(\textbf{x})$. For `CoxPH`, this predictor is the log relative risk used in the Cox partial likelihood, rather than a direct prediction of the event indicator.
 For `CoxPH`, the algorithm calculates both the partial log likelihood and martingale residuals ($\textbf{m}$) using the following approach.  The algorithm walks backwards in time until it encounters the "stop" time of an observation.  When this happens the weighted risk associated with that observation, $\omega_i e^{f(\textbf{x}_i)}$, is added to the total cumulative hazard: $S = \sum \omega_j e^{f(\textbf{x}_j)}$, which is initialized at $0$.   Continuing backwards in time when we reach a time before an observation was in the study, that is the algorithm leaves the associated time segment (start, stop], the observation's contribution to the cumulative hazard is subtracted off.  The algorithm is robust to overflow/underflows occurring in $e^{f(\textbf{x}_i)}$ by subtracting a constant off of the risk score.  This constant drifts to ensure overflow does not occur.
 
 This algorithm deals with tied event times using either the Breslow or Efron approximations.  The method used is specified by the user but in the event of tied deaths, it defaults to the Efron approximation.  It also allows for the introduction of strata and start as well as stop times for each observation, see the previous Sections.  
