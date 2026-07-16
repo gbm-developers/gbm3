@@ -12,7 +12,7 @@ articles:
   - title: Articles
     navbar: ~
     contents:
-      - getting-started-with-gbm
       - gbm
+      - getting-started-with-gbm
       - model-specific-parameters
       - cox-proportional-hazards-guide
