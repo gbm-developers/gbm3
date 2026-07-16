@@ -26,3 +26,4 @@
 ^pkgdown$
 ^_pkgdown\.yml$
 ^revdep$
+^\.posit/assistant$
