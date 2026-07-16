@@ -1,6 +1,6 @@
 Package: gbm3
-Version: 3.0.1
-Date: 2026-05-07
+Version: 3.0.3
+Date: 2026-07-15
 Title: Generalized Boosted Regression Models
 Authors@R: c(
     person("James", "Hickey",
